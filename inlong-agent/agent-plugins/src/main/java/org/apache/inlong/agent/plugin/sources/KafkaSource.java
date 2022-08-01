@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
@@ -38,6 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -135,9 +135,9 @@ public class KafkaSource implements Source {
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
+            GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         } else {
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceFailCount(metricTagName);
+            GLOBAL_METRICS.incSourceFailCount(metricTagName);
         }
         return result;
     }

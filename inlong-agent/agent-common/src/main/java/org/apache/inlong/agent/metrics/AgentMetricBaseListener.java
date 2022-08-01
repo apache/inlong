@@ -17,36 +17,31 @@
 
 package org.apache.inlong.agent.metrics;
 
-import org.apache.inlong.agent.metrics.global.JmxGlobalMetrics;
-import org.apache.inlong.agent.metrics.job.JobJmxMetrics;
-import org.apache.inlong.agent.metrics.task.TaskJmxMetrics;
+import org.apache.inlong.agent.metrics.global.GlobalMetrics;
+import org.apache.inlong.agent.metrics.job.JobMetrics;
+import org.apache.inlong.agent.metrics.task.TaskMetrics;
 import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
 
 import java.util.List;
 
 /**
- * jmx metric handler
+ * Agent metric base handler
  */
-public class AgentJmxMetricHandler extends AgentMetricBaseHandler {
+public abstract class AgentMetricBaseListener implements MetricListener {
 
-    public AgentJmxMetricHandler() {
-        jobMetrics = JobJmxMetrics.create();
-        taskMetrics = TaskJmxMetrics.create();
-        globalMetrics = new JmxGlobalMetrics();
-    }
+    public JobMetrics jobMetrics;
+
+    public TaskMetrics taskMetrics;
+
+    public GlobalMetrics globalMetrics;
 
     @Override
     public void snapshot(String domain, List<MetricItemValue> itemValues) {
         // nothing
     }
 
-    @Override
-    public void init() {
+    public abstract void init();
 
-    }
-
-    @Override
-    public void close() {
-
-    }
+    public abstract void close();
 }

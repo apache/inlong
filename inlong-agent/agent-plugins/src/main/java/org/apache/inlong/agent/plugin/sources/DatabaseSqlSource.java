@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -86,11 +86,11 @@ public class DatabaseSqlSource implements Source {
         }
         if (readerList != null) {
             // increment the count of successful sources
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
+            GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         } else {
             // database type or sql is incorrect
             // increment the count of failed sources
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceFailCount(metricTagName);
+            GLOBAL_METRICS.incSourceFailCount(metricTagName);
         }
         return readerList;
     }

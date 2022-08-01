@@ -22,7 +22,6 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.utils.AgentDbUtils;
@@ -42,6 +41,7 @@ import static java.sql.Types.BINARY;
 import static java.sql.Types.BLOB;
 import static java.sql.Types.LONGVARBINARY;
 import static java.sql.Types.VARBINARY;
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 /**
  * Read data from database by SQL
@@ -118,14 +118,14 @@ public class SqlReader extends AbstractReader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(metricTagName);
+                GLOBAL_METRICS.incReadNum(metricTagName);
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadFailedNum(metricTagName);
+            GLOBAL_METRICS.incReadFailedNum(metricTagName);
             throw new RuntimeException(ex);
         }
         return null;

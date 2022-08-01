@@ -17,23 +17,28 @@
 
 package org.apache.inlong.agent.metrics;
 
-import org.apache.inlong.agent.metrics.global.GlobalMetrics;
-import org.apache.inlong.agent.metrics.job.JobMetrics;
-import org.apache.inlong.agent.metrics.task.TaskMetrics;
-import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.agent.metrics.global.JmxGlobalMetrics;
+import org.apache.inlong.agent.metrics.job.JobJmxMetrics;
+import org.apache.inlong.agent.metrics.task.TaskJmxMetrics;
 
 /**
- * Agent metric base handler
+ * jmx metric handler
  */
-public abstract class AgentMetricBaseHandler implements MetricListener {
+public class AgentJmxMetricListener extends AgentMetricBaseListener {
 
-    public JobMetrics jobMetrics;
+    public AgentJmxMetricListener() {
+        jobMetrics = JobJmxMetrics.create();
+        taskMetrics = TaskJmxMetrics.create();
+        globalMetrics = new JmxGlobalMetrics();
+    }
 
-    public TaskMetrics taskMetrics;
+    @Override
+    public void init() {
 
-    public GlobalMetrics globalMetrics;
+    }
 
-    public abstract void init();
+    @Override
+    public void close() {
 
-    public abstract void close();
+    }
 }

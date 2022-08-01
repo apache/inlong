@@ -24,7 +24,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.metrics.AgentMetricBaseHandler;
+import org.apache.inlong.agent.metrics.AgentMetricBaseListener;
 import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class AgentMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMain.class);
 
-    private static AgentMetricBaseHandler agentJmxMetricHandler;
+    private static AgentMetricBaseListener agentJmxMetricHandler;
 
     /**
      * Print help information

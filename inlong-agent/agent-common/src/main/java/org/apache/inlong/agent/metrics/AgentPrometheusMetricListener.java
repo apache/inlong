@@ -23,12 +23,10 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.metrics.global.PrometheusGlobalMetrics;
 import org.apache.inlong.agent.metrics.job.JobPrometheusMetrics;
 import org.apache.inlong.agent.metrics.task.TaskPrometheusMetrics;
-import org.apache.inlong.common.metric.MetricItemValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_EXPORTER_PORT;
@@ -36,24 +34,19 @@ import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_EXPORTE
 /**
  * prometheus metric handler
  */
-public class AgentPrometheusMetricHandler extends AgentMetricBaseHandler {
+public class AgentPrometheusMetricListener extends AgentMetricBaseListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
     private static HTTPServer metricsServer;
 
     static {
         DefaultExports.initialize();
     }
 
-    public AgentPrometheusMetricHandler() {
+    public AgentPrometheusMetricListener() {
         jobMetrics = new JobPrometheusMetrics();
         taskMetrics = new TaskPrometheusMetrics();
         globalMetrics = new PrometheusGlobalMetrics();
-    }
-
-    @Override
-    public void snapshot(String domain, List<MetricItemValue> itemValues) {
-        // nothing
     }
 
     @Override

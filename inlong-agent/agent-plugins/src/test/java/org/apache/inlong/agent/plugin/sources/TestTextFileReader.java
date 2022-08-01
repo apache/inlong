@@ -53,7 +53,6 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTE
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
-// @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
 @PrepareForTest({MetricRegister.class})
@@ -98,7 +97,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextFileReader() throws Exception {
-        // TestUtils.mockMetricRegister();
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
@@ -125,7 +123,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextSeekReader() throws Exception {
-        // TestUtils.mockMetricRegister();
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();
@@ -150,7 +147,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextTailTimeout() throws Exception {
-        // TestUtils.mockMetricRegister();
         JobProfile jobProfile = new JobProfile();
         jobProfile.setInt(JOB_FILE_MAX_WAIT, 1);
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");

@@ -31,46 +31,37 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_METRIC_LISTE
 public class AgentMetricSingleton {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMetricSingleton.class);
-    private static AgentMetricBaseHandler agentMetricBaseHandler;
+    private static AgentMetricBaseListener agentMetricBaseHandler;
 
     private AgentMetricSingleton() {
     }
 
-    public static AgentMetricBaseHandler getAgentMetricHandler() {
+    public static AgentMetricBaseListener getAgentMetricHandler() {
         if (agentMetricBaseHandler == null) {
-            synchronized (AgentJmxMetricHandler.class) {
+            synchronized (AgentJmxMetricListener.class) {
                 if (agentMetricBaseHandler == null) {
                     agentMetricBaseHandler = getAgentMetricByConf();
                     agentMetricBaseHandler.init();
+                    if (agentMetricBaseHandler != null) {
+                        LOGGER.info("The metric class {} was initialized successfully.",
+                                agentMetricBaseHandler.getClass());
+                    }
                 }
             }
         }
         return agentMetricBaseHandler;
     }
 
-    private static AgentMetricBaseHandler getAgentMetricByConf() {
+    private static AgentMetricBaseListener getAgentMetricByConf() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         try {
             Class<?> handlerClass = ClassUtils
                     .getClass(conf.get(AGENT_METRIC_LISTENER_CLASS, AGENT_METRIC_LISTENER_CLASS_DEFAULT));
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
-            //
-            // final MetricListener listener = (MetricListener) listenerObject;
-            // Constructor<?> constructor =
-            //         Class.forName(conf.get(AGENT_METRIC_LISTENER_CLASS, AGENT_METRIC_LISTENER_CLASS_DEFAULT))
-            //                 .getDeclaredConstructor(AgentMetricBaseHandler.class);
-            // constructor.setAccessible(true);
-            return (AgentMetricBaseHandler) handlerObject;
+            return (AgentMetricBaseListener) handlerObject;
         } catch (Exception ex) {
             LOGGER.error("cannot find AgentMetricBaseHandler, {}", ex.getMessage());
         }
         return null;
-    }
-
-    public static void init() {
-        getAgentMetricHandler();
-        if (agentMetricBaseHandler != null) {
-            LOGGER.info("The metric class {} was initialized successfully.", agentMetricBaseHandler.getClass());
-        }
     }
 }

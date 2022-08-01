@@ -17,11 +17,11 @@
 
 package org.apache.inlong.agent.plugin.metrics;
 
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.global.GlobalMetrics;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 public class GlobalMetricsTest {
 
@@ -35,7 +35,7 @@ public class GlobalMetricsTest {
     public void testPluginMetric() {
         String tag1 = groupId1 + "_" + streamId;
         String tag2 = groupId2 + "_" + streamId;
-        GlobalMetrics globalMetrics = AgentMetricSingleton.getAgentMetricHandler().globalMetrics;
+        GlobalMetrics globalMetrics = GLOBAL_METRICS;
         globalMetrics.incReadNum(tag1);
         assertEquals(globalMetrics.getReadNum(tag1), 1);
         assertEquals(globalMetrics.getSendSuccessNum(tag2), 0);
@@ -48,7 +48,7 @@ public class GlobalMetricsTest {
     @Test
     public void testSinkMetric() {
         String tag = sinkTag + "_" + groupId1 + "_" + streamId;
-        GlobalMetrics globalMetrics = AgentMetricSingleton.getAgentMetricHandler().globalMetrics;
+        GlobalMetrics globalMetrics = GLOBAL_METRICS;
         globalMetrics.incSinkFailCount(tag);
         assertEquals(globalMetrics.getSinkFailCount(tag), 1);
     }
@@ -56,7 +56,7 @@ public class GlobalMetricsTest {
     @Test
     public void testSourceMetric() {
         String tag1 = sourceTag + "_" + groupId1 + "_" + streamId;
-        GlobalMetrics globalMetrics = AgentMetricSingleton.getAgentMetricHandler().globalMetrics;
+        GlobalMetrics globalMetrics = GLOBAL_METRICS;
         globalMetrics.incSourceSuccessCount(tag1);
         globalMetrics.incSourceSuccessCount(tag1);
         assertEquals(globalMetrics.getSourceSuccessCount(tag1), 2);

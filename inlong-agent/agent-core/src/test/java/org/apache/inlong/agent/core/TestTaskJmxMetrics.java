@@ -17,7 +17,7 @@
 
 package org.apache.inlong.agent.core;
 
-import org.apache.inlong.agent.metrics.AgentJmxMetricHandler;
+import org.apache.inlong.agent.metrics.AgentJmxMetricListener;
 import org.apache.inlong.agent.metrics.task.TaskJmxMetrics;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class TestTaskJmxMetrics {
     @Test
     public void testAgentMetrics() {
         try {
-            TaskJmxMetrics taskJmxMetrics = (TaskJmxMetrics) new AgentJmxMetricHandler().taskMetrics;
+            TaskJmxMetrics taskJmxMetrics = (TaskJmxMetrics) new AgentJmxMetricListener().taskMetrics;
             taskJmxMetrics.incRetryingTaskCount();
             Assert.assertEquals(taskJmxMetrics.module, "AgentTaskMetric");
         } catch (Exception ex) {

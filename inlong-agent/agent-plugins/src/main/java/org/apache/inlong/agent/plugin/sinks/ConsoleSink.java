@@ -18,11 +18,12 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 
 import java.nio.charset.StandardCharsets;
+
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 /**
  * message write to console
@@ -40,10 +41,10 @@ public class ConsoleSink extends AbstractSink {
         if (message != null) {
             System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
             // increment the count of successful sinks
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkSuccessCount(metricTagName);
+            GLOBAL_METRICS.incSinkSuccessCount(metricTagName);
         } else {
             // increment the count of failed sinks
-            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkFailCount(metricTagName);
+            GLOBAL_METRICS.incSinkFailCount(metricTagName);
         }
     }
 
