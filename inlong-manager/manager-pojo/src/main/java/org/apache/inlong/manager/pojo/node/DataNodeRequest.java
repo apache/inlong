@@ -62,6 +62,9 @@ public class DataNodeRequest {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "Description of the data node")
+    private String description;
+
     @NotBlank(message = "inCharges cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
     private String inCharges;

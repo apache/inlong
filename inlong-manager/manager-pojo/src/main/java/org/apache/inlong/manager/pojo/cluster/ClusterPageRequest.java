@@ -39,7 +39,7 @@ import java.util.List;
 @ApiModel("Inlong cluster paging query request")
 public class ClusterPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, DATAPROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster type list")

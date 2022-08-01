@@ -24,12 +24,13 @@ import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sdk.Topic;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +67,9 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final Gson GSON = new Gson();
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
         {
-            add("PULSAR");
-            add("KAFKA");
-            add("TUBE");
+            add(MQType.KAFKA);
+            add(MQType.TUBEMQ);
+            add(MQType.PULSAR);
         }
     };
     private static final String KEY_SERVICE_URL = "serviceUrl";

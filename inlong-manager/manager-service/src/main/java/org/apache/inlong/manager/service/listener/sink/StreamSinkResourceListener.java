@@ -21,12 +21,11 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperatorFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -82,8 +81,7 @@ public class StreamSinkResourceListener implements SinkOperateListener {
         }
 
         for (SinkInfo sinkInfo : needCreateResources) {
-            String sinkType = sinkInfo.getSinkType();
-            SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
+            SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(sinkInfo.getSinkType());
             resourceOperator.createSinkResource(sinkInfo);
         }
         log.info("success to create sink resources for group [" + groupId + "] and stream [" + streamId + "]");

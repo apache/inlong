@@ -26,7 +26,7 @@
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="sink_name" jdbcType="VARCHAR" property="sinkName"/>
-        <result column="description" jdbcType="INTEGER" property="description"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="enable_create_resource" jdbcType="TINYINT" property="enableCreateResource"/>
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>

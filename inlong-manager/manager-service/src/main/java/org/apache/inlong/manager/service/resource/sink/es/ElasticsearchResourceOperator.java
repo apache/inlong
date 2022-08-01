@@ -21,7 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
@@ -51,8 +51,8 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
-        return SinkType.ELASTICSEARCH == sinkType;
+    public Boolean accept(String sinkType) {
+        return SinkType.ELASTICSEARCH.equals(sinkType);
     }
 
     @Override

@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -39,14 +39,14 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Auto push source info")
-@JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
+@JsonTypeDefine(value = SourceType.AUTO_PUSH)
 public class AutoPushSource extends StreamSource {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     public AutoPushSource() {
-        this.setSourceType(SourceType.AUTO_PUSH.name());
+        this.setSourceType(SourceType.AUTO_PUSH);
     }
 
     @Override

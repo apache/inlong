@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -192,8 +191,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
             Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
             sourceEntities.forEach(sourceEntity -> {
-                SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceType);
+                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceEntity.getSourceType());
                 StreamSource source = operation.getFromEntity(sourceEntity);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });

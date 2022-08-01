@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -97,7 +96,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
-        String sinkType = request.getSinkType();
         String sinkName = request.getSinkName();
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity sinkEntity : sinkList) {
@@ -108,7 +106,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         // According to the sink type, save sink information
-        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(request.getSinkType());
         List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
@@ -128,8 +126,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             LOGGER.error("sink not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
-        String sinkType = entity.getSinkType();
-        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(entity.getSinkType());
         StreamSink streamSink = operation.getFromEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return streamSink;
@@ -188,15 +185,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
-        Map<SinkType, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
+        Map<String, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
         for (StreamSinkEntity streamSink : entityPage) {
-            SinkType sinkType = SinkType.forType(streamSink.getSinkType());
-            sinkMap.computeIfAbsent(sinkType, k -> new Page<>()).add(streamSink);
+            sinkMap.computeIfAbsent(streamSink.getSinkType(), k -> new Page<>()).add(streamSink);
         }
         List<StreamSink> responseList = Lists.newArrayList();
-        for (Map.Entry<SinkType, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
-            SinkType sinkType = entry.getKey();
-            StreamSinkOperator operation = operatorFactory.getInstance(sinkType);
+        for (Map.Entry<String, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
+            StreamSinkOperator operation = operatorFactory.getInstance(entry.getKey());
             PageInfo<? extends StreamSink> pageInfo = operation.getPageInfo(entry.getValue());
             responseList.addAll(pageInfo.getList());
         }
@@ -218,7 +213,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
-        String sinkType = request.getSinkType();
         final InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         // Check whether the sink name exists with the same groupId and streamId
@@ -236,7 +230,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             fields.forEach(sinkField -> sinkField.setId(null));
         }
 
-        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(request.getSinkType());
         operation.updateOpt(request, operator);
 
         // The inlong group status is [Configuration successful], then asynchronously initiate

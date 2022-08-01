@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -39,7 +39,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Hive sink request")
-@JsonTypeDefine(value = SinkType.SINK_HIVE)
+@JsonTypeDefine(value = SinkType.HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
     @NotBlank(message = "jdbcUrl cannot be blank")

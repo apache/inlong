@@ -40,7 +40,7 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Consumption target inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
     @ApiModelProperty(value = "Consumption target Topic")

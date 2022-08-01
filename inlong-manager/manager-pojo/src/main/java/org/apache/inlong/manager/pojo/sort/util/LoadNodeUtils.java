@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -104,35 +104,35 @@ public class LoadNodeUtils {
                 streamSink.getSinkName(), constantFieldMap);
         Map<String, String> properties = streamSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        SinkType sinkType = SinkType.forType(streamSink.getSinkType());
+        String sinkType = streamSink.getSinkType();
         switch (sinkType) {
-            case KAFKA:
+            case SinkType.KAFKA:
                 return createLoadNode((KafkaSink) streamSink, fieldInfos, fieldRelations, properties);
-            case HIVE:
+            case SinkType.HIVE:
                 return createLoadNode((HiveSink) streamSink, fieldInfos, fieldRelations, properties);
-            case HBASE:
+            case SinkType.HBASE:
                 return createLoadNode((HBaseSink) streamSink, fieldInfos, fieldRelations, properties);
-            case POSTGRES:
+            case SinkType.POSTGRESQL:
                 return createLoadNode((PostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
-            case CLICKHOUSE:
+            case SinkType.CLICKHOUSE:
                 return createLoadNode((ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
-            case ICEBERG:
+            case SinkType.ICEBERG:
                 return createLoadNode((IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
-            case SQLSERVER:
+            case SinkType.SQLSERVER:
                 return createLoadNode((SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
-            case ELASTICSEARCH:
+            case SinkType.ELASTICSEARCH:
                 return createLoadNode((ElasticsearchSink) streamSink, fieldInfos, fieldRelations, properties);
-            case HDFS:
+            case SinkType.HDFS:
                 return createLoadNode((HDFSSink) streamSink, fieldInfos, fieldRelations, properties);
-            case GREENPLUM:
+            case SinkType.GREENPLUM:
                 return createLoadNode((GreenplumSink) streamSink, fieldInfos, fieldRelations, properties);
-            case MYSQL:
+            case SinkType.MYSQL:
                 return createLoadNode((MySQLSink) streamSink, fieldInfos, fieldRelations, properties);
-            case ORACLE:
+            case SinkType.ORACLE:
                 return createLoadNode((OracleSink) streamSink, fieldInfos, fieldRelations, properties);
-            case TDSQLPOSTGRESQL:
+            case SinkType.TDSQLPOSTGRESQL:
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
-            case DLCICEBERG:
+            case SinkType.DLCICEBERG:
                 return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));

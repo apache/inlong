@@ -25,7 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Iceberg sink info")
-@JsonTypeDefine(value = SinkType.SINK_ICEBERG)
+@JsonTypeDefine(value = SinkType.ICEBERG)
 public class IcebergSink extends StreamSink {
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
@@ -72,7 +72,7 @@ public class IcebergSink extends StreamSink {
     private String primaryKey;
 
     public IcebergSink() {
-        this.setSinkType(SinkType.SINK_ICEBERG);
+        this.setSinkType(SinkType.ICEBERG);
     }
 
     @Override

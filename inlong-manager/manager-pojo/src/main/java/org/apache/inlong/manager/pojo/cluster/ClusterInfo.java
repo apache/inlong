@@ -45,7 +45,7 @@ public abstract class ClusterInfo {
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, DATAPROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster url")
@@ -65,6 +65,9 @@ public abstract class ClusterInfo {
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
+
+    @ApiModelProperty(value = "Description of the cluster")
+    private String description;
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
