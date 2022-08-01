@@ -49,9 +49,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
@@ -183,7 +181,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
      */
     private HeartbeatMsg buildHeartbeatMsg() {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
-        final String agentIp = conf.get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
+        final String agentIp = AgentUtils.fetchLocalIp();
         final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
         final String clusterName = conf.get(AGENT_CLUSTER_NAME);
         final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
