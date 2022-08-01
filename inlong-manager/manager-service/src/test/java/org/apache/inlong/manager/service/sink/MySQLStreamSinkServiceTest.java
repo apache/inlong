@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
@@ -58,9 +58,9 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
         MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_MYSQL);
+        sinkInfo.setSinkType(SinkType.MYSQL);
 
-        sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/database");
+        sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/test_db");
         sinkInfo.setUsername("mysql");
         sinkInfo.setPassword("inlong");
         sinkInfo.setTableName("user");

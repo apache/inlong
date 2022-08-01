@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -45,7 +45,7 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
     @Override
     public String getMQType() {
-        return MQType.MQ_TUBE;
+        return MQType.TUBEMQ;
     }
 
     @Override

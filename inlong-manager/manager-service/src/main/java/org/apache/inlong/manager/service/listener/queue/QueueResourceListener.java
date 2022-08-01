@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.listener.queue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -78,7 +77,7 @@ public class QueueResourceListener implements QueueOperateListener {
             return ListenerResult.success("skip - disable create resource");
         }
 
-        QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(MQType.forType(groupInfo.getMqType()));
+        QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupInfo.getMqType());
         GroupOperateType operateType = groupProcessForm.getGroupOperateType();
         String operator = context.getOperator();
         switch (operateType) {

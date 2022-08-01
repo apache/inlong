@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.sink;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,7 @@ public class SinkResourceOperatorFactory {
     /**
      * Get a sink resource operator instance via the given sinkType
      */
-    public SinkResourceOperator getInstance(SinkType sinkType) {
+    public SinkResourceOperator getInstance(String sinkType) {
         Optional<SinkResourceOperator> instance = operatorList.stream()
                 .filter(inst -> inst.accept(sinkType))
                 .findFirst();

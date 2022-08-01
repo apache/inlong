@@ -24,11 +24,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * MongoDB source info
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MongoDB source info")
-@JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
+@JsonTypeDefine(value = SourceType.MONGODB)
 public class MongoDBSource extends StreamSource {
 
     @ApiModelProperty("Hosts of the MongoDB server")
@@ -61,7 +61,7 @@ public class MongoDBSource extends StreamSource {
     private String primaryKey;
 
     public MongoDBSource() {
-        this.setSourceType(SourceType.MONGODB.name());
+        this.setSourceType(SourceType.MONGODB);
     }
 
     @Override

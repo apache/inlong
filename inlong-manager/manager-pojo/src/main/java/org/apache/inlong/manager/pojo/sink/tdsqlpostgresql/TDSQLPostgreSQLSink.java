@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "TDSQLPostgreSQL sink info")
-@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
+@JsonTypeDefine(value = SinkType.TDSQLPOSTGRESQL)
 public class TDSQLPostgreSQLSink extends StreamSink {
 
     @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
@@ -57,7 +57,7 @@ public class TDSQLPostgreSQLSink extends StreamSink {
     private String primaryKey;
 
     public TDSQLPostgreSQLSink() {
-        this.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
+        this.setSinkType(SinkType.TDSQLPOSTGRESQL);
     }
 
     @Override

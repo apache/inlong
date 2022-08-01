@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
@@ -58,9 +58,9 @@ class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
         TDSQLPostgreSQLSinkRequest sinkInfo = new TDSQLPostgreSQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
+        sinkInfo.setSinkType(SinkType.TDSQLPOSTGRESQL);
 
-        sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/postgres");
+        sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/test_db");
         sinkInfo.setUsername("TDSQLPostgreSQL");
         sinkInfo.setPassword("inlong");
         sinkInfo.setSchemaName("public");

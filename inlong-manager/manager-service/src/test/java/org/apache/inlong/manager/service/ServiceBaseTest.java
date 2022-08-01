@@ -20,15 +20,15 @@ package org.apache.inlong.manager.service;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.test.BaseTest;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -76,9 +76,9 @@ public class ServiceBaseTest extends BaseTest {
         }
 
         InlongGroupInfo groupInfo;
-        if (MQType.forType(mqType) == MQType.PULSAR || MQType.forType(mqType) == MQType.TDMQ_PULSAR) {
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             groupInfo = new InlongPulsarInfo();
-        } else if (MQType.forType(mqType) == MQType.TUBE) {
+        } else if (MQType.TUBEMQ.equals(mqType)) {
             groupInfo = new InlongPulsarInfo();
         } else {
             groupInfo = new InlongNoneMqInfo();

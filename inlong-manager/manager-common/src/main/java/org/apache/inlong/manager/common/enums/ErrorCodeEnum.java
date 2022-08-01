@@ -113,10 +113,10 @@ public enum ErrorCodeEnum {
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
     CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
-    CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
-    TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
+    CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create TubeMQ consumer group"),
+    TUBE_GROUP_CREATE_FAILED(2602, "Create TubeMQ consumer group failed"),
     PULSAR_GROUP_CREATE_FAILED(2603, "Create Pulsar consumer group failed"),
-    TUBE_TOPIC_CREATE_FAILED(2604, "CreateTube Topic failed"),
+    TUBE_TOPIC_CREATE_FAILED(2604, "Create TubeMQ Topic failed"),
     PULSAR_TOPIC_CREATE_FAILED(2605, "Create Pulsar Topic failed"),
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),

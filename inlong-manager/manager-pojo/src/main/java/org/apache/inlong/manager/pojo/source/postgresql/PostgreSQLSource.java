@@ -25,7 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -42,7 +42,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "PostgreSQL source info")
-@JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
+@JsonTypeDefine(value = SourceType.POSTGRESQL)
 public class PostgreSQLSource extends StreamSource {
 
     @ApiModelProperty("Username of the PostgreSQL server")
@@ -74,7 +74,7 @@ public class PostgreSQLSource extends StreamSource {
     private String primaryKey;
 
     public PostgreSQLSource() {
-        this.setSourceType(SourceType.POSTGRES.name());
+        this.setSourceType(SourceType.POSTGRESQL);
     }
 
     @Override

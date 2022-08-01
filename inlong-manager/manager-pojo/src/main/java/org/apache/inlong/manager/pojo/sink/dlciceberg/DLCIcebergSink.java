@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "DLCIceberg sink info")
-@JsonTypeDefine(value = SinkType.SINK_DLCICEBERG)
+@JsonTypeDefine(value = SinkType.DLCICEBERG)
 public class DLCIcebergSink extends StreamSink {
 
     @ApiModelProperty("Catalog URI of the DLCIceberg server")
@@ -54,7 +54,7 @@ public class DLCIcebergSink extends StreamSink {
     private String primaryKey;
 
     public DLCIcebergSink() {
-        this.setSinkType(SinkType.SINK_DLCICEBERG);
+        this.setSinkType(SinkType.DLCICEBERG);
     }
 
     @Override

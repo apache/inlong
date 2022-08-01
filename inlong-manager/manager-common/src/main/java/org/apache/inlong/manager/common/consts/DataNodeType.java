@@ -15,22 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.consts;
 
-import java.util.Locale;
+/**
+ * Constants of data node.
+ */
+public class DataNodeType {
 
-public enum DataNodeType {
-
-    HIVE,
-    KAFKA,
-    ICEBERG,
-    CLICKHOUSE,
-    ES,
-    ;
-
-    @Override
-    public String toString() {
-        return this.name().toUpperCase(Locale.ROOT);
-    }
+    public static final String HIVE = "HIVE";
+    public static final String KAFKA = "KAFKA";
+    public static final String ICEBERG = "ICEBERG";
+    public static final String CLICKHOUSE = "CLICKHOUSE";
+    public static final String ELASTICSEARCH = "ELASTICSEARCH";
 
 }

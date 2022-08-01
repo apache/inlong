@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
     `name`                   varchar(128)          DEFAULT '' COMMENT 'Inlong group name, English, Chinese, numbers, etc',
     `description`            varchar(256)          DEFAULT '' COMMENT 'Description of inlong group',
-    `mq_type`                varchar(20)           DEFAULT 'TUBE' COMMENT 'The message queue type, high throughput: TUBE, high consistency: PULSAR',
+    `mq_type`                varchar(20)           DEFAULT 'TUBEMQ' COMMENT 'The message queue type, high throughput: TUBEMQ, high consistency: PULSAR',
     `mq_resource`            varchar(128) NOT NULL COMMENT 'MQ resource, for TubeMQ, its Topic, for Pulsar, its Namespace',
     `daily_records`          int(11)               DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
     `daily_storage`          int(11)               DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',

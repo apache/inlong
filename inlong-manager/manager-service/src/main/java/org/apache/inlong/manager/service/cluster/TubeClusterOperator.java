@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Tube cluster operator.
+ * TubeMQ cluster operator.
  */
 @Service
 public class TubeClusterOperator extends AbstractClusterOperator {
@@ -63,7 +63,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             try {
                 TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
                 targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-                LOGGER.info("success to set entity for tube cluster");
+                LOGGER.info("success to set entity for tubemq cluster");
             } catch (Exception e) {
                 throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
             }
@@ -81,7 +81,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, tubeClusterInfo);
         }
 
-        LOGGER.info("success to get tube cluster info from entity");
+        LOGGER.info("success to get tubemq cluster info from entity");
         return tubeClusterInfo;
     }
 

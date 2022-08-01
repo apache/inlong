@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MySQL sink info")
-@JsonTypeDefine(value = SinkType.SINK_MYSQL)
+@JsonTypeDefine(value = SinkType.MYSQL)
 public class MySQLSink extends StreamSink {
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
@@ -58,7 +58,7 @@ public class MySQLSink extends StreamSink {
     private String primaryKey;
 
     public MySQLSink() {
-        this.setSinkType(SinkType.SINK_MYSQL);
+        this.setSinkType(SinkType.MYSQL);
     }
 
     @Override

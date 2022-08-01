@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.group;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
@@ -49,12 +49,12 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
 
     @Override
     public Boolean accept(String mqType) {
-        return getMQType().equals(mqType) || MQType.MQ_TDMQ_PULSAR.equals(mqType);
+        return getMQType().equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType);
     }
 
     @Override
     public String getMQType() {
-        return MQType.MQ_PULSAR;
+        return MQType.PULSAR;
     }
 
     @Override

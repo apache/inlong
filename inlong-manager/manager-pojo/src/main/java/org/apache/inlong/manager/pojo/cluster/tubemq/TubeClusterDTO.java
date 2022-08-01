@@ -33,20 +33,20 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * Tube cluster info
+ * TubeMQ cluster info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Tube cluster info")
+@ApiModel("TubeMQ cluster info")
 public class TubeClusterDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @NotBlank(message = "masterWebUrl cannot be blank")
     @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
-            notes = "Tube master RPC URL is the 'url' field of the cluster")
+            notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
     /**

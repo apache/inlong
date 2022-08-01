@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "HBase sink info")
-@JsonTypeDefine(value = SinkType.SINK_HBASE)
+@JsonTypeDefine(value = SinkType.HBASE)
 public class HBaseSink extends StreamSink {
 
     @ApiModelProperty("Target namespace")
@@ -67,7 +67,7 @@ public class HBaseSink extends StreamSink {
     private String bufferFlushInterval;
 
     public HBaseSink() {
-        this.setSinkType(SinkType.SINK_HBASE);
+        this.setSinkType(SinkType.HBASE);
     }
 
     @Override

@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.tubemq;
-
-import lombok.Builder;
-import lombok.Data;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * The request info of query tube topic.
+ * Constants of MQ type.
  */
-@Data
-@Builder
-public class QueryTubeTopicRequest {
+public class MQType {
 
-    private Integer clusterId;
-    private String topicName;
-    private String user;
+    public static final String TUBEMQ = "TUBEMQ";
+    public static final String PULSAR = "PULSAR";
+    public static final String KAFKA = "KAFKA";
+    public static final String TDMQ_PULSAR = "TDMQ_PULSAR";
+
+    /**
+     * Not use any MQ
+     */
+    public static final String NONE = "NONE";
 
 }

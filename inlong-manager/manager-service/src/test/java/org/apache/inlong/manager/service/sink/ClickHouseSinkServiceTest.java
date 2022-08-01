@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
@@ -56,7 +56,7 @@ public class ClickHouseSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setSinkType(SinkType.SINK_CLICKHOUSE);
+        sinkInfo.setSinkType(SinkType.CLICKHOUSE);
         sinkInfo.setJdbcUrl(ckJdbcUrl);
         sinkInfo.setUsername(ckUsername);
         sinkInfo.setDbName(ckDatabaseName);

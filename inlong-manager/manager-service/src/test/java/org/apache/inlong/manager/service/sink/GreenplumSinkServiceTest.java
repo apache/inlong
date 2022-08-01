@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -58,7 +58,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         GreenplumSinkRequest sinkInfo = new GreenplumSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_GREENPLUM);
+        sinkInfo.setSinkType(SinkType.GREENPLUM);
 
         sinkInfo.setJdbcUrl("jdbc:postgresql://localhost:5432/greenplum");
         sinkInfo.setUsername("greenplum");
