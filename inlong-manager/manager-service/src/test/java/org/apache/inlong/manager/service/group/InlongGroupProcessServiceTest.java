@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
@@ -65,7 +65,7 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
         InlongPulsarRequest groupInfo = new InlongPulsarRequest();
         groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setInCharges(OPERATOR);
-        groupInfo.setMqType(MQType.PULSAR.getType());
+        groupInfo.setMqType(MQType.PULSAR);
         groupService.save(groupInfo, OPERATOR);
     }
 

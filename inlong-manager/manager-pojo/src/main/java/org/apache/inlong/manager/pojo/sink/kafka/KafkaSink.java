@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka sink info")
-@JsonTypeDefine(value = SinkType.SINK_KAFKA)
+@JsonTypeDefine(value = SinkType.KAFKA)
 public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Kafka bootstrap servers")
@@ -62,7 +62,7 @@ public class KafkaSink extends StreamSink {
     private String primaryKey;
 
     public KafkaSink() {
-        this.setSinkType(SinkType.SINK_KAFKA);
+        this.setSinkType(SinkType.KAFKA);
     }
 
     @Override

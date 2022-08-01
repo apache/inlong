@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "PostgreSQL sink info")
-@JsonTypeDefine(value = SinkType.SINK_POSTGRES)
+@JsonTypeDefine(value = SinkType.POSTGRESQL)
 public class PostgreSQLSink extends StreamSink {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
@@ -61,7 +61,7 @@ public class PostgreSQLSink extends StreamSink {
     private String primaryKey;
 
     public PostgreSQLSink() {
-        this.setSinkType(SinkType.SINK_POSTGRES);
+        this.setSinkType(SinkType.POSTGRESQL);
     }
 
     @Override

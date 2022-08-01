@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class SourceOperatorFactory {
     /**
      * Get a sink operator instance via the given sourceType
      */
-    public StreamSourceOperator getInstance(SourceType sourceType) {
+    public StreamSourceOperator getInstance(String sourceType) {
         return sourceOperatorList.stream()
                 .filter(inst -> inst.accept(sourceType))
                 .findFirst()

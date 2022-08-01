@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.queue;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class QueueResourceOperatorFactory {
     /**
      * Get a message queue resource operator instance via the given mqType
      */
-    public QueueResourceOperator getInstance(MQType mqType) {
+    public QueueResourceOperator getInstance(String mqType) {
         return operatorList.stream()
                 .filter(inst -> inst.accept(mqType))
                 .findFirst()

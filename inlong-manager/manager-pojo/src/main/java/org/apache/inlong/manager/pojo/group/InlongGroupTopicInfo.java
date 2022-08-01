@@ -34,17 +34,17 @@ public class InlongGroupTopicInfo {
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource, Tube topic name, or Pulsar namespace name")
+    @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
     private String mqResource;
 
-    @ApiModelProperty(value = "Topic list, Tube corresponds to inlong group, there is only 1 topic, "
+    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
             + "Pulsar corresponds to inlong stream, there are multiple topics")
     private List<InlongStreamBriefInfo> streamTopics;
 
-    @ApiModelProperty(value = "Tube master URL")
+    @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMasterUrl;
 
     @ApiModelProperty(value = "Pulsar service URL")

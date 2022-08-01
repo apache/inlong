@@ -21,7 +21,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
@@ -222,7 +222,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // create an inlong group which use the clusterTag
         String inlongGroupId = "test_cluster_tag_group";
-        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.MQ_PULSAR);
+        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.PULSAR);
         InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
         updateGroupInfo.setInlongClusterTag(clusterTag);
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);

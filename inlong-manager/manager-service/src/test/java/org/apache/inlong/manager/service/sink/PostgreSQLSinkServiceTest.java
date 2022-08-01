@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.sink;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
@@ -60,9 +60,9 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         PostgreSQLSinkRequest sinkInfo = new PostgreSQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_POSTGRES);
+        sinkInfo.setSinkType(SinkType.POSTGRESQL);
 
-        sinkInfo.setJdbcUrl("jdbc:postgresql://localhost:5432/postgre");
+        sinkInfo.setJdbcUrl("jdbc:postgresql://localhost:5432/test_db");
         sinkInfo.setUsername("postgresql");
         sinkInfo.setPassword("inlong");
         sinkInfo.setDbName("public");

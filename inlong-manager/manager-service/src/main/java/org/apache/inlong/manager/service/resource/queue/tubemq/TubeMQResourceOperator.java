@@ -21,12 +21,12 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
@@ -48,8 +48,8 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
     private TubeMQOperator tubeMQOperator;
 
     @Override
-    public boolean accept(MQType mqType) {
-        return MQType.TUBE == mqType;
+    public boolean accept(String mqType) {
+        return MQType.TUBEMQ.equals(mqType);
     }
 
     @Override

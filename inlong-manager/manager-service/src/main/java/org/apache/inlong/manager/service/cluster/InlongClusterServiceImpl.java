@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -689,8 +689,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             String mqResource = groupInfo.getMqResource();
             String realClusterTag = groupInfo.getInlongClusterTag();
 
-            MQType type = MQType.forType(groupInfo.getMqType());
-            if (type == MQType.PULSAR || type == MQType.TDMQ_PULSAR) {
+            String mqType = groupInfo.getMqType();
+            if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
                 List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
                 for (InlongStreamBriefInfo streamInfo : streamList) {
                     List<InlongClusterEntity> pulsarClusters = clusterMapper.selectByKey(realClusterTag, null,
@@ -716,7 +716,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     topicConfig.setTopic(topic);
                     topicList.add(topicConfig);
                 }
-            } else if (type == MQType.TUBE) {
+            } else if (MQType.TUBEMQ.equals(mqType)) {
                 DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);

@@ -19,13 +19,12 @@ package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ public interface StreamSourceOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    Boolean accept(SourceType sourceType);
+    Boolean accept(String sourceType);
 
     /**
      * Save the source info.
