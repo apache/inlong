@@ -37,8 +37,6 @@ public class MasterStatusCheckFilter implements Filter {
     private TMaster master;
     private MetaDataService defMetaDataService;
 
-    private String whiteListPattern = "http://.*:.*";
-
     public MasterStatusCheckFilter(TMaster master) {
         this.master = master;
         this.defMetaDataService =
@@ -70,9 +68,7 @@ public class MasterStatusCheckFilter implements Filter {
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }
-            if (Pattern.matches(whiteListPattern, sBuilder.toString())) {
-                resp.sendRedirect(sBuilder.toString());
-            }
+            resp.sendRedirect(sBuilder.toString());
             return;
         }
         chain.doFilter(request, response);

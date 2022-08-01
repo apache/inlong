@@ -40,7 +40,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req,
-                         HttpServletResponse resp) throws IOException {
+            HttpServletResponse resp) throws IOException {
         doPost(req, resp);
     }
 
@@ -50,7 +50,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req,
-                          HttpServletResponse resp) throws IOException {
+            HttpServletResponse resp) throws IOException {
         String method = null;
         StringBuilder sBuffer = new StringBuilder(1024);
         long startTime = System.currentTimeMillis();
@@ -63,14 +63,15 @@ public abstract class AbstractWebHandler extends HttpServlet {
                 WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
                 if (webApiRegInfo == null) {
                     sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                            .append("Unsupported method ").append("\"}");
+                            .append("Unsupported method ").append(method).append("\"}");
                 } else {
                     webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req, sBuffer);
                 }
             }
         } catch (Throwable e) {
             sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append("Bad request from server. ")
+                    .append("Bad request from server: ")
+                    .append(e.getMessage())
                     .append("\"}");
         } finally {
             WebCallStatsHolder.addMethodCall(method, System.currentTimeMillis() - startTime);
@@ -84,8 +85,8 @@ public abstract class AbstractWebHandler extends HttpServlet {
     public abstract void registerWebApiMethod();
 
     protected void innRegisterWebMethod(String webMethodName,
-                                        String clsMethodName,
-                                        boolean needAuthToken) {
+            String clsMethodName,
+            boolean needAuthToken) {
         registerWebMethod(webMethodName, clsMethodName,
                 false, needAuthToken, this);
     }
