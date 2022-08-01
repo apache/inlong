@@ -104,7 +104,6 @@ public class MessageFilter implements Filter {
             }
         }
 
-        String callback = req.getParameter("callback");
         resp.setCharacterEncoding(req.getCharacterEncoding());
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(getResultContent(code, message));

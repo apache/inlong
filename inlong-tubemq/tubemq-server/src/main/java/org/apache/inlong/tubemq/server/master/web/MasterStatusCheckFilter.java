@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.web;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -36,7 +37,7 @@ public class MasterStatusCheckFilter implements Filter {
     private TMaster master;
     private MetaDataService defMetaDataService;
 
-    private String redirectWhiteList;
+    private String whiteListPattern = "http://.*:.*";
 
     public MasterStatusCheckFilter(TMaster master) {
         this.master = master;
@@ -69,8 +70,7 @@ public class MasterStatusCheckFilter implements Filter {
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }
-            this.redirectWhiteList = sBuilder.toString();
-            if (redirectWhiteList.equals(sBuilder.toString())) {
+            if (Pattern.matches(whiteListPattern, sBuilder.toString())){
                 resp.sendRedirect(sBuilder.toString());
             }
             return;
