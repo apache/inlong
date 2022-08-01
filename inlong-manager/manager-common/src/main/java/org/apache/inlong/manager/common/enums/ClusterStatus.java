@@ -38,7 +38,7 @@ public enum ClusterStatus {
         return status;
     }
 
-    public ClusterStatus fromStatus(int status) {
+    public static ClusterStatus fromStatus(int status) {
         switch (status) {
             case 1:
                 return NORMAL;
