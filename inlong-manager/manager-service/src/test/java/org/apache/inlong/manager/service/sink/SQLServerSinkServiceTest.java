@@ -156,7 +156,6 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         tableInfo.setComment("test01 ");
         tableInfo.setPrimaryKey("id");
         tableInfo.setSchemaName(schemaName);
-        tableInfo.setPrimaryKey("id");
 
         List<SQLServerColumnInfo> columnInfos = Lists.newArrayList(
                 new SQLServerColumnInfo("id", "int", "id"),
