@@ -167,7 +167,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
+        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
         try {
             tubeMQOperator.createConsumerGroup(clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
         } catch (Exception e) {

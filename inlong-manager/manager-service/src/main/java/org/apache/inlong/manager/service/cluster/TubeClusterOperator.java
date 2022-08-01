@@ -53,7 +53,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.TUBE;
+        return ClusterType.TUBEMQ;
     }
 
     @Override

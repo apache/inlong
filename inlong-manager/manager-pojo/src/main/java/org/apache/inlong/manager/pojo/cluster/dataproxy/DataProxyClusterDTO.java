@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster.pulsar;
+package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,42 +31,44 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import javax.validation.constraints.NotNull;
 
 /**
- * Pulsar cluster info
+ * DataProxy cluster info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Pulsar cluster info")
-public class PulsarClusterDTO {
+@ApiModel("DataProxy cluster info")
+public class DataProxyClusterDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
-            notes = "Pulsar service URL is the 'url' field of the cluster")
-    private String adminUrl;
+    @ApiModelProperty("Is the DataProxy cluster an intranet? 0: no, 1: yes")
+    private Integer isIntranet = 1;
 
-    @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
-    @Builder.Default
-    private String tenant = "public";
+    @ApiModelProperty("Is the DataProxy cluster in a switch status? 0: no, 1: yes")
+    private Integer isSwitch = 0;
+
+    @ApiModelProperty("Load of the DataProxy cluster, default is 20")
+    private Integer load = 20;
 
     /**
      * Get the dto instance from the request
      */
-    public static PulsarClusterDTO getFromRequest(PulsarClusterRequest request) {
-        return PulsarClusterDTO.builder()
-                .adminUrl(request.getAdminUrl())
-                .tenant(request.getTenant())
+    public static DataProxyClusterDTO getFromRequest(DataProxyClusterRequest request) {
+        return DataProxyClusterDTO.builder()
+                .isIntranet(request.getIsIntranet())
+                .isSwitch(request.getIsSwitch())
+                .load(request.getLoad())
                 .build();
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static PulsarClusterDTO getFromJson(@NotNull String extParams) {
+    public static DataProxyClusterDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, PulsarClusterDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, DataProxyClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

@@ -15,29 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
+import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Iceberg stream sink service test.
- */
-public class IcebergSinkServiceTest extends ServiceBaseTest {
+import java.util.ArrayList;
+import java.util.List;
 
-    private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1_iceberg";
-    private final String globalOperator = "admin";
+/**
+ * Greenplum sink service test
+ */
+public class GreenplumSinkServiceTest extends ServiceBaseTest {
+
+    private static final String globalGroupId = "b_group1";
+    private static final String globalStreamId = "stream1";
+    private static final String globalOperator = "admin";
+    private static final String fieldName = "greenplum_field";
+    private static final String fieldType = "greenplum_type";
+    private static final Integer fieldId = 1;
 
     @Autowired
     private StreamSinkService sinkService;
@@ -49,46 +55,58 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
+        GreenplumSinkRequest sinkInfo = new GreenplumSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_ICEBERG);
-        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
+        sinkInfo.setSinkType(SinkType.SINK_GREENPLUM);
+
+        sinkInfo.setJdbcUrl("jdbc:postgresql://localhost:5432/greenplum");
+        sinkInfo.setUsername("greenplum");
+        sinkInfo.setPassword("inlong");
+        sinkInfo.setTableName("user");
+        sinkInfo.setPrimaryKey("name,age");
+
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setId((int) (Math.random() * 100000 + 1));
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        SinkField sinkField = new SinkField();
+        sinkField.setFieldName(fieldName);
+        sinkField.setFieldType(fieldType);
+        sinkField.setId(fieldId);
+        List<SinkField> sinkFieldList = new ArrayList<>();
+        sinkFieldList.add(sinkField);
+        sinkInfo.setSinkFieldList(sinkFieldList);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    @Test
-    public void testSaveAndDelete() {
-        Integer id = this.saveSink("default1");
-        Assertions.assertNotNull(id);
-        boolean result = sinkService.delete(id, globalOperator);
+    /**
+     * Delete sink info by sink id.
+     */
+    public void deleteSink(Integer sinkId) {
+        boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer id = this.saveSink("default2");
-        StreamSink sink = sinkService.get(id);
+        Integer sinkId = this.saveSink("greenplum_default1");
+        StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        sinkService.delete(id, globalOperator);
+        deleteSink(sinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("default3");
+        Integer sinkId = this.saveSink("greenplum_default2");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        IcebergSink sink = (IcebergSink) streamSink;
-        sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        GreenplumSink sink = (GreenplumSink) streamSink;
+        sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 
-        sinkService.delete(sinkId, globalOperator);
+        deleteSink(sinkId);
     }
 
 }

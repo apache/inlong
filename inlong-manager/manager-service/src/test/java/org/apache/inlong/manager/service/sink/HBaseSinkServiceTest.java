@@ -15,36 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
-import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * MySQL sink service test
+ * HBase sink service test
  */
-public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
+public class HBaseSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_mysql";
-    private static final String globalStreamId = "stream1_mysql";
+    private static final String globalGroupId = "b_group1";
+    private static final String globalStreamId = "stream1_hbase";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "mysql_field";
-    private static final String fieldType = "mysql_type";
-    private static final Integer fieldId = 1;
+    private static final String tableName = "table1";
+    private static final String nameSpace = "space1";
+    private static final String rowKey = "rowKey1";
+    private static final String zookeeperQuorum = "127.0.0.1:9092";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -56,26 +52,17 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
+
+        HBaseSinkRequest sinkInfo = new HBaseSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_MYSQL);
-
-        sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/database");
-        sinkInfo.setUsername("mysql");
-        sinkInfo.setPassword("inlong");
-        sinkInfo.setTableName("user");
-        sinkInfo.setPrimaryKey("name,age");
-
-        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setSinkType(SinkType.SINK_HBASE);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        SinkField sinkField = new SinkField();
-        sinkField.setFieldName(fieldName);
-        sinkField.setFieldType(fieldType);
-        sinkField.setId(fieldId);
-        List<SinkField> sinkFieldList = new ArrayList<>();
-        sinkFieldList.add(sinkField);
-        sinkInfo.setSinkFieldList(sinkFieldList);
+        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setTableName(tableName);
+        sinkInfo.setNamespace(nameSpace);
+        sinkInfo.setRowKey(rowKey);
+        sinkInfo.setZkQuorum(zookeeperQuorum);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -89,21 +76,21 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testListByIdentifier() {
-        Integer mysqlSinkId = this.saveSink("mysql_default1");
-        StreamSink sink = sinkService.get(mysqlSinkId);
+        Integer sinkId = this.saveSink("default1");
+        StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteSink(mysqlSinkId);
+        deleteSink(sinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("mysql_default2");
+        Integer sinkId = this.saveSink("default2");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        MySQLSink sink = (MySQLSink) streamSink;
+        HBaseSink sink = (HBaseSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        MySQLSinkRequest request = CommonBeanUtils.copyProperties(sink, MySQLSinkRequest::new);
+        SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 

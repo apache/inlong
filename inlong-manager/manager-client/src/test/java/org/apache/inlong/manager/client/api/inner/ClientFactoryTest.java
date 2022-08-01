@@ -890,7 +890,7 @@ class ClientFactoryTest {
     void testGetNode() {
         ClusterNodeResponse response = ClusterNodeResponse.builder()
                 .id(1)
-                .type(ClusterType.DATA_PROXY)
+                .type(ClusterType.DATAPROXY)
                 .ip("127.0.0.1")
                 .port(46801)
                 .build();

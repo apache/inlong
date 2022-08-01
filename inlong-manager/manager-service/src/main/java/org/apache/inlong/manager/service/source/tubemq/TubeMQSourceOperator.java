@@ -96,7 +96,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
     @Override
     public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
             List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
-        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.TUBE);
+        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.TUBEMQ);
         TubeClusterInfo tubeClusterInfo = (TubeClusterInfo) clusterInfo;
         String masterRpc = tubeClusterInfo.getUrl();
 

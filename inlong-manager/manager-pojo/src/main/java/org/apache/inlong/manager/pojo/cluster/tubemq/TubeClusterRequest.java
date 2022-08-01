@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.TUBE)
+@JsonTypeDefine(value = ClusterType.TUBEMQ)
 @ApiModel("Inlong cluster request for Tube")
 public class TubeClusterRequest extends ClusterRequest {
 
@@ -41,7 +41,7 @@ public class TubeClusterRequest extends ClusterRequest {
     private String masterWebUrl;
 
     public TubeClusterRequest() {
-        this.setType(ClusterType.TUBE);
+        this.setType(ClusterType.TUBEMQ);
     }
 
 }
