@@ -44,7 +44,7 @@ public class DataProxyClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.DATA_PROXY;
+        return ClusterType.DATAPROXY;
     }
 
     @Override

@@ -43,6 +43,9 @@ public class ClusterTagRequest {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "Description of the cluster tag")
+    private String description;
+
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -25,10 +25,8 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.group.InlongGroupProcessService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

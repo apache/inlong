@@ -15,33 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.pojo.sink.hbase.HBaseSinkRequest;
+import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
+import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * HBase sink service test
- */
-public class HBaseSinkServiceTest extends ServiceBaseTest {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1_hbase";
-    private static final String globalOperator = "admin";
-    private static final String tableName = "table1";
-    private static final String nameSpace = "space1";
-    private static final String rowKey = "rowKey1";
-    private static final String zookeeperQuorum = "127.0.0.1:9092";
+/**
+ * DLCIceberg sink service test..
+ */
+public class DLCIcebergSinkServiceTest extends ServiceBaseTest {
+
+    private static final String fieldName = "dlc_field";
+    private static final String fieldType = "dlc_type";
+    private static final Integer fieldId = 1;
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1_dlciceberg";
+    private final String globalOperator = "admin";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -53,49 +55,53 @@ public class HBaseSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-
-        HBaseSinkRequest sinkInfo = new HBaseSinkRequest();
+        DLCIcebergSinkRequest sinkInfo = new DLCIcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_HBASE);
+        sinkInfo.setSinkType(SinkType.SINK_DLCICEBERG);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        SinkField sinkField = new SinkField();
+        sinkField.setFieldName(fieldName);
+        sinkField.setFieldType(fieldType);
+        sinkField.setId(fieldId);
+        List<SinkField> sinkFieldList = new ArrayList<>();
+        sinkFieldList.add(sinkField);
+        sinkInfo.setSinkFieldList(sinkFieldList);
+
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setTableName(tableName);
-        sinkInfo.setNamespace(nameSpace);
-        sinkInfo.setRowKey(rowKey);
-        sinkInfo.setZkQuorum(zookeeperQuorum);
+        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
-    public void deleteSink(Integer sinkId) {
+    @Test
+    public void testSaveAndDelete() {
+        Integer sinkId = this.saveSink("default1");
+        Assertions.assertNotNull(sinkId);
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer sinkId = this.saveSink("default1");
+        Integer sinkId = this.saveSink("default2");
         StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteSink(sinkId);
+        sinkService.delete(sinkId, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("default2");
+        Integer sinkId = this.saveSink("default3");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        HBaseSink sink = (HBaseSink) streamSink;
-        sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
+        DLCIcebergSink sink = (DLCIcebergSink) streamSink;
+        sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 
-        deleteSink(sinkId);
+        sinkService.delete(sinkId, globalOperator);
     }
 
 }

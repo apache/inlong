@@ -15,30 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
-import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Hive sink service test
+ * Iceberg stream sink service test.
  */
-public class HiveSinkServiceTest extends ServiceBaseTest {
+public class IcebergSinkServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
+    private final String globalStreamId = "stream1_iceberg";
     private final String globalOperator = "admin";
-    private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -48,46 +46,44 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
     /**
      * Save sink info.
      */
-    public Integer saveSink() {
+    public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-
-        HiveSinkRequest sinkInfo = new HiveSinkRequest();
+        IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_HIVE);
+        sinkInfo.setSinkType(SinkType.SINK_ICEBERG);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
+        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
     @Test
     public void testSaveAndDelete() {
-        Integer id = this.saveSink();
+        Integer id = this.saveSink("default1");
         Assertions.assertNotNull(id);
-
         boolean result = sinkService.delete(id, globalOperator);
         Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer id = this.saveSink();
-
+        Integer id = this.saveSink("default2");
         StreamSink sink = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-
         sinkService.delete(id, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink();
+        Integer sinkId = this.saveSink("default3");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        HiveSink sink = (HiveSink) streamSink;
+        IcebergSink sink = (IcebergSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        HiveSinkRequest request = CommonBeanUtils.copyProperties(sink, HiveSinkRequest::new);
+        SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 

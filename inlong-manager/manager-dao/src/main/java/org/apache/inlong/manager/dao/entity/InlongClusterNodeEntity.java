@@ -35,6 +35,7 @@ public class InlongClusterNodeEntity implements Serializable {
     private String ip;
     private Integer port;
     private String extParams;
+    private String description;
 
     private Integer status;
     private Integer isDeleted;

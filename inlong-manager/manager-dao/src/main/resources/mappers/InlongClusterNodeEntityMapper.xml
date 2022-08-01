@@ -27,6 +27,7 @@
         <result column="ip" jdbcType="VARCHAR" property="ip"/>
         <result column="port" jdbcType="INTEGER" property="port"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -36,7 +37,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, parent_id, type, ip, port, ext_params, status, is_deleted,
+        id, parent_id, type, ip, port, ext_params, description, status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -44,10 +45,12 @@
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         insert into inlong_cluster_node (id, parent_id, type,
                                          ip, port, ext_params,
-                                         status, creator, modifier)
+                                         description, status,
+                                         creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR},
-                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -98,41 +101,7 @@
         where is_deleted = 0
         and parent_id = #{parentId, jdbcType=INTEGER}
     </select>
-    <update id="updateByIdSelective"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
-        update inlong_cluster_node
-        <set>
-            <if test="parentId != null">
-                parent_id = #{parentId,jdbcType=INTEGER},
-            </if>
-            <if test="type != null">
-                type = #{type,jdbcType=VARCHAR},
-            </if>
-            <if test="ip != null">
-                ip = #{ip,jdbcType=VARCHAR},
-            </if>
-            <if test="port != null">
-                port = #{port,jdbcType=INTEGER},
-            </if>
-            <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                modifier = #{modifier,jdbcType=VARCHAR},
-            </if>
-            <if test="extParams != null">
-                ext_params = #{extParams,jdbcType=LONGVARCHAR},
-            </if>
-            version = #{version,jdbcType=INTEGER} + 1
-        </set>
-        where id = #{id,jdbcType=INTEGER}
-    </update>
+
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         update inlong_cluster_node
         set parent_id   = #{parentId,jdbcType=INTEGER},
@@ -140,13 +109,13 @@
             ip          = #{ip,jdbcType=VARCHAR},
             port        = #{port,jdbcType=INTEGER},
             ext_params  = #{extParams,jdbcType=LONGVARCHAR},
+            description = #{description,jdbcType=VARCHAR},
             status      = #{status,jdbcType=INTEGER},
             is_deleted  = #{isDeleted,jdbcType=INTEGER},
-            creator     = #{creator,jdbcType=VARCHAR},
             modifier    = #{modifier,jdbcType=VARCHAR},
             version     = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
-        and version = #{version,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

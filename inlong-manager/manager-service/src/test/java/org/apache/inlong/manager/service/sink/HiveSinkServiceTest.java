@@ -15,29 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
-import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSinkRequest;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * SQLServer sink service test
+ * Hive sink service test
  */
-public class SQLServerSinkServiceTest extends ServiceBaseTest {
+public class HiveSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_sqlserver";
-    private static final String globalStreamId = "stream1_sqlserver";
-    private static final String globalOperator = "admin";
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1";
+    private final String globalOperator = "admin";
+    private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -47,55 +47,50 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
     /**
      * Save sink info.
      */
-    public Integer saveSink(String sinkName) {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId,
-                globalOperator);
-        SQLServerSinkRequest sinkInfo = new SQLServerSinkRequest();
+    public Integer saveSink() {
+        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+
+        HiveSinkRequest sinkInfo = new HiveSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_SQLSERVER);
-
-        sinkInfo.setJdbcUrl("jdbc:sqlserver://localhost:5432/sqlserver");
-        sinkInfo.setUsername("sqlserver");
-        sinkInfo.setPassword("inlong");
-        sinkInfo.setTableName("user");
-        sinkInfo.setSchemaName("test");
-        sinkInfo.setPrimaryKey("name,age");
-
-        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setSinkType(SinkType.SINK_HIVE);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
-    public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+    @Test
+    public void testSaveAndDelete() {
+        Integer id = this.saveSink();
+        Assertions.assertNotNull(id);
+
+        boolean result = sinkService.delete(id, globalOperator);
         Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer sinkId = this.saveSink("sqlserver_default1");
-        StreamSink sink = sinkService.get(sinkId);
+        Integer id = this.saveSink();
+
+        StreamSink sink = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteSink(sinkId);
+
+        sinkService.delete(id, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("sqlserver_default2");
+        Integer sinkId = this.saveSink();
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        SQLServerSink sink = (SQLServerSink) streamSink;
-        sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        SQLServerSinkRequest request = CommonBeanUtils.copyProperties(sink, SQLServerSinkRequest::new);
+        HiveSink sink = (HiveSink) streamSink;
+        sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        HiveSinkRequest request = CommonBeanUtils.copyProperties(sink, HiveSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 
-        deleteSink(sinkId);
+        sinkService.delete(sinkId, globalOperator);
     }
 
 }
