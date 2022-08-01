@@ -16,11 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.postgres.table;
+package org.apache.inlong.sort.cdc.oracle.table;
 
+import com.ververica.cdc.connectors.oracle.table.StartupOptions;
+import com.ververica.cdc.debezium.table.DebeziumOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
@@ -29,16 +32,14 @@ import org.apache.flink.table.factories.FactoryUtil;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 
 /**
- * Factory for creating configured instance of
- * {@link com.ververica.cdc.connectors.postgres.table.PostgreSQLTableSource}.
+ * Factory for creating configured instance of {@link OracleTableSource}.
  */
-public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
+public class OracleTableSourceFactory implements DynamicTableSourceFactory {
 
-    private static final String IDENTIFIER = "postgres-cdc-inlong";
+    private static final String IDENTIFIER = "oracle-cdc-inlong";
 
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric")
@@ -50,99 +51,84 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
             ConfigOptions.key("hostname")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("IP address or hostname of the PostgreSQL database server.");
+                    .withDescription("IP address or hostname of the Oracle database server.");
 
     private static final ConfigOption<Integer> PORT =
             ConfigOptions.key("port")
                     .intType()
-                    .defaultValue(5432)
-                    .withDescription("Integer port number of the PostgreSQL database server.");
+                    .defaultValue(1521)
+                    .withDescription("Integer port number of the Oracle database server.");
 
     private static final ConfigOption<String> USERNAME =
             ConfigOptions.key("username")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "Name of the PostgreSQL database to use when connecting to the PostgreSQL database server"
-                                    + ".");
+                            "Name of the Oracle database to use when connecting to the Oracle database server.");
 
     private static final ConfigOption<String> PASSWORD =
             ConfigOptions.key("password")
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "Password to use when connecting to the PostgreSQL database server.");
+                            "Password to use when connecting to the oracle database server.");
 
     private static final ConfigOption<String> DATABASE_NAME =
             ConfigOptions.key("database-name")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Database name of the PostgreSQL server to monitor.");
+                    .withDescription("Database name of the Oracle server to monitor.");
 
     private static final ConfigOption<String> SCHEMA_NAME =
             ConfigOptions.key("schema-name")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Schema name of the PostgreSQL database to monitor.");
+                    .withDescription("Schema name of the Oracle database to monitor.");
 
     private static final ConfigOption<String> TABLE_NAME =
             ConfigOptions.key("table-name")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Table name of the PostgreSQL database to monitor.");
+                    .withDescription("Table name of the Oracle database to monitor.");
 
-    private static final ConfigOption<String> DECODING_PLUGIN_NAME =
-            ConfigOptions.key("decoding.plugin.name")
+    public static final ConfigOption<String> SCAN_STARTUP_MODE =
+            ConfigOptions.key("scan.startup.mode")
                     .stringType()
-                    .defaultValue("decoderbufs")
+                    .defaultValue("initial")
                     .withDescription(
-                            "The name of the Postgres logical decoding plug-in installed on the server.\n"
-                                    + "Supported values are decoderbufs, wal2json, wal2json_rds, wal2json_streaming,\n"
-                                    + "wal2json_rds_streaming and pgoutput.");
-
-    private static final ConfigOption<String> SLOT_NAME =
-            ConfigOptions.key("slot.name")
-                    .stringType()
-                    .defaultValue("flink")
-                    .withDescription(
-                            "The name of the PostgreSQL logical decoding slot that was created for streaming changes "
-                                    + "from a particular plug-in for a particular database/schema. The server uses "
-                                    + "this slot "
-                                    + "to stream events to the connector that you are configuring. Default is "
-                                    + "\"flink\".");
+                            "Optional startup mode for Oracle CDC consumer, valid enumerations are "
+                                    + "\"initial\", \"latest-offset\"");
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
                 FactoryUtil.createTableFactoryHelper(this, context);
-        helper.validateExcept(DEBEZIUM_OPTIONS_PREFIX);
+        helper.validateExcept(DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX);
 
         final ReadableConfig config = helper.getOptions();
         String hostname = config.get(HOSTNAME);
         String username = config.get(USERNAME);
         String password = config.get(PASSWORD);
         String databaseName = config.get(DATABASE_NAME);
-        String schemaName = config.get(SCHEMA_NAME);
         String tableName = config.get(TABLE_NAME);
+        String schemaName = config.get(SCHEMA_NAME);
         int port = config.get(PORT);
-        String pluginName = config.get(DECODING_PLUGIN_NAME);
-        String slotName = config.get(SLOT_NAME);
+        StartupOptions startupOptions = getStartupOptions(config);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        String inlongMetric = config.get(INLONG_METRIC);
+        String inLongMetric = config.get(INLONG_METRIC);
 
-        return new PostgreSQLTableSource(
+        return new OracleTableSource(
                 physicalSchema,
                 port,
                 hostname,
                 databaseName,
-                schemaName,
                 tableName,
+                schemaName,
                 username,
                 password,
-                pluginName,
-                slotName,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
-                inlongMetric);
+                startupOptions,
+                inLongMetric);
     }
 
     @Override
@@ -157,8 +143,8 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         options.add(USERNAME);
         options.add(PASSWORD);
         options.add(DATABASE_NAME);
-        options.add(SCHEMA_NAME);
         options.add(TABLE_NAME);
+        options.add(SCHEMA_NAME);
         return options;
     }
 
@@ -166,9 +152,32 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(PORT);
-        options.add(DECODING_PLUGIN_NAME);
-        options.add(SLOT_NAME);
+        options.add(SCAN_STARTUP_MODE);
         options.add(INLONG_METRIC);
         return options;
+    }
+
+    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";
+    private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
+
+    private static StartupOptions getStartupOptions(ReadableConfig config) {
+        String modeString = config.get(SCAN_STARTUP_MODE);
+
+        switch (modeString.toLowerCase()) {
+            case SCAN_STARTUP_MODE_VALUE_INITIAL:
+                return StartupOptions.initial();
+
+            case SCAN_STARTUP_MODE_VALUE_LATEST:
+                return StartupOptions.latest();
+
+            default:
+                throw new ValidationException(
+                        String.format(
+                                "Invalid value for option '%s'. Supported values are [%s, %s], but was: %s",
+                                SCAN_STARTUP_MODE.key(),
+                                SCAN_STARTUP_MODE_VALUE_INITIAL,
+                                SCAN_STARTUP_MODE_VALUE_LATEST,
+                                modeString));
+        }
     }
 }

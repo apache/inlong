@@ -22,6 +22,7 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
 
 /**
  * A collection class for handling metrics
@@ -42,16 +43,66 @@ public class SourceMetricData {
         this.metricGroup = metricGroup;
     }
 
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     *
+     * @param groupId inlong groupId
+     * @param streamId inlong streamId
+     * @param nodeId inlong nodeId
+     * @param metricName metric name
+     */
     public void registerMetricsForNumRecordsIn(String groupId, String streamId, String nodeId, String metricName) {
-        numRecordsIn =
-                metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID, nodeId)
-                        .counter(metricName);
+        registerMetricsForNumRecordsIn(groupId, streamId, nodeId, metricName, new SimpleCounter());
     }
 
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     *
+     * @param groupId inlong groupId
+     * @param streamId inlong streamId
+     * @param nodeId inlong nodeId
+     * @param metricName metric name
+     */
+    public void registerMetricsForNumRecordsIn(String groupId, String streamId, String nodeId, String metricName,
+            Counter counter) {
+        numRecordsIn =
+                metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID, nodeId)
+                        .counter(metricName, counter);
+    }
+
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     *
+     * @param groupId inlong groupId
+     * @param streamId inlong streamId
+     * @param nodeId inlong nodeId
+     * @param metricName metric name
+     */
     public void registerMetricsForNumBytesIn(String groupId, String streamId, String nodeId, String metricName) {
+        registerMetricsForNumBytesIn(groupId, streamId, nodeId, metricName, new SimpleCounter());
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     *
+     * @param groupId inlong groupId
+     * @param streamId inlong streamId
+     * @param nodeId inlong nodeId
+     * @param metricName metric name
+     */
+    public void registerMetricsForNumBytesIn(String groupId, String streamId, String nodeId, String metricName,
+            Counter counter) {
         numBytesIn =
                 metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID, nodeId)
-                        .counter(metricName);
+                        .counter(metricName, counter);
     }
 
     public void registerMetricsForNumRecordsInPerSecond(String groupId, String streamId, String nodeId,
