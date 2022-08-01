@@ -145,7 +145,7 @@ public class MySqlSource<T>
                 configFactory.createConfig(readerContext.getIndexOfSubtask());
         String inlongMetric = sourceConfig.getInlongMetric();
         if (StringUtils.isNotEmpty(inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split("_");
+            String[] inlongMetricArray = inlongMetric.split("&");
             String groupId = inlongMetricArray[0];
             String streamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
