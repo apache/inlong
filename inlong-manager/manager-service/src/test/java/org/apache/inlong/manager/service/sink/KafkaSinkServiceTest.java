@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
@@ -51,7 +51,7 @@ public class KafkaSinkServiceTest extends ServiceBaseTest {
         KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
         sinkInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sinkInfo.setInlongStreamId(GLOBAL_STREAM_ID);
-        sinkInfo.setSinkType(SinkType.SINK_KAFKA);
+        sinkInfo.setSinkType(SinkType.KAFKA);
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setSerializationType(serializationType);
         sinkInfo.setBootstrapServers(bootstrapServers);

@@ -26,8 +26,16 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
+import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
@@ -40,18 +48,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,9 +127,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(entity, "consumption not exist with id:" + id);
 
         ConsumptionInfo info = CommonBeanUtils.copyProperties(entity, ConsumptionInfo::new);
-
-        MQType mqType = MQType.forType(info.getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        String mqType = info.getMqType();
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(info.getId());
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be empty, as the middleware is Pulsar");
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
@@ -172,8 +171,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         setTopicInfo(info);
         ConsumptionEntity entity = this.saveConsumption(info, operator);
-        MQType mqType = MQType.forType(entity.getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        String mqType = entity.getMqType();
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             savePulsarInfo(info.getMqExtInfo(), entity);
         }
 
@@ -265,8 +264,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setModifier(operator);
         entity.setModifyTime(now);
         // Modify Pulsar consumption info
-        MQType mqType = MQType.forType(info.getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        String mqType = info.getMqType();
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(consumptionId);
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be null");
             pulsarEntity.setConsumerGroup(info.getConsumerGroup());
@@ -346,10 +345,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         }
 
         log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-        MQType mqType = MQType.forType(groupInfo.getMqType());
+        String mqType = groupInfo.getMqType();
         ConsumptionEntity entity = new ConsumptionEntity();
         entity.setInlongGroupId(groupId);
-        entity.setMqType(mqType.getType());
+        entity.setMqType(mqType);
         entity.setTopic(topic);
         entity.setConsumerGroup(consumerGroup);
         entity.setInCharges(groupInfo.getInCharges());
@@ -362,7 +361,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         consumptionMapper.insert(entity);
 
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             ConsumptionPulsarEntity pulsarEntity = new ConsumptionPulsarEntity();
             pulsarEntity.setConsumptionId(entity.getId());
             pulsarEntity.setConsumerGroup(consumerGroup);
@@ -404,13 +403,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
 
-        // Tube’s topic is the inlong group level, one inlong group, one Tube topic
-        MQType mqType = MQType.forType(topicVO.getMqType());
-        if (mqType == MQType.TUBE) {
+        // Tube’s topic is the inlong group level, one inlong group, one TubeMQ topic
+        String mqType = topicVO.getMqType();
+        if (MQType.TUBEMQ.equals(mqType)) {
             String mqResource = topicVO.getMqResource();
             Preconditions.checkTrue(mqResource == null || mqResource.equals(info.getTopic()),
                     "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
-        } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             // Pulsar's topic is the inlong stream level.
             // There will be multiple inlong streams under one inlong group, and there will be multiple topics
             List<InlongStreamBriefInfo> streamTopics = topicVO.getStreamTopics();
@@ -430,7 +429,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             }
 
         }
-        info.setMqType(mqType.getType());
+        info.setMqType(mqType);
     }
 
 }

@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "ClickHouse sink info")
-@JsonTypeDefine(value = SinkType.SINK_CLICKHOUSE)
+@JsonTypeDefine(value = SinkType.CLICKHOUSE)
 public class ClickHouseSink extends StreamSink {
 
     @ApiModelProperty("JDBC URL of the ClickHouse server")
@@ -92,7 +92,7 @@ public class ClickHouseSink extends StreamSink {
     private String primaryKey;
 
     public ClickHouseSink() {
-        this.setSinkType(SinkType.SINK_CLICKHOUSE);
+        this.setSinkType(SinkType.CLICKHOUSE);
     }
 
     @Override

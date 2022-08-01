@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MySQL binlog source request")
-@JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
+@JsonTypeDefine(value = SourceType.MYSQL_BINLOG)
 public class MySQLBinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the DB server")
@@ -114,7 +114,7 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     private Integer specificOffsetPos;
 
     public MySQLBinlogSourceRequest() {
-        this.setSourceType(SourceType.BINLOG.toString());
+        this.setSourceType(SourceType.MYSQL_BINLOG);
         this.setSerializationType(DataFormat.DEBEZIUM_JSON.getName());
     }
 

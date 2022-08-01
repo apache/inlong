@@ -22,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 /**
  * Oracle source request
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Oracle source request")
-@JsonTypeDefine(value = SourceType.SOURCE_ORACLE)
+@JsonTypeDefine(value = SourceType.ORACLE)
 public class OracleSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Hostname of the Oracle server")
@@ -67,7 +67,7 @@ public class OracleSourceRequest extends SourceRequest {
     private boolean allMigration = false;
 
     public OracleSourceRequest() {
-        this.setSourceType(SourceType.ORACLE.toString());
+        this.setSourceType(SourceType.ORACLE);
     }
 
 }

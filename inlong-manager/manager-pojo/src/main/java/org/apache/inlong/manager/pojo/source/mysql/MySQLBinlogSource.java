@@ -25,11 +25,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * MySQL binlog source info
@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MySQL binlog source info")
-@JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
+@JsonTypeDefine(value = SourceType.MYSQL_BINLOG)
 public class MySQLBinlogSource extends StreamSource {
 
     @ApiModelProperty("Username of the MySQL server")
@@ -103,7 +103,7 @@ public class MySQLBinlogSource extends StreamSource {
     private Integer specificOffsetPos;
 
     public MySQLBinlogSource() {
-        this.setSourceType(SourceType.BINLOG.name());
+        this.setSourceType(SourceType.MYSQL_BINLOG);
     }
 
     @Override

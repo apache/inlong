@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
@@ -59,7 +59,7 @@ public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
         HDFSSinkRequest hdfsSinkRequest = new HDFSSinkRequest();
         hdfsSinkRequest.setInlongGroupId(globalGroupId);
         hdfsSinkRequest.setInlongStreamId(globalStreamId);
-        hdfsSinkRequest.setSinkType(SinkType.SINK_HDFS);
+        hdfsSinkRequest.setSinkType(SinkType.HDFS);
         hdfsSinkRequest.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         hdfsSinkRequest.setSinkName(sinkName);
         hdfsSinkRequest.setFileFormat(fileFormat);

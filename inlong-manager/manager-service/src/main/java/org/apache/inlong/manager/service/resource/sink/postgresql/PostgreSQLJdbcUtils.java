@@ -58,9 +58,9 @@ public class PostgreSQLJdbcUtils {
             Class.forName(POSTGRES_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get postgresql connection error, please check postgres jdbc url, username or password!";
+            String errorMsg = "get postgresql connection error, please check postgresql jdbc url, username or password";
             LOG.error(errorMsg, e);
-            throw new Exception(errorMsg + " other error msg: " + e.getMessage());
+            throw new Exception(errorMsg + ": " + e.getMessage());
         }
         if (conn == null) {
             throw new Exception("get postgresql connection failed, please contact administrator");

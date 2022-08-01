@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group info for TubeMQ")
-@JsonTypeDefine(value = MQType.MQ_TUBE)
+@JsonTypeDefine(value = MQType.TUBEMQ)
 public class InlongTubeMQInfo extends InlongGroupInfo {
 
     @ApiModelProperty("TubeMQ manager URL")
@@ -47,7 +47,7 @@ public class InlongTubeMQInfo extends InlongGroupInfo {
     private int clusterId = 1;
 
     public InlongTubeMQInfo() {
-        this.setMqType(MQType.MQ_TUBE);
+        this.setMqType(MQType.TUBEMQ);
     }
 
     @Override

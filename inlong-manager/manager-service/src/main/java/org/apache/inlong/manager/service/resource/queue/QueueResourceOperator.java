@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
@@ -32,7 +31,7 @@ public interface QueueResourceOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    boolean accept(MQType mqType);
+    boolean accept(String mqType);
 
     /**
      * Create message queue resource for Inlong Group.

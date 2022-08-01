@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -51,7 +51,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_ELASTICSEARCH);
+        sinkInfo.setSinkType(SinkType.ELASTICSEARCH);
 
         sinkInfo.setHost("127.0.0.1");
         sinkInfo.setUsername("elasticsearch");

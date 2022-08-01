@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource.sink.kafka;
 
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
@@ -53,8 +53,8 @@ public class KafkaResourceOperator implements SinkResourceOperator {
     private StreamSinkService sinkService;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
-        return SinkType.KAFKA == sinkType;
+    public Boolean accept(String sinkType) {
+        return SinkType.KAFKA.equals(sinkType);
     }
 
     @Override

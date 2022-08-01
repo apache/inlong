@@ -18,11 +18,11 @@
 
 package org.apache.inlong.manager.service.source;
 
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSourceRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Tube source service test.
+ * TubeMQ source service test.
  */
 public class TubeMQSourceServiceTest extends ServiceBaseTest {
 
@@ -47,12 +47,12 @@ public class TubeMQSourceServiceTest extends ServiceBaseTest {
         TubeMQSourceRequest sourceInfo = new TubeMQSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
-        sourceInfo.setSourceName("test_tube");
+        sourceInfo.setSourceName("test_tube_mq");
         sourceInfo.setMasterRpc("127.0.0.1:8715");
         sourceInfo.setTopic("inlong");
         sourceInfo.setSerializationType("json");
         sourceInfo.setGroupId("test1");
-        sourceInfo.setSourceType(SourceType.TUBEMQ.getType());
+        sourceInfo.setSourceType(SourceType.TUBEMQ);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 

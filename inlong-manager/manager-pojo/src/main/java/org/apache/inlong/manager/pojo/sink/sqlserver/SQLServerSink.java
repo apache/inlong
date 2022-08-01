@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "SQLServer sink info")
-@JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
+@JsonTypeDefine(value = SinkType.SQLSERVER)
 public class SQLServerSink extends StreamSink {
 
     @ApiModelProperty("Username of the SQLServer")
@@ -63,7 +63,7 @@ public class SQLServerSink extends StreamSink {
     private String primaryKey;
 
     public SQLServerSink() {
-        this.setSinkType(SinkType.SINK_SQLSERVER);
+        this.setSinkType(SinkType.SQLSERVER);
     }
 
     @Override

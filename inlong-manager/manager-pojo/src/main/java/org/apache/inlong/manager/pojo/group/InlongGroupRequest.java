@@ -57,14 +57,14 @@ public abstract class InlongGroupRequest {
     private String middlewareType;
 
     @NotBlank(message = "mqType cannot be blank")
-    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
     @ApiModelProperty(value = "MQ resource",
-            notes = "in inlong group, Tube corresponds to Topic, Pulsar corresponds to Namespace")
+            notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
-    @ApiModelProperty(value = "Tube master URL")
+    @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMaster;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")

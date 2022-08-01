@@ -22,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "PostgreSQL source request")
-@JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
+@JsonTypeDefine(value = SourceType.POSTGRESQL)
 public class PostgreSQLSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the PostgreSQL server")
@@ -66,7 +66,7 @@ public class PostgreSQLSourceRequest extends SourceRequest {
     private String primaryKey;
 
     public PostgreSQLSourceRequest() {
-        this.setSourceType(SourceType.POSTGRES.toString());
+        this.setSourceType(SourceType.POSTGRESQL);
     }
 
 }

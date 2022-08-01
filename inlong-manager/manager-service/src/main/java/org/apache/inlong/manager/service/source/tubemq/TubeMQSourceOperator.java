@@ -21,10 +21,12 @@ package org.apache.inlong.manager.service.source.tubemq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -35,8 +37,6 @@ import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSourceDTO;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +58,13 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
     private InlongClusterService clusterService;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.TUBEMQ == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.TUBEMQ.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.TUBEMQ.getType();
+        return SourceType.TUBEMQ;
     }
 
     @Override

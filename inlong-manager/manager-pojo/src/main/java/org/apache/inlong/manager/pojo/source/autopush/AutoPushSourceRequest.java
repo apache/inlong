@@ -22,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 /**
  * AutoPush(DataProxy SDK) source request
@@ -33,14 +33,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Auto push source request")
-@JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
+@JsonTypeDefine(value = SourceType.AUTO_PUSH)
 public class AutoPushSourceRequest extends SourceRequest {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     public AutoPushSourceRequest() {
-        this.setSourceType(SourceType.AUTO_PUSH.toString());
+        this.setSourceType(SourceType.AUTO_PUSH);
     }
 
 }

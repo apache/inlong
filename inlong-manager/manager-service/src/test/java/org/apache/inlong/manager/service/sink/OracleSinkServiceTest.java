@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
@@ -63,7 +63,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         OracleSinkRequest sinkInfo = new OracleSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_ORACLE);
+        sinkInfo.setSinkType(SinkType.ORACLE);
 
         sinkInfo.setJdbcUrl("jdbc:oracle:thin@host:port/database");
         sinkInfo.setUsername("oracle");

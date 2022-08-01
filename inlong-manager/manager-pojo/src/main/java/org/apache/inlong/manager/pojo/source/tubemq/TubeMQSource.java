@@ -25,11 +25,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.TreeSet;
 
@@ -42,7 +42,7 @@ import java.util.TreeSet;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "TubeMQ source info")
-@JsonTypeDefine(value = SourceType.SOURCE_TUBEMQ)
+@JsonTypeDefine(value = SourceType.TUBEMQ)
 public class TubeMQSource extends StreamSource {
 
     @ApiModelProperty("Master RPC of the TubeMQ")
@@ -64,7 +64,7 @@ public class TubeMQSource extends StreamSource {
     private TreeSet<String> tid;
 
     public TubeMQSource() {
-        this.setSourceType(SourceType.TUBEMQ.name());
+        this.setSourceType(SourceType.TUBEMQ);
     }
 
     @Override

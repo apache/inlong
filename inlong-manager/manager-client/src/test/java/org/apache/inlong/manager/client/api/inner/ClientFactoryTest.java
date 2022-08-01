@@ -33,9 +33,11 @@ import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -45,6 +47,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
@@ -71,7 +74,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -179,7 +181,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("AUTO_PUSH")
+                                                .sourceType(SourceType.AUTO_PUSH)
                                                 .dataProxyGroup("111")
                                                 .build()
                                 )
@@ -211,7 +213,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("BINLOG")
+                                                .sourceType(SourceType.MYSQL_BINLOG)
                                                 .clusterId(1)
                                                 .status(1)
                                                 .user("root")
@@ -251,7 +253,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("FILE")
+                                                .sourceType(SourceType.FILE)
                                                 .status(1)
                                                 .ip("127.0.0.1")
                                                 .pattern("pattern")
@@ -284,7 +286,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("KAFKA")
+                                                .sourceType(SourceType.KAFKA)
                                                 .dataNodeName("dataNodeName")
                                                 .version(1)
                                                 .createTime(new Date())
@@ -319,7 +321,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("AUTO_PUSH")
+                        .sourceType(SourceType.AUTO_PUSH)
                         .version(1)
                         .build(),
 
@@ -327,7 +329,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("BINLOG")
+                        .sourceType(SourceType.MYSQL_BINLOG)
                         .user("root")
                         .password("pwd")
                         .hostname("localhost")
@@ -350,7 +352,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("KAFKA")
+                        .sourceType(SourceType.KAFKA)
                         .sourceName("source name")
                         .serializationType("csv")
                         .dataNodeName("dataNodeName")
@@ -452,7 +454,7 @@ class ClientFactoryTest {
         InlongGroupTopicInfo expected = new InlongGroupTopicInfo();
         expected.setInlongGroupId("1");
         expected.setMqResource("testTopic");
-        expected.setMqType("TUBE");
+        expected.setMqType(MQType.TUBEMQ);
         expected.setPulsarAdminUrl("http://127.0.0.1:8080");
         expected.setPulsarServiceUrl("http://127.0.0.1:8081");
         expected.setTubeMasterUrl("http://127.0.0.1:8082");
@@ -582,26 +584,26 @@ class ClientFactoryTest {
                         .id(1)
                         .inlongStreamId("11")
                         .inlongGroupId("11")
-                        .sourceType("AUTO_PUSH")
+                        .sourceType(SourceType.AUTO_PUSH)
                         .createTime(new Date())
 
                         .dataProxyGroup("111")
                         .build(),
                 MySQLBinlogSource.builder()
                         .id(2)
-                        .sourceType("BINLOG")
+                        .sourceType(SourceType.MYSQL_BINLOG)
                         .user("user")
                         .password("pwd")
                         .build(),
                 FileSource.builder()
                         .id(3)
-                        .sourceType("FILE")
+                        .sourceType(SourceType.FILE)
                         .agentIp("127.0.0.1")
                         .pattern("pattern")
                         .build(),
                 KafkaSource.builder()
                         .id(4)
-                        .sourceType("KAFKA")
+                        .sourceType(SourceType.KAFKA)
                         .autoOffsetReset("11")
                         .bootstrapServers("127.0.0.1")
                         .build()
@@ -609,22 +611,22 @@ class ClientFactoryTest {
 
         ArrayList<StreamSink> sinkList = Lists.newArrayList(
                 HiveSink.builder()
-                        .sinkType("HIVE")
+                        .sinkType(SinkType.HIVE)
                         .id(1)
                         .jdbcUrl("127.0.0.1")
                         .build(),
                 ClickHouseSink.builder()
-                        .sinkType("CLICKHOUSE")
+                        .sinkType(SinkType.CLICKHOUSE)
                         .id(2)
                         .flushInterval(11)
                         .build(),
                 IcebergSink.builder()
-                        .sinkType("ICEBERG")
+                        .sinkType(SinkType.ICEBERG)
                         .id(3)
                         .dataPath("hdfs://aabb")
                         .build(),
                 KafkaSink.builder()
-                        .sinkType("KAFKA")
+                        .sinkType(SinkType.KAFKA)
                         .id(4)
                         .bootstrapServers("127.0.0.1")
                         .build()
@@ -651,43 +653,43 @@ class ClientFactoryTest {
         List<StreamSink> sinkList = Lists.newArrayList(
                 ClickHouseSink.builder()
                         .id(1)
-                        .sinkType("CLICKHOUSE")
+                        .sinkType(SinkType.CLICKHOUSE)
                         .jdbcUrl("127.0.0.1")
                         .partitionStrategy("BALANCE")
                         .partitionFields("partitionFields")
                         .build(),
                 ElasticsearchSink.builder()
                         .id(2)
-                        .sinkType("ELASTICSEARCH")
+                        .sinkType(SinkType.ELASTICSEARCH)
                         .host("127.0.0.1")
                         .flushInterval(2)
                         .build(),
                 HBaseSink.builder()
                         .id(3)
-                        .sinkType("HBASE")
+                        .sinkType(SinkType.HBASE)
                         .tableName("tableName")
                         .rowKey("rowKey")
                         .build(),
                 HiveSink.builder()
                         .id(4)
-                        .sinkType("HIVE")
+                        .sinkType(SinkType.HIVE)
                         .dataPath("hdfs://ip:port/user/hive/warehouse/test.db")
                         .hiveVersion("hiveVersion")
                         .build(),
                 IcebergSink.builder()
                         .id(5)
-                        .sinkType("ICEBERG")
+                        .sinkType(SinkType.ICEBERG)
                         .partitionType("H-hour")
                         .build(),
                 KafkaSink.builder()
                         .id(6)
-                        .sinkType("KAFKA")
+                        .sinkType(SinkType.KAFKA)
                         .topicName("test")
                         .partitionNum("6")
                         .build(),
                 PostgreSQLSink.builder()
                         .id(7)
-                        .sinkType("POSTGRES")
+                        .sinkType(SinkType.POSTGRESQL)
                         .primaryKey("test")
                         .build()
         );
@@ -792,7 +794,7 @@ class ClientFactoryTest {
                 .id(1)
                 .inlongGroupId("1")
                 .inlongStreamId("1")
-                .sinkType(SinkType.SINK_MYSQL)
+                .sinkType(SinkType.MYSQL)
                 .sinkName("mysql_test")
                 // streamNode field
                 .preNodes(new HashSet<>())
