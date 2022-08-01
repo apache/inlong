@@ -111,7 +111,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      // visible: values => values.dataSourceType !== 'BINLOG',
+      // visible: values => values.dataSourceType !== 'MYSQL_BINLOG',
     },
     {
       type: 'radio',
