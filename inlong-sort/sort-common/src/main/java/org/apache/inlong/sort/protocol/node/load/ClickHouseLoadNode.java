@@ -37,6 +37,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * clickHouse update operations is heavy, it will takes precedence over all others operation to execute, so it has a
+ * poor performance. It is more suitable for batch scenes but not streaming scenes where operations are performed
+ * frequently.
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("clickHouseLoad")
 @Data
