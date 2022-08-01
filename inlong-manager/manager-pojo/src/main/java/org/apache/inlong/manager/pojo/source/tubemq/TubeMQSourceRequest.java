@@ -23,9 +23,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 import java.util.TreeSet;
 
@@ -36,8 +36,9 @@ import java.util.TreeSet;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the TubeMQ source")
-@JsonTypeDefine(value = SourceType.SOURCE_TUBEMQ)
+@JsonTypeDefine(value = SourceType.TUBEMQ)
 public class TubeMQSourceRequest extends SourceRequest {
+
     @ApiModelProperty("Master RPC of the TubeMQ,127.0.0.1:8715")
     private String masterRpc;
 
@@ -51,13 +52,13 @@ public class TubeMQSourceRequest extends SourceRequest {
     private String sessionKey;
 
     /**
-     * The tubemq consumers use this tid set to filter records reading from server.
+     * The TubeMQ consumers use this tid set to filter records reading from server.
      */
     @ApiModelProperty("Tid of the TubeMQ")
     private TreeSet<String> tid;
 
     public TubeMQSourceRequest() {
-        this.setSourceType(SourceType.TUBEMQ.name());
+        this.setSourceType(SourceType.TUBEMQ);
     }
-    
+
 }

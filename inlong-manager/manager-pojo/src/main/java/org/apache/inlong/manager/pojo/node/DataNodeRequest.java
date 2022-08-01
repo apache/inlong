@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -61,6 +61,9 @@ public class DataNodeRequest {
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
+
+    @ApiModelProperty(value = "Description of the data node")
+    private String description;
 
     @NotBlank(message = "inCharges cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)

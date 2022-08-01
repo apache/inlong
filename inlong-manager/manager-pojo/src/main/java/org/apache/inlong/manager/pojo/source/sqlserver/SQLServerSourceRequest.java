@@ -22,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 /**
  * SQLServer source request
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "SQLServer source request")
-@JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
+@JsonTypeDefine(value = SourceType.SQLSERVER)
 public class SQLServerSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the SQLServer server")
@@ -67,7 +67,7 @@ public class SQLServerSourceRequest extends SourceRequest {
     private String primaryKey;
 
     public SQLServerSourceRequest() {
-        this.setSourceType(SourceType.SQLSERVER.toString());
+        this.setSourceType(SourceType.SQLSERVER);
     }
 
 }

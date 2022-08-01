@@ -45,6 +45,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setUrl(url);
         request.setUsername(username);
         request.setToken(password);
+        request.setDescription("test cluster");
         request.setInCharges(GLOBAL_OPERATOR);
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }

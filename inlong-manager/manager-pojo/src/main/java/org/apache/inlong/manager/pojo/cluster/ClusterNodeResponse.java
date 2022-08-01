@@ -43,17 +43,20 @@ public class ClusterNodeResponse {
     @ApiModelProperty(value = "ID of the parent cluster")
     private Integer parentId;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including AGENT, DATAPROXY, etc.")
     private String type;
-
-    @ApiModelProperty(value = "Extended params")
-    private String extParams;
 
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
+
+    @ApiModelProperty(value = "Extended params")
+    private String extParams;
+
+    @ApiModelProperty(value = "Description of the cluster node")
+    private String description;
 
     @ApiModelProperty(value = "Cluster status")
     private Integer status;

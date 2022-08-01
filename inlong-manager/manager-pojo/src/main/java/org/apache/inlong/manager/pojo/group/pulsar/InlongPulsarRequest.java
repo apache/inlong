@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request for Pulsar")
-@JsonTypeDefine(value = MQType.MQ_PULSAR)
+@JsonTypeDefine(value = MQType.PULSAR)
 public class InlongPulsarRequest extends InlongGroupRequest {
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
@@ -71,7 +71,7 @@ public class InlongPulsarRequest extends InlongGroupRequest {
     private String retentionSizeUnit = "MB";
 
     public InlongPulsarRequest() {
-        this.setMqType(MQType.PULSAR.getType());
+        this.setMqType(MQType.PULSAR);
     }
 
 }

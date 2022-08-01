@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.source.mongodb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -45,13 +45,13 @@ public class MongoDBSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.MONGODB == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.MONGODB.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.MONGODB.getType();
+        return SourceType.MONGODB;
     }
 
     @Override

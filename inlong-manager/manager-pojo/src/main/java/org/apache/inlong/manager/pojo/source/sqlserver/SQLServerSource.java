@@ -24,11 +24,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * SQLServer source info
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "SQLServer source info")
-@JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
+@JsonTypeDefine(value = SourceType.SQLSERVER)
 public class SQLServerSource extends StreamSource {
 
     @ApiModelProperty("Username of the SQLServer server")
@@ -73,7 +73,7 @@ public class SQLServerSource extends StreamSource {
     private String primaryKey;
 
     public SQLServerSource() {
-        this.setSourceType(SourceType.SQLSERVER.name());
+        this.setSourceType(SourceType.SQLSERVER);
     }
 
     @Override

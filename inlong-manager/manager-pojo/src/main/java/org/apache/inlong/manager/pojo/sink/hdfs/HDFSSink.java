@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -37,7 +37,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "HDFS sink info")
-@JsonTypeDefine(value = SinkType.SINK_HDFS)
+@JsonTypeDefine(value = SinkType.HDFS)
 public class HDFSSink extends StreamSink {
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
@@ -59,7 +59,7 @@ public class HDFSSink extends StreamSink {
     private List<HDFSPartitionField> partitionFieldList;
 
     public HDFSSink() {
-        this.setSinkType(SinkType.SINK_HDFS);
+        this.setSinkType(SinkType.HDFS);
     }
 
     @Override

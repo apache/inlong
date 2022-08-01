@@ -24,11 +24,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * File source info
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "File source info")
-@JsonTypeDefine(value = SourceType.SOURCE_FILE)
+@JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
 
     @ApiModelProperty("Agent IP address")
@@ -56,7 +56,7 @@ public class FileSource extends StreamSource {
     private String timeOffset;
 
     public FileSource() {
-        this.setSourceType(SourceType.FILE.getType());
+        this.setSourceType(SourceType.FILE);
     }
 
     @Override

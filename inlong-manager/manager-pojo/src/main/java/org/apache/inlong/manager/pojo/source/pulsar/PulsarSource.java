@@ -25,11 +25,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * Pulsar source info
@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Pulsar source info")
-@JsonTypeDefine(value = SourceType.SOURCE_PULSAR)
+@JsonTypeDefine(value = SourceType.PULSAR)
 public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Pulsar tenant")
@@ -71,7 +71,7 @@ public class PulsarSource extends StreamSource {
     private boolean isInlongComponent = false;
 
     public PulsarSource() {
-        this.setSourceType(SourceType.PULSAR.getType());
+        this.setSourceType(SourceType.PULSAR);
     }
 
     @Override

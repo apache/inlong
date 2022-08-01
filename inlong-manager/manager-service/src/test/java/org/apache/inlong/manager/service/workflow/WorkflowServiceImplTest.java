@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -132,7 +132,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreatePulsarWorkflow() {
-        createInlongGroup("test14" + subType, MQType.MQ_PULSAR);
+        createInlongGroup("test14" + subType, MQType.PULSAR);
         mockTaskListenerFactory();
 
         WorkflowContext context = processService.start(processName.name(), applicant, form);

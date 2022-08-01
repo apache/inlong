@@ -19,17 +19,17 @@ package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
-import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,8 +62,8 @@ public class ConsumptionProcessService {
     private ApplyConsumptionProcessForm genConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
         ApplyConsumptionProcessForm form = new ApplyConsumptionProcessForm();
         Integer id = consumptionInfo.getId();
-        MQType mqType = MQType.forType(consumptionInfo.getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+        String mqType = consumptionInfo.getMqType();
+        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(consumptionPulsarEntity,
                     ConsumptionPulsarInfo::new);

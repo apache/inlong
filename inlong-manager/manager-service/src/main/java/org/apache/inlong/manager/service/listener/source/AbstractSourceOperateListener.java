@@ -21,10 +21,11 @@ import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -35,9 +36,8 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
@@ -138,15 +138,14 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
      */
     public SourceRequest createSourceRequest(StreamSource streamSource) {
         String sourceType = streamSource.getSourceType();
-        SourceType type = SourceType.valueOf(sourceType);
-        switch (type) {
-            case BINLOG:
+        switch (sourceType) {
+            case SourceType.MYSQL_BINLOG:
                 return CommonBeanUtils.copyProperties((MySQLBinlogSource) streamSource, MySQLBinlogSourceRequest::new);
-            case KAFKA:
+            case SourceType.KAFKA:
                 return CommonBeanUtils.copyProperties((KafkaSource) streamSource, KafkaSourceRequest::new);
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupported type=%s for SourceOperateListener", type));
+                        String.format("Unsupported type=%s for SourceOperateListener", sourceType));
         }
     }
 

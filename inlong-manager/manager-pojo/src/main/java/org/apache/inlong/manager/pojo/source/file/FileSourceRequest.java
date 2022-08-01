@@ -22,10 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 /**
  * File source request
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = SourceType.SOURCE_FILE)
+@JsonTypeDefine(value = SourceType.FILE)
 @ApiModel(value = "File source request")
 public class FileSourceRequest extends SourceRequest {
 
@@ -51,7 +51,7 @@ public class FileSourceRequest extends SourceRequest {
     private String timeOffset;
 
     public FileSourceRequest() {
-        this.setSourceType(SourceType.FILE.toString());
+        this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());
     }
 

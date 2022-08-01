@@ -111,7 +111,7 @@ public interface InlongGroupService {
      *
      * @param groupId Inlong group id
      * @return Topic information
-     * @apiNote Tube corresponds to the group, only 1 topic
+     * @apiNote TubeMQ corresponds to the group, only 1 topic
      */
     InlongGroupTopicInfo getTopic(String groupId);
 

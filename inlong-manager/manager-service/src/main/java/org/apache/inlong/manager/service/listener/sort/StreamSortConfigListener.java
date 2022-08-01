@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.listener.sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -71,7 +71,7 @@ public class StreamSortConfigListener implements SortOperateListener {
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
         boolean enable = InlongConstants.ENABLE_ZK.equals(groupInfo.getEnableZookeeper())
-                && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
+                && !MQType.NONE.equals(groupInfo.getMqType());
         LOGGER.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
         return enable;
     }

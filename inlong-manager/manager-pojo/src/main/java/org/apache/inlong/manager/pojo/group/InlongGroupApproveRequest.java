@@ -41,7 +41,7 @@ public class InlongGroupApproveRequest {
     @ApiModelProperty(value = "MQ Type")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource, for Tube, it is Topic, for Pulsar, it is Namespace")
+    @ApiModelProperty(value = "MQ resource, for TubeMQ, it is Topic, for Pulsar, it is Namespace")
     private String mqResource;
 
     @ApiModelProperty(value = "Inlong cluster tag, inlong group will be associated with the cluster")

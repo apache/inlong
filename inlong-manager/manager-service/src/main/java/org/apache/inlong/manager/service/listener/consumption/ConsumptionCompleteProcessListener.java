@@ -23,19 +23,19 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicBean;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
@@ -85,11 +85,11 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             throw new WorkflowListenerException("consumption not exits for id=" + consumptionId);
         }
 
-        MQType mqType = MQType.forType(entity.getMqType());
-        if (mqType == MQType.TUBE) {
+        String mqType = entity.getMqType();
+        if (MQType.TUBEMQ.equals(mqType)) {
             this.createTubeConsumerGroup(entity, context.getOperator());
-            return ListenerResult.success("Create Tube consumer group successful");
-        } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            return ListenerResult.success("Create TubeMQ consumer group successful");
+        } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
         } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);
@@ -157,7 +157,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     }
 
     /**
-     * Create tube consumer group
+     * Create TubeMQ consumer group
      */
     private void createTubeConsumerGroup(ConsumptionEntity entity, String operator) {
         String groupId = entity.getInlongGroupId();
@@ -167,12 +167,12 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
+        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
         try {
             tubeMQOperator.createConsumerGroup(clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
         } catch (Exception e) {
-            log.error("failed to create tube consumer group: ", e);
-            throw new WorkflowListenerException("failed to create tube consumer group: " + e.getMessage());
+            log.error("failed to create tubemq consumer group: ", e);
+            throw new WorkflowListenerException("failed to create tubemq consumer group: " + e.getMessage());
         }
     }
 

@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
@@ -78,23 +78,23 @@ public class ExtractNodeUtils {
     }
 
     public static ExtractNode createExtractNode(StreamSource sourceInfo) {
-        SourceType sourceType = SourceType.forType(sourceInfo.getSourceType());
+        String sourceType = sourceInfo.getSourceType();
         switch (sourceType) {
-            case BINLOG:
+            case SourceType.MYSQL_BINLOG:
                 return createExtractNode((MySQLBinlogSource) sourceInfo);
-            case KAFKA:
+            case SourceType.KAFKA:
                 return createExtractNode((KafkaSource) sourceInfo);
-            case PULSAR:
+            case SourceType.PULSAR:
                 return createExtractNode((PulsarSource) sourceInfo);
-            case POSTGRES:
+            case SourceType.POSTGRESQL:
                 return createExtractNode((PostgreSQLSource) sourceInfo);
-            case ORACLE:
+            case SourceType.ORACLE:
                 return createExtractNode((OracleSource) sourceInfo);
-            case SQLSERVER:
+            case SourceType.SQLSERVER:
                 return createExtractNode((SQLServerSource) sourceInfo);
-            case MONGODB:
+            case SourceType.MONGODB:
                 return createExtractNode((MongoDBSource) sourceInfo);
-            case TUBEMQ:
+            case SourceType.TUBEMQ:
                 return createExtractNode((TubeMQSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
