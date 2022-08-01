@@ -46,12 +46,12 @@ const getFilterFormContent = defaultValues => [
       buttonStyle: 'solid',
       options: [
         {
-          label: i18n.t('pages.AccessDetail.DataSources.File'),
+          label: 'File',
           value: 'FILE',
         },
         {
-          label: 'BinLog',
-          value: 'BINLOG',
+          label: 'MySQL BinLog',
+          value: 'MYSQL_BINLOG',
         },
       ],
     },

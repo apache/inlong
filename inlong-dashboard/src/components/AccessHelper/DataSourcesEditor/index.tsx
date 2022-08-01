@@ -30,7 +30,7 @@ export interface DataSourcesEditorProps {
   value?: Record<string, any>[];
   onChange?: Function;
   readonly?: boolean;
-  type?: 'BINLOG' | 'FILE';
+  type?: 'MYSQL_BINLOG' | 'FILE';
   // Whether to use real operations (for example, to call the background interface when deleting/newing, etc.)
   useActionRequest?: boolean;
   inlongGroupId?: string;
@@ -162,7 +162,7 @@ const Comp = ({
     setData(newData);
   };
 
-  const columns = (type === 'BINLOG' ? binLogColumns : fileColumns).concat(
+  const columns = (type === 'MYSQL_BINLOG' ? binLogColumns : fileColumns).concat(
     readonly
       ? []
       : [

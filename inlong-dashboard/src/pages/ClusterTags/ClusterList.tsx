@@ -144,6 +144,11 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
         dataIndex: 'inCharges',
         ellipsisMulti: 2,
       },
+      {
+        title: i18n.t('pages.Clusters.Description'),
+        dataIndex: 'description',
+        ellipsisMulti: 2,
+      },
     ];
 
     return defaultColumns.concat([

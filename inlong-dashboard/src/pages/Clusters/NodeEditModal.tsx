@@ -89,6 +89,14 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         label: i18n.t('pages.Clusters.Node.Port'),
         name: 'port',
       },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.Clusters.Description'),
+        name: 'description',
+        props: {
+          maxLength: 256,
+        },
+      },
     ];
   }, []);
 
