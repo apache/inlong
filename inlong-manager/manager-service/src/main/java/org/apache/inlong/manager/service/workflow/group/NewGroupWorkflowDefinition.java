@@ -40,7 +40,7 @@ import java.util.List;
  * New inlong group process definition
  */
 @Component
-public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
+public class NewGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
     private CancelApplyProcessListener cancelApplyProcessListener;
