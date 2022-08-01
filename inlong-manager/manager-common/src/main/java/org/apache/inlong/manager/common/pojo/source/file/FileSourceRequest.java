@@ -38,7 +38,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class FileSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Agent Cluster name")
-    private String clusterName;
+    private String clusterTag;
 
     @ApiModelProperty(value = "Agent IP address", required = true)
     private String ip;

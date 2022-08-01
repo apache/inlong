@@ -43,7 +43,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class FileSource extends StreamSource {
 
     @ApiModelProperty("Agent Cluster name")
-    private String clusterName;
+    private String clusterTag;
 
     @ApiModelProperty("Agent IP address")
     private String ip;

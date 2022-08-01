@@ -62,7 +62,7 @@ public class FileSourceDTO {
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
-                .clusterTag(fileSourceRequest.getClusterName())
+                .clusterTag(fileSourceRequest.getClusterTag())
                 .ip(fileSourceRequest.getIp())
                 .pattern(fileSourceRequest.getPattern())
                 .timeOffset(fileSourceRequest.getTimeOffset())
