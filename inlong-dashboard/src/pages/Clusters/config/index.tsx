@@ -35,7 +35,7 @@ export interface ClusterItemType {
 export const Clusters: ClusterItemType[] = [
   {
     label: 'DataProxy',
-    value: 'DATA_PROXY',
+    value: 'DATAPROXY',
     config: DataProxy,
   },
   {
@@ -45,7 +45,7 @@ export const Clusters: ClusterItemType[] = [
   },
   {
     label: 'TubeMQ',
-    value: 'TUBE',
+    value: 'TUBEMQ',
     config: TubeMQ,
   },
 ].map(item => {
@@ -99,7 +99,7 @@ export const Clusters: ClusterItemType[] = [
       _inTable: true,
     },
     {
-      type: 'input',
+      type: 'textarea',
       label: i18n.t('pages.Clusters.Description'),
       name: 'description',
       props: {

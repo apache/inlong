@@ -84,7 +84,7 @@ export default (
           requestService: `/group/getTopic/${currentValues.inlongGroupId}`,
           requestParams: {
             formatResult: result =>
-              result.mqType === 'TUBE'
+              result.mqType === 'TUBEMQ'
                 ? [
                     {
                       label: result.mqResource,

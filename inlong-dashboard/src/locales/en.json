@@ -448,6 +448,7 @@
   "pages.Clusters.Tube.MasterWebUrlHelper": "Master Web URL, used to manage (e.g. create, modify) topics and consumer groups",
   "pages.ClusterTags.Name": "ClusterTag",
   "pages.ClusterTags.InCharges": "InCharges",
+  "pages.ClusterTags.Description": "Description",
   "pages.ClusterTags.ModifyTime": "ModifyTime",
   "pages.ClusterTags.Modifier": "Modifier",
   "pages.ClusterTags.BindCluster": "BindCluster",
