@@ -17,6 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink.pulsarzone;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,11 +30,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -65,6 +65,7 @@ public class PulsarZoneProducer {
      */
     public void start() {
         try {
+            LOG.info("start PulsarZoneProducer:{}", workerName);
             this.reload();
             this.setReloadTimer();
         } catch (Exception e) {

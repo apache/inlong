@@ -83,8 +83,6 @@ public class KafkaZoneWorker extends Thread {
                     this.sleepOneInterval();
                     continue;
                 }
-                // metric
-                context.addSendingMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {

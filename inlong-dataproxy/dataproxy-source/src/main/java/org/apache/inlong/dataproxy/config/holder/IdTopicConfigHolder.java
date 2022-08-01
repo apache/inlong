@@ -17,8 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
-import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
+import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
+import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,14 +34,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
-import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
-import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
+import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
 
 /**
  * 
@@ -159,5 +159,12 @@ public class IdTopicConfigHolder implements Configurable {
             return config.getTopicName();
         }
         return null;
+    }
+
+    /**
+     * getIdConfig
+     */
+    public IdTopicConfig getIdConfig(String uid) {
+        return this.configMap.get(uid);
     }
 }

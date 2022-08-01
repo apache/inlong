@@ -63,6 +63,7 @@ public class TubeZoneProducer {
      */
     public void start() {
         try {
+            LOG.info("start TubeZoneProducer:{}", workerName);
             this.reload();
             this.setReloadTimer();
         } catch (Exception e) {

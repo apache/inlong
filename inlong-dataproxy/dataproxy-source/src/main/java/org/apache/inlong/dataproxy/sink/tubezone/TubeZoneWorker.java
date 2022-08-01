@@ -83,8 +83,6 @@ public class TubeZoneWorker extends Thread {
                     this.sleepOneInterval();
                     continue;
                 }
-                // metric
-                context.addSendMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {

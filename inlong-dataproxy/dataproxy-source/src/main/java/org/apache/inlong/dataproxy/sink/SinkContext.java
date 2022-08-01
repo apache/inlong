@@ -1,10 +1,10 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -37,19 +38,20 @@ public class SinkContext {
     public static final Logger LOG = LoggerFactory.getLogger(SinkContext.class);
 
     public static final String KEY_MAX_THREADS = "maxThreads";
-    public static final String KEY_PROCESS_INTERVAL = "processInterval";
-    public static final String KEY_RELOAD_INTERVAL = "reloadInterval";
+    public static final String KEY_PROCESSINTERVAL = "processInterval";
+    public static final String KEY_RELOADINTERVAL = "reloadInterval";
+    public static final String KEY_EVENT_HANDLER = "eventHandler";
 
-    protected final String proxyClusterId;
+    protected final String clusterId;
     protected final String sinkName;
     protected final Context sinkContext;
 
     protected final Channel channel;
-
+    //
     protected final int maxThreads;
     protected final long processInterval;
     protected final long reloadInterval;
-
+    //
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
@@ -60,10 +62,10 @@ public class SinkContext {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
-        this.proxyClusterId = context.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
+        this.clusterId = CommonPropertiesHolder.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
-        this.processInterval = sinkContext.getInteger(KEY_PROCESS_INTERVAL, 100);
-        this.reloadInterval = sinkContext.getLong(KEY_RELOAD_INTERVAL, 60000L);
+        this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
+        this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
         //
         this.metricItemSet = new DataProxyMetricItemSet(sinkName);
         MetricRegister.register(this.metricItemSet);
@@ -114,16 +116,16 @@ public class SinkContext {
 
     /**
      * get clusterId
-     *
+     * 
      * @return the clusterId
      */
-    public String getProxyClusterId() {
-        return proxyClusterId;
+    public String getClusterId() {
+        return clusterId;
     }
 
     /**
      * get sinkName
-     *
+     * 
      * @return the sinkName
      */
     public String getSinkName() {
@@ -132,7 +134,7 @@ public class SinkContext {
 
     /**
      * get sinkContext
-     *
+     * 
      * @return the sinkContext
      */
     public Context getSinkContext() {
@@ -141,7 +143,7 @@ public class SinkContext {
 
     /**
      * get channel
-     *
+     * 
      * @return the channel
      */
     public Channel getChannel() {
@@ -150,7 +152,7 @@ public class SinkContext {
 
     /**
      * get maxThreads
-     *
+     * 
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -159,7 +161,7 @@ public class SinkContext {
 
     /**
      * get processInterval
-     *
+     * 
      * @return the processInterval
      */
     public long getProcessInterval() {
@@ -168,7 +170,7 @@ public class SinkContext {
 
     /**
      * get reloadInterval
-     *
+     * 
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -177,10 +179,31 @@ public class SinkContext {
 
     /**
      * get metricItemSet
-     *
+     * 
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
+    }
+
+    /**
+     * create createEventHandler
+     */
+    public EventHandler createEventHandler() {
+        // IEventHandler
+        String eventHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HANDLER,
+                DefaultEventHandler.class.getName());
+        try {
+            Class<?> handlerClass = ClassUtils.getClass(eventHandlerClass);
+            Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
+            if (handlerObject instanceof EventHandler) {
+                EventHandler handler = (EventHandler) handlerObject;
+                return handler;
+            }
+        } catch (Throwable t) {
+            LOG.error("Fail to init EventHandler,handlerClass:{},error:{}",
+                    eventHandlerClass, t.getMessage(), t);
+        }
+        return null;
     }
 }
