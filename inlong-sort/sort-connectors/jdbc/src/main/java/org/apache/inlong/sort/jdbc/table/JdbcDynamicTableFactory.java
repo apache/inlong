@@ -27,7 +27,6 @@ import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcLookupOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcReadOptions;
-import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSink;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSource;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -166,6 +165,11 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                     .intType()
                     .defaultValue(3)
                     .withDescription("The max retry times if writing records to database failed.");
+    private static final ConfigOption<Boolean> SINK_APPEND_MODE =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether to support sink update/delete data without primaryKey.");
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -178,12 +182,14 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         JdbcOptions jdbcOptions = getJdbcOptions(config);
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
+        boolean appendMode = config.get(SINK_APPEND_MODE);
 
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
-                physicalSchema);
+                physicalSchema,
+                appendMode);
     }
 
     @Override
@@ -305,6 +311,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         optionalOptions.add(SINK_BUFFER_FLUSH_MAX_ROWS);
         optionalOptions.add(SINK_BUFFER_FLUSH_INTERVAL);
         optionalOptions.add(SINK_MAX_RETRIES);
+        optionalOptions.add(SINK_APPEND_MODE);
         optionalOptions.add(FactoryUtil.SINK_PARALLELISM);
         optionalOptions.add(MAX_RETRY_TIMEOUT);
         optionalOptions.add(DIALECT_IMPL);
