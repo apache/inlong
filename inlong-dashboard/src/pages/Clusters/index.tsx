@@ -145,7 +145,7 @@ const Comp: React.FC = () => {
           width: 200,
           render: (text, record) => (
             <>
-              {record.type === 'DATA_PROXY' && (
+              {record.type === 'DATAPROXY' && (
                 <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
                   {i18n.t('pages.Clusters.Node.Name')}
                 </Link>

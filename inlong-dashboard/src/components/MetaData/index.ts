@@ -50,62 +50,62 @@ export interface StoragesType {
 export const Storages: StoragesType[] = [
   {
     label: 'Hive',
-    value: 'HIVE',
+    value: 'Hive',
     ...StorageHive,
   },
   {
     label: 'Iceberg',
-    value: 'ICEBERG',
+    value: 'Iceberg',
     ...StorageIceberg,
   },
   {
     label: 'ClickHouse',
-    value: 'CLICKHOUSE',
+    value: 'ClickHouse',
     ...StorageClickhouse,
   },
   {
     label: 'Kafka',
-    value: 'KAFKA',
+    value: 'Kafka',
     ...StorageKafka,
   },
   {
     label: 'Elasticsearch',
-    value: 'ELASTICSEARCH',
+    value: 'Elasticsearch',
     ...StorageEs,
   },
   {
     label: 'Greenplum',
-    value: 'GREENPLUM',
+    value: 'Greenplum',
     ...StorageGreenplum,
   },
   {
     label: 'HBase',
-    value: 'HBASE',
+    value: 'HBase',
     ...StorageHBase,
   },
   {
     label: 'MySQL',
-    value: 'MYSQL',
+    value: 'MySQL',
     ...StorageMySQL,
   },
   {
     label: 'Oracle',
-    value: 'ORACLE',
+    value: 'Oracle',
     ...StorageOracle,
   },
   {
     label: 'PostgreSQL',
-    value: 'POSTGRES',
+    value: 'PostgreSQL',
     ...StoragePostgreSQL,
   },
   {
     label: 'SQLServer',
-    value: 'SQLSERVER',
+    value: 'SQLServer',
     ...StorageSQLServer,
   },
   {
     label: 'TDSQLPostgreSQL',
-    value: 'TDSQLPOSTGRESQL',
+    value: 'TDSQLPostgreSQL',
     ...StorageTDSQLPostgreSQL,
   },
 ];
