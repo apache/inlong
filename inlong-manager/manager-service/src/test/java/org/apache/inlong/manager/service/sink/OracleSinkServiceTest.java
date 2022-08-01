@@ -17,15 +17,16 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkRequest;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.oracle.OracleJdbcUtils;
@@ -119,20 +120,18 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
-        String username = "c###inlong_test";
-        String password = "123456";
-        String tableName = "test02";
+        final String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
+        final String username = "c###inlong_test";
+        final String password = "123456";
+        final String tableName = "test02";
 
-        try {
-            Connection connection = OracleJdbcUtils.getConnection(url, username, password);
+        try (Connection connection = OracleJdbcUtils.getConnection(url, username, password)) {
             OracleTableInfo tableInfo = bulidTestOracleTableInfo(username, tableName);
             OracleJdbcUtils.createTable(connection, tableInfo);
             List<OracleColumnInfo> addColumns = buildAddColumns();
             OracleJdbcUtils.addColumns(connection, tableName, addColumns);
             List<OracleColumnInfo> columns = OracleJdbcUtils.getColumns(connection, tableName);
             Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
-            connection.close();
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -145,18 +144,11 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<OracleColumnInfo> buildAddColumns() {
-        List<OracleColumnInfo> addColum = new ArrayList<>();
-        OracleColumnInfo test1 = new OracleColumnInfo();
-        addColum.add(test1);
-        test1.setName("test1");
-        test1.setType("NUMBER(16)");
-        test1.setComment("test1");
-        OracleColumnInfo test2 = new OracleColumnInfo();
-        addColum.add(test2);
-        test2.setName("test2");
-        test2.setType("VARCHAR2(10)");
-        test2.setComment("test2");
-        return addColum;
+        List<OracleColumnInfo> list = Lists.newArrayList(
+                new OracleColumnInfo("test1", "NUMBER(16)", "test1"),
+                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2")
+        );
+        return list;
     }
 
     /**
@@ -166,27 +158,18 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * @param tableName Oracle table name
      * @return {@link OracleTableInfo}
      */
-    private OracleTableInfo bulidTestOracleTableInfo(String userName, String tableName) {
+    private OracleTableInfo bulidTestOracleTableInfo(final String userName, final String tableName) {
         OracleTableInfo oracleTableInfo = new OracleTableInfo();
         oracleTableInfo.setTableName(tableName);
-        List<OracleColumnInfo> columnInfos = new ArrayList<>();
-        OracleColumnInfo id = new OracleColumnInfo();
-        columnInfos.add(id);
-        id.setName("id");
-        id.setType("NUMBER(6)");
-        id.setComment("id");
-        OracleColumnInfo cell = new OracleColumnInfo();
-        columnInfos.add(cell);
-        cell.setName("cell");
-        cell.setType("VARCHAR2(10)");
-        cell.setComment("cell");
-        OracleColumnInfo name = new OracleColumnInfo();
-        columnInfos.add(name);
-        name.setName("name");
-        name.setType("VARCHAR2(20)");
-        name.setComment("name");
-        oracleTableInfo.setColumns(columnInfos);
         oracleTableInfo.setUserName(userName);
+
+        List<OracleColumnInfo> columnInfos = Lists.newArrayList(
+                new OracleColumnInfo("id", "NUMBER(6)", "id"),
+                new OracleColumnInfo("cell", "VARCHAR2(10)", "cell"),
+                new OracleColumnInfo("name", "VARCHAR2(20)", "name")
+        );
+        oracleTableInfo.setColumns(columnInfos);
+
         return oracleTableInfo;
     }
 
