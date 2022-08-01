@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.resource.sink.sqlserver;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
@@ -54,8 +54,8 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
     private StreamSinkFieldEntityMapper fieldEntityMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
-        return SinkType.SQLSERVER == sinkType;
+    public Boolean accept(String sinkType) {
+        return SinkType.SQLSERVER.equals(sinkType);
     }
 
     @Override
