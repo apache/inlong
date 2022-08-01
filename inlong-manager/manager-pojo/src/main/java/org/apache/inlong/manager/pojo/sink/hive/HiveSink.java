@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -41,7 +41,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Hive sink info")
-@JsonTypeDefine(value = SinkType.SINK_HIVE)
+@JsonTypeDefine(value = SinkType.HIVE)
 public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
@@ -87,7 +87,7 @@ public class HiveSink extends StreamSink {
     private String hiveConfDir;
 
     public HiveSink() {
-        this.setSinkType(SinkType.SINK_HIVE);
+        this.setSinkType(SinkType.HIVE);
     }
 
     @Override

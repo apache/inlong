@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
@@ -31,11 +31,11 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request for Tdmq Pulsar")
-@JsonTypeDefine(value = MQType.MQ_TDMQ_PULSAR)
+@JsonTypeDefine(value = MQType.TDMQ_PULSAR)
 public class InlongTdmqPulsarRequest extends InlongPulsarRequest {
 
     public InlongTdmqPulsarRequest() {
-        this.setMqType(MQType.TDMQ_PULSAR.getType());
+        this.setMqType(MQType.TDMQ_PULSAR);
     }
 
 }

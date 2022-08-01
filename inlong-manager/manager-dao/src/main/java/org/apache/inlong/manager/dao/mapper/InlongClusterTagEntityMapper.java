@@ -37,8 +37,6 @@ public interface InlongClusterTagEntityMapper {
 
     int updateById(InlongClusterTagEntity record);
 
-    int updateByPrimaryKeySelective(InlongClusterTagEntity record);
-
     int deleteByPrimaryKey(Integer id);
 
 }

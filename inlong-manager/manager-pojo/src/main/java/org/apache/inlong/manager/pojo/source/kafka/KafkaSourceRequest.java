@@ -22,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
 
 /**
  * Kafka source request
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka source request")
-@JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
+@JsonTypeDefine(value = SourceType.KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Kafka topic")
@@ -78,7 +78,7 @@ public class KafkaSourceRequest extends SourceRequest {
     private String primaryKey;
 
     public KafkaSourceRequest() {
-        this.setSourceType(SourceType.KAFKA.toString());
+        this.setSourceType(SourceType.KAFKA);
     }
 
 }

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.pojo.cluster;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -42,6 +42,9 @@ public class ClusterTagRequest {
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
+
+    @ApiModelProperty(value = "Description of the cluster tag")
+    private String description;
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;

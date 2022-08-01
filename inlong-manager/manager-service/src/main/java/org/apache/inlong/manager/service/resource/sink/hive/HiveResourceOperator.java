@@ -19,15 +19,15 @@ package org.apache.inlong.manager.service.resource.sink.hive;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -53,8 +53,8 @@ public class HiveResourceOperator implements SinkResourceOperator {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
-        return SinkType.HIVE == sinkType;
+    public Boolean accept(String sinkType) {
+        return SinkType.HIVE.equals(sinkType);
     }
 
     /**

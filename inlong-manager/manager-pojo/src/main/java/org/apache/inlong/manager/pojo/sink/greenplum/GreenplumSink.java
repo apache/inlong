@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Greenplum sink info")
-@JsonTypeDefine(value = SinkType.SINK_GREENPLUM)
+@JsonTypeDefine(value = SinkType.GREENPLUM)
 public class GreenplumSink extends StreamSink {
 
     @ApiModelProperty("JDBC URL of Greenplum server, such as: jdbc:postgresql://host:port/database")
@@ -54,7 +54,7 @@ public class GreenplumSink extends StreamSink {
     private String primaryKey;
 
     public GreenplumSink() {
-        this.setSinkType(SinkType.SINK_GREENPLUM);
+        this.setSinkType(SinkType.GREENPLUM);
     }
 
     @Override

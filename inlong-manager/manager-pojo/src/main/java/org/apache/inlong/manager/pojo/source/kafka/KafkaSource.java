@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka source info")
-@JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
+@JsonTypeDefine(value = SourceType.KAFKA)
 public class KafkaSource extends StreamSource {
 
     @ApiModelProperty("Kafka topic")
@@ -82,7 +82,7 @@ public class KafkaSource extends StreamSource {
     private String primaryKey;
 
     public KafkaSource() {
-        this.setSourceType(SourceType.KAFKA.name());
+        this.setSourceType(SourceType.KAFKA);
     }
 
     @Override

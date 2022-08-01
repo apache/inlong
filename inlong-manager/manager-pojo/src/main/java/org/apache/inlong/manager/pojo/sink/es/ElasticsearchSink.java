@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink info")
-@JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
+@JsonTypeDefine(value = SinkType.ELASTICSEARCH)
 public class ElasticsearchSink extends StreamSink {
 
     @ApiModelProperty("Host of the Elasticsearch server")
@@ -79,7 +79,7 @@ public class ElasticsearchSink extends StreamSink {
     private Integer esVersion;
 
     public ElasticsearchSink() {
-        this.setSinkType(SinkType.SINK_ELASTICSEARCH);
+        this.setSinkType(SinkType.ELASTICSEARCH);
     }
 
     @Override

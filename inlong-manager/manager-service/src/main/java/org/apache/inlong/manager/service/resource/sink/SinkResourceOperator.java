@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 
 /**
@@ -28,7 +27,7 @@ public interface SinkResourceOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    Boolean accept(SinkType sinkType);
+    Boolean accept(String sinkType);
 
     /**
      * Create sink resource.

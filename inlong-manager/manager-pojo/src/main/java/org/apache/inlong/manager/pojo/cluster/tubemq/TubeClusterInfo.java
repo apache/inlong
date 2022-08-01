@@ -23,26 +23,26 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 /**
- * Inlong cluster info for Tube
+ * Inlong cluster info for TubeMQ
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.TUBE)
-@ApiModel("Inlong cluster info for Tube")
+@JsonTypeDefine(value = ClusterType.TUBEMQ)
+@ApiModel("Inlong cluster info for TubeMQ")
 public class TubeClusterInfo extends ClusterInfo {
 
     @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
-            notes = "Tube master RPC URL is the 'url' field of the cluster")
+            notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
     public TubeClusterInfo() {
-        this.setType(ClusterType.TUBE);
+        this.setType(ClusterType.TUBEMQ);
     }
 
     @Override

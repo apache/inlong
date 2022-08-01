@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Oracle sink info")
-@JsonTypeDefine(value = SinkType.SINK_ORACLE)
+@JsonTypeDefine(value = SinkType.ORACLE)
 public class OracleSink extends StreamSink {
 
     @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle:thin://host:port/database")
@@ -54,7 +54,7 @@ public class OracleSink extends StreamSink {
     private String primaryKey;
 
     public OracleSink() {
-        this.setSinkType(SinkType.SINK_ORACLE);
+        this.setSinkType(SinkType.ORACLE);
     }
 
     @Override

@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -37,7 +37,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.MQ_PULSAR)
+@JsonTypeDefine(value = MQType.PULSAR)
 @ApiModel("Inlong group info for Pulsar")
 public class InlongPulsarInfo extends InlongGroupInfo {
 
@@ -85,7 +85,7 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     private String retentionSizeUnit = "MB";
 
     public InlongPulsarInfo() {
-        this.setMqType(MQType.PULSAR.getType());
+        this.setMqType(MQType.PULSAR);
     }
 
     @Override

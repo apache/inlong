@@ -21,9 +21,9 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
 /**
  * Inlong group request for TubeMQ
@@ -32,13 +32,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request for TubeMQ")
-@JsonTypeDefine(value = MQType.MQ_TUBE)
+@JsonTypeDefine(value = MQType.TUBEMQ)
 public class InlongTubeMQRequest extends InlongGroupRequest {
 
     // no field
 
     public InlongTubeMQRequest() {
-        this.setMqType(MQType.MQ_TUBE);
+        this.setMqType(MQType.TUBEMQ);
     }
 
 }

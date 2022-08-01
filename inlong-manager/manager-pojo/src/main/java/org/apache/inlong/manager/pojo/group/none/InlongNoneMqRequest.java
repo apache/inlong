@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -32,13 +32,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group request without MQ")
-@JsonTypeDefine(value = MQType.MQ_NONE)
+@JsonTypeDefine(value = MQType.NONE)
 public class InlongNoneMqRequest extends InlongGroupRequest {
 
     // no field
 
     public InlongNoneMqRequest() {
-        this.setMqType(MQType.MQ_NONE);
+        this.setMqType(MQType.NONE);
     }
 
 }

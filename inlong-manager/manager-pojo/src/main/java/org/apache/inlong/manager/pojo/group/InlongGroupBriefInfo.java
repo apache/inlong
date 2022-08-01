@@ -48,7 +48,7 @@ public class InlongGroupBriefInfo {
     @ApiModelProperty(value = "Inlong group name")
     private String name;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
     @ApiModelProperty(value = "MQ resource")

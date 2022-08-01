@@ -82,7 +82,7 @@ public class DataProxyConfigRepositoryTest {
         final List<InlongClusterEntity> clusters = new ArrayList<>();
         InlongClusterEntity dataProxyCluster = new InlongClusterEntity();
         dataProxyCluster.setName("dp_1");
-        dataProxyCluster.setType("DATA_PROXY");
+        dataProxyCluster.setType("DATAPROXY");
         dataProxyCluster.setClusterTags(CLUSTER_TAG_OLD);
         dataProxyCluster.setExtTag("sz=true");
         dataProxyCluster.setExtParams("{}");

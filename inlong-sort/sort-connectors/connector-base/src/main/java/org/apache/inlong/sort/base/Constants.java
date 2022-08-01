@@ -46,4 +46,9 @@ public final class Constants {
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
 
+    /**
+     * It is used for inlong.metric
+     */
+    public static final String DELIMITER = "&";
+
 }

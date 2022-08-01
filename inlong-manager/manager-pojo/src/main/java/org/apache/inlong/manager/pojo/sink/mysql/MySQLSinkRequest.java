@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MySQL sink request")
-@JsonTypeDefine(value = SinkType.SINK_MYSQL)
+@JsonTypeDefine(value = SinkType.MYSQL)
 public class MySQLSinkRequest extends SinkRequest {
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")

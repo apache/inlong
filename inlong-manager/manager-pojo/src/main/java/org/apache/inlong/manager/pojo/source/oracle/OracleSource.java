@@ -25,11 +25,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
  * Oracle source info
@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Oracle source info")
-@JsonTypeDefine(value = SourceType.SOURCE_ORACLE)
+@JsonTypeDefine(value = SourceType.ORACLE)
 public class OracleSource extends StreamSource {
 
     @ApiModelProperty("Hostname of the Oracle server")
@@ -75,7 +75,7 @@ public class OracleSource extends StreamSource {
     private boolean allMigration = false;
 
     public OracleSource() {
-        this.setSourceType(SourceType.ORACLE.name());
+        this.setSourceType(SourceType.ORACLE);
     }
 
     @Override
