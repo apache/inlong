@@ -23,11 +23,11 @@ CREATE TABLE test_output1 (
     'url' = 'jdbc:clickhouse://clickhouse:8123/default',
     'table-name' = 'test_output1',
     'username' = 'default',
-    'password' = ''
+    'password' = '',
+    'dialect-impl' = 'org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect'
 );
 
 INSERT INTO test_output1 select * from test_input1;
-
 
 
 

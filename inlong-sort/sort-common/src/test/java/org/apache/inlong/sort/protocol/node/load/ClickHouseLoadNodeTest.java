@@ -45,9 +45,6 @@ public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
                 "jdbc:clickhouse://localhost:8023/default",
                 "root",
                 "root",
-                "Log",
-                "",
-                "",
                 ""
         );
     }

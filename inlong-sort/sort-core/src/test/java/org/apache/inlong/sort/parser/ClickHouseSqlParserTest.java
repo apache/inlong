@@ -80,9 +80,6 @@ public class ClickHouseSqlParserTest {
                 "jdbc:clickhouse://localhost:8123/demo",
                 "default",
                 "",
-                "Log",
-                "",
-                "",
                 "");
 
     }

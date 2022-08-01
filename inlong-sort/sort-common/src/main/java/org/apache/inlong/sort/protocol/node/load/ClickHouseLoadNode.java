@@ -66,15 +66,6 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String password;
 
-    @JsonProperty("engine")
-    private String engine;
-
-    @JsonProperty("partitionBy")
-    private String partitionBy;
-
-    @JsonProperty("orderBy")
-    private String orderBy;
-
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -91,9 +82,6 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
             @Nonnull @JsonProperty("passWord") String password,
-            @JsonProperty("engine") String engine,
-            @JsonProperty("partitionBy") String partitionBy,
-            @JsonProperty("orderBy") String orderBy,
             @JsonProperty("primaryKey") String primaryKey
     ) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
@@ -101,9 +89,6 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.engine = engine;
-        this.partitionBy = partitionBy;
-        this.orderBy = orderBy;
         this.primaryKey = primaryKey;
     }
 
