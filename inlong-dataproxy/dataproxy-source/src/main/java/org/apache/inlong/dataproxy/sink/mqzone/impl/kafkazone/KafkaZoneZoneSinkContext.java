@@ -40,5 +40,4 @@ public class KafkaZoneZoneSinkContext extends AbstractZoneSinkContext {
         super(sinkName, context, channel, dispatchQueue);
     }
 
-
 }

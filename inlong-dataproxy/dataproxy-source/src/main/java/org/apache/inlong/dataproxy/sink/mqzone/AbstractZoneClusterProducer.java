@@ -37,7 +37,6 @@ public abstract class AbstractZoneClusterProducer implements LifecycleAware {
     protected final String cacheClusterName;
     protected LifecycleState state;
 
-
     /**
      * Constructor
      *
@@ -71,8 +70,6 @@ public abstract class AbstractZoneClusterProducer implements LifecycleAware {
      * @return boolean sendResult
      */
     public abstract boolean send(DispatchProfile event);
-
-
 
     /**
      * encodeCacheMessageHeaders

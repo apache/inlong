@@ -223,7 +223,6 @@ public abstract class AbstractZoneSinkContext {
         return metricItemSet;
     }
 
-
     /**
      * get proxyClusterId
      *
@@ -287,7 +286,6 @@ public abstract class AbstractZoneSinkContext {
         return nodeId;
     }
 
-
     /**
      * fillInlongId
      *
@@ -302,7 +300,6 @@ public abstract class AbstractZoneSinkContext {
         dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
     }
-
 
     /**
      * addSendResultMetric
@@ -348,7 +345,6 @@ public abstract class AbstractZoneSinkContext {
         }
     }
 
-
     /**
      * processSendFail
      * @param currentRecord
@@ -363,7 +359,6 @@ public abstract class AbstractZoneSinkContext {
             currentRecord.fail();
         }
     }
-
 
     /**
      * addReadFailMetric
