@@ -22,11 +22,10 @@
 # Stop the project service shell script
 # Find PID by project name
 # Then kill -9 pid
-#
 #======================================================================
 
 # Project name
-APPLICATION="InLong-Manager-Web"
+APPLICATION="InlongManagerMain"
 echo stop ${APPLICATION} Application...
 
 # Project startup jar package name

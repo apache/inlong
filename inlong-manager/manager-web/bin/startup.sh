@@ -24,11 +24,10 @@
 # logs/startup.log: record startup log
 # logs/back directory: Project running log backup directory
 # nohup background process
-#
 #======================================================================
 
 # Project name
-APPLICATION="InLong-Manager-Web"
+APPLICATION="InlongManagerMain"
 echo start ${APPLICATION} Application...
 
 # Project startup jar package name
@@ -58,7 +57,7 @@ CONFIG_DIR=${BASE_PATH}"/conf/"
 JAR_LIBS=${BASE_PATH}"/lib/*"
 JAR_MAIN=${BASE_PATH}"/lib/"${APPLICATION_JAR}
 CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
-MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
+MAIN_CLASS=org.apache.inlong.manager.web.InlongManagerMain
 
 # Project log output absolute path
 LOG_DIR=${BASE_PATH}"/logs"
