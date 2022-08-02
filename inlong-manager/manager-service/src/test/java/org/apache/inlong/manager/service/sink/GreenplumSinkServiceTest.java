@@ -17,19 +17,25 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumColumnInfo;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
+import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.resource.sink.greenplum.GreenplumJdbcUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,4 +115,65 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
+
+    /**
+     * Just using in local test.
+     */
+    @Disabled
+    public void testDbResource() {
+        final String url = "jdbc:postgresql://127.0.0.1:5432/testdb";
+        final String username = "test";
+        final String password = "123456";
+        final String tableName = "test02";
+        final String schemaName = "public";
+
+        try (Connection connection = GreenplumJdbcUtils.getConnection(url, username, password)) {
+            GreenplumTableInfo tableInfo = bulidTestGreenplumTableInfo(username, schemaName, tableName);
+            GreenplumJdbcUtils.createTable(connection, tableInfo);
+            List<GreenplumColumnInfo> addColumns = buildAddColumns();
+            GreenplumJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
+            List<GreenplumColumnInfo> columns = GreenplumJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+        } catch (Exception e) {
+            // print to local console
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Build add Greenplum column info.
+     *
+     * @return {@link List}
+     */
+    private List<GreenplumColumnInfo> buildAddColumns() {
+        List<GreenplumColumnInfo> addColums = Lists.newArrayList(
+                new GreenplumColumnInfo("test1", "int", "test1"),
+                new GreenplumColumnInfo("test2", "varchar(30)", "test2"),
+                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1")
+        );
+        return addColums;
+    }
+
+    /**
+     * Build test Greenplum table info.
+     *
+     * @param userName Greenplum database name
+     * @param tableName Greenplum table name
+     * @return {@link GreenplumTableInfo}
+     */
+    private GreenplumTableInfo bulidTestGreenplumTableInfo(final String userName, final String schemaName,
+            final String tableName) {
+        List<GreenplumColumnInfo> columns = Lists.newArrayList(
+                new GreenplumColumnInfo("id", "int", "id"),
+                new GreenplumColumnInfo("cell", "varchar(25)", "cell"),
+                new GreenplumColumnInfo("name", "varchar(50)", "name")
+        );
+        final GreenplumTableInfo tableInfo = new GreenplumTableInfo();
+        tableInfo.setColumns(columns);
+        tableInfo.setTableName(tableName);
+        tableInfo.setPrimaryKey("id");
+        tableInfo.setSchemaName(schemaName);
+        tableInfo.setComment(tableName);
+        return tableInfo;
+    }
 }
