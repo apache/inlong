@@ -126,7 +126,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
                 streamId, nodeId, NUM_BYTES_IN_PER_SECOND);
             sourceMetricData.registerMetricsForNumRecordsIn(groupId, streamId,
                 nodeId, NUM_RECORDS_IN);
-            sourceMetricData.registerMetricsForNumBytesInPerSecond(groupId, streamId,
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId,
                 nodeId, NUM_RECORDS_IN_PER_SECOND);
         }
 
@@ -150,6 +150,11 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), collector);
+            if (sourceMetricData != null) {
+                sourceMetricData.getNumRecordsIn().inc(1L);
+                sourceMetricData.getNumBytesIn()
+                    .inc(message.getData().length);
+            }
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();

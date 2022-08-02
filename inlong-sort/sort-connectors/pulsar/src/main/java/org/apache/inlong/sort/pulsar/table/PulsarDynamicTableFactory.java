@@ -326,6 +326,8 @@ public class PulsarDynamicTableFactory implements
         options.add(SINK_MESSAGE_ROUTER);
         options.add(SINK_PARALLELISM);
         options.add(PROPERTIES);
+        options.add(INLONG_METRIC);
+
         return options;
     }
 
