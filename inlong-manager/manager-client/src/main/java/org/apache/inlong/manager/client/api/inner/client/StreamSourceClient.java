@@ -87,4 +87,11 @@ public class StreamSourceClient {
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
+
+    public StreamSource get(int id) {
+        Preconditions.checkTrue(id > 0, "sourceId is illegal");
+        Response<StreamSource> response = ClientUtils.executeHttpCall(streamSourceApi.get(id));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
 }

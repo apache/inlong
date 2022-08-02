@@ -122,4 +122,6 @@ public interface InlongStream {
      */
     InlongStream update();
 
+    StreamSource getSourceById(int sourceId);
+
 }
