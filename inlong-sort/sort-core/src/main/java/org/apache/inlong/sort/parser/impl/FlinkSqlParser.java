@@ -29,7 +29,7 @@ import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
-import org.apache.inlong.sort.protocol.InLongMetric;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.StreamInfo;
@@ -144,7 +144,7 @@ public class FlinkSqlParser implements Parser {
         Preconditions.checkState(!streamInfo.getRelations().isEmpty(), "relations is empty");
         log.info("start parse stream, streamId:{}", streamInfo.getStreamId());
         // Inject the `inlong.metric` for ExtractNode or LoadNode
-        injectInLongMetric(streamInfo);
+        injectInlongMetric(streamInfo);
         Map<String, Node> nodeMap = new HashMap<>(streamInfo.getNodes().size());
         streamInfo.getNodes().forEach(s -> {
             Preconditions.checkNotNull(s.getId(), "node id is null");
@@ -167,8 +167,8 @@ public class FlinkSqlParser implements Parser {
      *
      * @param streamInfo The encapsulation of nodes and node relations
      */
-    private void injectInLongMetric(StreamInfo streamInfo) {
-        streamInfo.getNodes().stream().filter(node -> node instanceof InLongMetric).forEach(node -> {
+    private void injectInlongMetric(StreamInfo streamInfo) {
+        streamInfo.getNodes().stream().filter(node -> node instanceof InlongMetric).forEach(node -> {
             Map<String, String> properties = node.getProperties();
             if (properties == null) {
                 properties = new LinkedHashMap<>();
@@ -181,8 +181,8 @@ public class FlinkSqlParser implements Parser {
                             node.getClass().getSimpleName()));
                 }
             }
-            properties.put(InLongMetric.METRIC_KEY,
-                    String.format(InLongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
+            properties.put(InlongMetric.METRIC_KEY,
+                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
                             streamInfo.getStreamId(), node.getId()));
         });
     }

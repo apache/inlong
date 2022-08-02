@@ -25,7 +25,7 @@ public class HBaseConstant {
 
     public static final String CONNECTOR = "connector";
 
-    public static final String HBASE_2 = "hbase-2.2";
+    public static final String HBASE_2 = "hbase-2.2-inlong";
 
     public static final String TABLE_NAME = "table-name";
 

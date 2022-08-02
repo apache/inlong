@@ -18,13 +18,13 @@
 package org.apache.inlong.sort.protocol;
 
 /**
- * The class is the abstract of InLong Metric.
+ * The class is the abstract of Inlong Metric.
  * We agree that the key of the inlong metric report is `inlong.metric`,
  * and its value is format by `groupId&streamId&nodeId`.
  * If node implements this interface, we will inject the key and value into the corresponding Sort-Connectors
  * during flink sql parser
  */
-public interface InLongMetric {
+public interface InlongMetric {
 
     /**
      * The key of metric, it must be `inlong.metric` here.
@@ -33,9 +33,9 @@ public interface InLongMetric {
 
     /**
      * The value format, it must be `groupId&streamId&nodeId` here.
-     * The groupId is the id of InLong Group
-     * The streamId is the id of InLong Stream
-     * The nodeId is the id of InLong Source or Sink
+     * The groupId is the id of Inlong Group
+     * The streamId is the id of Inlong Stream
+     * The nodeId is the id of Inlong Source or Sink
      */
     String METRIC_VALUE_FORMAT = "%s&%s&%s";
 
