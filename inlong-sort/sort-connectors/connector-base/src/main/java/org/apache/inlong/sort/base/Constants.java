@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.base;
 
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ConfigOptions;
+
 /**
  * connector base option constant
  */
@@ -50,5 +53,12 @@ public final class Constants {
      * It is used for inlong.metric
      */
     public static final String DELIMITER = "&";
+
+    public static final ConfigOption<String> INLONG_METRIC =
+        ConfigOptions.key("inlong.metric")
+            .stringType()
+            .defaultValue("")
+            .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
+
 
 }
