@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.kafkazone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -23,16 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * KafkaZoneWorker
+ * PulsarZoneWorker
  */
-public class KafkaZoneWorker extends Thread {
+public class PulsarZoneWorker extends Thread {
 
-    public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneWorker.class);
+    public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneWorker.class);
 
     private final String workerName;
-    private final KafkaZoneSinkContext context;
+    private final PulsarZoneZoneSinkContext context;
 
-    private KafkaZoneProducer zoneProducer;
+    private PulsarZoneProducer zoneProducer;
     private LifecycleState status;
 
     /**
@@ -42,11 +42,11 @@ public class KafkaZoneWorker extends Thread {
      * @param workerIndex
      * @param context
      */
-    public KafkaZoneWorker(String sinkName, int workerIndex, KafkaZoneSinkContext context) {
+    public PulsarZoneWorker(String sinkName, int workerIndex, PulsarZoneZoneSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;
-        this.zoneProducer = new KafkaZoneProducer(workerName, this.context);
+        this.zoneProducer = new PulsarZoneProducer(workerName, this.context);
         this.status = LifecycleState.IDLE;
     }
 
@@ -75,7 +75,7 @@ public class KafkaZoneWorker extends Thread {
      */
     @Override
     public void run() {
-        LOG.info(String.format("start KafkaZoneWorker:%s", this.workerName));
+        LOG.info(String.format("start PulsarZoneWorker:%s", this.workerName));
         while (status != LifecycleState.STOP) {
             try {
                 DispatchProfile event = context.getDispatchQueue().poll();
@@ -84,7 +84,7 @@ public class KafkaZoneWorker extends Thread {
                     continue;
                 }
                 // metric
-                context.addSendingMetric(event, workerName);
+                context.addSendMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {

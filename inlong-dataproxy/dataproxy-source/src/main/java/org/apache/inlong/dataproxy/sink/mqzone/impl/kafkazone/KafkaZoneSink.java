@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsarzone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -39,15 +39,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * PulsarZoneSink
+ * KafkaZoneSink
  */
-public class PulsarZoneSink extends AbstractSink implements Configurable {
+public class KafkaZoneSink extends AbstractSink implements Configurable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneSink.class);
+    public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneSink.class);
 
     private Context parentContext;
-    private PulsarZoneSinkContext context;
-    private List<PulsarZoneWorker> workers = new ArrayList<>();
+    private KafkaZoneZoneSinkContext context;
+    private List<KafkaZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
@@ -73,7 +73,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new KafkaZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }
@@ -90,7 +90,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
                     TimeUnit.MILLISECONDS);
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                PulsarZoneWorker worker = new PulsarZoneWorker(this.getName(), i, context);
+                KafkaZoneWorker worker = new KafkaZoneWorker(this.getName(), i, context);
                 worker.start();
                 this.workers.add(worker);
             }
@@ -105,7 +105,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
      */
     @Override
     public void stop() {
-        for (PulsarZoneWorker worker : workers) {
+        for (KafkaZoneWorker worker : workers) {
             try {
                 worker.close();
             } catch (Throwable e) {
@@ -130,7 +130,6 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
         tx.begin();
         try {
             Event event = channel.take();
-            // no data
             if (event == null) {
                 tx.commit();
                 return Status.BACKOFF;

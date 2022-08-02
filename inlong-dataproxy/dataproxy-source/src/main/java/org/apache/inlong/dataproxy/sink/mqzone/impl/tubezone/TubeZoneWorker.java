@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.tubezone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -30,7 +30,7 @@ public class TubeZoneWorker extends Thread {
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneWorker.class);
 
     private final String workerName;
-    private final TubeZoneSinkContext context;
+    private final TubeZoneZoneSinkContext context;
 
     private TubeZoneProducer zoneProducer;
     private LifecycleState status;
@@ -42,7 +42,7 @@ public class TubeZoneWorker extends Thread {
      * @param workerIndex
      * @param context
      */
-    public TubeZoneWorker(String sinkName, int workerIndex, TubeZoneSinkContext context) {
+    public TubeZoneWorker(String sinkName, int workerIndex, TubeZoneZoneSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;

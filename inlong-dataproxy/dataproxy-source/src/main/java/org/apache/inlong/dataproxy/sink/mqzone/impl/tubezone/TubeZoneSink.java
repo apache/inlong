@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.kafkazone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -39,15 +39,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * KafkaZoneSink
+ * TubeZoneSink
  */
-public class KafkaZoneSink extends AbstractSink implements Configurable {
+public class TubeZoneSink extends AbstractSink implements Configurable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneSink.class);
+    public static final Logger LOG = LoggerFactory.getLogger(TubeZoneSink.class);
 
     private Context parentContext;
-    private KafkaZoneSinkContext context;
-    private List<KafkaZoneWorker> workers = new ArrayList<>();
+    private TubeZoneZoneSinkContext context;
+    private List<TubeZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
@@ -73,7 +73,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new KafkaZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new TubeZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }
@@ -90,7 +90,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
                     TimeUnit.MILLISECONDS);
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                KafkaZoneWorker worker = new KafkaZoneWorker(this.getName(), i, context);
+                TubeZoneWorker worker = new TubeZoneWorker(this.getName(), i, context);
                 worker.start();
                 this.workers.add(worker);
             }
@@ -105,7 +105,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
      */
     @Override
     public void stop() {
-        for (KafkaZoneWorker worker : workers) {
+        for (TubeZoneWorker worker : workers) {
             try {
                 worker.close();
             } catch (Throwable e) {

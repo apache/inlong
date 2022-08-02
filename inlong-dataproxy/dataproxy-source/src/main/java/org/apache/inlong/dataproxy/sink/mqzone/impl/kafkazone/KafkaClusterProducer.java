@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.kafkazone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
-import org.apache.flume.Context;
-import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.apache.inlong.sdk.commons.protocol.EventConstants;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -33,44 +31,28 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 /**
  * KafkaClusterProducer
  */
-public class KafkaClusterProducer implements LifecycleAware {
+public class KafkaClusterProducer extends AbstractZoneClusterProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaClusterProducer.class);
-
-    protected final String workerName;
-    private final CacheClusterConfig config;
-    private final KafkaZoneSinkContext sinkContext;
-    private final Context producerContext;
-    private final String cacheClusterName;
-    private LifecycleState state;
 
     // kafka producer
     private KafkaProducer<String, byte[]> producer;
 
     /**
      * Constructor
-     * 
+     *
      * @param workerName
      * @param config
      * @param context
      */
-    public KafkaClusterProducer(String workerName, CacheClusterConfig config, KafkaZoneSinkContext context) {
-        this.workerName = workerName;
-        this.config = config;
-        this.sinkContext = context;
-        this.producerContext = context.getProducerContext();
-        this.state = LifecycleState.IDLE;
-        this.cacheClusterName = config.getClusterName();
+    public KafkaClusterProducer(String workerName, CacheClusterConfig config, KafkaZoneZoneSinkContext context) {
+        super(workerName, config, context);
     }
 
     /**
@@ -83,7 +65,7 @@ public class KafkaClusterProducer implements LifecycleAware {
         try {
             // prepare configuration
             Properties props = new Properties();
-            props.putAll(this.producerContext.getParameters());
+            props.putAll(super.producerContext.getParameters());
             props.putAll(config.getParams());
             LOG.info("try to create kafka client:{}", props);
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
@@ -104,20 +86,11 @@ public class KafkaClusterProducer implements LifecycleAware {
     }
 
     /**
-     * getLifecycleState
-     * 
-     * @return
-     */
-    @Override
-    public LifecycleState getLifecycleState() {
-        return state;
-    }
-
-    /**
      * send
      * 
      * @param event
      */
+    @Override
     public boolean send(DispatchProfile event) {
         try {
             // topic
@@ -172,47 +145,4 @@ public class KafkaClusterProducer implements LifecycleAware {
             return false;
         }
     }
-
-    /**
-     * encodeCacheMessageHeaders
-     * 
-     * @param  event
-     * @return       Map
-     */
-    public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
-        Map<String, String> headers = new HashMap<>();
-        // version int32 protocol version, the value is 1
-        headers.put(HEADER_KEY_VERSION, HEADER_CACHE_VERSION_1);
-        // inlongGroupId string inlongGroupId
-        headers.put(EventConstants.INLONG_GROUP_ID, event.getInlongGroupId());
-        // inlongStreamId string inlongStreamId
-        headers.put(EventConstants.INLONG_STREAM_ID, event.getInlongStreamId());
-        // proxyName string proxy node id, IP or conainer name
-        headers.put(EventConstants.HEADER_KEY_PROXY_NAME, sinkContext.getNodeId());
-        // packTime int64 pack time, milliseconds
-        headers.put(EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
-        // msgCount int32 message count
-        headers.put(EventConstants.HEADER_KEY_MSG_COUNT, String.valueOf(event.getEvents().size()));
-        // srcLength int32 total length of raw messages body
-        headers.put(EventConstants.HEADER_KEY_SRC_LENGTH, String.valueOf(event.getSize()));
-        // compressType int
-        // compress type of body data
-        // INLONG_NO_COMPRESS = 0,
-        // INLONG_GZ = 1,
-        // INLONG_SNAPPY = 2
-        headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
-                String.valueOf(sinkContext.getCompressType().getNumber()));
-        // messageKey string partition hash key, optional
-        return headers;
-    }
-
-    /**
-     * get cacheClusterName
-     * 
-     * @return the cacheClusterName
-     */
-    public String getCacheClusterName() {
-        return cacheClusterName;
-    }
-
 }

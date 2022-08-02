@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsarzone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +41,7 @@ public class PulsarZoneProducer {
     public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
 
     private final String workerName;
-    private final PulsarZoneSinkContext context;
+    private final PulsarZoneZoneSinkContext context;
     private Timer reloadTimer;
 
     private List<PulsarClusterProducer> clusterList = new ArrayList<>();
@@ -55,7 +55,7 @@ public class PulsarZoneProducer {
      * @param workerName
      * @param context
      */
-    public PulsarZoneProducer(String workerName, PulsarZoneSinkContext context) {
+    public PulsarZoneProducer(String workerName, PulsarZoneZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }

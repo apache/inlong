@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.tubezone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -39,15 +39,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TubeZoneSink
+ * PulsarZoneSink
  */
-public class TubeZoneSink extends AbstractSink implements Configurable {
+public class PulsarZoneSink extends AbstractSink implements Configurable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(TubeZoneSink.class);
+    public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneSink.class);
 
     private Context parentContext;
-    private TubeZoneSinkContext context;
-    private List<TubeZoneWorker> workers = new ArrayList<>();
+    private PulsarZoneZoneSinkContext context;
+    private List<PulsarZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
@@ -73,7 +73,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new PulsarZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }
@@ -90,7 +90,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
                     TimeUnit.MILLISECONDS);
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                TubeZoneWorker worker = new TubeZoneWorker(this.getName(), i, context);
+                PulsarZoneWorker worker = new PulsarZoneWorker(this.getName(), i, context);
                 worker.start();
                 this.workers.add(worker);
             }
@@ -105,7 +105,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
      */
     @Override
     public void stop() {
-        for (TubeZoneWorker worker : workers) {
+        for (PulsarZoneWorker worker : workers) {
             try {
                 worker.close();
             } catch (Throwable e) {
@@ -130,6 +130,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
         tx.begin();
         try {
             Event event = channel.take();
+            // no data
             if (event == null) {
                 tx.commit();
                 return Status.BACKOFF;

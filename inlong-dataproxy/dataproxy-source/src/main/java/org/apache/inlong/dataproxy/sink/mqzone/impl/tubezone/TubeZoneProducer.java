@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.tubezone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +39,7 @@ public class TubeZoneProducer {
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneProducer.class);
 
     private final String workerName;
-    private final TubeZoneSinkContext context;
+    private final TubeZoneZoneSinkContext context;
     private Timer reloadTimer;
 
     private List<TubeClusterProducer> clusterList = new ArrayList<>();
@@ -53,7 +53,7 @@ public class TubeZoneProducer {
      * @param workerName
      * @param context
      */
-    public TubeZoneProducer(String workerName, TubeZoneSinkContext context) {
+    public TubeZoneProducer(String workerName, TubeZoneZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }

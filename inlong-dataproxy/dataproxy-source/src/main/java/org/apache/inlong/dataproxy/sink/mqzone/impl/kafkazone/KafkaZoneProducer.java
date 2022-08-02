@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.kafkazone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +40,7 @@ public class KafkaZoneProducer {
     public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
 
     private final String workerName;
-    private final KafkaZoneSinkContext context;
+    private final KafkaZoneZoneSinkContext context;
     private Timer reloadTimer;
 
     private List<KafkaClusterProducer> clusterList = new ArrayList<>();
@@ -54,7 +54,7 @@ public class KafkaZoneProducer {
      * @param workerName
      * @param context
      */
-    public KafkaZoneProducer(String workerName, KafkaZoneSinkContext context) {
+    public KafkaZoneProducer(String workerName, KafkaZoneZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }
