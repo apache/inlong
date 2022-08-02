@@ -43,6 +43,8 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreenplumResourceOperator.class);
 
+    public static final String GREENPLUM_DEFAULT_SCHEMA = "public";
+
     @Autowired
     private StreamSinkService sinkService;
 
@@ -89,7 +91,7 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
         GreenplumSinkDTO greenplumSink = GreenplumSinkDTO.getFromJson(sinkInfo.getExtParams());
         GreenplumTableInfo tableInfo = GreenplumSinkDTO.getTableInfo(greenplumSink, columnList);
         if (StringUtils.isEmpty(tableInfo.getSchemaName())) {
-            tableInfo.setSchemaName("public");
+            tableInfo.setSchemaName(GREENPLUM_DEFAULT_SCHEMA);
         }
         try (Connection conn = GreenplumJdbcUtils.getConnection(greenplumSink.getJdbcUrl(), greenplumSink.getUsername(),
                 greenplumSink.getPassword())) {

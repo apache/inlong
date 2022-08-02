@@ -40,6 +40,8 @@ public class GreenplumJdbcUtils {
 
     private static final String GREENPLUM_DRIVER_CLASS = "org.postgresql.Driver";
 
+    public static final String GREENPLUM_DEFAULT_SCHEMA = "public";
+
     private static final Logger LOG = LoggerFactory.getLogger(GreenplumJdbcUtils.class);
 
     /**
@@ -112,7 +114,7 @@ public class GreenplumJdbcUtils {
     public static void createTable(final Connection conn, final GreenplumTableInfo tableInfo)
             throws Exception {
         if (checkTablesExist(conn, tableInfo.getSchemaName(), tableInfo.getTableName())) {
-            LOG.info("The table [{}] are exists", tableInfo.getTableName());
+            LOG.info("the table [{}] are exists", tableInfo.getTableName());
         } else {
             final List<String> createTableSqls = GreenplumSqlBuilder.buildCreateTableSql(tableInfo);
             executeSqlBatch(conn, createTableSqls);
@@ -131,7 +133,7 @@ public class GreenplumJdbcUtils {
     public static void createSchema(final Connection conn, final String schemaName, final String userName)
             throws Exception {
         if (checkSchemaExist(conn, schemaName)) {
-            LOG.info("The schema [{}] are exists", schemaName);
+            LOG.info("the schema [{}] are exists", schemaName);
         } else {
             final String sql = GreenplumSqlBuilder.buildCreateSchema(schemaName, userName);
             executeSql(conn, sql);
@@ -176,8 +178,7 @@ public class GreenplumJdbcUtils {
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String schemaName, final String tableName,
-            final String column)
-            throws Exception {
+            final String column) throws Exception {
         boolean result = false;
         final String checkColumnSql = GreenplumSqlBuilder.getCheckColumn(schemaName, tableName, column);
         try (Statement statement = conn.createStatement();
@@ -203,7 +204,7 @@ public class GreenplumJdbcUtils {
      */
     public static boolean checkSchemaExist(final Connection conn, final String schemaName) throws Exception {
         boolean result = false;
-        if ("public".equals(schemaName)) {
+        if (GREENPLUM_DEFAULT_SCHEMA.equals(schemaName)) {
             result = true;
         } else {
             final String checkColumnSql = GreenplumSqlBuilder.getCheckSchema(schemaName);
@@ -238,13 +239,8 @@ public class GreenplumJdbcUtils {
         try (Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             while (rs.next()) {
-                columnList.add(
-                        new GreenplumColumnInfo(
-                                rs.getString(1),
-                                rs.getString(2),
-                                rs.getString(3)
-                        )
-                );
+                columnList.add(new GreenplumColumnInfo(rs.getString(1), rs.getString(2),
+                        rs.getString(3)));
             }
         }
         return columnList;

@@ -31,6 +31,7 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.greenplum.GreenplumJdbcUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -118,10 +119,10 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
     /**
      * Just using in local test.
      */
-    @Test
+    @Disabled
     public void testDbResource() {
-        final String url = "jdbc:postgresql://192.168.162.136:5432/testdb";
-        final String username = "jie_li";
+        final String url = "jdbc:postgresql://127.0.0.1:5432/testdb";
+        final String username = "test";
         final String password = "123456";
         final String tableName = "test02";
         final String schemaName = "public";
