@@ -51,7 +51,6 @@ public abstract class AbstractZoneSinkContext {
     public static final String KEY_PROCESS_INTERVAL = "processInterval";
     public static final String KEY_RELOAD_INTERVAL = "reloadInterval";
 
-    protected final String clusterId;
     protected final String sinkName;
     protected final Context sinkContext;
 
@@ -86,7 +85,6 @@ public abstract class AbstractZoneSinkContext {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
-        this.clusterId = context.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESS_INTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOAD_INTERVAL, 60000L);
@@ -160,15 +158,6 @@ public abstract class AbstractZoneSinkContext {
      * reload
      */
     public void reload() {
-    }
-
-    /**
-     * get clusterId
-     *
-     * @return the clusterId
-     */
-    public String getClusterId() {
-        return clusterId;
     }
 
     /**
@@ -381,7 +370,7 @@ public abstract class AbstractZoneSinkContext {
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
@@ -398,7 +387,7 @@ public abstract class AbstractZoneSinkContext {
      */
     public void addSendMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
