@@ -90,8 +90,7 @@ public class MessageFilter implements Filter {
             } else if (body.length() > maxMsgLength) {
                 LOG.warn("Received bad request from client. Body length is " + body.length());
                 code = StatusCode.EXCEED_LEN;
-                message = "Bad request from client. " + "Body length is " + body.length()
-                        + ",exceeding the limit:" + maxMsgLength;
+                message = "Bad request from client. Body length is exceeding the limit:" + maxMsgLength;
             } else {
                 chain.doFilter(request, response);
             }
@@ -105,10 +104,9 @@ public class MessageFilter implements Filter {
             }
         }
 
-        String callback = req.getParameter("callback");
         resp.setCharacterEncoding(req.getCharacterEncoding());
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write(getResultContent(code, message, callback));
+        resp.getWriter().write(getResultContent(code, message));
         resp.flushBuffer();
     }
 
@@ -116,19 +114,13 @@ public class MessageFilter implements Filter {
     public void destroy() {
     }
 
-    private String getResultContent(int code, String message, String callback) {
+    private String getResultContent(int code, String message) {
         StringBuilder builder = new StringBuilder();
-        if (StringUtils.isNotEmpty(callback)) {
-            builder.append(callback).append("(");
-        }
         builder.append("{\"code\":\"");
         builder.append(code);
         builder.append("\",\"msg\":\"");
         builder.append(message);
         builder.append("\"}");
-        if (StringUtils.isNotEmpty(callback)) {
-            builder.append(")");
-        }
 
         return builder.toString();
     }

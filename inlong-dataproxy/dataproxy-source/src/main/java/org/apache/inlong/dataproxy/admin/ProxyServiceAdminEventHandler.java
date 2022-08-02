@@ -40,7 +40,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -49,7 +49,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
 
     /**
      * process
-     * 
+     *
      * @param cmd
      * @param event
      * @param response
@@ -59,8 +59,8 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
         String sourceName = event.getHeaders().get(ProxyServiceMBean.KEY_SOURCENAME);
         LOG.info("start to process admin task:{},sourceName:{}", cmd, sourceName);
         switch (cmd) {
-            case ProxyServiceMBean.METHOD_STOPSERVICE :
-            case ProxyServiceMBean.METHOD_RECOVERSERVICE :
+            case ProxyServiceMBean.METHOD_STOPSERVICE:
+            case ProxyServiceMBean.METHOD_RECOVERSERVICE:
                 if (sourceName == null) {
                     break;
                 }
@@ -70,7 +70,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
                     this.processOne(cmd, sourceName, response);
                 }
                 break;
-            default :
+            default:
                 break;
         }
         LOG.info("end to process admin task:{},sourceName:{}", cmd, sourceName);
@@ -78,7 +78,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
 
     /**
      * processOne
-     * 
+     *
      * @param cmd
      * @param sourceName
      * @param response
@@ -105,7 +105,6 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
             this.outputResponse(response, result.toString());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            result.append(e.getMessage());
             this.outputResponse(response, result.toString());
         }
         LOG.info("end to processOne admin task:{},sort task:{}", cmd, sourceName);
@@ -113,7 +112,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
 
     /**
      * processAll
-     * 
+     *
      * @param cmd
      * @param event
      * @param response
@@ -142,7 +141,6 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
             this.outputResponse(response, result.toString());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            result.append(e.getMessage());
             this.outputResponse(response, result.toString());
         }
         LOG.info("end to processAll admin task:{}", cmd);

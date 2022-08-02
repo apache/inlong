@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  * AbstractAdminEventHandler
  */
 public abstract class AbstractAdminEventHandler implements AdminEventHandler {
@@ -36,7 +35,7 @@ public abstract class AbstractAdminEventHandler implements AdminEventHandler {
 
     /**
      * outputResponse
-     * 
+     *
      * @param response
      * @param outputString
      */
