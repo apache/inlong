@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.pojo.user.UserLoginRequest;
-import org.apache.inlong.manager.common.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.shiro.SecurityUtils;
@@ -60,7 +60,7 @@ class AnnoControllerTest extends WebBaseTest {
         loginUser.setPassword("test_wrong_pwd");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -83,7 +83,7 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/register")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -106,7 +106,7 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/register")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -124,7 +124,7 @@ class AnnoControllerTest extends WebBaseTest {
         testLogin();
 
         MvcResult mvcResult = mockMvc.perform(
-                        get("/anno/logout")
+                        get("/api/anno/logout")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
@@ -147,7 +147,7 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/register")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)

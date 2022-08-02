@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.web.auth.web;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -61,8 +61,8 @@ public class AuthenticationFilter implements Filter {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            UserInfo loginuserInfo = (UserInfo) subject.getPrincipal();
-            doFilter(servletRequest, servletResponse, filterChain, loginuserInfo);
+            UserInfo loginUserInfo = (UserInfo) subject.getPrincipal();
+            doFilter(servletRequest, servletResponse, filterChain, loginUserInfo);
             return;
         }
 

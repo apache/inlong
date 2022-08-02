@@ -35,6 +35,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>connector-base</module>
         <module>hive</module>
         <module>mysql-cdc</module>
         <module>kafka</module>

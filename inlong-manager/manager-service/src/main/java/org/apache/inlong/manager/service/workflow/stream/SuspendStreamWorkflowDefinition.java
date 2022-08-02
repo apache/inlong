@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamCompleteListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamFailedListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamListener;
+import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamCompleteListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamFailedListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -73,16 +73,16 @@ public class SuspendStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask stopDataSourceTask = new ServiceTask();
         stopDataSourceTask.setName("StopSource");
         stopDataSourceTask.setDisplayName("Stream-StopSource");
-        stopDataSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopDataSourceTask.addListenerProvider(streamTaskListenerFactory);
+        stopDataSourceTask.setServiceTaskType(ServiceTaskType.STOP_SOURCE);
+        stopDataSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(stopDataSourceTask);
 
         // Stop Sort
         ServiceTask stopSortTask = new ServiceTask();
         stopSortTask.setName("StopSort");
         stopSortTask.setDisplayName("Stream-StopSort");
-        stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(streamTaskListenerFactory);
+        stopSortTask.setServiceTaskType(ServiceTaskType.STOP_SORT);
+        stopSortTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

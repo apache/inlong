@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -29,11 +31,15 @@ public class BasicAuth {
     public static final String BASIC_AUTH_PREFIX = "Basic";
     public static final String BASIC_AUTH_SEPARATOR = " ";
     public static final String BASIC_AUTH_JOINER = ":";
+    public static final String BASIC_AUTH_EMPTY = "";
 
     /**
      * Generate http basic auth credential from configured secretId and secretKey
      */
     public static String genBasicAuthCredential(String secretId, String secretKey) {
+        if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
+            return BASIC_AUTH_EMPTY;
+        }
         String credential = String.join(BASIC_AUTH_JOINER, secretId, secretKey);
         return BASIC_AUTH_PREFIX + BASIC_AUTH_SEPARATOR + Base64.getEncoder()
                 .encodeToString(credential.getBytes(StandardCharsets.UTF_8));

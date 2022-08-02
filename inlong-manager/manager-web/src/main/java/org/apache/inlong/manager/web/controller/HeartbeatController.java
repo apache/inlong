@@ -20,12 +20,12 @@ package org.apache.inlong.manager.web.controller;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
-import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
-import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatQueryRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
+import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Heartbeat controller.
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Heartbeat-API")
 public class HeartbeatController {
 

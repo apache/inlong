@@ -285,9 +285,7 @@ public class NettyClient implements Client {
          */
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object e) {
-            logger.debug("client message receive!");
             if (e instanceof RpcDataPack) {
-                logger.debug("RpcDataPack client message receive!");
                 RpcDataPack dataPack = (RpcDataPack) e;
                 Callback callback = requests.remove(dataPack.getSerialNo());
                 if (callback != null) {

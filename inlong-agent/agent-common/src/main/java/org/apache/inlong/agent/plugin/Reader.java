@@ -49,7 +49,7 @@ public interface Reader extends Stage {
      * set wait milliseconds when tailing a file
      * to solve while loop cause too much cpu usage
      */
-    void setWaitMillisecs(long millis);
+    void setWaitMillisecond(long millis);
 
     /**
      * get snapshot of the reader

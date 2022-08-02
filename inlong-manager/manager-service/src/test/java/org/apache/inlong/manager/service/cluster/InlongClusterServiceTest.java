@@ -21,15 +21,15 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         DataProxyClusterRequest request = new DataProxyClusterRequest();
         request.setClusterTags(clusterTag);
         request.setName(clusterName);
-        request.setType(ClusterType.DATA_PROXY);
+        request.setType(ClusterType.DATAPROXY);
         request.setExtTag(extTag);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
@@ -213,16 +213,16 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port1);
+        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1);
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port2);
+        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2);
         Assertions.assertNotNull(nodeId2);
 
         // create an inlong group which use the clusterTag
         String inlongGroupId = "test_cluster_tag_group";
-        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.MQ_PULSAR);
+        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.PULSAR);
         InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
         updateGroupInfo.setInlongClusterTag(clusterTag);
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);

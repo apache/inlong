@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.repository;
 
-import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -82,7 +82,7 @@ public class DataProxyConfigRepositoryTest {
         final List<InlongClusterEntity> clusters = new ArrayList<>();
         InlongClusterEntity dataProxyCluster = new InlongClusterEntity();
         dataProxyCluster.setName("dp_1");
-        dataProxyCluster.setType("DATA_PROXY");
+        dataProxyCluster.setType("DATAPROXY");
         dataProxyCluster.setClusterTags(CLUSTER_TAG_OLD);
         dataProxyCluster.setExtTag("sz=true");
         dataProxyCluster.setExtParams("{}");

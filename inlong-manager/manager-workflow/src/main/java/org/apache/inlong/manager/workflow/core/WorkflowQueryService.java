@@ -17,14 +17,14 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -66,7 +66,7 @@ public interface WorkflowQueryService {
      * @param processRequest Query conditions
      * @return The list of the process sheet
      */
-    List<WorkflowProcessEntity> listProcessEntity(ProcessQuery processRequest);
+    List<WorkflowProcessEntity> listProcessEntity(ProcessRequest processRequest);
 
     /**
      * Query task list
@@ -74,7 +74,7 @@ public interface WorkflowQueryService {
      * @param taskQuery Query conditions
      * @return the list of task sheet
      */
-    List<WorkflowTaskEntity> listTaskEntity(TaskQuery taskQuery);
+    List<WorkflowTaskEntity> listTaskEntity(TaskRequest taskQuery);
 
     /**
      * WorkflowProcess statistics
@@ -82,7 +82,7 @@ public interface WorkflowQueryService {
      * @param query Query conditions
      * @return statistical results
      */
-    ProcessCountResponse countProcess(ProcessCountQuery query);
+    ProcessCountResponse countProcess(ProcessCountRequest query);
 
     /**
      * WorkflowTask statistics
@@ -90,7 +90,7 @@ public interface WorkflowQueryService {
      * @param query Query conditions
      * @return statistical results
      */
-    TaskCountResponse countTask(TaskCountQuery query);
+    TaskCountResponse countTask(TaskCountRequest query);
 
     /**
      * Get the details of the process
@@ -113,6 +113,6 @@ public interface WorkflowQueryService {
      * @param query Query conditions
      * @return the list of log
      */
-    List<WorkflowEventLogEntity> listEventLog(EventLogQuery query);
+    List<WorkflowEventLogEntity> listEventLog(EventLogRequest query);
 
 }

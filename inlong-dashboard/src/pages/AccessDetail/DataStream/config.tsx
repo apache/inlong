@@ -17,14 +17,26 @@
  * under the License.
  */
 
+import React from 'react';
+import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { genDataFields } from '@/components/AccessHelper';
+import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import { statusList } from './status';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
     name: 'keyword',
     initialValue: defaultValues.keyword,
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      options: statusList,
+    },
   },
 ];
 
@@ -73,16 +85,18 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
     readonly,
   };
 
+  const isCreate = editingId === true;
+
   return [
     ...genDataFields(
       [
-        // {
-        //   type: (
-        //     <Divider orientation="left">
-        //       {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
-        //     </Divider>
-        //   ),
-        // },
+        isCreate && {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
+            </Divider>
+          ),
+        },
         'inlongStreamId',
         {
           label: 'Topic Name',
@@ -92,35 +106,36 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
         },
         'name',
         'description',
-        // {
-        //   type: (
-        //     <Divider orientation="left">
-        //       {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-        //     </Divider>
-        //   ),
-        // },
-        // 'dataType',
-        // 'dataEncoding',
-        // 'dataSeparator',
-        // 'rowTypeFields',
-        // {
-        //   type: (
-        //     <Divider orientation="left">
-        //       {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-        //     </Divider>
-        //   ),
-        //   visible: mqType === 'PULSAR',
-        // },
+        isCreate && {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+            </Divider>
+          ),
+        },
+        isCreate && 'dataType',
+        isCreate && 'dataEncoding',
+        isCreate && 'dataSeparator',
+        isCreate && 'rowTypeFields',
+        isCreate && {
+          type: (
+            <Divider orientation="left">
+              {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+            </Divider>
+          ),
+          visible: mqType === 'PULSAR',
+        },
       ],
       currentValues,
       extraParams,
     ),
-    // ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
-    //   item => ({
-    //     ...item,
-    //     visible: mqType === 'PULSAR',
-    //   }),
-    // ),
+    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
+      item =>
+        isCreate && {
+          ...item,
+          visible: mqType === 'PULSAR',
+        },
+    ),
     // ...genDataFields(
     //   [
     //     {
@@ -136,35 +151,37 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
     //   currentValues,
     //   extraParams,
     // ),
-  ].map(item => {
-    if (
-      (editingId === true && currentValues?.id === undefined) ||
-      (item.name === 'streamSink' && !readonly)
-    ) {
-      return item;
-    }
-
-    const obj = { ...item };
-
-    if (!editingId || editingId !== currentValues?.id) {
-      // Nothing is being edited, or the current line is not being edited
-      delete obj.extra;
-      delete obj.rules;
-      if (typeof obj.type === 'string') {
-        obj.type = 'text';
-        obj.props = { options: obj.props?.options };
+  ]
+    .filter(Boolean)
+    .map(item => {
+      if (
+        (editingId === true && currentValues?.id === undefined) ||
+        (item.name === 'streamSink' && !readonly)
+      ) {
+        return item;
       }
 
-      if ((obj.suffix as any)?.type) {
-        (obj.suffix as any).type = 'text';
-      }
-    } else {
-      // Current edit line
-      if (['inlongStreamId', 'dataSourceType', 'dataType'].includes(obj.name as string)) {
-        obj.type = 'text';
-      }
-    }
+      const obj = { ...item };
 
-    return obj;
-  });
+      if (!editingId || editingId !== currentValues?.id) {
+        // Nothing is being edited, or the current line is not being edited
+        delete obj.extra;
+        delete obj.rules;
+        if (typeof obj.type === 'string') {
+          obj.type = 'text';
+          obj.props = { options: obj.props?.options };
+        }
+
+        if ((obj.suffix as any)?.type) {
+          (obj.suffix as any).type = 'text';
+        }
+      } else {
+        // Current edit line
+        if (['inlongStreamId', 'dataSourceType', 'dataType'].includes(obj.name as string)) {
+          obj.type = 'text';
+        }
+      }
+
+      return obj;
+    });
 };

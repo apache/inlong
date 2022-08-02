@@ -23,15 +23,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoleEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(RoleEntity record);
 
-    int insertSelective(RoleEntity record);
+    RoleEntity selectById(Integer id);
 
-    RoleEntity selectByPrimaryKey(Integer id);
+    int updateById(RoleEntity record);
 
-    int updateByPrimaryKeySelective(RoleEntity record);
+    int deleteById(Integer id);
 
-    int updateByPrimaryKey(RoleEntity record);
 }

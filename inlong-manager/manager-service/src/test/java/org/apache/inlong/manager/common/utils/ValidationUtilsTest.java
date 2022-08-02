@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.common.utils;
 
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.common.util.ValidationUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;

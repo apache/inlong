@@ -20,19 +20,19 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.service.core.DataNodeService;
-import org.apache.inlong.manager.service.resource.hive.HiveJdbcUtils;
+import org.apache.inlong.manager.service.resource.sink.hive.HiveJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,7 +158,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         String type = request.getType();
 
         Boolean result = false;
-        if (DataNodeType.HIVE.toString().equals(type)) {
+        if (DataNodeType.HIVE.equals(type)) {
             result = testHiveConnection(request);
         }
 

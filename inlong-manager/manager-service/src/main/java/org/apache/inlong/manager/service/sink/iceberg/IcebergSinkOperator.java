@@ -20,15 +20,15 @@ package org.apache.inlong.manager.service.sink.iceberg;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkDTO;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -52,13 +52,13 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
+    public Boolean accept(String sinkType) {
         return SinkType.ICEBERG.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_ICEBERG;
+        return SinkType.ICEBERG;
     }
 
     @Override

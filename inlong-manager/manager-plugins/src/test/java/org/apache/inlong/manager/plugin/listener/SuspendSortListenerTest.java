@@ -19,9 +19,9 @@ package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.jupiter.api.Test;
 
@@ -38,11 +38,11 @@ public class SuspendSortListenerTest {
     @Test
     public void testListener() throws Exception {
         WorkflowContext context = new WorkflowContext();
-        GroupResourceProcessForm groupResourceProcessForm = new GroupResourceProcessForm();
-        context.setProcessForm(groupResourceProcessForm);
+        GroupResourceProcessForm groupResourceForm = new GroupResourceProcessForm();
+        context.setProcessForm(groupResourceForm);
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId("1");
-        groupResourceProcessForm.setGroupInfo(pulsarInfo);
+        groupResourceForm.setGroupInfo(pulsarInfo);
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongConstants.SORT_URL);

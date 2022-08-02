@@ -129,9 +129,9 @@ func (h *heartbeatManager) consumerHB2Master() {
 				return
 			}
 		}
+		h.consumer.masterHBRetry = 0
+		h.processHBResponseM2C(rsp)
 	}
-	h.consumer.masterHBRetry = 0
-	h.processHBResponseM2C(rsp)
 	h.resetMasterHeartbeat()
 }
 

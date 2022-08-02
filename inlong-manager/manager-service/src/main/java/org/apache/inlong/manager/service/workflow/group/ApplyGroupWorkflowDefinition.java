@@ -17,16 +17,15 @@
 
 package org.apache.inlong.manager.service.workflow.group;
 
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
-import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.AfterApprovedTaskListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.ApproveApplyProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.CancelApplyProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.RejectApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.AfterApprovedTaskListener;
+import org.apache.inlong.manager.service.listener.group.apply.ApproveApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.CancelApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.RejectApplyProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
@@ -80,7 +79,7 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
 
         // System administrator approval
         UserTask adminUserTask = new UserTask();
-        adminUserTask.setName("ut_admin");
+        adminUserTask.setName(UT_ADMIN_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
@@ -102,12 +101,13 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
     }
 
     /**
-     * Get task approvers by task name
+     * Get task approvers by process name and task name
+     *
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
+     *         structure in time.
      */
     private List<String> getTaskApprovers(String taskName) {
-        String processName = this.getProcessName().name();
-        WorkflowApproverFilterContext context = new WorkflowApproverFilterContext();
-        return workflowApproverService.getApprovers(processName, taskName, context);
+        return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);
     }
 
 }

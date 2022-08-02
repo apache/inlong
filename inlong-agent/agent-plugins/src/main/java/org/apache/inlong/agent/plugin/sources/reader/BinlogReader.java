@@ -27,7 +27,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
@@ -39,8 +38,6 @@ import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
-import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
-import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +55,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
- * read binlog data
+ * Binlog data reader.
  */
 public class BinlogReader extends AbstractReader {
 
@@ -80,7 +77,7 @@ public class BinlogReader extends AbstractReader {
     public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
     public static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
     private static final String BINLOG_READER_TAG_NAME = "AgentBinlogMetric";
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
@@ -104,16 +101,11 @@ public class BinlogReader extends AbstractReader {
     private String historyMonitorDdl;
     private String instanceId;
     private ExecutorService executor;
-    private String offset;
     private String specificOffsetFile;
     private String specificOffsetPos;
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
     private boolean destroyed = false;
-    private boolean enableReportConfigLog;
-    private StreamConfigLogMetric streamConfigLogMetric;
-    private String inlongGroupId;
-    private String inlongStreamId;
 
     public BinlogReader() {
     }
@@ -132,8 +124,7 @@ public class BinlogReader extends AbstractReader {
         Pair<String, String> message = binlogMessagesQueue.poll();
         Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
         header.put(PROXY_KEY_DATA, message.getKey());
-        return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8),
-                header);
+        return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8), header);
     }
 
     @Override
@@ -150,8 +141,7 @@ public class BinlogReader extends AbstractReader {
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
         databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
                 tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
-        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
-                tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
+
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES, "false");
         historyMonitorDdl = jobConf.get(JOB_DATABASE_HISTORY_MONITOR_DDL, "false");
@@ -159,75 +149,46 @@ public class BinlogReader extends AbstractReader {
         instanceId = jobConf.getInstanceId();
         finished = false;
 
-        offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
         specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
+
+        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+                tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
+        String offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         binlogSnapshot.save(offset);
 
-        enableReportConfigLog =
-                Boolean.parseBoolean(jobConf.get(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,
-                        "true"));
-
-        inlongGroupId = jobConf.get(CommonConstants.PROXY_INLONG_GROUP_ID,
-                CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(CommonConstants.PROXY_INLONG_STREAM_ID,
-                CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID);
-        metricTagName = BINLOG_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
-
-        if (enableReportConfigLog) {
-            String reportConfigServerUrl = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_SERVER_URL, "");
-            String reportConfigLogInterval = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL, "60000");
-            String clientVersion = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION, "");
-            streamConfigLogMetric = new StreamConfigLogMetric(COMPONENT_NAME,
-                    reportConfigServerUrl, Long.parseLong(reportConfigLogInterval),
-                    AgentUtils.getLocalIp(), clientVersion);
-        }
+        metricTagName = String.join("_", BINLOG_READER_TAG_NAME, inlongGroupId, inlongStreamId);
 
         Properties props = getEngineProps();
-
-        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
-                io.debezium.engine.format.Json.class)
-                .using(props)
+        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(io.debezium.engine.format.Json.class)
                 .notifying((records, committer) -> {
                     try {
                         for (ChangeEvent<String, String> record : records) {
-                            DebeziumFormat debeziumFormat = gson
-                                    .fromJson(record.value(), DebeziumFormat.class);
-                            binlogMessagesQueue.put(Pair.of(debeziumFormat.getSource().getTable(),
-                                    record.value()));
+                            DebeziumFormat debeziumFormat = GSON.fromJson(record.value(), DebeziumFormat.class);
+                            binlogMessagesQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
                     } catch (Exception e) {
                         LOGGER.error("parse binlog message error", e);
-
                     }
-
                 })
+                .using(props)
                 .using((success, message, error) -> {
                     if (!success) {
-                        LOGGER.error("binlog job with jobConf {} has " + "error {}",
-                                jobConf.getInstanceId(), message, error);
-                        streamConfigLogMetric
-                                .updateConfigLog(inlongGroupId, inlongStreamId, "DBConfig",
-                                        ConfigLogTypeEnum.ERROR, error == null ? "" : error.toString());
+                        LOGGER.error("error for binlog job: {}, msg: {}", jobConf.getInstanceId(), message, error);
                     }
                 }).build();
 
         executor = Executors.newSingleThreadExecutor();
         executor.execute(engine);
 
-        LOGGER.info("get initial snapshot of job {}, snapshot {}",
-                jobConf.getInstanceId(), getSnapshot());
+        LOGGER.info("get initial snapshot of job {}, snapshot {}", jobConf.getInstanceId(), getSnapshot());
     }
 
     private Properties getEngineProps() {
         Properties props = new Properties();
-
         props.setProperty("name", "engine" + instanceId);
         props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
 
@@ -316,12 +277,10 @@ public class BinlogReader extends AbstractReader {
 
     @Override
     public void setReadTimeout(long mill) {
-        return;
     }
 
     @Override
-    public void setWaitMillisecs(long millis) {
-        return;
+    public void setWaitMillisecond(long millis) {
     }
 
     @Override

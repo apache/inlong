@@ -31,8 +31,7 @@ public class TestPulsarSink {
     private MemoryChannel channel;
 
     @Before
-    public void setUp() throws Exception {
-
+    public void setUp() {
         PulsarSink sink = new PulsarSink();
         channel = new MemoryChannel();
         Context context = new Context();
@@ -43,8 +42,7 @@ public class TestPulsarSink {
     }
 
     @Test
-    public void testProcess() throws Exception {
-
+    public void testProcess() {
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
 
         Transaction transaction = channel.getTransaction();

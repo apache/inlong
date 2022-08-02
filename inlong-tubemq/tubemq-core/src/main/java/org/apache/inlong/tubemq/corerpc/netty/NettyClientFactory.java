@@ -25,15 +25,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,11 +58,8 @@ public class NettyClientFactory implements ClientFactory {
             new ConcurrentHashMap<>();
     protected AtomicBoolean shutdown = new AtomicBoolean(true);
     private EventLoopGroup eventLoopGroup;
-    private ExecutorService bossExecutorService;
-    private ExecutorService workerExecutorService;
     private AtomicInteger workerIdCounter = new AtomicInteger(0);
     // TSL encryption and need Two Way Authentic
-    private int maxMessageSize;
     private boolean enableTLS = false;
     private boolean needTwoWayAuthentic = false;
     private String keyStorePath;
@@ -87,8 +81,6 @@ public class NettyClientFactory implements ClientFactory {
         if (this.shutdown.compareAndSet(true, false)) {
             enableTLS = conf.getBoolean(RpcConstants.TLS_OVER_TCP, false);
             needTwoWayAuthentic = conf.getBoolean(RpcConstants.TLS_TWO_WAY_AUTHENTIC, false);
-            this.maxMessageSize = conf.getInt(RpcConstants.NETTY_TCP_MAX_MESSAGE_SIZE,
-                    RpcConstants.CFG_DEFAULT_NETTY_TCP_MAX_MESSAGE_SIZE);
             if (enableTLS) {
                 trustStorePath = conf.getString(RpcConstants.TLS_TRUSTSTORE_PATH);
                 trustStorePassword = conf.getString(RpcConstants.TLS_TRUSTSTORE_PASSWORD);
@@ -105,16 +97,9 @@ public class NettyClientFactory implements ClientFactory {
                 trustStorePath = null;
                 trustStorePassword = null;
             }
-            final int bossCount =
-                    conf.getInt(RpcConstants.BOSS_COUNT,
-                            RpcConstants.CFG_DEFAULT_BOSS_COUNT);
             final int workerCount =
                     conf.getInt(RpcConstants.WORKER_COUNT,
                             RpcConstants.CFG_DEFAULT_CLIENT_WORKER_COUNT);
-            final int callbackCount =
-                    conf.getInt(RpcConstants.CALLBACK_WORKER_COUNT, 3);
-            bossExecutorService = Executors.newCachedThreadPool();
-            workerExecutorService = Executors.newCachedThreadPool();
             String threadName = new StringBuilder(256)
                     .append(conf.getString(RpcConstants.WORKER_THREAD_NAME,
                             RpcConstants.CFG_DEFAULT_WORKER_THREAD_NAME))
@@ -202,11 +187,8 @@ public class NettyClientFactory implements ClientFactory {
                         }
                     }
                 }
-                if (this.bossExecutorService != null) {
-                    this.bossExecutorService.shutdown();
-                }
-                if (this.workerExecutorService != null) {
-                    this.workerExecutorService.shutdown();
+                if (this.eventLoopGroup != null && !eventLoopGroup.isShutdown()) {
+                    this.eventLoopGroup.shutdownGracefully();
                 }
             } catch (Exception e) {
                 logger.error("has exception ", e);
@@ -248,7 +230,8 @@ public class NettyClientFactory implements ClientFactory {
                     try {
                         SSLEngine sslEngine =
                                 TSSLEngineUtil.createSSLEngine(keyStorePath, trustStorePath,
-                                        keyStorePassword, trustStorePassword, true, needTwoWayAuthentic);
+                                        keyStorePassword, trustStorePassword, true,
+                                        needTwoWayAuthentic);
                         pipeline.addLast("ssl", new SslHandler(sslEngine));
                     } catch (Throwable t) {
                         logger.error(new StringBuilder(256)
@@ -257,9 +240,6 @@ public class NettyClientFactory implements ClientFactory {
                         throw new Exception(t);
                     }
                 }
-                socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(maxMessageSize,
-                        0, 4, 0, 4));
-
                 // Encode the data
                 pipeline.addLast("protocolEncoder", new NettyProtocolEncoder());
                 // Decode the bytes into a Rpc Data Pack

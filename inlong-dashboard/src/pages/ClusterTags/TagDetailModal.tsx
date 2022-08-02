@@ -94,6 +94,11 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         name: 'inCharges',
         rules: [{ required: true }],
       },
+      {
+        type: 'textarea',
+        label: i18n.t('pages.ClusterTags.Description'),
+        name: 'description',
+      },
     ];
   }, []);
 

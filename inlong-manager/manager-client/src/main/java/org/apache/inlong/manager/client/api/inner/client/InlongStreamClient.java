@@ -22,10 +22,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -100,13 +99,4 @@ public class InlongStreamClient {
         return response.getData().getList();
     }
 
-    /**
-     * get inlong group error messages
-     */
-    public List<InlongStreamConfigLogListResponse> getStreamLogs(String inlongGroupId, String inlongStreamId) {
-        Response<PageInfo<InlongStreamConfigLogListResponse>> response = ClientUtils.executeHttpCall(
-                inlongStreamApi.getStreamLogs(inlongGroupId, inlongStreamId));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData().getList();
-    }
 }

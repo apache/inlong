@@ -22,25 +22,23 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
-import org.apache.inlong.manager.service.core.StreamConfigLogService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,8 +74,6 @@ public class AgentServiceImpl implements AgentService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private StreamConfigLogService streamConfigLogService;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -130,7 +125,6 @@ public class AgentServiceImpl implements AgentService {
         int nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
 
         if (Constants.RESULT_FAIL == result) {
-            logFailedStreamSource(current);
             nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
@@ -168,8 +162,8 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
             needAddStatusList = Collections.singletonList(SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
-        List<String> sourceTypes = Lists.newArrayList(SourceType.BINLOG.getType(), SourceType.KAFKA.getType(),
-                SourceType.SQL.getType());
+        List<String> sourceTypes = Lists.newArrayList(SourceType.MYSQL_BINLOG, SourceType.KAFKA,
+                SourceType.MYSQL_SQL);
         List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
                 TASK_FETCH_SIZE);
 
@@ -182,7 +176,7 @@ public class AgentServiceImpl implements AgentService {
         entityList.addAll(needIssuedList);
 
         List<StreamSourceEntity> fileEntityList = sourceMapper.selectByStatusAndType(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
+                Lists.newArrayList(SourceType.FILE), TASK_FETCH_SIZE * 2);
         for (StreamSourceEntity fileEntity : fileEntityList) {
             FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
             if (agentIp.equals(fileSourceDTO.getIp())) {
@@ -221,24 +215,6 @@ public class AgentServiceImpl implements AgentService {
         }
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
-    }
-
-    /**
-     * If status of source is failed, record.
-     *
-     * @param entity
-     */
-    private void logFailedStreamSource(StreamSourceEntity entity) {
-        InlongStreamConfigLogRequest request = new InlongStreamConfigLogRequest();
-        request.setInlongGroupId(entity.getInlongGroupId());
-        request.setInlongStreamId(entity.getInlongStreamId());
-        request.setComponentName(ComponentTypeEnum.Agent.getName());
-        request.setIp(entity.getAgentIp());
-        request.setConfigName("DataSource:" + entity.getSourceName());
-        request.setLogType(1);
-        request.setLogInfo(String.format("StreamSource=%s init failed, please check!", entity));
-        request.setReportTime(new Date().getTime());
-        streamConfigLogService.reportConfigLog(request);
     }
 
     /**
@@ -281,8 +257,11 @@ public class AgentServiceImpl implements AgentService {
      * @return task type
      */
     private int getTaskType(StreamSourceEntity sourceEntity) {
-        SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-        return sourceType.getTaskType().getType();
+        TaskTypeEnum taskType = SourceType.SOURCE_TASK_MAP.get(sourceEntity.getSourceType());
+        if (taskType == null) {
+            throw new BusinessException("Unsupported task type for source type " + sourceEntity.getSourceType());
+        }
+        return taskType.getType();
     }
 
     /**

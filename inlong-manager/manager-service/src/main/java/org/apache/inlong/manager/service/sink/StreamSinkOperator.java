@@ -19,11 +19,10 @@ package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -36,7 +35,7 @@ public interface StreamSinkOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    Boolean accept(SinkType sinkType);
+    Boolean accept(String sinkType);
 
     /**
      * Save the sink info.

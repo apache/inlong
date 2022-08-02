@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupListener;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupCompleteListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupFailedListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupListener;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -73,16 +73,16 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         ServiceTask stopSourceTask = new ServiceTask();
         stopSourceTask.setName("StopSource");
         stopSourceTask.setDisplayName("Group-StopSource");
-        stopSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopSourceTask.addListenerProvider(groupTaskListenerFactory);
+        stopSourceTask.setServiceTaskType(ServiceTaskType.STOP_SOURCE);
+        stopSourceTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(stopSourceTask);
 
         // Stop Sort
         ServiceTask stopSortTask = new ServiceTask();
         stopSortTask.setName("StopSort");
         stopSortTask.setDisplayName("Group-StopSort");
-        stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(groupTaskListenerFactory);
+        stopSortTask.setServiceTaskType(ServiceTaskType.STOP_SORT);
+        stopSortTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

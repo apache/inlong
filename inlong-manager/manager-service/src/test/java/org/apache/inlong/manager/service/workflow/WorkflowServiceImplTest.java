@@ -18,24 +18,21 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.resource.SinkResourceListener;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.queue.QueueResourceListener;
+import org.apache.inlong.manager.service.listener.sink.SinkResourceListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -44,13 +41,10 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -103,31 +97,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
      * Mock the task listener factory
      */
     public void mockTaskListenerFactory() {
-        CreateTubeGroupTaskListener createTubeGroupTaskListener = mock(CreateTubeGroupTaskListener.class);
-        when(createTubeGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createTubeGroupTaskListener.name()).thenReturn(SinkResourceListener.class.getSimpleName());
-        when(createTubeGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
-
-        CreateTubeTopicTaskListener createTubeTopicTaskListener = mock(CreateTubeTopicTaskListener.class);
-        when(createTubeTopicTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createTubeTopicTaskListener.name()).thenReturn(CreateTubeTopicTaskListener.class.getSimpleName());
-        when(createTubeTopicTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreateTubeTopicTaskListener(createTubeTopicTaskListener);
-
-        CreatePulsarResourceTaskListener createPulsarResourceTaskListener = mock(
-                CreatePulsarResourceTaskListener.class);
-        when(createPulsarResourceTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createPulsarResourceTaskListener.name()).thenReturn(
-                CreatePulsarResourceTaskListener.class.getSimpleName());
-        when(createPulsarResourceTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreatePulsarResourceTaskListener(createPulsarResourceTaskListener);
-
-        CreatePulsarGroupTaskListener createPulsarGroupTaskListener = mock(CreatePulsarGroupTaskListener.class);
-        when(createPulsarGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createPulsarGroupTaskListener.name()).thenReturn(CreatePulsarGroupTaskListener.class.getSimpleName());
-        when(createPulsarGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
+        QueueResourceListener queueResourceListener = mock(QueueResourceListener.class);
+        when(queueResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(queueResourceListener.name()).thenReturn(QueueResourceListener.class.getSimpleName());
+        when(queueResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setQueueResourceListener(queueResourceListener);
 
         SinkResourceListener sinkResourceListener = mock(SinkResourceListener.class);
         when(sinkResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
@@ -138,7 +112,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         taskListenerFactory.clearListeners();
         taskListenerFactory.init();
         SortOperateListener mockOperateListener = createMockSortListener();
-        taskListenerFactory.getSortOperateListeners().put(mockOperateListener, context -> true);
+        taskListenerFactory.getSortOperateListeners().add(mockOperateListener);
     }
 
     public SortOperateListener createMockSortListener() {
@@ -158,7 +132,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     @Test
     public void testStartCreatePulsarWorkflow() {
-        createInlongGroup("test14" + subType, MQType.MQ_PULSAR);
+        createInlongGroup("test14" + subType, MQType.PULSAR);
         mockTaskListenerFactory();
 
         WorkflowContext context = processService.start(processName.name(), applicant, form);
@@ -169,11 +143,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("InitMQ");
         Assertions.assertTrue(task instanceof ServiceTask);
-        Assertions.assertEquals(2, task.getNameToListenerMap().size());
-
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assertions.assertTrue(listeners.get(0) instanceof CreatePulsarGroupTaskListener);
-        Assertions.assertTrue(listeners.get(1) instanceof CreatePulsarResourceTaskListener);
 
         // Integer processId = processResponse.getId();
         // context = processService.continueProcess(processId, applicant, "continue process");

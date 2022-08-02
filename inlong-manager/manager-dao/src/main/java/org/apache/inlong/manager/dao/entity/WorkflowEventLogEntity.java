@@ -23,46 +23,30 @@ import lombok.ToString;
 import java.util.Date;
 
 /**
- * Event log
+ * Workflow event log
  */
 @Data
 @ToString
 public class WorkflowEventLogEntity {
 
     private Integer id;
-
     private Integer processId;
-
     private String processName;
-
     private String processDisplayName;
-
     private String inlongGroupId;
-
     private Integer taskId;
-
     private String elementName;
-
     private String elementDisplayName;
 
     private String eventType;
-
     private String event;
-
     private String listener;
-
     private Date startTime;
-
     private Date endTime;
-
     private Integer status;
-
     private Integer async;
-
     private String ip;
-
     private String remark;
-
     private String exception;
 
 }

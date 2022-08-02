@@ -101,7 +101,7 @@
         </where>
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
+            parameterType="org.apache.inlong.manager.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
@@ -125,8 +125,15 @@
             <if test="request.status != null and request.status != ''">
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
-            order by modify_time desc
         </where>
+        <choose>
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
     <select id="selectByAgentIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select

@@ -24,20 +24,20 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -131,7 +131,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public PageInfo<ProcessResponse> listProcess(ProcessQuery query) {
+    public PageInfo<ProcessResponse> listProcess(ProcessRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowProcessEntity> result = (Page<WorkflowProcessEntity>) queryService.listProcessEntity(query);
         PageInfo<ProcessResponse> pageInfo = result.toPageInfo(entity -> {
@@ -145,7 +145,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         pageInfo.setTotal(result.getTotal());
 
         if (query.getIncludeCurrentTask()) {
-            TaskQuery taskQuery = TaskQuery.builder()
+            TaskRequest taskQuery = TaskRequest.builder()
                     .type(UserTask.class.getSimpleName())
                     .statusSet(Collections.singleton(TaskStatus.PENDING))
                     .build();
@@ -156,7 +156,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public PageInfo<TaskResponse> listTask(TaskQuery query) {
+    public PageInfo<TaskResponse> listTask(TaskRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowTaskEntity> result = (Page<WorkflowTaskEntity>) queryService.listTaskEntity(query);
         PageInfo<TaskResponse> pageInfo = result.toPageInfo(WorkflowBeanUtils::fromTaskEntity);
@@ -167,17 +167,17 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public ProcessCountResponse countProcess(ProcessCountQuery query) {
+    public ProcessCountResponse countProcess(ProcessCountRequest query) {
         return queryService.countProcess(query);
     }
 
     @Override
-    public TaskCountResponse countTask(TaskCountQuery query) {
+    public TaskCountResponse countTask(TaskCountRequest query) {
         return queryService.countTask(query);
     }
 
     @Override
-    public PageInfo<WorkflowExecuteLog> listTaskExecuteLogs(TaskExecuteLogQuery query) {
+    public PageInfo<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query) {
         Preconditions.checkNotNull(query, "task execute log query params cannot be null");
 
         String groupId = query.getInlongGroupId();
@@ -185,7 +185,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         Preconditions.checkNotEmpty(groupId, "inlong group id cannot be null");
         Preconditions.checkNotEmpty(processNameList, "process name list cannot be null");
 
-        ProcessQuery processRequest = new ProcessQuery();
+        ProcessRequest processRequest = new ProcessRequest();
         processRequest.setInlongGroupId(groupId);
         processRequest.setNameList(processNameList);
         processRequest.setHidden(1);
@@ -206,7 +206,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         // According to the process execution log, query the execution log of each task in the process
         for (WorkflowExecuteLog executeLog : pageInfo.getList()) {
-            TaskQuery taskQuery = new TaskQuery();
+            TaskRequest taskQuery = new TaskRequest();
             taskQuery.setProcessId(executeLog.getProcessId());
             taskQuery.setType(taskQuery.getType());
             List<TaskExecutorLog> executorLogs = queryService.listTaskEntity(taskQuery)
@@ -216,7 +216,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             // Set the execution log of the task's listener
             for (TaskExecutorLog taskExecutorLog : executorLogs) {
-                EventLogQuery eventLogQuery = new EventLogQuery();
+                EventLogRequest eventLogQuery = new EventLogRequest();
                 eventLogQuery.setTaskId(taskExecutorLog.getTaskId());
                 List<ListenerExecutorLog> logs = queryService.listEventLog(eventLogQuery)
                         .stream()
@@ -233,7 +233,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         return pageInfo;
     }
 
-    private Consumer<ProcessResponse> addCurrentTask(TaskQuery query) {
+    private Consumer<ProcessResponse> addCurrentTask(TaskRequest query) {
         return plv -> {
             query.setProcessId(plv.getId());
             plv.setCurrentTasks(this.listTask(query).getList());
@@ -263,7 +263,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
         PageHelper.clearPage();
         List<Integer> list = taskList.stream().map(TaskResponse::getProcessId).distinct().collect(Collectors.toList());
-        ProcessQuery query = new ProcessQuery();
+        ProcessRequest query = new ProcessRequest();
         query.setIdList(list);
 
         List<WorkflowProcessEntity> processEntities = queryService.listProcessEntity(query);

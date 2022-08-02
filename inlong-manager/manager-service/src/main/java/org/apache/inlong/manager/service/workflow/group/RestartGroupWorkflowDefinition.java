@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupListener;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupCompleteListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupFailedListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupListener;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -73,16 +73,16 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("RestartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(taskListenerFactory);
+        restartSortTask.setServiceTaskType(ServiceTaskType.RESTART_SORT);
+        restartSortTask.setListenerFactory(taskListenerFactory);
         process.addTask(restartSortTask);
 
         // Restart Source
         ServiceTask restartSourceTask = new ServiceTask();
         restartSourceTask.setName("RestartSource");
         restartSourceTask.setDisplayName("Group-RestartSource");
-        restartSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartSourceTask.addListenerProvider(taskListenerFactory);
+        restartSourceTask.setServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartSourceTask.setListenerFactory(taskListenerFactory);
         process.addTask(restartSourceTask);
 
         // End node

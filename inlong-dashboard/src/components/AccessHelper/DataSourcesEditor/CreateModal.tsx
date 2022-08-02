@@ -32,7 +32,7 @@ import {
 import { FormItemProps } from '@/components/FormGenerator';
 
 export interface Props extends ModalProps {
-  type: 'BINLOG' | 'FILE';
+  type: 'MYSQL_BINLOG' | 'FILE';
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
   // Pass when editing, directly echo the record data
@@ -50,7 +50,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toFormVals = useCallback(
     v => {
       const mapFunc = {
-        BINLOG: toFormValues,
+        MYSQL_BINLOG: toFormValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -60,7 +60,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const toSubmitVals = useCallback(
     v => {
       const mapFunc = {
-        BINLOG: toSubmitValues,
+        MYSQL_BINLOG: toSubmitValues,
       }[type];
       return mapFunc ? mapFunc(v) : v;
     },
@@ -108,7 +108,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
   const getCreateFormContent = useMemo(
     () => currentValues => {
       const config = {
-        BINLOG: getDataSourcesBinLogFields,
+        MYSQL_BINLOG: getDataSourcesBinLogFields,
         FILE: getFileCreateFormContent,
       }[type]('form', { currentValues }) as FormItemProps[];
       return [
@@ -131,8 +131,8 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
       <Modal
         {...modalProps}
         title={
-          type === 'BINLOG'
-            ? 'BINLOG'
+          type === 'MYSQL_BINLOG'
+            ? 'MYSQL_BINLOG'
             : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
         }
         width={666}

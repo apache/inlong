@@ -28,7 +28,7 @@ import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
-import { genStatusTag } from './status';
+import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
@@ -46,14 +46,24 @@ const getFilterFormContent = defaultValues => [
       buttonStyle: 'solid',
       options: [
         {
-          label: i18n.t('pages.AccessDetail.DataSources.File'),
+          label: 'File',
           value: 'FILE',
         },
         {
-          label: 'BinLog',
-          value: 'BINLOG',
+          label: 'MySQL BinLog',
+          value: 'MYSQL_BINLOG',
         },
       ],
+    },
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      dropdownMatchSelectWidth: false,
+      options: statusList,
     },
   },
 ];

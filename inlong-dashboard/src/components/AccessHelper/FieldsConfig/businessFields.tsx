@@ -46,7 +46,7 @@ export default (
     },
     {
       type: 'text',
-      label: currentValues.mqType === 'TUBE' ? 'Tube Topic' : 'Pulsar Namespace',
+      label: currentValues.mqType === 'TUBEMQ' ? 'TubeMQ Topic' : 'Pulsar Namespace',
       name: 'mqResource',
       initialValue: currentValues.mqResource,
     },
@@ -85,16 +85,16 @@ export default (
       type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.MessageMiddleware'),
       name: 'mqType',
-      initialValue: currentValues.mqType ?? 'TUBE',
+      initialValue: currentValues.mqType ?? 'TUBEMQ',
       rules: [{ required: true }],
       props: {
         options: [
           {
-            label: 'TUBE',
-            value: 'TUBE',
+            label: 'TubeMQ',
+            value: 'TUBEMQ',
           },
           {
-            label: 'PULSAR',
+            label: 'Pulsar',
             value: 'PULSAR',
           },
         ],
@@ -144,7 +144,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.mqType === 'TUBE',
+      visible: values => values.mqType === 'TUBEMQ',
     },
     {
       type: 'inputnumber',
@@ -157,7 +157,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.mqType === 'TUBE',
+      visible: values => values.mqType === 'TUBEMQ',
     },
     {
       type: 'inputnumber',
@@ -170,7 +170,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.mqType === 'TUBE',
+      visible: values => values.mqType === 'TUBEMQ',
     },
     {
       type: 'inputnumber',
@@ -183,7 +183,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.mqType === 'TUBE',
+      visible: values => values.mqType === 'TUBEMQ',
     },
     {
       type: 'inputnumber',

@@ -59,7 +59,7 @@ public abstract class WorkflowTask extends NextableElement {
      * Get sync task event listener list.
      */
     public List<TaskEventListener> listeners(TaskEvent taskEvent) {
-        return this.listeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
+        return this.listeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LISTENERS);
     }
 
     /**

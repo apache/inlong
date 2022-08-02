@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamCompleteListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamFailedListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.UpdateStreamListener;
+import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamCompleteListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamFailedListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -73,16 +73,16 @@ public class RestartStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("RestartSort");
         restartSortTask.setDisplayName("Stream-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(streamTaskListenerFactory);
+        restartSortTask.setServiceTaskType(ServiceTaskType.RESTART_SORT);
+        restartSortTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(restartSortTask);
 
         // Restart Source
         ServiceTask restartDataSourceTask = new ServiceTask();
         restartDataSourceTask.setName("RestartSource");
         restartDataSourceTask.setDisplayName("Stream-RestartSource");
-        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(streamTaskListenerFactory);
+        restartDataSourceTask.setServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartDataSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(restartDataSourceTask);
 
         // End node

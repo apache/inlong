@@ -17,18 +17,18 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCancelProcessListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionPassTaskListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionRejectProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionCancelProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionCompleteProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionPassTaskListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionRejectProcessListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -46,9 +46,6 @@ import java.util.List;
  */
 @Component
 public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
-
-    public static final String UT_ADMINT_NAME = "ut_admin";
-    public static final String UT_GROUP_OWNER_NAME = "ut_biz_owner";
 
     @Autowired
     private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
@@ -93,16 +90,16 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         // Group approval tasks
         UserTask groupOwnerUserTask = new UserTask();
         groupOwnerUserTask.setName(UT_GROUP_OWNER_NAME);
-        groupOwnerUserTask.setDisplayName("Group Approval");
+        groupOwnerUserTask.setDisplayName("GroupApproval");
         groupOwnerUserTask.setApproverAssign(this::groupOwnerUserTaskApprover);
         process.addTask(groupOwnerUserTask);
 
         // System administrator approval
         UserTask adminUserTask = new UserTask();
-        adminUserTask.setName(UT_ADMINT_NAME);
+        adminUserTask.setName(UT_ADMIN_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(ConsumptionApproveForm.class);
-        adminUserTask.setApproverAssign(this::adminUserTaskApprover);
+        adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
@@ -119,11 +116,6 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         return process;
     }
 
-    private List<String> adminUserTaskApprover(WorkflowContext context) {
-        return workflowApproverService.getApprovers(getProcessName().name(), UT_ADMINT_NAME,
-                new WorkflowApproverFilterContext());
-    }
-
     private List<String> groupOwnerUserTaskApprover(WorkflowContext context) {
         ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
@@ -131,12 +123,22 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(groupInfo.getInCharges().split(","));
+        return Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
     }
 
     @Override
     public ProcessName getProcessName() {
         return ProcessName.APPLY_CONSUMPTION_PROCESS;
+    }
+
+    /**
+     * Get task approvers by process name and task name
+     *
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
+     *         structure in time.
+     */
+    private List<String> getTaskApprovers(String taskName) {
+        return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);
     }
 
 }

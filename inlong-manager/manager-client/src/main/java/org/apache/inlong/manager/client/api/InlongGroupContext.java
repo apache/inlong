@@ -26,10 +26,9 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.io.Serializable;
@@ -56,21 +55,6 @@ public class InlongGroupContext implements Serializable {
      */
     private Map<String, String> extensions;
 
-    /**
-     * Logs for Inlong group, taskName->logs.
-     */
-    private Map<String, List<String>> groupLogs;
-
-    /**
-     * Error message for Inlong group, taskName->exceptionMsg.
-     */
-    private Map<String, List<String>> groupErrLogs;
-
-    /**
-     * Logs for each stream, key: streamName, value: componentName->log
-     */
-    private Map<String, Map<String, List<String>>> streamErrLogs = Maps.newHashMap();
-
     private SimpleGroupStatus status;
 
     public InlongGroupContext(InnerGroupContext groupContext) {
@@ -80,8 +64,6 @@ public class InlongGroupContext implements Serializable {
         this.groupName = groupInfo.getName();
         this.groupInfo = groupInfo;
         this.inlongStreamMap = groupContext.getStreamMap();
-        this.groupErrLogs = Maps.newHashMap();
-        this.groupLogs = Maps.newHashMap();
         this.status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
         recheckState();
         this.extensions = Maps.newHashMap();
@@ -116,10 +98,6 @@ public class InlongGroupContext implements Serializable {
         // check if any stream source is failed
         if (CollectionUtils.isNotEmpty(failedSources)) {
             this.status = SimpleGroupStatus.FAILED;
-            for (StreamSource failedSource : failedSources) {
-                this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
-                        .add(JsonUtils.toJsonString(failedSource));
-            }
             return;
         }
         // check if any stream source is in indirect state

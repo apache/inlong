@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.source.oracle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.pojo.source.oracle.OracleSourceDTO;
+import org.apache.inlong.manager.pojo.source.oracle.OracleSourceRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
@@ -45,13 +45,13 @@ public class OracleSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.ORACLE == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.ORACLE.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.ORACLE.getType();
+        return SourceType.ORACLE;
     }
 
     @Override

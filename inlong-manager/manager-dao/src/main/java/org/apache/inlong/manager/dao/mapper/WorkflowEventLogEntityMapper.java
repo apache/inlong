@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +33,7 @@ public interface WorkflowEventLogEntityMapper {
 
     WorkflowEventLogEntity selectById(Integer id);
 
-    List<WorkflowEventLogEntity> selectByCondition(EventLogQuery request);
+    List<WorkflowEventLogEntity> selectByCondition(EventLogRequest request);
 
     int update(WorkflowEventLogEntity record);
 

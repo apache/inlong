@@ -28,6 +28,7 @@
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -38,7 +39,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, username, token, ext_params, in_charges, status, is_deleted,
+        id, name, type, url, username, token, ext_params, description, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -46,12 +47,12 @@
             parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         insert into data_node (id, name, type,
                                url, username, token,
-                               in_charges, status, creator,
-                               modifier, ext_params)
+                               ext_params, description, in_charges,
+                               status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
                 #{url, jdbcType=VARCHAR}, #{username, jdbcType=VARCHAR}, #{token, jdbcType=VARCHAR},
-                #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR},
-                #{modifier, jdbcType=VARCHAR}, #{extParams, jdbcType=LONGVARCHAR})
+                #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR}, #{inCharges, jdbcType=VARCHAR},
+                #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -69,7 +70,7 @@
         and type = #{type, jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.node.DataNodePageRequest"
+            parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         select
         <include refid="Base_Column_List"/>
@@ -94,6 +95,12 @@
         </where>
         order by modify_time desc
     </select>
+    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo">
+        select name, type, ext_params
+        from data_node
+        where is_deleted = 0
+    </select>
+
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
         set name        = #{name, jdbcType=VARCHAR},
@@ -102,14 +109,14 @@
             username    = #{username, jdbcType=VARCHAR},
             token       = #{token, jdbcType=VARCHAR},
             ext_params  = #{extParams, jdbcType=LONGVARCHAR},
+            description = #{description,jdbcType=VARCHAR},
             in_charges  = #{inCharges, jdbcType=VARCHAR},
             status      = #{status, jdbcType=INTEGER},
             is_deleted  = #{isDeleted, jdbcType=INTEGER},
-            creator     = #{creator, jdbcType=VARCHAR},
             modifier    = #{modifier, jdbcType=VARCHAR},
             version     = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
-        and version = #{version, jdbcType=INTEGER}
+          and version = #{version, jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
@@ -129,6 +136,12 @@
             <if test="token != null">
                 token = #{token, jdbcType=VARCHAR},
             </if>
+            <if test="extParams != null">
+                ext_params = #{extParams, jdbcType=LONGVARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
             <if test="inCharges != null">
                 in_charges = #{inCharges, jdbcType=VARCHAR},
             </if>
@@ -138,14 +151,8 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted, jdbcType=INTEGER},
             </if>
-            <if test="creator != null">
-                creator = #{creator, jdbcType=VARCHAR},
-            </if>
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="extParams != null">
-                ext_params = #{extParams, jdbcType=LONGVARCHAR},
             </if>
             version = #{version, jdbcType=INTEGER} + 1
         </set>
@@ -159,13 +166,4 @@
         where id = #{id, jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
-        select name,
-               type,
-               ext_params
-        from data_node
-        <where>
-            is_deleted = 0
-        </where>
-    </select>
 </mapper>

@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.workflow.FilterKey;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
@@ -39,12 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * Operation of workflow approvers
@@ -60,114 +57,74 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     private ProcessDefinitionService processDefinitionService;
 
     @Override
-    public List<String> getApprovers(String processName, String taskName, WorkflowApproverFilterContext context) {
-        WorkflowApproverQuery approverQuery = WorkflowApproverQuery.builder()
+    public Integer save(ApproverRequest request, String operator) {
+        LOGGER.info("begin to save approver: {} by user: {}", request, operator);
+        WorkflowProcess process = processDefinitionService.getByName(request.getProcessName());
+        Preconditions.checkNotNull(process, "process not exit with name: " + request.getProcessName());
+        WorkflowTask task = process.getTaskByName(request.getTaskName());
+        Preconditions.checkNotNull(task, "task not exit with name: " + request.getTaskName());
+        Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
+
+        List<WorkflowApproverEntity> exist = workflowApproverMapper.selectByQuery(request);
+        Preconditions.checkEmpty(exist, "workflow approver already exits");
+
+        WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(request, WorkflowApproverEntity::new);
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+        workflowApproverMapper.insert(entity);
+
+        LOGGER.info("success to save approver: {} by user: {}", request, operator);
+        return entity.getId();
+    }
+
+    @Override
+    public List<String> getApprovers(String processName, String taskName) {
+        ApproverRequest approverRequest = ApproverRequest.builder()
                 .processName(processName)
                 .taskName(taskName)
                 .build();
-        List<WorkflowApproverEntity> configs = workflowApproverMapper.selectByQuery(approverQuery);
-        Map<String, List<WorkflowApproverEntity>> groupByFilterKey = configs.stream()
-                .collect(Collectors.groupingBy(WorkflowApproverEntity::getFilterKey));
+        List<WorkflowApproverEntity> approverEntities = workflowApproverMapper.selectByQuery(approverRequest);
+        Set<String> resultSet = new HashSet<>();
+        approverEntities.forEach(entity ->
+                resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
 
-        Map<FilterKey, String> filterKey2ValueMap = context.toFilterKeyMap();
-        return FilterKey.getFilterKeyByOrder()
-                .stream()
-                .map(FilterKey::name)
-                .map(groupByFilterKey::get)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .filter(config -> checkFilterCondition(filterKey2ValueMap, config))
-                .findFirst()
-                .map(WorkflowApproverEntity::getApprovers)
-                .map(approvers -> Arrays.asList(approvers.split(",")))
-                .orElse(null);
+        return new ArrayList<>(resultSet);
     }
 
     @Override
-    public List<WorkflowApprover> list(WorkflowApproverQuery query) {
-        List<WorkflowApproverEntity> entityList = workflowApproverMapper.selectByQuery(query);
-        List<WorkflowApprover> approverList = CommonBeanUtils.copyListProperties(entityList, WorkflowApprover::new);
-        approverList.forEach(config -> {
-            WorkflowProcess process = processDefinitionService.getByName(config.getProcessName());
-            if (process != null) {
-                config.setProcessDisplayName(process.getDisplayName());
-                config.setTaskDisplayName(Optional.ofNullable(process.getTaskByName(config.getTaskName())).map(
-                        WorkflowTask::getDisplayName).orElse(null));
-            }
-        });
-
-        return approverList;
+    public List<ApproverResponse> listByCondition(ApproverRequest request) {
+        List<WorkflowApproverEntity> entityList = workflowApproverMapper.selectByQuery(request);
+        return CommonBeanUtils.copyListProperties(entityList, ApproverResponse::new);
     }
 
     @Override
-    public void add(WorkflowApprover approver, String operator) {
-        approver.setModifier(operator);
-        approver.setCreator(operator);
+    public Integer update(ApproverRequest request, String operator) {
+        Preconditions.checkNotNull(request, "approver request cannot be null");
+        Integer id = request.getId();
+        Preconditions.checkNotNull(id, "approver id cannot be null");
 
-        WorkflowProcess process = processDefinitionService.getByName(approver.getProcessName());
-        Preconditions.checkNotNull(process, "process not exit with name: " + approver.getProcessName());
-        WorkflowTask task = process.getTaskByName(approver.getTaskName());
-        Preconditions.checkNotNull(task, "task not exit with name: " + approver.getTaskName());
-        Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
-
-        List<WorkflowApproverEntity> exist = this.workflowApproverMapper.selectByQuery(
-                WorkflowApproverQuery.builder()
-                        .processName(approver.getProcessName())
-                        .taskName(approver.getTaskName())
-                        .filterKey(approver.getFilterKey().name())
-                        .filterValue(approver.getFilterValue())
-                        .build());
-
-        Preconditions.checkEmpty(exist, "already exit the same config");
-
-        WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(approver, WorkflowApproverEntity::new);
-        int success = this.workflowApproverMapper.insert(entity);
-        Preconditions.checkTrue(success == 1, "add failed");
-    }
-
-    @Override
-    public void update(WorkflowApprover config, String operator) {
-        Preconditions.checkNotNull(config, "config cannot be null");
-        Preconditions.checkNotNull(config.getId(), "id cannot be null");
-
-        WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(config.getId());
-        Preconditions.checkNotNull(entity, "not exist with id:" + config.getId());
-        String errMsg = String.format(
-                "approver has already updated with id=%s, processName=%s, taskName=%s, curVersion=%s",
-                config.getId(), config.getProcessName(), config.getTaskName(), config.getVersion());
-        if (!Objects.equals(entity.getVersion(), config.getVersion())) {
+        WorkflowApproverEntity entity = workflowApproverMapper.selectById(id);
+        Preconditions.checkNotNull(entity, "not exist with id:" + id);
+        String errMsg = String.format("approver has already updated with id=%s, process=%s, task=%s, curVersion=%s",
+                id, request.getProcessName(), request.getTaskName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        WorkflowApproverEntity update = new WorkflowApproverEntity();
-        update.setId(config.getId());
-        update.setModifier(operator);
-        update.setApprovers(config.getApprovers());
-        update.setFilterKey(config.getFilterKey().name());
-        update.setFilterValue(config.getFilterValue());
+        entity.setModifier(operator);
+        entity.setApprovers(request.getApprovers());
+        workflowApproverMapper.updateById(entity);
 
-        int success = this.workflowApproverMapper.updateByPrimaryKeySelective(update);
-        Preconditions.checkTrue(success == InlongConstants.AFFECTED_ONE_ROW, errMsg);
+        LOGGER.info("success to update workflow approver for request: {} by user: {}", request, operator);
+        return id;
     }
 
     @Override
     public void delete(Integer id, String operator) {
-        WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(id);
+        WorkflowApproverEntity entity = workflowApproverMapper.selectById(id);
         Preconditions.checkNotNull(entity, "not exist with id:" + id);
         int success = this.workflowApproverMapper.deleteByPrimaryKey(id, operator);
         Preconditions.checkTrue(success == 1, "delete failed");
-    }
-
-    private boolean checkFilterCondition(Map<FilterKey, String> filterKey2ValueMap,
-            WorkflowApproverEntity config) {
-        FilterKey filterKey = FilterKey.fromName(config.getFilterKey());
-
-        if (filterKey == null) {
-            return false;
-        }
-
-        return FilterKey.DEFAULT.name().equals(config.getFilterKey())
-                || StringUtils.equals(filterKey2ValueMap.get(filterKey), config.getFilterValue());
     }
 
 }

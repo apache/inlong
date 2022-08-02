@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -71,4 +71,10 @@ public interface InlongGroupApi {
 
     @POST("group/reset")
     Call<Response<Boolean>> resetGroup(@Body InlongGroupResetRequest request);
+
+    @GET("group/countByStatus")
+    Call<Response<Object>> countGroupByUser();
+
+    @GET("group/getTopic/{id}")
+    Call<Response<Object>> getTopic(@Path("id") String id);
 }

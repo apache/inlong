@@ -24,9 +24,6 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="process_name" jdbcType="VARCHAR" property="processName"/>
         <result column="task_name" jdbcType="VARCHAR" property="taskName"/>
-        <result column="filter_key" jdbcType="VARCHAR" property="filterKey"/>
-        <result column="filter_value" jdbcType="VARCHAR" property="filterValue"/>
-        <result column="filter_value_desc" jdbcType="VARCHAR" property="filterValueDesc"/>
         <result column="approvers" jdbcType="VARCHAR" property="approvers"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
@@ -36,131 +33,43 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, process_name, task_name, filter_key, filter_value, filter_value_desc, approvers, creator, modifier,
-    create_time, modify_time, is_deleted, version
+        id, process_name, task_name, approvers, creator, modifier, create_time, modify_time, is_deleted, version
     </sql>
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
+        insert into workflow_approver (id, process_name, task_name,
+                                       approvers, creator, modifier)
+        values (#{id, jdbcType=INTEGER}, #{processName, jdbcType=VARCHAR}, #{taskName, jdbcType=VARCHAR},
+                #{approvers, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
+    </insert>
+
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from workflow_approver
         where id = #{id, jdbcType=INTEGER} and is_deleted=0
     </select>
-    <delete id="deleteByPrimaryKey">
-        update workflow_approver
-        set is_deleted = id,
-            modifier=#{modifier, jdbcType=VARCHAR}
-        where id = #{id, jdbcType=INTEGER}
-    </delete>
-    <insert id="insert"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        insert into workflow_approver (id, process_name, task_name,
-                                       filter_key, filter_value, filter_value_desc,
-                                       approvers, creator, modifier)
-        values (#{id, jdbcType=INTEGER}, #{processName, jdbcType=VARCHAR}, #{taskName, jdbcType=VARCHAR},
-                #{filterKey, jdbcType=VARCHAR}, #{filterValue, jdbcType=VARCHAR}, #{filterValueDesc, jdbcType=VARCHAR},
-                #{approvers, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
-    </insert>
-    <insert id="insertSelective"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        insert into workflow_approver
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
+    <select id="selectByQuery" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.pojo.workflow.ApproverRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from workflow_approver
+        <where>
+            is_deleted = 0
+            <if test="processName != null and processName!=''">
+                and process_name = #{processName, jdbcType=VARCHAR}
             </if>
-            <if test="processName != null">
-                process_name,
+            <if test="taskName != null and taskName!=''">
+                and task_name = #{taskName, jdbcType=VARCHAR}
             </if>
-            <if test="taskName != null">
-                task_name,
+            <if test="approver != null and approver!=''">
+                and find_in_set(#{approver, jdbcType=VARCHAR}, approvers)
             </if>
-            <if test="filterKey != null">
-                filter_key,
-            </if>
-            <if test="filterValue != null">
-                filter_value,
-            </if>
-            <if test="filterValueDesc != null">
-                filter_value_desc,
-            </if>
-            <if test="approvers != null">
-                approvers,
-            </if>
-            <if test="creator != null">
-                creator,
-            </if>
-            <if test="modifier != null">
-                modifier,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id, jdbcType=INTEGER},
-            </if>
-            <if test="processName != null">
-                #{processName, jdbcType=VARCHAR},
-            </if>
-            <if test="taskName != null">
-                #{taskName, jdbcType=VARCHAR},
-            </if>
-            <if test="filterKey != null">
-                #{filterKey, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValue != null">
-                #{filterValue, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValueDesc != null">
-                #{filterValueDesc, jdbcType=VARCHAR},
-            </if>
-            <if test="approvers != null">
-                #{approvers, jdbcType=VARCHAR},
-            </if>
-            <if test="creator != null">
-                #{creator, jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                #{modifier, jdbcType=VARCHAR},
-            </if>
-        </trim>
-    </insert>
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        update workflow_approver
-        <set>
-            <if test="processName != null">
-                process_name = #{processName, jdbcType=VARCHAR},
-            </if>
-            <if test="taskName != null">
-                task_name = #{taskName, jdbcType=VARCHAR},
-            </if>
-            <if test="filterKey != null">
-                filter_key = #{filterKey, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValue != null">
-                filter_value = #{filterValue, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValueDesc != null">
-                filter_value_desc = #{filterValueDesc, jdbcType=VARCHAR},
-            </if>
-            <if test="approvers != null">
-                approvers = #{approvers, jdbcType=VARCHAR},
-            </if>
-            <if test="creator != null">
-                creator = #{creator, jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                modifier = #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted, jdbcType=INTEGER},
-            </if>
-            version = #{version, jdbcType=INTEGER} + 1
-        </set>
-        where id = #{id, jdbcType=INTEGER}
-        and is_deleted = 0
-        and version = #{version, jdbcType=INTEGER}
-    </update>
-    <update id="updateByPrimaryKey"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
+        </where>
+    </select>
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
         update workflow_approver
         set process_name = #{processName, jdbcType=VARCHAR},
             task_name    = #{taskName, jdbcType=VARCHAR},
@@ -172,36 +81,14 @@
             is_deleted   = #{isDeleted, jdbcType=INTEGER},
             version      = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
-        and is_deleted = 0
-        and version = #{version, jdbcType=INTEGER}
+          and is_deleted = 0
+          and version = #{version, jdbcType=INTEGER}
     </update>
-    <select id="selectByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery"
-            resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from workflow_approver
-        where is_deleted =0
-        <if test="processName != null and processName!=''">
-            and process_name = #{processName, jdbcType=VARCHAR}
-        </if>
-        <if test="taskName != null and taskName!=''">
-            and task_name = #{taskName, jdbcType=VARCHAR}
-        </if>
-        <if test="filterKey != null and filterKey!=''">
-            and filter_key = #{filterKey, jdbcType=VARCHAR}
-        </if>
-        <if test="filterValue != null and filterValue!=''">
-            and filter_value = #{filterValue, jdbcType=VARCHAR}
-        </if>
-        <if test="approver != null and approver!=''">
-            and FIND_IN_SET(#{approver, jdbcType=VARCHAR},approvers)
-        </if>
-        <if test="creator != null and creator!=''">
-            and creator = #{creator, jdbcType=VARCHAR}
-        </if>
-        <if test="modifier != null and modifier!=''">
-            and modifier = #{modifier, jdbcType=VARCHAR}
-        </if>
-    </select>
+
+    <delete id="deleteByPrimaryKey">
+        update workflow_approver
+        set is_deleted = id,
+            modifier=#{modifier, jdbcType=VARCHAR}
+        where id = #{id, jdbcType=INTEGER}
+    </delete>
 </mapper>
