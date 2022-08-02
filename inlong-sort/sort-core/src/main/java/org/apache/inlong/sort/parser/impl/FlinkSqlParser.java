@@ -172,6 +172,14 @@ public class FlinkSqlParser implements Parser {
             Map<String, String> properties = node.getProperties();
             if (properties == null) {
                 properties = new LinkedHashMap<>();
+                if (node instanceof LoadNode) {
+                    ((LoadNode) node).setProperties(properties);
+                } else if (node instanceof ExtractNode) {
+                    ((ExtractNode) node).setProperties(properties);
+                } else {
+                    throw new UnsupportedOperationException(String.format("Unsupported inlong metric for: %s",
+                            node.getClass().getSimpleName()));
+                }
             }
             properties.put(InLongMetric.METRIC_KEY,
                     String.format(InLongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
@@ -803,7 +811,7 @@ public class FlinkSqlParser implements Parser {
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
                 Metadata metadataNode = (Metadata) node;
                 if (!metadataNode.supportedMetaFields().contains(metaFieldInfo.getMetaField())) {
-                    throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                    throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                             metadataNode.getClass().getSimpleName(), metaFieldInfo.getMetaField()));
                 }
                 sb.append(metadataNode.format(metaFieldInfo.getMetaField()));

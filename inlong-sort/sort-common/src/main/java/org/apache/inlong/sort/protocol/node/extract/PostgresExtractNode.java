@@ -101,7 +101,7 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, InLong
      *
      * @return options
      * @see <a href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
-     *         cdc</a>
+     * cdc</a>
      */
     @Override
     public Map<String, String> tableOptions() {
