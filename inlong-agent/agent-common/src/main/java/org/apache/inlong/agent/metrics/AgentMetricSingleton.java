@@ -43,8 +43,8 @@ public class AgentMetricSingleton {
                     agentMetricBaseHandler = getAgentMetricByConf();
                     agentMetricBaseHandler.init();
                     if (agentMetricBaseHandler != null) {
-                        LOGGER.info("The metric class {} was initialized successfully.",
-                                agentMetricBaseHandler.getClass());
+                        LOGGER.info("metric class {} was initialized successfully",
+                                agentMetricBaseHandler.getClass().getSimpleName());
                     }
                 }
             }
