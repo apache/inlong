@@ -27,6 +27,9 @@ import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * JDBC dialect for ClickHouse SQL.
@@ -120,4 +123,37 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.UNRESOLVED);
     }
 
+    /**
+     * Get update one row statement by condition fields
+     */
+    @Override
+    public String getUpdateStatement(
+            String tableName, String[] fieldNames, String[] conditionFields) {
+        String setClause =
+                Arrays.stream(fieldNames)
+                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .collect(Collectors.joining(", "));
+        String conditionClause =
+                Arrays.stream(conditionFields)
+                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .collect(Collectors.joining(" AND "));
+        return "ALTER TABLE "
+                + quoteIdentifier(tableName)
+                + " UPDATE "
+                + setClause
+                + " WHERE "
+                + conditionClause;
+    }
+
+    /**
+     * Get delete one row statement by condition fields
+     */
+    @Override
+    public String getDeleteStatement(String tableName, String[] conditionFields) {
+        String conditionClause =
+                Arrays.stream(conditionFields)
+                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .collect(Collectors.joining(" AND "));
+        return "ALTER TABLE " + quoteIdentifier(tableName) + " DELETE WHERE " + conditionClause;
+    }
 }
