@@ -922,7 +922,7 @@ class ClientFactoryTest {
                 .agentIp("127.0.0.1")
                 .inlongClusterName("test_cluster")
                 .user("root")
-                .password("root")
+                .password("pwd")
                 .hostname("127.0.0.1")
                 .port(3306)
                 .build();
