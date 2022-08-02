@@ -29,11 +29,6 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 /**
  * MySQL sink request.
  */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "MySQL sink request")
-@JsonTypeDefine(value = SinkType.SINK_MYSQL)
 public class MySQLSinkRequest extends SinkRequest {
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
