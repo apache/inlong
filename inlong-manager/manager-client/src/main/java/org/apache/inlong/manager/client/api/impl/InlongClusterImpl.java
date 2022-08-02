@@ -17,22 +17,26 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.InlongCluster;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import java.util.List;
 
 public class InlongClusterImpl implements InlongCluster {
 
-    private InnerInlongManagerClient managerClient;
+    private InlongClusterClient clusterClient;
 
     public InlongClusterImpl(InlongClientImpl inlongClient) {
-        if (this.managerClient == null) {
-            this.managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
+        if (this.clusterClient == null) {
+            ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+            this.clusterClient = clientFactory.getClusterClient();
         }
     }
 
@@ -41,7 +45,8 @@ public class InlongClusterImpl implements InlongCluster {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setName(clusterName);
         request.setType(clusterType);
-        return managerClient.listClusterNodes(request);
+        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        return clusterNodePage.getList();
     }
 
     @Override
@@ -50,12 +55,13 @@ public class InlongClusterImpl implements InlongCluster {
         request.setName(clusterName);
         request.setType(clusterType);
         request.setClusterTagList(clusterTags);
-        return managerClient.listClusterNodes(request);
+        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        return clusterNodePage.getList();
     }
 
     @Override
     public ClusterInfo saveCluster(ClusterRequest clusterRequest) {
-        int clusterIndex = managerClient.saveCluster(clusterRequest);
-        return managerClient.getCluster(clusterIndex);
+        int clusterIndex = clusterClient.saveCluster(clusterRequest);
+        return clusterClient.get(clusterIndex);
     }
 }
