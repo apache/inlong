@@ -58,7 +58,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     public void start() {
         Thread reportHeartbeatThread = new Thread(() -> {
             while (true) {
-                HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
+                HeartbeatMsg heartbeatMsg = buildHeartbeat();
                 reportHeartbeat(heartbeatMsg);
                 try {
                     SECONDS.sleep(heartbeatInterval());
