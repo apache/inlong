@@ -113,16 +113,18 @@ func (h *heartbeatManager) consumerHB2Master() {
 		}
 
 		h.consumer.masterHBRetry++
-		if (rsp != nil && rsp.GetErrCode() == errs.RetErrHBNoNode) || strings.Index(errMsg, "StandbyException") != -1 {
+		hbNoNode := rsp != nil && rsp.GetErrCode() == errs.RetErrHBNoNode
+		standByException := strings.Index(errMsg, "StandbyException") != -1
+		if hbNoNode || standByException {
 			log.Warnf("[CONSUMER] hb2master found no-node or standby, re-register, client=%s", h.consumer.clientID)
 			address := h.consumer.master.Address
 			go func() {
-				err := h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
+				err := h.consumer.register2Master(!hbNoNode)
 				if err != nil {
 					return
 				}
 			}()
-			if rsp != nil && rsp.GetErrCode() != errs.RetErrHBNoNode {
+			if standByException {
 				h.mu.Lock()
 				defer h.mu.Unlock()
 				hm := h.heartbeats[address]
