@@ -188,8 +188,8 @@ public class InlongStreamClient {
     /**
      * Delete the specified inlong stream
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
      * @return whether succeed
      */
     public boolean delete(String groupId, String streamId) {
