@@ -31,6 +31,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.consts.MQType;
@@ -101,6 +102,7 @@ class ClientFactoryTest {
     private static WireMockServer wireMockServer;
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
+    private static StreamSourceClient sourceClient;
     private static StreamSinkClient sinkClient;
     private static InlongClusterClient clusterClient;
 
@@ -117,6 +119,7 @@ class ClientFactoryTest {
         ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
         groupClient = clientFactory.getGroupClient();
         streamClient = clientFactory.getStreamClient();
+        sourceClient = clientFactory.getSourceClient();
         sinkClient = clientFactory.getSinkClient();
         streamClient = clientFactory.getStreamClient();
         clusterClient = clientFactory.getClusterClient();
@@ -906,5 +909,33 @@ class ClientFactoryTest {
         );
         ClusterNodeResponse clientNode = clusterClient.getNode(1);
         Assertions.assertEquals(1, clientNode.getId());
+    }
+
+    @Test
+    void testGetStreamSourceById() {
+        StreamSource streamSource = MySQLBinlogSource.builder()
+                .id(1)
+                .inlongGroupId("test_group")
+                .inlongStreamId("test_stream")
+                .sourceType(SourceType.MYSQL_BINLOG)
+                .sourceName("test_source")
+                .agentIp("127.0.0.1")
+                .inlongClusterName("test_cluster")
+                .user("root")
+                .password("pwd")
+                .hostname("127.0.0.1")
+                .port(3306)
+                .build();
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/source/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(streamSource))
+                                ))
+        );
+        StreamSource sourceInfo = sourceClient.get(1);
+        Assertions.assertEquals(1, sourceInfo.getId());
+        Assertions.assertTrue(sourceInfo instanceof MySQLBinlogSource);
     }
 }

@@ -456,4 +456,13 @@ public class InlongStreamImpl implements InlongStream {
         return this.streamSinks.get(sinkName);
     }
 
+    @Override
+    public StreamSource getSourceById(int sourceId) {
+        Preconditions.checkNotNull(sourceId, "sinkId cannot be null");
+        return this.streamSources.values()
+                .stream()
+                .filter(streamSource -> streamSource.getId().equals(sourceId))
+                .findAny()
+                .orElseGet(() -> sourceClient.get(sourceId));
+    }
 }

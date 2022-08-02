@@ -44,4 +44,6 @@ public interface StreamSourceApi {
     @DELETE("source/delete/{id}")
     Call<Response<Boolean>> deleteSource(@Path("id") Integer sourceId);
 
+    @GET("source/get/{id}")
+    Call<Response<StreamSource>> get(@Path("id") Integer id);
 }
