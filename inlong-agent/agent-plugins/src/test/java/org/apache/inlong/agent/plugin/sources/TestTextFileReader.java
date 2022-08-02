@@ -22,17 +22,14 @@ import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
-import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +53,6 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTE
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
-@RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
 @PrepareForTest({MetricRegister.class})
@@ -101,7 +97,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextFileReader() throws Exception {
-        TestUtils.mockMetricRegister();
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
@@ -128,7 +123,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextSeekReader() throws Exception {
-        TestUtils.mockMetricRegister();
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();
@@ -153,7 +147,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextTailTimeout() throws Exception {
-        TestUtils.mockMetricRegister();
         JobProfile jobProfile = new JobProfile();
         jobProfile.setInt(JOB_FILE_MAX_WAIT, 1);
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");

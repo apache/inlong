@@ -30,8 +30,8 @@ agent.dataproxy.http.host=$DATAPROXY_IP
 agent.dataproxy.http.port=$DATAPROXY_PORT
 agent.http.port=8008
 agent.http.enable=true
-agent.prometheus.enable=true
-agent.prometheus.exporter.port=8080
+agent.domainListeners=org.apache.inlong.agent.metrics.AgentPrometheusMetricListener
+agent.prometheus.exporter.port=9080
 audit.proxys=$AUDIT_PROXY_URL
 EOF
 # start

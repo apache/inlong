@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.metrics.task;
 
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;

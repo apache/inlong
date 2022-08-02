@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.plugin.metrics;
+package org.apache.inlong.agent.metrics.plugin;
 
 import org.apache.inlong.agent.metrics.Metric;
 import org.apache.inlong.common.metric.Dimension;

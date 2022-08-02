@@ -17,33 +17,23 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.task;
+package org.apache.inlong.agent.metrics.job;
 
-public interface TaskMetrics {
-
-    /**
-     * Increment the running task metric.
-     */
-    void incRunningTaskCount();
+public interface JobMetrics {
 
     /**
-     * Decrement the running task metric.
+     * Increment the running job metric.
      */
-    void decRunningTaskCount();
+    void incRunningJobCount();
 
     /**
-     * Increment the retrying task metric.
+     * Decrement the running job metric.
      */
-    void incRetryingTaskCount();
+    void decRunningJobCount();
 
     /**
-     * Decrement the retrying task metric.
+     * Increment the fatal job metric.
      */
-    void decRetryingTaskCount();
-
-    /**
-     * Increment the fatal task metric.
-     */
-    void incFatalTaskCount();
+    void incFatalJobCount();
 
 }

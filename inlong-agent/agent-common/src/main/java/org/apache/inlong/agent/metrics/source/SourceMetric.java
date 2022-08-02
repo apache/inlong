@@ -17,23 +17,33 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.job;
+package org.apache.inlong.agent.metrics.source;
 
-public interface JobMetrics {
-
-    /**
-     * Increment the running job metric.
-     */
-    void incRunningJobCount();
+public interface SourceMetric {
 
     /**
-     * Decrement the running job metric.
+     * The tag name of sinksource metrics.
      */
-    void decRunningJobCount();
+    String getTagName();
 
     /**
-     * Increment the fatal job metric.
+     * Count the source success message count in agent source since agent started.
      */
-    void incFatalJobCount();
+    void incSourceSuccessCount();
+
+    /**
+     * Count of the source success metric.
+     */
+    long getSourceSuccessCount();
+
+    /**
+     * Count the source failed message count in agent source since agent started.
+     */
+    void incSourceFailCount();
+
+    /**
+     * Count of the source fail metric.
+     */
+    long getSourceFailCount();
 
 }
