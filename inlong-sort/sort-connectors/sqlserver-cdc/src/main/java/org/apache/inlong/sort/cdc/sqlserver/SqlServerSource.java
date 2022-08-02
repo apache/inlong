@@ -110,7 +110,6 @@ public class SqlServerSource {
             return this;
         }
 
-
         public Builder<T> inlongMetric(String inlongMetric) {
             this.inlongMetric = inlongMetric;
             return this;
