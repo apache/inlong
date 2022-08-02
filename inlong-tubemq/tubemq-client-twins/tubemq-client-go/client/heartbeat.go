@@ -99,36 +99,43 @@ func (h *heartbeatManager) consumerHB2Master() {
 	}
 
 	rsp, err := h.sendHeartbeatC2M(m)
-	if err != nil {
-		log.Errorf("consumer hb err %s", err.Error())
-		h.consumer.masterHBRetry++
-	} else {
-		if !rsp.GetSuccess() {
-			h.consumer.masterHBRetry++
-			if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
-				log.Warnf("[CONSUMER] hb2master found no-node or standby, re-register, client=%s", h.consumer.clientID)
-				address := h.consumer.master.Address
-				go func() {
-					err := h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
-					if err != nil {
-						return
-					}
-					h.resetMasterHeartbeat()
-				}()
-				if rsp.GetErrCode() != errs.RetErrHBNoNode {
-					h.mu.Lock()
-					defer h.mu.Unlock()
-					hm := h.heartbeats[address]
-					hm.numConnections--
-					if hm.numConnections == 0 {
-						delete(h.heartbeats, address)
-					}
-					return
-				}
-				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
+	if err != nil || !rsp.GetSuccess() {
+		errMsg := ""
+		if err != nil {
+			if e, ok := err.(*errs.Error); !ok {
+				log.Errorf("consumer hb err %s", err.Error())
+				h.consumer.masterHBRetry++
+				h.resetMasterHeartbeat()
 				return
+			} else {
+				errMsg = e.Msg
 			}
 		}
+
+		h.consumer.masterHBRetry++
+		if (rsp != nil && rsp.GetErrCode() == errs.RetErrHBNoNode) || strings.Index(errMsg, "StandbyException") != -1 {
+			log.Warnf("[CONSUMER] hb2master found no-node or standby, re-register, client=%s", h.consumer.clientID)
+			address := h.consumer.master.Address
+			go func() {
+				err := h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
+				if err != nil {
+					return
+				}
+			}()
+			if rsp != nil && rsp.GetErrCode() != errs.RetErrHBNoNode {
+				h.mu.Lock()
+				defer h.mu.Unlock()
+				hm := h.heartbeats[address]
+				hm.numConnections--
+				if hm.numConnections == 0 {
+					delete(h.heartbeats, address)
+				}
+				return
+			}
+			log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
+			return
+		}
+	} else {
 		h.consumer.masterHBRetry = 0
 		h.processHBResponseM2C(rsp)
 	}
