@@ -29,6 +29,7 @@ import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.StreamInfo;
@@ -142,6 +143,8 @@ public class FlinkSqlParser implements Parser {
         Preconditions.checkNotNull(streamInfo.getRelations(), "relations is null");
         Preconditions.checkState(!streamInfo.getRelations().isEmpty(), "relations is empty");
         log.info("start parse stream, streamId:{}", streamInfo.getStreamId());
+        // Inject the `inlong.metric` for ExtractNode or LoadNode
+        injectInlongMetric(streamInfo);
         Map<String, Node> nodeMap = new HashMap<>(streamInfo.getNodes().size());
         streamInfo.getNodes().forEach(s -> {
             Preconditions.checkNotNull(s.getId(), "node id is null");
@@ -157,6 +160,31 @@ public class FlinkSqlParser implements Parser {
             parseNodeRelation(r, nodeMap, relationMap);
         });
         log.info("parse stream success, streamId:{}", streamInfo.getStreamId());
+    }
+
+    /**
+     * Inject the `inlong.metric` for ExtractNode or LoadNode
+     *
+     * @param streamInfo The encapsulation of nodes and node relations
+     */
+    private void injectInlongMetric(StreamInfo streamInfo) {
+        streamInfo.getNodes().stream().filter(node -> node instanceof InlongMetric).forEach(node -> {
+            Map<String, String> properties = node.getProperties();
+            if (properties == null) {
+                properties = new LinkedHashMap<>();
+                if (node instanceof LoadNode) {
+                    ((LoadNode) node).setProperties(properties);
+                } else if (node instanceof ExtractNode) {
+                    ((ExtractNode) node).setProperties(properties);
+                } else {
+                    throw new UnsupportedOperationException(String.format("Unsupported inlong metric for: %s",
+                            node.getClass().getSimpleName()));
+                }
+            }
+            properties.put(InlongMetric.METRIC_KEY,
+                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
+                            streamInfo.getStreamId(), node.getId()));
+        });
     }
 
     /**
@@ -783,7 +811,7 @@ public class FlinkSqlParser implements Parser {
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
                 Metadata metadataNode = (Metadata) node;
                 if (!metadataNode.supportedMetaFields().contains(metaFieldInfo.getMetaField())) {
-                    throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                    throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                             metadataNode.getClass().getSimpleName(), metaFieldInfo.getMetaField()));
                 }
                 sb.append(metadataNode.format(metaFieldInfo.getMetaField()));
