@@ -120,6 +120,6 @@ public class MemoryChannel implements Channel {
             queue.clear();
         }
         LOGGER.info("destroy channel, show memory channel metric:");
-        // GlobalMetrics.showMemoryChannelStatics();
+        GLOBAL_METRICS.showMemoryChannelStatics();
     }
 }

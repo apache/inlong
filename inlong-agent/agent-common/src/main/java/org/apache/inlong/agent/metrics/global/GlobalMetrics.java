@@ -138,7 +138,7 @@ public abstract class GlobalMetrics {
         getSourceMetric(tagName).incSourceFailCount();
     }
 
-    public void showMemoryChannes() {
+    public void showMemoryChannelStatics() {
         for (Entry<String, PluginMetric> entry : pluginMetrics.entrySet()) {
             LOGGER.info("tagName:{} ### readNum: {}, readSuccessNum: {}, readFailedNum: {}, sendSuccessNum: {}, "
                             + "sendFailedNum: {}", entry.getKey(), entry.getValue().getReadNum(),

@@ -31,7 +31,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_METRIC_LISTE
 public class AgentMetricSingleton {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMetricSingleton.class);
-    private static AgentMetricBaseListener agentMetricBaseHandler;
+    private static volatile AgentMetricBaseListener agentMetricBaseHandler;
 
     private AgentMetricSingleton() {
     }
