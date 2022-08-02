@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * SQLServer source info
@@ -92,4 +93,21 @@ public class SQLServerSinkDTO {
         }
     }
 
+    /**
+     * Get SqlServer table info
+     *
+     * @param sqlServerSink SqlServer sink dto,{@link OracleSinkDTO}
+     * @param columnList SqlServer column info list,{@link OracleColumnInfo}
+     * @return {@link SQLServerTableInfo}
+     */
+    public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sqlServerSink,
+            List<SQLServerColumnInfo> columnList) {
+        SQLServerTableInfo tableInfo = new SQLServerTableInfo();
+        tableInfo.setTableName(sqlServerSink.getTableName());
+        tableInfo.setPrimaryKey(sqlServerSink.getPrimaryKey());
+        tableInfo.setUserName(sqlServerSink.getUsername());
+        tableInfo.setSchemaName(sqlServerSink.getSchemaName());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
+    }
 }
