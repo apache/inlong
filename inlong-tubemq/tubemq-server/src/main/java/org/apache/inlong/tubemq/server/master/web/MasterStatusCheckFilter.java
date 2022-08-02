@@ -26,6 +26,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
@@ -39,6 +40,7 @@ public class MasterStatusCheckFilter implements Filter {
         this.master = master;
         this.defMetaDataService =
                 this.master.getMetaDataService();
+
     }
 
     @Override
@@ -47,8 +49,8 @@ public class MasterStatusCheckFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
+            ServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         if (!defMetaDataService.isSelfMaster()) {

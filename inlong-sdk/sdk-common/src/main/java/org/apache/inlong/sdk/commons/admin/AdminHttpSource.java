@@ -83,7 +83,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -221,9 +221,9 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
         /**
          * doPost
-         * 
-         * @param  request
-         * @param  response
+         *
+         * @param request
+         * @param response
          * @throws IOException
          */
         @Override
@@ -236,15 +236,13 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
                 LOG.warn("Received bad request from client. ", ex);
                 sourceCounter.incrementEventReadFail();
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                        "Bad request from client. "
-                                + ex.getMessage());
+                        "Bad request from client. ");
                 return;
             } catch (Exception ex) {
                 LOG.warn("Deserializer threw unexpected exception. ", ex);
                 sourceCounter.incrementEventReadFail();
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Deserializer threw unexpected exception. "
-                                + ex.getMessage());
+                        "Deserializer threw unexpected exception. ");
                 return;
             }
             sourceCounter.incrementAppendBatchReceivedCount();
@@ -259,15 +257,13 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
                         + "capacity or make sure the sinks perform faster.", ex);
                 sourceCounter.incrementChannelWriteFail();
                 response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-                        "Error appending event to channel. Channel might be full."
-                                + ex.getMessage());
+                        "Error appending event to channel. Channel might be full.");
                 return;
             } catch (Exception ex) {
                 LOG.warn("Unexpected error appending event to channel. ", ex);
                 sourceCounter.incrementGenericProcessingFail();
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Unexpected error while appending event to channel. "
-                                + ex.getMessage());
+                        "Unexpected error while appending event to channel. ");
                 return;
             }
             response.setCharacterEncoding(request.getCharacterEncoding());
@@ -281,9 +277,9 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
         /**
          * doGet
-         * 
-         * @param  request
-         * @param  response
+         *
+         * @param request
+         * @param response
          * @throws IOException
          */
         @Override
@@ -295,7 +291,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * configureSsl
-     * 
+     *
      * @param context
      */
     @Override
@@ -309,7 +305,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * handleDeprecatedParameter
-     * 
+     *
      * @param context
      * @param newParam
      * @param oldParam

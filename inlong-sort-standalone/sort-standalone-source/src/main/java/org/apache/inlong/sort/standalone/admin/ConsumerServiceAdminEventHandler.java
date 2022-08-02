@@ -107,7 +107,6 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
             this.outputResponse(response, result.toString());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            result.append(e.getMessage());
             this.outputResponse(response, result.toString());
         }
         LOG.info("end to processOne admin task:{},sort task:{}", cmd, taskName);
@@ -144,7 +143,6 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
             this.outputResponse(response, result.toString());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            result.append(e.getMessage());
             this.outputResponse(response, result.toString());
         }
         LOG.info("end to processAll admin task:{}", cmd);
