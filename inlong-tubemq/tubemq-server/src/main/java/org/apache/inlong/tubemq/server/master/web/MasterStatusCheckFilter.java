@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.server.master.web;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
