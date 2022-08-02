@@ -17,10 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.core.job;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+package org.apache.inlong.agent.metrics.task;
 
 import org.apache.inlong.common.metric.CountMetric;
 import org.apache.inlong.common.metric.Dimension;
@@ -29,47 +26,65 @@ import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricRegister;
 
-@MetricDomain(name = "AgentJob")
-public class JobJmxMetrics extends MetricItem implements JobMetrics {
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
-    private static final JobJmxMetrics JOB_METRICS = new JobJmxMetrics();
+/**
+ * metrics for agent task
+ */
+@MetricDomain(name = "AgentTask")
+public class TaskJmxMetrics extends MetricItem implements TaskMetrics {
 
+    private static final TaskJmxMetrics JOB_METRICS = new TaskJmxMetrics();
     private static final AtomicBoolean REGISTER_ONCE = new AtomicBoolean(false);
-    private static final String AGENT_JOB_METRIC = "AgentJobMetric";
+    private static final String AGENT_TASK = "AgentTaskMetric";
 
     @Dimension
-    private String tagName;
+    public String module;
 
     @GaugeMetric
-    private final AtomicLong runningJobs = new AtomicLong(0);
+    private final AtomicLong runningTasks = new AtomicLong(0);
+
+    @GaugeMetric
+    private final AtomicLong retryingTasks = new AtomicLong(0);
 
     @CountMetric
-    private final AtomicLong fatalJobs = new AtomicLong(0);
+    private final AtomicLong fatalTasks = new AtomicLong(0);
 
-    private JobJmxMetrics() {
+    private TaskJmxMetrics() {
     }
 
-    public static JobJmxMetrics create() {
+    public static TaskJmxMetrics create() {
+        // register one time.
         if (REGISTER_ONCE.compareAndSet(false, true)) {
-            JOB_METRICS.tagName = AGENT_JOB_METRIC;
+            JOB_METRICS.module = AGENT_TASK;
             MetricRegister.register(JOB_METRICS);
         }
         return JOB_METRICS;
     }
 
     @Override
-    public void incRunningJobCount() {
-        runningJobs.incrementAndGet();
+    public void incRunningTaskCount() {
+        runningTasks.incrementAndGet();
     }
 
     @Override
-    public void decRunningJobCount() {
-        runningJobs.decrementAndGet();
+    public void decRunningTaskCount() {
+        runningTasks.decrementAndGet();
     }
 
     @Override
-    public void incFatalJobCount() {
-        fatalJobs.incrementAndGet();
+    public void incRetryingTaskCount() {
+        retryingTasks.incrementAndGet();
+    }
+
+    @Override
+    public void decRetryingTaskCount() {
+        retryingTasks.decrementAndGet();
+    }
+
+    @Override
+    public void incFatalTaskCount() {
+        fatalTasks.incrementAndGet();
     }
 }
-

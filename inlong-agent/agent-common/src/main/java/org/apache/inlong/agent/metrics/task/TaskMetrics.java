@@ -17,33 +17,33 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.plugin.metrics;
+package org.apache.inlong.agent.metrics.task;
 
-public interface SourceMetric {
-
-    /**
-     * The tag name of sinksource metrics.
-     */
-    String getTagName();
+public interface TaskMetrics {
 
     /**
-     * Count the source success message count in agent source since agent started.
+     * Increment the running task metric.
      */
-    void incSourceSuccessCount();
+    void incRunningTaskCount();
 
     /**
-     * Count of the source success metric.
+     * Decrement the running task metric.
      */
-    long getSourceSuccessCount();
+    void decRunningTaskCount();
 
     /**
-     * Count the source failed message count in agent source since agent started.
+     * Increment the retrying task metric.
      */
-    void incSourceFailCount();
+    void incRetryingTaskCount();
 
     /**
-     * Count of the source fail metric.
+     * Decrement the retrying task metric.
      */
-    long getSourceFailCount();
+    void decRetryingTaskCount();
+
+    /**
+     * Increment the fatal task metric.
+     */
+    void incFatalTaskCount();
 
 }
