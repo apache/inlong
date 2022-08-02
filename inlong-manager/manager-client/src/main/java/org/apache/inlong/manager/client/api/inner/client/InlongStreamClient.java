@@ -22,10 +22,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 
@@ -49,6 +50,12 @@ public class InlongStreamClient {
         return response.getData();
     }
 
+    /**
+     * Query whether the inlong stream ID exists
+     *
+     * @param streamInfo inlong stream info
+     * @return true: exists, false: does not exist
+     */
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
@@ -60,6 +67,12 @@ public class InlongStreamClient {
         return response.getData();
     }
 
+    /**
+     * InlongStream info that needs to be modified
+     *
+     * @param streamInfo inlong stream info that needs to be modified
+     * @return whether succeed
+     */
     public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
         Response<Boolean> resp = ClientUtils.executeHttpCall(inlongStreamApi.updateStream(streamInfo));
 
@@ -87,6 +100,19 @@ public class InlongStreamClient {
     }
 
     /**
+     * Paging query inlong stream brief info list
+     *
+     * @param request query request
+     * @return inlong stream brief list
+     */
+    public PageInfo<InlongStreamBriefInfo> listByCondition(InlongStreamPageRequest request) {
+        Response<PageInfo<InlongStreamBriefInfo>> response = ClientUtils.executeHttpCall(
+                inlongStreamApi.listByCondition(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Get inlong stream info.
      */
     public List<InlongStreamInfo> listStreamInfo(String inlongGroupId) {
@@ -99,4 +125,78 @@ public class InlongStreamClient {
         return response.getData().getList();
     }
 
+    /**
+     * Create stream in synchronous/asynchronous way.
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return whether succeed
+     */
+    public boolean startProcess(String groupId, String streamId) {
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.startProcess(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Suspend stream in synchronous/asynchronous way.
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return whether succeed
+     */
+    public boolean suspendProcess(String groupId, String streamId) {
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Restart stream in synchronous/asynchronous way.
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return whether succeed
+     */
+    public boolean restartProcess(String groupId, String streamId) {
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Delete stream in synchronous/asynchronous way.
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return whether succeed
+     */
+    public boolean deleteProcess(String groupId, String streamId) {
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Delete the specified inlong stream
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return whether succeed
+     */
+    public boolean delete(String groupId, String streamId) {
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.delete(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
 }
