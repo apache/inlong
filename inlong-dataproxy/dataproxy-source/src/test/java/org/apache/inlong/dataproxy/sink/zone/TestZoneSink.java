@@ -28,7 +28,7 @@ import org.apache.inlong.dataproxy.sink.pulsarzone.PulsarZoneSink;
 import org.apache.inlong.dataproxy.sink.tubezone.TubeZoneSink;
 import org.junit.Test;
 
-public class TesZoneSink {
+public class TestZoneSink {
 
     @Test
     public void testPulsarZoneSinkProcess() {
@@ -52,7 +52,6 @@ public class TesZoneSink {
 
     @Test
     public void testTubeZoneSinkProcess() {
-
         TubeZoneSink sink = new TubeZoneSink();
         MemoryChannel channel = new MemoryChannel();
         Context context = new Context();
@@ -73,7 +72,6 @@ public class TesZoneSink {
 
     @Test
     public void testKafkaZoneSinkProcess() {
-
         KafkaZoneSink sink = new KafkaZoneSink();
         MemoryChannel channel = new MemoryChannel();
         Context context = new Context();
