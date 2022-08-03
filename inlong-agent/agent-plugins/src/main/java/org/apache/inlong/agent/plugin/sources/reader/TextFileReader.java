@@ -19,16 +19,11 @@ package org.apache.inlong.agent.plugin.sources.reader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.SourceMeta;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
-import org.apache.inlong.agent.plugin.metadata.AgentMetadata;
-import org.apache.inlong.agent.plugin.metadata.KubernetesMetadata;
-import org.apache.inlong.agent.plugin.sources.snapshot.LocalSnapshot;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -51,15 +46,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_DB_OFFSETS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_META_INFO_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER_TASK;
-import static org.apache.inlong.agent.plugin.utils.MetaDataUtils.getLogInfo;
 
 /**
  * read file data
@@ -84,17 +73,8 @@ public class TextFileReader extends AbstractReader {
     private long waitTimeout;
 
     private long lastTime = 0;
-    
-    private LocalSnapshot localSnapshot;
-    
-    private List<SourceMeta> sourceMetas;
-    
-    private List<Validator> validators = new ArrayList<>();
 
-    public TextFileReader(File file, int position, List<SourceMeta> sourceMetas) {
-        this(file, position, "");
-        this.sourceMetas = sourceMetas;
-    }
+    private List<Validator> validators = new ArrayList<>();
 
     public TextFileReader(File file, int position) {
         this(file, position, "");
@@ -168,26 +148,7 @@ public class TextFileReader extends AbstractReader {
 
     @Override
     public String getSnapshot() {
-        if (Objects.nonNull(localSnapshot)) {
-            return file.getPath() + JOB_OFFSET_DELIMITER_TASK + localSnapshot.getSnapshot();
-        } else {
-            return "";
-        }
-    }
-
-    private void setSnapshot(JobProfile jobConf) {
-        String snapshots = jobConf.get(JOB_FILE_DB_OFFSETS, null);
-        if (Objects.isNull(snapshots)) {
-            return;
-        }
-        String[] taskAndSnapshot = snapshots.split(JOB_OFFSET_DELIMITER);
-        for (String sna : taskAndSnapshot) {
-            String[] snapshot = sna.split(JOB_OFFSET_DELIMITER_TASK);
-            if (snapshot.length > 1 && file.getPath().equalsIgnoreCase(snapshot[0])) {
-                localSnapshot.save(snapshot[1]);
-                break;
-            }
-        }
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -217,8 +178,6 @@ public class TextFileReader extends AbstractReader {
             if (StringUtils.isNotBlank(this.md5) && !this.md5.equals(md5)) {
                 LOGGER.warn("md5 is differ from origin, origin: {}, new {}", this.md5, md5);
             }
-            localSnapshot = new LocalSnapshot(file.getPath().concat(POSITION_SUFFIX));
-            setSnapshot(jobConf);
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
             //split line and column
             getFileStream(jobConf);
@@ -251,7 +210,7 @@ public class TextFileReader extends AbstractReader {
                         }
                         resultLines.add(splitLines[i].trim());
                     }
-                    if (0 == length - 1) {
+                    if (1 == length) {
                         lineStringBuffer.remove(file);
                     }
                 }
@@ -261,46 +220,7 @@ public class TextFileReader extends AbstractReader {
             }
         }
         lines = resultLines.isEmpty() ? lines : resultLines;
-        stream = addAttributeData(jobConf, lines);
-    }
-
-    private Stream<String> addAttributeData(JobProfile jobConf, List<String> lines) {
-        if (!jobConf.hasKey(JOB_META_INFO_LIST)) {
-            return lines.stream();
-        }
-        lines = joinMetaAndLine(sourceMetas, lines);
-        return lines.stream();
-    }
-
-    private List<String> joinMetaAndLine(List<SourceMeta> sourceMetas, List<String> lines) {
-        if (Objects.isNull(sourceMetas)) {
-            return lines;
-        }
-        for (SourceMeta sm : sourceMetas) {
-            if (sm instanceof KubernetesMetadata) {
-                return joinMetaK8s((KubernetesMetadata) sm, lines);
-            }
-            if (sm instanceof AgentMetadata) {
-                joinMetaAgent((AgentMetadata) sm, lines);
-            }
-        }
-        return lines;
-    }
-
-    //TODO agent information
-    private void joinMetaAgent(AgentMetadata sm, List<String> lines) {
-    }
-
-    private List<String> joinMetaK8s(KubernetesMetadata sourceMeta, List<String> lines) {
-        Map<String, String> podInfo = getLogInfo(file.getName());
-        if (podInfo.isEmpty()) {
-            return lines;
-        }
-        String podMetadata = sourceMeta
-                .getPodMetadata(podInfo.get(CommonConstants.NAMESPACE), podInfo.get(CommonConstants.POD_NAME))
-                .toString();
-        return lines.stream().parallel().map(data -> podMetadata.concat("\n").concat(data))
-                .collect(Collectors.toList());
+        stream = lines.stream();
     }
 
     private void initReadTimeout(JobProfile jobConf) {

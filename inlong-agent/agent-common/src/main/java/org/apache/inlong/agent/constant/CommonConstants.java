@@ -160,19 +160,4 @@ public class CommonConstants {
 
     public static final String KEY_METRICS_INDEX = "metricsIndex";
 
-    public static final String HTTPS = "https://";
-    public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
-    public static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
-
-    //k8s information
-    public static final String NAMESPACE = "namespace";
-    public static final String POD_NAME = "pod.name";
-    public static final String CONTAINER_NAME = "container.name";
-    public static final String CONTAINER_ID = "container.id";
-
-    public static final String COMMA = ",";
-    public static final String DELIMITER_1 = "-";
-    public static final String DELIMITER_2 = "_";
-
-
 }

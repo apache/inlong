@@ -18,12 +18,11 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.FileConstants;
+import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
-import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.junit.AfterClass;
@@ -130,7 +129,6 @@ public class TestTextFileReader {
      */
     @Test
     public void testLineEnd() throws Exception {
-        TestUtils.mockMetricRegister();
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
@@ -139,8 +137,8 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
-        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileConstants.FULL.name());
-        jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "bb");
+        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());

@@ -33,9 +33,4 @@ public interface Source {
      * @return list of reader
      */
     List<Reader> split(JobProfile conf);
-
-    /**
-     * Init source meta.
-     */
-    void initSourceMeta(JobProfile jobProfile);
 }

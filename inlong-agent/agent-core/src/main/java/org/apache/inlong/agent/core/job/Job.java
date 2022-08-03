@@ -91,7 +91,6 @@ public class Job {
                     jobConf.get(JobConstants.JOB_CHANNEL),
                     jobConf.get(JobConstants.JOB_SINK));
             Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE_CLASS)).newInstance();
-            source.initSourceMeta(jobConf);
             for (Reader reader : source.split(jobConf)) {
                 Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();
                 writer.setSourceName(reader.getReadSource());

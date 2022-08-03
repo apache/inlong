@@ -20,9 +20,7 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.SourceMeta;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
-import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +40,6 @@ public class BinlogSource implements Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSource.class);
     private static final String BINLOG_SOURCE_TAG_NAME = "BinlogSourceMetric";
-    private List<SourceMeta> sourceMetas;
 
     public BinlogSource() {
     }
@@ -57,11 +54,6 @@ public class BinlogSource implements Source {
         readerList.add(binlogReader);
         GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         return readerList;
-    }
-
-    @Override
-    public void initSourceMeta(JobProfile jobProfile) {
-        this.sourceMetas = MetaDataUtils.getSourceMeta(jobProfile);
     }
 
 }
