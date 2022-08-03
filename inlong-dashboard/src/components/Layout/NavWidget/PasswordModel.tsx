@@ -57,7 +57,20 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       type: 'password',
       label: t('components.Layout.NavWidget.ConfirmPassword'),
       name: 'confirmPassword',
-      rules: [{ required: true }],
+      rules: [
+        ({ getFieldValue }) => ({
+          validator(_, val) {
+            if (val) {
+              const newPassword = getFieldValue(['newPassword']) || 0;
+              const confirmPassword = getFieldValue(['confirmPassword']) || 0;
+              return confirmPassword <= newPassword && newPassword <= val
+                ? Promise.resolve()
+                : Promise.reject(new Error(t('components.Layout.NavWidget.Remind')));
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
   ];
 
@@ -94,10 +107,6 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
 
   const onOk = async () => {
     const values = await form.validateFields();
-    if (values.newPassword !== values.confirmPassword) {
-      message.warning(i18n.t('components.Layout.NavWidget.Remind'));
-      return;
-    }
     const data = { ...userData, ...values };
     await request({
       url: '/user/update',
