@@ -69,6 +69,8 @@ public class FileJob {
         private String additionalAttr;
 
         private String collectType;
+
+        private String lineEndPattern;
     }
 
 }
