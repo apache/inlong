@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow;
+package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,31 +24,21 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.BaseProcessForm;
 
 /**
- * Workflow operation
+ * Workflow operation request
  */
 @Data
-@ApiModel("Workflow operation parameters")
-public class WorkflowOperation {
+@ApiModel("Workflow operation request")
+public class WorkflowOperationRequest {
 
-    /**
-     * WorkflowProcess name-KEY
-     */
-    @ApiModelProperty(value = "WorkflowProcess name", notes = "Specify the process name when initiating the process")
+    @ApiModelProperty(value = "Process name", notes = "Specify the process name when initiating the process")
     public ProcessName name;
-    /**
-     * Applicant
-     */
-    @ApiModelProperty(value = "Applicant", notes = "Nominate applicants when initiating the process")
+
+    @ApiModelProperty(value = "Applicant name", notes = "Nominate applicants when initiating the process")
     public String applicant;
-    /**
-     * Remarks information
-     */
+
     @ApiModelProperty(value = "Remarks information", notes = "Submit remarks when operating a flow sheet or task sheet")
     public String remark;
 
-    /**
-     * Form information
-     */
     @ApiModelProperty(value = "Form information", notes = "When initiating a process or approving task, "
             + "submit the form information that needs to be submitted")
     public BaseProcessForm form;

@@ -56,7 +56,7 @@ import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -182,7 +182,7 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         WorkflowProcess process = definitionRepository.get(processEntity.getName());
         TaskResponse currentTask = null;
         if (taskEntity != null) {
-            currentTask = WorkflowBeanUtils.fromTaskEntity(taskEntity);
+            currentTask = WorkflowUtils.getTaskResponse(taskEntity);
             if (process != null && TaskStatus.PENDING.equals(currentTask.getStatus())) {
                 WorkflowTask task = process.getTaskByName(currentTask.getName());
                 currentTask.setFormData(this.getEmptyTaskForm(task));
@@ -214,12 +214,12 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
 
     private ProcessDetailResponse getProcessDetail(Integer processId, WorkflowProcessEntity processEntity) {
         List<WorkflowTaskEntity> taskList = this.listApproveHistory(processId);
-        List<TaskResponse> history = taskList.stream().map(WorkflowBeanUtils::fromTaskEntity)
+        List<TaskResponse> history = taskList.stream().map(WorkflowUtils::getTaskResponse)
                 .collect(Collectors.toList());
 
         ProcessInfo workflowDTO = this.getBriefFromProcessEntity(processEntity);
         ProcessDetailResponse processDetail = new ProcessDetailResponse();
-        processDetail.setProcessInfo(WorkflowBeanUtils.fromProcessEntity(processEntity));
+        processDetail.setProcessInfo(WorkflowUtils.getProcessResponse(processEntity));
         processDetail.setTaskHistory(history);
         processDetail.setWorkflow(workflowDTO);
         return processDetail;
@@ -237,7 +237,7 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         elementInfo.setName(startEvent.getName());
         elementInfo.setDisplayName(startEvent.getDisplayName());
 
-        WorkflowContext context = WorkflowBeanUtils.buildContext(objectMapper, process, processEntity);
+        WorkflowContext context = WorkflowUtils.buildContext(objectMapper, process, processEntity);
         addNext(startEvent, elementInfo, context, nameStatusMap);
 
         ProcessInfo processInfo = new ProcessInfo();

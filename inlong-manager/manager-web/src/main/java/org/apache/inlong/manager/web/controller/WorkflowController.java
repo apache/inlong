@@ -39,8 +39,8 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowApprovalRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.inlong.manager.service.workflow.WorkflowExecuteLog;
-import org.apache.inlong.manager.service.workflow.WorkflowOperation;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
+import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,18 +66,18 @@ public class WorkflowController {
     @PostMapping("/workflow/start")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
-    public Response<WorkflowResult> start(@RequestBody WorkflowOperation operation) {
+    public Response<WorkflowResult> start(@RequestBody WorkflowOperationRequest request) {
         String applicant = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.start(operation.getName(), applicant, operation.getForm()));
+        return Response.success(workflowService.start(request.getName(), applicant, request.getForm()));
     }
 
     @PostMapping("/workflow/cancel/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
+    public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperationRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
+        return Response.success(workflowService.cancel(id, operator, request.getRemark()));
     }
 
     @PostMapping("/workflow/continue/{id}")
@@ -85,9 +85,9 @@ public class WorkflowController {
     @ApiOperation(value = "Continue process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
-            @RequestBody WorkflowOperation operation) {
+            @RequestBody WorkflowOperationRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
+        return Response.success(workflowService.continueProcess(id, operator, request.getRemark()));
     }
 
     @PostMapping("/workflow/approve/{id}")
