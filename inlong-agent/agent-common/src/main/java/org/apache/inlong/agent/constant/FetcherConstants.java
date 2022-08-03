@@ -54,7 +54,7 @@ public class FetcherConstants {
     public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
 
     public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "agent.manager.heartbeat.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/openapi/heartbeat/report";
+    public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/heartbeat/report";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 

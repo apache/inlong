@@ -89,7 +89,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         httpManager = new HttpManager(conf);
         baseManagerUrl = buildBaseUrl();
         reportSnapshotUrl = buildReportSnapShotUrl(baseManagerUrl);
-        reportHeartbeatUrl = buildReportHeartbeatUrl();
+        reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
     }
 
     @Override
@@ -236,9 +236,8 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                 + conf.get(AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH, DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH);
     }
 
-    private String buildReportHeartbeatUrl() {
-        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT)
+    private String buildReportHeartbeatUrl(String baseUrl) {
+        return baseUrl
                 + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
     }
 }
