@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { useHistory, useSelector, useDispatch, useRequest } from '@/hooks';
 import { State } from '@/models';
@@ -25,12 +25,22 @@ import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
 import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
+import PassModel from './PasswordModel';
+import KeyModel from './KeyModel';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
   const userName = useSelector<State, State['userName']>(state => state.userName);
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+    visible: false,
+  });
+
+  const [keyModel, setKeyModel] = useState<Record<string, unknown>>({
+    visible: false,
+  });
 
   const { run: runLogout } = useRequest('/anno/logout', {
     manual: true,
@@ -48,6 +58,12 @@ const Comp: React.FC = () => {
 
   const menu = (
     <Menu>
+      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
+        {t('components.Layout.NavWidget.EditPassword')}
+      </Menu.Item>
+      <Menu.Item onClick={() => setKeyModel({ visible: true })}>
+        {t('components.Layout.NavWidget.PersonalKey')}
+      </Menu.Item>
       <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
     </Menu>
   );
@@ -65,6 +81,23 @@ const Comp: React.FC = () => {
       <Dropdown overlay={menu} placement="bottomLeft">
         <span>{userName}</span>
       </Dropdown>
+      <PassModel
+        {...createModal}
+        visible={createModal.visible as boolean}
+        onCancel={() => setCreateModal({ visible: false })}
+        onOk={async () => {
+          runLogout();
+          setCreateModal({ visible: false });
+        }}
+      />
+      <KeyModel
+        {...keyModel}
+        visible={keyModel.visible as boolean}
+        onCancel={() => setKeyModel({ visible: false })}
+        onOk={async () => {
+          setKeyModel({ visible: false });
+        }}
+      />
     </div>
   );
 };
