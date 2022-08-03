@@ -162,6 +162,7 @@ func (c *consumer) register2Master(needChange bool) error {
 		}
 		log.Infof("register2Master response %s", rsp.String())
 
+		c.masterHBRetry = 0
 		c.processRegisterResponseM2C(rsp)
 		break
 	}
