@@ -29,12 +29,6 @@ import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
-import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
@@ -43,6 +37,12 @@ import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
+import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
+import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +78,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
             log.debug("received heartbeat: " + request);
         }
         heartbeatManager.reportHeartbeat(request);
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(request.getComponentType());
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(request.getComponentType());
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -99,7 +99,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -121,7 +121,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -145,7 +145,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -166,7 +166,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -185,7 +185,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
@@ -205,7 +205,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
