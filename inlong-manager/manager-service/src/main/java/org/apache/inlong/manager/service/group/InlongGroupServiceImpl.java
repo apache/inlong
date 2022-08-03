@@ -99,6 +99,41 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private InlongStreamService streamService;
 
+    /**
+     * Check whether modification is supported under the current group status, and which fields can be modified.
+     *
+     * @param entity original inlong group entity
+     * @param request request of updated
+     * @param operator current operator
+     */
+    private static void checkGroupCanUpdate(InlongGroupEntity entity, InlongGroupRequest request, String operator) {
+        if (entity == null || request == null) {
+            return;
+        }
+
+        // only the person in charges can update
+        List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+        if (!inCharges.contains(operator)) {
+            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
+            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+        }
+
+        // check whether the current status supports modification
+        GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curStatus)) {
+            String errMsg = String.format("Current status=%s is not allowed to update", curStatus);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+        }
+
+        // mq type cannot be changed
+        if (!entity.getMqType().equals(request.getMqType()) && GroupStatus.notAllowedUpdateMQ(curStatus)) {
+            String errMsg = String.format("Current status=%s is not allowed to update MQ type", curStatus);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
+        }
+    }
+
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public String save(InlongGroupRequest request, String operator) {
@@ -382,41 +417,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
         LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
-    }
-
-    /**
-     * Check whether modification is supported under the current group status, and which fields can be modified.
-     *
-     * @param entity original inlong group entity
-     * @param request request of updated
-     * @param operator current operator
-     */
-    private static void checkGroupCanUpdate(InlongGroupEntity entity, InlongGroupRequest request, String operator) {
-        if (entity == null || request == null) {
-            return;
-        }
-
-        // only the person in charges can update
-        List<String> inCharges = Arrays.asList(entity.getInCharges().split(","));
-        if (!inCharges.contains(operator)) {
-            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-        }
-
-        // check whether the current status supports modification
-        GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
-        if (GroupStatus.notAllowedUpdate(curStatus)) {
-            String errMsg = String.format("Current status=%s is not allowed to update", curStatus);
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-        }
-
-        // mq type cannot be changed
-        if (!entity.getMqType().equals(request.getMqType()) && GroupStatus.notAllowedUpdateMQ(curStatus)) {
-            String errMsg = String.format("Current status=%s is not allowed to update MQ type", curStatus);
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-        }
     }
 
     private BaseSortConf buildSortConfig(List<InlongGroupExtInfo> extInfos) {
