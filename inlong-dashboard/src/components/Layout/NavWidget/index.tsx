@@ -25,7 +25,7 @@ import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
 import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
-import PassModel from './PasswordModel';
+import PasswordModel from './PasswordModel';
 import KeyModel from './KeyModel';
 
 const Comp: React.FC = () => {
@@ -81,7 +81,7 @@ const Comp: React.FC = () => {
       <Dropdown overlay={menu} placement="bottomLeft">
         <span>{userName}</span>
       </Dropdown>
-      <PassModel
+      <PasswordModel
         {...createModal}
         visible={createModal.visible as boolean}
         onCancel={() => setCreateModal({ visible: false })}

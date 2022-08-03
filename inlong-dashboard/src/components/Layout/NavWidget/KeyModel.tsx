@@ -96,7 +96,6 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const onOk = async () => {
     const values = await form.validateFields();
     const data = { ...userData, ...values };
-    console.log(data);
     await request({
       url: '/user/update',
       method: 'POST',
