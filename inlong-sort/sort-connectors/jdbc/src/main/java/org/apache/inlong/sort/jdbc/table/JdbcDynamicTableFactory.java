@@ -178,7 +178,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
             ConfigOptions.key("inlong.metric")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '_' + STREAM ID + '_' + NODE ID");
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {

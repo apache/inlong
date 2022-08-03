@@ -122,7 +122,7 @@ public class JdbcBatchingOutputFormat<
         this.runtimeContext = getRuntimeContext();
         metricData = new MetricData(runtimeContext.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("_");
+            String[] inLongMetricArray = inLongMetric.split("&");
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];

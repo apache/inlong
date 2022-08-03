@@ -45,7 +45,6 @@ public final class JdbcDialects {
         DIALECTS.add(new TDSQLPostgresDialect());
         DIALECTS.add(new SqlServerDialect());
         DIALECTS.add(new OracleDialect());
-        DIALECTS.add(new PostgresDialect());
     }
 
     /**
