@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.dlciceberg.DLCIcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
@@ -133,7 +134,9 @@ public class LoadNodeUtils {
             case TDSQLPOSTGRESQL:
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case DLCICEBERG:
-                return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+//                return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+//            case DORIS:
+//                return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -490,6 +493,28 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getWarehouse()
         );
     }
+
+    /**
+     * Create load node of Doris.
+     */
+//    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
+//               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+//        return new DorisLoadNode(
+//                dorisSink.getSinkName(),
+//                dorisSink.getSinkName(),
+//                fieldInfos,
+//                fieldRelations,
+//                null,
+//                null,
+//                null,
+//                properties,
+//                dorisSink.getJdbcUrl(),
+//                dorisSink.getUsername(),
+//                dorisSink.getPassword(),
+//                dorisSink.getTableName(),
+//                dorisSink.getPrimaryKey()
+//        );
+//    }
 
     /**
      * Parse information field of data sink.

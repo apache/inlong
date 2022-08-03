@@ -11,12 +11,13 @@ import java.util.List;
 @Data
 public class DorisTableInfo {
 
-    private String dbName;
     private String tableName;
-    private String tableDesc;
 
-    private String partitionBy;
-    private String orderBy;
+    private String comment;
+
     private String primaryKey;
+
+    private String userName;
+
     private List<DorisColumnInfo> columns;
 }

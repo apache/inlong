@@ -27,13 +27,10 @@ public class DorisSinkRequest extends SinkRequest {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
-
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    @ApiModelProperty("Primary key")
     private String primaryKey;
 
 }
