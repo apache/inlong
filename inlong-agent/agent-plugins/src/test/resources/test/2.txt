@@ -1,2 +1,2 @@
 hello
-world
+world line-end-symbol
