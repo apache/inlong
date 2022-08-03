@@ -122,6 +122,7 @@ func NewConsumer(config *config.Config) (Consumer, error) {
 
 func (c *consumer) register2Master(needChange bool) error {
 	if needChange {
+		c.selector.Refresh(c.config.Consumer.Masters)
 		node, err := c.selector.Select(c.config.Consumer.Masters)
 		if err != nil {
 			return err
@@ -161,7 +162,6 @@ func (c *consumer) register2Master(needChange bool) error {
 		}
 		log.Infof("register2Master response %s", rsp.String())
 
-		c.masterHBRetry = 0
 		c.processRegisterResponseM2C(rsp)
 		break
 	}
