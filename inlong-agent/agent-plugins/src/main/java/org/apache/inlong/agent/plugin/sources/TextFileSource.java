@@ -18,6 +18,8 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.DataCollectType;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
@@ -26,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +67,7 @@ public class TextFileSource implements Source {
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         for (File file : allFiles) {
-            int seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
+            int seekPosition = getSeekPosition(jobConf, file);
             LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", seekPosition,
                     jobConf.getInstanceId(), file.getAbsolutePath());
             TextFileReader textFileReader = new TextFileReader(file, seekPosition);
@@ -74,6 +79,23 @@ public class TextFileSource implements Source {
         // increment the count of successful sources
         GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         return result;
+    }
+
+    private int getSeekPosition(JobProfile jobConf, File file) {
+        int seekPosition;
+        if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
+                .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
+            try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file.getPath()))) {
+                lineNumberReader.skip(Long.MAX_VALUE);
+                seekPosition = lineNumberReader.getLineNumber() + 1;
+                return seekPosition;
+            } catch (IOException ex) {
+                LOGGER.error("get position error, file absolute path: {}", file.getAbsolutePath());
+                throw new RuntimeException(ex);
+            }
+        }
+        seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
+        return seekPosition;
     }
 
     private void addValidator(String filterPattern, TextFileReader textFileReader) {
