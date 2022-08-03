@@ -30,7 +30,7 @@ public class FileJob {
     private String timeOffset;
     private String addictiveString;
     private String collectType;
-    private String line;
+    private Line line;
 
     @Data
     public static class Dir {
