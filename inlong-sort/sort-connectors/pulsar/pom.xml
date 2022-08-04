@@ -78,6 +78,7 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>io.streamnative.connectors:pulsar-flink-connector-origin*</include>
                                     <include>io.streamnative.connectors:flink-protobuf</include>
                                     <include>org.apache.pulsar:*</include>

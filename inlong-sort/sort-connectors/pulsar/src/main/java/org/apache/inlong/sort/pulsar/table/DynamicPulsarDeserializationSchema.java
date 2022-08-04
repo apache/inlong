@@ -114,8 +114,8 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         }
         valueDeserialization.open(context);
 
-        sourceMetricData = new SourceMetricData(context.getMetricGroup());
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
+            sourceMetricData = new SourceMetricData(context.getMetricGroup());
             String[] inLongMetricArray = inlongMetric.split(DELIMITER);
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
