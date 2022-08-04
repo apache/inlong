@@ -57,12 +57,12 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       label: t('components.Layout.NavWidget.ConfirmPassword'),
       name: 'confirmPassword',
       rules: [
+        { required: true },
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
-              const newPassword = getFieldValue(['newPassword']) || 0;
-              const confirmPassword = getFieldValue(['confirmPassword']) || 0;
-              return confirmPassword <= newPassword && newPassword <= val
+              const newPassword = getFieldValue(['newPassword']);
+              return newPassword === val
                 ? Promise.resolve()
                 : Promise.reject(new Error(t('components.Layout.NavWidget.Remind')));
             }
