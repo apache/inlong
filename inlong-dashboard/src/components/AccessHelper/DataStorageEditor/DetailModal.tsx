@@ -226,7 +226,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   return (
-    <Modal title={sinkType} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title={StoragesMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
       <FormGenerator
         name={name}
         labelCol={{ span: 4 }}
