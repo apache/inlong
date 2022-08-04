@@ -357,7 +357,7 @@ The text of each license is the standard Apache 2.0 license.
   com.jolbox:bonecp:0.8.0.RELEASE - BoneCP (https://github.com/wwadge/bonecp/tree/bonecp-parent-0.8.0.RELEASE), (Apache 2.0)
   org.apache.pulsar:bouncy-castle-bc:pkg:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   net.bytebuddy:byte-buddy-agent:1.11.13 - Byte Buddy agent (https://github.com/raphw/byte-buddy/tree/byte-buddy-1.11.13), (Apache License, Version 2.0)
-  com.github.ben-manes.caffeine:caffeine:2.8.4 - Caffeine cache (https://github.com/ben-manes/caffeine), (Apache License, Version 2.0)
+  com.github.ben-manes.caffeine:caffeine:2.9.3 - Caffeine cache (https://github.com/ben-manes/caffeine), (Apache License, Version 2.0)
   com.twitter:chill_2.11:0.7.6 - chill (https://github.com/twitter/chill/tree/v0.7.6), (Apache 2)
   com.twitter:chill-java:0.7.6 - chill-java (https://github.com/twitter/chill/tree/v0.7.6), (Apache 2)
   ru.yandex.clickhouse:clickhouse-jdbc:0.3.1 - clickhouse-jdbc (https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-jdbc), (The Apache Software License, Version 2.0)
