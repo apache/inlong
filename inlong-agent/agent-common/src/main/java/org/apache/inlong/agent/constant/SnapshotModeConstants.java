@@ -27,4 +27,12 @@ public class SnapshotModeConstants {
     public static final String EARLIEST_OFFSET = "never";
 
     public static final String SPECIFIC_OFFSETS = "schema_only_recovery";
+
+    public static final String ALWAYS = "always";
+
+    public static final String EXPORTED = "exported";
+
+    public static final String INITIAL_ONLY = "initial_only";
+
+    public static final String CUSTOM = "custom";
 }

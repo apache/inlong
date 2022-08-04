@@ -397,7 +397,6 @@
         -->
         <module name="JavadocMethod">
             <property name="severity" value="error"/>
-            <property name="scope" value="public"/>
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
             <property name="allowedAnnotations" value="Override, Test"/>

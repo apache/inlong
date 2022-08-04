@@ -89,6 +89,10 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-postgres</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>awaitility</artifactId>
             <groupId>org.awaitility</groupId>
             <scope>test</scope>
