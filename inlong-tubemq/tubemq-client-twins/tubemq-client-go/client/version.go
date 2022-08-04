@@ -18,5 +18,5 @@
 package client
 
 const (
-	tubeMQClientVersion = "0.1.1"
+	tubeMQClientVersion = "0.1.2"
 )

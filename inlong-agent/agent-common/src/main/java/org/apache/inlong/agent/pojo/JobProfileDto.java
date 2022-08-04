@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.pojo.FileJob.Line;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
@@ -111,6 +112,11 @@ public class JobProfileDto {
 
         if (fileJobTaskConfig.getAdditionalAttr() != null) {
             fileJob.setAddictiveString(fileJobTaskConfig.getAdditionalAttr());
+        }
+
+        if (null != fileJobTaskConfig.getLineEndPattern()) {
+            FileJob.Line line = new Line();
+            line.setEndPattern(fileJobTaskConfig.getLineEndPattern());
         }
         return fileJob;
     }

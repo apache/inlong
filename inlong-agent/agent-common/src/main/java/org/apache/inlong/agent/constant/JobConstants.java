@@ -51,6 +51,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
     public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
+    public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.endPattern";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";

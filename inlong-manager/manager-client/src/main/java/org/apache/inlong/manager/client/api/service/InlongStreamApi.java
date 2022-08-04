@@ -19,10 +19,12 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -43,7 +45,24 @@ public interface InlongStreamApi {
     Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
+    @POST("/stream/list")
+    Call<Response<PageInfo<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
+
     @POST("stream/listAll")
     Call<Response<PageInfo<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
+    @POST("/stream/startProcess/{groupId}/{streamId}")
+    Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+
+    @POST("/stream/suspendProcess/{groupId}/{streamId}")
+    Call<Response<Boolean>> suspendProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+
+    @POST("/stream/restartProcess/{groupId}/{streamId}")
+    Call<Response<Boolean>> restartProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+
+    @POST("/stream/deleteProcess/{groupId}/{streamId}")
+    Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+
+    @DELETE("/stream/delete")
+    Call<Response<Boolean>> delete(@Path("groupId") String groupId, @Path("streamId") String streamId);
 }

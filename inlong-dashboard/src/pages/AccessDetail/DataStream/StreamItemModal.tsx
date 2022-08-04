@@ -26,55 +26,47 @@ import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
 import { dataToValues, valuesToData } from './helper';
-import { pickObject } from '@/utils';
 
 export interface Props extends ModalProps {
   inlongGroupId: string;
+  inlongStreamId?: string;
   record?: Record<string, any>;
   mqType: string;
 }
 
-export const genFormContent = (currentValues, inlongGroupId, mqType) => {
-  const extraParams = {
-    inlongGroupId,
-  };
-
+export const genFormContent = (isCreate, mqType) => {
   return [
-    ...genDataFields(
-      [
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
-            </Divider>
-          ),
-        },
-        'inlongStreamId',
-        'name',
-        'description',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-            </Divider>
-          ),
-        },
-        'dataType',
-        'dataEncoding',
-        'dataSeparator',
-        'rowTypeFields',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-            </Divider>
-          ),
-          visible: mqType === 'PULSAR',
-        },
-      ],
-      currentValues,
-      extraParams,
-    ),
+    ...genDataFields([
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
+          </Divider>
+        ),
+      },
+      'inlongStreamId',
+      'name',
+      'description',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+          </Divider>
+        ),
+      },
+      'dataType',
+      'dataEncoding',
+      'dataSeparator',
+      'rowTypeFields',
+      {
+        type: (
+          <Divider orientation="left">
+            {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+          </Divider>
+        ),
+        visible: mqType === 'PULSAR',
+      },
+    ]),
     ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
       item => ({
         ...item,
@@ -84,7 +76,7 @@ export const genFormContent = (currentValues, inlongGroupId, mqType) => {
   ].map(item => {
     const obj = { ...item };
 
-    if (obj.name === 'inlongStreamId' || obj.name === 'dataType') {
+    if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
       obj.type = 'text';
     }
 
@@ -92,15 +84,15 @@ export const genFormContent = (currentValues, inlongGroupId, mqType) => {
   });
 };
 
-const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getStreamData } = useRequest(
+  const { data: savedData, run: getStreamData } = useRequest(
     {
       url: '/stream/get',
       params: {
         groupId: inlongGroupId,
-        streamId: record.inlongStreamId,
+        streamId: inlongStreamId,
       },
     },
     {
@@ -111,13 +103,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
 
   const onOk = async () => {
     const values = {
-      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'version'], record),
+      ...savedData,
       ...(await form.validateFields()),
     };
 
     const submitData = valuesToData(values ? [values] : [], inlongGroupId);
     await request({
-      url: '/stream/update',
+      url: inlongStreamId ? '/stream/update' : '/stream/save',
       method: 'POST',
       data: submitData?.[0],
     });
@@ -129,7 +121,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
     if (modalProps.visible) {
       // open
       form.resetFields(); // Note that it will cause the form to remount to initiate a select request
-      if (Object.keys(record || {})?.length) {
+      if (inlongStreamId) {
         getStreamData();
       }
     }
@@ -145,7 +137,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(record, inlongGroupId, mqType)}
+        content={genFormContent(!inlongStreamId, mqType)}
         form={form}
         useMaxWidth
       />
