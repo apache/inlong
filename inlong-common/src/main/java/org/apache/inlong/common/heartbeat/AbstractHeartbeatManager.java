@@ -15,28 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
-
-import lombok.Data;
-import org.apache.inlong.common.db.CommandEntity;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.apache.inlong.common.heartbeat;
 
 /**
- * Request task from agent to manager.
+ * Manipulate heartbeat in components
  */
-@Data
-public class TaskRequest {
+public interface AbstractHeartbeatManager {
 
-    private String clusterTag;
+    /**
+     * Report the heartbeat information.
+     * <p/>
+     * If the node to which the heartbeat belongs does not exist, it will be registered with the Manager.
+     *
+     * @param heartbeat heartbeat msg
+     */
+    void reportHeartbeat(HeartbeatMsg heartbeat);
 
-    private String agentIp;
-
-    private String uuid;
-
-    private int pullJobType;
-
-    private List<CommandEntity> commandInfo = new ArrayList<>();
-
+    /**
+     * Default heartbeat interval is 5, unit is second.
+     *
+     * @return interval in second
+     */
+    default int heartbeatInterval() {
+        return 5;
+    }
 }

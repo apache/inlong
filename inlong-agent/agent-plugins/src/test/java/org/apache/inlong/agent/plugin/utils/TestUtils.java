@@ -58,6 +58,8 @@ public class TestUtils {
                 + "    \"id\": 1,\n"
                 + "    \"op\": \"0\",\n"
                 + "    \"ip\": \"127.0.0.1\",\n"
+                + "    \"groupId\": \"groupId\",\n"
+                + "    \"streamId\": \"streamId\",\n"
                 + "    \"name\": \"fileAgentTest\",\n"
                 + "    \"source\": \"org.apache.inlong.agent.plugin.sources.TextFileSource\",\n"
                 + "    \"sink\": \"org.apache.inlong.agent.plugin.sinks.MockSink\",\n"

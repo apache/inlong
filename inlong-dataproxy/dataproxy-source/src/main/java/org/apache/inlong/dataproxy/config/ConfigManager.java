@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
+
 /**
  * Config manager class.
  */
@@ -240,7 +242,7 @@ public class ConfigManager {
         }
 
         private long getSleepTime() {
-            String sleepTimeInMsStr = configManager.getCommonProperties().get("configCheckInterval");
+            String sleepTimeInMsStr = configManager.getCommonProperties().get(CONFIG_CHECK_INTERVAL);
             long sleepTimeInMs = 10000;
             try {
                 if (sleepTimeInMsStr != null) {
@@ -351,8 +353,8 @@ public class ConfigManager {
 
         private void checkRemoteConfig() {
             try {
-                String managerHosts = configManager.getCommonProperties().get("manager.hosts");
-                String proxyClusterName = configManager.getCommonProperties().get("proxy.cluster.name");
+                String managerHosts = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
+                String proxyClusterName = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_NAME);
                 if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
                     return;
                 }

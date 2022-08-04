@@ -24,6 +24,8 @@ public class InlongConstants {
 
     public static final String COMMA = ",";
 
+    public static final String ADMIN_USER = "admin";
+
     public static final Integer AFFECTED_ONE_ROW = 1;
 
     public static final Integer INITIAL_VERSION = 1;

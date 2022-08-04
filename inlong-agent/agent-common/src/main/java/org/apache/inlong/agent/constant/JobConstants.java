@@ -28,6 +28,8 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_IP = "job.ip";
     public static final String JOB_RETRY = "job.retry";
     public static final String JOB_UUID = "job.uuid";
+    public static final String JOB_GROUP_ID = "job.groupId";
+    public static final String JOB_STREAM_ID = "job.streamId";
 
     public static final String JOB_SOURCE_CLASS = "job.source";
     public static final String JOB_SOURCE_TYPE = "job.sourceType";

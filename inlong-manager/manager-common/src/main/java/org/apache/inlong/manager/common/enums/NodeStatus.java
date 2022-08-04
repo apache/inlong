@@ -15,28 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.manager.common.enums;
 
-import lombok.Data;
-import org.apache.inlong.common.db.CommandEntity;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 
 /**
- * Request task from agent to manager.
+ * Status enum of cluster node
  */
-@Data
-public class TaskRequest {
+public enum NodeStatus {
 
-    private String clusterTag;
+    NORMAL(1),
 
-    private String agentIp;
+    HEARTBEAT_TIMEOUT(2);
 
-    private String uuid;
+    int status;
 
-    private int pullJobType;
+    NodeStatus(int status) {
+        this.status = status;
+    }
 
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+    public int getStatus() {
+        return status;
+    }
 
+    public static NodeStatus fromStatus(int status) {
+        switch (status) {
+            case 1:
+                return NORMAL;
+            case 2:
+                return HEARTBEAT_TIMEOUT;
+            default:
+                throw new WorkflowException("unknown status: " + status);
+        }
+    }
 }

@@ -17,162 +17,66 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeat;
-import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeat;
-import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+import com.google.common.collect.Maps;
+import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.heartbeat.GroupHeartbeat;
+import org.apache.inlong.common.heartbeat.StreamHeartbeat;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
-import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
-import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
-import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity;
-import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
-import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
-import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.BDDMockito.given;
+import java.util.Map;
 
 /**
  * Heartbeat service test.
  */
-public class HeartbeatServiceTest {
+@EnableAutoConfiguration
+public class HeartbeatServiceTest extends ServiceBaseTest {
 
-    @InjectMocks
-    private HeartbeatService heartbeatService = new HeartbeatServiceImpl();
-    @Mock
-    private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
-    @Mock
-    private GroupHeartbeatEntityMapper groupHeartbeatMapper;
-    @Mock
-    private StreamHeartbeatEntityMapper streamHeartbeatMapper;
-
-    /**
-     * setUp
-     */
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        ComponentHeartbeatEntity componentHeartbeat = new ComponentHeartbeatEntity();
-        componentHeartbeat.setComponent("Sort");
-        componentHeartbeat.setInstance("127.0.0.1");
-        componentHeartbeat.setStatusHeartbeat("[{\"status\":\"running\"}]");
-        componentHeartbeat.setMetricHeartbeat("[{\"mem\":\"16gb\",\"cpu\":\"60%\"}]");
-        componentHeartbeat.setReportTime(System.currentTimeMillis());
-        Page<ComponentHeartbeatEntity> componentPage = new Page<>();
-        componentPage.add(componentHeartbeat);
-        componentPage.setTotal(1);
-        given(componentHeartbeatMapper.insert(new ComponentHeartbeatEntity())).willReturn(1);
-        given(componentHeartbeatMapper.selectByKey(Mockito.anyString(),
-                Mockito.anyString())).willReturn(componentHeartbeat);
-        given(componentHeartbeatMapper.selectByCondition(Mockito.any())).willReturn(componentPage);
-
-        GroupHeartbeatEntity groupHeartbeat = new GroupHeartbeatEntity();
-        groupHeartbeat.setComponent("Sort");
-        groupHeartbeat.setInstance("127.0.0.1");
-        groupHeartbeat.setStatusHeartbeat("[{\"summaryMetric\":{\"totalRecordNumOfRead\""
-                + ": \"10\"},\"streamMetrics\":[{\"streamId\":\"stream1\"}]}]");
-        groupHeartbeat.setReportTime(System.currentTimeMillis());
-        groupHeartbeat.setMetricHeartbeat("[{\"summaryMetric\":{\"totalRecordNumOfRead\""
-                + ": \"10\"},"
-                + "\"streamMetrics\":[{\"streamId\":\"stream1\"}]}]");
-        Page<GroupHeartbeatEntity> groupPage = new Page<>();
-        groupPage.add(groupHeartbeat);
-        groupPage.setTotal(1);
-        given(groupHeartbeatMapper.selectByKey(Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString())).willReturn(groupHeartbeat);
-        given(groupHeartbeatMapper.selectByCondition(Mockito.any())).willReturn(groupPage);
-
-        StreamHeartbeatEntity streamHeartbeat = new StreamHeartbeatEntity();
-        streamHeartbeat.setComponent("Sort");
-        streamHeartbeat.setInstance("127.0.0.1");
-        streamHeartbeat.setInlongGroupId("group1");
-        streamHeartbeat.setInlongStreamId("test_test");
-        streamHeartbeat.setStatusHeartbeat("[{\"statue\":\"running\"}]");
-        streamHeartbeat.setMetricHeartbeat("[{\"outMsg\":\"1\",\"inMsg\":2}]");
-        streamHeartbeat.setReportTime(System.currentTimeMillis());
-
-        Page<StreamHeartbeatEntity> streamPage = new Page<>();
-        streamPage.add(streamHeartbeat);
-        streamPage.setTotal(1);
-
-        given(streamHeartbeatMapper.selectByKey(Mockito.anyString(),
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .willReturn(streamHeartbeat);
-        given(streamHeartbeatMapper.selectByCondition(Mockito.any())).willReturn(streamPage);
-    }
+    @Autowired
+    private HeartbeatService heartbeatService;
 
     @Test
     public void testReportHeartbeat() {
         HeartbeatReportRequest request = new HeartbeatReportRequest();
-        request.setComponent("Sort");
-        request.setInstance("127.0.0.1");
+        request.setComponentType(ComponentTypeEnum.Agent.getName());
+        request.setIp("127.0.0.1");
         request.setReportTime(Instant.now().toEpochMilli());
-
-        ComponentHeartbeat componentHeartbeat = new ComponentHeartbeat();
-        componentHeartbeat.setMetricHeartbeat("{\"mem\":\"100\"}");
-        componentHeartbeat.setStatusHeartbeat("{\"runningTime\":\"10h.35m\","
-                + "\"status\":\"10h.35m\","
-                + "\"groupIds\":\"group1,group2\"}");
 
         List<GroupHeartbeat> groupHeartbeats = new ArrayList<>();
         GroupHeartbeat groupHeartbeat = new GroupHeartbeat();
         groupHeartbeat.setInlongGroupId("group1");
-        groupHeartbeat.setStatusHeartbeat("[{\"status\":\"running\",\"streamIds\":\"1,2,3,4\"}]");
+        groupHeartbeat.setStatus("running");
         request.setGroupHeartbeats(groupHeartbeats);
 
         StreamHeartbeat streamHeartbeat = new StreamHeartbeat();
-        streamHeartbeat.setMetricHeartbeat("[{\"summaryMetric\":{\"totalRecordNumOfRead\""
-                + ": \"10\"},\"streamMetrics\":[{\"streamId\":\"stream1\"}]}]");
-        streamHeartbeat.setStatusHeartbeat("{}");
+        Map<String, String> metrics = Maps.newHashMap();
+        metrics.put("count", "10000");
+        metrics.put("speed", "100/s");
+        streamHeartbeat.setMetric(JsonUtils.toJsonString(metrics));
+        streamHeartbeat.setStatus("running");
         streamHeartbeat.setInlongGroupId("group1");
         streamHeartbeat.setInlongStreamId("stream1");
-        List<StreamHeartbeat> streamHeartbeats = new ArrayList<>();
-        streamHeartbeats.add(streamHeartbeat);
-        request.setStreamHeartbeats(streamHeartbeats);
+        request.setStreamHeartbeats(Collections.singletonList(streamHeartbeat));
 
         Assertions.assertTrue(heartbeatService.reportHeartbeat(request));
     }
 
     @Test
-    public void testGetComponentHeartbeat() {
-        HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent("Sort");
-        request.setInstance("127.0.0.1");
-        ComponentHeartbeatResponse response = heartbeatService.getComponentHeartbeat(request);
-        Assertions.assertEquals("127.0.0.1", response.getInstance());
-    }
-
-    @Test
-    public void testGetGroupHeartbeat() {
-        HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent("Sort");
-        request.setInstance("127.0.0.1");
-        request.setInlongGroupId("group1");
-        GroupHeartbeatResponse response = heartbeatService.getGroupHeartbeat(request);
-        Assertions.assertEquals("127.0.0.1", response.getInstance());
-    }
-
-    @Test
     public void testGetStreamHeartbeat() {
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent("Sort");
+        request.setComponent(ComponentTypeEnum.Agent.getName());
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("group1");
         request.setInlongStreamId("stream1");
@@ -181,36 +85,4 @@ public class HeartbeatServiceTest {
         Assertions.assertEquals("127.0.0.1", response.getInstance());
     }
 
-    @Test
-    public void testListComponentHeartbeat() {
-        HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent("Sort");
-        request.setPageNum(1);
-        request.setPageSize(10);
-        PageInfo<ComponentHeartbeatResponse> pageResponse = heartbeatService.listComponentHeartbeat(request);
-        Assertions.assertEquals(1, pageResponse.getTotal());
-    }
-
-    @Test
-    public void testListGroupHeartbeat() {
-        HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent("Sort");
-        request.setInstance("127.0.0.1");
-        request.setPageNum(1);
-        request.setPageSize(10);
-        PageInfo<GroupHeartbeatResponse> pageResponse = heartbeatService.listGroupHeartbeat(request);
-        Assertions.assertEquals(1, pageResponse.getTotal());
-    }
-
-    @Test
-    public void testListStreamHeartbeat() {
-        HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent("Sort");
-        request.setInstance("127.0.0.1");
-        request.setInlongGroupId("group1");
-        request.setPageNum(1);
-        request.setPageSize(10);
-        PageInfo<StreamHeartbeatResponse> pageResponse = heartbeatService.listStreamHeartbeat(request);
-        Assertions.assertEquals(1, pageResponse.getTotal());
-    }
 }

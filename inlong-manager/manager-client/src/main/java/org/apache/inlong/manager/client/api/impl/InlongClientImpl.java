@@ -27,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
+import org.apache.inlong.manager.client.api.InlongCluster;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
@@ -92,6 +93,11 @@ public class InlongClientImpl implements InlongClient {
         ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
         groupClient = clientFactory.getGroupClient();
         clusterClient = clientFactory.getClusterClient();
+    }
+
+    @Override
+    public InlongCluster cluster() throws Exception {
+        return new InlongClusterImpl(this);
     }
 
     @Override
