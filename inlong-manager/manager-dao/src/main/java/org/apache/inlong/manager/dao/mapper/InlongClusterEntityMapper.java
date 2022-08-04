@@ -30,6 +30,8 @@ public interface InlongClusterEntityMapper {
 
     int insert(InlongClusterEntity record);
 
+    int insertOnDuplicateKeyUpdate(InlongClusterEntity record);
+
     InlongClusterEntity selectById(Integer id);
 
     /**

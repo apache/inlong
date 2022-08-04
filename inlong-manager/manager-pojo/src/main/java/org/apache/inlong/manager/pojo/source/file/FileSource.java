@@ -42,6 +42,9 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
 
+    @ApiModelProperty("Agent Cluster tag")
+    private String clusterTag;
+
     @ApiModelProperty("Agent IP address")
     private String ip;
 

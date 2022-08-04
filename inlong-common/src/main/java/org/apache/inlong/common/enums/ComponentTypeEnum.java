@@ -21,18 +21,29 @@ import lombok.Getter;
 
 public enum ComponentTypeEnum {
 
-    Agent("Agent"),
+    Agent("AGENT"),
 
-    DataProxy("DataProxy"),
+    DataProxy("DATAPROXY"),
 
-    Cache("Cache"),
+    Cache("CACHE"),
 
-    Sort("Sort");
+    Sort("SORT"),
+
+    SDK("SDK");
 
     @Getter
     private final String name;
 
     ComponentTypeEnum(String name) {
         this.name = name;
+    }
+
+    public static ComponentTypeEnum forName(String name) {
+        for (ComponentTypeEnum componentType : values()) {
+            if (componentType.getName().equals(name)) {
+                return componentType;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupport componentName for Inlong:%s", name));
     }
 }

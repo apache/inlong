@@ -15,23 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.heartbeat;
+package org.apache.inlong.common.heartbeat;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
  * Component heartbeat info
  */
 @Data
-@ApiModel("Component heartbeat info")
 public class ComponentHeartbeat {
 
-    @ApiModelProperty(value = "Status heartbeat info")
-    private String statusHeartbeat;
+    private String clusterTag;
 
-    @ApiModelProperty(value = "Metric heartbeat info")
-    private String metricHeartbeat;
+    private String clusterName;
 
+    private String componentType;
+
+    private String ip;
+
+    private int port;
+
+    private String inCharges;
+
+    public ComponentHeartbeat() {
+    }
+
+    public ComponentHeartbeat(String clusterTag, String clusterName, String componentType, String ip, int port,
+            String inCharges) {
+        this.clusterTag = clusterTag;
+        this.clusterName = clusterName;
+        this.componentType = componentType;
+        this.ip = ip;
+        this.port = port;
+        this.inCharges = inCharges;
+    }
 }

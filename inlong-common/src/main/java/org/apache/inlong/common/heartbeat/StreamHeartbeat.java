@@ -15,28 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.common.heartbeat;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.inlong.common.db.CommandEntity;
+import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Request task from agent to manager.
- */
 @Data
-public class TaskRequest {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class StreamHeartbeat {
 
-    private String clusterTag;
+    private String inlongGroupId;
 
-    private String agentIp;
+    private String inlongStreamId;
 
-    private String uuid;
+    private String status;
 
-    private int pullJobType;
-
-    private List<CommandEntity> commandInfo = new ArrayList<>();
+    private String metric;
 
 }

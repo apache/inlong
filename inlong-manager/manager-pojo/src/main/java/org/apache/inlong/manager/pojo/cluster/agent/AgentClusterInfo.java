@@ -15,28 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.agent;
+package org.apache.inlong.manager.pojo.cluster.agent;
 
-import lombok.Data;
-import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+public class AgentClusterInfo extends ClusterInfo {
 
-/**
- * Request task from agent to manager.
- */
-@Data
-public class TaskRequest {
+    public AgentClusterInfo() {
+        this.setType(ClusterType.AGENT);
+    }
 
-    private String clusterTag;
-
-    private String agentIp;
-
-    private String uuid;
-
-    private int pullJobType;
-
-    private List<CommandEntity> commandInfo = new ArrayList<>();
-
+    @Override
+    public ClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, AgentClusterRequest::new);
+    }
 }

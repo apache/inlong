@@ -21,7 +21,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -50,6 +49,7 @@ import org.apache.inlong.common.config.IDataProxyConfigHolder;
 import org.apache.inlong.common.metric.MetricObserver;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.slf4j.Logger;
@@ -66,7 +66,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 
  * Application
  */
 public class Application {
@@ -83,6 +82,7 @@ public class Application {
     private MonitorService monitorServer;
     private final ReentrantLock lifecycleLock = new ReentrantLock();
     private AdminTask adminTask;
+    private HeartbeatManager heartbeatManager;
 
     /**
      * Constructor
@@ -93,6 +93,7 @@ public class Application {
 
     /**
      * Constructor
+     *
      * @param components
      */
     public Application(List<LifecycleAware> components) {
@@ -119,6 +120,8 @@ public class Application {
             // start admin task
             this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
             this.adminTask.start();
+            this.heartbeatManager = new HeartbeatManager();
+            this.heartbeatManager.start();
         } finally {
             lifecycleLock.unlock();
         }
@@ -126,6 +129,7 @@ public class Application {
 
     /**
      * handleConfigurationEvent
+     *
      * @param conf
      */
     @Subscribe
@@ -208,6 +212,7 @@ public class Application {
 
     /**
      * startAllComponents
+     *
      * @param materializedConfiguration
      */
     private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
@@ -306,7 +311,7 @@ public class Application {
 
     /**
      * main
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -453,7 +458,7 @@ public class Application {
 
     /**
      * startByManagerConf
-     * 
+     *
      * @param commandLine
      */
     private static void startByManagerConf(CommandLine commandLine) {

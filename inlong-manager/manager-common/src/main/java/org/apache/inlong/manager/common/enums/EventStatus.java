@@ -49,7 +49,7 @@ public enum EventStatus {
         return status;
     }
 
-    EventStatus fromState(int status) {
+    EventStatus fromStatus(int status) {
         switch (status) {
             case 0:
                 return EXECUTING;

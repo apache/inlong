@@ -15,29 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.heartbeat;
+package org.apache.inlong.manager.pojo.cluster.agent;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Inlong stream heartbeat info
+ * Inlong cluster request for agent
  */
 @Data
-@ApiModel("Inlong stream heartbeat info")
-public class StreamHeartbeat {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.AGENT)
+@ApiModel("Inlong cluster request for DataProxy")
+public class AgentClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
-
-    @ApiModelProperty(value = "Inlong stream id")
-    private String inlongStreamId;
-
-    @ApiModelProperty(value = "Status heartbeat info")
-    private String statusHeartbeat;
-
-    @ApiModelProperty(value = "Metric heartbeat info")
-    private String metricHeartbeat;
+    public AgentClusterRequest() {
+        this.setType(ClusterType.AGENT);
+    }
 
 }
