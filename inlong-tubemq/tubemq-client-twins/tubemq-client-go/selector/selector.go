@@ -29,6 +29,8 @@ import (
 type Selector interface {
 	// Select will return a service node which contains an available address.
 	Select(serviceName string) (*Node, error)
+	// Refresh will refresh a service address cache data.
+	Refresh(serviceName string)
 }
 
 var (
@@ -54,6 +56,6 @@ type Node struct {
 	ServiceName string
 	// Address of the node.
 	Address string
-	// HasNext indicates whether or not the service has next node.
+	// HasNext indicates whether the service has next node or not.
 	HasNext bool
 }

@@ -53,11 +53,12 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
     public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
 
+    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "agent.manager.heartbeat.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/heartbeat/report";
+
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 
     public static final int AGENT_HTTP_SUCCESS_CODE = 200;
-
-    public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";

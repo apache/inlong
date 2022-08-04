@@ -24,7 +24,8 @@ public class ClusterType {
 
     public static final String AGENT = "AGENT";
     public static final String TUBEMQ = "TUBEMQ";
+    public static final String AGENT = "AGENT";
+    public static final String SDK = "SDK";
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
-
 }

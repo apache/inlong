@@ -22,7 +22,7 @@ import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
 import { genBusinessFields } from '@/components/AccessHelper';
 
-const getBusinessContent = initialValues => [
+const getBusinessContent = (initialValues, isFinished, isViwer) => [
   ...genBusinessFields(
     [
       'inlongGroupId',
@@ -47,14 +47,29 @@ const getBusinessContent = initialValues => [
     initialValues,
   ).map(item => {
     const obj = { ...item };
-    if (typeof obj.suffix !== 'string') {
-      delete obj.suffix;
-    }
-    delete obj.rules;
-    delete obj.extra;
 
-    if (typeof obj.type === 'string' || obj.name === 'inlongGroupId' || obj.name === 'inCharges') {
+    const canEditSet = new Set([
+      'ensemble',
+      'writeQuorum',
+      'ackQuorum',
+      'retentionTime',
+      'ttl',
+      'retentionSize',
+    ]);
+
+    if (
+      (typeof obj.type === 'string' && !canEditSet.has(obj.name as string)) ||
+      obj.name === 'inCharges' ||
+      isFinished ||
+      isViwer
+    ) {
       obj.type = 'text';
+      delete obj.rules;
+      delete obj.extra;
+      if ((obj.suffix as any)?.type) {
+        (obj.suffix as any).type = 'text';
+        delete (obj.suffix as any).rules;
+      }
     }
 
     return obj;
@@ -70,7 +85,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         </Divider>
       ),
     },
-    ...(getBusinessContent(formData.groupInfo) || []),
+    ...(getBusinessContent(formData.groupInfo, isFinished, isViwer) || []),
     {
       type: (
         <Divider orientation="left">
@@ -106,17 +121,19 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
           name: ['inlongClusterTag'],
           rules: [{ required: true }],
           props: {
+            showSearch: true,
             disabled: isFinished,
             options: {
-              requestAuto: isFinished,
-              requestService: {
+              requestTrigger: ['onOpen', 'onSearch'],
+              requestService: keyword => ({
                 url: '/cluster/tag/list',
                 method: 'POST',
                 data: {
+                  keyword,
                   pageNum: 1,
-                  pageSize: 100,
+                  pageSize: 20,
                 },
-              },
+              }),
               requestParams: {
                 formatResult: result =>
                   result?.list?.map(item => ({

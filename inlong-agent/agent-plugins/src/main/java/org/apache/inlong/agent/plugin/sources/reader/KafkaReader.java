@@ -24,7 +24,6 @@ import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -44,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
@@ -122,7 +122,7 @@ public class KafkaReader<K, V> extends AbstractReader {
                         "partition:" + record.partition()
                                 + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
-                GlobalMetrics.incReadNum(metricTagName);
+                GLOBAL_METRICS.incReadNum(metricTagName);
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
                 DefaultMessage message = new DefaultMessage(recordValue, headerMap);

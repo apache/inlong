@@ -25,8 +25,9 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.StateSearchKey;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
+import org.apache.inlong.agent.metrics.job.JobMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,11 +97,7 @@ public class JobManager extends AbstractDaemon {
         this.jobDbCacheCheckInterval = conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
         this.jobMaxSize = conf.getLong(JOB_NUMBER_LIMIT, DEFAULT_JOB_NUMBER_LIMIT);
 
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.jobMetrics = new JobPrometheusMetrics();
-        } else {
-            this.jobMetrics = JobJmxMetrics.create();
-        }
+        this.jobMetrics = AgentMetricSingleton.getAgentMetricHandler().jobMetrics;
     }
 
     /**

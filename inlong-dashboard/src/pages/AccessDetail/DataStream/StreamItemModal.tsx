@@ -109,7 +109,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
 
     const submitData = valuesToData(values ? [values] : [], inlongGroupId);
     await request({
-      url: '/stream/update',
+      url: inlongStreamId ? '/stream/update' : '/stream/save',
       method: 'POST',
       data: submitData?.[0],
     });

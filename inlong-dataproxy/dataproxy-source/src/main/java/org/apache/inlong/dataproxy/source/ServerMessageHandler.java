@@ -109,7 +109,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     private final String protocolType;
 
-
     private MonitorIndex monitorIndex;
 
     private MonitorIndexExt monitorIndexExt;
