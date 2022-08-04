@@ -18,7 +18,6 @@
 import React, { useState } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import i18n from '@/i18n';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import request from '@/utils/request';

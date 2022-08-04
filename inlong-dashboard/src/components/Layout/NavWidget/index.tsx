@@ -25,8 +25,8 @@ import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
 import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
-import PasswordModel from './PasswordModel';
-import KeyModel from './KeyModel';
+import PasswordModal from './PasswordModal';
+import KeyModal from './KeyModal';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -38,7 +38,7 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const [keyModel, setKeyModel] = useState<Record<string, unknown>>({
+  const [keyModal, setKeyModal] = useState<Record<string, unknown>>({
     visible: false,
   });
 
@@ -61,7 +61,7 @@ const Comp: React.FC = () => {
       <Menu.Item onClick={() => setCreateModal({ visible: true })}>
         {t('components.Layout.NavWidget.EditPassword')}
       </Menu.Item>
-      <Menu.Item onClick={() => setKeyModel({ visible: true })}>
+      <Menu.Item onClick={() => setKeyModal({ visible: true })}>
         {t('components.Layout.NavWidget.PersonalKey')}
       </Menu.Item>
       <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
@@ -81,7 +81,7 @@ const Comp: React.FC = () => {
       <Dropdown overlay={menu} placement="bottomLeft">
         <span>{userName}</span>
       </Dropdown>
-      <PasswordModel
+      <PasswordModal
         {...createModal}
         visible={createModal.visible as boolean}
         onCancel={() => setCreateModal({ visible: false })}
@@ -90,12 +90,12 @@ const Comp: React.FC = () => {
           setCreateModal({ visible: false });
         }}
       />
-      <KeyModel
-        {...keyModel}
-        visible={keyModel.visible as boolean}
-        onCancel={() => setKeyModel({ visible: false })}
+      <KeyModal
+        {...keyModal}
+        visible={keyModal.visible as boolean}
+        onCancel={() => setKeyModal({ visible: false })}
         onOk={async () => {
-          setKeyModel({ visible: false });
+          setKeyModal({ visible: false });
         }}
       />
     </div>
