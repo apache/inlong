@@ -273,7 +273,7 @@ public class PulsarDynamicTableFactory implements
         String adminUrl = tableOptions.get(ADMIN_URL);
         String serviceUrl = tableOptions.get(SERVICE_URL);
 
-        String inLongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongMetric = tableOptions.get(INLONG_METRIC);
 
         return createPulsarTableSource(
                 physicalDataType,
@@ -288,7 +288,7 @@ public class PulsarDynamicTableFactory implements
                 adminUrl,
                 properties,
                 startupOptions,
-            inLongMetric);
+            inlongMetric);
     }
 
     @Override
