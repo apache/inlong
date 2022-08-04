@@ -17,10 +17,16 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
+import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
+import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
+import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
+import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
@@ -33,13 +39,18 @@ import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
+
+import java.util.List;
 
 /**
  * Util for sort field info.
@@ -191,11 +202,16 @@ public class FieldInfoUtils {
                 formatInfo = new DoubleFormatInfo();
                 break;
             case DECIMAL:
-                formatInfo = new DecimalFormatInfo();
+                if (StringUtils.isNotBlank(format)) {
+                    DecimalFormat decimalFormat = FieldFormatUtils.parseDecimalFormat(format);
+                    formatInfo = new DecimalFormatInfo(decimalFormat.getPrecision(), decimalFormat.getScale());
+                } else {
+                    formatInfo = new DecimalFormatInfo();
+                }
                 break;
             case DATE:
                 if (StringUtils.isNotBlank(format)) {
-                    formatInfo = new DateFormatInfo(convertToSortFormat(format));
+                    formatInfo = new DateFormatInfo(convertTimestampOrDataFormat(format));
                 } else {
                     formatInfo = new DateFormatInfo();
                 }
@@ -203,27 +219,76 @@ public class FieldInfoUtils {
             case DATETIME:
             case TIME:
                 if (StringUtils.isNotBlank(format)) {
-                    formatInfo = new TimeFormatInfo(convertToSortFormat(format));
+                    formatInfo = new TimeFormatInfo(convertTimestampOrDataFormat(format));
                 } else {
                     formatInfo = new TimeFormatInfo();
                 }
                 break;
             case TIMESTAMP:
                 if (StringUtils.isNotBlank(format)) {
-                    formatInfo = new TimestampFormatInfo(convertToSortFormat(format));
+                    formatInfo = new TimestampFormatInfo(convertTimestampOrDataFormat(format));
                 } else {
                     formatInfo = new TimestampFormatInfo();
+                }
+                break;
+            case LOCAL_ZONE_TIMESTAMP:
+                if (StringUtils.isNotBlank(format)) {
+                    formatInfo = new LocalZonedTimestampFormatInfo(convertTimestampOrDataFormat(format), 2);
+                } else {
+                    formatInfo = new LocalZonedTimestampFormatInfo();
                 }
                 break;
             case BINARY:
             case FIXED:
                 formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
                 break;
+            case ARRAY:
+                formatInfo = createArrayFormatInfo(format);
+                break;
+            case MAP:
+                formatInfo = createMapFormatInfo(format);
+                break;
+            case STRUCT:
+                formatInfo = createRowFormatInfo(format);
+                break;
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }
-
         return formatInfo;
+    }
+
+    private static ArrayFormatInfo createArrayFormatInfo(String format) {
+        if (StringUtils.isBlank(format)) {
+            throw new IllegalArgumentException("Unsupported array type without format");
+        }
+        ArrayFormat arrayFormat = FieldFormatUtils.parseArrayFormat(format);
+        FormatInfo elementFormatInfo = convertFieldFormat(arrayFormat.getElementType().name(),
+                arrayFormat.getElementFormat());
+        return new ArrayFormatInfo(elementFormatInfo);
+    }
+
+    private static MapFormatInfo createMapFormatInfo(String format) {
+        if (StringUtils.isBlank(format)) {
+            throw new IllegalArgumentException("Unsupported map type without format");
+        }
+        MapFormat mapFormat = FieldFormatUtils.parseMapFormat(format);
+        FormatInfo keyFormatInfo = convertFieldFormat(mapFormat.getKeyType().name(), mapFormat.getKeyFormat());
+        FormatInfo valueFormatInfo = convertFieldFormat(mapFormat.getValueType().name(), mapFormat.getValueFormat());
+        return new MapFormatInfo(keyFormatInfo, valueFormatInfo);
+    }
+
+    private static RowFormatInfo createRowFormatInfo(String format) {
+        if (StringUtils.isBlank(format)) {
+            throw new IllegalArgumentException("Unsupported struct type without format");
+        }
+        StructFormat structFormat = FieldFormatUtils.parseStructFormat(format);
+        List<String> fieldNames = Lists.newArrayList();
+        List<FormatInfo> formatInfos = Lists.newArrayList();
+        for (Element element : structFormat.getElements()) {
+            fieldNames.add(element.getFieldName());
+            formatInfos.add(convertFieldFormat(element.getFieldType().name(), element.getFieldFormat()));
+        }
+        return new RowFormatInfo(fieldNames.toArray(new String[0]), formatInfos.toArray(new FormatInfo[0]));
     }
 
     /**
@@ -232,7 +297,7 @@ public class FieldInfoUtils {
      * @param format The format
      * @return The sort format
      */
-    private static String convertToSortFormat(String format) {
+    private static String convertTimestampOrDataFormat(String format) {
         String sortFormat = format;
         switch (format) {
             case "MICROSECONDS":

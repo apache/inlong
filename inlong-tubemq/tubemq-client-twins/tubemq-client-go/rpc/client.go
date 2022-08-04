@@ -99,5 +99,8 @@ func (c *rpcClient) doRequest(ctx context.Context, address string,
 	}
 
 	v := rsp.(*codec.TubeMQRPCResponse)
+	if v.ResponseException != nil {
+		return nil, errs.New(errs.RetResponseException, v.ResponseException.String())
+	}
 	return v.ResponseBody, nil
 }

@@ -20,6 +20,7 @@ package selector
 import (
 	"errors"
 	"strings"
+	"sync"
 )
 
 func init() {
@@ -30,6 +31,7 @@ func init() {
 }
 
 type ipSelector struct {
+	mu       sync.Mutex
 	services map[string]*ipServices
 }
 
@@ -42,42 +44,37 @@ type ipServices struct {
 // Select will return the address in the serviceName sequentially.
 // The first address will be returned after reaching the end of the addresses.
 func (s *ipSelector) Select(serviceName string) (*Node, error) {
-	if len(serviceName) == 0 {
+	if serviceName == "" {
 		return nil, errors.New("serviceName empty")
 	}
-
-	num := strings.Count(serviceName, ",") + 1
-	if num == 1 {
-		return &Node{
-			ServiceName: serviceName,
-			Address:     serviceName,
-			HasNext:     false,
-		}, nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	services, ok := s.services[serviceName]
+	if !ok {
+		services = &ipServices{
+			addresses: strings.Split(serviceName, ","),
+			nextIndex: 0,
+		}
+		s.services[serviceName] = services
 	}
-
-	var addresses []string
-	nextIndex := 0
-	if _, ok := s.services[serviceName]; !ok {
-		addresses = strings.Split(serviceName, ",")
-	} else {
-		services := s.services[serviceName]
-		addresses = services.addresses
-		nextIndex = services.nextIndex
-	}
-
-	address := addresses[nextIndex]
-	nextIndex = (nextIndex + 1) % num
-	s.services[serviceName] = &ipServices{
-		addresses: addresses,
-		nextIndex: nextIndex,
-	}
-
 	node := &Node{
 		ServiceName: serviceName,
-		Address:     address,
+		Address:     services.addresses[services.nextIndex],
 	}
-	if nextIndex > 0 {
+	services.nextIndex = (services.nextIndex + 1) % len(services.addresses)
+	if services.nextIndex > 0 {
 		node.HasNext = true
 	}
 	return node, nil
+}
+
+// Refresh will refresh a service address cache data.
+func (s *ipSelector) Refresh(serviceName string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	services, ok := s.services[serviceName]
+	if !ok {
+		return
+	}
+	services.nextIndex = 0
 }

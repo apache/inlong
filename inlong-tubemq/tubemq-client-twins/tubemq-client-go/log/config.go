@@ -37,5 +37,5 @@ var defaultConfig = &OutputConfig{
 	MaxSize:    100,
 	MaxBackups: 5,
 	MaxAge:     3,
-	Level:      "error",
+	Level:      "warn",
 }
