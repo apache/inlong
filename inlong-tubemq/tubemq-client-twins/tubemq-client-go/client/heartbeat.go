@@ -52,27 +52,43 @@ func newHBManager(consumer *consumer) *heartbeatManager {
 func (h *heartbeatManager) registerMaster(address string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	if _, ok := h.heartbeats[address]; !ok {
+	hm, ok := h.heartbeats[address]
+	log.Infof("register master heartbeat address:%v, heartbeat:%+v", address, hm)
+	if !ok {
 		h.heartbeats[address] = &heartbeatMetadata{
 			numConnections: 1,
 			timer:          time.AfterFunc(h.consumer.config.Heartbeat.Interval/2, h.consumerHB2Master),
 		}
+		return
 	}
-	hm := h.heartbeats[address]
 	hm.numConnections++
+}
+
+// deleteHeartbeat delete heartbeat of the given address.
+func (h *heartbeatManager) deleteHeartbeat(address string) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	hm, ok := h.heartbeats[address]
+	if !ok {
+		return
+	}
+	hm.numConnections--
+	if hm.numConnections <= 0 {
+		delete(h.heartbeats, address)
+	}
 }
 
 func (h *heartbeatManager) registerBroker(broker *metadata.Node) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-
-	if _, ok := h.heartbeats[broker.GetAddress()]; !ok {
+	hm, ok := h.heartbeats[broker.GetAddress()]
+	if !ok {
 		h.heartbeats[broker.GetAddress()] = &heartbeatMetadata{
 			numConnections: 1,
 			timer:          time.AfterFunc(h.consumer.config.Heartbeat.Interval, func() { h.consumerHB2Broker(broker) }),
 		}
+		return
 	}
-	hm := h.heartbeats[broker.GetAddress()]
 	hm.numConnections++
 }
 
@@ -99,40 +115,31 @@ func (h *heartbeatManager) consumerHB2Master() {
 	}
 
 	rsp, err := h.sendHeartbeatC2M(m)
-	if err != nil {
-		log.Errorf("consumer hb err %s", err.Error())
-		h.consumer.masterHBRetry++
-	} else {
-		if !rsp.GetSuccess() {
-			h.consumer.masterHBRetry++
-			if rsp.GetErrCode() == errs.RetErrHBNoNode || strings.Index(rsp.GetErrMsg(), "StandbyException") != -1 {
-				log.Warnf("[CONSUMER] hb2master found no-node or standby, re-register, client=%s", h.consumer.clientID)
-				address := h.consumer.master.Address
-				go func() {
-					err := h.consumer.register2Master(rsp.GetErrCode() != errs.RetErrHBNoNode)
-					if err != nil {
-						return
-					}
-					h.resetMasterHeartbeat()
-				}()
-				if rsp.GetErrCode() != errs.RetErrHBNoNode {
-					h.mu.Lock()
-					defer h.mu.Unlock()
-					hm := h.heartbeats[address]
-					hm.numConnections--
-					if hm.numConnections == 0 {
-						delete(h.heartbeats, address)
-					}
-					return
-				}
+	if err == nil {
+		h.consumer.masterHBRetry = 0
+		h.processHBResponseM2C(rsp)
+		h.resetMasterHeartbeat()
+		return
+	}
+	h.consumer.masterHBRetry++
+	h.resetMasterHeartbeat()
+	hbNoNode := rsp != nil && rsp.GetErrCode() == errs.RetErrHBNoNode
+	standByException := false
+	if e, ok := err.(*errs.Error); ok {
+		standByException = strings.Index(e.Msg, "StandbyException") != -1
+	}
+	if (h.consumer.masterHBRetry >= h.consumer.config.Heartbeat.MaxRetryTimes) || standByException || hbNoNode {
+		h.deleteHeartbeat(h.consumer.master.Address)
+		go func() {
+			err := h.consumer.register2Master(!hbNoNode)
+			if err != nil {
 				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
 				return
 			}
-		}
-		h.consumer.masterHBRetry = 0
-		h.processHBResponseM2C(rsp)
+			h.registerMaster(h.consumer.master.Address)
+			log.Infof("[CONSUMER] heartBeat2Master success to (%s), client=%s", h.consumer.master.Address, h.consumer.clientID)
+		}()
 	}
-	h.resetMasterHeartbeat()
 }
 
 func (h *heartbeatManager) resetMasterHeartbeat() {
