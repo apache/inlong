@@ -143,12 +143,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("InitMQ");
         Assertions.assertTrue(task instanceof ServiceTask);
-
-        // Integer processId = processResponse.getId();
-        // context = processService.continueProcess(processId, applicant, "continue process");
-        // result = WorkflowUtils.result(context);
-        // processResponse = result.getProcessInfo();
-        // Assertions.assertSame(processResponse.getStatus(), ProcessStatus.COMPLETED);
     }
 
 }
