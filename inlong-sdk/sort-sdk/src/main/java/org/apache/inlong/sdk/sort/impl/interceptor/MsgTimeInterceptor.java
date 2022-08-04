@@ -18,56 +18,37 @@
 
 package org.apache.inlong.sdk.sort.impl.interceptor;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * The sdk interceptor that use to filter messages do not in the time interval.
+ */
 public class MsgTimeInterceptor implements Interceptor {
     private static final Logger logger = LoggerFactory.getLogger(MsgTimeInterceptor.class);
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final String KEY_SDK_START_TIME = "sortSdk.startTime";
-    private static final String KEY_SDK_STOP_TIME = "sortSdk.stopTime";
-    private static final long DEFAULT_START_TIME = 0L;
-    private static final long DEFAULT_STOP_TIME = Long.MAX_VALUE;
-
     private long startTime;
     private long stopTime;
 
     public MsgTimeInterceptor(InLongTopic inLongTopic) {
-        startTime = Optional.ofNullable(inLongTopic.getProperties().get(KEY_SDK_START_TIME))
-                .map(s -> {
-                    try {
-                        return DATE_FORMAT.parse(s.toString()).getTime();
-                    } catch (ParseException e) {
-                        logger.error("parse start time failed, plz check the format of start time : {}", s);
-                    }
-                    return DEFAULT_START_TIME;
-                })
-                .orElse(DEFAULT_START_TIME);
-
-        stopTime = Optional.ofNullable(inLongTopic.getProperties().get(KEY_SDK_STOP_TIME))
-                .map(s -> {
-                    logger.info("config TimeBasedFilterInterceptor, stop time is {}", s);
-                    try {
-                        return DATE_FORMAT.parse(s.toString()).getTime();
-                    } catch (ParseException e) {
-                        logger.error("parse stop time failed, plz check the format of stop time : {}", s);
-                    }
-                    return DEFAULT_STOP_TIME;
-                })
-                .orElse(DEFAULT_STOP_TIME);
+        startTime = TimeUtil.parseStartTime(inLongTopic);
+        stopTime = TimeUtil.parseStopTime(inLongTopic);
+        logger.info("start to config MsgTimeInterceptor, start time is {}, stop time is {}", startTime, stopTime);
     }
 
     @Override
     public List<InLongMessage> intercept(List<InLongMessage> messages) {
+        if (CollectionUtils.isEmpty(messages)) {
+            return new ArrayList<>(0);
+        }
         return messages.stream()
                 .filter(msg -> isValidMsgTime(msg.getMsgTime()))
                 .collect(Collectors.toList());
