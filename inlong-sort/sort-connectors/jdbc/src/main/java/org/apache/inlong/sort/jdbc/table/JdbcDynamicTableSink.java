@@ -78,7 +78,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private void validatePrimaryKey(ChangelogMode requestedMode) {
         checkState(
                 ChangelogMode.insertOnly().equals(requestedMode)
-                        || (dmlOptions.getKeyFields().isPresent() || appendMode),
+                        || dmlOptions.getKeyFields().isPresent() || appendMode,
                 "please declare primary key or appendMode for sink table when query contains update/delete record.");
     }
 
