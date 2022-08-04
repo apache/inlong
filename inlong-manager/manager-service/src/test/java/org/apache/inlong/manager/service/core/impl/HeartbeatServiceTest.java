@@ -18,8 +18,10 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Maps;
+import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
@@ -57,7 +59,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
     @Test
     public void testReportHeartbeat() {
         HeartbeatReportRequest request = new HeartbeatReportRequest();
-        request.setComponentType("AGENT");
+        request.setComponentType(ComponentTypeEnum.Agent.getName());
         request.setIp("127.0.0.1");
         request.setReportTime(Instant.now().toEpochMilli());
 
@@ -85,7 +87,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
     @Test
     public void testGetStreamHeartbeat() {
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent("AGENT");
+        request.setComponent(ComponentTypeEnum.Agent.getName());
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("group1");
         request.setInlongStreamId("stream1");

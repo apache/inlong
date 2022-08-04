@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.DATAPROXY)
+@JsonTypeDefine(value = ClusterType.AGENT)
 @ApiModel("Inlong cluster request for DataProxy")
 public class AgentClusterRequest extends ClusterRequest {
 
