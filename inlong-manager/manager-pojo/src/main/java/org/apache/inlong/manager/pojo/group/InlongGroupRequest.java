@@ -17,18 +17,12 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.pojo.group.none.InlongNoneMqRequest;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongTdmqPulsarRequest;
-import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQRequest;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -43,12 +37,6 @@ import java.util.List;
 @AllArgsConstructor
 @ApiModel("Inlong group create request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongNoneMqRequest.class, name = MQType.NONE),
-        @JsonSubTypes.Type(value = InlongPulsarRequest.class, name = MQType.PULSAR),
-        @JsonSubTypes.Type(value = InlongTdmqPulsarRequest.class, name = MQType.TDMQ_PULSAR),
-        @JsonSubTypes.Type(value = InlongTubeMQRequest.class, name = MQType.TUBEMQ),
-})
 public abstract class InlongGroupRequest {
 
     @NotBlank(message = "inlongGroupId cannot be blank")
