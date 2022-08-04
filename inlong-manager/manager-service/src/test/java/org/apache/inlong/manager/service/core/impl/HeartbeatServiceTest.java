@@ -21,11 +21,7 @@ import com.google.common.collect.Maps;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
-import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
-import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
@@ -38,6 +34,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,12 +46,6 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
 
     @Autowired
     private HeartbeatService heartbeatService;
-    @Autowired
-    private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
-    @Autowired
-    private GroupHeartbeatEntityMapper groupHeartbeatMapper;
-    @Autowired
-    private StreamHeartbeatEntityMapper streamHeartbeatMapper;
 
     @Test
     public void testReportHeartbeat() {
@@ -77,9 +68,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
         streamHeartbeat.setStatus("running");
         streamHeartbeat.setInlongGroupId("group1");
         streamHeartbeat.setInlongStreamId("stream1");
-        List<StreamHeartbeat> streamHeartbeats = new ArrayList<>();
-        streamHeartbeats.add(streamHeartbeat);
-        request.setStreamHeartbeats(streamHeartbeats);
+        request.setStreamHeartbeats(Collections.singletonList(streamHeartbeat));
 
         Assertions.assertTrue(heartbeatService.reportHeartbeat(request));
     }

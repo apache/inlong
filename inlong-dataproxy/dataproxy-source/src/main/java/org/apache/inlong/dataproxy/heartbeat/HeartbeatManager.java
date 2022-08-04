@@ -44,11 +44,14 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+/**
+ * Heartbeat management logic.
+ */
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
-    private CloseableHttpClient httpClient;
-    private Gson gson;
+    private final CloseableHttpClient httpClient;
+    private final Gson gson;
 
     public HeartbeatManager() {
         httpClient = constructHttpClient();
@@ -58,12 +61,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     public void start() {
         Thread reportHeartbeatThread = new Thread(() -> {
             while (true) {
-                HeartbeatMsg heartbeatMsg = buildHeartbeat();
-                reportHeartbeat(heartbeatMsg);
+                reportHeartbeat(buildHeartbeat());
                 try {
                     SECONDS.sleep(heartbeatInterval());
-                } catch (InterruptedException ex) {
-                    log.error("", ex);
+                } catch (InterruptedException e) {
+                    log.error("interrupted while report heartbeat", e);
                 }
             }
         });
@@ -114,6 +116,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         heartbeatMsg.setIp(localIp);
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();
         Map<String, String> groupIdEnableMappings = configManager.getGroupIdEnableMappingProperties();
@@ -129,6 +132,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             groupHeartbeats.add(groupHeartbeat);
         }
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
+
         List<StreamHeartbeat> streamHeartbeats = new ArrayList<>();
         for (Entry<String, Map<String, String>> entry : streamIdMappings.entrySet()) {
             String groupIdNum = entry.getKey();

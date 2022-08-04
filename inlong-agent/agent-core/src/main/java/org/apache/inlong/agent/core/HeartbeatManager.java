@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
@@ -107,12 +108,10 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(" {} report to manager", taskSnapshotRequest);
                     }
-                    int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
-                            DEFAULT_AGENT_HEARTBEAT_INTERVAL);
-                    SECONDS.sleep(heartbeatInterval);
-                } catch (Throwable ex) {
-                    LOGGER.error("error caught", ex);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                    SECONDS.sleep(conf.getInt(AGENT_HEARTBEAT_INTERVAL, DEFAULT_AGENT_HEARTBEAT_INTERVAL));
+                } catch (Throwable e) {
+                    LOGGER.error("interrupted while report snapshot", e);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 }
             }
         };
@@ -122,12 +121,11 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return () -> {
             while (isRunnable()) {
                 try {
-                    HeartbeatMsg heartbeat = buildHeartbeatMsg();
-                    reportHeartbeat(heartbeat);
+                    reportHeartbeat(buildHeartbeatMsg());
                     SECONDS.sleep(heartbeatInterval());
-                } catch (Throwable ex) {
-                    LOGGER.error("error caught", ex);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                } catch (Throwable e) {
+                    LOGGER.error("interrupted while report heartbeat", e);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 }
             }
         };
@@ -180,11 +178,13 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
      * build heartbeat message of agent
      */
     private HeartbeatMsg buildHeartbeatMsg() {
-        HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         final String agentIp = AgentUtils.fetchLocalIp();
         final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
         final String clusterName = conf.get(AGENT_CLUSTER_NAME);
         final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
+        final String inCharges = conf.get(AGENT_CLUSTER_IN_CHARGES);
+
+        HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(agentIp);
         heartbeatMsg.setPort(agentPort);
         heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getName());
@@ -195,10 +195,14 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         if (StringUtils.isNotBlank(clusterTag)) {
             heartbeatMsg.setClusterTag(clusterTag);
         }
+        if (StringUtils.isNotBlank(inCharges)) {
+            heartbeatMsg.setInCharges(inCharges);
+        }
+
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
         List<GroupHeartbeat> groupHeartbeats = Lists.newArrayList();
         List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList();
-        jobWrapperMap.values().stream().forEach(jobWrapper -> {
+        jobWrapperMap.values().forEach(jobWrapper -> {
             Job job = jobWrapper.getJob();
             JobProfile jobProfile = job.getJobConf();
             final String groupId = jobProfile.get(JOB_GROUP_ID);
@@ -209,12 +213,14 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             groupHeartbeat.setInlongGroupId(groupId);
             groupHeartbeat.setStatus(status);
             groupHeartbeats.add(groupHeartbeat);
+
             StreamHeartbeat streamHeartbeat = new StreamHeartbeat();
             streamHeartbeat.setInlongGroupId(groupId);
             streamHeartbeat.setInlongStreamId(streamId);
             streamHeartbeat.setStatus(status);
             streamHeartbeats.add(streamHeartbeat);
         });
+
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
         return heartbeatMsg;
@@ -237,7 +243,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     }
 
     private String buildReportHeartbeatUrl(String baseUrl) {
-        return baseUrl
-                + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
+        return baseUrl + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
     }
 }

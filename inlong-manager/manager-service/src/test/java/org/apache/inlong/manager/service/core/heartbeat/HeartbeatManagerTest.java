@@ -21,12 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.enums.NodeStatus;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,18 +35,16 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import java.util.List;
 
-@EnableAutoConfiguration
 @Slf4j
+@EnableAutoConfiguration
 public class HeartbeatManagerTest extends ServiceBaseTest {
 
     @Autowired
-    HeartbeatManager heartbeatManager;
-
+    private HeartbeatManager heartbeatManager;
     @Autowired
-    InlongClusterEntityMapper clusterMapper;
-
+    private InlongClusterEntityMapper clusterMapper;
     @Autowired
-    InlongClusterNodeEntityMapper clusterNodeMapper;
+    private InlongClusterNodeEntityMapper clusterNodeMapper;
 
     @Test
     void testReportHeartbeat() throws InterruptedException {
@@ -56,8 +54,9 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         log.info(JsonUtils.toJsonString(entity));
         List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(null, msg.getClusterName(),
                 msg.getComponentType());
-        Assertions.assertTrue(clusterEntities.size() == 1);
-        Assertions.assertTrue(clusterEntities.get(0).getName().equals(msg.getClusterName()));
+        Assertions.assertEquals(1, clusterEntities.size());
+        Assertions.assertEquals(clusterEntities.get(0).getName(), msg.getClusterName());
+
         int clusterId = clusterEntities.get(0).getId();
         ClusterNodeRequest nodeRequest = new ClusterNodeRequest();
         nodeRequest.setParentId(clusterId);
@@ -65,16 +64,19 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         nodeRequest.setIp(msg.getIp());
         nodeRequest.setPort(msg.getPort());
         InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
-        Assertions.assertTrue(clusterNode != null);
-        Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.NORMAL.getStatus());
-        heartbeatManager.getHeartbeats().invalidateAll();
+        Assertions.assertNotNull(clusterNode);
+        Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.NORMAL.getStatus());
+
+        heartbeatManager.getHeartbeatCache().invalidateAll();
         Thread.sleep(1000);
+
         clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         log.debug(JsonUtils.toJsonString(clusterNode));
-        Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
+        Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
+
         heartbeatManager.reportHeartbeat(msg);
         clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
-        Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.NORMAL.getStatus());
+        Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.NORMAL.getStatus());
     }
 
     private HeartbeatMsg createHeartbeatMsg() {

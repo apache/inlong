@@ -24,6 +24,7 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -36,7 +37,6 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,71 +50,70 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
-    @Getter
-    private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeats;
+    private static final String AUTO_REGISTERED = "auto registered";
 
     @Getter
-    private LoadingCache<ComponentHeartbeat, ClusterInfo> clusterInfos;
-
+    private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
+    @Getter
+    private LoadingCache<ComponentHeartbeat, ClusterInfo> clusterInfoCache;
     @Autowired
     private InlongClusterOperatorFactory clusterOperatorFactory;
-
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
-
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
 
     @PostConstruct
     public void init() {
-        long expireTime = heartbeatInterval() * 2;
-        heartbeats = Caffeine.newBuilder()
+        long expireTime = heartbeatInterval() * 2L;
+        heartbeatCache = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime, TimeUnit.SECONDS)
-                .removalListener((ComponentHeartbeat k, HeartbeatMsg v, RemovalCause c) -> {
-                    evictClusterNode(v);
+                .removalListener((ComponentHeartbeat k, HeartbeatMsg msg, RemovalCause c) -> {
+                    if (msg != null) {
+                        evictClusterNode(msg);
+                    }
                 }).build();
 
-        clusterInfos = Caffeine.newBuilder()
+        clusterInfoCache = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime, TimeUnit.SECONDS)
-                .build(k -> fetchCluster(k));
+                .build(this::fetchCluster);
     }
 
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
         ComponentHeartbeat componentHeartbeat = heartbeat.componentHeartbeat();
-        ClusterInfo clusterInfo = clusterInfos.get(componentHeartbeat);
+        ClusterInfo clusterInfo = clusterInfoCache.get(componentHeartbeat);
         if (clusterInfo == null) {
-            log.error("find no cluster by clusterName={} and type={}", componentHeartbeat.getClusterName(),
+            log.error("not found any cluster by name={} and type={}", componentHeartbeat.getClusterName(),
                     componentHeartbeat.getComponentType());
             return;
         }
-        HeartbeatMsg lastHeartbeat = heartbeats.getIfPresent(componentHeartbeat);
+        HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
         if (lastHeartbeat == null) {
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
             if (clusterNode == null) {
-                insertClusterNode(clusterInfo, heartbeat);
+                insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
                 log.info("insert node success");
             } else {
                 updateClusterNode(clusterNode);
                 log.info("update node success");
-
             }
         }
-        heartbeats.put(componentHeartbeat, heartbeat);
+        heartbeatCache.put(componentHeartbeat, heartbeat);
     }
 
     private void evictClusterNode(HeartbeatMsg heartbeat) {
         log.debug("evict cluster node");
         ComponentHeartbeat componentHeartbeat = heartbeat.componentHeartbeat();
-        ClusterInfo clusterInfo = clusterInfos.getIfPresent(componentHeartbeat);
+        ClusterInfo clusterInfo = clusterInfoCache.getIfPresent(componentHeartbeat);
         if (clusterInfo == null) {
-            log.error("find no cluster by clusterName={} and type={}", componentHeartbeat.getClusterName(),
+            log.error("not found any cluster by name={} and type={}", componentHeartbeat.getClusterName(),
                     componentHeartbeat.getComponentType());
             return;
         }
         InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
         if (clusterNode == null) {
-            log.error("find no cluster node by type={},ip={},port={}",
+            log.error("not found any cluster node by type={}, ip={}, port={}",
                     heartbeat.getComponentType(), heartbeat.getIp(), heartbeat.getPort());
             return;
         }
@@ -128,20 +127,19 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         nodeRequest.setType(heartbeat.getComponentType());
         nodeRequest.setIp(heartbeat.getIp());
         nodeRequest.setPort(heartbeat.getPort());
-        InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
-        return clusterNode;
+        return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
 
-    private void insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat) {
+    private void insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat, String creator) {
         InlongClusterNodeEntity clusterNode = new InlongClusterNodeEntity();
         clusterNode.setParentId(clusterInfo.getId());
         clusterNode.setType(heartbeat.getComponentType());
         clusterNode.setIp(heartbeat.getIp());
         clusterNode.setPort(heartbeat.getPort());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
-        clusterNode.setCreator(UserRoleCode.ADMIN);
-        clusterNode.setModifier(UserRoleCode.ADMIN);
-        clusterNode.setIsDeleted(InlongConstants.UN_DELETED);
+        clusterNode.setCreator(creator);
+        clusterNode.setModifier(creator);
+        clusterNode.setDescription(AUTO_REGISTERED);
         clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
@@ -151,30 +149,38 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     }
 
     private ClusterInfo fetchCluster(ComponentHeartbeat componentHeartbeat) {
-        log.debug("fetch cluster");
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
         List<InlongClusterEntity> entities = clusterMapper.selectByKey(clusterTag, clusterName, type);
         if (CollectionUtils.isNotEmpty(entities)) {
+            // TODO Load balancing needs to be considered.
             InlongClusterEntity cluster = entities.get(0);
             InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
-            ClusterInfo clusterInfo = operator.getFromEntity(cluster);
-            return clusterInfo;
+            return operator.getFromEntity(cluster);
         }
+
         InlongClusterEntity cluster = new InlongClusterEntity();
         cluster.setName(clusterName);
         cluster.setType(type);
         cluster.setClusterTags(clusterTag);
-        cluster.setInCharges(UserRoleCode.ADMIN);
+        String inCharges = componentHeartbeat.getInCharges();
+        if (StringUtils.isBlank(inCharges)) {
+            inCharges = InlongConstants.ADMIN_USER;
+        }
+        String creator = inCharges.split(InlongConstants.COMMA)[0];
+        cluster.setInCharges(inCharges);
+        cluster.setCreator(creator);
+        cluster.setModifier(creator);
         cluster.setStatus(ClusterStatus.NORMAL.getStatus());
-        cluster.setCreator(UserRoleCode.ADMIN);
-        cluster.setModifier(UserRoleCode.ADMIN);
-        cluster.setIsDeleted(InlongConstants.UN_DELETED);
+        cluster.setDescription(AUTO_REGISTERED);
         int index = clusterMapper.insertOnDuplicateKeyUpdate(cluster);
+
         InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
         ClusterInfo clusterInfo = operator.getFromEntity(cluster);
         clusterInfo.setId(index);
+
+        log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
     }
 }

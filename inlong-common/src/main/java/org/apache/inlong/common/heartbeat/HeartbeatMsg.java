@@ -59,9 +59,14 @@ public class HeartbeatMsg {
     private String clusterName = "default";
 
     /**
-     * Tag of cluster, split by ','
+     * Tag of cluster, separated by commas(,)
      */
     private String clusterTag;
+
+    /**
+     * Name of responsible person, separated by commas(,)
+     */
+    private String inCharges = "admin";
 
     /**
      * Heartbeat msg of group if exists
@@ -74,6 +79,6 @@ public class HeartbeatMsg {
     private List<StreamHeartbeat> streamHeartbeats;
 
     public ComponentHeartbeat componentHeartbeat() {
-        return new ComponentHeartbeat(clusterName, ip, port, componentType, clusterTag);
+        return new ComponentHeartbeat(clusterTag, clusterName, componentType, ip, port, inCharges);
     }
 }

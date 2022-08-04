@@ -64,22 +64,21 @@
         insert into inlong_cluster (id, name, type,
                                     url, cluster_tags, ext_tag,
                                     token, ext_params, heartbeat,
-                                    in_charges, status, is_deleted,
+                                    in_charges, status,
                                     creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
                 #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
                 #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
-        ON DUPLICATE KEY UPDATE
-                cluster_tags = VALUES(cluster_tags),
-                ext_tag = VALUES(ext_tag),
-                token = VALUES(token),
-                ext_params = VALUES(ext_params),
-                heartbeat = VALUES(heartbeat),
-                in_charges = VALUES(in_charges),
-                status = VALUES(status),
-                modifier = VALUES(modifier)
+        ON DUPLICATE KEY UPDATE cluster_tags = VALUES(cluster_tags),
+                                ext_tag      = VALUES(ext_tag),
+                                token        = VALUES(token),
+                                ext_params   = VALUES(ext_params),
+                                heartbeat    = VALUES(heartbeat),
+                                in_charges   = VALUES(in_charges),
+                                status       = VALUES(status),
+                                modifier     = VALUES(modifier)
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">

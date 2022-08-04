@@ -23,16 +23,18 @@ package org.apache.inlong.common.heartbeat;
 public interface AbstractHeartbeatManager {
 
     /**
-     * Report heartbeat msg
+     * Report the heartbeat information.
+     * <p/>
+     * If the node to which the heartbeat belongs does not exist, it will be registered with the Manager.
      *
-     * @param heartbeat
+     * @param heartbeat heartbeat msg
      */
     void reportHeartbeat(HeartbeatMsg heartbeat);
 
     /**
-     * Default heartbeat interval is 5 s
+     * Default heartbeat interval is 5, unit is second.
      *
-     * @return
+     * @return interval in second
      */
     default int heartbeatInterval() {
         return 5;

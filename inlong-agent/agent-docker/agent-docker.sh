@@ -35,6 +35,7 @@ agent.prometheus.exporter.port=8080
 audit.proxys=$AUDIT_PROXY_URL
 agent.cluster.tag=$CLUSTER_TAG
 agent.cluster.name=$CLUSTER_NAME
+agent.cluster.inCharges=$CLUSTER_IN_CHARGES
 EOF
 # start
 bash +x ${file_path}/bin/agent.sh start
