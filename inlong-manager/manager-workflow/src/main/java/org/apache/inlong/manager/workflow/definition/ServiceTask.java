@@ -20,8 +20,6 @@ package org.apache.inlong.manager.workflow.definition;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -45,14 +43,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ServiceTask extends WorkflowTask {
 
-    public static final Gson GSON = new GsonBuilder().create();
-
     private static final Set<WorkflowAction> SUPPORTED_ACTIONS = ImmutableSet
             .of(WorkflowAction.COMPLETE, WorkflowAction.CANCEL, WorkflowAction.TERMINATE);
 
     private final AtomicBoolean isInit = new AtomicBoolean(false);
-    private ServiceTaskListenerProvider<TaskEventListener> listenerProvider;
-    private ServiceTaskType serviceTaskType;
+    private TaskListenerFactory listenerFactory;
+    private ServiceTaskType taskType;
 
     @Override
     public WorkflowAction defaultNextAction() {
@@ -91,14 +87,14 @@ public class ServiceTask extends WorkflowTask {
         }
     }
 
-    @SneakyThrows
     @Override
+    @SneakyThrows
     public ServiceTask clone() {
         ServiceTask serviceTask = new ServiceTask();
         serviceTask.setName(this.getName());
         serviceTask.setDisplayName(this.getDisplayName());
-        serviceTask.addServiceTaskType(this.serviceTaskType);
-        serviceTask.addListenerProvider(this.listenerProvider);
+        serviceTask.setServiceTaskType(this.taskType);
+        serviceTask.setListenerFactory(this.listenerFactory);
         Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap = Maps.newHashMap();
         this.getActionToNextElementMap().forEach(
                 (k, v) -> cloneActionToNextElementMap.put(k, v.stream().map(ele -> {
@@ -113,27 +109,35 @@ public class ServiceTask extends WorkflowTask {
         return serviceTask;
     }
 
-    public void addListenerProvider(ServiceTaskListenerProvider<TaskEventListener> provider) {
-        this.listenerProvider = provider;
+    /**
+     * Set the listener factory for the Service Task.
+     */
+    public void setListenerFactory(TaskListenerFactory factory) {
+        this.listenerFactory = factory;
     }
 
-    public void addServiceTaskType(ServiceTaskType type) {
-        this.serviceTaskType = type;
+    /**
+     * Set the task type for the Service Task.
+     */
+    public void setServiceTaskType(ServiceTaskType type) {
+        this.taskType = type;
     }
 
+    /**
+     * Init the listeners for current Service Task.
+     */
     public void initListeners(WorkflowContext workflowContext) {
         if (isInit.compareAndSet(false, true)) {
-            if (listenerProvider == null || serviceTaskType == null) {
+            if (listenerFactory == null || taskType == null) {
                 return;
             }
-            List<TaskEventListener> listeners = Lists.newArrayList(
-                    listenerProvider.get(workflowContext, serviceTaskType));
-
+            List<TaskEventListener> listeners = Lists.newArrayList(listenerFactory.get(workflowContext, taskType));
             List<String> listenerNames = listeners.stream().map(EventListener::name).collect(Collectors.toList());
-            log.info("ServiceTask:{} is init for listeners:{}", getName(), GSON.toJson(listenerNames));
+            log.info("ServiceTask: [{}] is init for listeners: {}", getName(), listenerNames);
             addListeners(listeners);
         } else {
-            log.info("ServiceTask:{} is already init", getName());
+            log.warn("ServiceTask [{}] was already init", getName());
         }
     }
+
 }

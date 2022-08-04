@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.sink.hive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkDTO;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -50,13 +50,13 @@ public class HiveSinkOperator extends AbstractSinkOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
-        return SinkType.HIVE == sinkType;
+    public Boolean accept(String sinkType) {
+        return SinkType.HIVE.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_HIVE;
+        return SinkType.HIVE;
     }
 
     @Override

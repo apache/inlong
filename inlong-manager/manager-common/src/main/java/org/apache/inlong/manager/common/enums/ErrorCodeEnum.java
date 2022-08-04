@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.common.enums;
 
+/**
+ * The error code enumeration.
+ */
 public enum ErrorCodeEnum {
+
     AUTHORIZATION_FAILED(2001, "Authentication failed"),
     INVALID_PARAMETER(2002, "The parameter is invalid"),
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
+    CONFIG_EXPIRED(2005, "The config has expired, please refresh the page or re-fetch the data and try again"),
 
     ID_IS_EMPTY(101, "Primary key is empty"),
     GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),
@@ -34,8 +39,8 @@ public enum ErrorCodeEnum {
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
     GROUP_INFO_INCORRECT(1003, "Group info was incorrect"),
-    GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group information"),
-    GROUP_PERMISSION_DENIED(1004, "No access to this inlong group"),
+    GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group"),
+    GROUP_PERMISSION_DENIED(1004, "No permission to access this inlong group"),
     GROUP_HAS_STREAM(1005, "There are some valid inlong stream for this inlong group"),
     GROUP_UPDATE_NOT_ALLOWED(1006, "The current inlong group status does not support modification"),
     GROUP_DELETE_NOT_ALLOWED(1007, "The current inlong group status does not support deletion"),
@@ -44,16 +49,16 @@ public enum ErrorCodeEnum {
             "The current inlong group status does not support modifying the MQ type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
-    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
+    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support lightweight, standard"),
 
-    OPT_NOT_ALLOWED_BY_STATUS(1021,
-            "The current inlong group status does not allow adding/modifying/deleting related info"),
+    OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
     MQ_TYPE_NOT_SUPPORTED(1022, "MQ type '%s' not supported"),
     MQ_TYPE_NOT_SAME(1023, "Expected MQ type is '%s', but found '%s'"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
     CLUSTER_TYPE_NOT_SUPPORTED(1102, "Cluster type '%s' not supported"),
+    CLUSTER_INFO_INCORRECT(1103, "Cluster info was incorrect"),
 
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
@@ -100,14 +105,18 @@ public enum ErrorCodeEnum {
 
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
+    TRANSFORM_NOT_FOUND(1502, "Transform does not exist"),
+
+    MQ_TYPE_IS_NULL(1600, "MQ type is null"),
+    MQ_TYPE_NOT_SUPPORT(1601, "MQ type '%s' not support"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
     CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
-    CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
-    TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
+    CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create TubeMQ consumer group"),
+    TUBE_GROUP_CREATE_FAILED(2602, "Create TubeMQ consumer group failed"),
     PULSAR_GROUP_CREATE_FAILED(2603, "Create Pulsar consumer group failed"),
-    TUBE_TOPIC_CREATE_FAILED(2604, "CreateTube Topic failed"),
+    TUBE_TOPIC_CREATE_FAILED(2604, "Create TubeMQ Topic failed"),
     PULSAR_TOPIC_CREATE_FAILED(2605, "Create Pulsar Topic failed"),
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),

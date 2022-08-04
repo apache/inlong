@@ -25,6 +25,7 @@ import java.util.List;
 
 @Repository
 public interface SortSourceConfigEntityMapper {
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(SortSourceConfigEntity record);

@@ -19,12 +19,12 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.LoginUser;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
-import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.UserService;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
+import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
+import org.apache.inlong.manager.service.user.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -33,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,32 +41,32 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
+@RequestMapping("/api")
 @Api(tags = "User-Anno-API")
 public class AnnoController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/anno/login")
-    public Response<String> login(@Validated @RequestBody LoginUser loginUser) {
-
+    public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(loginUser.getUsername(), loginUser.getPassword());
+        UsernamePasswordToken token = new UsernamePasswordToken(loginRequest.getUsername(), loginRequest.getPassword());
         subject.login(token);
-        LoginUserUtils.setUserLoginInfo((UserDetail) subject.getPrincipal());
+        LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
 
-        return Response.success("success");
+        return Response.success(true);
     }
 
-    @PostMapping("/anno/doRegister")
-    public Response<Boolean> doRegister(@Validated @RequestBody UserInfo userInfo) {
-        return Response.success(userService.create(userInfo));
+    @PostMapping("/anno/register")
+    public Response<Integer> register(@Validated @RequestBody UserRequest request) {
+        return Response.success(userService.save(request));
     }
 
     @GetMapping("/anno/logout")
-    public Response<String> logout() {
+    public Response<Boolean> logout() {
         SecurityUtils.getSubject().logout();
-        return Response.success("success");
+        return Response.success(true);
     }
 
 }

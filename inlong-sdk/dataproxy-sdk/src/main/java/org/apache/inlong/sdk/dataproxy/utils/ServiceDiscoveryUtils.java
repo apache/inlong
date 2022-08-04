@@ -38,6 +38,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
@@ -53,8 +54,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.REQUEST_HEADER_AUTHORIZATION;
-
 /**
  * Utils for service discovery
  */
@@ -62,7 +61,7 @@ public class ServiceDiscoveryUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceDiscoveryUtils.class);
 
-    private static final String GET_MANAGER_IP_LIST_API = "/api/inlong/manager/openapi/agent/getManagerIpList";
+    private static final String GET_MANAGER_IP_LIST_API = "/inlong/manager/openapi/agent/getManagerIpList";
     private static String latestManagerIPList = "";
     private static String arraySed = ",";
 
@@ -184,7 +183,7 @@ public class ServiceDiscoveryUtils {
             if (proxyClientConfig.isNeedAuthentication()) {
                 long timestamp = System.currentTimeMillis();
                 int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
-                httpPost.setHeader(REQUEST_HEADER_AUTHORIZATION,
+                httpPost.setHeader(BasicAuth.BASIC_AUTH_HEADER,
                         Utils.getAuthorizenInfo(proxyClientConfig.getUserName(),
                                 proxyClientConfig.getSecretKey(), timestamp, nonce));
             }
@@ -197,7 +196,7 @@ public class ServiceDiscoveryUtils {
                 JsonObject jb = jsonParser.parse(returnStr).getAsJsonObject();
                 if (jb == null) {
                     log.warn("ServiceDiscovery updated manager ip failed, returnStr = {} jb is "
-                                    + "null ", returnStr, jb);
+                            + "null ", returnStr, jb);
                     return null;
                 }
                 JsonObject rd = jb.get("resultData").getAsJsonObject();

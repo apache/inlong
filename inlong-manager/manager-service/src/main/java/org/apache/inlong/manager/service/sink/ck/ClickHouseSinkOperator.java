@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.sink.ck;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -51,13 +51,13 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
+    public Boolean accept(String sinkType) {
         return SinkType.CLICKHOUSE.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_CLICKHOUSE;
+        return SinkType.CLICKHOUSE;
     }
 
     @Override

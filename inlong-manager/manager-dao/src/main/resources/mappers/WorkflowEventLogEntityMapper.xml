@@ -73,7 +73,7 @@
         where id = #{id,jdbcType=INTEGER}
     </select>
 
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.workflow.EventLogQuery"
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.workflow.EventLogRequest"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

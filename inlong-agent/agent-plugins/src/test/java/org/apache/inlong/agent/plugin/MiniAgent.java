@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
-import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_ENABLE;
 
 public class MiniAgent {
 
@@ -46,7 +45,6 @@ public class MiniAgent {
     public MiniAgent() throws Exception {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
-        conf.setBoolean(PROMETHEUS_ENABLE, true);
         manager = new AgentManager();
         TaskPositionManager taskPositionManager = PowerMockito.mock(TaskPositionManager.class);
         HeartbeatManager heartbeatManager = PowerMockito.mock(HeartbeatManager.class);

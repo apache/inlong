@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.pojo.user.LoginUser;
-import org.apache.inlong.manager.common.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.shiro.SecurityUtils;
@@ -54,13 +54,13 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testLoginFailByWrongPwd() throws Exception {
-        LoginUser loginUser = new LoginUser();
+        UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("admin");
         // Wrong pwd
         loginUser.setPassword("test_wrong_pwd");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -75,15 +75,15 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testRegister() throws Exception {
-        UserInfo userInfo = UserInfo.builder()
-                .username("test_name")
+        UserRequest userInfo = UserRequest.builder()
+                .name("test_name")
                 .password(TEST_PWD)
-                .type(UserTypeEnum.ADMIN.getCode())
+                .accountType(UserTypeEnum.ADMIN.getCode())
                 .validDays(88888)
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/doRegister")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -91,22 +91,22 @@ class AnnoControllerTest extends WebBaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
-        Assertions.assertTrue(resBody.isSuccess() && resBody.getData());
+        Response<Integer> resBody = getResBody(mvcResult, Integer.class);
+        Assertions.assertTrue(resBody.isSuccess() && resBody.getData() > 0);
     }
 
     @Test
     void testRegisterFailByExistName() throws Exception {
-        UserInfo userInfo = UserInfo.builder()
+        UserRequest userInfo = UserRequest.builder()
                 // Username already exists in the init sql
-                .username("admin")
+                .name("admin")
                 .password(TEST_PWD)
-                .type(UserTypeEnum.ADMIN.getCode())
+                .accountType(UserTypeEnum.ADMIN.getCode())
                 .validDays(88888)
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/doRegister")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -114,7 +114,7 @@ class AnnoControllerTest extends WebBaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
+        Response<Integer> resBody = getResBody(mvcResult, Integer.class);
         Assertions.assertFalse(resBody.isSuccess());
         Assertions.assertTrue(resBody.getErrMsg().contains("already exists"));
     }
@@ -124,7 +124,7 @@ class AnnoControllerTest extends WebBaseTest {
         testLogin();
 
         MvcResult mvcResult = mockMvc.perform(
-                        get("/anno/logout")
+                        get("/api/anno/logout")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
@@ -138,16 +138,16 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testRegisterFailByInvalidType() throws Exception {
-        UserInfo userInfo = UserInfo.builder()
-                .username("admin11")
+        UserRequest userInfo = UserRequest.builder()
+                .name("admin11")
                 .password(TEST_PWD)
                 // invalidType
-                .type(3)
+                .accountType(3)
                 .validDays(88888)
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/doRegister")
+                        post("/api/anno/register")
                                 .content(JsonUtils.toJsonString(userInfo))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -155,9 +155,9 @@ class AnnoControllerTest extends WebBaseTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
+        Response<Integer> resBody = getResBody(mvcResult, Integer.class);
         Assertions.assertFalse(resBody.isSuccess());
-        Assertions.assertEquals("type: must in 0,1\n", resBody.getErrMsg());
+        Assertions.assertTrue(resBody.getErrMsg().contains("must in 0,1"));
     }
 
 }

@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.dataproxy;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigConstants {
+
     public static final String PROXY_SDK_VERSION = "1.2.11";
 
     public static final int ALIVE_CONNECTIONS = 3;
@@ -62,9 +63,10 @@ public class ConfigConstants {
     public static final String RECEIVE_BUFFER_SIZE = "receiveBufferSize";
     public static final String SEND_BUFFER_SIZE = "sendBufferSize";
 
-    public static final String REQUEST_HEADER_AUTHORIZATION = "Authorization";
     public static final int FLAG_ALLOW_AUTH = 1 << 7;
     public static final int FLAG_ALLOW_ENCRYPT = 1 << 6;
     public static final int FLAG_ALLOW_COMPRESS = 1 << 5;
+
+    public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
 
 }

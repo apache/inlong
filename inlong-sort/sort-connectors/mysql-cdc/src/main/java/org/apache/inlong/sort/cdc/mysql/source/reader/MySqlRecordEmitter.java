@@ -39,6 +39,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
@@ -144,6 +145,13 @@ public final class MySqlRecordEmitter<T>
                     new Collector<T>() {
                         @Override
                         public void collect(final T t) {
+                            if (sourceReaderMetrics.getNumRecordsIn() != null) {
+                                sourceReaderMetrics.getNumRecordsIn().inc(1L);
+                            }
+                            if (sourceReaderMetrics.getNumBytesIn() != null) {
+                                sourceReaderMetrics.getNumBytesIn()
+                                        .inc(t.toString().getBytes(StandardCharsets.UTF_8).length);
+                            }
                             output.collect(t);
                         }
 
@@ -169,7 +177,7 @@ public final class MySqlRecordEmitter<T>
     }
 
     private void emitElement(SourceRecord element, SourceOutput<T> output,
-                             TableChange tableSchema) throws Exception {
+            TableChange tableSchema) throws Exception {
         outputCollector.output = output;
         debeziumDeserializationSchema.deserialize(element, outputCollector, tableSchema);
     }

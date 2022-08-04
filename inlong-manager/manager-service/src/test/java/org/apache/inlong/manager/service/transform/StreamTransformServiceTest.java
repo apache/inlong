@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.transform;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
@@ -60,7 +60,7 @@ public class StreamTransformServiceTest extends ServiceBaseTest {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
         int index = transformEntityMapper.insert(entity);
         Assertions.assertEquals(1, index);

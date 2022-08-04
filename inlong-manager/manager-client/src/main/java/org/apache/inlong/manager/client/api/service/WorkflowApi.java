@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -38,7 +38,7 @@ public interface WorkflowApi {
     Call<Response<WorkflowResult>> startInlongGroup(@Path("taskId") Integer taskId, @Body Map<String, Object> request);
 
     @GET("workflow/event/list")
-    Call<Response<PageInfo<EventLogView>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
+    Call<Response<PageInfo<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
             @Query("status") Integer status);
 
 }

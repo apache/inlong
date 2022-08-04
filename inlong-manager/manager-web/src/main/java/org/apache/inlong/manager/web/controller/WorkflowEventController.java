@@ -23,18 +23,19 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Workflow event related interface
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Workflow-Event-API")
 public class WorkflowEventController {
 
@@ -51,13 +53,13 @@ public class WorkflowEventController {
     @GetMapping("/workflow/event/detail/{id}")
     @ApiOperation(value = "Get event details")
     @ApiImplicitParam(name = "id", value = "Event ID", dataTypeClass = Integer.class, required = true)
-    public Response<EventLogView> get(@PathVariable Integer id) {
+    public Response<EventLogResponse> get(@PathVariable Integer id) {
         return Response.success(workflowEventService.get(id));
     }
 
     @GetMapping("/workflow/event/list")
     @ApiOperation(value = "Get event list by paginating")
-    public Response<PageInfo<EventLogView>> list(EventLogQuery query) {
+    public Response<PageInfo<EventLogResponse>> list(EventLogRequest query) {
         return Response.success(workflowEventService.list(query));
     }
 

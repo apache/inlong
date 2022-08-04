@@ -57,6 +57,7 @@ services:
       - ZK_URL=tubemq-server:2181
       - FLINK_HOST=localhost
       - FLINK_PORT=8081
+      - AUDIT_PROXY_URL=audit:10081
 
   webisite:
     image: inlong/dashboard

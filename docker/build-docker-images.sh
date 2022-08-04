@@ -102,7 +102,6 @@ dataproxy_tarball="inlong-dataproxy/dataproxy-dist/target/${dataproxy_tarball_na
 tubemq_manager_tarball="inlong-tubemq/tubemq-manager/target/${tubemq_manager_tarball_name}"
 tubemq_all_tarball="inlong-tubemq/tubemq-server/target/${tubemq_all_tarball_name}"
 
-MANAGER_TARBALL="target/${manager_tarball_name}"
 DATAPROXY_TARBALL="target/${dataproxy_tarball_name}"
 AUDIT_TARBALL="target/${audit_tarball_name}"
 TUBEMQ_MANAGER_TARBALL="target/${tubemq_manager_tarball_name}"
@@ -119,7 +118,7 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
 fi
 
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg VERSION=${version}
 docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
 docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
 docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}

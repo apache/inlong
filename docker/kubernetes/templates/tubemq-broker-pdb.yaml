@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqServer }}
 {{- if .Values.tubemqBroker.pdb.usePolicy }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
@@ -34,4 +35,5 @@ spec:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.tubemqBroker.component }}
   maxUnavailable: {{ .Values.tubemqBroker.pdb.maxUnavailable }}
+{{- end }}
 {{- end }}

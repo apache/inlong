@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -78,7 +78,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     @Override
     public boolean create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
-        Preconditions.checkNotEmpty(approvers, "cannot assign approvers for task: " + userTask.getDisplayName()
+        Preconditions.checkNotEmpty(approvers, "Cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers was empty");
 
         if (!userTask.isNeedAllApprove()) {

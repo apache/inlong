@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.web.WebBaseTest;
@@ -51,7 +52,7 @@ class DataNodeControllerTest extends WebBaseTest {
         logout();
         operatorLogin();
 
-        MvcResult mvcResult = postForSuccessMvcResult("/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
 
         Response<Integer> response = getResBody(mvcResult, Integer.class);
         Assertions.assertEquals("Current user [operator] has no permission to access URL", response.getErrMsg());
@@ -60,20 +61,20 @@ class DataNodeControllerTest extends WebBaseTest {
     @Test
     void testSaveAndGetAndDelete() throws Exception {
         // save
-        MvcResult mvcResult = postForSuccessMvcResult("/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
 
         Integer dataNodeId = getResBodyObj(mvcResult, Integer.class);
         Assertions.assertNotNull(dataNodeId);
 
         // get
-        MvcResult getResult = getForSuccessMvcResult("/node/get/{id}", dataNodeId);
+        MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
 
         DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
         Assertions.assertNotNull(dataNode);
         Assertions.assertEquals(getDataNodeRequest().getName(), dataNode.getName());
 
         // delete
-        MvcResult deleteResult = deleteForSuccessMvcResult("/node/delete/{id}", dataNodeId);
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/delete/{id}", dataNodeId);
 
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);
@@ -94,14 +95,15 @@ class DataNodeControllerTest extends WebBaseTest {
         nodeEntity.setCreateTime(new Date());
         nodeEntity.setModifyTime(new Date());
         nodeEntity.setInCharges("test");
+        nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
         dataNodeEntityMapper.insert(nodeEntity);
 
         DataNodeRequest request = getDataNodeRequest();
         request.setId(nodeEntity.getId());
         request.setName("test447777");
-
-        MvcResult mvcResult = postForSuccessMvcResult("/node/update", request);
+        request.setVersion(nodeEntity.getVersion());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", request);
 
         Boolean success = getResBodyObj(mvcResult, Boolean.class);
         Assertions.assertTrue(success);
@@ -112,7 +114,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
     @Test
     void testUpdateFailByNoId() throws Exception {
-        MvcResult mvcResult = postForSuccessMvcResult("/node/update", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", getDataNodeRequest());
 
         Response<Boolean> response = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(response.isSuccess());

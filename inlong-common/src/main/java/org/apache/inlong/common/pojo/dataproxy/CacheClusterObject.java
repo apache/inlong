@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,13 +24,14 @@ import java.util.Map;
  * CacheCluster
  */
 public class CacheClusterObject {
+
     private String name;
     private String zone;
     private Map<String, String> params = new HashMap<>();
 
     /**
      * get name
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -39,7 +40,7 @@ public class CacheClusterObject {
 
     /**
      * set name
-     * 
+     *
      * @param name the name to set
      */
     public void setName(String name) {
@@ -48,7 +49,7 @@ public class CacheClusterObject {
 
     /**
      * get zone
-     * 
+     *
      * @return the zone
      */
     public String getZone() {
@@ -57,7 +58,7 @@ public class CacheClusterObject {
 
     /**
      * set zone
-     * 
+     *
      * @param zone the zone to set
      */
     public void setZone(String zone) {
@@ -66,7 +67,7 @@ public class CacheClusterObject {
 
     /**
      * get params
-     * 
+     *
      * @return the params
      */
     public Map<String, String> getParams() {
@@ -75,7 +76,7 @@ public class CacheClusterObject {
 
     /**
      * set params
-     * 
+     *
      * @param params the params to set
      */
     public void setParams(Map<String, String> params) {

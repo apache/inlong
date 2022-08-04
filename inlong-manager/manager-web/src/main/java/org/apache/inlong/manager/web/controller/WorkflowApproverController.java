@@ -20,20 +20,20 @@ package org.apache.inlong.manager.web.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -41,42 +41,41 @@ import java.util.List;
 /**
  * Workflow-Approver controller
  */
-@Slf4j
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Workflow-Approver-API")
 public class WorkflowApproverController {
 
     @Autowired
     private WorkflowApproverService workflowApproverService;
 
-    @GetMapping("/workflow/approver/list")
-    public Response<List<WorkflowApprover>> list(WorkflowApproverQuery query) {
-        return Response.success(this.workflowApproverService.list(query));
-    }
-
     @PostMapping("/workflow/approver/add")
     @OperationLog(operation = OperationType.CREATE)
-    @ApiOperation(value = "Add approver configuration")
-    public Response<Object> add(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.add(config, LoginUserUtils.getLoginUserDetail().getUsername());
-        return Response.success();
+    @ApiOperation(value = "Save workflow approver")
+    public Response<Integer> save(@RequestBody ApproverRequest config) {
+        return Response.success(workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @GetMapping("/workflow/approver/list")
+    @ApiOperation(value = "List workflow approvers")
+    public Response<List<ApproverResponse>> listByCondition(ApproverRequest request) {
+        return Response.success(workflowApproverService.listByCondition(request));
     }
 
     @PostMapping("/workflow/approver/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update approver configuration")
-    public Response<Object> update(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.update(config, LoginUserUtils.getLoginUserDetail().getUsername());
-        return Response.success();
+    @ApiOperation(value = "Update workflow approver")
+    public Response<Integer> update(@RequestBody ApproverRequest request) {
+        return Response.success(workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping("/workflow/approver/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiOperation(value = "Delete approver configuration")
-    @ApiParam(value = "Configuration item ID", required = true)
-    public Response<Object> delete(@PathVariable Integer id) {
-        this.workflowApproverService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
-        return Response.success();
+    @ApiOperation(value = "Delete approver by ID")
+    @ApiParam(value = "Approver info ID", required = true)
+    public Response<Boolean> delete(@PathVariable Integer id) {
+        workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(true);
     }
 
 }

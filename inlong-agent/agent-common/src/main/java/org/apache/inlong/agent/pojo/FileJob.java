@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import lombok.Data;
 
 @Data
-public class FileJob  {
+public class FileJob {
 
     private String trigger;
 
@@ -30,6 +30,7 @@ public class FileJob  {
     private String timeOffset;
     private String addictiveString;
     private String collectType;
+    private Line line;
 
     @Data
     public static class Dir {
@@ -50,6 +51,12 @@ public class FileJob  {
     }
 
     @Data
+    public static class Line {
+
+        private String endPattern;
+    }
+
+    @Data
     public static class FileJobTaskConfig {
 
         private String pattern;
@@ -62,6 +69,8 @@ public class FileJob  {
         private String additionalAttr;
 
         private String collectType;
+
+        private String lineEndPattern;
     }
 
 }

@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
+import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public interface StreamSinkService {
      * @param streamId Inlong stream id.
      * @return Sink info list.
      */
-    List<SinkBriefResponse> listBrief(String groupId, String streamId);
+    List<SinkBriefInfo> listBrief(String groupId, String streamId);
 
     /**
      * Get the StreamSink Map by the inlong group info and inlong stream info list.

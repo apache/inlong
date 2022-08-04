@@ -55,17 +55,14 @@
                                    source_type, source_name, agent_ip,
                                    uuid, data_node_name, cluster_id,
                                    serialization_type, snapshot,
-                                   report_time, ext_params, version,
-                                   status, previous_status, is_deleted,
-                                   creator, modifier, create_time, modify_time)
+                                   report_time, ext_params, status,
+                                   previous_status, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
                 #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{version,jdbcType=INTEGER},
-                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -104,7 +101,7 @@
         </where>
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
+            parameterType="org.apache.inlong.manager.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
@@ -128,8 +125,15 @@
             <if test="request.status != null and request.status != ''">
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
-            order by modify_time desc
         </where>
+        <choose>
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
     <select id="selectByAgentIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
@@ -264,9 +268,6 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER},
-            </if>
             <if test="status != null">
                 status = #{status,jdbcType=INTEGER},
             </if>
@@ -282,14 +283,10 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         update stream_source
@@ -305,15 +302,14 @@
             snapshot           = #{snapshot,jdbcType=LONGVARCHAR},
             report_time        = #{reportTime,jdbcType=TIMESTAMP},
             ext_params         = #{extParams,jdbcType=LONGVARCHAR},
-            version            = #{version,jdbcType=INTEGER},
+            version            = #{version,jdbcType=INTEGER} + 1,
             status             = #{status,jdbcType=INTEGER},
             previous_status    = #{previousStatus,jdbcType=INTEGER},
             is_deleted         = #{isDeleted,jdbcType=INTEGER},
             creator            = #{creator,jdbcType=VARCHAR},
-            modifier           = #{modifier,jdbcType=VARCHAR},
-            create_time        = #{createTime,jdbcType=TIMESTAMP},
-            modify_time        = #{modifyTime,jdbcType=TIMESTAMP}
+            modifier           = #{modifier,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateStatus">
         update stream_source

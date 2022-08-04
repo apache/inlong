@@ -30,5 +30,5 @@ public interface DBCollectorDetailTaskMapper {
     DBCollectorDetailTaskEntity selectByTaskId(int taskId);
 
     int changeState(@Param("id") int id, @Param("offset") int offset,
-                    @Param("oldState") int oldState, @Param("newState") int newState);
+            @Param("oldState") int oldState, @Param("newState") int newState);
 }

@@ -19,10 +19,30 @@
 
 package org.apache.inlong.sdk.sort.impl.kafka;
 
+import com.google.gson.Gson;
+
+import org.apache.inlong.sdk.sort.api.ClientContext;
+import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
+import org.apache.inlong.sdk.sort.entity.InLongMessage;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.RangeAssignor;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,24 +50,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.util.StringUtil;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
 
@@ -68,14 +70,19 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         try {
             createKafkaConsumer(bootstrapServers);
             if (consumer != null) {
+                logger.info("start to subscribe topic:{}", new Gson().toJson(inLongTopic));
                 consumer.subscribe(Collections.singletonList(inLongTopic.getTopic()),
-                        new AckOffsetOnRebalance(consumer, commitOffsetMap));
+                        new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), consumer,
+                                commitOffsetMap));
             } else {
+                logger.info("consumer is null");
                 return false;
             }
             this.bootstrapServers = bootstrapServers;
-            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
+            String threadName = String.format("sort_sdk_fetch_thread_%s_%s_%d",
+                    this.inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic(), this.hashCode());
             this.fetchThread = new Thread(new Fetcher(), threadName);
+            logger.info("start to start thread:{}", threadName);
             this.fetchThread.start();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -156,7 +163,6 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
     private void createKafkaConsumer(String bootstrapServers) {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.put(ConsumerConfig.CLIENT_ID_CONFIG, context.getConfig().getSortTaskId());
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, context.getConfig().getSortTaskId());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 ByteArrayDeserializer.class.getName());
@@ -181,10 +187,12 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 context.getConfig().getKafkaFetchWaitMs());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         properties.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
-                "org.apache.kafka.clients.consumer.StickyAssignor");
+                RangeAssignor.class.getName());
         properties.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, 120000L);
         this.bootstrapServers = bootstrapServers;
+        logger.info("start to create kafka consumer:{}", properties);
         this.consumer = new KafkaConsumer<>(properties);
+        logger.info("end to create kafka consumer:{}", consumer);
     }
 
     public class Fetcher implements Runnable {
@@ -194,10 +202,11 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 try {
                     consumer.commitSync(commitOffsetMap);
                     commitOffsetMap.clear();
-                    //TODO monitor commit succ
+                    // TODO monitor commit succ
 
                 } catch (Exception e) {
-                    //TODO monitor commit fail
+                    // TODO monitor commit fail
+                    logger.error(e.getMessage(), e);
                 }
             }
         }

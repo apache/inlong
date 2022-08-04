@@ -20,8 +20,8 @@ package org.apache.inlong.manager.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.LoginUser;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.test.BaseTest;
 import org.apache.shiro.SecurityUtils;
@@ -57,11 +57,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public abstract class WebBaseTest extends BaseTest {
 
     public MockMvc mockMvc;
-
+    @Resource
+    private ObjectMapper objectMapper;
     @Resource
     private WebApplicationContext context;
-    @Resource
-    ObjectMapper objectMapper;
 
     @BeforeAll
     void baseSetup() {
@@ -84,12 +83,12 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     protected void adminLogin() throws Exception {
-        LoginUser loginUser = new LoginUser();
+        UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("admin");
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -138,12 +137,12 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     protected void operatorLogin() throws Exception {
-        LoginUser loginUser = new LoginUser();
+        UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("operator");
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)

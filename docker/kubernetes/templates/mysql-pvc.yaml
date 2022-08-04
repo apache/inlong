@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.mysql }}
 {{- if not .Values.external.mysql.enabled }}
 {{- if .Values.mysql.volumes.persistence }}
 apiVersion: v1
@@ -31,5 +32,6 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mysql.volumes.size | quote }}
+{{- end }}
 {{- end }}
 {{- end }}

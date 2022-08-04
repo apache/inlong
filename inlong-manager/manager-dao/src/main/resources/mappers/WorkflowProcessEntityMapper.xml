@@ -60,7 +60,7 @@
         from workflow_process
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.workflow.ProcessQuery"
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessRequest"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -112,8 +112,8 @@
         order by id desc
     </select>
 
-    <select id="countByQuery" parameterType="org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery"
-            resultType="org.apache.inlong.manager.common.pojo.common.CountInfo">
+    <select id="countByQuery" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessCountRequest"
+            resultType="org.apache.inlong.manager.pojo.common.CountInfo">
         select status as `key`, count(1) as value
         from workflow_process
         <where>

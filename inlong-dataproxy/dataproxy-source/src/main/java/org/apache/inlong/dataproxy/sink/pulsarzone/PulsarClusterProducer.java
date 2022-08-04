@@ -98,9 +98,9 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * Constructor
      * 
-     * @param workerName
-     * @param config
-     * @param context
+     * @param workerName Worker name
+     * @param config Cache cluster configuration
+     * @param context Sink context
      */
     public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         this.workerName = workerName;
@@ -109,8 +109,8 @@ public class PulsarClusterProducer implements LifecycleAware {
         this.context = context.getProducerContext();
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = config.getClusterName();
-        this.tenant = config.getParams().getOrDefault(KEY_TENANT, "pulsar");
-        this.namespace = config.getParams().getOrDefault(KEY_NAMESPACE, "inlong");
+        this.tenant = config.getParams().get(KEY_TENANT);
+        this.namespace = config.getParams().get(KEY_NAMESPACE);
     }
 
     /**
@@ -160,7 +160,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getPulsarCompressionType
      * 
-     * @return CompressionType
+     * @return CompressionType LZ4/NONE/ZLIB/ZSTD/SNAPPY
      */
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
@@ -204,7 +204,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getLifecycleState
      * 
-     * @return
+     * @return LifecycleState state
      */
     @Override
     public LifecycleState getLifecycleState() {
@@ -212,21 +212,21 @@ public class PulsarClusterProducer implements LifecycleAware {
     }
 
     /**
-     * send
+     * send DispatchProfile
      * 
-     * @param event
+     * @param event DispatchProfile
+     * @return boolean sendResult
      */
     public boolean send(DispatchProfile event) {
         try {
             // topic
-            String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
-            if (baseTopic == null) {
+            String producerTopic = this.getProducerTopic(event);
+            if (producerTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 event.fail();
                 return false;
             }
             // get producer
-            String producerTopic = tenant + '/' + namespace + '/' + baseTopic;
             Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
                 try {
@@ -283,10 +283,32 @@ public class PulsarClusterProducer implements LifecycleAware {
     }
 
     /**
+     * getProducerTopic
+     * 
+     * @param event DispatchProfile
+     * @return String Full topic name
+     */
+    private String getProducerTopic(DispatchProfile event) {
+        String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
+        if (baseTopic == null) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        if (tenant != null) {
+            builder.append(tenant).append("/");
+        }
+        if (namespace != null) {
+            builder.append(namespace).append("/");
+        }
+        builder.append(baseTopic);
+        return builder.toString();
+    }
+
+    /**
      * encodeCacheMessageHeaders
      * 
-     * @param  event
-     * @return       Map
+     * @param  event DispatchProfile
+     * @return Map cache message headers
      */
     public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
         Map<String, String> headers = new HashMap<>();

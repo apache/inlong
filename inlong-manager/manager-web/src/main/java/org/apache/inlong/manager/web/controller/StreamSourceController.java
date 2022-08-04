@@ -21,15 +21,15 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
-import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.source.SourcePageRequest;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream source control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Source-API")
 public class StreamSourceController {
 
@@ -52,7 +53,7 @@ public class StreamSourceController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated @RequestBody SourceRequest request) {
-        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
+        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/get/{id}", method = RequestMethod.GET)
@@ -72,7 +73,7 @@ public class StreamSourceController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream source")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
-        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
+        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/delete/{id}", method = RequestMethod.DELETE)
@@ -80,7 +81,7 @@ public class StreamSourceController {
     @ApiOperation(value = "Delete stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sourceService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
+        boolean result = sourceService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 

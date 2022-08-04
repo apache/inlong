@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqServer }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -172,3 +173,4 @@ spec:
         storageClassName: "{{ .Values.tubemqBroker.volumes.storageClassName }}"
         {{- end }}
   {{- end }}
+{{- end }}

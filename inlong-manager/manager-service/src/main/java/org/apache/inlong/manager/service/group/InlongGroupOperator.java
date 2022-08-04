@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 
 /**

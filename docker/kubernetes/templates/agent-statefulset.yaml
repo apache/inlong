@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.agent }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -146,3 +147,4 @@ spec:
         storageClassName: "{{ .Values.agent.volumes.storageClassName }}"
         {{- end }}
   {{- end }}
+{{- end }}

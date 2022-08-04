@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

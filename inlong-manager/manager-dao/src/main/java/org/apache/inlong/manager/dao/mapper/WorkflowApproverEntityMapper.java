@@ -17,28 +17,24 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WorkflowApproverEntityMapper {
 
-    int deleteByPrimaryKey(@Param("id") Integer id, @Param("modifier") String modifier);
-
     int insert(WorkflowApproverEntity record);
 
-    int insertSelective(WorkflowApproverEntity record);
+    WorkflowApproverEntity selectById(Integer id);
 
-    WorkflowApproverEntity selectByPrimaryKey(Integer id);
+    List<WorkflowApproverEntity> selectByQuery(ApproverRequest request);
 
-    int updateByPrimaryKeySelective(WorkflowApproverEntity record);
+    int updateById(WorkflowApproverEntity record);
 
-    int updateByPrimaryKey(WorkflowApproverEntity record);
+    int deleteByPrimaryKey(@Param("id") Integer id, @Param("modifier") String modifier);
 
-    List<WorkflowApproverEntity> selectByQuery(WorkflowApproverQuery query);
 }

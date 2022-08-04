@@ -59,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
@@ -115,6 +116,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private List<String> managerList;
     private String localIp;
     private String uuid;
+    private String clusterTag;
 
     private CommandDb commandDb;
 
@@ -130,6 +132,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             managerDbCollectorTaskUrl = buildDbCollectorGetTaskUrl(baseManagerUrl);
             localFileCache = getLocalFileCache();
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
+            clusterTag = conf.get(AGENT_CLUSTER_TAG);
             this.commandDb = agentManager.getCommandDb();
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -143,7 +146,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build base url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     * example - http://127.0.0.1:8080/inlong/manager/openapi
      */
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
@@ -154,7 +157,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build vip url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/agent/getInLongManagerIp
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/agent/getManagerIpList
      */
     private String buildVipUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH, DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
@@ -163,7 +166,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build file collect task url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/getTaskConf
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
      */
     private String buildFileCollectTaskUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
@@ -172,7 +175,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build ip check url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/confirmAgentIp
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/confirmAgentIp
      */
     private String buildIpCheckUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH, DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
@@ -181,7 +184,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build db collector get task url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/dbcollector/getTask
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/dbcollector/getTask
      */
     private String buildDbCollectorGetTaskUrl(String baseUrl) {
         return baseUrl + conf
@@ -214,7 +217,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * request manager to get manager vipUrl list, and store it to local file
      */
     public void requestTdmList() {
-        JsonObject result = getResultData(httpManager.doSendGet(managerVipUrl));
+        JsonObject result = getResultData(httpManager.doSendPost(managerVipUrl));
         JsonArray data = result.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonArray();
         List<String> managerIpList = new ArrayList<>();
         for (JsonElement datum : data) {
@@ -302,6 +305,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
+        request.setClusterTag(clusterTag);
         // when job size is over limit, require no new job
         if (agentManager.getJobManager().isJobOverLimit()) {
             request.setPullJobType(PullJobTypeEnum.NEVER.getType());
@@ -381,7 +385,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,

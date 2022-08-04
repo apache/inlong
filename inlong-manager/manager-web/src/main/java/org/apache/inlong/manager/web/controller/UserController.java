@@ -20,15 +20,12 @@ package org.apache.inlong.manager.web.controller;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
-import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
-import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
-import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.UserService;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
+import org.apache.inlong.manager.service.user.UserService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,55 +43,51 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated
 @RestController
+@RequestMapping("/api")
 @Api(tags = "User-Auth-API")
 public class UserController {
 
     @Autowired
     UserService userService;
 
-    @PostMapping("/user/loginUser")
+    @PostMapping("/user/currentUser")
     @ApiOperation(value = "Get the logged-in user")
-    public Response<UserDetail> currentUser() {
-        return Response.success(LoginUserUtils.getLoginUserDetail());
+    public Response<UserInfo> currentUser() {
+        return Response.success(LoginUserUtils.getLoginUser());
     }
 
     @PostMapping("/user/register")
     @ApiOperation(value = "Register user")
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> register(@Validated @RequestBody UserInfo userInfo) {
-        return Response.success(userService.create(userInfo));
+    public Response<Integer> register(@Validated @RequestBody UserRequest userInfo) {
+        return Response.success(userService.save(userInfo));
     }
 
     @GetMapping("/user/get/{id}")
     @ApiOperation(value = "Get user info")
     public Response<UserInfo> getById(@PathVariable Integer id) {
-        return Response.success(userService.getById(id));
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(userService.getById(id, currentUser));
+    }
+
+    @GetMapping("/user/listAll")
+    @ApiOperation(value = "List all users")
+    public Response<PageInfo<UserInfo>> list(UserRequest request) {
+        return Response.success(userService.list(request));
     }
 
     @PostMapping("/user/update")
     @ApiOperation(value = "Update user info")
-    public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+    public Response<Integer> update(@Validated @RequestBody UserRequest userInfo) {
+        String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.update(userInfo, currentUser));
-    }
-
-    @PostMapping("/user/updatePassword")
-    @ApiOperation(value = "Update user password")
-    public Response<Integer> updatePassword(@RequestBody PasswordChangeRequest request) {
-        return Response.success(userService.updatePassword(request));
-    }
-
-    @GetMapping("/user/listAllUsers")
-    @ApiOperation(value = "List all users")
-    public Response<PageInfo<UserDetailListVO>> list(UserDetailPageRequest request) {
-        return Response.success(userService.list(request));
     }
 
     @DeleteMapping("/user/delete")
     @ApiOperation(value = "Delete user by id")
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@RequestParam("id") Integer id) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.delete(id, currentUser));
     }
 

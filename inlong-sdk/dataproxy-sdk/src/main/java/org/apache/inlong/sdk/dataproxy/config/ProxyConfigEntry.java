@@ -21,12 +21,10 @@ package org.apache.inlong.sdk.dataproxy.config;
 import java.util.Map;
 
 public class ProxyConfigEntry implements java.io.Serializable {
-    private String clusterId;
+    private int clusterId;
     private String groupId;
     private int size;
     private Map<String, HostInfo> hostMap;
-    private int groupIdNum;
-    private Map<String, Integer> streamIdNumMap;
     private int load;
     private int switchStat;
     private boolean isInterVisit;
@@ -37,19 +35,6 @@ public class ProxyConfigEntry implements java.io.Serializable {
 
     public void setLoad(int load) {
         this.load = load;
-    }
-
-    public int getGroupIdNum() {
-        return groupIdNum;
-    }
-
-    public Map<String, Integer> getStreamIdNumMap() {
-        return streamIdNumMap;
-    }
-
-    public void setGroupIdNumAndStreamIdNumMap(int groupIdNum, Map<String, Integer> streamIdNumMap) {
-        this.groupIdNum = groupIdNum;
-        this.streamIdNumMap = streamIdNumMap;
     }
 
     public int getSwitchStat() {
@@ -73,6 +58,10 @@ public class ProxyConfigEntry implements java.io.Serializable {
         return size;
     }
 
+    public void setSize(int size) {
+        this.size = size;
+    }
+
     public String getGroupId() {
         return groupId;
     }
@@ -91,17 +80,16 @@ public class ProxyConfigEntry implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", bsn="
-                + groupIdNum + ", tsnMap=" + streamIdNumMap
-                + ", size=" + size + ", isInterVisit=" + isInterVisit + ", groupId=" + groupId
+        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
+                + isInterVisit + ", groupId=" + groupId
                 + ", switch=" + switchStat + "]";
     }
 
-    public String getClusterId() {
+    public int getClusterId() {
         return clusterId;
     }
 
-    public void setClusterId(String clusterId) {
+    public void setClusterId(int clusterId) {
         this.clusterId = clusterId;
     }
 }

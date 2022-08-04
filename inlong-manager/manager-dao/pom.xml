@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-common</artifactId>
+            <artifactId>manager-pojo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

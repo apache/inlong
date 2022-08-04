@@ -18,9 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-/**
- * Created by jesseyzhou on 2018/6/22.
- */
 public class ProxysdkException extends Exception {
 
     public ProxysdkException() {

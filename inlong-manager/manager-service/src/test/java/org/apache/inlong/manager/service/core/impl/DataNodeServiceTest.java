@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.DataNodeService;
 import org.junit.jupiter.api.Assertions;
@@ -45,6 +45,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setUrl(url);
         request.setUsername(username);
         request.setToken(password);
+        request.setDescription("test cluster");
         request.setInCharges(GLOBAL_OPERATOR);
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }
@@ -62,7 +63,8 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     /**
      * update data node info.
      */
-    public Boolean updateOpt(Integer id, String nodeName, String type, String url, String username, String password) {
+    public Boolean updateOpt(Integer id, String nodeName, String type, String url, String username, String password,
+            Integer version) {
         DataNodeRequest request = new DataNodeRequest();
         request.setId(id);
         request.setName(nodeName);
@@ -70,6 +72,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setUrl(url);
         request.setUsername(username);
         request.setToken(password);
+        request.setVersion(version);
         return dataNodeService.update(request, GLOBAL_OPERATOR);
     }
 
@@ -107,7 +110,9 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         String newUrl = "127.0.0.1:8083";
         String newUsername = "admin2";
         String newPassword = "456";
-        Boolean updateSuccess = this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword);
+        Integer version = listDataNode.getList().get(0).getVersion();
+        System.out.println(version);
+        Boolean updateSuccess = this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword, version);
         Assertions.assertTrue(updateSuccess);
 
         // test delete data node

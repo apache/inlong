@@ -18,19 +18,20 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 
 import java.util.List;
 
@@ -125,7 +126,7 @@ public interface WorkflowService {
      * @param query Query conditions.
      * @return Process list.
      */
-    PageInfo<ProcessResponse> listProcess(ProcessQuery query);
+    PageInfo<ProcessResponse> listProcess(ProcessRequest query);
 
     /**
      * Get task list
@@ -133,7 +134,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return List
      */
-    PageInfo<TaskResponse> listTask(TaskQuery query);
+    PageInfo<TaskResponse> listTask(TaskRequest query);
 
     /**
      * Get process statistics
@@ -141,7 +142,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Statistical data
      */
-    ProcessCountResponse countProcess(ProcessCountQuery query);
+    ProcessCountResponse countProcess(ProcessCountRequest query);
 
     /**
      * Get task statistics
@@ -149,7 +150,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Statistical data
      */
-    TaskCountResponse countTask(TaskCountQuery query);
+    TaskCountResponse countTask(TaskCountRequest query);
 
     /**
      * Get task execution log
@@ -157,6 +158,6 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Execution log
      */
-    PageInfo<WorkflowExecuteLog> listTaskExecuteLogs(TaskExecuteLogQuery query);
+    PageInfo<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query);
 
 }

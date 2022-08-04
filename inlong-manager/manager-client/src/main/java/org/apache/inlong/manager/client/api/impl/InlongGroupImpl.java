@@ -17,10 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -37,23 +34,22 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
-import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
+import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -66,11 +62,11 @@ public class InlongGroupImpl implements InlongGroup {
     public static final String MQ_FIELD = "mqType";
 
     private final InnerGroupContext groupContext;
-    private InlongGroupInfo groupInfo;
     private final InlongGroupClient groupClient;
     private final WorkflowClient workFlowClient;
     private final InlongStreamClient streamClient;
     private final ClientConfiguration configuration;
+    private InlongGroupInfo groupInfo;
 
     public InlongGroupImpl(InlongGroupInfo groupInfo, ClientConfiguration configuration) {
         this.groupInfo = groupInfo;
@@ -116,7 +112,7 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkTrue(ProcessStatus.PROCESSING == processView.getStatus(),
                 String.format("process status %s is not corrected, should be PROCESSING", processView.getStatus()));
 
-        // init must be NewGroupProcessForm
+        // init must be ApplyGroupProcessForm
         // compile with old cluster
         JSONObject formDataJson = JsonUtils.parseObject(
                 JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
@@ -129,11 +125,12 @@ public class InlongGroupImpl implements InlongGroup {
             }
         }
         String formDataNew = formDataJson.toString();
-        NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
-                formDataNew, NewGroupProcessForm.class);
-        Preconditions.checkNotNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
-        groupContext.setInitMsg(newGroupProcessForm);
-        WorkflowResult startWorkflowResult = workFlowClient.startInlongGroup(taskId, newGroupProcessForm);
+        ApplyGroupProcessForm groupProcessForm = JsonUtils.parseObject(
+                formDataNew, ApplyGroupProcessForm.class);
+        Preconditions.checkNotNull(groupProcessForm, "ApplyGroupProcessForm cannot be null");
+        groupContext.setInitMsg(groupProcessForm);
+        assert groupProcessForm != null;
+        WorkflowResult startWorkflowResult = workFlowClient.startInlongGroup(taskId, groupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
         Preconditions.checkTrue(ProcessStatus.COMPLETED == processView.getStatus(),
                 String.format("inlong group status %s is incorrect, should be COMPLETED", processView.getStatus()));
@@ -260,6 +257,16 @@ public class InlongGroupImpl implements InlongGroup {
         return generateSnapshot();
     }
 
+    @Override
+    public InlongGroupCountResponse countGroupByUser() {
+        return groupClient.countGroupByUser();
+    }
+
+    @Override
+    public InlongGroupTopicInfo getTopic(String id) {
+        return groupClient.getTopic(id);
+    }
+
     private InlongGroupContext generateSnapshot() {
         // fetch current group
         InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupContext.getGroupId());
@@ -271,44 +278,7 @@ public class InlongGroupImpl implements InlongGroup {
             dataStreams.forEach(groupContext::setStream);
         }
 
-        // create group context
-        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext);
-        // fetch group logs
-        List<EventLogView> logViews = workFlowClient.getInlongGroupError(inlongGroupId);
-        if (CollectionUtils.isNotEmpty(logViews)) {
-            Map<String, List<String>> errMsgMap = Maps.newHashMap();
-            Map<String, List<String>> groupLogMap = Maps.newHashMap();
-            logViews.stream()
-                    .filter(x -> StringUtils.isNotEmpty(x.getElementName()))
-                    .forEach(eventLogView -> {
-                        String taskName = eventLogView.getElementName();
-                        if (StringUtils.isNotEmpty(eventLogView.getException())) {
-                            errMsgMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
-                        }
-                        if (StringUtils.isNotEmpty(eventLogView.getRemark())) {
-                            groupLogMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
-                        }
-                    });
-            inlongGroupContext.setGroupErrLogs(errMsgMap);
-            inlongGroupContext.setGroupLogs(groupLogMap);
-        }
-
-        // fetch stream logs
-        Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
-        streams.keySet().forEach(streamId -> {
-            List<InlongStreamConfigLogListResponse> logList = streamClient.getStreamLogs(inlongGroupId, streamId);
-            if (CollectionUtils.isNotEmpty(logList)) {
-                Map<String, List<String>> streamLogs = Maps.newHashMap();
-                logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
-                        .forEach(streamLog -> {
-                            String componentName = streamLog.getComponentName();
-                            String log = JsonUtils.toJsonString(streamLog);
-                            streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
-                        });
-                inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);
-            }
-        });
-        return inlongGroupContext;
+        return new InlongGroupContext(groupContext);
     }
 
     private List<InlongStream> fetchInlongStreams(String groupId) {

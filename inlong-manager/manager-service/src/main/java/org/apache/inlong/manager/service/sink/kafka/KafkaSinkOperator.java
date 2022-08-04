@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.sink.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
+import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -50,13 +50,13 @@ public class KafkaSinkOperator extends AbstractSinkOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SinkType sinkType) {
+    public Boolean accept(String sinkType) {
         return SinkType.KAFKA.equals(sinkType);
     }
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_KAFKA;
+        return SinkType.KAFKA;
     }
 
     @Override

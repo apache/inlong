@@ -19,9 +19,9 @@ package org.apache.inlong.manager.client.api;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.LowLevelInlongClientImpl;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
 /**
  * An interface to provide original Inlong Apis.
@@ -41,21 +41,21 @@ public interface LowLevelInlongClient {
     }
 
     /**
-     * Create component cluster for Inlong
+     * Create cluster.
      *
      * @param request cluster request
      * @return cluster index
-     * @throws Exception
+     * @throws Exception the exception may throw
      */
     Integer saveCluster(ClusterRequest request) throws Exception;
 
     /**
-     * List group
+     * List inlong group.
      *
-     * @param request The request
-     * @return PageInfo of group
-     * @throws Exception The exception may throws
+     * @param request page request
+     * @return group info page
+     * @throws Exception the exception may throw
      */
-    PageInfo<InlongGroupListResponse> listGroup(InlongGroupPageRequest request) throws Exception;
+    PageInfo<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) throws Exception;
 
 }

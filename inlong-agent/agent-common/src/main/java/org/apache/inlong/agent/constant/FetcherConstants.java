@@ -36,10 +36,10 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
-    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getInLongManagerIp";
+    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getManagerIpList";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/api/inlong/manager/openapi";
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/inlong/manager/openapi";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.task.http.path";
     public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/agent/reportAndGetTask";
@@ -53,15 +53,18 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
     public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
 
+    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "agent.manager.heartbeat.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/heartbeat/report";
+
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";
 
     public static final int AGENT_HTTP_SUCCESS_CODE = 200;
-
-    public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
     public static final String AGENT_MANAGER_RETURN_PARAM_IP = "ip";
     public static final String AGENT_MANAGER_RETURN_PARAM_DATA = "data";
 
     public static final String VERSION = "1.0";
 
+    public static final String AGENT_MANAGER_AUTH_SECRET_ID = "agent.manager.auth.secretId";
+    public static final String AGENT_MANAGER_AUTH_SECRET_KEY = "agent.manager.auth.secretKey";
 }

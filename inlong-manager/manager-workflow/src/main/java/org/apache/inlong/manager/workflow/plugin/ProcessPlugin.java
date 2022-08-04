@@ -17,32 +17,31 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
-import org.apache.inlong.manager.workflow.event.EventSelector;
-import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Interface of process plugin.
  */
 public interface ProcessPlugin extends Plugin {
 
-    default Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
+    default List<SourceOperateListener> createSourceOperateListeners() {
         return null;
     }
 
-    default Map<SinkOperateListener, EventSelector> createSinkOperateListeners() {
+    default List<SinkOperateListener> createSinkOperateListeners() {
         return null;
     }
 
-    default Map<QueueOperateListener, EventSelector> createQueueOperateListeners() {
+    default List<QueueOperateListener> createQueueOperateListeners() {
         return null;
     }
 
-    default Map<SortOperateListener, EventSelector> createSortOperateListeners() {
+    default List<SortOperateListener> createSortOperateListeners() {
         return null;
     }
 

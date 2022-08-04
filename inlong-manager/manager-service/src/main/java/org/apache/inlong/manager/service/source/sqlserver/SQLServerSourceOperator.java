@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.source.sqlserver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSourceDTO;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSourceRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
@@ -45,13 +45,13 @@ public class SQLServerSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.SQLSERVER == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.SQLSERVER.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.SQLSERVER.getType();
+        return SourceType.SQLSERVER;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SQLServerSourceOperator extends AbstractSourceOperator {
             SQLServerSourceDTO dto = SQLServerSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

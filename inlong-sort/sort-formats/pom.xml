@@ -57,6 +57,7 @@
         <module>format-inlongmsg-base</module>
         <module>format-inlongmsg-csv</module>
         <module>format-json</module>
+        <module>format-inlongmsg-pb</module>
     </modules>
 
     <properties>

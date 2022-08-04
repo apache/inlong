@@ -27,9 +27,9 @@ import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.Map;
@@ -79,7 +79,7 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     }
 
     @Override
-    public PageInfo<InlongGroupListResponse> listGroup(InlongGroupPageRequest request) {
+    public PageInfo<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) {
         InlongGroupClient groupClient = ClientUtils.getClientFactory(configuration).getGroupClient();
         return groupClient.listGroups(request);
     }

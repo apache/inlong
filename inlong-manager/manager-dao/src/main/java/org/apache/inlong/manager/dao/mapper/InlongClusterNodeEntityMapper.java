@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +29,8 @@ import java.util.List;
 public interface InlongClusterNodeEntityMapper {
 
     int insert(InlongClusterNodeEntity record);
+
+    int insertOnDuplicateKeyUpdate(InlongClusterNodeEntity record);
 
     InlongClusterNodeEntity selectById(Integer id);
 
@@ -39,8 +41,6 @@ public interface InlongClusterNodeEntityMapper {
     List<InlongClusterNodeEntity> selectByParentId(@Param("parentId") Integer parentId);
 
     int updateById(InlongClusterNodeEntity record);
-
-    int updateByIdSelective(InlongClusterNodeEntity record);
 
     int deleteById(Integer id);
 

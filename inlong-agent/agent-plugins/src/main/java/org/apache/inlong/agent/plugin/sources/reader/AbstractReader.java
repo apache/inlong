@@ -26,12 +26,11 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 /**
- * abstract reader, init reader and reader metrics
+ * Abstract reader, init reader and reader metrics
  */
 public abstract class AbstractReader implements Reader {
 
     protected String inlongGroupId;
-
     protected String inlongStreamId;
     protected String metricTagName;
 

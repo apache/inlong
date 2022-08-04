@@ -23,22 +23,22 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
-import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowTaskRequest;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowApprovalRequest;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.service.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.service.workflow.WorkflowOperation;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -55,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Workflow-API")
 public class WorkflowController {
 
@@ -65,7 +67,7 @@ public class WorkflowController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperation operation) {
-        String applicant = LoginUserUtils.getLoginUserDetail().getUsername();
+        String applicant = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.start(operation.getName(), applicant, operation.getForm()));
     }
 
@@ -74,7 +76,7 @@ public class WorkflowController {
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
     }
 
@@ -84,7 +86,7 @@ public class WorkflowController {
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
             @RequestBody WorkflowOperation operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
     }
 
@@ -92,36 +94,36 @@ public class WorkflowController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval and consent")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
-        return Response.success(workflowService.approve(id, operation.getRemark(), operation.getForm(), operator));
+    public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(workflowService.approve(id, request.getRemark(), request.getForm(), operator));
     }
 
     @PostMapping("/workflow/reject/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval rejected")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
-        return Response.success(workflowService.reject(id, operation.getRemark(), operator));
+    public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(workflowService.reject(id, request.getRemark(), operator));
     }
 
     @PostMapping("/workflow/transfer/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Turn to another approver", notes = "Change approver")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
-        return Response.success(workflowService.transfer(id, operation.getRemark(),
-                operation.getTransferTo(), operator));
+    public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(workflowService.transfer(id, request.getRemark(),
+                request.getTransferTo(), operator));
     }
 
     @PostMapping("/workflow/complete/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Complete task by ID")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowTaskRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+    public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.complete(id, request.getRemark(), operator));
     }
 
@@ -133,42 +135,42 @@ public class WorkflowController {
     })
     public Response<ProcessDetailResponse> detail(@PathVariable(name = "id") Integer id,
             @RequestParam(required = false) Integer taskId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.detail(id, taskId, operator));
     }
 
     @GetMapping("/workflow/listProcess")
     @ApiOperation(value = "Get process list by paginating")
-    public Response<PageInfo<ProcessResponse>> listProcess(ProcessQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
+    public Response<PageInfo<ProcessResponse>> listProcess(ProcessRequest query) {
+        query.setApplicant(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.listProcess(query));
     }
 
     @GetMapping("/workflow/listTask")
     @ApiOperation(value = "Get task list by paginating")
-    public Response<PageInfo<TaskResponse>> listTask(TaskQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
+    public Response<PageInfo<TaskResponse>> listTask(TaskRequest query) {
+        query.setApprover(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.listTask(query));
     }
 
     @GetMapping("/workflow/processSummary")
     @ApiOperation(value = "Get process statistics")
-    public Response<ProcessCountResponse> processSummary(ProcessCountQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
+    public Response<ProcessCountResponse> processSummary(ProcessCountRequest query) {
+        query.setApplicant(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.countProcess(query));
     }
 
     @GetMapping("/workflow/taskSummary")
     @ApiOperation(value = "Get task statistics")
-    public Response<TaskCountResponse> taskSummary(TaskCountQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
+    public Response<TaskCountResponse> taskSummary(TaskCountRequest query) {
+        query.setApprover(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.countTask(query));
     }
 
-    @GetMapping("/workflow/listTaskExecuteLogs")
-    @ApiOperation(value = "Get task execution log")
-    public Response<PageInfo<WorkflowExecuteLog>> listTaskExecuteLogs(TaskExecuteLogQuery query) {
-        return Response.success(workflowService.listTaskExecuteLogs(query));
+    @GetMapping("/workflow/listTaskLogs")
+    @ApiOperation(value = "Get task execution logs")
+    public Response<PageInfo<WorkflowExecuteLog>> listTaskLogs(TaskLogRequest query) {
+        return Response.success(workflowService.listTaskLogs(query));
     }
 
 }

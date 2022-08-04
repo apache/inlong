@@ -40,7 +40,7 @@ public class SinkContext {
     public static final String KEY_PROCESS_INTERVAL = "processInterval";
     public static final String KEY_RELOAD_INTERVAL = "reloadInterval";
 
-    protected final String clusterId;
+    protected final String proxyClusterId;
     protected final String sinkName;
     protected final Context sinkContext;
 
@@ -60,7 +60,7 @@ public class SinkContext {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
-        this.clusterId = context.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
+        this.proxyClusterId = context.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESS_INTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOAD_INTERVAL, 60000L);
@@ -117,8 +117,8 @@ public class SinkContext {
      *
      * @return the clusterId
      */
-    public String getClusterId() {
-        return clusterId;
+    public String getProxyClusterId() {
+        return proxyClusterId;
     }
 
     /**

@@ -88,8 +88,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-flink-runtime-1.13</artifactId>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-iceberg</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

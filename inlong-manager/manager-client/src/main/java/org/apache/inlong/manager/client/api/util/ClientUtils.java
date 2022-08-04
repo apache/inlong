@@ -26,7 +26,7 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import retrofit2.Call;
@@ -83,7 +83,7 @@ public class ClientUtils {
                 .build();
 
         return new Retrofit.Builder()
-                .baseUrl("http://" + host + ":" + port + "/api/inlong/manager/")
+                .baseUrl("http://" + host + ":" + port + "/inlong/manager/api/")
                 .addConverterFactory(JacksonConverterFactory.create(JsonUtils.OBJECT_MAPPER))
                 .client(okHttpClient)
                 .build();

@@ -18,20 +18,17 @@
 package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-
-import java.util.Objects;
 
 /**
  * Mode of inlong group
  */
 public enum GroupMode {
+
     /**
-     * Normal group init with all components in Inlong Cluster
-     * StreamSource -> Agent/SDK -> DataProxy -> Cache -> Sort -> StreamSink
+     * Standard group init with all components in Inlong Cluster
+     * StreamSource -> Agent/SDK -> DataProxy -> MQ Cache -> Sort -> StreamSink
      */
-    NORMAL("normal"),
+    STANDARD("standard"),
 
     /**
      * Lightweight group init with sort in Inlong Cluster
@@ -55,10 +52,4 @@ public enum GroupMode {
         throw new IllegalArgumentException(String.format("Unsupported group mode for %s", mode));
     }
 
-    public static GroupMode parseGroupMode(InlongGroupInfo groupInfo) {
-        if (Objects.equals(groupInfo.getLightweight(), InlongConstants.LIGHTWEIGHT_MODE)) {
-            return GroupMode.LIGHTWEIGHT;
-        }
-        return GroupMode.NORMAL;
-    }
 }

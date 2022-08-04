@@ -25,7 +25,7 @@ public class PostgresConstant {
 
     public static final String CONNECTOR = "connector";
 
-    public static final String POSTGRES_CDC = "postgres-cdc";
+    public static final String POSTGRES_CDC = "postgres-cdc-inlong";
 
     public static final String DATABASE_NAME = "database-name";
 

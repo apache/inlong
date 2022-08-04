@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.cluster;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class DataProxyClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.DATA_PROXY;
+        return ClusterType.DATAPROXY;
     }
 
     @Override

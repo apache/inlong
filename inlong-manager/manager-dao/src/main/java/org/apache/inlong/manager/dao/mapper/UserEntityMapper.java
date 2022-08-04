@@ -17,27 +17,25 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
 import org.apache.inlong.manager.dao.entity.UserEntity;
-import org.apache.inlong.manager.dao.entity.UserEntityExample;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface UserEntityMapper {
 
-    long countByExample(UserEntityExample example);
-
-    int deleteByPrimaryKey(Integer id);
-
     int insert(UserEntity record);
 
-    int insertSelective(UserEntity record);
+    UserEntity selectById(Integer id);
 
-    List<UserEntity> selectByExample(UserEntityExample example);
+    UserEntity selectByName(String name);
 
-    UserEntity selectByPrimaryKey(Integer id);
+    List<UserEntity> selectByCondition(UserRequest request);
 
-    int updateByPrimaryKeySelective(UserEntity record);
+    int updateById(UserEntity record);
 
-    int updateByPrimaryKey(UserEntity record);
+    int deleteById(Integer id);
+
 }

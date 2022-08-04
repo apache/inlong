@@ -28,65 +28,18 @@ import java.util.Date;
 public class WorkflowProcessEntity {
 
     private Integer id;
-
-    /**
-     * Process name
-     */
     private String name;
-
-    /**
-     * Process display name
-     */
     private String displayName;
-
-    /**
-     * Process classification
-     */
     private String type;
-
-    /**
-     * Process title
-     */
     private String title;
 
-    /**
-     * InLong group ID
-     */
     private String inlongGroupId;
-
-    /**
-     * Applicant name
-     */
     private String applicant;
-
-    /**
-     * Process status
-     */
     private String status;
-
-    /**
-     * Form information
-     */
     private String formData;
-
-    /**
-     * Application time
-     */
     private Date startTime;
-
-    /**
-     * End time
-     */
     private Date endTime;
-
-    /**
-     * Extended params
-     */
     private String extParams;
-
-    /**
-     * Whether to hide
-     */
     private Integer hidden;
 
 }

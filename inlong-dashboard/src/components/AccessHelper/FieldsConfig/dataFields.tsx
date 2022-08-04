@@ -25,32 +25,15 @@ import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from '@/components/MetaData/SourceDataFields';
 
 type RestParams = {
-  inlongGroupId?: string;
-  // Whether to use true operation for data source management
-  useDataSourcesActionRequest?: boolean;
-  // Whether to use real operation for data storage management
-  useDataStorageActionRequest?: boolean;
   // Whether the fieldList is in edit mode
   fieldListEditing?: boolean;
-  readonly?: boolean;
 };
 
 export default (
   names: (string | FormItemProps)[],
   currentValues: Record<string, any> = {},
-  {
-    inlongGroupId,
-    useDataSourcesActionRequest = false,
-    useDataStorageActionRequest = false,
-    fieldListEditing = true,
-    readonly = false,
-  }: RestParams = {},
+  { fieldListEditing = true }: RestParams = {},
 ): FormItemProps[] => {
-  // const basicProps = {
-  //   inlongGroupId: inlongGroupId,
-  //   inlongStreamId: currentValues.inlongStreamId,
-  // };
-
   const fields: FormItemProps[] = [
     {
       type: 'input',
@@ -111,7 +94,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      // visible: values => values.dataSourceType !== 'BINLOG',
+      // visible: values => values.dataSourceType !== 'MYSQL_BINLOG',
     },
     {
       type: 'radio',

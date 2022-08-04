@@ -21,9 +21,9 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +48,7 @@ public class OpenClusterController {
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
-        return Response.success(clusterService.get(id));
+        return Response.success(clusterService.get(id, "admin"));
     }
 
     @PostMapping(value = "/cluster/list")

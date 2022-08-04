@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Test class for ldefine process.
+ * Test class for workflow define process.
  */
 public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
 
@@ -36,12 +36,11 @@ public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
         WorkflowProcess process = createGroupWorkflowDefinition.defineProcess();
         WorkflowProcess cloneProcess1 = process.clone();
         WorkflowProcess cloneProcess2 = cloneProcess1.clone();
-        Assertions.assertTrue(cloneProcess2 != cloneProcess1);
-        Assertions.assertEquals("Group Resource Creation", process.getType());
-        Assertions.assertNotNull(process.getTaskByName("initSource"));
-        Assertions.assertNotNull(process.getTaskByName("initMQ"));
-        Assertions.assertNotNull(process.getTaskByName("initSort"));
-        Assertions.assertNotNull(process.getTaskByName("initSink"));
+        Assertions.assertNotSame(cloneProcess2, cloneProcess1);
+        Assertions.assertNotNull(process.getTaskByName("InitSource"));
+        Assertions.assertNotNull(process.getTaskByName("InitMQ"));
+        Assertions.assertNotNull(process.getTaskByName("InitSort"));
+        Assertions.assertNotNull(process.getTaskByName("InitSink"));
         Assertions.assertEquals(4, process.getNameToTaskMap().size());
     }
 

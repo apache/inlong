@@ -29,6 +29,7 @@
         <result column="ext_tag" jdbcType="VARCHAR" property="extTag"/>
         <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="heartbeat" jdbcType="LONGVARCHAR" property="heartbeat"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -37,26 +38,47 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, cluster_tags, ext_tag, token, ext_params, heartbeat,
-        in_charges, status, is_deleted, creator, modifier, create_time, modify_time
+        id, name, type, url, cluster_tags, ext_tag, token, ext_params, description, heartbeat,
+        in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         insert into inlong_cluster (id, name, type,
                                     url, cluster_tags, ext_tag,
+                                    token, ext_params, description,
+                                    heartbeat, in_charges,
+                                    status, creator, modifier)
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+                #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
+                #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR},
+                #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        insert into inlong_cluster (id, name, type,
+                                    url, cluster_tags, ext_tag,
                                     token, ext_params, heartbeat,
-                                    in_charges, status, is_deleted,
-                                    creator, modifier,
-                                    create_time, modify_time)
+                                    in_charges, status,
+                                    creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
                 #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
                 #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+        ON DUPLICATE KEY UPDATE cluster_tags = VALUES(cluster_tags),
+                                ext_tag      = VALUES(ext_tag),
+                                token        = VALUES(token),
+                                ext_params   = VALUES(ext_params),
+                                heartbeat    = VALUES(heartbeat),
+                                in_charges   = VALUES(in_charges),
+                                status       = VALUES(status),
+                                modifier     = VALUES(modifier)
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -72,7 +94,7 @@
         <where>
             is_deleted = 0
             <if test="type != null and type != ''">
-                and `type` = #{type, jdbcType=VARCHAR}
+                and type = #{type, jdbcType=VARCHAR}
             </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
@@ -84,7 +106,7 @@
         order by modify_time desc
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
@@ -121,6 +143,15 @@
         </where>
         order by modify_time desc
     </select>
+    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo">
+        select name,
+               type,
+               cluster_tags,
+               ext_tag,
+               ext_params
+        from inlong_cluster
+        where is_deleted = 0
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
@@ -131,15 +162,15 @@
             ext_tag      = #{extTag,jdbcType=VARCHAR},
             token        = #{token,jdbcType=VARCHAR},
             ext_params   = #{extParams,jdbcType=LONGVARCHAR},
+            description  = #{description,jdbcType=VARCHAR},
             heartbeat    = #{heartbeat,jdbcType=LONGVARCHAR},
             in_charges   = #{inCharges,jdbcType=VARCHAR},
             status       = #{status,jdbcType=INTEGER},
             is_deleted   = #{isDeleted,jdbcType=INTEGER},
-            creator      = #{creator,jdbcType=VARCHAR},
             modifier     = #{modifier,jdbcType=VARCHAR},
-            create_time  = #{createTime,jdbcType=TIMESTAMP},
-            modify_time  = #{modifyTime,jdbcType=TIMESTAMP}
+            version      = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
@@ -165,6 +196,9 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
             <if test="heartbeat != null">
                 heartbeat = #{heartbeat,jdbcType=LONGVARCHAR},
             </if>
@@ -177,20 +211,13 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
             </if>
-            <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
-            </if>
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
@@ -199,14 +226,4 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAllClusters"
-            resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceClusterInfo">
-        select name,
-               type,
-               cluster_tags,
-               ext_tag,
-               ext_params
-        from inlong_cluster
-        where is_deleted = 0
-    </select>
 </mapper>

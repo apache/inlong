@@ -22,9 +22,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSourceApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -84,6 +84,13 @@ public class StreamSourceClient {
     public boolean deleteSource(int id) {
         Preconditions.checkTrue(id > 0, "sourceId is illegal");
         Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.deleteSource(id));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    public StreamSource get(int id) {
+        Preconditions.checkTrue(id > 0, "sourceId is illegal");
+        Response<StreamSource> response = ClientUtils.executeHttpCall(streamSourceApi.get(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

@@ -39,6 +39,7 @@ public class InlongClusterEntity implements Serializable {
     private String token;
 
     private String extParams;
+    private String description;
     private String heartbeat;
     private String inCharges;
 
@@ -48,5 +49,6 @@ public class InlongClusterEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
+    private Integer version;
 
 }

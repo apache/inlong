@@ -37,6 +37,11 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * clickHouse update operations is heavy, it will takes precedence over all others operation to execute, so it has a
+ * poor performance. It is more suitable for batch scenes but not streaming scenes where operations are performed
+ * frequently.
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("clickHouseLoad")
 @Data
@@ -61,6 +66,9 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String password;
 
+    @JsonProperty("primaryKey")
+    private String primaryKey;
+
     @JsonCreator
     public ClickHouseLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -73,12 +81,15 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("tableName") String tableName,
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
-            @Nonnull @JsonProperty("passWord") String password) {
+            @Nonnull @JsonProperty("passWord") String password,
+            @JsonProperty("primaryKey") String primaryKey
+    ) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
+        this.primaryKey = primaryKey;
     }
 
     @Override
@@ -100,7 +111,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
 
     @Override
     public String getPrimaryKey() {
-        return super.getPrimaryKey();
+        return primaryKey;
     }
 
     @Override

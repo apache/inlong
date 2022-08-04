@@ -24,23 +24,23 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.pojo.source.pulsar.PulsarSourceDTO;
+import org.apache.inlong.manager.pojo.source.pulsar.PulsarSourceRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
@@ -62,13 +62,13 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
     private InlongClusterService clusterService;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.PULSAR == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.PULSAR.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.PULSAR.getType();
+        return SourceType.PULSAR;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             PulsarSourceDTO dto = PulsarSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -129,7 +129,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                         && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
                     pulsarSource.setSerializationType(sourceInfo.getSerializationType());
                 }
-                if (SourceType.forType(sourceInfo.getSourceType()) == SourceType.KAFKA) {
+                if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
                 }
             }

@@ -33,15 +33,15 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamNodeRelation;
-import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.stream.StreamNodeRelation;
+import org.apache.inlong.manager.pojo.stream.StreamPipeline;
+import org.apache.inlong.manager.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
@@ -456,4 +456,13 @@ public class InlongStreamImpl implements InlongStream {
         return this.streamSinks.get(sinkName);
     }
 
+    @Override
+    public StreamSource getSourceById(int sourceId) {
+        Preconditions.checkNotNull(sourceId, "sinkId cannot be null");
+        return this.streamSources.values()
+                .stream()
+                .filter(streamSource -> streamSource.getId().equals(sourceId))
+                .findAny()
+                .orElseGet(() -> sourceClient.get(sourceId));
+    }
 }

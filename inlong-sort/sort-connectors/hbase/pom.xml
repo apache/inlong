@@ -37,6 +37,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
             <exclusions>
@@ -45,6 +50,11 @@
                     <groupId>com.github.spotbugs</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -111,13 +121,6 @@
                                 </excludes>
                             </artifactSet>
                             <filters>
-                                <filter>
-                                    <artifact>org.apache.inlong:sort-connector-*</artifact>
-                                    <includes>
-                                        <include>org/apache/inlong/**</include>
-                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
-                                    </includes>
-                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

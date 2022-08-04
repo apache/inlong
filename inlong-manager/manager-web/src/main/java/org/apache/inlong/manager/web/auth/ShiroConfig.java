@@ -17,19 +17,19 @@
 
 package org.apache.inlong.manager.web.auth;
 
-import javax.annotation.Resource;
 import org.apache.inlong.manager.common.auth.InlongShiro;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Resource;
+import java.util.Collection;
 
 /**
  * Inlong hiro config.
@@ -38,35 +38,25 @@ import org.springframework.context.annotation.Configuration;
 public class ShiroConfig {
 
     @Resource
-    private InlongShiro inLongShiro;
+    private InlongShiro inlongShiro;
 
     @Bean
-    public AuthorizingRealm shiroRealm(HashedCredentialsMatcher matcher) {
-        AuthorizingRealm authorizingRealm = inLongShiro.getShiroRealm();
-        authorizingRealm.setCredentialsMatcher(matcher);
-        return authorizingRealm;
+    public Collection<Realm> shiroRealms() {
+        return inlongShiro.getShiroRealms();
     }
 
     @Bean
-    public WebSecurityManager securityManager(@Qualifier("hashedCredentialsMatcher")
-            HashedCredentialsMatcher matcher) {
-        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inLongShiro.getWebSecurityManager();
-        securityManager.setRealm(shiroRealm(matcher));
+    public WebSecurityManager securityManager() {
+        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inlongShiro.getWebSecurityManager();
+        securityManager.setRealms(shiroRealms());
         return securityManager;
     }
 
     @Bean
     public DefaultWebSessionManager sessionManager() {
-        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inLongShiro.getWebSessionManager();
+        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inlongShiro.getWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
-    }
-
-    @Bean(name = "hashedCredentialsMatcher")
-    public HashedCredentialsMatcher hashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = (HashedCredentialsMatcher) inLongShiro
-                .getCredentialsMatcher();
-        return hashedCredentialsMatcher;
     }
 
     /**
@@ -74,7 +64,7 @@ public class ShiroConfig {
      */
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = inLongShiro.getShiroFilter(securityManager);
+        ShiroFilterFactoryBean shiroFilterFactoryBean = inlongShiro.getShiroFilter(securityManager);
         return shiroFilterFactoryBean;
     }
 
@@ -83,6 +73,6 @@ public class ShiroConfig {
      */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
-        return inLongShiro.getAuthorizationAttributeSourceAdvisor(securityManager(hashedCredentialsMatcher()));
+        return inlongShiro.getAuthorizationAttributeSourceAdvisor(securityManager());
     }
 }

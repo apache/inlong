@@ -67,6 +67,8 @@ public class MySqlSourceConfig implements Serializable {
     private final Configuration dbzConfiguration;
     private final MySqlConnectorConfig dbzMySqlConfig;
 
+    private final String inlongMetric;
+
     MySqlSourceConfig(
             String hostname,
             int port,
@@ -88,7 +90,8 @@ public class MySqlSourceConfig implements Serializable {
             boolean includeSchemaChanges,
             boolean scanNewlyAddedTableEnabled,
             Properties dbzProperties,
-            Properties jdbcProperties) {
+            Properties jdbcProperties,
+            String inlongMetric) {
         this.hostname = checkNotNull(hostname);
         this.port = port;
         this.username = checkNotNull(username);
@@ -112,6 +115,7 @@ public class MySqlSourceConfig implements Serializable {
         this.dbzConfiguration = Configuration.from(dbzProperties);
         this.dbzMySqlConfig = new MySqlConnectorConfig(dbzConfiguration);
         this.jdbcProperties = jdbcProperties;
+        this.inlongMetric = inlongMetric;
     }
 
     public String getHostname() {
@@ -209,5 +213,9 @@ public class MySqlSourceConfig implements Serializable {
 
     public Properties getJdbcProperties() {
         return jdbcProperties;
+    }
+
+    public String getInlongMetric() {
+        return inlongMetric;
     }
 }

@@ -21,15 +21,15 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
-import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream sink control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Sink-API")
 public class StreamSinkController {
 
@@ -52,7 +53,7 @@ public class StreamSinkController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream sink")
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
-        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
+        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/get/{id}", method = RequestMethod.GET)
@@ -72,7 +73,7 @@ public class StreamSinkController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
-        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
+        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
@@ -80,7 +81,7 @@ public class StreamSinkController {
     @ApiOperation(value = "Delete stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
+        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 

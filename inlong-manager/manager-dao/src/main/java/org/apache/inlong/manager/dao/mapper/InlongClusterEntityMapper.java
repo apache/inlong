@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +29,8 @@ import java.util.List;
 public interface InlongClusterEntityMapper {
 
     int insert(InlongClusterEntity record);
+
+    int insertOnDuplicateKeyUpdate(InlongClusterEntity record);
 
     InlongClusterEntity selectById(Integer id);
 
@@ -40,17 +42,17 @@ public interface InlongClusterEntityMapper {
 
     List<InlongClusterEntity> selectByCondition(ClusterPageRequest request);
 
-    int updateById(InlongClusterEntity record);
-
-    int updateByIdSelective(InlongClusterEntity record);
-
-    int deleteByPrimaryKey(Integer id);
-
     /**
      * Select all clusters for sort sdk.
      *
      * @return All cluster info.
      */
     List<SortSourceClusterInfo> selectAllClusters();
+
+    int updateById(InlongClusterEntity record);
+
+    int updateByIdSelective(InlongClusterEntity record);
+
+    int deleteByPrimaryKey(Integer id);
 
 }

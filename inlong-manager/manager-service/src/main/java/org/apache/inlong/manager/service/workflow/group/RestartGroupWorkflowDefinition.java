@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupCompleteListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupFailedListener;
+import org.apache.inlong.manager.service.listener.group.UpdateGroupListener;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -41,58 +41,57 @@ import org.springframework.stereotype.Component;
 public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
-
+    private UpdateGroupListener updateGroupListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
-
+    private UpdateGroupCompleteListener updateGroupCompleteListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
-
+    private UpdateGroupFailedListener updateGroupFailedListener;
     @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    private GroupTaskListenerFactory taskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Restart");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(GroupResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
+        // Set up the listener
+        process.addListener(updateGroupListener);
+        process.addListener(updateGroupCompleteListener);
+        process.addListener(updateGroupFailedListener);
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        //restart sort
+        // Restart Sort
         ServiceTask restartSortTask = new ServiceTask();
-        restartSortTask.setName("restartSort");
+        restartSortTask.setName("RestartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(groupTaskListenerFactory);
+        restartSortTask.setServiceTaskType(ServiceTaskType.RESTART_SORT);
+        restartSortTask.setListenerFactory(taskListenerFactory);
         process.addTask(restartSortTask);
 
-        //restart datasource
-        ServiceTask restartDataSourceTask = new ServiceTask();
-        restartDataSourceTask.setName("restartSource");
-        restartDataSourceTask.setDisplayName("Group-RestartSource");
-        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(groupTaskListenerFactory);
-        process.addTask(restartDataSourceTask);
+        // Restart Source
+        ServiceTask restartSourceTask = new ServiceTask();
+        restartSourceTask.setName("RestartSource");
+        restartSourceTask.setDisplayName("Group-RestartSource");
+        restartSourceTask.setServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartSourceTask.setListenerFactory(taskListenerFactory);
+        process.addTask(restartSourceTask);
 
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
         startEvent.addNext(restartSortTask);
-        restartSortTask.addNext(restartDataSourceTask);
-        restartDataSourceTask.addNext(endEvent);
+        restartSortTask.addNext(restartSourceTask);
+        restartSourceTask.addNext(endEvent);
 
         return process;
     }

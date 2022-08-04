@@ -17,6 +17,17 @@
 
 timezone: "Asia/Shanghai"
 
+components:
+  agent: true
+  dashboard: true
+  dataproxy: true
+  tubemqManager: true
+  tubemqServer: true
+  manager: true
+  audit: true
+  mysql: true
+  zookeeper: true
+
 images:
   agent:
     repository: inlong/agent
@@ -324,6 +335,7 @@ manager:
       -XX:-UseAdaptiveSizePolicy
     ACTIVE_PROFILE: "prod"
     PLUGINS_URL: "default"
+    FLINK_PARALLELISM: 1
 
 audit:
   component: "audit"

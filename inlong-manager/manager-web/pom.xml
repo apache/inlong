@@ -43,11 +43,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-client-tools</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
             <artifactId>manager-plugins</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -208,7 +203,7 @@
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
                             <excludeGroupIds>
-                                junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest,org.mockito,org.objenesis,org.apiguardian,com.h2database
+                                junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest,org.mockito,org.apiguardian,com.h2database
                             </excludeGroupIds>
                             <excludeArtifactIds>
                                 manager-test,spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,assertj-core,jsonassert,h2-functions-4-mysql

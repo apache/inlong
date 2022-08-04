@@ -20,19 +20,16 @@ package org.apache.inlong.manager.client.api.inner.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,18 +45,18 @@ public class WorkflowClient {
         workflowApi = ClientUtils.createRetrofit(configuration).create(WorkflowApi.class);
     }
 
-    public WorkflowResult startInlongGroup(int taskId, NewGroupProcessForm newGroupProcessForm) {
+    public WorkflowResult startInlongGroup(int taskId, ApplyGroupProcessForm groupProcessForm) {
         ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
-        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
-        inlongGroupApproveForm.putPOJO("groupApproveInfo", newGroupProcessForm.getGroupInfo());
-        inlongGroupApproveForm.putPOJO("streamApproveInfoList", newGroupProcessForm.getStreamInfoList());
-        inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
-        workflowTaskOperation.set("form", inlongGroupApproveForm);
+        ObjectNode groupApproveForm = objectMapper.createObjectNode();
+        groupApproveForm.putPOJO("groupApproveInfo", groupProcessForm.getGroupInfo());
+        groupApproveForm.putPOJO("streamApproveInfoList", groupProcessForm.getStreamInfoList());
+        groupApproveForm.put("formName", "InlongGroupApproveForm");
+        workflowTaskOperation.set("form", groupApproveForm);
 
-        log.info("startInlongGroup workflowTaskOperation: {}", inlongGroupApproveForm);
+        log.info("startInlongGroup workflowTaskOperation: {}", groupApproveForm);
 
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(workflowTaskOperation,
                 new TypeReference<Map<String, Object>>() {
@@ -71,13 +68,4 @@ public class WorkflowClient {
         return response.getData();
     }
 
-    /**
-     * get inlong group error messages
-     */
-    public List<EventLogView> getInlongGroupError(String inlongGroupId) {
-        Response<PageInfo<EventLogView>> response = ClientUtils.executeHttpCall(
-                workflowApi.getInlongGroupError(inlongGroupId, -1));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData().getList();
-    }
 }

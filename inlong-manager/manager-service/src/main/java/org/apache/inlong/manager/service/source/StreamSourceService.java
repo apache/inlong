@@ -18,11 +18,11 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.SourcePageRequest;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -62,7 +62,7 @@ public interface StreamSourceService {
      * Get the StreamSource Map by the inlong group info and inlong stream info list.
      * <p/>
      * If the group mode is LIGHTWEIGHT, means not using any MQ as a cached source, then just get all related sources.
-     * Otherwise, if the group mode is NORMAL, need get the cached MQ sources.
+     * Otherwise, if the group mode is STANDARD, need get the cached MQ sources.
      *
      * @param groupInfo inlong group info
      * @param streamInfos inlong stream info list
@@ -137,8 +137,8 @@ public interface StreamSourceService {
     /**
      * Logically delete stream source with the given conditions.
      *
-     * @param groupId InLong group id to which the data source belongs.
-     * @param streamId InLong stream id to which the data source belongs.
+     * @param groupId Inlong group id to which the data source belongs.
+     * @param streamId Inlong stream id to which the data source belongs.
      * @param operator Operator's name
      * @return Whether succeed.
      */
@@ -147,8 +147,8 @@ public interface StreamSourceService {
     /**
      * Physically delete stream source with the given conditions.
      *
-     * @param groupId InLong group id.
-     * @param streamId InLong stream id.
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
      * @param operator Operator's name
      * @return Whether succeed.
      */

@@ -26,9 +26,9 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,6 +51,7 @@ import java.util.Objects;
 public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperator.class);
+
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -76,7 +76,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setVersion(1);
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
         } else {
@@ -84,10 +83,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
+
         // get the ext params
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
@@ -118,6 +114,12 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
+        String errMsg = String.format("source has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSourceName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // Source type cannot be changed
         if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {
@@ -139,9 +141,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        entity.setVersion(entity.getVersion() + 1);
         entity.setModifier(operator);
-        entity.setModifyTime(new Date());
 
         // Re-issue task if necessary
         entity.setPreviousStatus(entity.getStatus());
@@ -160,8 +160,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     break;
             }
         }
-
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.warn(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());
     }
@@ -176,11 +179,15 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("source=%s is not allowed to stop", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setVersion(existEntity.getVersion() + 1);
-        curEntity.setModifyTime(new Date());
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
-        sourceMapper.updateByPrimaryKeySelective(curEntity);
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                    curEntity.getInlongGroupId(), curEntity.getInlongStreamId(), curEntity.getSourceName(),
+                    curEntity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     @Override
@@ -193,12 +200,15 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("Source=%s is not allowed to restart", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setVersion(existEntity.getVersion() + 1);
-        curEntity.setModifyTime(new Date());
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
-
-        sourceMapper.updateByPrimaryKeySelective(curEntity);
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                    curEntity.getInlongGroupId(), curEntity.getInlongStreamId(), curEntity.getSourceName(),
+                    curEntity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     private void updateFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {

@@ -68,7 +68,7 @@
         and instance = #{instance,jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity">
         select
         <include refid="Base_Column_List"/>

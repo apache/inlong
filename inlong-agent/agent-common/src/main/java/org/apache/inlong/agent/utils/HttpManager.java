@@ -28,6 +28,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.common.util.BasicAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
 
@@ -52,10 +55,14 @@ public class HttpManager {
     }
 
     private final CloseableHttpClient httpClient;
+    private final String secretId;
+    private final String secretKey;
 
     public HttpManager(AgentConfiguration conf) {
         httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
+        secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
     }
 
     /**
@@ -86,6 +93,7 @@ public class HttpManager {
     public String doSentPost(String url, Object dto) {
         try {
             HttpPost post = getHttpPost(url);
+            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
             StringEntity stringEntity = new StringEntity(toJsonStr(dto));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             post.setEntity(stringEntity);
@@ -114,10 +122,11 @@ public class HttpManager {
      *
      * @return response
      */
-    public String doSendGet(String url) {
+    public String doSendPost(String url) {
         try {
-            HttpGet get = getHttpGet(url);
-            CloseableHttpResponse response = httpClient.execute(get);
+            HttpPost post = getHttpPost(url);
+            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
                     && response.getStatusLine().getStatusCode() == AGENT_HTTP_SUCCESS_CODE) {

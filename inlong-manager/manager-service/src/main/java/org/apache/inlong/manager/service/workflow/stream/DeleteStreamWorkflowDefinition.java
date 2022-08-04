@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.ProcessName;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateListener;
+import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamCompleteListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamFailedListener;
+import org.apache.inlong.manager.service.listener.stream.UpdateStreamListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -41,11 +41,11 @@ import org.springframework.stereotype.Component;
 public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private StreamUpdateListener streamUpdateListener;
+    private UpdateStreamListener updateStreamListener;
     @Autowired
-    private StreamUpdateCompleteListener streamUpdateCompleteListener;
+    private UpdateStreamCompleteListener updateStreamCompleteListener;
     @Autowired
-    private StreamUpdateFailedListener streamUpdateFailedListener;
+    private UpdateStreamFailedListener updateStreamFailedListener;
     @Autowired
     private StreamTaskListenerFactory streamTaskListenerFactory;
 
@@ -53,42 +53,44 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(streamUpdateListener);
-        process.addListener(streamUpdateCompleteListener);
-        process.addListener(streamUpdateFailedListener);
-        process.setType("Stream Resource Delete");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
+        // Set up the listener
+        process.addListener(updateStreamListener);
+        process.addListener(updateStreamCompleteListener);
+        process.addListener(updateStreamFailedListener);
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        // Delete datasource
+        // Delete Source
         ServiceTask deleteDataSourceTask = new ServiceTask();
-        deleteDataSourceTask.setName("deleteSource");
+        deleteDataSourceTask.setName("DeleteSource");
         deleteDataSourceTask.setDisplayName("Stream-DeleteSource");
-        deleteDataSourceTask.addServiceTaskType(ServiceTaskType.DELETE_SOURCE);
-        deleteDataSourceTask.addListenerProvider(streamTaskListenerFactory);
+        deleteDataSourceTask.setServiceTaskType(ServiceTaskType.DELETE_SOURCE);
+        deleteDataSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(deleteDataSourceTask);
 
         // Delete MQ
         ServiceTask deleteMQTask = new ServiceTask();
-        deleteMQTask.setName("deleteMQ");
+        deleteMQTask.setName("DeleteMQ");
         deleteMQTask.setDisplayName("Stream-DeleteMQ");
-        deleteMQTask.addServiceTaskType(ServiceTaskType.DELETE_MQ);
-        deleteMQTask.addListenerProvider(streamTaskListenerFactory);
+        deleteMQTask.setServiceTaskType(ServiceTaskType.DELETE_MQ);
+        deleteMQTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(deleteMQTask);
 
-        // Delete sort
+        // Delete Sort
         ServiceTask deleteSortTask = new ServiceTask();
-        deleteSortTask.setName("deleteSort");
+        deleteSortTask.setName("DeleteSort");
         deleteSortTask.setDisplayName("Stream-DeleteSort");
-        deleteSortTask.addServiceTaskType(ServiceTaskType.DELETE_SORT);
-        deleteSortTask.addListenerProvider(streamTaskListenerFactory);
+        deleteSortTask.setServiceTaskType(ServiceTaskType.DELETE_SORT);
+        deleteSortTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(deleteSortTask);
 
         // End node

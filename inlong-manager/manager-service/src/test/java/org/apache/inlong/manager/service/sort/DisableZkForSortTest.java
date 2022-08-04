@@ -21,21 +21,22 @@ import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.workflow.ProcessName;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowServiceImplTest;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -122,13 +123,13 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
-        InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
+        InlongGroupInfo groupInfo = createInlongGroup("test20", MQType.PULSAR);
         groupInfo.setEnableZookeeper(InlongConstants.ENABLE_ZK);
         groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
-        InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
+        InlongStreamInfo streamInfo = createStreamInfo(groupInfo, "test_stream_info");
         createHiveSink(streamInfo);
         createKafkaSource(streamInfo);
         GroupResourceProcessForm form = new GroupResourceProcessForm();
@@ -141,7 +142,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("stopSort");
+        WorkflowTask task = process.getTaskByName("StopSort");
         Assertions.assertTrue(task instanceof ServiceTask);
         Assertions.assertEquals(2, task.getNameToListenerMap().size());
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());

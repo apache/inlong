@@ -67,13 +67,8 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'TO_BE_ISSUED_RETRY',
+    label: i18n.t('pages.AccessDetail.DataSources.status.TobeRetry'),
     value: 202,
-    type: 'default',
-  },
-  {
-    label: 'TO_BE_ISSUED_BACKTRACK',
-    value: 203,
     type: 'default',
   },
   {
@@ -87,21 +82,6 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'TO_BE_ISSUED_CHECK',
-    value: 206,
-    type: 'default',
-  },
-  {
-    label: 'TO_BE_ISSUED_REDO_METRIC',
-    value: 207,
-    type: 'default',
-  },
-  {
-    label: 'TO_BE_ISSUED_MAKEUP',
-    value: 208,
-    type: 'default',
-  },
-  {
     label: i18n.t('pages.AccessDetail.DataSources.status.BeenAdd'),
     value: 300,
     type: 'default',
@@ -112,13 +92,8 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
-    label: 'BEEN_ISSUED_RETRY',
+    label: i18n.t('pages.AccessDetail.DataSources.status.BeenRetry'),
     value: 302,
-    type: 'default',
-  },
-  {
-    label: 'BEEN_ISSUED_BACKTRACK',
-    value: 303,
     type: 'default',
   },
   {
@@ -129,21 +104,6 @@ export const statusList: StatusProp[] = [
   {
     label: i18n.t('pages.AccessDetail.DataSources.status.BeenActive'),
     value: 305,
-    type: 'default',
-  },
-  {
-    label: 'BEEN_ISSUED_CHECK',
-    value: 306,
-    type: 'default',
-  },
-  {
-    label: 'BEEN_ISSUED_REDO_METRIC',
-    value: 307,
-    type: 'default',
-  },
-  {
-    label: 'BEEN_ISSUED_MAKEUP',
-    value: 308,
     type: 'default',
   },
 ];

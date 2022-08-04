@@ -27,7 +27,7 @@ import { DataStorageDetailModal } from '@/components/AccessHelper';
 import { Storages } from '@/components/MetaData';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
-import { genStatusTag } from './status';
+import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
@@ -47,6 +47,15 @@ const getFilterFormContent = defaultValues => [
         label: item.label,
         value: item.value,
       })),
+    },
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      options: statusList,
     },
   },
 ];

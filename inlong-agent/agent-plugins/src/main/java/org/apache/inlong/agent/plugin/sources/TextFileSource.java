@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
@@ -30,8 +29,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
@@ -48,10 +47,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOU
 public class TextFileSource implements Source {
 
     // path + suffix
-    public static final String MD5_SUFFIX = ".md5";
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
     private static final String TEXT_FILE_SOURCE_TAG_NAME = "AgentTextFileSourceMetric";
-    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileSource() {
     }
@@ -68,15 +65,14 @@ public class TextFileSource implements Source {
             int seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
             LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", seekPosition,
                     jobConf.getInstanceId(), file.getAbsolutePath());
-            String md5 = jobConf.get(file.getAbsolutePath() + MD5_SUFFIX, "");
             TextFileReader textFileReader = new TextFileReader(file, seekPosition);
             long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
-            textFileReader.setWaitMillisecs(waitTimeout);
+            textFileReader.setWaitMillisecond(waitTimeout);
             addValidator(filterPattern, textFileReader);
             result.add(textFileReader);
         }
         // increment the count of successful sources
-        GlobalMetrics.incSourceSuccessCount(metricTagName);
+        GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         return result;
     }
 

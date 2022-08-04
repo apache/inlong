@@ -30,6 +30,7 @@ import { StorageOracle } from './StorageOracle';
 import { StoragePostgreSQL } from './StoragePostgreSQL';
 import { StorageSQLServer } from './StorageSQLServer';
 import { StorageTDSQLPostgreSQL } from './StorageTDSQLPostgreSQL';
+import { StorageHBase } from './StorageHBase';
 
 export interface StoragesType {
   label: string;
@@ -76,6 +77,11 @@ export const Storages: StoragesType[] = [
     label: 'Greenplum',
     value: 'GREENPLUM',
     ...StorageGreenplum,
+  },
+  {
+    label: 'HBase',
+    value: 'HBASE',
+    ...StorageHBase,
   },
   {
     label: 'MySQL',

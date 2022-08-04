@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.zookeeper }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -144,3 +145,4 @@ spec:
         storageClassName: "{{ .Values.zookeeper.volumes.storageClassName }}"
         {{- end }}
   {{- end }}
+{{- end }}

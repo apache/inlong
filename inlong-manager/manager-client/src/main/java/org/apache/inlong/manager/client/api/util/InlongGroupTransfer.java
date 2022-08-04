@@ -26,12 +26,12 @@ import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.pojo.sort.BaseSortConf.SortType;
-import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
-import org.apache.inlong.manager.common.pojo.sort.UserDefinedSortConf;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
+import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
+import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.ArrayList;

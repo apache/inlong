@@ -17,9 +17,19 @@
 
 package org.apache.inlong.manager.client.api;
 
+import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -60,6 +70,14 @@ public interface InlongClient {
     }
 
     /**
+     * Cluster Api for Inlong
+     *
+     * @return cluster Api
+     * @throws Exception
+     */
+    InlongCluster cluster() throws Exception;
+
+    /**
      * Create inlong group by the given group info
      *
      * @param groupInfo the group info
@@ -94,4 +112,131 @@ public interface InlongClient {
      */
     InlongGroup getGroup(String groupName) throws Exception;
 
+    /**
+     * Save cluster tag.
+     *
+     * @param request cluster tag
+     * @return saved cluster tag id
+     */
+    Integer saveTag(ClusterTagRequest request);
+
+    /**
+     * Get cluster tag by id.
+     *
+     * @param id cluster tag id
+     * @return cluster tag info
+     */
+    ClusterTagResponse getTag(Integer id);
+
+    /**
+     * Paging query cluster tags according to conditions.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request);
+
+    /**
+     * Update cluster tag.
+     *
+     * @param request cluster tag to be modified
+     * @return whether succeed
+     */
+    Boolean updateTag(ClusterTagRequest request);
+
+    /**
+     * Delete cluster tag.
+     *
+     * @param id cluster tag id to be deleted
+     * @return whether succeed
+     */
+    Boolean deleteTag(Integer id);
+
+    /**
+     * Save component cluster for Inlong.
+     *
+     * @param request cluster create request
+     * @return clusterIndex
+     */
+    Integer saveCluster(ClusterRequest request);
+
+    /**
+     * Get cluster info by id.
+     *
+     * @param id cluster id
+     * @return cluster info
+     */
+    ClusterInfo get(Integer id);
+
+    /**
+     * Paging query clusters according to conditions.
+     *
+     * @param request query conditions
+     * @return cluster list
+     */
+    ClusterInfo list(ClusterPageRequest request);
+
+    /**
+     * Update cluster information.
+     *
+     * @param request cluster to be modified
+     * @return whether succeed
+     */
+    Boolean update(ClusterRequest request);
+
+    /**
+     * Bind or unbind cluster tag for clusters.
+     *
+     * @param request cluster to be modified
+     * @return whether succeed
+     */
+    Boolean bindTag(BindTagRequest request);
+
+    /**
+     * Delete cluster information.
+     *
+     * @param id cluster id to be deleted
+     * @return whether succeed
+     */
+    Boolean delete(Integer id);
+
+    /**
+     * Save cluster node info.
+     *
+     * @param request cluster info
+     * @return id after saving
+     */
+    Integer saveNode(ClusterNodeRequest request);
+
+    /**
+     * Get cluster node info by id.
+     *
+     * @param id cluster id
+     * @return cluster info
+     */
+    ClusterNodeResponse getNode(Integer id);
+
+    /**
+     * Paging query cluster nodes according to conditions.
+     *
+     * @param request page request conditions
+     * @return cluster node list
+     */
+    PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request);
+
+    /**
+     * Update cluster node.
+     *
+     * @param request cluster node to be modified
+     * @return whether succeed
+     */
+    Boolean updateNode(ClusterNodeRequest request);
+
+    /**
+     * Delete cluster node.
+     *
+     * @param id cluster node id to be deleted
+     * @return whether succeed
+     */
+    Boolean deleteNode(Integer id);
 }

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqServer }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -71,3 +72,4 @@ data:
     # start
     /opt/tubemq-server/bin/tubemq.sh broker start
     tail -F /opt/tubemq-server/logs/broker.log
+{{- end }}

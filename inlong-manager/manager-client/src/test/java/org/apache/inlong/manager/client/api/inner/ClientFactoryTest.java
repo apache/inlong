@@ -31,36 +31,50 @@ import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
-import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSource;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
+import org.apache.inlong.manager.pojo.source.file.FileSource;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -88,6 +102,7 @@ class ClientFactoryTest {
     private static WireMockServer wireMockServer;
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
+    private static StreamSourceClient sourceClient;
     private static StreamSinkClient sinkClient;
     private static InlongClusterClient clusterClient;
 
@@ -104,6 +119,7 @@ class ClientFactoryTest {
         ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
         groupClient = clientFactory.getGroupClient();
         streamClient = clientFactory.getStreamClient();
+        sourceClient = clientFactory.getSourceClient();
         sinkClient = clientFactory.getSinkClient();
         streamClient = clientFactory.getStreamClient();
         clusterClient = clientFactory.getClusterClient();
@@ -117,7 +133,7 @@ class ClientFactoryTest {
     @Test
     void testGroupExist() {
         stubFor(
-                get(urlMatching("/api/inlong/manager/group/exist/123.*"))
+                get(urlMatching("/inlong/manager/api/group/exist/123.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(true)))
                         )
@@ -144,7 +160,7 @@ class ClientFactoryTest {
                 ).build();
 
         stubFor(
-                get(urlMatching("/api/inlong/manager/group/get/1.*"))
+                get(urlMatching("/inlong/manager/api/group/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(inlongGroupResponse)))
                         )
@@ -157,8 +173,8 @@ class ClientFactoryTest {
 
     @Test
     void testListGroup4AutoPushSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -168,7 +184,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("AUTO_PUSH")
+                                                .sourceType(SourceType.AUTO_PUSH)
                                                 .dataProxyGroup("111")
                                                 .build()
                                 )
@@ -176,21 +192,21 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4BinlogSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -200,7 +216,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("BINLOG")
+                                                .sourceType(SourceType.MYSQL_BINLOG)
                                                 .clusterId(1)
                                                 .status(1)
                                                 .user("root")
@@ -212,21 +228,21 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4FileSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -240,7 +256,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("FILE")
+                                                .sourceType(SourceType.FILE)
                                                 .status(1)
                                                 .ip("127.0.0.1")
                                                 .pattern("pattern")
@@ -250,21 +266,21 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4KafkaSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .streamSources(
@@ -273,7 +289,7 @@ class ClientFactoryTest {
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
-                                                .sourceType("KAFKA")
+                                                .sourceType(SourceType.KAFKA)
                                                 .dataNodeName("dataNodeName")
                                                 .version(1)
                                                 .createTime(new Date())
@@ -290,15 +306,15 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
@@ -308,7 +324,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("AUTO_PUSH")
+                        .sourceType(SourceType.AUTO_PUSH)
                         .version(1)
                         .build(),
 
@@ -316,7 +332,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("BINLOG")
+                        .sourceType(SourceType.MYSQL_BINLOG)
                         .user("root")
                         .password("pwd")
                         .hostname("localhost")
@@ -339,7 +355,7 @@ class ClientFactoryTest {
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
-                        .sourceType("KAFKA")
+                        .sourceType(SourceType.KAFKA)
                         .sourceName("source name")
                         .serializationType("csv")
                         .dataNodeName("dataNodeName")
@@ -350,8 +366,8 @@ class ClientFactoryTest {
                         .primaryKey("primaryKey")
                         .build()
         );
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -361,22 +377,22 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses)))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos)))
                                 )
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4NotExist() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("Inlong group does not exist/no operation authority"))
@@ -384,14 +400,14 @@ class ClientFactoryTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertNull(listResponse);
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertNull(pageInfo);
     }
 
     @Test
     void testCreateGroup() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/save.*"))
+                post(urlMatching("/inlong/manager/api/group/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success("1111")))
                         )
@@ -404,7 +420,7 @@ class ClientFactoryTest {
     @Test
     void testUpdateGroup() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/update.*"))
+                post(urlMatching("/inlong/manager/api/group/update.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success("1111")))
                         )
@@ -416,9 +432,61 @@ class ClientFactoryTest {
     }
 
     @Test
+    void testCountGroupByUser() {
+        InlongGroupCountResponse expected = new InlongGroupCountResponse();
+        expected.setRejectCount(102400L);
+        expected.setTotalCount(834781232L);
+        expected.setWaitApproveCount(34524L);
+        expected.setWaitAssignCount(45678L);
+        stubFor(
+                get(urlMatching("/inlong/manager/api/group/countByStatus.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(expected))
+                                ))
+        );
+        InlongGroupCountResponse actual = groupClient.countGroupByUser();
+        Assertions.assertEquals(expected.getRejectCount(), actual.getRejectCount());
+        Assertions.assertEquals(expected.getTotalCount(), actual.getTotalCount());
+        Assertions.assertEquals(expected.getWaitApproveCount(), actual.getWaitApproveCount());
+        Assertions.assertEquals(expected.getWaitAssignCount(), actual.getWaitAssignCount());
+    }
+
+    @Test
+    void getTopic() {
+        InlongGroupTopicInfo expected = new InlongGroupTopicInfo();
+        expected.setInlongGroupId("1");
+        expected.setMqResource("testTopic");
+        expected.setMqType(MQType.TUBEMQ);
+        expected.setPulsarAdminUrl("http://127.0.0.1:8080");
+        expected.setPulsarServiceUrl("http://127.0.0.1:8081");
+        expected.setTubeMasterUrl("http://127.0.0.1:8082");
+        List<InlongStreamBriefInfo> list = new ArrayList<>();
+        expected.setStreamTopics(list);
+        InlongStreamBriefInfo briefInfo = new InlongStreamBriefInfo();
+        briefInfo.setId(1);
+        briefInfo.setInlongGroupId("testgroup");
+        briefInfo.setModifyTime(new Date());
+        stubFor(
+                get(urlMatching("/inlong/manager/api/group/getTopic/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(expected))
+                                ))
+        );
+        InlongGroupTopicInfo actual = groupClient.getTopic("1");
+        Assertions.assertEquals(expected.getInlongGroupId(), actual.getInlongGroupId());
+        Assertions.assertEquals(expected.getMqType(), actual.getMqType());
+        Assertions.assertEquals(expected.getTubeMasterUrl(), actual.getTubeMasterUrl());
+        Assertions.assertEquals(expected.getPulsarAdminUrl(), actual.getPulsarAdminUrl());
+        Assertions.assertEquals(expected.getPulsarServiceUrl(), actual.getPulsarServiceUrl());
+        Assertions.assertEquals(expected.getStreamTopics(), actual.getStreamTopics());
+    }
+
+    @Test
     void testCreateStream() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/stream/save.*"))
+                post(urlMatching("/inlong/manager/api/stream/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(11)))
                         )
@@ -431,7 +499,7 @@ class ClientFactoryTest {
     @Test
     void testStreamExist() {
         stubFor(
-                get(urlMatching("/api/inlong/manager/stream/exist/123/11.*"))
+                get(urlMatching("/inlong/manager/api/stream/exist/123/11.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(true)))
                         )
@@ -469,7 +537,7 @@ class ClientFactoryTest {
                 ).build();
 
         stubFor(
-                get(urlMatching("/api/inlong/manager/stream/get.*"))
+                get(urlMatching("/inlong/manager/api/stream/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(streamResponse)))
                         )
@@ -482,7 +550,7 @@ class ClientFactoryTest {
     @Test
     void testGetStream4NotExist() {
         stubFor(
-                get(urlMatching("/api/inlong/manager/stream/get.*"))
+                get(urlMatching("/inlong/manager/api/stream/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("Inlong stream does not exist/no operation permission")))
@@ -519,26 +587,26 @@ class ClientFactoryTest {
                         .id(1)
                         .inlongStreamId("11")
                         .inlongGroupId("11")
-                        .sourceType("AUTO_PUSH")
+                        .sourceType(SourceType.AUTO_PUSH)
                         .createTime(new Date())
 
                         .dataProxyGroup("111")
                         .build(),
                 MySQLBinlogSource.builder()
                         .id(2)
-                        .sourceType("BINLOG")
+                        .sourceType(SourceType.MYSQL_BINLOG)
                         .user("user")
                         .password("pwd")
                         .build(),
                 FileSource.builder()
                         .id(3)
-                        .sourceType("FILE")
+                        .sourceType(SourceType.FILE)
                         .agentIp("127.0.0.1")
                         .pattern("pattern")
                         .build(),
                 KafkaSource.builder()
                         .id(4)
-                        .sourceType("KAFKA")
+                        .sourceType(SourceType.KAFKA)
                         .autoOffsetReset("11")
                         .bootstrapServers("127.0.0.1")
                         .build()
@@ -546,22 +614,22 @@ class ClientFactoryTest {
 
         ArrayList<StreamSink> sinkList = Lists.newArrayList(
                 HiveSink.builder()
-                        .sinkType("HIVE")
+                        .sinkType(SinkType.HIVE)
                         .id(1)
                         .jdbcUrl("127.0.0.1")
                         .build(),
                 ClickHouseSink.builder()
-                        .sinkType("CLICKHOUSE")
+                        .sinkType(SinkType.CLICKHOUSE)
                         .id(2)
                         .flushInterval(11)
                         .build(),
                 IcebergSink.builder()
-                        .sinkType("ICEBERG")
+                        .sinkType(SinkType.ICEBERG)
                         .id(3)
                         .dataPath("hdfs://aabb")
                         .build(),
                 KafkaSink.builder()
-                        .sinkType("KAFKA")
+                        .sinkType(SinkType.KAFKA)
                         .id(4)
                         .bootstrapServers("127.0.0.1")
                         .build()
@@ -571,7 +639,7 @@ class ClientFactoryTest {
         streamInfo.setSinkList(sinkList);
 
         stubFor(
-                post(urlMatching("/api/inlong/manager/stream/listAll.*"))
+                post(urlMatching("/inlong/manager/api/stream/listAll.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageInfo<>(Lists.newArrayList(streamInfo))))
@@ -588,49 +656,49 @@ class ClientFactoryTest {
         List<StreamSink> sinkList = Lists.newArrayList(
                 ClickHouseSink.builder()
                         .id(1)
-                        .sinkType("CLICKHOUSE")
+                        .sinkType(SinkType.CLICKHOUSE)
                         .jdbcUrl("127.0.0.1")
                         .partitionStrategy("BALANCE")
                         .partitionFields("partitionFields")
                         .build(),
                 ElasticsearchSink.builder()
                         .id(2)
-                        .sinkType("ELASTICSEARCH")
+                        .sinkType(SinkType.ELASTICSEARCH)
                         .host("127.0.0.1")
                         .flushInterval(2)
                         .build(),
                 HBaseSink.builder()
                         .id(3)
-                        .sinkType("HBASE")
+                        .sinkType(SinkType.HBASE)
                         .tableName("tableName")
                         .rowKey("rowKey")
                         .build(),
                 HiveSink.builder()
                         .id(4)
-                        .sinkType("HIVE")
+                        .sinkType(SinkType.HIVE)
                         .dataPath("hdfs://ip:port/user/hive/warehouse/test.db")
                         .hiveVersion("hiveVersion")
                         .build(),
                 IcebergSink.builder()
                         .id(5)
-                        .sinkType("ICEBERG")
+                        .sinkType(SinkType.ICEBERG)
                         .partitionType("H-hour")
                         .build(),
                 KafkaSink.builder()
                         .id(6)
-                        .sinkType("KAFKA")
+                        .sinkType(SinkType.KAFKA)
                         .topicName("test")
                         .partitionNum("6")
                         .build(),
                 PostgreSQLSink.builder()
                         .id(7)
-                        .sinkType("POSTGRES")
+                        .sinkType(SinkType.POSTGRESQL)
                         .primaryKey("test")
                         .build()
         );
 
         stubFor(
-                get(urlMatching("/api/inlong/manager/sink/list.*"))
+                get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageInfo<>(Lists.newArrayList(sinkList))))
@@ -645,7 +713,7 @@ class ClientFactoryTest {
     @Test
     void testListSink4AllTypeShouldThrowException() {
         stubFor(
-                get(urlMatching("/api/inlong/manager/sink/list.*"))
+                get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("groupId should not empty"))
@@ -661,7 +729,7 @@ class ClientFactoryTest {
     @Test
     void testResetGroup() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/group/reset.*"))
+                post(urlMatching("/inlong/manager/api/group/reset.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(true))
@@ -676,7 +744,7 @@ class ClientFactoryTest {
     @Test
     void testSaveCluster() {
         stubFor(
-                post(urlMatching("/api/inlong/manager/cluster/save.*"))
+                post(urlMatching("/inlong/manager/api/cluster/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(1))
@@ -688,6 +756,32 @@ class ClientFactoryTest {
         request.setClusterTags("test_cluster");
         Integer clusterIndex = clusterClient.saveCluster(request);
         Assertions.assertEquals(1, (int) clusterIndex);
+    }
+
+    @Test
+    void testGetCluster() {
+        ClusterInfo cluster = PulsarClusterInfo.builder()
+                .id(1)
+                .name("test_cluster")
+                .url("127.0.0.1")
+                .clusterTags("test_cluster_tag")
+                .type(ClusterType.PULSAR)
+                .adminUrl("http://127.0.0.1:8080")
+                .tenant("public")
+                .build();
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/cluster/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(cluster))
+                                )
+                        )
+        );
+
+        ClusterInfo clusterInfo = clusterClient.get(1);
+        Assertions.assertEquals(1, clusterInfo.getId());
+        Assertions.assertTrue(clusterInfo instanceof PulsarClusterInfo);
     }
 
     @Test
@@ -703,7 +797,7 @@ class ClientFactoryTest {
                 .id(1)
                 .inlongGroupId("1")
                 .inlongStreamId("1")
-                .sinkType(SinkType.SINK_MYSQL)
+                .sinkType(SinkType.MYSQL)
                 .sinkName("mysql_test")
                 // streamNode field
                 .preNodes(new HashSet<>())
@@ -717,7 +811,7 @@ class ClientFactoryTest {
                 .build();
 
         stubFor(
-                get(urlMatching("/api/inlong/manager/sink/get/1.*"))
+                get(urlMatching("/inlong/manager/api/sink/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(streamSink))
@@ -729,4 +823,119 @@ class ClientFactoryTest {
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
 
+    @Test
+    void testSaveClusterTag() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/cluster/tag/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        ClusterTagRequest request = new ClusterTagRequest();
+        request.setClusterTag("test_cluster");
+        Integer tagId = clusterClient.saveTag(request);
+        Assertions.assertEquals(1, tagId);
+    }
+
+    @Test
+    void testGetClusterTag() {
+        ClusterTagResponse tagResponse = ClusterTagResponse.builder()
+                .id(1)
+                .clusterTag("test_cluster")
+                .creator("admin")
+                .inCharges("admin")
+                .build();
+        stubFor(
+                get(urlMatching("/inlong/manager/api/cluster/tag/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(tagResponse))
+                                )
+                        )
+        );
+        ClusterTagResponse clusterTagInfo = clusterClient.getTag(1);
+        Assertions.assertNotNull(clusterTagInfo);
+    }
+
+    @Test
+    void testBindTag() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/cluster/bindTag.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        BindTagRequest request = new BindTagRequest();
+        request.setClusterTag("test_cluster_tag");
+        Boolean isBind = clusterClient.bindTag(request);
+        Assertions.assertTrue(isBind);
+    }
+
+    @Test
+    void testSaveNode() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/cluster/node/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setType(ClusterType.PULSAR);
+        Integer nodeId = clusterClient.saveNode(request);
+        Assertions.assertEquals(1, nodeId);
+    }
+
+    @Test
+    void testGetNode() {
+        ClusterNodeResponse response = ClusterNodeResponse.builder()
+                .id(1)
+                .type(ClusterType.DATAPROXY)
+                .ip("127.0.0.1")
+                .port(46801)
+                .build();
+        stubFor(
+                get(urlMatching("/inlong/manager/api/cluster/node/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(response))
+                                )
+                        )
+        );
+        ClusterNodeResponse clientNode = clusterClient.getNode(1);
+        Assertions.assertEquals(1, clientNode.getId());
+    }
+
+    @Test
+    void testGetStreamSourceById() {
+        StreamSource streamSource = MySQLBinlogSource.builder()
+                .id(1)
+                .inlongGroupId("test_group")
+                .inlongStreamId("test_stream")
+                .sourceType(SourceType.MYSQL_BINLOG)
+                .sourceName("test_source")
+                .agentIp("127.0.0.1")
+                .inlongClusterName("test_cluster")
+                .user("root")
+                .password("pwd")
+                .hostname("127.0.0.1")
+                .port(3306)
+                .build();
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/source/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(streamSource))
+                                ))
+        );
+        StreamSource sourceInfo = sourceClient.get(1);
+        Assertions.assertEquals(1, sourceInfo.getId());
+        Assertions.assertTrue(sourceInfo instanceof MySQLBinlogSource);
+    }
 }

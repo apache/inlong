@@ -30,218 +30,64 @@
         <result column="encrypt_version" jdbcType="INTEGER" property="encryptVersion"/>
         <result column="account_type" jdbcType="INTEGER" property="accountType"/>
         <result column="due_date" jdbcType="TIMESTAMP" property="dueDate"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
-        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
-        <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
-        <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
-    <sql id="Example_Where_Clause">
-        <where>
-            <foreach collection="oredCriteria" item="criteria" separator="or">
-                <if test="criteria.valid">
-                    <trim prefix="(" prefixOverrides="and" suffix=")">
-                        <foreach collection="criteria.criteria" item="criterion">
-                            <choose>
-                                <when test="criterion.noValue">
-                                    and ${criterion.condition}
-                                </when>
-                                <when test="criterion.singleValue">
-                                    and ${criterion.condition} #{criterion.value}
-                                </when>
-                                <when test="criterion.betweenValue">
-                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                                </when>
-                                <when test="criterion.listValue">
-                                    and ${criterion.condition}
-                                    <foreach close=")" collection="criterion.value" item="listItem" open="("
-                                            separator=",">
-                                        #{listItem}
-                                    </foreach>
-                                </when>
-                            </choose>
-                        </foreach>
-                    </trim>
-                </if>
-            </foreach>
-        </where>
-    </sql>
     <sql id="Base_Column_List">
-        id, name, password, secret_key, public_key, private_key, encrypt_version,
-        account_type, due_date, create_time, update_time, create_by, update_by
+        id, account_type, name, password, secret_key, public_key, private_key, encrypt_version,
+        due_date, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
-    <select id="selectByExample" parameterType="org.apache.inlong.manager.dao.entity.UserEntityExample"
-            resultMap="BaseResultMap">
-        select
-        <if test="distinct">
-            distinct
-        </if>
-        <include refid="Base_Column_List"/>
-        from user
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-        <if test="orderByClause != null">
-            order by ${orderByClause}
-        </if>
-    </select>
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from user
-        where id = #{id,jdbcType=INTEGER}
-    </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-        delete
-        from user
-        where id = #{id,jdbcType=INTEGER}
-    </delete>
-    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         insert into user (id, name, password,
                           secret_key, public_key, private_key,
                           encrypt_version, account_type, due_date,
-                          create_time, update_time,
-                          create_by, update_by)
+                          status, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{secretKey,jdbcType=VARCHAR}, #{publicKey,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR},
                 #{encryptVersion,jdbcType=INTEGER}, #{accountType,jdbcType=INTEGER}, #{dueDate,jdbcType=TIMESTAMP},
-                #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
-                #{updateBy,jdbcType=VARCHAR})
+                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
-        insert into user
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
-            <if test="name != null">
-                name,
-            </if>
-            <if test="password != null">
-                password,
-            </if>
-            <if test="secretKey != null">
-                secret_key,
-            </if>
-            <if test="publicKey != null">
-                public_key,
-            </if>
-            <if test="privateKey != null">
-                private_key,
-            </if>
-            <if test="encryptVersion != null">
-                encrypt_version,
-            </if>
-            <if test="accountType != null">
-                account_type,
-            </if>
-            <if test="dueDate != null">
-                due_date,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="updateTime != null">
-                update_time,
-            </if>
-            <if test="createBy != null">
-                create_by,
-            </if>
-            <if test="updateBy != null">
-                update_by,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=INTEGER},
-            </if>
-            <if test="name != null">
-                #{name,jdbcType=VARCHAR},
-            </if>
-            <if test="password != null">
-                #{password,jdbcType=VARCHAR},
-            </if>
-            <if test="secretKey != null">
-                #{secretKey,jdbcType=VARCHAR},
-            </if>
-            <if test="publicKey != null">
-                #{publicKey,jdbcType=VARCHAR},
-            </if>
-            <if test="privateKey != null">
-                #{privateKey,jdbcType=VARCHAR},
-            </if>
-            <if test="encryptVersion != null">
-                #{encryptVersion,jdbcType=INTEGER},
-            </if>
-            <if test="accountType != null">
-                #{accountType,jdbcType=INTEGER},
-            </if>
-            <if test="dueDate != null">
-                #{dueDate,jdbcType=TIMESTAMP},
-            </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="createBy != null">
-                #{createBy,jdbcType=VARCHAR},
-            </if>
-            <if test="updateBy != null">
-                #{updateBy,jdbcType=VARCHAR},
-            </if>
-        </trim>
-    </insert>
-    <select id="countByExample" parameterType="org.apache.inlong.manager.dao.entity.UserEntityExample"
-            resultType="java.lang.Long">
-        select count(*) from user
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-    </select>
-    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
-        update user
-        <set>
-            <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
-            </if>
-            <if test="password != null">
-                password = #{password,jdbcType=VARCHAR},
-            </if>
-            <if test="secretKey != null">
-                secret_key = #{secretKey,jdbcType=VARCHAR},
-            </if>
-            <if test="publicKey != null">
-                public_key = #{publicKey,jdbcType=VARCHAR},
-            </if>
-            <if test="privateKey != null">
-                private_key = #{privateKey,jdbcType=VARCHAR},
-            </if>
-            <if test="encryptVersion != null">
-                encrypt_version = #{encryptVersion,jdbcType=INTEGER},
-            </if>
-            <if test="accountType != null">
-                account_type = #{accountType,jdbcType=INTEGER},
-            </if>
-            <if test="dueDate != null">
-                due_date = #{dueDate,jdbcType=TIMESTAMP},
-            </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                update_time = #{updateTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="createBy != null">
-                create_by = #{createBy,jdbcType=VARCHAR},
-            </if>
-            <if test="updateBy != null">
-                update_by = #{updateBy,jdbcType=VARCHAR},
-            </if>
-        </set>
+
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
         where id = #{id,jdbcType=INTEGER}
-    </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
+    </select>
+    <select id="selectByName" resultType="org.apache.inlong.manager.dao.entity.UserEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where is_deleted = 0
+        and name = #{name, jdbcType=VARCHAR}
+    </select>
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.user.UserRequest"
+            resultType="org.apache.inlong.manager.dao.entity.UserEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        <where>
+            is_deleted = 0
+            <if test="accountType != null and accountType != ''">
+                and account_type = #{accountType, jdbcType=INTEGER}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and name like CONCAT('%', #{keyword},'%')
+            </if>
+        </where>
+    </select>
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         update user
         set name            = #{name,jdbcType=VARCHAR},
             password        = #{password,jdbcType=VARCHAR},
@@ -251,10 +97,17 @@
             encrypt_version = #{encryptVersion,jdbcType=INTEGER},
             account_type    = #{accountType,jdbcType=INTEGER},
             due_date        = #{dueDate,jdbcType=TIMESTAMP},
-            create_time     = #{createTime,jdbcType=TIMESTAMP},
-            update_time     = #{updateTime,jdbcType=TIMESTAMP},
-            create_by       = #{createBy,jdbcType=VARCHAR},
-            update_by       = #{updateBy,jdbcType=VARCHAR}
+            status          = #{status,jdbcType=INTEGER},
+            is_deleted      = #{isDeleted,jdbcType=INTEGER},
+            modifier        = #{modifier,jdbcType=VARCHAR},
+            version         = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete
+        from user
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
 </mapper>

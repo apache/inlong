@@ -56,7 +56,7 @@
         <foreach collection="list" index="index" item="item" open="" close="" separator=",">
             (#{component,jdbcType=VARCHAR}, #{instance,jdbcType=VARCHAR},
             #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.inlongStreamId,jdbcType=VARCHAR},
-            #{item.statusHeartbeat,jdbcType=LONGVARCHAR}, #{item.metricHeartbeat,jdbcType=LONGVARCHAR},
+            #{item.status,jdbcType=LONGVARCHAR}, #{item.metric,jdbcType=LONGVARCHAR},
             #{reportTime,jdbcType=BIGINT})
         </foreach>
         ON DUPLICATE KEY UPDATE
@@ -81,7 +81,7 @@
         and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity">
         select
         <include refid="Base_Column_List"/>

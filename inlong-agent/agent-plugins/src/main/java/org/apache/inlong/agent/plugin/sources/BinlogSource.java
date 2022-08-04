@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -52,7 +52,7 @@ public class BinlogSource implements Source {
         Reader binlogReader = new BinlogReader();
         List<Reader> readerList = new ArrayList<>();
         readerList.add(binlogReader);
-        GlobalMetrics.incSourceSuccessCount(metricTagName);
+        GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         return readerList;
     }
 

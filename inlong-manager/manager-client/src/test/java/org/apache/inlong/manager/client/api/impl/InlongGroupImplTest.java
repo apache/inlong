@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ class InlongGroupImplTest {
     @Test
     void testParseForm() {
         String json = "{\n"
-                + "  \"formName\" : \"NewGroupProcessForm\",\n"
+                + "  \"formName\" : \"ApplyGroupProcessForm\",\n"
                 + "  \"groupInfo\" : {\n"
                 + "    \"mqType\" : \"PULSAR\",\n"
                 + "    \"id\" : 5,\n"
@@ -88,12 +88,12 @@ class InlongGroupImplTest {
                 + "  } ]\n"
                 + "}";
 
-        NewGroupProcessForm newGroupProcessForm =
-                JsonUtils.parseObject(json, NewGroupProcessForm.class);
+        ApplyGroupProcessForm applyGroupProcessForm =
+                JsonUtils.parseObject(json, ApplyGroupProcessForm.class);
 
-        assertNotNull(newGroupProcessForm);
-        assertNotNull(newGroupProcessForm.getGroupInfo());
-        assertNotNull(newGroupProcessForm.getStreamInfoList());
+        assertNotNull(applyGroupProcessForm);
+        assertNotNull(applyGroupProcessForm.getGroupInfo());
+        assertNotNull(applyGroupProcessForm.getStreamInfoList());
     }
 
 }

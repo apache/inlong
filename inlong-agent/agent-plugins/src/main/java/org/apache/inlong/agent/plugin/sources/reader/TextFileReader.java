@@ -24,22 +24,30 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 
 /**
@@ -55,7 +63,7 @@ public class TextFileReader extends AbstractReader {
     private final int position;
 
     private final String md5;
-
+    private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
     private Iterator<String> iterator;
 
     private Stream<String> stream;
@@ -89,7 +97,7 @@ public class TextFileReader extends AbstractReader {
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GlobalMetrics.incReadNum(metricTagName);
+                GLOBAL_METRICS.incReadNum(metricTagName);
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -134,7 +142,7 @@ public class TextFileReader extends AbstractReader {
     }
 
     @Override
-    public void setWaitMillisecs(long millis) {
+    public void setWaitMillisecond(long millis) {
         waitTimeout = millis;
     }
 
@@ -171,11 +179,48 @@ public class TextFileReader extends AbstractReader {
                 LOGGER.warn("md5 is differ from origin, origin: {}, new {}", this.md5, md5);
             }
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
-            stream = Files.newBufferedReader(file.toPath()).lines().skip(position);
-            iterator = stream.iterator();
+            //split line and column
+            getFileStream(jobConf);
+            if (Objects.nonNull(stream)) {
+                iterator = stream.iterator();
+            }
         } catch (Exception ex) {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
+    }
+
+    private void getFileStream(JobProfile jobConf) throws IOException {
+        List<String> lines = Files.newBufferedReader(file.toPath()).lines().skip(position).collect(Collectors.toList());
+        List<String> resultLines = new ArrayList<>();
+        //TODO line regular expression matching
+        if (jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
+            Pattern pattern = Pattern.compile(jobConf.get(JOB_FILE_LINE_END_PATTERN));
+            lines.forEach(line -> {
+                lineStringBuffer.put(file,
+                        lineStringBuffer.isEmpty() ? line : lineStringBuffer.get(file).concat(" ").concat(line));
+                String data = lineStringBuffer.get(file);
+                Matcher matcher = pattern.matcher(data);
+                if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
+                    String[] splitLines = data.split(matcher.group());
+                    int length = splitLines.length;
+                    for (int i = 0; i < length; i++) {
+                        if (i > 0 && i == length - 1 && null != splitLines[i]) {
+                            lineStringBuffer.put(file, splitLines[i]);
+                            break;
+                        }
+                        resultLines.add(splitLines[i].trim());
+                    }
+                    if (1 == length) {
+                        lineStringBuffer.remove(file);
+                    }
+                }
+            });
+            if (resultLines.isEmpty()) {
+                return;
+            }
+        }
+        lines = resultLines.isEmpty() ? lines : resultLines;
+        stream = lines.stream();
     }
 
     private void initReadTimeout(JobProfile jobConf) {
@@ -195,6 +240,6 @@ public class TextFileReader extends AbstractReader {
         }
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                metricTagName, GlobalMetrics.getReadNum(metricTagName));
+                metricTagName, GLOBAL_METRICS.getReadNum(metricTagName));
     }
 }

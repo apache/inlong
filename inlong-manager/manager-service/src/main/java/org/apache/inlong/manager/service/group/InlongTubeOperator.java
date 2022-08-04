@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -45,16 +45,16 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
     @Override
     public String getMQType() {
-        return MQType.MQ_TUBE;
+        return MQType.TUBEMQ;
     }
 
     @Override
-    public InlongTubeInfo getFromEntity(InlongGroupEntity entity) {
+    public InlongTubeMQInfo getFromEntity(InlongGroupEntity entity) {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        InlongTubeInfo groupInfo = new InlongTubeInfo();
+        InlongTubeMQInfo groupInfo = new InlongTubeMQInfo();
         CommonBeanUtils.copyProperties(entity, groupInfo);
 
         // TODO get the cluster
@@ -69,10 +69,9 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        InlongGroupTopicInfo topicInfo = super.getTopic(groupInfo);
         // TODO add cache for cluster info
         // topicInfo.setTubeMasterUrl(groupInfo.getMqType());
-        return topicInfo;
+        return super.getTopic(groupInfo);
     }
 
 }

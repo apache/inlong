@@ -6,6 +6,8 @@
   "job.binlogJob.hostname": "0.0.0.0",
   "job.binlogJob.tableWhiteList": "[\\s\\S]*.*",
   "job.id": "5",
+  "job.groupId": "groupId",
+  "job.streamId": "streamId",
   "job.binlogJob.user": "root",
   "proxy.manager.port": "8000",
   "job.binlogJob.port": "3306",

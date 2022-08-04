@@ -60,7 +60,7 @@ const Comp: React.FC = () => {
         dispatch({
           type: 'setUser',
           payload: {
-            userName: data === 'success' ? changedValues.username : null,
+            userName: data ? changedValues.username : null,
           },
         });
         localStorage.setItem('userName', changedValues.username + '');

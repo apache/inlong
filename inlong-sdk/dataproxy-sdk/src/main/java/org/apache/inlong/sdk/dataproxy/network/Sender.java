@@ -65,7 +65,7 @@ public class Sender {
     private final ProxyClientConfig configure;
     private final boolean isFile;
     private final MetricWorkerThread metricWorker;
-    private String clusterId;
+    private int clusterId = -1;
 
     public Sender(ProxyClientConfig configure) throws Exception {
         this(configure, null);
@@ -696,11 +696,11 @@ public class Sender {
         callbacks.clear();
     }
 
-    public String getClusterId() {
+    public int getClusterId() {
         return clusterId;
     }
 
-    public void setClusterId(String clusterId) {
+    public void setClusterId(int clusterId) {
         this.clusterId = clusterId;
     }
 

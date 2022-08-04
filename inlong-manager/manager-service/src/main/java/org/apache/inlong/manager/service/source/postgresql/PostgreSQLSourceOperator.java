@@ -19,14 +19,14 @@ package org.apache.inlong.manager.service.source.postgresql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSource;
-import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
+import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSourceDTO;
+import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSourceRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
@@ -45,13 +45,13 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.POSTGRES == sourceType;
+    public Boolean accept(String sourceType) {
+        return SourceType.POSTGRESQL.equals(sourceType);
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.POSTGRES.getType();
+        return SourceType.POSTGRESQL;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
             PostgreSQLSourceDTO dto = PostgreSQLSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

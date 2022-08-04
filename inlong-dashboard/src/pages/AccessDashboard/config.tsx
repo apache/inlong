@@ -83,8 +83,8 @@ export const getColumns = ({ onDelete, openModal }) => {
       render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link>,
     },
     {
-      title: i18n.t('pages.AccessDashboard.config.Name'),
-      dataIndex: 'name',
+      title: i18n.t('pages.AccessDashboard.config.MqType'),
+      dataIndex: 'mqType',
     },
     {
       title: i18n.t('pages.AccessDashboard.config.InCharges'),

@@ -26,7 +26,7 @@
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="sink_name" jdbcType="VARCHAR" property="sinkName"/>
-        <result column="description" jdbcType="INTEGER" property="description"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="enable_create_resource" jdbcType="TINYINT" property="enableCreateResource"/>
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
@@ -42,13 +42,142 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, sink_type, sink_name, description, enable_create_resource,
         inlong_cluster_name, data_node_name, sort_task_name, sort_consumer_group, ext_params, operate_log,
-        status, previous_status, is_deleted, creator, modifier, create_time, modify_time
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+        insert into stream_sink (id, inlong_group_id, inlong_stream_id,
+                                 sink_type, sink_name, description,
+                                 enable_create_resource, inlong_cluster_name,
+                                 data_node_name, sort_task_name,
+                                 sort_consumer_group, ext_params,
+                                 operate_log, status, previous_status,
+                                 creator, modifier)
+        values (#{id, jdbcType=INTEGER}, #{inlongGroupId, jdbcType=VARCHAR}, #{inlongStreamId, jdbcType=VARCHAR},
+                #{sinkType, jdbcType=VARCHAR}, #{sinkName, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
+                #{enableCreateResource, jdbcType=TINYINT}, #{inlongClusterName, jdbcType=VARCHAR},
+                #{dataNodeName, jdbcType=VARCHAR}, #{sortTaskName, jdbcType=VARCHAR},
+                #{sortConsumerGroup, jdbcType=VARCHAR}, #{extParams, jdbcType=VARCHAR},
+                #{operateLog, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER}, #{previousStatus, jdbcType=INTEGER},
+                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+        insert into stream_sink
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="inlongGroupId != null">
+                inlong_group_id,
+            </if>
+            <if test="inlongStreamId != null">
+                inlong_stream_id,
+            </if>
+            <if test="sinkType != null">
+                sink_type,
+            </if>
+            <if test="sinkName != null">
+                sink_name,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="enableCreateResource != null">
+                enable_create_resource,
+            </if>
+            <if test="inlongClusterName != null">
+                inlong_cluster_name,
+            </if>
+            <if test="dataNodeName != null">
+                data_node_name,
+            </if>
+            <if test="sortTaskName != null">
+                sort_task_name,
+            </if>
+            <if test="sortConsumerGroup != null">
+                sort_consumer_group,
+            </if>
+            <if test="extParams != null">
+                ext_params,
+            </if>
+            <if test="operateLog != null">
+                operate_log,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="previousStatus != null">
+                previous_status,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="modifier != null">
+                modifier,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id, jdbcType=INTEGER},
+            </if>
+            <if test="inlongGroupId != null">
+                #{inlongGroupId, jdbcType=VARCHAR},
+            </if>
+            <if test="inlongStreamId != null">
+                #{inlongStreamId, jdbcType=VARCHAR},
+            </if>
+            <if test="sinkType != null">
+                #{sinkType, jdbcType=VARCHAR},
+            </if>
+            <if test="sinkName != null">
+                #{sinkName, jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description, jdbcType=VARCHAR},
+            </if>
+            <if test="enableCreateResource != null">
+                #{enableCreateResource, jdbcType=TINYINT},
+            </if>
+            <if test="inlongClusterName != null">
+                #{inlongClusterName, jdbcType=VARCHAR},
+            </if>
+            <if test="dataNodeName != null">
+                #{dataNodeName, jdbcType=VARCHAR},
+            </if>
+            <if test="sortTaskName != null">
+                #{sortTaskName, jdbcType=VARCHAR},
+            </if>
+            <if test="sortConsumerGroup != null">
+                #{sortConsumerGroup, jdbcType=VARCHAR},
+            </if>
+            <if test="extParams != null">
+                #{extParams, jdbcType=VARCHAR},
+            </if>
+            <if test="operateLog != null">
+                #{operateLog, jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status, jdbcType=INTEGER},
+            </if>
+            <if test="previousStatus != null">
+                #{previousStatus, jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                #{creator, jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                #{modifier, jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -70,7 +199,7 @@
         </where>
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.sink.SinkPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.sink.SinkPageRequest"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -106,11 +235,18 @@
             <if test="request.sortConsumerGroup != null and request.sortConsumerGroup != ''">
                 and sort_consumer_group = #{request.sortConsumerGroup, jdbcType=VARCHAR}
             </if>
-            order by modify_time desc
         </where>
+        <choose>
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
     <select id="selectSummary"
-            resultType="org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse">
+            resultType="org.apache.inlong.manager.pojo.sink.SinkBriefInfo">
         select s.id,
                s.inlong_group_id,
                s.inlong_stream_id,
@@ -177,7 +313,7 @@
             </if>
         </where>
     </select>
-    <select id="selectAllConfig" resultType="org.apache.inlong.manager.common.pojo.sink.SinkInfo">
+    <select id="selectAllConfig" resultType="org.apache.inlong.manager.pojo.sink.SinkInfo">
         select sink.id,
         sink.inlong_group_id,
         sink.inlong_stream_id,
@@ -207,160 +343,32 @@
             </if>
         </where>
     </select>
-
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-        delete
+    <select id="selectAllTasks" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo">
+        select inlong_cluster_name as sortClusterName,
+               sort_task_name,
+               sort_consumer_group,
+               sink_type,
+               data_node_name
         from stream_sink
-        where id = #{id,jdbcType=INTEGER}
-    </delete>
-
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
-        insert into stream_sink (id, inlong_group_id, inlong_stream_id,
-                                 sink_type, sink_name, description,
-                                 enable_create_resource, inlong_cluster_name,
-                                 data_node_name, sort_task_name,
-                                 sort_consumer_group, ext_params,
-                                 operate_log, status, previous_status,
-                                 is_deleted, creator, modifier,
-                                 create_time, modify_time)
-        values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-                #{enableCreateResource,jdbcType=TINYINT}, #{inlongClusterName,jdbcType=VARCHAR},
-                #{dataNodeName,jdbcType=VARCHAR}, #{sortTaskName,jdbcType=VARCHAR},
-                #{sortConsumerGroup,jdbcType=VARCHAR}, #{extParams,jdbcType=VARCHAR},
-                #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
-                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
-    </insert>
-    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
-        insert into stream_sink
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
-            <if test="inlongGroupId != null">
-                inlong_group_id,
-            </if>
-            <if test="inlongStreamId != null">
-                inlong_stream_id,
-            </if>
-            <if test="sinkType != null">
-                sink_type,
-            </if>
-            <if test="sinkName != null">
-                sink_name,
-            </if>
-            <if test="description != null">
-                description,
-            </if>
-            <if test="enableCreateResource != null">
-                enable_create_resource,
-            </if>
-            <if test="inlongClusterName != null">
-                inlong_cluster_name,
-            </if>
-            <if test="dataNodeName != null">
-                data_node_name,
-            </if>
-            <if test="sortTaskName != null">
-                sort_task_name,
-            </if>
-            <if test="sortConsumerGroup != null">
-                sort_consumer_group,
-            </if>
-            <if test="extParams != null">
-                ext_params,
-            </if>
-            <if test="operateLog != null">
-                operate_log,
-            </if>
-            <if test="status != null">
-                status,
-            </if>
-            <if test="previousStatus != null">
-                previous_status,
-            </if>
-            <if test="isDeleted != null">
-                is_deleted,
-            </if>
-            <if test="creator != null">
-                creator,
-            </if>
-            <if test="modifier != null">
-                modifier,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="modifyTime != null">
-                modify_time,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=INTEGER},
-            </if>
-            <if test="inlongGroupId != null">
-                #{inlongGroupId,jdbcType=VARCHAR},
-            </if>
-            <if test="inlongStreamId != null">
-                #{inlongStreamId,jdbcType=VARCHAR},
-            </if>
-            <if test="sinkType != null">
-                #{sinkType,jdbcType=VARCHAR},
-            </if>
-            <if test="sinkName != null">
-                #{sinkName,jdbcType=VARCHAR},
-            </if>
-            <if test="description != null">
-                #{description,jdbcType=VARCHAR},
-            </if>
-            <if test="enableCreateResource != null">
-                #{enableCreateResource,jdbcType=TINYINT},
-            </if>
-            <if test="inlongClusterName != null">
-                #{inlongClusterName,jdbcType=VARCHAR},
-            </if>
-            <if test="dataNodeName != null">
-                #{dataNodeName,jdbcType=VARCHAR},
-            </if>
-            <if test="sortTaskName != null">
-                #{sortTaskName,jdbcType=VARCHAR},
-            </if>
-            <if test="sortConsumerGroup != null">
-                #{sortConsumerGroup,jdbcType=VARCHAR},
-            </if>
-            <if test="extParams != null">
-                #{extParams,jdbcType=VARCHAR},
-            </if>
-            <if test="operateLog != null">
-                #{operateLog,jdbcType=VARCHAR},
-            </if>
-            <if test="status != null">
-                #{status,jdbcType=INTEGER},
-            </if>
-            <if test="previousStatus != null">
-                #{previousStatus,jdbcType=INTEGER},
-            </if>
-            <if test="isDeleted != null">
-                #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                #{creator,jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                #{modifier,jdbcType=VARCHAR},
-            </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-        </trim>
-    </insert>
+        where is_deleted = 0
+        group by inlong_cluster_name, sort_task_name, sort_consumer_group, sink_type, data_node_name
+    </select>
+    <select id="selectAllIdParams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortIdInfo">
+        select sort_task_name,
+               inlong_group_id,
+               inlong_stream_id,
+               ext_params
+        from stream_sink
+        where is_deleted = 0
+    </select>
+    <select id="selectAllStreams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo">
+        select inlong_cluster_name as sortClusterName,
+               sort_task_name,
+               inlong_group_id     as groupId,
+               ext_params
+        from stream_sink
+        where is_deleted = 0
+    </select>
 
     <update id="updateByPrimaryKeySelective"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
@@ -417,14 +425,10 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
@@ -445,48 +449,21 @@
             is_deleted             = #{isDeleted,jdbcType=INTEGER},
             creator                = #{creator,jdbcType=VARCHAR},
             modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP}
+            version                = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateStatus" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         set status          = #{status,jdbcType=INTEGER},
             previous_status = status,
-            operate_log     = #{operateLog,jdbcType=VARCHAR},
-            modify_time     = now()
+            operate_log     = #{operateLog,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <select id="selectAllTasks" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo">
-        select inlong_cluster_name as sortClusterName,
-               sort_task_name,
-               sort_consumer_group,
-               sink_type,
-               data_node_name
-        from stream_sink
-        <where>
-            is_deleted = 0
-        </where>
-        group by
-        inlong_cluster_name, sort_task_name, sort_consumer_group, sink_type, data_node_name
-    </select>
-    <select id="selectAllIdParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo">
-        select sort_task_name,
-               inlong_group_id,
-               inlong_stream_id,
-               ext_params
-        from stream_sink
-        <where>
-            is_deleted = 0
-        </where>
-    </select>
-    <select id="selectAllStreams"
-            resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceStreamInfo">
-        select inlong_cluster_name as sortClusterName,
-               sort_task_name,
-               inlong_group_id as groupId
-        from stream_sink
-        where is_deleted = 0
-    </select>
 
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from stream_sink
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
 </mapper>

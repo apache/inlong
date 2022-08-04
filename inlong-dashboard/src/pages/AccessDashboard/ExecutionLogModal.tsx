@@ -43,7 +43,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
 
   const { run: getData, data } = useRequest(
     {
-      url: '/workflow/listTaskExecuteLogs',
+      url: '/workflow/listTaskLogs',
       params: {
         ...options,
         inlongGroupId: inlongGroupId,

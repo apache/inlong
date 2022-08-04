@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
-import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
+import org.apache.inlong.manager.pojo.common.CountInfo;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

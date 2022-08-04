@@ -35,6 +35,8 @@ public class DataNodeEntity implements Serializable {
     private String url;
     private String username;
     private String token;
+    private String extParams;
+    private String description;
     private String inCharges;
     private Integer status;
     private Integer isDeleted;
@@ -42,6 +44,6 @@ public class DataNodeEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-    private String extParams;
+    private Integer version;
 
 }

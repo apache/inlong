@@ -25,7 +25,6 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.pulsar.config.StartupMode;
-import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarSinkSemantic;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions;
 import org.apache.flink.streaming.connectors.pulsar.util.KeyHashMessageRouterImpl;
@@ -68,6 +67,7 @@ import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOpti
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.getPulsarProperties;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.pulsar.table.Constants.INLONG_METRIC;
 
 /**
  * Upsert-Pulsar factory.
@@ -150,6 +150,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         options.add(VALUE_FIELDS_INCLUDE);
         options.add(FactoryUtil.SINK_PARALLELISM);
         options.add(PROPERTIES);
+        options.add(INLONG_METRIC);
         return options;
     }
 
@@ -185,6 +186,8 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         String serverUrl = tableOptions.get(SERVICE_URL);
         List<String> topics = tableOptions.get(TOPIC);
         String topicPattern = tableOptions.get(TOPIC_PATTERN);
+        String inlongMetric = tableOptions.get(INLONG_METRIC);
+
         return new PulsarDynamicTableSource(
                 schema.toPhysicalRowDataType(),
                 keyDecodingFormat,
@@ -198,7 +201,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
                 adminUrl,
                 properties,
                 startupOptions,
-                true);
+                true, inlongMetric);
     }
 
     @Override

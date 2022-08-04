@@ -87,7 +87,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new StringConstantParam("5"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
         return new KafkaExtractNode(id, "kafka_input", fields, wk, null, "workerJson",
-                "localhost:9092", new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId");
+                "localhost:9092", new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null);
     }
 
     private KafkaLoadNode buildKafkaNode(String id) {

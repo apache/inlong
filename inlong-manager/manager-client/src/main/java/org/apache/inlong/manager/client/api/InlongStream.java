@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.stream.StreamPipeline;
+import org.apache.inlong.manager.pojo.stream.StreamTransform;
 
 import java.util.List;
 import java.util.Map;
@@ -62,7 +62,7 @@ public interface InlongStream {
     StreamSink getSinkInfoByName(String sinkName);
 
     /**
-     * Return data transform node defined in stream(split,string replace etc)
+     * Return data transform node defined in stream(split, string replace etc.)
      * key is transform name which must be unique within one stream scope.
      */
     Map<String, StreamTransform> getTransforms();
@@ -121,5 +121,7 @@ public interface InlongStream {
      * Update stream definition in manager service, which must be invoked after add/delete/update source/sink/transform.
      */
     InlongStream update();
+
+    StreamSource getSourceById(int sourceId);
 
 }

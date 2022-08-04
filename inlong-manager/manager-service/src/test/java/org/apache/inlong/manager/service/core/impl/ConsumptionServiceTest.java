@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
@@ -45,12 +45,12 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
         consumptionInfo.setTopic(inlongGroupId);
         consumptionInfo.setConsumerGroup(consumerGroup);
         consumptionInfo.setInlongGroupId(inlongGroupId);
-        consumptionInfo.setMqType(MQType.PULSAR.getType());
+        consumptionInfo.setMqType(MQType.PULSAR);
         consumptionInfo.setCreator(operator);
         consumptionInfo.setInCharges("admin");
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
-        pulsarInfo.setMqType(MQType.PULSAR.getType());
+        pulsarInfo.setMqType(MQType.PULSAR);
         pulsarInfo.setIsDlq(1);
         pulsarInfo.setDeadLetterTopic("test_dlq");
         pulsarInfo.setIsRlq(0);

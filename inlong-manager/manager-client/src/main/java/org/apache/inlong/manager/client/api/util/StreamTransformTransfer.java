@@ -24,15 +24,16 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.common.util.StreamParseUtils;
+import org.apache.inlong.manager.pojo.sort.util.StreamParseUtils;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.pojo.transform.TransformDefinition;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class StreamTransformTransfer {
         Preconditions.checkNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
-        transformRequest.setVersion(1);
+        transformRequest.setVersion(InlongConstants.INITIAL_VERSION);
         transformRequest.setTransformDefinition(JsonUtils.toJsonString(transformDefinition));
         if (CollectionUtils.isNotEmpty(streamTransform.getPreNodes())) {
             transformRequest.setPreNodeNames(Joiner.on(",").join(streamTransform.getPreNodes()));

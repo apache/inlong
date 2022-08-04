@@ -19,15 +19,15 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
-import org.apache.inlong.manager.common.pojo.transform.DeleteTransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +42,7 @@ import java.util.List;
  * Stream transform control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Transform-API")
 public class StreamTransformController {
 
@@ -53,7 +54,7 @@ public class StreamTransformController {
     @ApiOperation(value = "Save stream transform")
     public Response<Integer> save(@Validated @RequestBody TransformRequest request) {
         return Response.success(
-                streamTransformService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
+                streamTransformService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/transform/list", method = RequestMethod.GET)
@@ -67,7 +68,7 @@ public class StreamTransformController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream transform")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody TransformRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamTransformService.update(request, operator));
     }
 
@@ -75,7 +76,7 @@ public class StreamTransformController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Delete stream transform")
     public Response<Boolean> delete(@Validated DeleteTransformRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamTransformService.delete(request, operator));
     }
 

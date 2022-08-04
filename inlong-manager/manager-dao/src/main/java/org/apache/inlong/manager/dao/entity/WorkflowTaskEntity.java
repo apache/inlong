@@ -28,87 +28,24 @@ import java.util.Date;
 public class WorkflowTaskEntity {
 
     public static final String APPROVERS_DELIMITER = ",";
-
     public static final String EXT_TRANSFER_USER_KEY = "transferToUsers";
 
-    /**
-     * Task ID
-     */
     private Integer id;
-
-    /**
-     * Task type
-     */
     private String type;
-
-    /**
-     * Task name
-     */
     private String name;
-
-    /**
-     * Display name of the task
-     */
     private String displayName;
-
-    /**
-     * Application form ID
-     */
     private Integer processId;
-
-    /**
-     * Process name
-     */
     private String processName;
-
-    /**
-     * Process display name
-     */
     private String processDisplayName;
 
-    /**
-     * Applicant
-     */
     private String applicant;
-
-    /**
-     * Approver
-     */
     private String approvers;
-
-    /**
-     * Task status
-     */
     private String status;
-
-    /**
-     * Task operator
-     */
     private String operator;
-
-    /**
-     * Remarks information
-     */
     private String remark;
-
-    /**
-     * Form information
-     */
     private String formData;
-
-    /**
-     * Start time
-     */
     private Date startTime;
-
-    /**
-     * End time
-     */
     private Date endTime;
-
-    /**
-     * Extended params
-     */
     private String extParams;
 
 }
