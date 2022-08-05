@@ -111,6 +111,7 @@ public enum ErrorCodeEnum {
     MQ_TYPE_NOT_SUPPORT(1601, "MQ type '%s' not support"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
+    WORKFLOW_APPROVER_NOT_FOUND(4001, "Workflow approver does not exist/no operation authority"),
 
     CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
     CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create TubeMQ consumer group"),

@@ -37,7 +37,7 @@ import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -87,7 +87,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
+        WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
@@ -111,7 +111,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
         WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
+        WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 

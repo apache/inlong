@@ -36,6 +36,14 @@ public interface WorkflowApproverService {
     Integer save(ApproverRequest request, String operator);
 
     /**
+     * Get workflow approver by ID
+     *
+     * @param id approver id
+     * @return approver info
+     */
+    ApproverResponse get(Integer id);
+
+    /**
      * Get process approver by the process name and task name.
      *
      * @param processName workflow process name

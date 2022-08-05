@@ -24,20 +24,20 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -81,8 +81,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         return new WorkflowContext()
                 .setOperator(processEntity.getApplicant())
                 .setProcess(process)
-                .setProcessForm(
-                        WorkflowFormParserUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process))
+                .setProcessForm(WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process))
                 .setProcessEntity(processEntity);
     }
 
@@ -108,7 +107,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
         WorkflowProcess process = definitionRepository.get(taskEntity.getProcessName()).clone();
-        TaskForm taskForm = WorkflowFormParserUtils.parseTaskForm(objectMapper, taskEntity, process);
+        TaskForm taskForm = WorkflowUtils.parseTaskForm(objectMapper, taskEntity, process);
         List<String> transferToUsers = getTransferToUsers(taskEntity.getExtParams());
         return buildContextForTask(taskId, action, taskForm, transferToUsers, taskEntity.getRemark(),
                 taskEntity.getOperator());
@@ -122,10 +121,8 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(taskEntity.getProcessId());
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
-        ProcessForm processForm = WorkflowFormParserUtils.parseProcessForm(objectMapper, processEntity.getFormData(),
-                process);
+        ProcessForm processForm = WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process);
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
-
         return new WorkflowContext().setProcess(process)
                 .setOperator(processEntity.getApplicant())
                 .setProcessForm(processForm)
