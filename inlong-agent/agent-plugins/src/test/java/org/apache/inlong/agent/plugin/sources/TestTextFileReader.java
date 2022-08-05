@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
@@ -52,6 +53,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
@@ -153,6 +155,37 @@ public class TestTextFileReader {
                     message.toString().equalsIgnoreCase("hello") || message.toString().equalsIgnoreCase("aa world")
                             || message.toString().equalsIgnoreCase("agent"));
             LOGGER.info("message is {}", message.toString());
+        }
+    }
+
+    /**
+     * increment of file data
+     */
+    @Test
+    public void testIncrementData() throws Exception {
+        URI uri = getClass().getClassLoader().getResource("test").toURI();
+        JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
+        String mainPath = Paths.get(uri).toString();
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
+                "[1].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(JOB_INSTANCE_ID, "test");
+        jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
+        jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
+        TextFileSource fileSource = new TextFileSource();
+        List<Reader> readerList = fileSource.split(jobConfiguration);
+        Assert.assertEquals(1, readerList.size());
+        Reader reader = readerList.get(0);
+        reader.init(jobConfiguration);
+
+        while (!reader.isFinished()) {
+            Message message = reader.read();
+            if (null != message) {
+                LOGGER.info("message is {}", message.toString());
+            }
+            Assert.assertNull(message);
+            break;
         }
     }
 

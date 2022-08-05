@@ -31,6 +31,10 @@ public class FileJob {
     private String addictiveString;
     private String collectType;
     private Line line;
+    // INCREMENT 
+    // FULL
+
+    private String contentCollectType;
 
     @Data
     public static class Dir {
@@ -71,6 +75,8 @@ public class FileJob {
         private String collectType;
 
         private String lineEndPattern;
+
+        private String contentCollectType;
     }
 
 }

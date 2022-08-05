@@ -179,7 +179,7 @@ public class TextFileReader extends AbstractReader {
                 LOGGER.warn("md5 is differ from origin, origin: {}, new {}", this.md5, md5);
             }
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
-            //split line and column
+            //split file line
             getFileStream(jobConf);
             if (Objects.nonNull(stream)) {
                 iterator = stream.iterator();
