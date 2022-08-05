@@ -20,12 +20,12 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
-import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
@@ -75,6 +75,17 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
         LOGGER.info("success to save approver: {} by user: {}", request, operator);
         return entity.getId();
+    }
+
+    @Override
+    public ApproverResponse get(Integer id) {
+        Preconditions.checkNotNull(id, "approver id cannot be null");
+        WorkflowApproverEntity approverEntity = workflowApproverMapper.selectById(id);
+        if (approverEntity == null) {
+            LOGGER.error("workflow approver not found by id={}", id);
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_APPROVER_NOT_FOUND);
+        }
+        return CommonBeanUtils.copyProperties(approverEntity, ApproverResponse::new);
     }
 
     @Override
