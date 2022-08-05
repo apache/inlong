@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -57,6 +59,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -85,6 +89,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -105,6 +110,7 @@ class ClientFactoryTest {
     private static StreamSourceClient sourceClient;
     private static StreamSinkClient sinkClient;
     private static InlongClusterClient clusterClient;
+    private static DataNodeClient dataNodeClient;
 
     @BeforeAll
     static void setup() {
@@ -123,6 +129,7 @@ class ClientFactoryTest {
         sinkClient = clientFactory.getSinkClient();
         streamClient = clientFactory.getStreamClient();
         clusterClient = clientFactory.getClusterClient();
+        dataNodeClient = clientFactory.getDataNodeClient();
     }
 
     @AfterAll
@@ -937,5 +944,96 @@ class ClientFactoryTest {
         StreamSource sourceInfo = sourceClient.get(1);
         Assertions.assertEquals(1, sourceInfo.getId());
         Assertions.assertTrue(sourceInfo instanceof MySQLBinlogSource);
+    }
+
+    @Test
+    void testSaveDataNode() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                ))
+        );
+        DataNodeRequest request = new DataNodeRequest();
+        request.setName("test_node");
+        request.setType(DataNodeType.HIVE);
+        Integer nodeId = dataNodeClient.save(request);
+        Assertions.assertEquals(1, nodeId);
+    }
+
+    @Test
+    void testGetDataNode() {
+        DataNodeResponse response = DataNodeResponse.builder()
+                .id(1)
+                .name("test_node")
+                .type(DataNodeType.HIVE)
+                .build();
+        stubFor(
+                get(urlMatching("/inlong/manager/api/node/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(response))
+                                ))
+        );
+        DataNodeResponse nodeInfo = dataNodeClient.get(1);
+        Assertions.assertEquals(1, nodeInfo.getId());
+    }
+
+    @Test
+    void testListDataNode() {
+        List<DataNodeResponse> nodeResponses = Lists.newArrayList(
+                DataNodeResponse.builder()
+                        .id(1)
+                        .name("test_node")
+                        .type(DataNodeType.HIVE)
+                        .build()
+        );
+
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/list.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(nodeResponses))))
+                        )
+        );
+
+        DataNodeRequest request = new DataNodeRequest();
+        request.setName("test_node");
+        request.setToken(DataNodeType.HIVE);
+        PageInfo<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
+        Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
+    }
+
+    @Test
+    void testUpdateDataNode() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/update.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+
+        DataNodeRequest request = new DataNodeRequest();
+        request.setId(1);
+        request.setName("test_node");
+        request.setType(DataNodeType.HIVE);
+        Boolean isUpdate = dataNodeClient.update(request);
+        Assertions.assertTrue(isUpdate);
+    }
+
+    @Test
+    void testDeleteDataNode() {
+        stubFor(
+                delete(urlMatching("/inlong/manager/api/node/delete/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        Boolean isUpdate = dataNodeClient.delete(1);
+        Assertions.assertTrue(isUpdate);
     }
 }
