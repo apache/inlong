@@ -21,24 +21,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.springframework.stereotype.Service;
 
 /**
  * Agent cluster operator.
  */
-@Service
 @Slf4j
+@Service
 public class AgentClusterOperator extends AbstractClusterOperator {
-
-    @Override
-    protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
-        log.info("do nothing for agent cluster in set target entity");
-    }
 
     @Override
     public Boolean accept(String clusterType) {
@@ -51,10 +46,16 @@ public class AgentClusterOperator extends AbstractClusterOperator {
     }
 
     @Override
+    protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
+        log.info("do nothing for agent cluster in set target entity");
+    }
+
+    @Override
     public ClusterInfo getFromEntity(InlongClusterEntity entity) {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         return CommonBeanUtils.copyProperties(entity, AgentClusterInfo::new);
     }
+
 }
