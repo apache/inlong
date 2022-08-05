@@ -29,15 +29,12 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSqlSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
-import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
-import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +50,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 /**
  * read PostgreSql data
@@ -76,7 +74,6 @@ public class PostgreSqlReader extends AbstractReader {
     public static final String JOB_DATABASE_OFFSETS = "job.postgreSqljob.offsets";
     public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSqljob.offset.specificOffsetFile";
     public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.postgreSqljob.offset.specificOffsetPos";
-    public static final String WALLOG_READER_TAG_NAME = "AgentWallogMetric";
     public static final String JOB_DATABASE_DBNAME = "job.postgreSqljob.dbname";
     public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSqljob.servername";
     public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSqljob.pluginname";
@@ -102,13 +99,11 @@ public class PostgreSqlReader extends AbstractReader {
     private String serverName;
     private PostgreSqlSnapshotBase postgreSqlSnapshot;
     private boolean finished = false;
-    private boolean enableReportConfigLog;
-
     private ExecutorService executor;
-    private StreamConfigLogMetric streamConfigLogMetric;
-
+    private static final String POSTGRES_READER_TAG_NAME = "AgentPostgresMetric";
 
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
 
@@ -127,7 +122,7 @@ public class PostgreSqlReader extends AbstractReader {
     @Override
     public Message read() {
         if (!postgreSqlMessageQueue.isEmpty()) {
-            GlobalMetrics.incReadNum(metricTagName);
+            GLOBAL_METRICS.incReadNum(metricTagName);
             return getPostgreSqlMessage();
         } else {
             return null;
@@ -163,33 +158,15 @@ public class PostgreSqlReader extends AbstractReader {
         postgreSqlMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         finished = false;
+
         offset = jobConf.get(JOB_DATABASE_OFFSETS,"");
         specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,"");
         specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,"-1");
         postgreSqlSnapshot = new PostgreSqlSnapshotBase(offsetStoreFileName);
         postgreSqlSnapshot.save(offset);
 
-        enableReportConfigLog =
-                Boolean.parseBoolean(jobConf.get(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,
-                                    "true"));
+        metricTagName = String.join("_", POSTGRES_READER_TAG_NAME, inlongGroupId, inlongStreamId);
 
-        inlongGroupId = jobConf.get(CommonConstants.PROXY_INLONG_GROUP_ID,
-                CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(CommonConstants.PROXY_INLONG_STREAM_ID,
-                CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID);
-        metricTagName = WALLOG_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
-
-        if (enableReportConfigLog) {
-            String reportConfigServerUrl = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_SERVER_URL,"");
-            String reportConfigLogInterval = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_INTERVAL,"60000");
-            String clientVersion = jobConf
-                    .get(StreamConfigLogMetric.CONFIG_LOG_REPORT_CLIENT_VERSION,"");
-            streamConfigLogMetric = new StreamConfigLogMetric(COMPONENT_NAME,
-                    reportConfigServerUrl,Long.parseLong(reportConfigLogInterval),
-                    AgentUtils.getLocalIp(),clientVersion);
-        }
 
         Properties props = getEngineProps();
 
@@ -213,9 +190,6 @@ public class PostgreSqlReader extends AbstractReader {
                     if (!success) {
                         LOGGER.error("postgreslog job with jobConf {} has error {}",
                                 jobConf.getInstanceId(),message,error);
-                        streamConfigLogMetric
-                                .updateConfigLog(inlongGroupId,inlongStreamId,"DBConfig",
-                                        ConfigLogTypeEnum.ERROR,error == null ? "" : error.toString());
                     }
                 }).build();
 
@@ -327,7 +301,7 @@ public class PostgreSqlReader extends AbstractReader {
     }
 
     @Override
-    public void setWaitMillisecs(long millis) {
+    public void setWaitMillisecond(long millis) {
         return;
     }
 

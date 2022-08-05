@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.PostgreSqlReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,8 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
+
 
 /**
  * PostgreSql source, split PostgreSql source job into multi readers
@@ -53,7 +54,7 @@ public class PostgreSqlSource implements Source {
         Reader postgreReader = new PostgreSqlReader();
         List<Reader> readerList = new ArrayList<>();
         readerList.add(postgreReader);
-        GlobalMetrics.incSourceSuccessCount(metricTagName);
+        GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
         return readerList;
     }
 }
