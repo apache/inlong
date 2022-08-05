@@ -62,7 +62,7 @@ public class TestPostgresReader {
         Assert.assertEquals("true",debeziumFormat.getSource().getSnapshot());
     }
 
-    @Test
+//    @Test
     public void postgresLoadTest() {
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PostgreSqlReader.JOB_DATABASE_USER,"postgres");
