@@ -88,7 +88,8 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = ElasticsearchLoadNode.class, name = "elasticsearchLoad"),
         @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad"),
         @JsonSubTypes.Type(value = GreenplumLoadNode.class, name = "greenplumLoad"),
-        @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad")
+        @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad"),
+        @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad")
 })
 public interface Node {
 
