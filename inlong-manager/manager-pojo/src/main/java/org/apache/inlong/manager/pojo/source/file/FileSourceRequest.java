@@ -27,6 +27,9 @@ import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * File source request
  */
@@ -53,6 +56,23 @@ public class FileSourceRequest extends SourceRequest {
             + "Null or blank means from current timestamp")
     private String timeOffset;
 
+    @ApiModelProperty("Line end regex pattern, for example: &end&")
+    private String lineEndPattern;
+
+    @ApiModelProperty("Type of file content, for example: FULL, INCREMENT")
+    private String contentCollectType;
+
+    @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
+    private String envList;
+
+    @ApiModelProperty("Metadata of data, for example: " 
+            + "[{data:[field1,field2]},{kubernetes:[namespace,labels,name,uuid]}] and so on")
+    private List<Map<String, String>> metaFields;
+    
+    @ApiModelProperty("Type of data result for column separator, " 
+            + "for example: separator(,),(|),(,)--CSV or data is json ")
+    private String dataContentStyle;
+    
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());

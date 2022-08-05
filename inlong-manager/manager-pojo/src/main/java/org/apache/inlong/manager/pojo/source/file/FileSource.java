@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * File source info
  */
@@ -57,6 +60,23 @@ public class FileSource extends StreamSource {
             + "'1d' means from one day after, '-1d' means from one minute before, "
             + "Null or blank means from current timestamp")
     private String timeOffset;
+
+    @ApiModelProperty("Line end regex pattern, for example: &end&")
+    private String lineEndPattern;
+
+    @ApiModelProperty("Type of file content, for example: FULL, INCREMENT")
+    private String contentCollectType;
+
+    @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
+    private String envList;
+
+    @ApiModelProperty("Metadata of data, for example: "
+            + "[{data:[field1,field2]},{kubernetes:[namespace,labels,name,uuid]}] and so on")
+    private List<Map<String, String>> metaFields;
+
+    @ApiModelProperty("Type of data result for column separator, "
+            + "for example: separator(,),(|),(,)--CSV or data is json ")
+    private String dataContentStyle;
 
     public FileSource() {
         this.setSourceType(SourceType.FILE);

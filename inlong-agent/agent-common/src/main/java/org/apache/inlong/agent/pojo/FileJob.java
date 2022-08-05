@@ -42,6 +42,8 @@ public class FileJob {
     private String envList;
 
     private List<Map<String, String>> metaFields;
+    
+    private String dataSeparator;
 
     @Data
     public static class Dir {
@@ -88,6 +90,12 @@ public class FileJob {
         private String envList;
 
         private List<Map<String, String>> metaFields;
+        // Type of data result for column separator
+        // for example: separator(,),(|),(,)--CSV or json 
+        private String dataContentStyle;
+
+        // Column separator of data source 
+        private String dataSeparator;
     }
 
 }
