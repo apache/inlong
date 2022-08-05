@@ -19,7 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
-import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public interface WorkflowApproverEntityMapper {
 
     WorkflowApproverEntity selectById(Integer id);
 
-    List<WorkflowApproverEntity> selectByQuery(ApproverRequest request);
+    List<WorkflowApproverEntity> selectByCondition(ApproverPageRequest request);
 
     int updateById(WorkflowApproverEntity record);
 
