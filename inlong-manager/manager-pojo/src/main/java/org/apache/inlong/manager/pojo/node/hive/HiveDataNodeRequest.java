@@ -46,12 +46,6 @@ public class HiveDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username of the Hive server")
-    private String username;
-
-    @ApiModelProperty("User password of the Hive server")
-    private String password;
-
     @NotBlank(message = "dbName cannot be blank")
     @ApiModelProperty("Target database name")
     private String dbName;

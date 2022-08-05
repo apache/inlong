@@ -23,6 +23,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,15 +37,18 @@ class DataNodeControllerTest extends WebBaseTest {
     @Resource
     DataNodeEntityMapper dataNodeEntityMapper;
 
-    DataNodeRequest getDataNodeRequest() {
-        return DataNodeRequest.builder()
-                .name("hiveNode1")
-                .type("HIVE")
-                .url("127.0.0.1:8080")
-                .username("admin")
-                .token("123")
-                .inCharges("admin")
-                .build();
+    HiveDataNodeRequest getHiveDataNodeRequest() {
+        HiveDataNodeRequest hiveDataNodeRequest = new HiveDataNodeRequest();
+        hiveDataNodeRequest.setName("hiveNode1");
+        hiveDataNodeRequest.setType("HIVE");
+        hiveDataNodeRequest.setUrl("127.0.0.1:8080");
+        hiveDataNodeRequest.setUsername("admin");
+        hiveDataNodeRequest.setToken("123");
+        hiveDataNodeRequest.setInCharges("admin");
+        hiveDataNodeRequest.setDbName("hive1");
+        hiveDataNodeRequest.setTableName("person1");
+        hiveDataNodeRequest.setDataPath("/user");
+        return hiveDataNodeRequest;
     }
 
     @Test
@@ -52,7 +56,7 @@ class DataNodeControllerTest extends WebBaseTest {
         logout();
         operatorLogin();
 
-        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getHiveDataNodeRequest());
 
         Response<Integer> response = getResBody(mvcResult, Integer.class);
         Assertions.assertEquals("Current user [operator] has no permission to access URL", response.getErrMsg());
@@ -61,7 +65,7 @@ class DataNodeControllerTest extends WebBaseTest {
     @Test
     void testSaveAndGetAndDelete() throws Exception {
         // save
-        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getHiveDataNodeRequest());
 
         Integer dataNodeId = getResBodyObj(mvcResult, Integer.class);
         Assertions.assertNotNull(dataNodeId);
@@ -71,7 +75,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
         DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
         Assertions.assertNotNull(dataNode);
-        Assertions.assertEquals(getDataNodeRequest().getName(), dataNode.getName());
+        Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
         // delete
         MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/delete/{id}", dataNodeId);
@@ -99,7 +103,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
         dataNodeEntityMapper.insert(nodeEntity);
 
-        DataNodeRequest request = getDataNodeRequest();
+        DataNodeRequest request = getHiveDataNodeRequest();
         request.setId(nodeEntity.getId());
         request.setName("test447777");
         request.setVersion(nodeEntity.getVersion());
@@ -114,7 +118,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
     @Test
     void testUpdateFailByNoId() throws Exception {
-        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", getHiveDataNodeRequest());
 
         Response<Boolean> response = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(response.isSuccess());

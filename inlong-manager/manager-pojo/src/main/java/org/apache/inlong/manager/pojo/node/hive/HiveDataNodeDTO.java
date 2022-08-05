@@ -105,8 +105,8 @@ public class HiveDataNodeDTO {
 
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+        if (StringUtils.isNotEmpty(request.getToken())) {
+            passwd = AESUtils.encryptToString(request.getToken().getBytes(StandardCharsets.UTF_8),
                     encryptVersion);
         }
         return HiveDataNodeDTO.builder()
