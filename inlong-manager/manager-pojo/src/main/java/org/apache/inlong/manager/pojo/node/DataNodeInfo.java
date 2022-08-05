@@ -17,61 +17,73 @@
 
 package org.apache.inlong.manager.pojo.node;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
- * Data node request
+ * Data node info
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Data node  request")
+@ApiModel("Data node info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public class DataNodeRequest {
+public abstract class DataNodeInfo {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank(message = "node name cannot be blank")
-    @ApiModelProperty(value = "Node name")
+    @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @NotBlank(message = "node type cannot be blank")
-    @ApiModelProperty(value = "Node type, including MYSQL, HIVE, KAFKA, ES, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Node url")
+    @ApiModelProperty(value = "Cluster url")
     private String url;
 
-    @ApiModelProperty(value = "Node username")
-    private String username;
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
 
-    @ApiModelProperty(value = "Node token if needed")
+    @ApiModelProperty(value = "Extension tag")
+    private String extTag;
+
+    @ApiModelProperty(value = "Cluster token")
     private String token;
+
+    @ApiModelProperty(value = "Cluster heartbeat info")
+    private String heartbeat;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @ApiModelProperty(value = "Description of the data node")
-    private String description;
-
-    @NotBlank(message = "inCharges cannot be blank")
-    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Cluster status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    public abstract DataNodeRequest genRequest();
 }

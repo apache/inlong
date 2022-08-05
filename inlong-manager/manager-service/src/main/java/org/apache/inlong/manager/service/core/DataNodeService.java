@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 
 /**
  * Data node service layer interface
@@ -42,7 +42,7 @@ public interface DataNodeService {
      * @param id node id
      * @return node info
      */
-    DataNodeResponse get(Integer id);
+    DataNodeInfo get(Integer id);
 
     /**
      * Paging query nodes according to conditions.
@@ -50,7 +50,7 @@ public interface DataNodeService {
      * @param request page request conditions
      * @return node list
      */
-    PageInfo<DataNodeResponse> list(DataNodePageRequest request);
+    PageInfo<DataNodeInfo> list(DataNodePageRequest request);
 
     /**
      * Update data node.

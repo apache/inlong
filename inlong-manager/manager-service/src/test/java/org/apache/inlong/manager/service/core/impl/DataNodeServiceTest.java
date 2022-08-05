@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.DataNodeService;
 import org.junit.jupiter.api.Assertions;
@@ -39,7 +39,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
      * Save data node info.
      */
     public Integer saveOpt(String nodeName, String type, String url, String username, String password) {
-        DataNodeRequest request = new DataNodeRequest();
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setName(nodeName);
         request.setType(type);
         request.setUrl(url);
@@ -47,13 +47,15 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setToken(password);
         request.setDescription("test cluster");
         request.setInCharges(GLOBAL_OPERATOR);
+        request.setJdbcUrl("127.0.0.1");
+        request.setPassword("123456");
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }
 
     /**
      * Get data node list info.
      */
-    public PageInfo<DataNodeResponse> listOpt(String type, String name) {
+    public PageInfo<DataNodeInfo> listOpt(String type, String name) {
         DataNodePageRequest request = new DataNodePageRequest();
         request.setType(type);
         request.setName(name);
@@ -65,7 +67,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
      */
     public Boolean updateOpt(Integer id, String nodeName, String type, String url, String username, String password,
             Integer version) {
-        DataNodeRequest request = new DataNodeRequest();
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setId(id);
         request.setName(nodeName);
         request.setType(type);
@@ -96,17 +98,17 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(id);
 
         // test get data node
-        DataNodeResponse nodeResponse = dataNodeService.get(id);
-        Assertions.assertNotNull(nodeResponse);
-        Assertions.assertEquals(type, nodeResponse.getType());
+        DataNodeInfo dataNodeInfo = dataNodeService.get(id);
+        Assertions.assertNotNull(dataNodeInfo);
+        Assertions.assertEquals(type, dataNodeInfo.getType());
 
         // test get data node list
-        PageInfo<DataNodeResponse> listDataNode = this.listOpt(type, nodeName);
+        PageInfo<DataNodeInfo> listDataNode = this.listOpt(type, nodeName);
         Assertions.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
         String newNodeName = "kafkaNode1";
-        String newType = "KAFKA";
+        String newType = "HIVE";
         String newUrl = "127.0.0.1:8083";
         String newUsername = "admin2";
         String newPassword = "456";
