@@ -41,7 +41,7 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,19 +136,13 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         mockTaskListenerFactory();
 
         WorkflowContext context = processService.start(processName.name(), applicant, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
+        WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse processResponse = result.getProcessInfo();
         Assertions.assertSame(processResponse.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("InitMQ");
         Assertions.assertTrue(task instanceof ServiceTask);
-
-        // Integer processId = processResponse.getId();
-        // context = processService.continueProcess(processId, applicant, "continue process");
-        // result = WorkflowBeanUtils.result(context);
-        // processResponse = result.getProcessInfo();
-        // Assertions.assertSame(processResponse.getStatus(), ProcessStatus.COMPLETED);
     }
 
 }

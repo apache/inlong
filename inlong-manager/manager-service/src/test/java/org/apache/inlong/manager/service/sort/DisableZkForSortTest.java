@@ -43,7 +43,7 @@ import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,7 +138,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
         WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
+        WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
