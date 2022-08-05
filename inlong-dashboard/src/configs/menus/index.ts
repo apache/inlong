@@ -56,8 +56,17 @@ const menus: MenuItemType[] = [
   //   name: i18n.t('configs.menus.Datasources'),
   // },
   {
-    path: '/user',
     name: i18n.t('configs.menus.SystemManagement'),
+    children: [
+      {
+        path: '/user',
+        name: i18n.t('configs.menus.UserManagement'),
+      },
+      {
+        path: '/responsible',
+        name: i18n.t('configs.menus.ResponsibleManagement'),
+      },
+    ],
   },
 ];
 
