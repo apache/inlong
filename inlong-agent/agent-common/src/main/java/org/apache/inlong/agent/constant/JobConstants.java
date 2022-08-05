@@ -53,6 +53,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
     public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.endPattern";
     public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileJob.contentCollectType";
+    public static final String JOB_FILE_META_ENV_LIST = "job.fileJob.envList";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";

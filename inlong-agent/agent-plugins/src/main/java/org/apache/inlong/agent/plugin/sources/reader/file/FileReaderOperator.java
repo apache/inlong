@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sources.reader;
+package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -24,69 +24,62 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
+import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
+import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
 
 /**
- * read file data
+ * File reader entrance
  */
-public class TextFileReader extends AbstractReader {
+public class FileReaderOperator extends AbstractReader {
 
     public static final int NEVER_STOP_SIGN = -1;
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
     private static final String TEXT_FILE_READER_TAG_NAME = "AgentTextMetric";
-    private final File file;
-
-    private final int position;
-
-    private final String md5;
-    private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
+    public File file;
+    public int position;
+    public String md5;
+    public Stream<String> stream;
+    public String metadata;
+    public JobProfile jobConf;
     private Iterator<String> iterator;
-
-    private Stream<String> stream;
-
     private long timeout;
-
     private long waitTimeout;
 
     private long lastTime = 0;
 
     private List<Validator> validators = new ArrayList<>();
 
-    public TextFileReader(File file, int position) {
+    public FileReaderOperator(File file, int position) {
         this(file, position, "");
     }
 
-    public TextFileReader(File file, int position, String md5) {
+    public FileReaderOperator(File file, int position, String md5) {
         this.file = file;
         this.position = position;
         this.md5 = md5;
     }
 
-    public TextFileReader(File file) {
+    public FileReaderOperator(File file) {
         this(file, 0);
     }
 
@@ -171,6 +164,7 @@ public class TextFileReader extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         try {
+            this.jobConf = jobConf;
             super.init(jobConf);
             metricTagName = TEXT_FILE_READER_TAG_NAME + "_" + inlongGroupId;
             initReadTimeout(jobConf);
@@ -179,8 +173,15 @@ public class TextFileReader extends AbstractReader {
                 LOGGER.warn("md5 is differ from origin, origin: {}, new {}", this.md5, md5);
             }
             LOGGER.info("file name for task is {}, md5 is {}", file, md5);
-            //split file line
-            getFileStream(jobConf);
+            List<AbstractFileReader> fileReaders = getInstance(this, jobConf);
+            fileReaders.forEach(fileReader -> {
+                try {
+                    fileReader.getData();
+                    fileReader.mergeData(this);
+                } catch (Exception ex) {
+                    LOGGER.error("read file data error:{}", ex.getMessage());
+                }
+            });
             if (Objects.nonNull(stream)) {
                 iterator = stream.iterator();
             }
@@ -188,41 +189,7 @@ public class TextFileReader extends AbstractReader {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
     }
-
-    private void getFileStream(JobProfile jobConf) throws IOException {
-        List<String> lines = Files.newBufferedReader(file.toPath()).lines().skip(position).collect(Collectors.toList());
-        List<String> resultLines = new ArrayList<>();
-        //TODO line regular expression matching
-        if (jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
-            Pattern pattern = Pattern.compile(jobConf.get(JOB_FILE_LINE_END_PATTERN));
-            lines.forEach(line -> {
-                lineStringBuffer.put(file,
-                        lineStringBuffer.isEmpty() ? line : lineStringBuffer.get(file).concat(" ").concat(line));
-                String data = lineStringBuffer.get(file);
-                Matcher matcher = pattern.matcher(data);
-                if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
-                    String[] splitLines = data.split(matcher.group());
-                    int length = splitLines.length;
-                    for (int i = 0; i < length; i++) {
-                        if (i > 0 && i == length - 1 && null != splitLines[i]) {
-                            lineStringBuffer.put(file, splitLines[i]);
-                            break;
-                        }
-                        resultLines.add(splitLines[i].trim());
-                    }
-                    if (1 == length) {
-                        lineStringBuffer.remove(file);
-                    }
-                }
-            });
-            if (resultLines.isEmpty()) {
-                return;
-            }
-        }
-        lines = resultLines.isEmpty() ? lines : resultLines;
-        stream = lines.stream();
-    }
-
+    
     private void initReadTimeout(JobProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_FILE_MAX_WAIT,
                 DEFAULT_JOB_FILE_MAX_WAIT);
@@ -241,5 +208,20 @@ public class TextFileReader extends AbstractReader {
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
                 metricTagName, GLOBAL_METRICS.getReadNum(metricTagName));
+    }
+
+    public List<AbstractFileReader> getInstance(FileReaderOperator reader, JobProfile jobConf) {
+        List<AbstractFileReader> fileReaders = new ArrayList<>();
+        fileReaders.add(new TextFileReader(this));
+        if (!jobConf.hasKey(JOB_FILE_META_ENV_LIST)) {
+            return fileReaders;
+        }
+        String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
+        Arrays.stream(env).forEach(data -> {
+            if (data.equalsIgnoreCase(KUBERNETES)) {
+                fileReaders.add(new KubernetesFileReader(this));
+            }
+        });
+        return fileReaders;
     }
 }
