@@ -38,33 +38,36 @@ public class DataNodeImpl implements DataNode {
 
     @Override
     public Integer save(DataNodeRequest request) {
-        Preconditions.checkNotEmpty(request.getName(), "data node name should not be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type should not be empty");
+        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
+        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
         return dataNodeClient.save(request);
     }
 
     @Override
     public DataNodeResponse get(Integer id) {
-        Preconditions.checkNotNull(id, "data node id should not be empty");
+        Preconditions.checkNotNull(id, "data node id cannot be null");
         return dataNodeClient.get(id);
     }
 
     @Override
     public PageInfo<DataNodeResponse> list(DataNodeRequest request) {
+        Preconditions.checkNotNull(request, "request cannot be null");
         return dataNodeClient.list(request);
     }
 
     @Override
     public Boolean update(DataNodeRequest request) {
-        Preconditions.checkNotEmpty(request.getName(), "data node name should not be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type should not be empty");
-        Preconditions.checkNotNull(request.getId(), "data node id should not be empty");
+        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
+        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.checkNotNull(request.getId(), "data node id cannot be null");
         return dataNodeClient.update(request);
     }
 
     @Override
     public Boolean delete(Integer id) {
-        Preconditions.checkNotNull(id, "data node id should not be empty");
+        Preconditions.checkNotNull(id, "data node id cannot be null");
         return dataNodeClient.delete(id);
     }
 }

@@ -44,8 +44,9 @@ public class DataNodeClient {
      * @return cluster id after saving
      */
     public Integer save(DataNodeRequest request) {
-        Preconditions.checkNotEmpty(request.getName(), "data node name should not be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type should not be empty");
+        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
+        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
         Response<Integer> response = ClientUtils.executeHttpCall(dataNodeApi.save(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -58,7 +59,7 @@ public class DataNodeClient {
      * @return node info
      */
     public DataNodeResponse get(Integer id) {
-        Preconditions.checkNotNull(id, "data node id should not be empty");
+        Preconditions.checkNotNull(id, "data node id cannot be null");
         Response<DataNodeResponse> response = ClientUtils.executeHttpCall(dataNodeApi.get(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -71,6 +72,7 @@ public class DataNodeClient {
      * @return node list
      */
     public PageInfo<DataNodeResponse> list(DataNodeRequest request) {
+        Preconditions.checkNotNull(request, "request cannot be null");
         Response<PageInfo<DataNodeResponse>> response = ClientUtils.executeHttpCall(dataNodeApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -83,9 +85,10 @@ public class DataNodeClient {
      * @return whether succeed
      */
     public Boolean update(DataNodeRequest request) {
-        Preconditions.checkNotEmpty(request.getName(), "data node name should not be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type should not be empty");
-        Preconditions.checkNotNull(request.getId(), "data node id should not be empty");
+        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
+        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.checkNotNull(request.getId(), "data node id cannot be null");
         Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.update(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -98,7 +101,7 @@ public class DataNodeClient {
      * @return whether succeed
      */
     public Boolean delete(Integer id) {
-        Preconditions.checkNotNull(id, "data node id should not be empty");
+        Preconditions.checkNotNull(id, "data node id cannot be null");
         Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.delete(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
