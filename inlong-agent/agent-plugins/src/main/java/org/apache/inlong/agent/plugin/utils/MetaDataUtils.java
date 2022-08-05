@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.plugin.utils;
@@ -30,12 +29,13 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
 
 /**
- * metadata utils
+ * Metadata utils
  */
 public class MetaDataUtils {
 
     /**
      * standard log for k8s
+     * 
      * get pod_name,namespace,container_name,container_id
      */
     public static Map<String, String> getLogInfo(String fileName) {
@@ -43,7 +43,7 @@ public class MetaDataUtils {
         if (!StringUtils.isNoneBlank(fileName) && fileName.contains(CommonConstants.DELIMITER_UNDERLINE)) {
             return podInf;
         }
-        //file name example: /var/log/containers/<pod_name>_<namespace>_<container_name>-<continer_id>.log
+        // file name example: /var/log/containers/<pod_name>_<namespace>_<container_name>-<continer_id>.log
         String[] str = fileName.split(CommonConstants.DELIMITER_UNDERLINE);
         podInf.put(POD_NAME, str[0]);
         podInf.put(NAMESPACE, str[1]);

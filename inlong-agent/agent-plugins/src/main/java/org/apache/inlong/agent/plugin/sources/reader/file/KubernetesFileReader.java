@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
@@ -50,21 +49,21 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
 public final class KubernetesFileReader extends AbstractFileReader {
 
     private static final Logger log = LoggerFactory.getLogger(KubernetesFileReader.class);
-    public FilesReader filesReader;
+
     private KubernetesClient client;
 
-    KubernetesFileReader(FilesReader filesReader) {
-        this.filesReader = filesReader;
+    KubernetesFileReader(FileReaderOperator fileReaderOperator) {
+        super.fileReaderOperator = fileReaderOperator;
     }
 
     public void getData() {
-        if (Objects.nonNull(client) && Objects.nonNull(filesReader.metadata)) {
+        if (Objects.nonNull(client) && Objects.nonNull(fileReaderOperator.metadata)) {
             return;
         }
         client = getKubernetesClient();
-        Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(filesReader.file.getName());
+        Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.file.getName());
         ObjectMeta objectMeta = getPodMetadata(k8sInfo.get(NAMESPACE), k8sInfo.get(POD_NAME));
-        filesReader.metadata = Objects.nonNull(objectMeta) ? objectMeta.toString() : null;
+        fileReaderOperator.metadata = Objects.nonNull(objectMeta) ? objectMeta.toString() : null;
     }
 
     private KubernetesClient getKubernetesClient() {

@@ -13,13 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.constant;
 
 /**
- * k8s information
+ *  k8s information
  */
 public class KubernetesConstants {
 
@@ -27,8 +26,7 @@ public class KubernetesConstants {
     public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
     public static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
 
-    //k8s information
-    
+    // k8s information
     public static final String NAMESPACE = "namespace";
     public static final String POD_NAME = "pod.name";
     public static final String CONTAINER_NAME = "container.name";

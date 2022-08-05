@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
@@ -28,18 +27,18 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractFileReader {
 
-    public FilesReader filesReader;
+    public FileReaderOperator fileReaderOperator;
 
     public abstract void getData() throws Exception;
 
-    public void mergeData(FilesReader filesReader) {
-        if (null == filesReader.metadata) {
+    public void mergeData(FileReaderOperator fileReaderOperator) {
+        if (null == fileReaderOperator.metadata) {
             return;
         }
 
-        List<String> lines = filesReader.stream.collect(Collectors.toList());
-        lines.forEach(data -> data = MetaDataUtils.concatString(data, filesReader.metadata));
-        filesReader.stream = lines.stream();
+        List<String> lines = fileReaderOperator.stream.collect(Collectors.toList());
+        lines.forEach(data -> data = MetaDataUtils.concatString(data, fileReaderOperator.metadata));
+        fileReaderOperator.stream = lines.stream();
     }
 
 }

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
@@ -51,7 +50,7 @@ import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
 /**
  * File reader entrance
  */
-public class FilesReader extends AbstractReader {
+public class FileReaderOperator extends AbstractReader {
 
     public static final int NEVER_STOP_SIGN = -1;
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
@@ -70,17 +69,17 @@ public class FilesReader extends AbstractReader {
 
     private List<Validator> validators = new ArrayList<>();
 
-    public FilesReader(File file, int position) {
+    public FileReaderOperator(File file, int position) {
         this(file, position, "");
     }
 
-    public FilesReader(File file, int position, String md5) {
+    public FileReaderOperator(File file, int position, String md5) {
         this.file = file;
         this.position = position;
         this.md5 = md5;
     }
 
-    public FilesReader(File file) {
+    public FileReaderOperator(File file) {
         this(file, 0);
     }
 
@@ -211,7 +210,7 @@ public class FilesReader extends AbstractReader {
                 metricTagName, GLOBAL_METRICS.getReadNum(metricTagName));
     }
 
-    public List<AbstractFileReader> getInstance(FilesReader reader, JobProfile jobConf) {
+    public List<AbstractFileReader> getInstance(FileReaderOperator reader, JobProfile jobConf) {
         List<AbstractFileReader> fileReaders = new ArrayList<>();
         fileReaders.add(new TextFileReader(this));
         if (!jobConf.hasKey(JOB_FILE_META_ENV_LIST)) {

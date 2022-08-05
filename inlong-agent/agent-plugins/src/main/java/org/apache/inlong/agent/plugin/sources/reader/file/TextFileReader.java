@@ -39,37 +39,37 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PA
 public final class TextFileReader extends AbstractFileReader {
 
     private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
-    public FilesReader filesReader;
 
-    public TextFileReader(FilesReader filesReader) {
-        this.filesReader = filesReader;
+    public TextFileReader(FileReaderOperator fileReaderOperator) {
+        super.fileReaderOperator = fileReaderOperator;
     }
 
     public void getData() throws IOException {
-        List<String> lines = Files.newBufferedReader(filesReader.file.toPath()).lines().skip(filesReader.position)
+        List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
+                fileReaderOperator.position)
                 .collect(Collectors.toList());
         List<String> resultLines = new ArrayList<>();
         //TODO line regular expression matching
-        if (filesReader.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
-            Pattern pattern = Pattern.compile(filesReader.jobConf.get(JOB_FILE_LINE_END_PATTERN));
+        if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
+            Pattern pattern = Pattern.compile(fileReaderOperator.jobConf.get(JOB_FILE_LINE_END_PATTERN));
             lines.forEach(line -> {
-                lineStringBuffer.put(filesReader.file,
+                lineStringBuffer.put(fileReaderOperator.file,
                         lineStringBuffer.isEmpty() ? line
-                                : lineStringBuffer.get(filesReader.file).concat(" ").concat(line));
-                String data = lineStringBuffer.get(filesReader.file);
+                                : lineStringBuffer.get(fileReaderOperator.file).concat(" ").concat(line));
+                String data = lineStringBuffer.get(fileReaderOperator.file);
                 Matcher matcher = pattern.matcher(data);
                 if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
                     String[] splitLines = data.split(matcher.group());
                     int length = splitLines.length;
                     for (int i = 0; i < length; i++) {
                         if (i > 0 && i == length - 1 && null != splitLines[i]) {
-                            lineStringBuffer.put(filesReader.file, splitLines[i]);
+                            lineStringBuffer.put(fileReaderOperator.file, splitLines[i]);
                             break;
                         }
                         resultLines.add(splitLines[i].trim());
                     }
                     if (1 == length) {
-                        lineStringBuffer.remove(filesReader.file);
+                        lineStringBuffer.remove(fileReaderOperator.file);
                     }
                 }
             });
@@ -78,7 +78,7 @@ public final class TextFileReader extends AbstractFileReader {
             }
         }
         lines = resultLines.isEmpty() ? lines : resultLines;
-        filesReader.stream = lines.stream();
+        fileReaderOperator.stream = lines.stream();
     }
 
 }
