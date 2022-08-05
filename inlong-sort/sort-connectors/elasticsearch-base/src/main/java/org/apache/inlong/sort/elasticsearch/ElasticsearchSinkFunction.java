@@ -29,31 +29,8 @@ import java.io.Serializable;
 /**
  * Creates multiple {@link ActionRequest ActionRequests} from an element in a stream.
  *
- * <p>This is used by sinks to prepare elements for sending them to Elasticsearch.
+ * This is used by sinks to prepare elements for sending them to Elasticsearch.
  *
- * <p>Example:
- *
- * <pre>{@code
- * 				private static class TestElasticSearchSinkFunction implements
- * 					ElasticsearchSinkFunction<Tuple2<Integer, String>> {
- *
- * 				public IndexRequest createIndexRequest(Tuple2<Integer, String> element) {
- * 					Map<String, Object> json = new HashMap<>();
- * 					json.put("data", element.f1);
- *
- * 					return Requests.indexRequest()
- * 						.index("my-index")
- * 						.type("my-type")
- * 						.id(element.f0.toString())
- * 						.source(json);
- *                    }
- *
- * 			public void process(Tuple2<Integer, String> element, RuntimeContext ctx, RequestIndexer indexer) {
- * 				indexer.add(createIndexRequest(element));
- *            }
- *    }
- *
- * }</pre>
  *
  * @param <T> The type of the element handled by this {@code ElasticsearchSinkFunction}
  */

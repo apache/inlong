@@ -29,6 +29,7 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.inlong.sort.elasticsearch.metric.MetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -120,27 +121,26 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
+    private final String inLongMetric;
     /**
      * If true, the producer will wait until all outstanding action requests have been sent to
      * Elasticsearch.
      */
     private boolean flushOnCheckpoint = true;
-
     /**
      * Provided to the user via the {@link ElasticsearchSinkFunction} to add {@link ActionRequest
      * ActionRequests}.
      */
     private transient RequestIndexer requestIndexer;
 
+    // ------------------------------------------------------------------------
+    //  Internals for the Flink Elasticsearch Sink
+    // ------------------------------------------------------------------------
     /**
      * Provided to the {@link ActionRequestFailureHandler} to allow users to re-index failed
      * requests.
      */
     private transient BufferingNoOpRequestIndexer failureRequestIndexer;
-
-    // ------------------------------------------------------------------------
-    //  Internals for the Flink Elasticsearch Sink
-    // ------------------------------------------------------------------------
     /**
      * Number of pending action requests not yet acknowledged by Elasticsearch. This value is
      * maintained only if {@link ElasticsearchSinkBase#flushOnCheckpoint} is {@code true}.
@@ -160,13 +160,15 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * Bulk processor to buffer and send requests to Elasticsearch, created using the client.
      */
     private transient BulkProcessor bulkProcessor;
+    private MetricData metricData;
 
     public ElasticsearchSinkBase(
             ElasticsearchApiCallBridge<C> callBridge,
             Map<String, String> userConfig,
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
-            ActionRequestFailureHandler failureHandler) {
-
+            ActionRequestFailureHandler failureHandler,
+            String inLongMetric) {
+        this.inLongMetric = inLongMetric;
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
@@ -263,8 +265,23 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
+        metricData = new MetricData(getRuntimeContext().getMetricGroup());
+        if (inLongMetric != null && !inLongMetric.isEmpty()) {
+            String[] inLongMetricArray = inLongMetric.split("&");
+            String groupId = inLongMetricArray[0];
+            String streamId = inLongMetricArray[1];
+            String nodeId = inLongMetricArray[2];
+            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
+            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
+            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
+            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
+                    "numBytesOutPerSecond");
+            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+                    "numRecordsOutPerSecond");
+        }
         callBridge.verifyClientConnection(client);
-        bulkProcessor = buildBulkProcessor(new BulkProcessorListener());
+        bulkProcessor = buildBulkProcessor(new BulkProcessorListener(metricData));
         requestIndexer =
                 callBridge.createBulkProcessorIndexer(
                         bulkProcessor, flushOnCheckpoint, numPendingRequests);
@@ -445,6 +462,12 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
 
     private class BulkProcessorListener implements BulkProcessor.Listener {
 
+        private MetricData metricData;
+
+        public BulkProcessorListener(MetricData metricData) {
+            this.metricData = metricData;
+        }
+
         @Override
         public void beforeBulk(long executionId, BulkRequest request) {
         }
@@ -464,6 +487,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                         if (failure != null) {
                             restStatus = itemResponse.getFailure().getStatus();
                             actionRequest = request.requests().get(i);
+                            if (metricData.getDirtyRecords() != null) {
+                                metricData.getDirtyRecords().inc();
+                            }
                             if (restStatus == null) {
                                 if (actionRequest instanceof ActionRequest) {
                                     failureHandler.onFailure(
@@ -488,6 +514,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                                 }
                             }
                         }
+                        if (metricData.getNumRecordsOut() != null) {
+                            metricData.getNumRecordsOut().inc();
+                        }
                     }
                 } catch (Throwable t) {
                     // fail the sink and skip the rest of the items
@@ -505,6 +534,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
             try {
                 for (DocWriteRequest writeRequest : request.requests()) {
+                    if (metricData.getDirtyRecords() != null) {
+                        metricData.getDirtyRecords().inc();
+                    }
                     if (writeRequest instanceof ActionRequest) {
                         failureHandler.onFailure(
                                 (ActionRequest) writeRequest, failure, -1, failureRequestIndexer);

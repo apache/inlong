@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.elasticsearch6;
+package org.apache.inlong.sort.elasticsearch7;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
-import org.apache.flink.util.Preconditions;
-import org.apache.http.HttpHost;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
+import org.apache.flink.util.Preconditions;
+
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Elasticsearch 6.x sink that requests multiple {@link ActionRequest ActionRequests} against a
+ * Elasticsearch 7.x sink that requests multiple {@link ActionRequest ActionRequests} against a
  * cluster for each incoming element.
  *
  * <p>The sink internally uses a {@link RestHighLevelClient} to communicate with an Elasticsearch
@@ -69,15 +70,14 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
             List<HttpHost> httpHosts,
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
-            RestClientFactory restClientFactory,
-            String inLongMetric) {
+            RestClientFactory restClientFactory) {
 
         super(
-                new Elasticsearch6ApiCallBridge(httpHosts, restClientFactory),
+                new Elasticsearch7ApiCallBridge(httpHosts, restClientFactory),
                 bulkRequestsConfig,
                 elasticsearchSinkFunction,
                 failureHandler,
-                inLongMetric);
+                null);
     }
 
     /**
@@ -93,31 +93,21 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         private Map<String, String> bulkRequestsConfig = new HashMap<>();
         private ActionRequestFailureHandler failureHandler = new NoOpFailureHandler();
-        private RestClientFactory restClientFactory = restClientBuilder -> {
-        };
-        private String inLongMetric = null;
+        private RestClientFactory restClientFactory = restClientBuilder -> {};
 
         /**
          * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
          * RestHighLevelClient}.
          *
          * @param httpHosts The list of {@link HttpHost} to which the {@link RestHighLevelClient}
-         *         connects to.
+         *     connects to.
          * @param elasticsearchSinkFunction This is used to generate multiple {@link ActionRequest}
-         *         from the incoming element.
+         *     from the incoming element.
          */
         public Builder(
                 List<HttpHost> httpHosts, ElasticsearchSinkFunction<T> elasticsearchSinkFunction) {
             this.httpHosts = Preconditions.checkNotNull(httpHosts);
             this.elasticsearchSinkFunction = Preconditions.checkNotNull(elasticsearchSinkFunction);
-        }
-
-        /**
-         * set InLongMetric for reporting metrics
-         * @param inLongMetric
-         */
-        public void setInLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
         }
 
         /**
@@ -189,7 +179,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          * Sets the maximum number of retries for a backoff attempt when flushing bulk requests.
          *
          * @param maxRetries the maximum number of retries for a backoff attempt when flushing bulk
-         *         requests
+         *     requests
          */
         public void setBulkFlushBackoffRetries(int maxRetries) {
             Preconditions.checkArgument(
@@ -204,7 +194,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          * milliseconds.
          *
          * @param delayMillis the amount of delay between each backoff attempt when flushing bulk
-         *         requests, in milliseconds.
+         *     requests, in milliseconds.
          */
         public void setBulkFlushBackoffDelay(long delayMillis) {
             Preconditions.checkArgument(
@@ -243,9 +233,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     httpHosts,
                     elasticsearchSinkFunction,
                     failureHandler,
-                    restClientFactory,
-                    inLongMetric
-                    );
+                    restClientFactory);
         }
 
         @Override
@@ -261,8 +249,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     && Objects.equals(elasticsearchSinkFunction, builder.elasticsearchSinkFunction)
                     && Objects.equals(bulkRequestsConfig, builder.bulkRequestsConfig)
                     && Objects.equals(failureHandler, builder.failureHandler)
-                    && Objects.equals(restClientFactory, builder.restClientFactory)
-                    && Objects.equals(inLongMetric, builder.inLongMetric);
+                    && Objects.equals(restClientFactory, builder.restClientFactory);
         }
 
         @Override
@@ -272,8 +259,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     elasticsearchSinkFunction,
                     bulkRequestsConfig,
                     failureHandler,
-                    restClientFactory,
-                    inLongMetric);
+                    restClientFactory);
         }
     }
 }

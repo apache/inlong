@@ -85,7 +85,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.runtimeContext = ctx;
         metricData = new MetricData(runtimeContext.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("_");
+            String[] inLongMetricArray = inLongMetric.split("&");
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
@@ -118,6 +118,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void processUpsert(RowData row, RequestIndexer indexer) {
         final byte[] document = serializationSchema.serialize(row);
         final String key = createKey.apply(row);
+        if (metricData.getNumBytesOut() != null) {
+            metricData.getNumBytesOut().inc(document.length);
+        }
         if (key != null) {
             final UpdateRequest updateRequest =
                     requestFactory.createUpdateRequest(
