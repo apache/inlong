@@ -133,6 +133,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>org.apache.iceberg:*</include>
                                     <include>org.apache.hive:hive-exec</include>
 
