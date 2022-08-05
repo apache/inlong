@@ -67,10 +67,10 @@ public class TextFileSource implements Source {
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         for (File file : allFiles) {
-            int seekPosition = getSeekPosition(jobConf, file);
-            LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", seekPosition,
+            int startPosition = getStartPosition(jobConf, file);
+            LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", startPosition,
                     jobConf.getInstanceId(), file.getAbsolutePath());
-            TextFileReader textFileReader = new TextFileReader(file, seekPosition);
+            TextFileReader textFileReader = new TextFileReader(file, startPosition);
             long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
             textFileReader.setWaitMillisecond(waitTimeout);
             addValidator(filterPattern, textFileReader);
@@ -81,7 +81,7 @@ public class TextFileSource implements Source {
         return result;
     }
 
-    private int getSeekPosition(JobProfile jobConf, File file) {
+    private int getStartPosition(JobProfile jobConf, File file) {
         int seekPosition;
         if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
                 .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
