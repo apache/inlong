@@ -23,7 +23,7 @@ import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
+import org.apache.inlong.agent.plugin.sources.reader.file.FilesReader;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.junit.AfterClass;
@@ -203,13 +203,13 @@ public class TestTextFileReader {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
-        TextFileReader reader = new TextFileReader(localPath.toFile(), 1000);
+        FilesReader filesReader = new FilesReader(localPath.toFile(), 1000);
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
-        reader.init(jobProfile);
+        filesReader.init(jobProfile);
 
-        Assert.assertEquals("world", new String(reader.read().getBody()));
+        Assert.assertEquals("world", new String(filesReader.read().getBody()));
 
     }
 
@@ -220,7 +220,7 @@ public class TestTextFileReader {
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
         Path localPath = Paths.get(testDir.toString(), "test1.txt");
-        TextFileReader reader = new TextFileReader(localPath.toFile(), 0);
+        FilesReader reader = new FilesReader(localPath.toFile(), 0);
         if (localPath.toFile().exists()) {
             localPath.toFile().delete();
         }

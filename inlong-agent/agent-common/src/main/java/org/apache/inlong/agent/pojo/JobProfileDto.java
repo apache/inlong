@@ -119,6 +119,14 @@ public class JobProfileDto {
             FileJob.Line line = new Line();
             line.setEndPattern(fileJobTaskConfig.getLineEndPattern());
         }
+
+        if (null != fileJobTaskConfig.getEnvList()) {
+            fileJob.setEnvList(fileJobTaskConfig.getEnvList());
+        }
+
+        if (null != fileJobTaskConfig.getMetaFields()) {
+            fileJob.setMetaFields(fileJob.getMetaFields());
+        }
         return fileJob;
     }
 

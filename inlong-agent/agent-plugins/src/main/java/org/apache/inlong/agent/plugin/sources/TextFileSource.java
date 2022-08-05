@@ -22,7 +22,7 @@ import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
+import org.apache.inlong.agent.plugin.sources.reader.file.FilesReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,11 +70,11 @@ public class TextFileSource implements Source {
             int startPosition = getStartPosition(jobConf, file);
             LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", startPosition,
                     jobConf.getInstanceId(), file.getAbsolutePath());
-            TextFileReader textFileReader = new TextFileReader(file, startPosition);
+            FilesReader fileReader = new FilesReader(file, startPosition);
             long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
-            textFileReader.setWaitMillisecond(waitTimeout);
-            addValidator(filterPattern, textFileReader);
-            result.add(textFileReader);
+            fileReader.setWaitMillisecond(waitTimeout);
+            addValidator(filterPattern, fileReader);
+            result.add(fileReader);
         }
         // increment the count of successful sources
         GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
@@ -98,7 +98,7 @@ public class TextFileSource implements Source {
         return seekPosition;
     }
 
-    private void addValidator(String filterPattern, TextFileReader textFileReader) {
-        textFileReader.addPatternValidator(filterPattern);
+    private void addValidator(String filterPattern, FilesReader fileReader) {
+        fileReader.addPatternValidator(filterPattern);
     }
 }

@@ -19,6 +19,9 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 public class FileJob {
 
@@ -35,6 +38,10 @@ public class FileJob {
     // FULL
 
     private String contentCollectType;
+
+    private String envList;
+
+    private List<Map<String, String>> metaFields;
 
     @Data
     public static class Dir {
@@ -77,6 +84,10 @@ public class FileJob {
         private String lineEndPattern;
 
         private String contentCollectType;
+
+        private String envList;
+
+        private List<Map<String, String>> metaFields;
     }
 
 }
