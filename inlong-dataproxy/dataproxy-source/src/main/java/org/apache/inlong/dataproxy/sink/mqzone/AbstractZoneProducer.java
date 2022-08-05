@@ -44,7 +44,6 @@ public abstract class AbstractZoneProducer {
 
     protected AtomicInteger clusterIndex = new AtomicInteger(0);
 
-
     public AbstractZoneProducer(String workerName,
                                 AbstractZoneSinkContext context) {
         this.workerName = workerName;
@@ -119,7 +118,8 @@ public abstract class AbstractZoneProducer {
             // add
             for (CacheClusterConfig config : configList) {
                 if (!oldClusterNames.contains(config.getClusterName())) {
-                    AbstractZoneClusterProducer cluster = zoneClusterProducerCalculator.calculator(workerName, config, context);
+                    AbstractZoneClusterProducer cluster = zoneClusterProducerCalculator.calculator(workerName,
+                            config, context);
                     cluster.start();
                     newClusterList.add(cluster);
                 }

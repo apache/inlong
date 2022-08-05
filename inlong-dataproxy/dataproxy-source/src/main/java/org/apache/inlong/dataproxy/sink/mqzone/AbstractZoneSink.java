@@ -38,7 +38,7 @@ import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractZoneSink extends AbstractSink implements Configurable{
+public abstract class AbstractZoneSink extends AbstractSink implements Configurable {
     public static final Logger LOG = LoggerFactory.getLogger(AbstractZoneSink.class);
 
     protected Context parentContext;
@@ -77,7 +77,8 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
                                                           public void run() {
                                                               dispatchManager.setNeedOutputOvertimeData();
                                                           }
-                                                      }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
+                                                      }, this.dispatchManager.getDispatchTimeout(),
+                    this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {

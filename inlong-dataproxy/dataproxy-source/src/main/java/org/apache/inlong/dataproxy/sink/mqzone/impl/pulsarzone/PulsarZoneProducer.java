@@ -25,7 +25,6 @@ import org.apache.inlong.dataproxy.sink.mqzone.ZoneClusterProducerCalculator;
 
 public class PulsarZoneProducer extends AbstractZoneProducer implements ZoneClusterProducerCalculator {
 
-
     public PulsarZoneProducer(String workerName, AbstractZoneSinkContext context) {
         super(workerName, context);
     }
@@ -36,7 +35,6 @@ public class PulsarZoneProducer extends AbstractZoneProducer implements ZoneClus
     public void reload() {
         super.reload(this);
     }
-
 
     @Override
     public AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config,

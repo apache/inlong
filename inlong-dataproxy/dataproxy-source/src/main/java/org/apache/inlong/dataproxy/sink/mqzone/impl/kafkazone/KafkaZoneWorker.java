@@ -40,6 +40,7 @@ public class KafkaZoneWorker extends AbstactZoneWorker {
                 new KafkaZoneProducer(sinkName + "-worker-" + workerIndex, context));
 
     }
+
     /**
      * run
      */

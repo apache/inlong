@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public class TubeZoneWorker extends AbstactZoneWorker {
 
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneWorker.class);
+
     /**
      * Constructor
      * 
@@ -38,6 +39,7 @@ public class TubeZoneWorker extends AbstactZoneWorker {
         super(sinkName, workerIndex, context,
                 new TubeZoneProducer(sinkName + "-worker-" + workerIndex, context));
     }
+
     /**
      * run
      */
