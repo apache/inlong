@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -26,17 +26,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
- * PulsarZoneSinkContext
+ * KafkaZoneSinkContext
  */
-public class PulsarZoneZoneSinkContext extends AbstractZoneSinkContext {
+public class KafkaZoneSinkContext extends AbstractZoneSinkContext {
 
     /**
      * Constructor
      * 
      * @param context
      */
-    public PulsarZoneZoneSinkContext(String sinkName, Context context, Channel channel,
-                                     LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
+    public KafkaZoneSinkContext(String sinkName, Context context, Channel channel,
+                                LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel, dispatchQueue);
     }
 

@@ -46,7 +46,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
     public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneSink.class);
 
     private Context parentContext;
-    private PulsarZoneZoneSinkContext context;
+    private PulsarZoneSinkContext context;
     private List<PulsarZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
@@ -73,7 +73,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new PulsarZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }

@@ -30,7 +30,7 @@ public class TubeZoneWorker extends Thread {
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneWorker.class);
 
     private final String workerName;
-    private final TubeZoneZoneSinkContext context;
+    private final TubeZoneSinkContext context;
 
     private TubeZoneProducer zoneProducer;
     private LifecycleState status;
@@ -42,7 +42,7 @@ public class TubeZoneWorker extends Thread {
      * @param workerIndex
      * @param context
      */
-    public TubeZoneWorker(String sinkName, int workerIndex, TubeZoneZoneSinkContext context) {
+    public TubeZoneWorker(String sinkName, int workerIndex, TubeZoneSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;

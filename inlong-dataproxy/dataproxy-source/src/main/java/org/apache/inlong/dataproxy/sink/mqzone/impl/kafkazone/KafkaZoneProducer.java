@@ -17,147 +17,33 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneProducer;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSinkContext;
+import org.apache.inlong.dataproxy.sink.mqzone.Calculator;
 
-/**
- * KafkaZoneProducer
- */
-public class KafkaZoneProducer {
-
-    public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneProducer.class);
-    public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
-
-    private final String workerName;
-    private final KafkaZoneZoneSinkContext context;
-    private Timer reloadTimer;
-
-    private List<KafkaClusterProducer> clusterList = new ArrayList<>();
-    private List<KafkaClusterProducer> deletingClusterList = new ArrayList<>();
-
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
-
+public class KafkaZoneProducer extends AbstractZoneProducer implements Calculator {
     /**
      * Constructor
      * 
      * @param workerName
      * @param context
      */
-    public KafkaZoneProducer(String workerName, KafkaZoneZoneSinkContext context) {
-        this.workerName = workerName;
-        this.context = context;
-    }
-
-    /**
-     * start
-     */
-    public void start() {
-        try {
-            this.reload();
-            this.setReloadTimer();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * close
-     */
-    public void close() {
-        try {
-            this.reloadTimer.cancel();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        for (KafkaClusterProducer cluster : this.clusterList) {
-            cluster.stop();
-        }
-    }
-
-    /**
-     * setReloadTimer
-     */
-    private void setReloadTimer() {
-        reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
-
-            public void run() {
-                reload();
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + context.getReloadInterval()),
-                context.getReloadInterval());
+    public KafkaZoneProducer(String workerName, KafkaZoneSinkContext context) {
+        super(workerName, context);
     }
 
     /**
      * reload
      */
     public void reload() {
-        try {
-            // stop deleted cluster
-            deletingClusterList.forEach(item -> {
-                item.stop();
-            });
-            deletingClusterList.clear();
-            // update cluster list
-            List<CacheClusterConfig> configList = this.context.getCacheHolder().getConfigList();
-            List<KafkaClusterProducer> newClusterList = new ArrayList<>(configList.size());
-            // prepare
-            Set<String> newClusterNames = new HashSet<>();
-            configList.forEach(item -> {
-                newClusterNames.add(item.getClusterName());
-            });
-            Set<String> oldClusterNames = new HashSet<>();
-            clusterList.forEach(item -> {
-                oldClusterNames.add(item.getCacheClusterName());
-            });
-            // add
-            for (CacheClusterConfig config : configList) {
-                if (!oldClusterNames.contains(config.getClusterName())) {
-                    KafkaClusterProducer cluster = new KafkaClusterProducer(workerName, config, context);
-                    cluster.start();
-                    newClusterList.add(cluster);
-                }
-            }
-            // remove
-            for (KafkaClusterProducer cluster : this.clusterList) {
-                if (newClusterNames.contains(cluster.getCacheClusterName())) {
-                    newClusterList.add(cluster);
-                } else {
-                    deletingClusterList.add(cluster);
-                }
-            }
-            this.clusterList = newClusterList;
-        } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
-        }
+        super.reload(this);
     }
 
-    /**
-     * send
-     * 
-     * @param event
-     */
-    public boolean send(DispatchProfile event) {
-        int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > MAX_INDEX) {
-            clusterIndex.set(0);
-        }
-        List<KafkaClusterProducer> currentClusterList = this.clusterList;
-        int currentSize = currentClusterList.size();
-        int realIndex = currentIndex % currentSize;
-        KafkaClusterProducer clusterProducer = currentClusterList.get(realIndex);
-        return clusterProducer.send(event);
+    @Override
+    public AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config,
+                                                  AbstractZoneSinkContext context) {
+        return  new KafkaClusterProducer(workerName, config, (KafkaZoneSinkContext) context);
     }
 }

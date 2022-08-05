@@ -64,7 +64,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
      * @param config
      * @param context
      */
-    public TubeClusterProducer(String workerName, CacheClusterConfig config, TubeZoneZoneSinkContext context) {
+    public TubeClusterProducer(String workerName, CacheClusterConfig config, TubeZoneSinkContext context) {
             super(workerName, config, context);
     }
 

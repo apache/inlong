@@ -30,7 +30,7 @@ public class PulsarZoneWorker extends Thread {
     public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneWorker.class);
 
     private final String workerName;
-    private final PulsarZoneZoneSinkContext context;
+    private final PulsarZoneSinkContext context;
 
     private PulsarZoneProducer zoneProducer;
     private LifecycleState status;
@@ -42,7 +42,7 @@ public class PulsarZoneWorker extends Thread {
      * @param workerIndex
      * @param context
      */
-    public PulsarZoneWorker(String sinkName, int workerIndex, PulsarZoneZoneSinkContext context) {
+    public PulsarZoneWorker(String sinkName, int workerIndex, PulsarZoneSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;

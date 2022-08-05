@@ -46,7 +46,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
     public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneSink.class);
 
     private Context parentContext;
-    private KafkaZoneZoneSinkContext context;
+    private KafkaZoneSinkContext context;
     private List<KafkaZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
@@ -73,7 +73,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new KafkaZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new KafkaZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }

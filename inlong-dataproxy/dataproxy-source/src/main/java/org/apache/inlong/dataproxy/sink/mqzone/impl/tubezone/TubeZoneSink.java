@@ -46,7 +46,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneSink.class);
 
     private Context parentContext;
-    private TubeZoneZoneSinkContext context;
+    private TubeZoneSinkContext context;
     private List<TubeZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
@@ -73,7 +73,7 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new TubeZoneZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            this.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }

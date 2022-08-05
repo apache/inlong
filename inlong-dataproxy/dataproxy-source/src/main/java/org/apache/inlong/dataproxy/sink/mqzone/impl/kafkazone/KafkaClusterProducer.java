@@ -51,7 +51,7 @@ public class KafkaClusterProducer extends AbstractZoneClusterProducer {
      * @param config
      * @param context
      */
-    public KafkaClusterProducer(String workerName, CacheClusterConfig config, KafkaZoneZoneSinkContext context) {
+    public KafkaClusterProducer(String workerName, CacheClusterConfig config, KafkaZoneSinkContext context) {
         super(workerName, config, context);
     }
 

@@ -88,7 +88,7 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
      * @param config Cache cluster configuration
      * @param context Sink context
      */
-    public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneZoneSinkContext context) {
+    public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         super(workerName, config, context);
         this.tenant = config.getParams().get(KEY_TENANT);
         this.namespace = config.getParams().get(KEY_NAMESPACE);

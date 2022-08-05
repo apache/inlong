@@ -28,14 +28,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  * 
  * TubeZoneSinkContext
  */
-public class TubeZoneZoneSinkContext extends AbstractZoneSinkContext {
+public class TubeZoneSinkContext extends AbstractZoneSinkContext {
     /**
      * Constructor
      * 
      * @param context
      */
-    public TubeZoneZoneSinkContext(String sinkName, Context context, Channel channel,
-                                   LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
+    public TubeZoneSinkContext(String sinkName, Context context, Channel channel,
+                               LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel, dispatchQueue);
     }
 

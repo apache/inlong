@@ -30,7 +30,7 @@ public class KafkaZoneWorker extends Thread {
     public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneWorker.class);
 
     private final String workerName;
-    private final KafkaZoneZoneSinkContext context;
+    private final KafkaZoneSinkContext context;
 
     private KafkaZoneProducer zoneProducer;
     private LifecycleState status;
@@ -42,7 +42,7 @@ public class KafkaZoneWorker extends Thread {
      * @param workerIndex
      * @param context
      */
-    public KafkaZoneWorker(String sinkName, int workerIndex, KafkaZoneZoneSinkContext context) {
+    public KafkaZoneWorker(String sinkName, int workerIndex, KafkaZoneSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;
