@@ -17,23 +17,16 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
-import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstactZoneWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * PulsarZoneWorker
  */
-public class PulsarZoneWorker extends Thread {
+public class PulsarZoneWorker extends AbstactZoneWorker {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneWorker.class);
-
-    private final String workerName;
-    private final PulsarZoneSinkContext context;
-
-    private PulsarZoneProducer zoneProducer;
-    private LifecycleState status;
 
     /**
      * Constructor
@@ -43,31 +36,9 @@ public class PulsarZoneWorker extends Thread {
      * @param context
      */
     public PulsarZoneWorker(String sinkName, int workerIndex, PulsarZoneSinkContext context) {
-        super();
-        this.workerName = sinkName + "-worker-" + workerIndex;
-        this.context = context;
-        this.zoneProducer = new PulsarZoneProducer(workerName, this.context);
-        this.status = LifecycleState.IDLE;
-    }
+        super(sinkName, workerIndex, context,
+                new PulsarZoneProducer(sinkName + "-worker-" + workerIndex, context));
 
-    /**
-     * start
-     */
-    @Override
-    public void start() {
-        this.zoneProducer.start();
-        this.status = LifecycleState.START;
-        super.start();
-    }
-
-    /**
-     * 
-     * close
-     */
-    public void close() {
-        // close all producers
-        this.zoneProducer.close();
-        this.status = LifecycleState.STOP;
     }
 
     /**
@@ -76,32 +47,6 @@ public class PulsarZoneWorker extends Thread {
     @Override
     public void run() {
         LOG.info(String.format("start PulsarZoneWorker:%s", this.workerName));
-        while (status != LifecycleState.STOP) {
-            try {
-                DispatchProfile event = context.getDispatchQueue().poll();
-                if (event == null) {
-                    this.sleepOneInterval();
-                    continue;
-                }
-                // metric
-                context.addSendMetric(event, workerName);
-                // send
-                this.zoneProducer.send(event);
-            } catch (Throwable e) {
-                LOG.error(e.getMessage(), e);
-                this.sleepOneInterval();
-            }
-        }
-    }
-
-    /**
-     * sleepOneInterval
-     */
-    private void sleepOneInterval() {
-        try {
-            Thread.sleep(context.getProcessInterval());
-        } catch (InterruptedException e1) {
-            LOG.error(e1.getMessage(), e1);
-        }
+        super.run();
     }
 }
