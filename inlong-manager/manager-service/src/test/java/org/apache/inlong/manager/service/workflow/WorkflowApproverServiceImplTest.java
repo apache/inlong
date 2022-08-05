@@ -17,15 +17,14 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.WorkflowApproverServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * Test class for workflow approver service.
@@ -38,11 +37,11 @@ public class WorkflowApproverServiceImplTest extends ServiceBaseTest {
     @Test
     public void testListAndGet() {
         // The workflow approvers was init by SQL file.
-        List<ApproverResponse> approverList = workflowApproverService.listByCondition(
-                ApproverRequest.builder().build());
-        Assertions.assertTrue(approverList.size() > 0);
+        PageInfo<ApproverResponse> approverList = workflowApproverService.listByCondition(
+                ApproverPageRequest.builder().build());
+        Assertions.assertTrue(approverList.getSize() > 0);
 
-        Integer id = approverList.get(0).getId();
+        Integer id = approverList.getList().get(0).getId();
         ApproverResponse approverResponse = workflowApproverService.get(id);
         Assertions.assertEquals(id, approverResponse.getId());
     }
