@@ -17,55 +17,16 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.dataproxy.dispatch.DispatchManager;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
-import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * TubeZoneSink
  */
-public class TubeZoneSink extends AbstractSink implements Configurable {
+public class TubeZoneSink extends AbstractZoneSink {
 
     public static final Logger LOG = LoggerFactory.getLogger(TubeZoneSink.class);
-
-    private Context parentContext;
-    private TubeZoneSinkContext context;
-    private List<TubeZoneWorker> workers = new ArrayList<>();
-    // message group
-    private DispatchManager dispatchManager;
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
-    // scheduled thread pool
-    // reload
-    // dispatch
-    private ScheduledExecutorService scheduledPool;
-
-    /**
-     * configure
-     * 
-     * @param context
-     */
-    @Override
-    public void configure(Context context) {
-        LOG.info("start to configure:{}, context:{}.", this.getClass().getSimpleName(), context.toString());
-        this.parentContext = context;
-    }
 
     /**
      * start
@@ -73,94 +34,13 @@ public class TubeZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
-            this.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
-            if (getChannel() == null) {
-                LOG.error("channel is null");
-            }
-            this.context.start();
-            this.dispatchManager = new DispatchManager(parentContext, dispatchQueue);
-            this.scheduledPool = Executors.newScheduledThreadPool(2);
-            // dispatch
-            this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
-
-                public void run() {
-                    dispatchManager.setNeedOutputOvertimeData();
-                }
-            }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
-                    TimeUnit.MILLISECONDS);
-            // create worker
-            for (int i = 0; i < context.getMaxThreads(); i++) {
-                TubeZoneWorker worker = new TubeZoneWorker(this.getName(), i, context);
-                worker.start();
-                this.workers.add(worker);
-            }
+            super.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            super.start((sinkName, workIndex, context) -> {
+                return new TubeZoneWorker(sinkName, workIndex, (TubeZoneSinkContext) context);
+            });
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         super.start();
-    }
-
-    /**
-     * stop
-     */
-    @Override
-    public void stop() {
-        for (TubeZoneWorker worker : workers) {
-            try {
-                worker.close();
-            } catch (Throwable e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-        this.context.close();
-        super.stop();
-    }
-
-    /**
-     * process
-     * 
-     * @return                        Status
-     * @throws EventDeliveryException
-     */
-    @Override
-    public Status process() throws EventDeliveryException {
-        this.dispatchManager.outputOvertimeData();
-        Channel channel = getChannel();
-        Transaction tx = channel.getTransaction();
-        tx.begin();
-        try {
-            Event event = channel.take();
-            if (event == null) {
-                tx.commit();
-                return Status.BACKOFF;
-            }
-            // ProxyEvent
-            if (event instanceof ProxyEvent) {
-                ProxyEvent proxyEvent = (ProxyEvent) event;
-                this.dispatchManager.addEvent(proxyEvent);
-                tx.commit();
-                return Status.READY;
-            }
-            // ProxyPackEvent
-            if (event instanceof ProxyPackEvent) {
-                ProxyPackEvent packEvent = (ProxyPackEvent) event;
-                this.dispatchManager.addPackEvent(packEvent);
-                tx.commit();
-                return Status.READY;
-            }
-            tx.commit();
-            this.context.addSendFailMetric();
-            return Status.READY;
-        } catch (Throwable t) {
-            LOG.error("Process event failed!" + this.getName(), t);
-            try {
-                tx.rollback();
-            } catch (Throwable e) {
-                LOG.error("Channel take transaction rollback exception:" + getName(), e);
-            }
-            return Status.BACKOFF;
-        } finally {
-            tx.close();
-        }
     }
 }

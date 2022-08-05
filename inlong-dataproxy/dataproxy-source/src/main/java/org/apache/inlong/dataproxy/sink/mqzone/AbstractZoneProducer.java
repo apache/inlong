@@ -97,7 +97,7 @@ public abstract class AbstractZoneProducer {
      */
     public abstract void reload();
 
-    protected void reload(Calculator calculator) {
+    protected void reload(ZoneClusterProducerCalculator zoneClusterProducerCalculator) {
         try {
             // stop deleted cluster
             deletingClusterList.forEach(item -> {
@@ -119,7 +119,7 @@ public abstract class AbstractZoneProducer {
             // add
             for (CacheClusterConfig config : configList) {
                 if (!oldClusterNames.contains(config.getClusterName())) {
-                    AbstractZoneClusterProducer cluster = calculator.calculator(workerName, config, context);
+                    AbstractZoneClusterProducer cluster = zoneClusterProducerCalculator.calculator(workerName, config, context);
                     cluster.start();
                     newClusterList.add(cluster);
                 }

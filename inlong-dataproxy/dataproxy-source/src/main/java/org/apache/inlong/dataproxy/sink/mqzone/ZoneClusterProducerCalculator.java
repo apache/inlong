@@ -20,6 +20,6 @@ package org.apache.inlong.dataproxy.sink.mqzone;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 
 @FunctionalInterface
-public interface Calculator {
+public interface ZoneClusterProducerCalculator {
     AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config, AbstractZoneSinkContext context);
 }

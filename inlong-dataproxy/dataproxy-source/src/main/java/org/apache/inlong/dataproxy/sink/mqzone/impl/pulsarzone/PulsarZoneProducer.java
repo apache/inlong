@@ -21,9 +21,9 @@ import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneProducer;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSinkContext;
-import org.apache.inlong.dataproxy.sink.mqzone.Calculator;
+import org.apache.inlong.dataproxy.sink.mqzone.ZoneClusterProducerCalculator;
 
-public class PulsarZoneProducer extends AbstractZoneProducer implements Calculator {
+public class PulsarZoneProducer extends AbstractZoneProducer implements ZoneClusterProducerCalculator {
 
 
     public PulsarZoneProducer(String workerName, AbstractZoneSinkContext context) {
