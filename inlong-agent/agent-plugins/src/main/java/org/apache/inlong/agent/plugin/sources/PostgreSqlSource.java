@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
@@ -31,7 +32,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INL
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-
 
 /**
  * PostgreSql source, split PostgreSql source job into multi readers

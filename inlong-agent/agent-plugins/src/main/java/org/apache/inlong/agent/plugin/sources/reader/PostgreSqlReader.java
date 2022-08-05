@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
@@ -167,8 +166,6 @@ public class PostgreSqlReader extends AbstractReader {
         postgreSqlSnapshot.save(offset);
 
         metricTagName = String.join("_", POSTGRES_READER_TAG_NAME, inlongGroupId, inlongStreamId);
-
-
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
