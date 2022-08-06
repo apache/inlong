@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.AbstractFileConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.ini4j.Ini;
@@ -110,6 +111,8 @@ public class BrokerConfig extends AbstractFileConfig {
     private ZKConfig zkConfig = new ZKConfig();
     // tls config
     private TLSConfig tlsConfig = new TLSConfig();
+    // audit configure
+    private ADConfig auditConfig = new ADConfig();
     private boolean visitMasterAuth = false;
     private String visitName = "";
     private String visitPassword = "";
@@ -147,6 +150,14 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public TLSConfig getTlsConfig() {
         return this.tlsConfig;
+    }
+
+    public ADConfig getAuditConfig() {
+        return auditConfig;
+    }
+
+    public boolean isAuditEnable() {
+        return this.auditConfig.isAuditEnable();
     }
 
     public int getBrokerId() {
@@ -194,6 +205,7 @@ public class BrokerConfig extends AbstractFileConfig {
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
+        this.auditConfig = loadAuditSectConf(iniConf);
         if (this.port == this.webPort
                 || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
             throw new IllegalArgumentException(new StringBuilder(512)
