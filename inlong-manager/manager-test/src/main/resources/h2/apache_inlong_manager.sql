@@ -552,6 +552,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `create_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`         int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    `ext_params`      text         COMMENT 'Json extension info',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_user_name` (`name`)
 );

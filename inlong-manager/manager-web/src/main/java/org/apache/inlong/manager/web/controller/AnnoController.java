@@ -60,7 +60,8 @@ public class AnnoController {
 
     @PostMapping("/anno/register")
     public Response<Integer> register(@Validated @RequestBody UserRequest request) {
-        return Response.success(userService.save(request));
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(userService.save(request, currentUser));
     }
 
     @GetMapping("/anno/logout")

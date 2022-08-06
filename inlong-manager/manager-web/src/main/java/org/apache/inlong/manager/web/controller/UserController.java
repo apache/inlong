@@ -60,7 +60,8 @@ public class UserController {
     @ApiOperation(value = "Register user")
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> register(@Validated @RequestBody UserRequest userInfo) {
-        return Response.success(userService.save(userInfo));
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(userService.save(userInfo, currentUser));
     }
 
     @GetMapping("/user/get/{id}")

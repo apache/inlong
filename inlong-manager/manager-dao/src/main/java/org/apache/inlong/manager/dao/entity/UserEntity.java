@@ -46,4 +46,5 @@ public class UserEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer version;
+    private String extParams;
 }
