@@ -65,14 +65,15 @@ public class FileSourceRequest extends SourceRequest {
     @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
     private String envList;
 
-    @ApiModelProperty("Metadata of data, for example: " 
+    @ApiModelProperty("Metadata of data, for example: "
             + "[{data:[field1,field2]},{kubernetes:[namespace,labels,name,uuid]}] and so on")
     private List<Map<String, String>> metaFields;
-    
-    @ApiModelProperty("Type of data result for column separator, " 
-            + "for example: separator(,),(|),(,)--CSV or data is json ")
+
+    @ApiModelProperty(" Type of data result for column separator"
+            + "         CSV format, set this parameter to a custom separator: , | : "
+            + "         Json format, set this parameter to json ")
     private String dataContentStyle;
-    
+
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());

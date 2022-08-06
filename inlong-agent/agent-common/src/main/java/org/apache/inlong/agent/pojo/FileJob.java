@@ -42,7 +42,7 @@ public class FileJob {
     private String envList;
 
     private List<Map<String, String>> metaFields;
-    
+
     private String dataSeparator;
 
     @Data
@@ -91,7 +91,8 @@ public class FileJob {
 
         private List<Map<String, String>> metaFields;
         // Type of data result for column separator
-        // for example: separator(,),(|),(,)--CSV or json 
+        // CSV format, set this parameter to a custom separator: , | :
+        // Json format, set this parameter to json 
         private String dataContentStyle;
 
         // Column separator of data source 

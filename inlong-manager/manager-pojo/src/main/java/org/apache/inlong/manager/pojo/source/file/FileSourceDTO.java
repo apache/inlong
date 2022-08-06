@@ -74,9 +74,11 @@ public class FileSourceDTO {
             + "{kubernetes:[namespace,labels,name,uuid]}] and so on")
     private List<Map<String, String>> metaFields;
 
-    @ApiModelProperty("Type of data result, for example: separator(,),(|),(,)--CSV or json ")
+    @ApiModelProperty(" Type of data result for column separator"
+            + "         CSV format, set this parameter to a custom separator: , | : "
+            + "         Json format, set this parameter to json ")
     private String dataContentStyle;
-    
+
     @ApiModelProperty("Column separator of data source ")
     private String dataSeparator;
 
