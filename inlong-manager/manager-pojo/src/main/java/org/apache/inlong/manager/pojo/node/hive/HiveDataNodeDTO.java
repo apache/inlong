@@ -26,17 +26,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
-import org.apache.inlong.manager.pojo.sink.hive.HivePartitionField;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * hive data node info
@@ -71,24 +67,6 @@ public class HiveDataNodeDTO {
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;
 
-    @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
-    private Integer partitionInterval;
-
-    @ApiModelProperty("Partition field list")
-    private List<HivePartitionField> partitionFieldList;
-
-    @ApiModelProperty("Partition creation strategy, partition start, partition close")
-    private String partitionCreationStrategy;
-
-    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
-    private String fileFormat = FileFormat.TextFile.name();
-
-    @ApiModelProperty("Data encoding format: UTF-8, GBK")
-    private String dataEncoding = StandardCharsets.UTF_8.toString();
-
-    @ApiModelProperty("Data separator, stored as ASCII code")
-    private String dataSeparator = DataSeparator.SOH.getSeparator();
-
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
@@ -116,10 +94,6 @@ public class HiveDataNodeDTO {
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
-                .partitionInterval(request.getPartitionInterval())
-                .partitionCreationStrategy(request.getPartitionCreationStrategy())
-                .fileFormat(request.getFileFormat())
-                .dataEncoding(request.getDataEncoding())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
                 .encryptVersion(encryptVersion)
@@ -132,7 +106,7 @@ public class HiveDataNodeDTO {
     public static HiveDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }

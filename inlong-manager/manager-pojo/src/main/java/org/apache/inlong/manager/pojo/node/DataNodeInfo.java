@@ -43,7 +43,7 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, DATAPROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster url")
