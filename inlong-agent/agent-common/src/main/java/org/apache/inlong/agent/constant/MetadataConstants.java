@@ -15,38 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package org.apache.inlong.agent.constant;
 
 /**
- * Workflow approver request
+ *  Metadata type
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Workflow approver request")
-public class ApproverRequest {
+public class MetadataConstants {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
-
-    @ApiModelProperty("Workflow process name")
-    private String processName;
-
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
-
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
+    public static final String KUBERNETES = "kubernetes";
 
 }

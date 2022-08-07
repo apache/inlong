@@ -15,38 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package org.apache.inlong.agent.constant;
 
 /**
- * Workflow approver request
+ *  k8s information
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Workflow approver request")
-public class ApproverRequest {
+public class KubernetesConstants {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    public static final String HTTPS = "https://";
+    public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
+    public static final String KUBERNETES_SERVICE_PORT = "KUBERNETES_SERVICE_PORT";
 
-    @ApiModelProperty("Workflow process name")
-    private String processName;
+    // k8s information
+    public static final String NAMESPACE = "namespace";
+    public static final String POD_NAME = "pod.name";
+    public static final String CONTAINER_NAME = "container.name";
+    public static final String CONTAINER_ID = "container.id";
 
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
-
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
 
 }

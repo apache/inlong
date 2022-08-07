@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,42 +24,36 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 /**
- * Workflow approver response
+ * Workflow task execution log
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Workflow Approver response")
-public class ApproverResponse {
+public class TaskExecuteLog {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    @ApiModelProperty("Task type")
+    private String taskType;
 
-    @ApiModelProperty("Workflow process name")
-    private String processName;
+    @ApiModelProperty("Task ID")
+    private Integer taskId;
 
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
+    @ApiModelProperty("Task name")
+    private String taskDisplayName;
 
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
+    @ApiModelProperty("Execution status, such as complete: COMPLETE; failure: FAILED; processing: PENDING")
+    private String status;
 
-    @ApiModelProperty(value = "Name of creator")
-    private String creator;
+    @ApiModelProperty("Start time")
+    private Date startTime;
 
-    @ApiModelProperty(value = "Name of modifier")
-    private String modifier;
+    @ApiModelProperty("End time")
+    private Date endTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
+    @ApiModelProperty("Listener execution logs")
+    private List<ListenerExecuteLog> listenerExecuteLogs;
 
 }

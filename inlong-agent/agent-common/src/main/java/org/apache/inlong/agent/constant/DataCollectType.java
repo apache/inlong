@@ -13,40 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.manager.pojo.workflow;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package org.apache.inlong.agent.constant;
 
 /**
- * Workflow approver request
+ * Collection type of data content
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Workflow approver request")
-public class ApproverRequest {
+public class DataCollectType {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    /**
+     * increment of data
+     */
+    public static final String INCREMENT = "INCREMENT";
 
-    @ApiModelProperty("Workflow process name")
-    private String processName;
-
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
-
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
-
+    /**
+     * full data
+     */
+    public static final String FULL = "FULL";
 }

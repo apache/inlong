@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Transactional
 @TestInstance(Lifecycle.PER_CLASS)
-@SpringBootTest(classes = InLongWebApplication.class)
+@SpringBootTest(classes = InlongManagerMain.class)
 public abstract class WebBaseTest extends BaseTest {
 
     public MockMvc mockMvc;

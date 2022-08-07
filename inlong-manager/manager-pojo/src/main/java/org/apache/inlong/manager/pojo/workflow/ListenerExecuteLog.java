@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,40 +26,48 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * Workflow approver response
+ * Workflow listener execution log
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Workflow Approver response")
-public class ApproverResponse {
+public class ListenerExecuteLog {
 
-    @ApiModelProperty(value = "Primary key")
+    @ApiModelProperty("id")
     private Integer id;
 
-    @ApiModelProperty("Workflow process name")
-    private String processName;
+    @ApiModelProperty("Event type")
+    private String eventType;
 
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
+    @ApiModelProperty("Event")
+    private String event;
 
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
+    @ApiModelProperty("Listener name")
+    private String listener;
 
-    @ApiModelProperty(value = "Name of creator")
-    private String creator;
+    @ApiModelProperty("Status")
+    private Integer status;
 
-    @ApiModelProperty(value = "Name of modifier")
-    private String modifier;
+    @ApiModelProperty("Is it synchronized")
+    private Integer async;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
+    @ApiModelProperty("Execute IP")
+    private String ip;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
+    @ApiModelProperty("Start time")
+    private Date startTime;
 
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
+    @ApiModelProperty("End time")
+    private Date endTime;
+
+    @ApiModelProperty("Execution result information")
+    private String remark;
+
+    @ApiModelProperty("Exception")
+    private String exception;
+
+    @ApiModelProperty("Description")
+    private String description;
 
 }

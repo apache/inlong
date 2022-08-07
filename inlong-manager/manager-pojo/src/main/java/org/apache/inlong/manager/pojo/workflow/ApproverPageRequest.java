@@ -17,28 +17,28 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
 /**
- * Workflow approver response
+ * Workflow approver query request
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Workflow Approver response")
-public class ApproverResponse {
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("Workflow approver query request")
+public class ApproverPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    @ApiModelProperty(value = "Keywords, can be process name, task name, approver name, etc.")
+    private String keyword;
 
     @ApiModelProperty("Workflow process name")
     private String processName;
@@ -46,22 +46,13 @@ public class ApproverResponse {
     @ApiModelProperty("Workflow task name")
     private String taskName;
 
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
+    @ApiModelProperty("Specified workflow approver")
+    private String approver;
 
-    @ApiModelProperty(value = "Name of creator")
-    private String creator;
+    @ApiModelProperty(value = "Current user", hidden = true)
+    private String currentUser;
 
-    @ApiModelProperty(value = "Name of modifier")
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
+    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
+    private Boolean isAdminRole;
 
 }

@@ -22,11 +22,10 @@
 # Project restart shell script
 # First call shutdown.sh to stop the server
 # Then call startup.sh to start the service
-#
 #======================================================================
 
 # Project name
-APPLICATION="InLong-Manager-Web"
+APPLICATION="InlongManagerMain"
 echo restart ${APPLICATION} Application...
 
 BIN_PATH=$(

@@ -18,13 +18,13 @@
 # under the License.
 #
 
-# Project startup jar package name
-
 BIN_PATH=$(
-  cd $(dirname $0)
+  # shellcheck disable=SC2164
+  cd "$(dirname $0)"
   pwd
 )
 
+# shellcheck disable=SC2164
 cd "$BIN_PATH"
 cd ../
 

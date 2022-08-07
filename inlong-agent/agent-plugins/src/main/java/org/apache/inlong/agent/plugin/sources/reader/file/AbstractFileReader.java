@@ -15,38 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow;
+package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Workflow approver request
+ * File reader template
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Workflow approver request")
-public class ApproverRequest {
+public abstract class AbstractFileReader {
 
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    public FileReaderOperator fileReaderOperator;
 
-    @ApiModelProperty("Workflow process name")
-    private String processName;
+    public abstract void getData() throws Exception;
 
-    @ApiModelProperty("Workflow task name")
-    private String taskName;
+    public void mergeData(FileReaderOperator fileReaderOperator) {
+        if (null == fileReaderOperator.metadata) {
+            return;
+        }
 
-    @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approvers;
-
-    @ApiModelProperty(value = "Version number")
-    private Integer version;
+        List<String> lines = fileReaderOperator.stream.collect(Collectors.toList());
+        lines.forEach(data -> data = MetaDataUtils.concatString(data, fileReaderOperator.metadata));
+        fileReaderOperator.stream = lines.stream();
+    }
 
 }
