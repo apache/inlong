@@ -85,10 +85,13 @@ public class FileJob {
 
         private String lineEndPattern;
 
+        // Type of file content, for example: FULL, INCREMENT
         private String contentCollectType;
 
+        // File needs to collect environment information, for example: kubernetes
         private String envList;
-
+        // Metadata of data, for example:
+        // [{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on
         private List<Map<String, String>> metaFields;
         // Type of data result for column separator
         // CSV format, set this parameter to a custom separator: , | :

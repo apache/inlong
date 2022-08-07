@@ -70,8 +70,8 @@ public class FileSourceDTO {
     @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
     private String envList;
 
-    @ApiModelProperty("Metadata of data, for example: [{data:[field1,field2]},"
-            + "{kubernetes:[namespace,labels,name,uuid]}] and so on")
+    @ApiModelProperty("Metadata of data, for example: [{data:field1,field2},"
+            + "{kubernetes:namespace,labels,name,uuid}] and so on")
     private List<Map<String, String>> metaFields;
 
     @ApiModelProperty(" Type of data result for column separator"
