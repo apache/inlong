@@ -27,8 +27,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
-import javax.validation.constraints.NotBlank;
-
 /**
  * Data node info for hive
  */
@@ -47,18 +45,6 @@ public class HiveDataNodeInfo extends DataNodeInfo {
 
     @ApiModelProperty("User password of the Hive server")
     private String password;
-
-    @NotBlank(message = "dbName cannot be blank")
-    @ApiModelProperty("Target database name")
-    private String dbName;
-
-    @NotBlank(message = "tableName cannot be blank")
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
-    @NotBlank(message = "dataPath cannot be blank")
-    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
-    private String dataPath;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;

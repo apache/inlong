@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.jupiter.api.Assertions;
@@ -40,14 +41,11 @@ class DataNodeControllerTest extends WebBaseTest {
     HiveDataNodeRequest getHiveDataNodeRequest() {
         HiveDataNodeRequest hiveDataNodeRequest = new HiveDataNodeRequest();
         hiveDataNodeRequest.setName("hiveNode1");
-        hiveDataNodeRequest.setType("HIVE");
+        hiveDataNodeRequest.setType(DataNodeType.HIVE);
         hiveDataNodeRequest.setUrl("127.0.0.1:8080");
         hiveDataNodeRequest.setUsername("admin");
         hiveDataNodeRequest.setToken("123");
         hiveDataNodeRequest.setInCharges("admin");
-        hiveDataNodeRequest.setDbName("hive1");
-        hiveDataNodeRequest.setTableName("person1");
-        hiveDataNodeRequest.setDataPath("/user");
         return hiveDataNodeRequest;
     }
 

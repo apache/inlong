@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
@@ -88,7 +89,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     @Test
     public void testDataService() {
         String nodeName = "hiveNode1";
-        String type = "HIVE";
+        String type = DataNodeType.HIVE;
         String url = "127.0.0.1:8080";
         String usename = "admin";
         String password = "123";
@@ -107,8 +108,8 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
-        String newNodeName = "kafkaNode1";
-        String newType = "HIVE";
+        String newNodeName = "hiveNode2";
+        String newType = DataNodeType.HIVE;
         String newUrl = "127.0.0.1:8083";
         String newUsername = "admin2";
         String newPassword = "456";

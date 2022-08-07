@@ -30,7 +30,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 
@@ -54,18 +53,6 @@ public class HiveDataNodeDTO {
 
     @ApiModelProperty("User password of the Hive server")
     private String password;
-
-    @NotBlank(message = "dbName cannot be blank")
-    @ApiModelProperty("Target database name")
-    private String dbName;
-
-    @NotBlank(message = "tableName cannot be blank")
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
-    @NotBlank(message = "dataPath cannot be blank")
-    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
-    private String dataPath;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
@@ -91,9 +78,6 @@ public class HiveDataNodeDTO {
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(passwd)
-                .dbName(request.getDbName())
-                .tableName(request.getTableName())
-                .dataPath(request.getDataPath())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
                 .encryptVersion(encryptVersion)

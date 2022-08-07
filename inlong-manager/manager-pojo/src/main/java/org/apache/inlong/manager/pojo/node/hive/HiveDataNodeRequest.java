@@ -26,8 +26,6 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-import javax.validation.constraints.NotBlank;
-
 /**
  * Data node request for hive
  */
@@ -40,18 +38,6 @@ public class HiveDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
-
-    @NotBlank(message = "dbName cannot be blank")
-    @ApiModelProperty("Target database name")
-    private String dbName;
-
-    @NotBlank(message = "tableName cannot be blank")
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
-    @NotBlank(message = "dataPath cannot be blank")
-    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
-    private String dataPath;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
