@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.transform.encrypt;
+package org.apache.inlong.manager.pojo.transform.encrypt;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -23,8 +23,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
 /**
  * A class to define operation to encrypt stream fields in stream records by EncryptRule defined.

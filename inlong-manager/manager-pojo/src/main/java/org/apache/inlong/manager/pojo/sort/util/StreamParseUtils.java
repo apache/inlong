@@ -32,18 +32,7 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamNode;
-import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
-import org.apache.inlong.manager.common.pojo.transform.encrypt.EncryptDefinition;
-import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
-import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
-import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition;
-import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
+import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
 
 /**
  * Utils of stream parse.

@@ -26,21 +26,13 @@ import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
+import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition.EncryptRule;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition.ReplaceMode;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition.ReplaceRule;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition.SplitRule;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.pojo.transform.encrypt.EncryptDefinition;
-import org.apache.inlong.manager.common.pojo.transform.encrypt.EncryptDefinition.EncryptRule;
-import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition;
-import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition.ReplaceMode;
-import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition.ReplaceRule;
-import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
-import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition.SplitRule;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
@@ -86,7 +78,6 @@ public class FieldRelationUtils {
                 StringReplacerDefinition replacerDefinition = (StringReplacerDefinition) transformDefinition;
                 return createReplacerFieldRelations(fieldList, transformName,
                         replacerDefinition, preNodes, constantFieldMap);
-                return createReplacerFieldRelations(fieldList, transformName, replacerDefinition, preNodes);
             case ENCRYPT:
                 EncryptDefinition encryptDefinition = (EncryptDefinition) transformDefinition;
                 return createEncryptFieldRelations(fieldList, transformName, encryptDefinition,
