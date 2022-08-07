@@ -36,8 +36,8 @@ public interface UserEntityMapper {
 
     int updateById(UserEntity record);
 
-    int deleteById(Integer id);
-
     int updateByPrimaryKeySelective(UserEntity record);
+
+    int deleteById(Integer id);
 
 }
