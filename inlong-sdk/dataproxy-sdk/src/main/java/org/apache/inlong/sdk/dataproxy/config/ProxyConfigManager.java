@@ -52,6 +52,7 @@ import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.utils.HashRing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +102,7 @@ public class ProxyConfigManager extends Thread {
     private boolean bShutDown = false;
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
+    private final HashRing hashRing = HashRing.getInstance();
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
@@ -127,6 +129,7 @@ public class ProxyConfigManager extends Thread {
             try {
                 doProxyEntryQueryWork();
                 updateEncryptConfigEntry();
+                updateHashRing();
                 LOGGER.info("ProxyConf update!");
             } catch (Throwable e) {
                 LOGGER.error("Refresh proxy ip list runs into exception {}, {}", e.toString(), e.getStackTrace());
@@ -819,4 +822,6 @@ public class ProxyConfigManager extends Thread {
         }
         return localManagerIps;
     }
+
+    public void updateHashRing() {}
 }
