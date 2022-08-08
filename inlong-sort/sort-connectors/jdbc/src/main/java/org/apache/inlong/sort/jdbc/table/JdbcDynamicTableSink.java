@@ -105,7 +105,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
 
     @Override
     public DynamicTableSink copy() {
-        return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions, tableSchema, appendMode, inLongMetric);
+        return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions,
+                tableSchema, appendMode, inLongMetric);
     }
 
     @Override
