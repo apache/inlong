@@ -23,6 +23,7 @@ import i18n from '@/i18n';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import request from '@/utils/request';
+import StaffSelect from '@/components/StaffSelect';
 
 export interface Props extends ModalProps {
   id?: number;
@@ -42,7 +43,7 @@ const content = [
     rules: [{ required: true }],
   },
   {
-    type: 'input',
+    type: <StaffSelect mode="multiple" />,
     label: i18n.t('pages.ApprovalManagement.Approvers'),
     name: 'approvers',
     rules: [{ required: true }],
