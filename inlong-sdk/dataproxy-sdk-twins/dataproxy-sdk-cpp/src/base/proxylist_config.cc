@@ -137,7 +137,7 @@ namespace dataproxy_sdk
         return err_count;
     }
 
-    int32_t ClusterProxyList::clearAllConn()
+    void ClusterProxyList::clearAllConn()
     {
         unique_write_lock<read_write_mutex> rdlck(rwmutex_);
 
@@ -193,7 +193,7 @@ namespace dataproxy_sdk
             LOG_INFO("conn %s is closed, create new conn for send", res->getRemoteInfo().c_str());
             active_proxy_set_.erase(res->getRemoteInfo());
 
-            auto old_proxyinfo = res->getBusInfo();
+            auto old_proxyinfo = res->getProxyInfo();
 
             if (unused_proxylist_.empty()) //if there is no available proxy
             {
@@ -283,7 +283,7 @@ namespace dataproxy_sdk
             if (it->second->isStop())
             {
                 LOG_INFO("active_proxy_set remove stop conn:%s", it->second->getRemoteInfo().c_str());
-                unused_proxylist_.emplace(it->second->getRemoteInfo(), it->second->getBusInfo()); //close and add this proxyinfo into unused
+                unused_proxylist_.emplace(it->second->getRemoteInfo(), it->second->getProxyInfo()); //close and add this proxyinfo into unused
                 it = active_proxy_set_.erase(it);
                 continue;
             }
@@ -295,7 +295,7 @@ namespace dataproxy_sdk
             if (it->second->isStop())
             {
                 LOG_INFO("backup_proxy_set_ remove stop conn:%s", it->second->getRemoteInfo().c_str());
-                unused_proxylist_.emplace(it->second->getRemoteInfo(), it->second->getBusInfo()); //close and add this proxyinfo into unused
+                unused_proxylist_.emplace(it->second->getRemoteInfo(), it->second->getProxyInfo()); //close and add this proxyinfo into unused
                 it = backup_proxy_set_.erase(it);
                 continue;
             }
@@ -387,7 +387,7 @@ namespace dataproxy_sdk
             {
                 LOG_DEBUG("update backup_conns regularly, close old conns and then create new conns");
                 it.second->connClose();
-                unused_proxylist_.emplace(it.second->getRemoteInfo(), it.second->getBusInfo()); //lose and add this proxyinfo into unused
+                unused_proxylist_.emplace(it.second->getRemoteInfo(), it.second->getProxyInfo()); //lose and add this proxyinfo into unused
             }
         }
         backup_proxy_set_.clear();

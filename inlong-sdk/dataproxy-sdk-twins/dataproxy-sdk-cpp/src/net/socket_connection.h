@@ -103,7 +103,7 @@ namespace dataproxy_sdk
       }
     }
     std::string getRemoteInfo() const { return remote_info_; }
-    ProxyInfoPtr getBusInfo() const { return proxyinfo_; }
+    ProxyInfoPtr getProxyInfo() const { return proxyinfo_; }
 
     int32_t getAvgLoad();
 

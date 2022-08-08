@@ -20,7 +20,6 @@
 #include "tc_api.h"
 
 #include <chrono>
-#include <rapidjson/document.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string>
@@ -37,6 +36,7 @@
 #include "logger.h"
 #include "pack_queue.h"
 #include "utils.h"
+#include "rapidjson/document.h"
 
 namespace dataproxy_sdk
 {

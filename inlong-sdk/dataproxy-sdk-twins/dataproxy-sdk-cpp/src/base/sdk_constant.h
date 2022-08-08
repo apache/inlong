@@ -61,12 +61,12 @@ namespace dataproxy_sdk
         static const uint32_t kRetryNum = 3;         
         static const uint32_t kLogNum = 10;
         static const uint32_t kLogSize = 10;   
-        static const uint8_t kLogLevel = 1;    
+        static const uint8_t kLogLevel = 2;    
         static const uint8_t kLogFileType = 2;
         static const std::string kLogPath = "./logs/";
         static const bool kLogEnableLimit = true;
 
-        static const std::string kProxyURL = "http://127.0.0.1:8099/api/dataproxy_ip_v2";
+        static const std::string kProxyURL = "http://127.0.0.1:8099/api/inlong/manager/openapi/dataproxy/getIpList";
         static const bool kEnableProxyURLFromCluster = false;
         static const std::string kBusClusterURL =
             "http://127.0.0.1:8099/heartbeat/dataproxy_ip_v2?cluster_id=0&net_tag=normal";
