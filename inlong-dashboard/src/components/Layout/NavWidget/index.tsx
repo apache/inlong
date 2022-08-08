@@ -58,11 +58,11 @@ const Comp: React.FC = () => {
 
   const menu = (
     <Menu>
-      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
-        {t('components.Layout.NavWidget.EditPassword')}
-      </Menu.Item>
       <Menu.Item onClick={() => setKeyModal({ visible: true })}>
         {t('components.Layout.NavWidget.PersonalKey')}
+      </Menu.Item>
+      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
+        {t('components.Layout.NavWidget.EditPassword')}
       </Menu.Item>
       <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
     </Menu>
