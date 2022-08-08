@@ -37,6 +37,7 @@ import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.slf4j.Logger;
@@ -128,18 +129,18 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             this.runtimeContext = getRuntimeContext();
             sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
             if (inLongMetric != null && !inLongMetric.isEmpty()) {
-                String[] inLongMetricArray = inLongMetric.split("_");
+                String[] inLongMetricArray = inLongMetric.split(Constants.DELIMITER);
                 String groupId = inLongMetricArray[0];
                 String streamId = inLongMetricArray[1];
                 String nodeId = inLongMetricArray[2];
                 sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, DIRTY_BYTES,
-                    new ThreadSafeCounter());
+                        new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, DIRTY_RECORDS,
-                    new ThreadSafeCounter());
+                        new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, NUM_BYTES_OUT,
-                    new ThreadSafeCounter());
+                        new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, NUM_RECORDS_OUT,
-                    new ThreadSafeCounter());
+                        new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
                         NUM_BYTES_OUT_PER_SECOND);
                 sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
