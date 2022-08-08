@@ -311,7 +311,6 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskType(getTaskType(entity));
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
-        dataConfig.setExtParams(entity.getExtParams());
         dataConfig.setVersion(entity.getVersion());
 
         String groupId = entity.getInlongGroupId();
@@ -319,13 +318,31 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setInlongGroupId(groupId);
         dataConfig.setInlongStreamId(streamId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        String extParams = entity.getExtParams();
         if (streamEntity != null) {
             dataConfig.setSyncSend(streamEntity.getSyncSend());
+            if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
+                String dataSeparator = streamEntity.getDataSeparator();
+                extParams = null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams;
+            }
         } else {
             dataConfig.setSyncSend(0);
             LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
         }
+        dataConfig.setExtParams(extParams);
         return dataConfig;
+    }
+
+    private String getExtParams(String extParams, String dataSeparator) {
+        if (Objects.isNull(extParams)) {
+            return null;
+        }
+        FileSourceDTO fileSourceDTO = JsonUtils.parseObject(extParams, FileSourceDTO.class);
+        if (Objects.nonNull(fileSourceDTO)) {
+            fileSourceDTO.setDataSeparator(dataSeparator);
+            return JsonUtils.toJsonString(fileSourceDTO);
+        }
+        return extParams;
     }
 
     /**
