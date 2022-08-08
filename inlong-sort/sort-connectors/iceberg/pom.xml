@@ -81,6 +81,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>org.apache.iceberg:*</include>
                                     <include>org.apache.hive:hive-exec</include>
                                     <include>org.apache.thrift:libfb303</include>
