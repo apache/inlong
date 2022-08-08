@@ -54,10 +54,16 @@ public class EncryptFunction extends ScalarFunction {
     public String eval(String field, String key, String encrypt) {
         if (field != null) {
             String newValue = "";
-            if (EncryptionAlgorithmEnum.DESEDE.getId().equals(Integer.valueOf(encrypt))) {
-                newValue = encrypt3DES(field, key);
-            } else if (EncryptionAlgorithmEnum.AES.getId().equals(Integer.valueOf(encrypt))) {
-                newValue = encryptAES(field, key);
+            EncryptionType algorithmEnum = EncryptionType.getInstance(encrypt);
+            switch (algorithmEnum) {
+                case AES:
+                    newValue = encrypt3DES(field, key);
+                    break;
+                case DESEDE:
+                    newValue = encryptAES(field, key);
+                    break;
+                default:
+                    throw new UnsupportedOperationException(String.format("Unsupported %s encryption type", encrypt));
             }
             return newValue;
         }
@@ -168,7 +174,7 @@ public class EncryptFunction extends ScalarFunction {
     /**
      * Encryption Algorithm Enum
      */
-    private enum EncryptionAlgorithmEnum {
+    private enum EncryptionType {
 
         /**
          * DESEDE
@@ -183,8 +189,17 @@ public class EncryptFunction extends ScalarFunction {
         @Getter
         private Integer id;
 
-        EncryptionAlgorithmEnum(Integer id) {
+        EncryptionType(Integer id) {
             this.id = id;
+        }
+
+        public static EncryptionType getInstance(String id) {
+            for (EncryptionType value: values()) {
+                if (value.getId().equals(Integer.valueOf(id))) {
+                    return value;
+                }
+            }
+            throw null;
         }
     }
 }
