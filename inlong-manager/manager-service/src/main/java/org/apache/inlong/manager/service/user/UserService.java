@@ -32,7 +32,7 @@ public interface UserService {
      * @param request user info request
      * @return user id after saving
      */
-    Integer save(UserRequest request);
+    Integer save(UserRequest request, String currentUser);
 
     /**
      * Get user info by user id
