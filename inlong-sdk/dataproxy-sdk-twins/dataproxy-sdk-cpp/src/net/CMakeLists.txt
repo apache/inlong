@@ -17,7 +17,7 @@
 # under the License.
 #
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 aux_source_directory(. BASE_SRCS)
 add_library(sdk_net STATIC ${BASE_SRCS})
