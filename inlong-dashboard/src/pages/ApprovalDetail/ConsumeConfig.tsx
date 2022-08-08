@@ -25,12 +25,7 @@ import { genBasicFields } from '@/components/ConsumeHelper';
 const getConsumerContent = initialValues => {
   return genBasicFields(
     [
-      {
-        type: 'text',
-        label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
-        name: 'consumerGroupId',
-        initialValue: initialValues.consumerGroupId,
-      },
+      'consumerGroup',
       'inCharges',
       'masterUrl',
       'inlongGroupId',
@@ -88,8 +83,8 @@ export const getFormContent = (
           {
             type: 'input',
             label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
-            name: ['form', 'consumerGroupId'],
-            initialValue: formData.consumptionInfo?.consumerGroupId,
+            name: ['form', 'consumerGroup'],
+            initialValue: formData.consumptionInfo?.consumerGroup,
             rules: [{ required: true }],
             props: {
               disabled: isFinished,

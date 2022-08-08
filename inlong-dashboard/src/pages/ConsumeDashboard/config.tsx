@@ -72,7 +72,7 @@ export const getFilterFormContent = defaultValues =>
     {
       type: 'select',
       label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
-      name: 'lastConsumerStatus',
+      name: 'lastConsumptionStatus',
       initialValue: defaultValues.lastConsumerStatusList,
       props: {
         dropdownMatchSelectWidth: false,
@@ -110,7 +110,7 @@ export const getColumns = ({ onDelete }) => {
     },
     {
       title: i18n.t('pages.ConsumeDashboard.config.ConsumerGroup'),
-      dataIndex: 'consumerGroupId',
+      dataIndex: 'consumerGroup',
       width: 180,
     },
     {
@@ -124,7 +124,7 @@ export const getColumns = ({ onDelete }) => {
     },
     {
       title: i18n.t('pages.ConsumeDashboard.config.RecentConsumptionTime'),
-      dataIndex: 'lastConsumerTime',
+      dataIndex: 'lastConsumptionTime',
       render: text => text && timestampFormat(text),
     },
     {
@@ -135,7 +135,7 @@ export const getColumns = ({ onDelete }) => {
     },
     {
       title: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
-      dataIndex: 'lastConsumerStatus',
+      dataIndex: 'lastConsumptionStatus',
       render: text => text && genLastConsumerStatusTag(text),
       width: 120,
     },
