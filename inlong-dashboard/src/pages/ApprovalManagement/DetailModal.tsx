@@ -43,7 +43,7 @@ const content = [
     rules: [{ required: true }],
   },
   {
-    type: <StaffSelect mode="multiple" currentUserClosable={false} />,
+    type: <StaffSelect mode="multiple" />,
     label: i18n.t('pages.ApprovalManagement.Approvers'),
     name: 'approvers',
     rules: [{ required: true }],
