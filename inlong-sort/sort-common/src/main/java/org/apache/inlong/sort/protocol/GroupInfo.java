@@ -41,8 +41,8 @@ public class GroupInfo implements Serializable {
     @JsonProperty("streams")
     private List<StreamInfo> streams;
 
-    @JsonProperty("extraInfo")
-    private Map<String, String> extraInfo;
+    @JsonProperty("properties")
+    private Map<String, String> properties;
 
     /**
      * Information of group.
@@ -55,17 +55,17 @@ public class GroupInfo implements Serializable {
             @JsonProperty("streams") List<StreamInfo> streams) {
         this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
-        this.extraInfo = new HashMap<>();
+        this.properties = new HashMap<>();
         Preconditions.checkState(!streams.isEmpty(), "streams is empty");
     }
 
     @JsonCreator
     public GroupInfo(@JsonProperty("groupId") String groupId,
         @JsonProperty("streams") List<StreamInfo> streams,
-        Map<String, String> extraInfo) {
+        Map<String, String> properties) {
         this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
-        this.extraInfo = extraInfo;
+        this.properties = properties;
         Preconditions.checkState(!streams.isEmpty(), "streams is empty");
     }
 }
