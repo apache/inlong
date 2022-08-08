@@ -18,17 +18,10 @@
  */
 
 import { genBasicFields } from '@/components/ConsumeHelper';
-import i18n from '@/i18n';
 
 export const getFormContent = ({ editing, initialValues, isCreate }) => {
   const keys = [
-    !isCreate && {
-      type: 'text',
-      label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
-      name: 'consumerGroupId',
-      rules: [{ required: true }],
-    },
-    'consumerGroupName',
+    'consumerGroup',
     'inCharges',
     !isCreate && 'masterUrl',
     'inlongGroupId',
@@ -62,14 +55,7 @@ export const getFormContent = ({ editing, initialValues, isCreate }) => {
 function transType(editing: boolean, conf, initialValues) {
   const arr = [
     {
-      name: [
-        'consumerGroupId',
-        'consumerGroupName',
-        'inlongGroupId',
-        'topic',
-        'filterEnabled',
-        'inlongStreamId',
-      ],
+      name: ['consumerGroup', 'inlongGroupId', 'topic', 'filterEnabled', 'inlongStreamId'],
       as: 'text',
       active: true,
     },

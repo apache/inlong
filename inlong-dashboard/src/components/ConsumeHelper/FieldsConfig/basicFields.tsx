@@ -32,8 +32,8 @@ export default (
     {
       type: 'input',
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupName'),
-      name: 'consumerGroupName',
-      initialValue: currentValues.consumerGroupName,
+      name: 'consumerGroup',
+      initialValue: currentValues.consumerGroup,
       extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules'),
       rules: [
         { required: true },
