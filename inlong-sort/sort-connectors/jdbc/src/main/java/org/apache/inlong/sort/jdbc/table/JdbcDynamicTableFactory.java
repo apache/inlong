@@ -174,6 +174,12 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                     .defaultValue(false)
                     .withDescription("Whether to support sink update/delete data without primaryKey.");
 
+    public static final ConfigOption<String> INLONG_METRIC =
+            ConfigOptions.key("inlong.metric")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
+
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -186,13 +192,14 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         boolean appendMode = config.get(SINK_APPEND_MODE);
-
+        String inLongMetric = config.get(INLONG_METRIC);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
                 physicalSchema,
-                appendMode);
+                appendMode,
+                inLongMetric);
     }
 
     @Override
@@ -318,6 +325,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         optionalOptions.add(FactoryUtil.SINK_PARALLELISM);
         optionalOptions.add(MAX_RETRY_TIMEOUT);
         optionalOptions.add(DIALECT_IMPL);
+        optionalOptions.add(INLONG_METRIC);
         return optionalOptions;
     }
 
