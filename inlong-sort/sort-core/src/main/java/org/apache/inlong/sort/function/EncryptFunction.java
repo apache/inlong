@@ -23,7 +23,6 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.Getter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.flink.table.functions.ScalarFunction;
 
@@ -188,8 +187,8 @@ public class EncryptFunction extends ScalarFunction {
         AES;
 
         public static EncryptionType getInstance(String encrypt) {
-            return Arrays.stream(EncryptionType.values()).filter(v -> v.name().equalsIgnoreCase(encrypt)).
-                    findFirst().orElse(null);
+            return Arrays.stream(EncryptionType.values()).filter(v -> v.name().equalsIgnoreCase(encrypt))
+                    .findFirst().orElse(null);
         }
     }
 }
