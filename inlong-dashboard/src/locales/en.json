@@ -505,12 +505,12 @@
   "pages.UserManagement.status.Normal": "Normal",
   "pages.UserManagement.status.Fail": "Fail",
   "pages.UserManagement.CreateAccount": "Create",
-  "pages.Responsible.ProcessName": "Process Name",
-  "pages.Responsible.TaskName": "Task Name",
-  "pages.Responsible.Approvers": "Approvers",
-  "pages.Responsible.Creator": "Creator Name",
-  "pages.Responsible.Modifier": "Modifier Name",
-  "pages.Responsible.CreateTime": "Create Time",
-  "pages.Responsible.ModifyTime": "Modify Time",
-  "pages.Responsible.CreateResponsible": "Create Responsible"
+  "pages.ApprovalManagement.ProcessName": "Process Name",
+  "pages.ApprovalManagement.TaskName": "Task Name",
+  "pages.ApprovalManagement.Approvers": "Approvers",
+  "pages.ApprovalManagement.Creator": "Creator Name",
+  "pages.ApprovalManagement.Modifier": "Modifier Name",
+  "pages.ApprovalManagement.CreateTime": "Create Time",
+  "pages.ApprovalManagement.ModifyTime": "Modify Time",
+  "pages.ApprovalManagement.CreateResponsible": "Create Responsible"
 }

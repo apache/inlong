@@ -63,7 +63,7 @@ const menus: MenuItemType[] = [
         name: i18n.t('configs.menus.UserManagement'),
       },
       {
-        path: '/responsible',
+        path: '/approval',
         name: i18n.t('configs.menus.ResponsibleManagement'),
       },
     ],

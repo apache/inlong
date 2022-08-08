@@ -104,8 +104,8 @@ const routes: RouteProps[] = [
     exact: true,
   },
   {
-    path: '/responsible',
-    component: () => import('@/pages/Responsible'),
+    path: '/approval',
+    component: () => import('@/pages/ApprovalManagement'),
     exact: true,
   },
   {

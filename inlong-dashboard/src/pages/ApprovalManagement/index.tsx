@@ -25,7 +25,7 @@ import { useRequest } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { defaultSize } from '@/configs/pagination';
-import DataSourcesDetailModal from './DetailModal';
+import ApprovalDetailModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
 
 const Comp: React.FC = () => {
@@ -100,7 +100,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-                {t('pages.Responsible.CreateResponsible')}
+                {t('pages.ApprovalManagement.CreateResponsible')}
               </Button>
             }
             filterForm={{
@@ -119,7 +119,7 @@ const Comp: React.FC = () => {
         </Card>
       </Container>
 
-      <DataSourcesDetailModal
+      <ApprovalDetailModal
         {...createModal}
         visible={createModal.visible as boolean}
         onOk={async () => {

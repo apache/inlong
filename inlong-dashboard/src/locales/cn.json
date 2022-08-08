@@ -505,12 +505,12 @@
   "pages.UserManagement.status.Normal": "正常",
   "pages.UserManagement.status.Fail": "失效",
   "pages.UserManagement.CreateAccount": "新建帐号",
-  "pages.Responsible.ProcessName": "流程名称",
-  "pages.Responsible.TaskName": "任务名称",
-  "pages.Responsible.Approvers": "审批者",
-  "pages.Responsible.Creator": "创建者",
-  "pages.Responsible.Modifier": "修改者",
-  "pages.Responsible.CreateTime": "创建时间",
-  "pages.Responsible.ModifyTime": "修改时间",
-  "pages.Responsible.CreateResponsible": "新建责任人"
+  "pages.ApprovalManagement.ProcessName": "流程名称",
+  "pages.ApprovalManagement.TaskName": "任务名称",
+  "pages.ApprovalManagement.Approvers": "审批者",
+  "pages.ApprovalManagement.Creator": "创建者",
+  "pages.ApprovalManagement.Modifier": "修改者",
+  "pages.ApprovalManagement.CreateTime": "创建时间",
+  "pages.ApprovalManagement.ModifyTime": "修改时间",
+  "pages.ApprovalManagement.CreateResponsible": "新建责任人"
 }

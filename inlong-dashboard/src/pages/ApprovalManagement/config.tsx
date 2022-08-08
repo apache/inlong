@@ -32,32 +32,32 @@ export const getFilterFormContent = () => [
 export const getColumns = ({ onEdit, onDelete }) => {
   return [
     {
-      title: i18n.t('pages.Responsible.ProcessName'),
+      title: i18n.t('pages.ApprovalManagement.ProcessName'),
       dataIndex: 'processName',
     },
     {
-      title: i18n.t('pages.Responsible.TaskName'),
+      title: i18n.t('pages.ApprovalManagement.TaskName'),
       dataIndex: 'taskName',
     },
     {
-      title: i18n.t('pages.Responsible.Approvers'),
+      title: i18n.t('pages.ApprovalManagement.Approvers'),
       dataIndex: 'approvers',
     },
     {
-      title: i18n.t('pages.Responsible.Creator'),
+      title: i18n.t('pages.ApprovalManagement.Creator'),
       dataIndex: 'creator',
     },
     {
-      title: i18n.t('pages.Responsible.Modifier'),
+      title: i18n.t('pages.ApprovalManagement.Modifier'),
       dataIndex: 'modifier',
     },
     {
-      title: i18n.t('pages.Responsible.CreateTime'),
+      title: i18n.t('pages.ApprovalManagement.CreateTime'),
       dataIndex: 'createTime',
       render: text => text && timestampFormat(text),
     },
     {
-      title: i18n.t('pages.Responsible.ModifyTime'),
+      title: i18n.t('pages.ApprovalManagement.ModifyTime'),
       dataIndex: 'modifyTime',
       render: text => text && timestampFormat(text),
     },

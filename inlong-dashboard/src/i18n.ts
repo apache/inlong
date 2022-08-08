@@ -33,7 +33,7 @@ const resources = {
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
       'configs.menus.UserManagement': 'User',
-      'configs.menus.ResponsibleManagement': 'Responsible',
+      'configs.menus.ResponsibleManagement': 'ApprovalManagement',
     },
   },
   cn: {

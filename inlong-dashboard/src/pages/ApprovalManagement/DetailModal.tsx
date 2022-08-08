@@ -31,19 +31,19 @@ export interface Props extends ModalProps {
 const content = [
   {
     type: 'input',
-    label: i18n.t('pages.Responsible.ProcessName'),
+    label: i18n.t('pages.ApprovalManagement.ProcessName'),
     name: 'processName',
     rules: [{ required: true }],
   },
   {
     type: 'input',
-    label: i18n.t('pages.Responsible.TaskName'),
+    label: i18n.t('pages.ApprovalManagement.TaskName'),
     name: 'taskName',
     rules: [{ required: true }],
   },
   {
     type: 'input',
-    label: i18n.t('pages.Responsible.Approvers'),
+    label: i18n.t('pages.ApprovalManagement.Approvers'),
     name: 'approvers',
     rules: [{ required: true }],
   },
