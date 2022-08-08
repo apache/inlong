@@ -47,5 +47,7 @@ public class StreamSinkFieldEntity implements Serializable {
     private String fieldFormat;
     private Short rankNum;
     private Integer isDeleted;
+    private String originNodeName;
+    private String originFieldName;
 
 }

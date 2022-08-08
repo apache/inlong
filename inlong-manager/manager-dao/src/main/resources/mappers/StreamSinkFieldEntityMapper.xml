@@ -37,10 +37,13 @@
         <result column="field_format" jdbcType="VARCHAR" property="fieldFormat"/>
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="origin_node_name" jdbcType="VARCHAR" property="originNodeName"/>
+        <result column="origin_field_name" jdbcType="VARCHAR" property="originFieldName"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, sink_id, field_name, field_type, field_comment, source_field_name, source_field_type,
-        ext_params, is_meta_field, meta_field_name, field_format, rank_num, is_deleted
+        ext_params, is_meta_field, meta_field_name, field_format, rank_num, is_deleted,
+        origin_node_name, origin_field_name
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -52,7 +55,8 @@
                                        source_field_name, source_field_type,
                                        ext_params, is_meta_field,
                                        meta_field_name, field_format,
-                                       rank_num, is_deleted)
+                                       rank_num, is_deleted, origin_node_name,
+                                       origin_field_name)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
                 #{inlongStreamId,jdbcType=VARCHAR}, #{sinkId,jdbcType=INTEGER},
                 #{sinkType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
@@ -60,7 +64,8 @@
                 #{sourceFieldName,jdbcType=VARCHAR}, #{sourceFieldType,jdbcType=VARCHAR},
                 #{extParams,jdbcType=LONGVARCHAR}, #{isMetaField,jdbcType=SMALLINT},
                 #{metaFieldName,jdbcType=VARCHAR}, #{fieldFormat,jdbcType=VARCHAR},
-                #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
+                #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER}, #{originNodeName,jdbcType=VARCHAR},
+                #{originFieldName,jdbcType=VARCHAR})
     </insert>
     <insert id="insertAll">
         insert into stream_sink_field (
@@ -71,7 +76,8 @@
         source_field_name, source_field_type,
         ext_params, is_meta_field,
         meta_field_name, field_format,
-        rank_num, is_deleted
+        rank_num, is_deleted, origin_node_name,
+        origin_field_name
         )
         values
         <foreach collection="list" index="index" item="item" separator=",">
@@ -83,7 +89,8 @@
             #{item.sourceFieldName,jdbcType=VARCHAR}, #{item.sourceFieldType,jdbcType=VARCHAR},
             #{item.extParams,jdbcType=LONGVARCHAR}, #{item.isMetaField,jdbcType=SMALLINT},
             #{item.metaFieldName,jdbcType=VARCHAR}, #{item.fieldFormat,jdbcType=VARCHAR},
-            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER}
+            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER},
+            #{item.originNodeName,jdbcType=VARCHAR},#{item.originFieldName,jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
