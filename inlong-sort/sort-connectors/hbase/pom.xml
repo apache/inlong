@@ -97,6 +97,7 @@
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>
                                         org.apache.flink:flink-connector-hbase-base_${scala.binary.version}
                                     </include>

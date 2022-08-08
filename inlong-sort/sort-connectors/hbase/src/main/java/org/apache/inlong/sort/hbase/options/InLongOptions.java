@@ -30,5 +30,5 @@ public class InLongOptions {
             ConfigOptions.key("inlong.metric")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '_' + STREAM ID + '_' + NODE ID");
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 }
