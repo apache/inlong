@@ -26,6 +26,7 @@ import org.apache.flink.connector.jdbc.internal.executor.InsertOrUpdateJdbcExecu
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.types.Row;
 
 import org.slf4j.Logger;
@@ -41,6 +42,11 @@ import static org.apache.flink.connector.jdbc.utils.JdbcUtils.getPrimaryKey;
 import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
+/**
+ * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
+ *
+ * Add an option `inlong.metric` to support metrics.
+ */
 class TableJdbcUpsertOutputFormat
         extends JdbcBatchingOutputFormat<
         Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
