@@ -68,6 +68,7 @@ import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficStatsService;
+import org.apache.inlong.tubemq.server.broker.stats.audit.AuditUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertificateBrokerHandler;
@@ -127,6 +128,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         this.serverAuthHandler = tubeBroker.getServerAuthHandler();
         ServiceStatusHolder.setStatsParameters(tubeConfig.getAllowedReadIOExcptCnt(),
                 tubeConfig.getAllowedWriteIOExcptCnt(), tubeConfig.getIoExcptStatsDurationMs());
+        AuditUtils.initAudit(tubeConfig.getAuditConfig());
         this.putCounterGroup = new TrafficStatsService("PutCounterGroup", "Producer", 60 * 1000);
         this.getCounterGroup = new TrafficStatsService("GetCounterGroup", "Consumer", 60 * 1000);
         this.heartbeatManager = new HeartbeatManager();
@@ -222,6 +224,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         heartbeatManager.stop();
         putCounterGroup.close(-1);
         getCounterGroup.close(-1);
+        AuditUtils.closeAudit();
         logger.info("BrokerService server stopped");
     }
 
@@ -379,6 +382,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         msgResult.lastRdDataOffset,
                         msgResult.totalMsgSize);
                 getCounterGroup.add(msgResult.tmpCounters);
+                AuditUtils.addConsumeRecord(msgResult.tmpCounters);
                 builder.setEscFlowCtrl(false);
                 builder.setRequireSlow(msgResult.isSlowFreq);
                 builder.setSuccess(true);
@@ -674,6 +678,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         .append("#").append(request.getPartitionId())
                         .append("#").append(request.getMsgTime()).toString();
                 putCounterGroup.add(baseKey, 1L, dataLength);
+                AuditUtils.addProduceRecord(topicName,
+                        request.getMsgType(), request.getMsgTime(), 1, dataLength);
                 builder.setSuccess(true);
                 builder.setRequireAuth(certResult.reAuth);
                 builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -777,6 +783,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                             .append("#").append(partitionId)
                             .append("#").append(sendTime).toString();
                     putCounterGroup.add(baseKey, 1L, msgLength);
+                    AuditUtils.addProduceRecord(TServerConstants.OFFSET_HISTORY_NAME,
+                            entry.getKey(), sendTime, 1, msgLength);
                     strBuff.delete(0, strBuff.length());
                 } else {
                     logger.warn("Put history offset overflow !");
