@@ -26,9 +26,7 @@ import org.apache.flink.connector.jdbc.internal.executor.InsertOrUpdateJdbcExecu
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.types.Row;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +48,11 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 class TableJdbcUpsertOutputFormat
         extends JdbcBatchingOutputFormat<
         Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
-    private static final Logger LOG = LoggerFactory.getLogger(TableJdbcUpsertOutputFormat.class);
 
-    private JdbcBatchStatementExecutor<Row> deleteExecutor;
+    private static final Logger LOG = LoggerFactory.getLogger(TableJdbcUpsertOutputFormat.class);
     private final StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
             deleteStatementExecutorFactory;
+    private JdbcBatchStatementExecutor<Row> deleteExecutor;
 
     TableJdbcUpsertOutputFormat(
             JdbcConnectionProvider connectionProvider,
@@ -77,20 +75,9 @@ class TableJdbcUpsertOutputFormat
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
                     deleteStatementExecutorFactory,
             String inLongMetric
-            ) {
+    ) {
         super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1, inLongMetric);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
-    }
-
-    @Override
-    public void open(int taskNumber, int numTasks) throws IOException {
-        super.open(taskNumber, numTasks);
-        deleteExecutor = deleteStatementExecutorFactory.apply(getRuntimeContext());
-        try {
-            deleteExecutor.prepareStatements(connectionProvider.getConnection());
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
     }
 
     private static JdbcBatchStatementExecutor<Row> createDeleteExecutor(
@@ -111,43 +98,6 @@ class TableJdbcUpsertOutputFormat
                                         dmlOptions.getTableName(), dmlOptions.getFieldNames()),
                         new HashMap<>());
         return createKeyedRowExecutor(pkFields, pkTypes, deleteSql);
-    }
-
-    @Override
-    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) throws SQLException {
-        if (original.f0) {
-            super.addToBatch(original, extracted);
-        } else {
-            deleteExecutor.addToBatch(extracted);
-        }
-    }
-
-    @Override
-    public synchronized void close() {
-        try {
-            super.close();
-        } finally {
-            try {
-                if (deleteExecutor != null) {
-                    deleteExecutor.closeStatements();
-                }
-            } catch (SQLException e) {
-                LOG.warn("unable to close delete statement runner", e);
-            }
-        }
-    }
-
-    @Override
-    protected void attemptFlush() throws SQLException {
-        super.attemptFlush();
-        deleteExecutor.executeBatch();
-    }
-
-    @Override
-    public void updateExecutor(boolean reconnect) throws SQLException, ClassNotFoundException {
-        super.updateExecutor(reconnect);
-        deleteExecutor.closeStatements();
-        deleteExecutor.prepareStatements(connectionProvider.getConnection());
     }
 
     private static JdbcBatchStatementExecutor<Row> createKeyedRowExecutor(
@@ -216,5 +166,53 @@ class TableJdbcUpsertOutputFormat
 
     private static Function<Row, Row> createRowKeyExtractor(int[] pkFields) {
         return row -> getPrimaryKey(row, pkFields);
+    }
+
+    @Override
+    public void open(int taskNumber, int numTasks) throws IOException {
+        super.open(taskNumber, numTasks);
+        deleteExecutor = deleteStatementExecutorFactory.apply(getRuntimeContext());
+        try {
+            deleteExecutor.prepareStatements(connectionProvider.getConnection());
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) throws SQLException {
+        if (original.f0) {
+            super.addToBatch(original, extracted);
+        } else {
+            deleteExecutor.addToBatch(extracted);
+        }
+    }
+
+    @Override
+    public synchronized void close() {
+        try {
+            super.close();
+        } finally {
+            try {
+                if (deleteExecutor != null) {
+                    deleteExecutor.closeStatements();
+                }
+            } catch (SQLException e) {
+                LOG.warn("unable to close delete statement runner", e);
+            }
+        }
+    }
+
+    @Override
+    protected void attemptFlush() throws SQLException {
+        super.attemptFlush();
+        deleteExecutor.executeBatch();
+    }
+
+    @Override
+    public void updateExecutor(boolean reconnect) throws SQLException, ClassNotFoundException {
+        super.updateExecutor(reconnect);
+        deleteExecutor.closeStatements();
+        deleteExecutor.prepareStatements(connectionProvider.getConnection());
     }
 }
