@@ -106,6 +106,7 @@ public class JobProfileDto {
         fileJob.setDir(dir);
         fileJob.setCollectType(fileJobTaskConfig.getCollectType());
         fileJob.setContentCollectType(fileJobTaskConfig.getContentCollectType());
+        fileJob.setDataSeparator(fileJobTaskConfig.getDataSeparator());
 
         if (fileJobTaskConfig.getTimeOffset() != null) {
             fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
