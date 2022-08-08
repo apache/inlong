@@ -75,7 +75,7 @@ public class EncryptFunctionTest extends AbstractTestBase {
                 new org.apache.inlong.sort.protocol.transformation.function.EncryptFunction(
                         new FieldInfo("f1",
                                 new StringFormatInfo()), new StringConstantParam("1"),
-                        new StringConstantParam("2"));
+                        new StringConstantParam("aes"));
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", encryptFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.function;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -179,27 +180,16 @@ public class EncryptFunction extends ScalarFunction {
         /**
          * DESEDE
          */
-        DESEDE(1),
+        DESEDE,
 
         /**
          * AES
          */
-        AES(2);
+        AES;
 
-        @Getter
-        private Integer id;
-
-        EncryptionType(Integer id) {
-            this.id = id;
-        }
-
-        public static EncryptionType getInstance(String id) {
-            for (EncryptionType value: values()) {
-                if (value.getId().equals(Integer.valueOf(id))) {
-                    return value;
-                }
-            }
-            throw null;
+        public static EncryptionType getInstance(String encrypt) {
+            return Arrays.stream(EncryptionType.values()).filter(v -> v.name().equalsIgnoreCase(encrypt)).
+                    findFirst().orElse(null);
         }
     }
 }
