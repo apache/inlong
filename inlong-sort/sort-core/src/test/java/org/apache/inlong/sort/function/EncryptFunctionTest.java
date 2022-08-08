@@ -43,9 +43,9 @@ import org.junit.Test;
 public class EncryptFunctionTest extends AbstractTestBase {
 
     /**
-     * Test for RegexpReplaceFirst
+     * Test for Encrypt function
      *
-     * @throws Exception The exception may throw when test RegexpReplaceFirst
+     * @throws Exception The exception may throw when test Encrypt function
      */
     @Test
     public void testEncryptFunction() throws Exception {
@@ -58,19 +58,17 @@ public class EncryptFunctionTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        // step 1. Register custom function of REGEXP_REPLACE_FIRST
+        // step 1. Register custom function of Encrypt
         tableEnv.createTemporaryFunction("ENCRYPT", EncryptFunction.class);
         // step 2. Generate test data and convert to DataStream
         List<Row> data = new ArrayList<>();
         data.add(Row.of("abc"));
         TypeInformation<?>[] types = {
                 BasicTypeInfo.STRING_TYPE_INFO};
-//        data.add(Row.of(12));
-//        TypeInformation<?>[] types = {
-//                BasicTypeInfo.INT_TYPE_INFO};
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
+        // step 3. Convert from DataStream to Table and execute the Encrypt function
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
         org.apache.inlong.sort.protocol.transformation.function.EncryptFunction encryptFunction =
