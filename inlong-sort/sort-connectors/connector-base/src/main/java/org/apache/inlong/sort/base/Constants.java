@@ -62,14 +62,14 @@ public final class Constants {
 
 
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inLong.metric")
+        ConfigOptions.key("inlong.metric")
             .stringType()
             .defaultValue("")
             .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
 
     public static final ConfigOption<String> INLONG_AUDIT =
-        ConfigOptions.key("inLong.audit")
+        ConfigOptions.key("inlong.audit")
             .stringType()
             .defaultValue("")
             .withDescription("INLONG AUDIT HOST + '&' + PORT");
