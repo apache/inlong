@@ -37,10 +37,11 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
         <result column="version" jdbcType="INTEGER" property="version"/>
+        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, account_type, name, password, secret_key, public_key, private_key, encrypt_version,
-        due_date, status, is_deleted, creator, modifier, create_time, modify_time, version
+        due_date, status, is_deleted, creator, modifier, create_time, modify_time, version, ext_params
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -48,11 +49,12 @@
         insert into user (id, name, password,
                           secret_key, public_key, private_key,
                           encrypt_version, account_type, due_date,
-                          status, creator, modifier)
+                          status, creator, modifier, ext_params)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{secretKey,jdbcType=VARCHAR}, #{publicKey,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR},
                 #{encryptVersion,jdbcType=INTEGER}, #{accountType,jdbcType=INTEGER}, #{dueDate,jdbcType=TIMESTAMP},
-                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{extParams,jdbcType=LONGVARCHAR})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -100,9 +102,55 @@
             status          = #{status,jdbcType=INTEGER},
             is_deleted      = #{isDeleted,jdbcType=INTEGER},
             modifier        = #{modifier,jdbcType=VARCHAR},
-            version         = #{version,jdbcType=INTEGER} + 1
+            version         = #{version,jdbcType=INTEGER} + 1,
+            ext_params      = #{extParams,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
-          and version = #{version,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
+        update user
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="secretKey != null">
+                secret_key  = #{secretKey,jdbcType=VARCHAR},
+            </if>
+            <if test="publicKey != null">
+                public_key = #{publicKey,jdbcType=VARCHAR},
+            </if>
+            <if test="privateKey != null">
+                private_key = #{privateKey,jdbcType=VARCHAR},
+            </if>
+            <if test="encryptVersion != null">
+                encrypt_version = #{encryptVersion,jdbcType=INTEGER},
+            </if>
+            <if test="accountType != null">
+                account_type = #{accountType,jdbcType=INTEGER},
+            </if>
+            <if test="dueDate != null">
+                due_date = #{dueDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            version = #{version,jdbcType=INTEGER} + 1,
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
