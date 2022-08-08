@@ -89,4 +89,11 @@ public interface StreamSinkOperator {
      */
     void updateFieldOpt(Boolean onlyAdd, SinkRequest request);
 
+    /**
+     * Delete the sink info.
+     *
+     * @param entity sink info needs to delete
+     * @param operator name of the operator
+     */
+    void deleteOpt(StreamSinkEntity entity, String operator);
 }

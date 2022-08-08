@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,20 +265,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
-
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(InlongConstants.DELETED_STATUS);
-        entity.setIsDeleted(id);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
-        sinkFieldMapper.logicDeleteAll(id);
-
+        StreamSinkOperator operation = operatorFactory.getInstance(entity.getSinkType());
+        operation.deleteOpt(entity, operator);
         LOGGER.info("success to delete sink info: {}", entity);
         return true;
     }
