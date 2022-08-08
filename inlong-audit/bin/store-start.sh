@@ -19,11 +19,12 @@
 # under the License.
 #
 
-BASE_DIR=$(
+SCRIPT_DIR=$(
   # shellcheck disable=SC2164
   cd "$(dirname "$0")"
   pwd
 )
+BASE_DIR=$(dirname $SCRIPT_DIR)
 
 # Enter the root directory path
 # shellcheck disable=SC2164
@@ -64,12 +65,12 @@ JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 # shellcheck disable=SC2010
 SERVER_JAR=$(ls -lt "${BASE_DIR}"/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}')
 
-nohup "$JAVA" "$JAVA_OPTS" -Daudit.log.path="$LOG_DIR" -Dloader.path="$BASE_DIR/conf,$BASE_DIR/lib/" -jar "$BASE_DIR/lib/$SERVER_JAR"  1>"${LOG_DIR}"/store.log  2>"${LOG_DIR}"/store-error.log &
+nohup "$JAVA" $JAVA_OPTS -Daudit.log.path="$LOG_DIR" -Dloader.path="$BASE_DIR/conf,$BASE_DIR/lib/" -jar "$BASE_DIR/lib/$SERVER_JAR"  1>"${LOG_DIR}"/store.log  2>"${LOG_DIR}"/store-error.log &
 
 PID_FILE="$BASE_DIR/bin/PID"
 
 # shellcheck disable=SC2009
-PID=$(ps -ef | grep "$BASE_DIR" | grep -v grep | awk '{ print $2}')
+PID=$(ps -ef | grep "$BASE_DIR" | grep "$SERVER_JAR"| grep -v grep | awk '{ print $2}')
 
 sleep 3
 
