@@ -55,8 +55,8 @@ public class EncryptFunction extends ScalarFunction {
     public String eval(String field, String key, String encrypt) {
         if (field != null) {
             String newValue = "";
-            EncryptionType algorithmEnum = EncryptionType.getInstance(encrypt);
-            switch (algorithmEnum) {
+            EncryptionType encryptionType = EncryptionType.getInstance(encrypt);
+            switch (encryptionType) {
                 case AES:
                     newValue = encrypt3DES(field, key);
                     break;
