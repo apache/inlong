@@ -30,6 +30,7 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.postgresql.PostgreSQLJdbcUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -106,9 +107,9 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
     /**
      * Just using in local test
      */
-    @Test
+    @Disabled
     public void testDbResource() {
-        String url = "jdbc:postgresql://192.168.162.202:5432/testdb";
+        String url = "jdbc:postgresql://localhost:5432/testdb";
         String username = "pguser";
         String password = "123456";
         String tableName = "test01";
