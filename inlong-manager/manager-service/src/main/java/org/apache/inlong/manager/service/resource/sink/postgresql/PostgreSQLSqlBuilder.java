@@ -91,7 +91,6 @@ public class PostgreSQLSqlBuilder {
         return sqlBuilder.toString();
     }
 
-
     /**
      * Build SQL to check whether the schema exists.
      *
@@ -226,7 +225,6 @@ public class PostgreSQLSqlBuilder {
         LOGGER.info("add columns sql={}", resultList);
         return resultList;
     }
-
 
     /**
      * Build create column SQL.
