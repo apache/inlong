@@ -25,14 +25,13 @@ import { useRequest } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { defaultSize } from '@/configs/pagination';
-import DataSourcesCreateModal from './DetailModal';
+import DataSourcesDetailModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
 
   const [options, setOptions] = useState({
-    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
   });
@@ -65,11 +64,7 @@ const Comp: React.FC = () => {
         await request({
           url: `/workflow/approver/delete/${id}`,
           method: 'DELETE',
-          // params: {
-          //   id,
-          // },
         });
-        console.log(id, 'id');
         await getList();
         message.success(t('basic.DeleteSuccess'));
       },
@@ -124,7 +119,7 @@ const Comp: React.FC = () => {
         </Card>
       </Container>
 
-      <DataSourcesCreateModal
+      <DataSourcesDetailModal
         {...createModal}
         visible={createModal.visible as boolean}
         onOk={async () => {
