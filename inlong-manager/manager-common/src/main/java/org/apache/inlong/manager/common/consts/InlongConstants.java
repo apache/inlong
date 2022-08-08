@@ -22,6 +22,9 @@ package org.apache.inlong.manager.common.consts;
  */
 public class InlongConstants {
 
+    /**
+     * Group config
+     */
     public static final String COMMA = ",";
 
     public static final String ADMIN_USER = "admin";
@@ -45,6 +48,8 @@ public class InlongConstants {
 
     public static final Integer UN_SYNC_SEND = 0;
     public static final Integer SYNC_SEND = 1;
+
+    public static final String BATCH_TASK = "batch.task";
 
     /**
      * Pulsar config
