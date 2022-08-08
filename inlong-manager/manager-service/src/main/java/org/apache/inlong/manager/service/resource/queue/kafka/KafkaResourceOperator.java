@@ -2,6 +2,8 @@ package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
@@ -15,7 +17,7 @@ public class KafkaResourceOperator implements QueueResourceOperator {
 
   @Override
   public boolean accept(String mqType) {
-    return false;
+    return MQType.KAFKA.equals(mqType);
   }
 
   @Override
