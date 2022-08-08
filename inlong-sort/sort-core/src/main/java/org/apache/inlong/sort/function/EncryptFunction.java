@@ -35,13 +35,13 @@ public class EncryptFunction extends ScalarFunction {
 
     private static final String ENCODING = "UTF-8";
 
-    public static final String KEY_ALGORITHM_AES = "AES";
+    private static final String KEY_ALGORITHM_AES = "AES";
 
-    public static final String KEY_ALGORITHM_3DES = "DESede";
+    private static final String KEY_ALGORITHM_3DES = "DESede";
 
     private static final String CIPHER_ALGORITHM_3DES = "DESede/ECB/PKCS5Padding";
 
-    public static final String SIGN_ALGORITHMS = "SHA1PRNG";
+    private static final String SIGN_ALGORITHMS = "SHA1PRNG";
 
     private static final Base64 base64 = new Base64();
 
@@ -105,7 +105,7 @@ public class EncryptFunction extends ScalarFunction {
      * @param keyStr the key of encryption
      * @return
      */
-    private static byte[] build3DesKey(String keyStr) {
+    public static byte[] build3DesKey(String keyStr) {
         try {
             byte[] key = "000000000000000000000000".getBytes(ENCODING);
             byte[] temp = keyStr.getBytes(ENCODING);
