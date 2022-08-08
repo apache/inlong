@@ -138,7 +138,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
         content={
           id
             ? content.filter(item => item.name !== 'password')
-            : content.filter(item => item.name.indexOf('Key'))
+            : content.filter(item => !item.name.includes('Key'))
         }
         form={form}
         useMaxWidth
