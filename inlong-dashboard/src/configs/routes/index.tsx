@@ -104,6 +104,11 @@ const routes: RouteProps[] = [
     exact: true,
   },
   {
+    path: '/approval',
+    component: () => import('@/pages/ApprovalManagement'),
+    exact: true,
+  },
+  {
     path: '/clusters',
     component: () => import('@/pages/Clusters'),
     exact: true,

@@ -504,5 +504,13 @@
   "pages.UserManagement.config.AccountRole": "Account Role",
   "pages.UserManagement.status.Normal": "Normal",
   "pages.UserManagement.status.Fail": "Fail",
-  "pages.UserManagement.CreateAccount": "Create"
+  "pages.UserManagement.CreateAccount": "Create",
+  "pages.ApprovalManagement.ProcessName": "Process Name",
+  "pages.ApprovalManagement.TaskName": "Task Name",
+  "pages.ApprovalManagement.Approvers": "Approvers",
+  "pages.ApprovalManagement.Creator": "Creator Name",
+  "pages.ApprovalManagement.Modifier": "Modifier Name",
+  "pages.ApprovalManagement.CreateTime": "Create Time",
+  "pages.ApprovalManagement.ModifyTime": "Modify Time",
+  "pages.ApprovalManagement.CreateResponsible": "Create Responsible"
 }

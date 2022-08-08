@@ -32,6 +32,8 @@ const resources = {
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
+      'configs.menus.UserManagement': 'User',
+      'configs.menus.ResponsibleManagement': 'ApprovalManagement',
     },
   },
   cn: {
@@ -43,6 +45,8 @@ const resources = {
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
+      'configs.menus.UserManagement': '用户管理',
+      'configs.menus.ResponsibleManagement': '审批责任人管理',
     },
   },
 };

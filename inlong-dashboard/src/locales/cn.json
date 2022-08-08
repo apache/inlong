@@ -504,5 +504,13 @@
   "pages.UserManagement.config.AccountRole": "帐号角色",
   "pages.UserManagement.status.Normal": "正常",
   "pages.UserManagement.status.Fail": "失效",
-  "pages.UserManagement.CreateAccount": "新建帐号"
+  "pages.UserManagement.CreateAccount": "新建帐号",
+  "pages.ApprovalManagement.ProcessName": "流程名称",
+  "pages.ApprovalManagement.TaskName": "任务名称",
+  "pages.ApprovalManagement.Approvers": "审批者",
+  "pages.ApprovalManagement.Creator": "创建者",
+  "pages.ApprovalManagement.Modifier": "修改者",
+  "pages.ApprovalManagement.CreateTime": "创建时间",
+  "pages.ApprovalManagement.ModifyTime": "修改时间",
+  "pages.ApprovalManagement.CreateResponsible": "新建责任人"
 }
