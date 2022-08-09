@@ -130,7 +130,7 @@ namespace dataproxy_sdk
         return err_count;
     }
 
-    int32_t ClusterProxyList::clearAllConn()
+    void ClusterProxyList::clearAllConn()
     {
         unique_write_lock<read_write_mutex> rdlck(rwmutex_);
 
