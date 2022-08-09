@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.AbstractFileConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKMetaConfig;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
@@ -47,6 +48,7 @@ public class MasterConfig extends AbstractFileConfig {
     private boolean useBdbStoreMetaData = false;
     private ZKMetaConfig zkMetaConfig = null;
     private BdbMetaConfig bdbMetaConfig = null;
+    private PrometheusConfig promConfig = null;
     private int consumerBalancePeriodMs = 60 * 1000;
     private int firstBalanceDelayAfterStartMs = 30 * 1000;
     private int consumerHeartbeatTimeoutMs = 30 * 1000;
@@ -206,6 +208,10 @@ public class MasterConfig extends AbstractFileConfig {
         return zkMetaConfig;
     }
 
+    public PrometheusConfig getPromConfig() {
+        return this.promConfig;
+    }
+
     public boolean isStartVisitTokenCheck() {
         return startVisitTokenCheck;
     }
@@ -281,12 +287,24 @@ public class MasterConfig extends AbstractFileConfig {
         this.loadMetaDataSectConf(iniConf);
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_MASTER_TLS_PORT);
+        this.promConfig = this.loadPrometheusSecConf(iniConf);
         if (this.port == this.webPort
                 || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
             throw new IllegalArgumentException(new StringBuilder(512)
                     .append("Illegal field value configuration, the value of ")
                     .append("port or tlsPort cannot be the same as the value of webPort!")
                     .toString());
+        }
+        if (this.promConfig.isPromEnable()) {
+            int promHttpPort = this.promConfig.getPromHttpPort();
+            if ((promHttpPort == this.port || promHttpPort == this.webPort
+                    || (tlsConfig.isTlsEnable()
+                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                throw new IllegalArgumentException(new StringBuilder(512)
+                        .append("Illegal port value configuration, the value of ")
+                        .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
+                        .toString());
+            }
         }
         if (useBdbStoreMetaData) {
             if (this.port == bdbMetaConfig.getRepNodePort() || (tlsConfig.isTlsEnable()
@@ -301,6 +319,14 @@ public class MasterConfig extends AbstractFileConfig {
                         .append("Illegal field value configuration, the value of ")
                         .append("webPort cannot be the same as the value of repNodePort!")
                         .toString());
+            }
+            if (this.promConfig.isPromEnable()
+                    && this.promConfig.getPromHttpPort() == bdbMetaConfig.getRepNodePort()) {
+                throw new IllegalArgumentException(new StringBuilder(512)
+                        .append("Illegal field value configuration, the value of ")
+                        .append("promHttpPort cannot be the same as the value of repNodePort!")
+                        .toString());
+
             }
         }
     }
@@ -768,6 +794,7 @@ public class MasterConfig extends AbstractFileConfig {
                 .append("port", port)
                 .append("webPort", webPort)
                 .append("tlsConfig", tlsConfig)
+                .append("promConfig", promConfig)
                 .append("useBdbStoreMetaData", useBdbStoreMetaData)
                 .append("zkMetaConfig", zkMetaConfig)
                 .append("bdbMetaConfig", bdbMetaConfig)

@@ -40,6 +40,7 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_META_BDB = "meta_bdb";
     protected static final String SECT_TOKEN_META_ZK = "meta_zookeeper";
     protected static final String SECT_TOKEN_META_AUDIT = "audit";
+    protected static final String SECT_TOKEN_META_PROMETHEUS = "prometheus";
 
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractFileConfig.class);
@@ -314,6 +315,34 @@ public abstract class AbstractFileConfig {
             adConfig.setAuditIdConsume(getInt(auditSect, "auditIdConsume"));
         }
         return adConfig;
+    }
+
+    protected PrometheusConfig loadPrometheusSecConf(final Ini iniConf) {
+        final Profile.Section promSect = iniConf.get(SECT_TOKEN_META_PROMETHEUS);
+        PrometheusConfig promConfig = new PrometheusConfig();
+        if (promSect == null) {
+            return promConfig;
+        }
+        Set<String> configKeySet = promSect.keySet();
+        if (configKeySet.isEmpty()) {
+            return promConfig;
+        }
+        if (TStringUtils.isNotBlank(promSect.get("promEnable"))) {
+            promConfig.setPromEnable(getBoolean(promSect, "promEnable"));
+        }
+        // parse auditProxyAddr configure
+        String promClusterName = promSect.get("promClusterName");
+        if (TStringUtils.isBlank(promClusterName)) {
+            throw new IllegalArgumentException(new StringBuilder(256)
+                    .append("promClusterName is null or Blank in ")
+                    .append(SECT_TOKEN_META_PROMETHEUS).append(" section!").toString());
+        }
+        promConfig.setPromClusterName(promClusterName);
+        // get prometheus port
+        if (TStringUtils.isNotBlank(promSect.get("promHttpPort"))) {
+            promConfig.setPromHttpPort(getInt(promSect, "promHttpPort"));
+        }
+        return promConfig;
     }
 
     @Override
