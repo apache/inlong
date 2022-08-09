@@ -140,7 +140,7 @@ namespace dataproxy_sdk
 
             uint32_t len = 0;
             int32_t msg_cnt = msg_set_.size();
-            // std::string msg_bid = inlong_group_id_;
+            // std::string msg_groupid = inlong_group_id_;
             uint32_t uniq_id = g_send_msgid.incrementAndGet();
             if (!packOperate(send_buf->content(), len, uniq_id) || len == 0)
             {
@@ -149,8 +149,8 @@ namespace dataproxy_sdk
             }
             send_buf->setLen(len);
             send_buf->setMsgCnt(msg_cnt);
-            send_buf->setBid(inlong_group_id_);
-            send_buf->setTid(inlong_stream_id_);
+            send_buf->setGroupid(inlong_group_id_);
+            send_buf->setStreamid(inlong_stream_id_);
             send_buf->setUniqId(uniq_id);
             send_buf->setTarget(conn);
             send_buf->setIsPacked(true);
@@ -329,33 +329,33 @@ namespace dataproxy_sdk
 
             bodyBegin += body_len;
 
-            // bid_num、tid_num、ext_field、data_time、cnt、uniq
-            uint32_t char_bid_flag = 0;
-            std::string bid_tid_char;
-            uint16_t bid_num = 0, tid_num = 0;
-            if (g_config->enableCharBid() || groupId_num_ == 0 || streamId_num_ == 0) //using string groupid and streamid
+            // groupid_num、streamid_num、ext_field、data_time、cnt、uniq
+            uint32_t char_groupid_flag = 0;
+            std::string groupid_streamid_char;
+            uint16_t groupid_num = 0, streamid_num = 0;
+            if (g_config->enableCharGroupid() || groupId_num_ == 0 || streamId_num_ == 0) //using string groupid and streamid
             {
-                bid_num = 0;
-                tid_num = 0;
-                bid_tid_char = topic_desc_;
-                char_bid_flag = 0x4;
+                groupid_num = 0;
+                streamid_num = 0;
+                groupid_streamid_char = topic_desc_;
+                char_groupid_flag = 0x4;
             }
             else
             {
-                bid_num = groupId_num_;
-                tid_num = streamId_num_;
+                groupid_num = groupId_num_;
+                streamid_num = streamId_num_;
             }
-            uint16_t ext_field = (g_config->extend_field_ | char_bid_flag);
+            uint16_t ext_field = (g_config->extend_field_ | char_groupid_flag);
             uint32_t data_time = data_time_ / 1000;
 
             // attr
             std::string attr;
             if (g_config->enableTraceIP())
             {
-                if (bid_tid_char.empty())
+                if (groupid_streamid_char.empty())
                     attr = "node1ip=" + g_config->ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
                 else
-                    attr = bid_tid_char + "&node1ip=" + g_config->ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
+                    attr = groupid_streamid_char + "&node1ip=" + g_config->ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
             }
             else
             {
@@ -379,9 +379,9 @@ namespace dataproxy_sdk
             p += 4;
             *p = real_msg_type;
             ++p;
-            *(uint16_t *)p = htons(bid_num);
+            *(uint16_t *)p = htons(groupid_num);
             p += 2;
-            *(uint16_t *)p = htons(tid_num);
+            *(uint16_t *)p = htons(streamid_num);
             p += 2;
             *(uint16_t *)p = htons(ext_field);
             p += 2;

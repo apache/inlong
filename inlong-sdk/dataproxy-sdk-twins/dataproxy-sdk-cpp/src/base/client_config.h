@@ -98,7 +98,7 @@ namespace dataproxy_sdk
     void defaultInit();
     void showClientConfig();
 
-    inline bool enableCharBid() const { return (((extend_field_)&0x4) >> 2); } // use char type groupId、streadmId
+    inline bool enableCharGroupid() const { return (((extend_field_)&0x4) >> 2); } // use char type groupId、streadmId
     inline bool enableTraceIP() const { return (((extend_field_)&0x2) >> 1); }
     // datat type msg: datlen|data
     inline bool isNormalDataPackFormat() const { return ((5 == msg_type_) || ((msg_type_ >= 7) && (!(extend_field_ & 0x1)))); }

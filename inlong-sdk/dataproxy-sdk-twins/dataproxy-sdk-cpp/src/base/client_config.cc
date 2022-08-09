@@ -100,7 +100,7 @@ namespace dataproxy_sdk
         }
         else
         {
-            enable_groupId_isolation_ = constants::kEnableBidIsolation;
+            enable_groupId_isolation_ = constants::kEnableGroupidIsolation;
             LOG_WARN("enable_groupId_isolation in user config is not expect, then use default: %s", enable_groupId_isolation_ ? "true" : "false");
         }
 
@@ -139,7 +139,7 @@ namespace dataproxy_sdk
         }
         else
         {
-            buffer_num_per_groupId_ = constants::kBufferNumPerBid;
+            buffer_num_per_groupId_ = constants::kBufferNumPerGroupid;
             LOG_WARN("buffer_num_per_groupId in user config is not expect, then use default: %d", buffer_num_per_groupId_);
         }
 
@@ -604,8 +604,8 @@ namespace dataproxy_sdk
 
         thread_nums_=constants::kThreadNums;
         shared_buf_nums_=constants::kSharedBufferNums;
-        enable_groupId_isolation_=constants::kEnableBidIsolation;
-        buffer_num_per_groupId_=constants::kBufferNumPerBid;
+        enable_groupId_isolation_=constants::kEnableGroupidIsolation;
+        buffer_num_per_groupId_=constants::kBufferNumPerGroupid;
         net_tag_=constants::kNetTag;
     
         enable_pack_=constants::kEnablePack;

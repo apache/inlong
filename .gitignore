@@ -43,7 +43,8 @@ wheels/
 
 # C/C++
 inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/build/
-
+inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp/build/
+inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp/release/bin/
 # Gradle
 .gradle
 

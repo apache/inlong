@@ -20,7 +20,6 @@
 #ifndef DATAPROXY_SDK_BASE_UTILS_H_
 #define DATAPROXY_SDK_BASE_UTILS_H_
 
-#include <snappy.h>
 #include <stdint.h>
 #include <string>
 #include <sys/select.h>
@@ -29,6 +28,8 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+
+#include "snappy.h"
 namespace dataproxy_sdk
 {
 using PAIR = std::pair<std::string, int32_t>;
