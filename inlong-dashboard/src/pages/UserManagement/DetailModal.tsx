@@ -32,7 +32,7 @@ const content = [
   {
     type: 'radio',
     label: i18n.t('pages.UserManagement.config.AccountRole'),
-    name: 'type',
+    name: 'accountType',
     initialValue: 1,
     rules: [{ required: true }],
     props: {
@@ -51,7 +51,7 @@ const content = [
   {
     type: 'input',
     label: i18n.t('pages.UserManagement.config.UserName'),
-    name: 'username',
+    name: 'name',
     rules: [{ required: true }],
   },
   {

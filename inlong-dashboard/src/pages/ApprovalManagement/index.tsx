@@ -100,7 +100,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-                {t('pages.ApprovalManagement.CreateResponsible')}
+                {t('pages.ApprovalManagement.CreateProcess')}
               </Button>
             }
             filterForm={{
