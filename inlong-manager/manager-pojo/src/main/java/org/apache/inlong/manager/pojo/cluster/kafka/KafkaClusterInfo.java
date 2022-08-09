@@ -40,20 +40,30 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 @ApiModel("Inlong cluster info for Kafka")
 public class KafkaClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Kafka admin URL, such as: http://127.0.0.1:8080",
-            notes = "Pulsar service URL is the 'url' field of the cluster")
-    private String adminUrl;
+  @ApiModelProperty(value = "Kafka admin bootStrapServers, such as: 127.0.0.1:9092",
+      notes = "Kafka service URL is the 'url' field of the cluster")
+  private String bootStrapServers;
+  // topic的名称
+  private String topicName;
+  // partition数量
+  private int numPartitions;
+  // 副本数量
+  short replicationFactor = 1;
+  //消费者分组
+  private String groupId;
+  // 自动提交间隔
+  private String autoCommit;
 
-    //TODO add new attribute
+  //TODO add new attribute
 
 
-    public KafkaClusterInfo() {
-        this.setType(ClusterType.KAFKA);
-    }
+  public KafkaClusterInfo() {
+    this.setType(ClusterType.KAFKA);
+  }
 
-    @Override
-    public KafkaClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, KafkaClusterRequest::new);
-    }
+  @Override
+  public KafkaClusterRequest genRequest() {
+    return CommonBeanUtils.copyProperties(this, KafkaClusterRequest::new);
+  }
 
 }
