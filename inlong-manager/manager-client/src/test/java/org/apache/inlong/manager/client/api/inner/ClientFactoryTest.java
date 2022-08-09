@@ -70,6 +70,7 @@ import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
@@ -151,6 +152,7 @@ class ClientFactoryTest {
 
     @Test
     void testGetGroupInfo() {
+        FlinkSortConf flinkSortConf = new FlinkSortConf();
         InlongPulsarInfo inlongGroupResponse = InlongPulsarInfo.builder()
                 .id(1)
                 .inlongGroupId("1")
@@ -164,7 +166,7 @@ class ClientFactoryTest {
                                 .keyValue("keyValue")
                                 .build()
                         )
-                ).build();
+                ).sortConf(flinkSortConf).build();
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/group/get/1.*"))
