@@ -90,7 +90,7 @@
             #{item.extParams,jdbcType=LONGVARCHAR}, #{item.isMetaField,jdbcType=SMALLINT},
             #{item.metaFieldName,jdbcType=VARCHAR}, #{item.fieldFormat,jdbcType=VARCHAR},
             #{item.originNodeName,jdbcType=VARCHAR}, #{item.originFieldName,jdbcType=VARCHAR},
-            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER},
+            #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER}
             )
         </foreach>
     </insert>
