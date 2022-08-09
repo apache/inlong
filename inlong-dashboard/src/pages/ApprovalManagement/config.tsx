@@ -48,11 +48,11 @@ export const getColumns = ({ onEdit, onDelete }) => {
       dataIndex: 'creator',
       render: (text, record) => (
         <Space size="middle">
-          <p>
+          <div>
             {text}
             <br></br>
             {record.createTime && timestampFormat(record.createTime)}
-          </p>
+          </div>
         </Space>
       ),
     },
@@ -61,11 +61,11 @@ export const getColumns = ({ onEdit, onDelete }) => {
       dataIndex: 'modifier',
       render: (text, record) => (
         <Space size="middle">
-          <p>
+          <div>
             {text}
             <br></br>
             {record.modifyTime && timestampFormat(record.modifyTime)}
-          </p>
+          </div>
         </Space>
       ),
     },
