@@ -510,7 +510,5 @@
   "pages.ApprovalManagement.Approvers": "Approvers",
   "pages.ApprovalManagement.Creator": "Creator Name",
   "pages.ApprovalManagement.Modifier": "Modifier Name",
-  "pages.ApprovalManagement.CreateTime": "Create Time",
-  "pages.ApprovalManagement.ModifyTime": "Modify Time",
-  "pages.ApprovalManagement.CreateResponsible": "Create Responsible"
+  "pages.ApprovalManagement.CreateProcess": "Create Process"
 }
