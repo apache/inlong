@@ -47,13 +47,13 @@ struct ProtocolMsgTail
     char attr[0];
 };
 // msg_type=7
-// totalLen(4)|msgtype(1)|bid_num(2)|tid_num(2)|ext_field(2)|data_time(4)|cnt(2)|uniq(4)|bodyLen(4)|body(x)|attrLen(4)|attr(attr_len)|magic(2)
+// totalLen(4)|msgtype(1)|groupid_num(2)|streamid_num(2)|ext_field(2)|data_time(4)|cnt(2)|uniq(4)|bodyLen(4)|body(x)|attrLen(4)|attr(attr_len)|magic(2)
 struct BinaryMsgHead
 {
     uint32_t total_len;
     char msg_type;
-    uint16_t bid_num;
-    uint16_t tid_num;
+    uint16_t groupid_num;
+    uint16_t streamid_num;
     uint16_t ext_field;
     uint32_t data_time;  //second, last pack time
     uint16_t cnt;
