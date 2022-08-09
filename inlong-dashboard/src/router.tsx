@@ -21,7 +21,14 @@ import React, { Suspense, lazy, useEffect, useCallback, useState } from 'react';
 import { ConfigProvider, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import { useLocation, useHistory, useDispatch, UseRequestProvider, useSelector } from '@/hooks';
+import {
+  useLocation,
+  useHistory,
+  useDispatch,
+  UseRequestProvider,
+  useSelector,
+  useRequest,
+} from '@/hooks';
 import { PageLoading } from '@ant-design/pro-layout';
 import { Provider } from 'react-redux';
 import Layout from '@/components/Layout';
@@ -72,9 +79,27 @@ const App = () => {
   const dispatch = useDispatch();
 
   const locale = useSelector<State, State['locale']>(state => state.locale);
-  const userName = useSelector<State, State['userName']>(state => state.userName);
 
   const [antdMessages, setAntdMessages] = useState();
+
+  useRequest(
+    {
+      url: '/user/currentUser',
+      method: 'POST',
+    },
+    {
+      onSuccess: result => {
+        dispatch({
+          type: 'setUserInfo',
+          payload: {
+            userName: result.name,
+            userId: result.userId,
+            roles: result.roles,
+          },
+        });
+      },
+    },
+  );
 
   const importLocale = useCallback(async locale => {
     if (!localesConfig[locale]) return;
@@ -131,9 +156,8 @@ const App = () => {
 
   return antdMessages ? (
     <ConfigProvider locale={antdMessages} autoInsertSpaceInButton={false}>
-      {userName === null ? (
-        <Route exact path="*" render={() => <Login />} />
-      ) : (
+      <Switch>
+        <Route exact path="/login" render={() => <Login />} />
         <Layout>
           <Suspense fallback={<PageLoading />}>
             <Switch>
@@ -142,7 +166,7 @@ const App = () => {
             </Switch>
           </Suspense>
         </Layout>
-      )}
+      </Switch>
     </ConfigProvider>
   ) : (
     <Spin />

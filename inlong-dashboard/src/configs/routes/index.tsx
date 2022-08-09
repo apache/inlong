@@ -27,11 +27,6 @@ export interface RouteProps extends Omit<ReactRouteProps, 'component'> {
 
 const routes: RouteProps[] = [
   {
-    path: '/',
-    component: () => import('@/pages/Login'),
-    exact: true,
-  },
-  {
     path: '/login',
     component: () => import('@/pages/Login'),
     exact: true,
