@@ -41,7 +41,6 @@ public class GroupInfo implements Serializable {
     @JsonProperty("streams")
     private List<StreamInfo> streams;
 
-    @JsonProperty("properties")
     private Map<String, String> properties;
 
     /**
@@ -59,7 +58,6 @@ public class GroupInfo implements Serializable {
         Preconditions.checkState(!streams.isEmpty(), "streams is empty");
     }
 
-    @JsonCreator
     public GroupInfo(@JsonProperty("groupId") String groupId,
         @JsonProperty("streams") List<StreamInfo> streams,
         Map<String, String> properties) {
