@@ -53,7 +53,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaExtract")
 @Data
-public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
+public class KafkaExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
 
