@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,6 +41,8 @@ public class GroupInfo implements Serializable {
     @JsonProperty("streams")
     private List<StreamInfo> streams;
 
+    private Map<String, String> properties;
+
     /**
      * Information of group.
      * 
@@ -50,6 +54,16 @@ public class GroupInfo implements Serializable {
             @JsonProperty("streams") List<StreamInfo> streams) {
         this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
+        this.properties = new HashMap<>();
+        Preconditions.checkState(!streams.isEmpty(), "streams is empty");
+    }
+
+    public GroupInfo(@JsonProperty("groupId") String groupId,
+        @JsonProperty("streams") List<StreamInfo> streams,
+        Map<String, String> properties) {
+        this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
+        this.streams = Preconditions.checkNotNull(streams, "streams is null");
+        this.properties = properties;
         Preconditions.checkState(!streams.isEmpty(), "streams is empty");
     }
 }
