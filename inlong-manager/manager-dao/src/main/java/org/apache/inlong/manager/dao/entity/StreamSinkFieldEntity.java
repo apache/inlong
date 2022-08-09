@@ -45,9 +45,9 @@ public class StreamSinkFieldEntity implements Serializable {
     private Integer isMetaField;
     private String metaFieldName;
     private String fieldFormat;
-    private Short rankNum;
-    private Integer isDeleted;
     private String originNodeName;
     private String originFieldName;
+    private Short rankNum;
+    private Integer isDeleted;
 
 }
