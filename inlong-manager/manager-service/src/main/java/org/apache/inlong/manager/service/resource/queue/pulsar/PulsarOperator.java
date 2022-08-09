@@ -152,7 +152,7 @@ public class PulsarOperator {
         }
 
         try {
-            if (PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule())) {
+            if (PULSAR_QUEUE_TYPE_SERIAL.equalsIgnoreCase(topicBean.getQueueModule())) {
                 pulsarAdmin.topics().createNonPartitionedTopic(topicFullName);
                 String res = pulsarAdmin.lookups().lookupTopic(topicFullName);
                 LOGGER.info("success to create topic={}, lookup result is {}", topicFullName, res);
