@@ -42,8 +42,8 @@
     </resultMap>
     <sql id="Base_Column_List">
         id, sink_id, field_name, field_type, field_comment, source_field_name, source_field_type,
-        ext_params, is_meta_field, meta_field_name, field_format, rank_num, is_deleted,
-        origin_node_name, origin_field_name
+        ext_params, is_meta_field, meta_field_name, field_format, origin_node_name, origin_field_name,
+        rank_num, is_deleted
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
