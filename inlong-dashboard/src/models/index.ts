@@ -26,6 +26,8 @@ import { getCurrentLocale } from '@/configs/locales';
 export interface State {
   locale: string;
   userName: string;
+  userId: number;
+  roles: string[];
   currentMenu: null | {
     name: string;
     path: string;
@@ -34,15 +36,19 @@ export interface State {
 
 const state: State = {
   locale: getCurrentLocale(),
-  userName: localStorage.getItem('userName') || null,
+  userName: '',
+  userId: 0,
+  roles: [],
   currentMenu: null,
 };
 
 const reducers = {
-  setUser: (state: State, payload) => {
+  setUserInfo: (state: State, payload) => {
     return {
       ...state,
       userName: payload.userName,
+      userId: payload.userId,
+      roles: payload.roles,
     };
   },
 
