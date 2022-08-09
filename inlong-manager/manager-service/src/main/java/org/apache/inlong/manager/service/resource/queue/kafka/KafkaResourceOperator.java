@@ -4,8 +4,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -13,22 +11,16 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
-import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
-import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
-import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author zcy
@@ -65,8 +57,6 @@ public class KafkaResourceOperator implements QueueResourceOperator {
         String clusterTag = groupInfo.getInlongClusterTag();
         KafkaClusterInfo kafkaCluster = (KafkaClusterInfo) clusterService.getOne(clusterTag, null,
                 ClusterType.KAFKA);
-        // TODO kafkaUtils get kafka admin through kafkaCluster
-        // try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(kafkaCluster)) {
         try {
             // 1. create kafka Topic - each Inlong Stream corresponds to a Kafka Topic
             List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
@@ -170,19 +160,19 @@ public class KafkaResourceOperator implements QueueResourceOperator {
     private void createKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo kafkaCluster, String topicName)
             throws Exception {
         // 1. create kafka topic
-        kafkaOperator.createTopic();
+        kafkaOperator.createTopic(kafkaCluster);
 
         // 2. create a subscription for the kafka topic
-        boolean exist = kafkaOperator.topicIsExists();
+        boolean exist = kafkaOperator.topicIsExists(topicName);
         if (!exist) {
             String topicFullName = "";
-            String serviceUrl = kafkaCluster.getAdminUrl();
-            log.error("topic={} not exists in {}", topicFullName, serviceUrl);
-            throw new WorkflowListenerException("topic=" + topicFullName + " not exists in " + serviceUrl);
+            String bootStrapServers = kafkaCluster.getBootStrapServers();
+            log.error("topic={} not exists in {}", topicFullName, bootStrapServers);
+            throw new WorkflowListenerException("topic=" + topicFullName + " not exists in " + bootStrapServers);
         }
 
-        // subscription naming rules: clusterTag_topicName_consumer_group
-        //TODO kafkaOperator.createSubscription(pulsarAdmin, topicBean, subscription);
+        // subscription naming rules:
+        kafkaOperator.createSubscription(kafkaCluster, topicName);
         String subscription = "todo_name";
         String groupId = groupInfo.getInlongGroupId();
         log.info("success to create pulsar subscription for groupId={}, topic={}, subs={}",
@@ -196,8 +186,8 @@ public class KafkaResourceOperator implements QueueResourceOperator {
     /**
      * Delete Kafka Topic and Subscription, and delete the consumer group info.
      */
-    private void deleteKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo clusterInfo, String mqResource) {
+    private void deleteKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo clusterInfo, String topicName) {
         // 1. delete kafka topic
-        kafkaOperator.forceDeleteTopic();
+        kafkaOperator.forceDeleteTopic(clusterInfo,topicName);
     }
 }
