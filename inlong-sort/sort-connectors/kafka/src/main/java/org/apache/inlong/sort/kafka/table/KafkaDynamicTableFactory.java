@@ -88,7 +88,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.val
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
@@ -307,6 +307,8 @@ public class KafkaDynamicTableFactory
 
         final Integer parallelism = tableOptions.getOptional(SINK_PARALLELISM).orElse(null);
 
+        String inLongMetric = tableOptions.get(INLONG_METRIC);
+
         return createKafkaTableSink(
                 physicalDataType,
                 keyEncodingFormat.orElse(null),
@@ -319,7 +321,8 @@ public class KafkaDynamicTableFactory
                 context.getCatalogTable(),
                 getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null),
                 getSinkSemantic(tableOptions),
-                parallelism);
+                parallelism,
+                inLongMetric);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -369,7 +372,8 @@ public class KafkaDynamicTableFactory
             CatalogTable table,
             FlinkKafkaPartitioner<RowData> partitioner,
             KafkaSinkSemantic semantic,
-            Integer parallelism) {
+            Integer parallelism,
+            String inLongMetric) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -385,6 +389,7 @@ public class KafkaDynamicTableFactory
                 semantic,
                 false,
                 SinkBufferFlushMode.DISABLED,
-                parallelism);
+                parallelism,
+                inLongMetric);
     }
 }

@@ -22,8 +22,8 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
 /** Option utils for Kafka table source sink. */
-public class KafkaOptions {
-    private KafkaOptions() {
+public class KafkaInLongOptions {
+    private KafkaInLongOptions() {
     }
 
     // --------------------------------------------------------------------------------------------
@@ -34,5 +34,11 @@ public class KafkaOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
+
+    public static final ConfigOption<String> INLONG_METRIC =
+            ConfigOptions.key("inlong.metric")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
 }
