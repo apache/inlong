@@ -29,7 +29,7 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.util.InstantiationUtil;
-import org.apache.inlong.sort.elasticsearch.metric.MetricData;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -160,7 +160,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * Bulk processor to buffer and send requests to Elasticsearch, created using the client.
      */
     private transient BulkProcessor bulkProcessor;
-    private MetricData metricData;
+    private SinkMetricData sinkMetricData;
 
     public ElasticsearchSinkBase(
             ElasticsearchApiCallBridge<C> callBridge,
@@ -265,23 +265,23 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-        metricData = new MetricData(getRuntimeContext().getMetricGroup());
+        sinkMetricData = new SinkMetricData(getRuntimeContext().getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split("&");
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
-            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
+            sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
+            sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
+            sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
+            sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
                     "numBytesOutPerSecond");
-            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
                     "numRecordsOutPerSecond");
         }
         callBridge.verifyClientConnection(client);
-        bulkProcessor = buildBulkProcessor(new BulkProcessorListener(metricData));
+        bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
         requestIndexer =
                 callBridge.createBulkProcessorIndexer(
                         bulkProcessor, flushOnCheckpoint, numPendingRequests);
@@ -462,10 +462,10 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
 
     private class BulkProcessorListener implements BulkProcessor.Listener {
 
-        private MetricData metricData;
+        private SinkMetricData sinkMetricData;
 
-        public BulkProcessorListener(MetricData metricData) {
-            this.metricData = metricData;
+        public BulkProcessorListener(SinkMetricData sinkMetricData) {
+            this.sinkMetricData = sinkMetricData;
         }
 
         @Override
@@ -487,8 +487,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                         if (failure != null) {
                             restStatus = itemResponse.getFailure().getStatus();
                             actionRequest = request.requests().get(i);
-                            if (metricData.getDirtyRecords() != null) {
-                                metricData.getDirtyRecords().inc();
+                            if (sinkMetricData.getDirtyRecords() != null) {
+                                sinkMetricData.getDirtyRecords().inc();
                             }
                             if (restStatus == null) {
                                 if (actionRequest instanceof ActionRequest) {
@@ -514,8 +514,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                                 }
                             }
                         }
-                        if (metricData.getNumRecordsOut() != null) {
-                            metricData.getNumRecordsOut().inc();
+                        if (sinkMetricData.getNumRecordsOut() != null) {
+                            sinkMetricData.getNumRecordsOut().inc();
                         }
                     }
                 } catch (Throwable t) {
@@ -534,8 +534,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
             try {
                 for (DocWriteRequest writeRequest : request.requests()) {
-                    if (metricData.getDirtyRecords() != null) {
-                        metricData.getDirtyRecords().inc();
+                    if (sinkMetricData.getDirtyRecords() != null) {
+                        sinkMetricData.getDirtyRecords().inc();
                     }
                     if (writeRequest instanceof ActionRequest) {
                         failureHandler.onFailure(

@@ -25,8 +25,7 @@ import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
-
-import org.apache.inlong.sort.elasticsearch.metric.MetricData;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -56,7 +55,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
 
     private transient  RuntimeContext runtimeContext;
 
-    private MetricData metricData;
+    private SinkMetricData sinkMetricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
 
@@ -83,18 +82,18 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     public void open(RuntimeContext ctx) {
         indexGenerator.open();
         this.runtimeContext = ctx;
-        metricData = new MetricData(runtimeContext.getMetricGroup());
+        sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split("&");
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
-            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId, "numBytesOutPerSecond");
-            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+            sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
+            sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
+            sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
+            sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId, "numBytesOutPerSecond");
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
                     "numRecordsOutPerSecond");
         }
     }
@@ -118,8 +117,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void processUpsert(RowData row, RequestIndexer indexer) {
         final byte[] document = serializationSchema.serialize(row);
         final String key = createKey.apply(row);
-        if (metricData.getNumBytesOut() != null) {
-            metricData.getNumBytesOut().inc(document.length);
+        if (sinkMetricData.getNumBytesOut() != null) {
+            sinkMetricData.getNumBytesOut().inc(document.length);
         }
         if (key != null) {
             final UpdateRequest updateRequest =
