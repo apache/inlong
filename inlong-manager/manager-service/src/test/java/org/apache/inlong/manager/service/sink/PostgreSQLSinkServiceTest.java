@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -34,9 +34,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * PostgreSQL sink service test
@@ -110,54 +109,60 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:postgresql://localhost:5432/test";
-        String user = "postgresql";
+        String url = "jdbc:postgresql://localhost:5432/testdb";
+        String username = "pguser";
         String password = "123456";
-        String dbName = "test";
-        String tableName = "test_123";
+        String tableName = "test01";
+        String schemaName = "public";
 
-        try {
-            PostgreSQLJdbcUtils.createDb(url, user, password, dbName);
-            List<PostgreSQLColumnInfo> columnInfoList = new ArrayList<>();
-            PostgreSQLColumnInfo info = new PostgreSQLColumnInfo();
-            info.setType("integer");
-            info.setName("id");
-            columnInfoList.add(info);
-            PostgreSQLColumnInfo info2 = new PostgreSQLColumnInfo();
-            info2.setType("integer");
-            info2.setName("age");
-            columnInfoList.add(info2);
-
-            PostgreSQLColumnInfo info3 = new PostgreSQLColumnInfo();
-            info3.setType("integer");
-            info3.setName("high");
-            columnInfoList.add(info3);
-
-            PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
-            tableInfo.setDbName(dbName);
-            tableInfo.setColumns(columnInfoList);
-            tableInfo.setTableName(tableName);
-
-            boolean tableExists = PostgreSQLJdbcUtils.checkTablesExist(url, user, password, dbName, tableName);
-            if (!tableExists) {
-                PostgreSQLJdbcUtils.createTable(url, user, password, tableInfo);
-            } else {
-                List<PostgreSQLColumnInfo> existColumns = PostgreSQLJdbcUtils.getColumns(url, user, password,
-                        tableName);
-                List<String> columnNameList = new ArrayList<>();
-                existColumns.forEach(columnInfo -> columnNameList.add(columnInfo.getName()));
-
-                List<PostgreSQLColumnInfo> needAddColumns = tableInfo.getColumns().stream()
-                        .filter((columnInfo) -> !columnNameList.contains(columnInfo.getName()))
-                        .collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(needAddColumns)) {
-                    PostgreSQLJdbcUtils.addColumns(url, user, password, tableName, needAddColumns);
-                }
-            }
+        try (Connection connection = PostgreSQLJdbcUtils.getConnection(url, username, password)) {
+            PostgreSQLTableInfo tableInfo = bulidTestPostgreSQLTableInfo(username, schemaName, tableName);
+            PostgreSQLJdbcUtils.createTable(connection, tableInfo);
+            List<PostgreSQLColumnInfo> addColumns = buildAddColumns();
+            PostgreSQLJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
+            List<PostgreSQLColumnInfo> columns = PostgreSQLJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Build add PostgreSQL column info.
+     *
+     * @return {@link List}
+     */
+    private List<PostgreSQLColumnInfo> buildAddColumns() {
+        List<PostgreSQLColumnInfo> addColums = Lists.newArrayList(
+                new PostgreSQLColumnInfo("test1", "int", "test1"),
+                new PostgreSQLColumnInfo("test2", "varchar(30)", "test2"),
+                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1")
+        );
+        return addColums;
+    }
+
+    /**
+     * Build test PostgreSQL table info.
+     *
+     * @param userName PostgreSQL database name
+     * @param tableName PostgreSQL table name
+     * @return {@link PostgreSQLTableInfo}
+     */
+    private PostgreSQLTableInfo bulidTestPostgreSQLTableInfo(final String userName, final String schemaName,
+            final String tableName) {
+        List<PostgreSQLColumnInfo> columns = Lists.newArrayList(
+                new PostgreSQLColumnInfo("id", "int", "id"),
+                new PostgreSQLColumnInfo("cell", "varchar(25)", "cell"),
+                new PostgreSQLColumnInfo("name", "varchar(50)", "name")
+        );
+        final PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
+        tableInfo.setColumns(columns);
+        tableInfo.setTableName(tableName);
+        tableInfo.setPrimaryKey("id");
+        tableInfo.setSchemaName(schemaName);
+        tableInfo.setComment(tableName);
+        return tableInfo;
     }
 
 }
