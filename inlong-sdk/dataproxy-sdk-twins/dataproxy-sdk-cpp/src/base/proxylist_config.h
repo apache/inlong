@@ -92,7 +92,7 @@ namespace dataproxy_sdk
     void addBusAddress(const ProxyInfoPtr &proxy_info);
     bool enableUpdate(const ClusterProxyListPtr &other);
     virtual int32_t initConn(); //init active conns and backup conns
-    int32_t clearAllConn();
+    void clearAllConn();
     void clearInvalidConns();
     void keepConnsAlive();
     void balanceConns();

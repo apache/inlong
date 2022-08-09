@@ -20,7 +20,6 @@
 #ifndef DATAPROXY_SDK_BASE_CORE_H_
 #define DATAPROXY_SDK_BASE_CORE_H_
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
