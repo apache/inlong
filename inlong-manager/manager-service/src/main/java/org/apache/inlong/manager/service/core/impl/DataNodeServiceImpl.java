@@ -102,7 +102,7 @@ public class DataNodeServiceImpl implements DataNodeService {
                     return instance.getFromEntity(entity);
                 }).collect(Collectors.toList());
         PageInfo<DataNodeInfo> page = new PageInfo<>(list);
-        page.setTotal(list.size());
+        page.setTotal(entityPage.getTotal());
         LOGGER.debug("success to list data node by {}", request);
         return page;
     }
