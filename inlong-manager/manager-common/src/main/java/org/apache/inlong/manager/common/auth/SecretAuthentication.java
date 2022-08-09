@@ -30,6 +30,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class SecretAuthentication implements Authentication {
 
+    public static final String SECRET = "secret";
+
     public static final String SECRET_ID = "secret_id";
 
     public static final String SECRET_KEY = "secret_key";
