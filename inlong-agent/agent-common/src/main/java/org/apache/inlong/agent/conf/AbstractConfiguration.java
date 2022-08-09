@@ -261,9 +261,21 @@ public abstract class AbstractConfiguration {
         configStorage.put(key, new JsonPrimitive(value));
     }
 
+    /**
+     * get key-value map properties from config file
+     */
+    public Map<String, String> getConfigProperties() {
+        Map<String, String> properties = new HashMap<>();
+        for (Map.Entry<String, JsonPrimitive> entry : configStorage.entrySet()) {
+            properties.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return properties;
+    }
+
     Map<String, JsonPrimitive> getConfigStorage() {
         return configStorage;
     }
+
 
     /**
      * get configStorage list, item format: "key=value"

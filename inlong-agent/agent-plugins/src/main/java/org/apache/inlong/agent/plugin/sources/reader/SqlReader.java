@@ -41,7 +41,6 @@ import static java.sql.Types.BINARY;
 import static java.sql.Types.BLOB;
 import static java.sql.Types.LONGVARBINARY;
 import static java.sql.Types.VARBINARY;
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 /**
  * Read data from database by SQL
@@ -118,14 +117,14 @@ public class SqlReader extends AbstractReader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GLOBAL_METRICS.incReadNum(metricTagName);
+                readerMetric.pluginReadCount.incrementAndGet();
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            GLOBAL_METRICS.incReadFailedNum(metricTagName);
+            readerMetric.pluginReadFailCount.incrementAndGet();
             throw new RuntimeException(ex);
         }
         return null;
@@ -191,7 +190,6 @@ public class SqlReader extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        metricTagName = SQL_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);

@@ -17,8 +17,6 @@
 
 package org.apache.inlong.agent.constant;
 
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
-import org.apache.inlong.agent.metrics.global.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 /**
@@ -201,6 +199,4 @@ public class AgentConstants {
     public static final String AGENT_METRIC_LISTENER_CLASS = "agent.domainListeners";
     public static final String AGENT_METRIC_LISTENER_CLASS_DEFAULT =
             "org.apache.inlong.agent.metrics.AgentPrometheusMetricListener";
-
-    public static final GlobalMetrics GLOBAL_METRICS = AgentMetricSingleton.getAgentMetricHandler().globalMetrics;
 }
