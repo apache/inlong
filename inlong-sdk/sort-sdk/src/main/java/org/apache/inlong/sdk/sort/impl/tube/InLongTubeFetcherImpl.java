@@ -270,6 +270,10 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, inLongTopic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
+                            deserialize = interceptor.intercept(deserialize);
+                            if (deserialize.isEmpty()) {
+                                continue;
+                            }
                             msgs.addAll(deserialize);
                             context.getStatManager()
                                     .getStatistics(context.getConfig().getSortTaskId(),
