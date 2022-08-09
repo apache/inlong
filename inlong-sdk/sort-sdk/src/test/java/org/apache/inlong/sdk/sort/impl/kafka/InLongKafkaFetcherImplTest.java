@@ -36,6 +36,8 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.HashMap;
+
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
@@ -57,6 +59,7 @@ public class InLongKafkaFetcherImplTest {
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
         inLongTopic.setTopicType("pulsar");
+        inLongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);

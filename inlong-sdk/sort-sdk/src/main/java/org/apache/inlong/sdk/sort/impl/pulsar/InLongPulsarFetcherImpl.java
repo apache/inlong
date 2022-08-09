@@ -284,7 +284,11 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
                             List<InLongMessage> inLongMessages = deserializer
                                     .deserialize(context, inLongTopic, msg.getProperties(), msg.getData());
-
+                            inLongMessages = interceptor.intercept(inLongMessages);
+                            if (inLongMessages.isEmpty()) {
+                                ack(offsetKey);
+                                continue;
+                            }
                             msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
                                     inLongMessages,
                                     offsetKey, System.currentTimeMillis()));

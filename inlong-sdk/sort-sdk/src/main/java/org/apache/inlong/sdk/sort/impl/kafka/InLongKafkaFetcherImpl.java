@@ -304,6 +304,11 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                     String offsetKey = getOffset(msg.partition(), msg.offset());
                     List<InLongMessage> inLongMessages = deserializer
                             .deserialize(context, inLongTopic, getMsgHeaders(msg.headers()), msg.value());
+                    inLongMessages = interceptor.intercept(inLongMessages);
+                    if (inLongMessages.isEmpty()) {
+                        ack(offsetKey);
+                        continue;
+                    }
                     msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
                             inLongMessages,
                             offsetKey, System.currentTimeMillis()));
