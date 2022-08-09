@@ -105,7 +105,7 @@ public class ClsSinkContext extends SinkContext {
             });
 
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
+            if (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig)) {
                 return;
             }
             LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
