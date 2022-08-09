@@ -34,6 +34,8 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
@@ -45,8 +47,6 @@ import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
@@ -235,6 +235,11 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext delete(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupContext.getGroupId());
+        GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
+        if (status == GroupStatus.FINISH) {
+            groupClient.deleteInlongGroup(groupInfo.getInlongGroupId());
+            return generateSnapshot();
+        }
         boolean isDeleted = groupClient.deleteInlongGroup(groupInfo.getInlongGroupId(), async);
         if (isDeleted) {
             groupInfo.setStatus(GroupStatus.DELETED.getCode());
@@ -270,6 +275,12 @@ public class InlongGroupImpl implements InlongGroup {
     private InlongGroupContext generateSnapshot() {
         // fetch current group
         InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupContext.getGroupId());
+        // if current group is not exists, set deleted status
+        if (groupInfo == null) {
+            groupInfo = groupContext.getGroupInfo();
+            groupInfo.setStatus(GroupStatus.DELETED.getCode());
+            return new InlongGroupContext(groupContext);
+        }
         groupContext.setGroupInfo(groupInfo);
         String inlongGroupId = groupInfo.getInlongGroupId();
         // fetch stream in group

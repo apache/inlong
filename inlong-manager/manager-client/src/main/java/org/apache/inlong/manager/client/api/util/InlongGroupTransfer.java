@@ -26,13 +26,13 @@ import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,12 @@ public class InlongGroupTransfer {
         Preconditions.checkNotNull(groupInfo, "Inlong group info cannot be null");
         String groupId = groupInfo.getInlongGroupId();
         Preconditions.checkNotEmpty(groupId, "groupId cannot be empty");
-        groupInfo.setExtList(Lists.newArrayList());
+        // init extensions
+        if (groupInfo.getExtList() != null) {
+            groupInfo.setExtList(groupInfo.getExtList());
+        } else {
+            groupInfo.setExtList(Lists.newArrayList());
+        }
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (groupInfo.getAuthentication() != null) {
