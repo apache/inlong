@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.cls;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
@@ -142,13 +143,14 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Reload id params.
-     * 
+     *
      * @throws JsonProcessingException
      */
     private void reloadIdParams() throws JsonProcessingException {
         List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
         Map<String, ClsIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         for (Map<String, String> idParam : idList) {
             String inlongGroupId = idParam.get(Constants.INLONG_GROUP_ID);
             String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
@@ -163,7 +165,7 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Close expire clients and start new clients.
-     * 
+     *
      * <p>
      * Each client response for data of one secretId.
      * </p>
@@ -319,7 +321,7 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Get max length of single value.
-     * 
+     *
      * @return Max length of single value.
      */
     public int getKeywordMaxLength() {
