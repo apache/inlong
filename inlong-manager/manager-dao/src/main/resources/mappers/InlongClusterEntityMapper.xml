@@ -128,6 +128,12 @@
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
+            <if test="clusterTagList != null and clusterTagList.size()>0">
+                and
+                <foreach item="item" index="index" collection="clusterTagList" open="(" close=")" separator="or">
+                    find_in_set(#{item}, cluster_tags)
+                </foreach>
+            </if>
             <if test="extTag != null and extTag != ''">
                 and ext_tag = #{extTag, jdbcType=VARCHAR}
             </if>
