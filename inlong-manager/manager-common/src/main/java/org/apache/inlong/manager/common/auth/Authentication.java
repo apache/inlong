@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.common.auth;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,12 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = DefaultAuthentication.class, name = DefaultAuthentication.DEFAULT),
-        @JsonSubTypes.Type(value = TokenAuthentication.class, name = TokenAuthentication.TOKEN),
-        @JsonSubTypes.Type(value = SecretAuthentication.class, name = SecretAuthentication.SECRET),
-        @JsonSubTypes.Type(value = SecretTokenAuthentication.class, name = SecretTokenAuthentication.SECRET_TOKEN)
-})
 public interface Authentication {
 
     ObjectMapper OBJECT_MAPPER = new ObjectMapper();

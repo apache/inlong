@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.auth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
  * Token authentication.
  */
 @NoArgsConstructor
+@JsonTypeDefine(value = TokenAuthentication.TOKEN)
 public class TokenAuthentication implements Authentication {
 
     public static final String TOKEN = "token";
