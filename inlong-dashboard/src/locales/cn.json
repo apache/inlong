@@ -508,9 +508,7 @@
   "pages.ApprovalManagement.ProcessName": "流程名称",
   "pages.ApprovalManagement.TaskName": "任务名称",
   "pages.ApprovalManagement.Approvers": "审批者",
-  "pages.ApprovalManagement.Creator": "创建者",
-  "pages.ApprovalManagement.Modifier": "修改者",
-  "pages.ApprovalManagement.CreateTime": "创建时间",
-  "pages.ApprovalManagement.ModifyTime": "修改时间",
-  "pages.ApprovalManagement.CreateResponsible": "新建责任人"
+  "pages.ApprovalManagement.Creator": "创建人",
+  "pages.ApprovalManagement.Modifier": "修改人",
+  "pages.ApprovalManagement.CreateProcess": "新建流程"
 }

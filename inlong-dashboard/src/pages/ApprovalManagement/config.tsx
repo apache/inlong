@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Space } from 'antd';
 import i18n from '@/i18n';
 import { timestampFormat } from '@/utils';
 
@@ -46,20 +46,28 @@ export const getColumns = ({ onEdit, onDelete }) => {
     {
       title: i18n.t('pages.ApprovalManagement.Creator'),
       dataIndex: 'creator',
+      render: (text, record) => (
+        <Space size="middle">
+          <div>
+            {text}
+            <br></br>
+            {record.createTime && timestampFormat(record.createTime)}
+          </div>
+        </Space>
+      ),
     },
     {
       title: i18n.t('pages.ApprovalManagement.Modifier'),
       dataIndex: 'modifier',
-    },
-    {
-      title: i18n.t('pages.ApprovalManagement.CreateTime'),
-      dataIndex: 'createTime',
-      render: text => text && timestampFormat(text),
-    },
-    {
-      title: i18n.t('pages.ApprovalManagement.ModifyTime'),
-      dataIndex: 'modifyTime',
-      render: text => text && timestampFormat(text),
+      render: (text, record) => (
+        <Space size="middle">
+          <div>
+            {text}
+            <br></br>
+            {record.modifyTime && timestampFormat(record.modifyTime)}
+          </div>
+        </Space>
+      ),
     },
     {
       title: i18n.t('basic.Operating'),
