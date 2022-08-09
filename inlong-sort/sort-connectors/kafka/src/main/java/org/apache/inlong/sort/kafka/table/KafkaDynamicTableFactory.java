@@ -307,7 +307,9 @@ public class KafkaDynamicTableFactory
 
         final Integer parallelism = tableOptions.getOptional(SINK_PARALLELISM).orElse(null);
 
-        String inLongMetric = tableOptions.get(INLONG_METRIC);
+        final String inLongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+
+        final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
 
         return createKafkaTableSink(
                 physicalDataType,
@@ -322,7 +324,8 @@ public class KafkaDynamicTableFactory
                 getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null),
                 getSinkSemantic(tableOptions),
                 parallelism,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -373,7 +376,8 @@ public class KafkaDynamicTableFactory
             FlinkKafkaPartitioner<RowData> partitioner,
             KafkaSinkSemantic semantic,
             Integer parallelism,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -390,6 +394,7 @@ public class KafkaDynamicTableFactory
                 false,
                 SinkBufferFlushMode.DISABLED,
                 parallelism,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 }

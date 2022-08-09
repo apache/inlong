@@ -69,6 +69,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.aut
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.INLONG_METRIC;
 import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
@@ -256,6 +257,7 @@ public class UpsertKafkaDynamicTableFactory
         SinkBufferFlushMode flushMode =
                 new SinkBufferFlushMode(batchSize, batchInterval.toMillis());
         String inLongMetric = tableOptions.get(INLONG_METRIC);
+        final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
         // it will use hash partition if key is set else in round-robin behaviour.
@@ -275,7 +277,8 @@ public class UpsertKafkaDynamicTableFactory
                 true,
                 flushMode,
                 parallelism,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     private Tuple2<int[], int[]> createKeyValueProjections(CatalogTable catalogTable) {

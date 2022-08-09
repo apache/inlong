@@ -141,6 +141,10 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      */
     private final String inLongMetric;
     /**
+     * audit host and ports
+     */
+    private final String auditHostAndPorts;
+    /**
      * Metadata that is appended at the end of a physical sink row.
      */
     protected List<String> metadataKeys;
@@ -168,7 +172,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             boolean upsertMode,
             SinkBufferFlushMode flushMode,
             @Nullable Integer parallelism,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -196,6 +201,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         }
         this.parallelism = parallelism;
         this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -296,7 +302,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         upsertMode,
                         flushMode,
                         parallelism,
-                        inLongMetric);
+                        inLongMetric,
+                        auditHostAndPorts);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -330,7 +337,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 && Objects.equals(upsertMode, that.upsertMode)
                 && Objects.equals(flushMode, that.flushMode)
                 && Objects.equals(parallelism, that.parallelism)
-                && Objects.equals(inLongMetric, that.inLongMetric);
+                && Objects.equals(inLongMetric, that.inLongMetric)
+                && Objects.equals(auditHostAndPorts, that.auditHostAndPorts);
     }
 
     @Override
@@ -351,7 +359,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 upsertMode,
                 flushMode,
                 parallelism,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -411,7 +420,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 properties,
                 FlinkKafkaProducer.Semantic.valueOf(semantic.toString()),
                 FlinkKafkaProducer.DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     private @Nullable SerializationSchema<RowData> createSerialization(

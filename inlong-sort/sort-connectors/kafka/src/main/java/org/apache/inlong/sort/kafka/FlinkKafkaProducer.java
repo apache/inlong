@@ -56,6 +56,8 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.NetUtils;
 import org.apache.flink.util.TemporaryClassLoaderContext;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.apache.kafka.clients.producer.Callback;
@@ -76,6 +78,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -220,6 +223,23 @@ public class FlinkKafkaProducer<IN>
      * Metric for InLong
      */
     private final String inLongMetric;
+    /**
+     * audit host and ports
+     */
+    private final String auditHostAndPorts;
+    /**
+     * audit implement
+     */
+    private transient AuditImp auditImp;
+    /**
+     * inLong groupId
+     */
+    private String inLongGroupId;
+    /**
+     * inLong streamId
+     */
+    private String inLongStreamId;
+
     /**
      * Flag controlling whether we are writing the Flink record's timestamp into Kafka.
      */
@@ -371,6 +391,7 @@ public class FlinkKafkaProducer<IN>
                 producerConfig,
                 semantic,
                 kafkaProducersPoolSize,
+                null,
                 null);
     }
 
@@ -543,6 +564,7 @@ public class FlinkKafkaProducer<IN>
                 producerConfig,
                 semantic,
                 kafkaProducersPoolSize,
+                null,
                 null);
     }
 
@@ -570,6 +592,7 @@ public class FlinkKafkaProducer<IN>
                 producerConfig,
                 semantic,
                 DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
+                null,
                 null);
     }
 
@@ -594,7 +617,8 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         this(
                 defaultTopic,
                 null,
@@ -603,7 +627,8 @@ public class FlinkKafkaProducer<IN>
                 producerConfig,
                 semantic,
                 kafkaProducersPoolSize,
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     /**
@@ -642,12 +667,14 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         super(
                 new FlinkKafkaProducer.TransactionStateSerializer(),
                 new FlinkKafkaProducer.ContextStateSerializer());
 
         this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
 
         this.defaultTopicId = checkNotNull(defaultTopic, "defaultTopic is null");
 
@@ -890,21 +917,26 @@ public class FlinkKafkaProducer<IN>
         metricData = new SinkMetricData(ctx.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
+            inLongGroupId = inLongMetricArray[0];
+            inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, DIRTY_BYTES,
+            metricData.registerMetricsForDirtyBytes(inLongGroupId, inLongStreamId, nodeId, DIRTY_BYTES,
                     new ThreadSafeCounter());
-            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, DIRTY_RECORDS,
+            metricData.registerMetricsForDirtyRecords(inLongGroupId, inLongStreamId, nodeId, DIRTY_RECORDS,
                     new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, NUM_BYTES_OUT,
+            metricData.registerMetricsForNumBytesOut(inLongGroupId, inLongStreamId, nodeId, NUM_BYTES_OUT,
                     new ThreadSafeCounter());
-            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, NUM_RECORDS_OUT,
+            metricData.registerMetricsForNumRecordsOut(inLongGroupId, inLongStreamId, nodeId, NUM_RECORDS_OUT,
                     new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
+            metricData.registerMetricsForNumBytesOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
                     NUM_BYTES_OUT_PER_SECOND);
-            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+            metricData.registerMetricsForNumRecordsOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
                     NUM_RECORDS_OUT_PER_SECOND);
+        }
+
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
         }
 
         super.open(configuration);
@@ -925,6 +957,18 @@ public class FlinkKafkaProducer<IN>
         }
         if (metricData.getDirtyBytes() != null) {
             metricData.getDirtyBytes().inc(dataSize);
+        }
+    }
+
+    private void outputMetricForAudit(ProducerRecord<byte[], byte[]> record) {
+        if (auditImp != null) {
+            auditImp.add(
+                    Constants.AUDIT_SORT_OUTPUT,
+                    inLongGroupId,
+                    inLongStreamId,
+                    System.currentTimeMillis(),
+                    1,
+                    record.value().length);
         }
     }
 
@@ -1007,6 +1051,7 @@ public class FlinkKafkaProducer<IN>
         rowSize++;
         dataSize = dataSize + record.value().length;
         sendOutMetrics(rowSize, dataSize);
+        outputMetricForAudit(record);
 
         pendingRecords.incrementAndGet();
         transaction.producer.send(record, callback);
