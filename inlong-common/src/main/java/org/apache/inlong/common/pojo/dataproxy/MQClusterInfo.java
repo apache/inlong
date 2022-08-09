@@ -27,6 +27,7 @@ public class MQClusterInfo {
 
     private String url;
     private String token;
+    private String mqType;
     private Map<String, String> params = new HashMap<>();
 
     public String getUrl() {
@@ -43,6 +44,14 @@ public class MQClusterInfo {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getMqType() {
+        return mqType;
+    }
+
+    public void setMqType(String mqType) {
+        this.mqType = mqType;
     }
 
     public Map<String, String> getParams() {
