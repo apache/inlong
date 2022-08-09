@@ -22,29 +22,26 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
+import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
+import org.apache.inlong.sort.formats.common.IntFormatInfo;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
-import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
+import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.List;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -52,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Test for {@link DorisExtractNode}
  */
-public class DorisExtractToDorisLoadTest extends AbstractTestBase {
+public class DorisExtractToMySqlLoadTest extends AbstractTestBase {
 
     private DorisExtractNode buildDorisExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
@@ -68,7 +65,7 @@ public class DorisExtractToDorisLoadTest extends AbstractTestBase {
                 "000000", "test.test1");
     }
 
-    private DorisLoadNode buildDorisLoadNode() {
+    private Node buildMysqlLoadNode() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("dt", new StringFormatInfo()),
                 new FieldInfo("id", new IntFormatInfo()),
@@ -94,12 +91,10 @@ public class DorisExtractToDorisLoadTest extends AbstractTestBase {
                 );
 
         List<FilterFunction> filters = new ArrayList<>();
-        FilterStrategy filterStrategy = null;
-        Map<String, String> map = new HashMap<>();
-        return new DorisLoadNode("2", "doris_output", fields, fieldRelations,
-                filters, filterStrategy, 1, map,
-                "localhost:8030", "root",
-                "000000", "test.test2", null);
+
+        return new MySqlLoadNode("2", "mysql_output", fields, fieldRelations, filters,
+                null, null, null, "jdbc:mysql://localhost:3306/inlong",
+                "inlong", "inlong", "table_output", null);
     }
 
     /**
@@ -116,7 +111,7 @@ public class DorisExtractToDorisLoadTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is doris {@link DorisLoadNode}
+     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is mysql {@link MySqlLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -133,7 +128,7 @@ public class DorisExtractToDorisLoadTest extends AbstractTestBase {
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildDorisExtractNode();
-        Node outputNode = buildDorisLoadNode();
+        Node outputNode = buildMysqlLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

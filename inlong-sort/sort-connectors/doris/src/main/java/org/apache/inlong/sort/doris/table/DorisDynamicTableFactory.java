@@ -146,7 +146,7 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
 
     @Override
     public String factoryIdentifier() {
-        return "doris"; // used for matching to `connector = '...'`
+        return "inlong-doris"; // used for matching to `connector = '...'`
     }
 
     @Override
