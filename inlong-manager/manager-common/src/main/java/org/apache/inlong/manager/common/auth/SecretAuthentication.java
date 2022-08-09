@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.auth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
@@ -28,7 +29,10 @@ import java.util.Map;
  * Secret authentication.
  */
 @NoArgsConstructor
+@JsonTypeDefine(value = SecretAuthentication.SECRET)
 public class SecretAuthentication implements Authentication {
+
+    public static final String SECRET = "secret";
 
     public static final String SECRET_ID = "secret_id";
 
