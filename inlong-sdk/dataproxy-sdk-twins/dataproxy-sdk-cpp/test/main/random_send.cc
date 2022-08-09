@@ -29,7 +29,7 @@
 using namespace std;
 using namespace dataproxy_sdk;
 
-string base_tid  = "cpptest_";
+string base_Streamid  = "cpptest_";
 string base_bid  = "inlong_groupid_test";
 int milliseconds = 0;
 
@@ -62,7 +62,7 @@ void sendFunc()
     while (true)
     {
         srand((unsigned)time(NULL));
-        string inlong_stream_id = base_tid + to_string(rand() % 10);
+        string inlong_stream_id = base_Streamid + to_string(rand() % 10);
 
         srand((unsigned)time(NULL));
         string inlong_group_id = base_bid + to_string(rand() % 3);

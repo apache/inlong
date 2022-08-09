@@ -46,7 +46,7 @@ TEST(sendBuffer, callbacktest)
 {
     SendBuffer* buf = new SendBuffer(102400);
     buf->setBid("bid1");
-    buf->setTid("inlong_stream_id");
+    buf->setStreamid("inlong_stream_id");
 
     UserMsgPtr req = make_shared<UserMsg>("lksdewoigiore", "127.0.0.1", 0, callBackFunc, "no_attr", "127.0.0.1", 0);
     for (size_t i = 0; i < 10; i++)

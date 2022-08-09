@@ -34,9 +34,9 @@ int send_times = 1;
 // 0:100B, 1:1K, 2:100K, 3:500K, 4:2M, 5:5M,6:10M
 uint32_t msgsize[7] = {100, 1024, 1024 * 100, 1024 * 500, 1024 * 1024 * 2, 1024 * 1024 * 5, 1024 * 1024 * 10};
 
-string base_tid  = "cpptest_";
+string base_Streamid  = "cpptest_";
 string base_bid  = "inlong_groupid_test";
-int tid_num      = 10;
+int Streamid_num      = 10;
 int bid_num      = 1;
 int milliseconds = 0;
 
@@ -45,7 +45,7 @@ void sendFunc(const string& msg)
     for (size_t i = 0; i < send_times; i++)
     {
         srand((unsigned)time(NULL));
-        string inlong_stream_id = base_tid + to_string(rand() % tid_num);
+        string inlong_stream_id = base_Streamid + to_string(rand() % Streamid_num);
 
         srand((unsigned)time(NULL));
         string inlong_group_id  = base_bid + to_string(rand() % bid_num);
@@ -61,7 +61,7 @@ void sendLimitTimes(const string& msg)
         // if (i % 10 == 5) { this_thread::sleep_for(chrono::seconds(40)); }  //test normal hb
 
         srand((unsigned)time(NULL));
-        string inlong_stream_id = base_tid + to_string(rand() % tid_num);
+        string inlong_stream_id = base_Streamid + to_string(rand() % Streamid_num);
 
         srand((unsigned)time(NULL));
         string inlong_group_id  = base_bid + to_string(rand() % bid_num);
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])  //input： thread_num, msgsize_idx, send_times
 {
     if (argc < 5)
     {
-        cout << "usage: ./multi_thread_send <thread_num> <msgsize_idx> <tid_num> <bid_num> <milliseconds> <rumtimes>" << endl;
+        cout << "usage: ./multi_thread_send <thread_num> <msgsize_idx> <Streamid_num> <bid_num> <milliseconds> <rumtimes>" << endl;
         return 0;
     }
 
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])  //input： thread_num, msgsize_idx, send_times
     int idx        = atoi(argv[2]);
     if (idx > 6) idx = 1;  //default: 10K
     uint32_t msglen = msgsize[idx];
-    tid_num         = atol(argv[3]);
+    Streamid_num         = atol(argv[3]);
     bid_num         = atol(argv[4]);
 
     if (argc >= 6) milliseconds = atol(argv[5]);

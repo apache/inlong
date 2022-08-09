@@ -47,8 +47,8 @@ namespace dataproxy_sdk
 
         static const int32_t kThreadNums = 10; 
         static const int32_t kSharedBufferNums=5;
-        static const bool kEnableBidIsolation = false; 
-        static const int32_t kBufferNumPerBid = 5; 
+        static const bool kEnableGroupidIsolation = false; 
+        static const int32_t kBufferNumPerGroupid = 5; 
         static const bool kEnablePack = true;
         static const uint32_t kPackSize = 4096;    
         static const uint32_t kPackTimeout = 3000; 
