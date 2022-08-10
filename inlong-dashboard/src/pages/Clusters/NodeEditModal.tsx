@@ -92,7 +92,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         ],
       },
       {
-        type: 'input',
+        type: 'inputnumber',
         label: i18n.t('pages.Clusters.Node.Port'),
         name: 'port',
         rules: [
@@ -101,6 +101,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
             message: i18n.t('pages.Clusters.Node.PortRule'),
           },
         ],
+        props: {
+          min: 0,
+          max: 65535,
+        },
       },
       {
         type: 'textarea',
