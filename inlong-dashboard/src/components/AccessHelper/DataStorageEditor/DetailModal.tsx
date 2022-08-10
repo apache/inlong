@@ -27,7 +27,7 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import { Storages, StoragesType } from '@/components/MetaData';
+import { Storages, StoragesType } from '@/meta/sinks';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;

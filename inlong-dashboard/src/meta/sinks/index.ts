@@ -19,18 +19,18 @@
 
 import type { GetStorageFormFieldsType, GetStorageColumnsType } from '@/utils/metaData';
 import type { ColumnsType } from 'antd/es/table';
-import { StorageHive } from './StorageHive';
-import { StorageClickhouse } from './StorageClickhouse';
-import { StorageKafka } from './StorageKafka';
-import { StorageIceberg } from './StorageIceberg';
-import { StorageEs } from './StorageEs';
-import { StorageGreenplum } from './StorageGreenplum';
-import { StorageMySQL } from './StorageMySQL';
-import { StorageOracle } from './StorageOracle';
-import { StoragePostgreSQL } from './StoragePostgreSQL';
-import { StorageSQLServer } from './StorageSQLServer';
-import { StorageTDSQLPostgreSQL } from './StorageTDSQLPostgreSQL';
-import { StorageHBase } from './StorageHBase';
+import { hive } from './hive';
+import { clickhouse } from './clickhouse';
+import { kafka } from './kafka';
+import { iceberg } from './iceberg';
+import { es } from './es';
+import { greenplum } from './greenplum';
+import { mysql } from './mysql';
+import { oracle } from './oracle';
+import { postgreSql } from './postgreSql';
+import { sqlServer } from './sqlServer';
+import { tdsqlPostgreSQL } from './tdsqlPostgreSql';
+import { hbase } from './hbase';
 
 export interface StoragesType {
   label: string;
@@ -51,61 +51,61 @@ export const Storages: StoragesType[] = [
   {
     label: 'Hive',
     value: 'HIVE',
-    ...StorageHive,
+    ...hive,
   },
   {
     label: 'Iceberg',
     value: 'ICEBERG',
-    ...StorageIceberg,
+    ...iceberg,
   },
   {
     label: 'ClickHouse',
     value: 'CLICKHOUSE',
-    ...StorageClickhouse,
+    ...clickhouse,
   },
   {
     label: 'Kafka',
     value: 'KAFKA',
-    ...StorageKafka,
+    ...kafka,
   },
   {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
-    ...StorageEs,
+    ...es,
   },
   {
     label: 'Greenplum',
     value: 'GREENPLUM',
-    ...StorageGreenplum,
+    ...greenplum,
   },
   {
     label: 'HBase',
     value: 'HBASE',
-    ...StorageHBase,
+    ...hbase,
   },
   {
     label: 'MySQL',
     value: 'MYSQL',
-    ...StorageMySQL,
+    ...mysql,
   },
   {
     label: 'Oracle',
     value: 'ORACLE',
-    ...StorageOracle,
+    ...oracle,
   },
   {
     label: 'PostgreSQL',
     value: 'POSTGRES',
-    ...StoragePostgreSQL,
+    ...postgreSql,
   },
   {
     label: 'SQLServer',
     value: 'SQLSERVER',
-    ...StorageSQLServer,
+    ...sqlServer,
   },
   {
     label: 'TDSQLPostgreSQL',
     value: 'TDSQLPOSTGRESQL',
-    ...StorageTDSQLPostgreSQL,
+    ...tdsqlPostgreSQL,
   },
 ];

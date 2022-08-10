@@ -22,10 +22,7 @@ import { getColsFromFields } from '@/utils/metaData';
 import { ColumnsType } from 'antd/es/table';
 import i18n from '@/i18n';
 
-export const getDataSourcesBinLogFields = (
-  type: 'form' | 'col' = 'form',
-  { currentValues } = {} as any,
-) => {
+const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) => {
   const fileds = [
     {
       name: 'hostname',
@@ -150,14 +147,14 @@ export const getDataSourcesBinLogFields = (
   return type === 'col' ? getColsFromFields(fileds) : fileds;
 };
 
-export const toFormValues = data => {
+const toFormValues = data => {
   return {
     ...data,
     _startDumpPosition: data.startDumpPosition ? 1 : 0,
   };
 };
 
-export const toSubmitValues = data => {
+const toSubmitValues = data => {
   const output = { ...data };
   delete output._startDumpPosition;
   return {
@@ -166,4 +163,11 @@ export const toSubmitValues = data => {
   };
 };
 
-export const dataSourcesBinLogColumns = getDataSourcesBinLogFields('col') as ColumnsType;
+const tableColumns = getForm('col') as ColumnsType;
+
+export const binLog = {
+  getForm,
+  tableColumns,
+  toFormValues,
+  toSubmitValues,
+};

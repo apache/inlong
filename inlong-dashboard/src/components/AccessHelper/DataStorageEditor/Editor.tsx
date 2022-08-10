@@ -23,7 +23,7 @@ import request from '@/utils/request';
 import isEqual from 'lodash/isEqual';
 import { useTranslation } from 'react-i18next';
 import DetailModal from './DetailModal';
-import { Storages } from '@/components/MetaData';
+import { Storages } from '@/meta/sinks';
 
 export interface Props {
   value?: Record<string, any>[];

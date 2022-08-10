@@ -22,10 +22,7 @@ import { ColumnsType } from 'antd/es/table';
 import rulesPattern from '@/utils/pattern';
 import i18n from '@/i18n';
 
-export const getDataSourcesFileFields = (
-  type: 'form' | 'col' = 'form',
-  { currentValues } = {} as any,
-) => {
+const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) => {
   const fileds = [
     {
       type: 'input',
@@ -60,4 +57,9 @@ export const getDataSourcesFileFields = (
   return type === 'col' ? getColsFromFields(fileds) : fileds;
 };
 
-export const dataSourcesFileColumns = getDataSourcesFileFields('col') as ColumnsType;
+const tableColumns = getForm('col') as ColumnsType;
+
+export const file = {
+  getForm,
+  tableColumns,
+};

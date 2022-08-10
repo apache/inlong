@@ -25,30 +25,29 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
-// mysqlFieldTypes
-const mysqlFieldTypes = [
-  'TINYINT',
+//  oracleFieldTypes
+const oracleFieldTypes = [
+  'BINARY_FLOAT',
+  'BINARY_DOUBLE',
   'SMALLINT',
-  'MEDIUMINT',
-  'INT',
   'FLOAT',
-  'BIGINT',
+  'FLOAT4',
+  'FLOAT8',
   'DOUBLE',
+  'REAL',
+  'NUMBER',
   'NUMERIC',
+  'DATE',
   'DECIMAL',
   'BOOLEAN',
-  'DATE',
-  'TIME',
-  'DATETIME',
+  'TIMESTAMP',
   'CHAR',
   'VARCHAR',
-  'TEXT',
-  'BINARY',
-  'VARBINARY',
+  'CLOB',
+  'RAW',
   'BLOB',
-  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
@@ -65,14 +64,14 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
+        placeholder: 'jdbc:oracle:thin://127.0.0.1:1521/db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.TableName'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -82,7 +81,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -152,16 +151,16 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
-      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldName')}`,
+      title: `ORACLE${i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -169,20 +168,20 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldType')}`,
+      title: `ORACLE${i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: mysqlFieldTypes[0].value,
+      initialValue: oracleFieldTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        options: mysqlFieldTypes,
+        options: oracleFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.IsMetaField'),
-      dataIndex: 'isMetaField',
+      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.IsMetaField'),
       initialValue: 0,
+      dataIndex: 'isMetaField',
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -198,9 +197,9 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldFormat'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: 0,
+      initialValue: '',
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -212,7 +211,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -221,7 +220,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageMySQL = {
+export const oracle = {
   getForm,
   getFieldListColumns,
   tableColumns,
