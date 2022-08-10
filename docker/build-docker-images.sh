@@ -94,6 +94,7 @@ dataproxy_tarball_name="apache-inlong-dataproxy-${version}-bin.tar.gz"
 dashboard_file_name="build"
 tubemq_manager_tarball_name="apache-inlong-tubemq-manager-${version}-bin.tar.gz"
 tubemq_all_tarball_name="apache-inlong-tubemq-server-${version}-bin.tar.gz"
+manager_target_tarball_name="manager-web-${version}-bin.tar.gz"
 
 manager_tarball="inlong-manager/manager-web/target/${manager_tarball_name}"
 agent_tarball="inlong-agent/agent-release/target/${agent_tarball_name}"
@@ -109,7 +110,11 @@ DASHBOARD_FILE="${dashboard_file_name}"
 AGENT_TARBALL="target/${agent_tarball_name}"
 TUBEMQ_TARBALL="target/${tubemq_all_tarball_name}"
 
-cp ${manager_tarball} ${manager_dockerfile_path}/target/${manager_tarball_name}
+cp ${manager_tarball} ${manager_dockerfile_path}/target/${manager_target_tarball_name}
+cp inlong-sort/sort-dist/target/sort-dist-${version}.jar ${manager_dockerfile_path}/target/
+cp inlong-sort/sort-connectors/pulsar/target/sort-connector-pulsar-${version}.jar ${manager_dockerfile_path}/target/
+cp inlong-sort/sort-connectors/jdbc/target/sort-connector-jdbc-${version}.jar ${manager_dockerfile_path}/target/
+cp inlong-sort/sort-connectors/hive/target/sort-connector-hive-${version}.jar ${manager_dockerfile_path}/target/
 cp ${agent_tarball} ${agent_dockerfile_path}/target/${agent_tarball_name}
 cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
