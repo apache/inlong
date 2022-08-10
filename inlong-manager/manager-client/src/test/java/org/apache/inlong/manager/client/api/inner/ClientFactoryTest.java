@@ -35,6 +35,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -153,6 +154,7 @@ class ClientFactoryTest {
     @Test
     void testGetGroupInfo() {
         FlinkSortConf flinkSortConf = new FlinkSortConf();
+        flinkSortConf.setAuthentication(new TokenAuthentication());
         InlongPulsarInfo inlongGroupResponse = InlongPulsarInfo.builder()
                 .id(1)
                 .inlongGroupId("1")

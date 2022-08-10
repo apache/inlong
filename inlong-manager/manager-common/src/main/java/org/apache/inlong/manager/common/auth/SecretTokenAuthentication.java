@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import java.util.Map;
  * Secret token authentication.
  */
 @NoArgsConstructor
+@JsonTypeDefine(value = SecretTokenAuthentication.SECRET_TOKEN)
 public class SecretTokenAuthentication extends SecretAuthentication {
 
     public static final String SECRET_TOKEN = "secret_token";

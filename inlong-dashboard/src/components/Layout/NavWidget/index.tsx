@@ -19,7 +19,7 @@
 
 import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { useHistory, useSelector, useDispatch, useRequest } from '@/hooks';
+import { useSelector, useRequest } from '@/hooks';
 import { State } from '@/models';
 import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
@@ -31,8 +31,6 @@ import KeyModal from './KeyModal';
 const Comp: React.FC = () => {
   const { t } = useTranslation();
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const history = useHistory();
-  const dispatch = useDispatch();
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -44,16 +42,7 @@ const Comp: React.FC = () => {
 
   const { run: runLogout } = useRequest('/anno/logout', {
     manual: true,
-    onSuccess: () => {
-      localStorage.removeItem('userName');
-      history.push('/login');
-      dispatch({
-        type: 'setUser',
-        payload: {
-          userName: null,
-        },
-      });
-    },
+    onSuccess: () => (window.location.href = '/'),
   });
 
   const menu = (

@@ -46,7 +46,7 @@ import java.util.Set;
 @UtilityClass
 public class JsonUtils {
 
-    public static final String PROJECT_PACKAGE = "org.apache.inlong.manager.pojo";
+    public static final String PROJECT_PACKAGE = "org.apache.inlong.manager";
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {

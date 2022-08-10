@@ -13,12 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.List;
 
@@ -36,4 +36,11 @@ public interface Interceptor {
      * @return Message after being intercepted.
      */
     List<InLongMessage> intercept(List<InLongMessage> messages);
+
+    /**
+     * configure seeker if topic properties have changed.
+     * @param inLongTopic InlongTopic info.
+     */
+    void configure(InLongTopic inLongTopic);
+
 }

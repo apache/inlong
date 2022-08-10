@@ -172,6 +172,13 @@ public class DispatchProfile {
     }
 
     /**
+     * set DispatchTime
+     */
+    public void setDispatchTime(long dispatchTime) {
+        this.dispatchTime = dispatchTime;
+    }
+
+    /**
      * ack
      */
     public void ack() {

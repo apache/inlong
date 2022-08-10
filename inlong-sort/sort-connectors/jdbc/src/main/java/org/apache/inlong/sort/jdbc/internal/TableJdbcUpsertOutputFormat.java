@@ -58,13 +58,15 @@ class TableJdbcUpsertOutputFormat
             JdbcConnectionProvider connectionProvider,
             JdbcDmlOptions dmlOptions,
             JdbcExecutionOptions batchOptions,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         this(
                 connectionProvider,
                 batchOptions,
                 ctx -> createUpsertRowExecutor(dmlOptions, ctx),
                 ctx -> createDeleteExecutor(dmlOptions, ctx),
-                inLongMetric);
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     @VisibleForTesting
@@ -74,9 +76,11 @@ class TableJdbcUpsertOutputFormat
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> statementExecutorFactory,
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
                     deleteStatementExecutorFactory,
-            String inLongMetric
+            String inLongMetric,
+            String auditHostAndPorts
     ) {
-        super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1, inLongMetric);
+        super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
+                inLongMetric, auditHostAndPorts);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
     }
 

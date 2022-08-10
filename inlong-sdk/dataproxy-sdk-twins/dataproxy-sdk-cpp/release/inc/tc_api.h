@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-#ifndef CAPI_RELEASE_INC_TC_API_H_
-#define CAPI_RELEASE_INC_TC_API_H_
+#ifndef  DATAPROXY_SDK_RELEASE_INC_TC_API_H_
+#define  DATAPROXY_SDK_RELEASE_INC_TC_API_H_
 
-#include "sdk_core.h"
 #include <stdint.h>
+#include "user_msg.h"
 
 namespace dataproxy_sdk
 {
@@ -106,4 +106,4 @@ int32_t tc_api_close(int32_t max_waitms);
 
 }  // namespace dataproxy_sdk
 
-#endif  // CAPI_RELEASE_INC_TC_API_H_
+#endif  //  DATAPROXY_SDK_RELEASE_INC_TC_API_H_

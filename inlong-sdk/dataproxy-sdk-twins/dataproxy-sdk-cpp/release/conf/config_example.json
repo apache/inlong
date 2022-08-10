@@ -5,7 +5,6 @@
         "enable_groupId_isolation": false,
         "shared_buf_num": 5,
         "buffer_num_per_groupId": 5,
-        "ser_port": 46801,
         "enable_pack": true,
         "pack_size": 4096,
         "ext_pack_size": 4096,
@@ -25,8 +24,7 @@
         "enable_hb": true,
         "hb_interval": 60,
         "proxy_update_interval": 10,
-        "proxy_cfg_preurl": "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList",
-        "net_tag": "all",
+        "proxy_cfg_preurl": "http://127.0.0.1:8099/api/inlong/manager/openapi/dataproxy/getIpList",
         "need_auth": true,
         "auth_id": "admin",
         "auth_key": "87haw3VYTPqK5fK0"

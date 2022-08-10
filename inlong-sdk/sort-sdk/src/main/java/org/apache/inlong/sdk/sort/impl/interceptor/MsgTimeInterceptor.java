@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.impl.interceptor;
@@ -38,10 +37,7 @@ public class MsgTimeInterceptor implements Interceptor {
     private long startTime;
     private long stopTime;
 
-    public MsgTimeInterceptor(InLongTopic inLongTopic) {
-        startTime = TimeUtil.parseStartTime(inLongTopic);
-        stopTime = TimeUtil.parseStopTime(inLongTopic);
-        logger.info("start to config MsgTimeInterceptor, start time is {}, stop time is {}", startTime, stopTime);
+    public MsgTimeInterceptor() {
     }
 
     @Override
@@ -52,6 +48,13 @@ public class MsgTimeInterceptor implements Interceptor {
         return messages.stream()
                 .filter(msg -> isValidMsgTime(msg.getMsgTime()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void configure(InLongTopic inLongTopic) {
+        startTime = TimeUtil.parseStartTime(inLongTopic);
+        stopTime = TimeUtil.parseStopTime(inLongTopic);
+        logger.info("start to config MsgTimeInterceptor, start time is {}, stop time is {}", startTime, stopTime);
     }
 
     private boolean isValidMsgTime(long msgTime) {
