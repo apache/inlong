@@ -35,6 +35,7 @@ import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nullable;
@@ -56,7 +57,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
         @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
         @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
-        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract")
+        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
+        @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract")
 })
 @Data
 @NoArgsConstructor
