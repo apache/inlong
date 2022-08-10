@@ -76,6 +76,7 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
+        log.info("begin to execute ApproveApplyProcessListener for groupId={}", groupId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
@@ -86,7 +87,7 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
 
         // may run for long time, make it async processing
         executorService.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
-
+        log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 
