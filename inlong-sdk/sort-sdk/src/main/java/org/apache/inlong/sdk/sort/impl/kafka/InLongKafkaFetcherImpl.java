@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.SeekerFactory;
 import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
@@ -71,8 +72,9 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             createKafkaConsumer(bootstrapServers);
             if (consumer != null) {
                 logger.info("start to subscribe topic:{}", new Gson().toJson(inLongTopic));
+                this.seeker = SeekerFactory.createKafkaSeeker(consumer, inLongTopic);
                 consumer.subscribe(Collections.singletonList(inLongTopic.getTopic()),
-                        new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), consumer,
+                        new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), seeker,
                                 commitOffsetMap));
             } else {
                 logger.info("consumer is null");
@@ -309,6 +311,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                         ack(offsetKey);
                         continue;
                     }
+
                     msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
                             inLongMessages,
                             offsetKey, System.currentTimeMillis()));
