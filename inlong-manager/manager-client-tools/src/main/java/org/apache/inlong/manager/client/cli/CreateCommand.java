@@ -57,20 +57,25 @@ public class CreateCommand extends AbstractCommand {
 
         @Override
         void run() {
+            System.out.println("start running");
             try {
                 String fileContent = ClientUtils.readFile(file);
                 if (StringUtils.isBlank(fileContent)) {
                     System.out.println("Create group failed: file was empty!");
                     return;
                 }
+                //first extract groupconfig from the file passed in
                 CreateGroupConf groupConf = objectMapper.readValue(fileContent, CreateGroupConf.class);
+                //get the correspodning inlonggroup, a.k.a the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
+                //put in parameters:source and sink,stream fields, then initialize
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
                 streamBuilder.sink(groupConf.getStreamSink());
                 streamBuilder.initOrUpdate();
+                //initialize the new stream group
                 group.init();
                 System.out.println("Create group success!");
             } catch (Exception e) {

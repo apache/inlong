@@ -8,9 +8,12 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
+import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.io.File;
 
@@ -24,21 +27,32 @@ public class DeleteCommand extends AbstractCommand {
         jcommander.addCommand("group", new DeleteCommand.DeleteGroup());
     }
 
-    @Parameters(commandDescription = "Delete group by json file")
+    @Parameters(commandDescription = "Delete group by group id")
     private static class DeleteGroup extends AbstractCommandRunner {
 
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-f", "--file"},
-                converter = FileConverter.class,
+        @Parameter(names = {"-id"},
                 required = true,
-                description = "json file")
-        private File file;
+                description = "group id")
+        private String groupId;
 
         @Override
         void run() {
-            throw new NotImplementedException();
+            //get the inlong client
+            InlongClient inlongClient = ClientUtils.getClient();
+            //get the group and the corresponding context(snapshot)
+            InlongGroup group;
+            try{
+                group = inlongClient.getGroup(groupId);
+                InlongGroupContext context = group.delete();
+                System.out.println(JsonUtils.toJsonString(context));
+            }
+            //TODO: handle and/or classify the exceptions
+            catch(Exception e){
+                System.out.format("Delete group failed! message: %s \n",e.getMessage());
+            }
         }
     }
 }
