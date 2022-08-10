@@ -93,16 +93,9 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
-import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
@@ -228,19 +221,6 @@ public class FlinkKafkaProducer<IN>
      */
     private final String auditHostAndPorts;
     /**
-     * audit implement
-     */
-    private transient AuditImp auditImp;
-    /**
-     * inLong groupId
-     */
-    private String inLongGroupId;
-    /**
-     * inLong streamId
-     */
-    private String inLongStreamId;
-
-    /**
      * Flag controlling whether we are writing the Flink record's timestamp into Kafka.
      */
     protected boolean writeTimestampToKafka = false;
@@ -258,6 +238,18 @@ public class FlinkKafkaProducer<IN>
      */
     @Nullable
     protected transient volatile Exception asyncException;
+    /**
+     * audit implement
+     */
+    private transient AuditImp auditImp;
+    /**
+     * inLong groupId
+     */
+    private String inLongGroupId;
+    /**
+     * inLong streamId
+     */
+    private String inLongStreamId;
     /**
      * sink metric data
      */
@@ -913,25 +905,18 @@ public class FlinkKafkaProducer<IN>
                     RuntimeContextInitializationContextAdapters.serializationAdapter(
                             getRuntimeContext(), metricGroup -> metricGroup.addGroup("user")));
         }
-
-        metricData = new SinkMetricData(ctx.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split(DELIMITER);
             inLongGroupId = inLongMetricArray[0];
             inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData.registerMetricsForDirtyBytes(inLongGroupId, inLongStreamId, nodeId, DIRTY_BYTES,
-                    new ThreadSafeCounter());
-            metricData.registerMetricsForDirtyRecords(inLongGroupId, inLongStreamId, nodeId, DIRTY_RECORDS,
-                    new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOut(inLongGroupId, inLongStreamId, nodeId, NUM_BYTES_OUT,
-                    new ThreadSafeCounter());
-            metricData.registerMetricsForNumRecordsOut(inLongGroupId, inLongStreamId, nodeId, NUM_RECORDS_OUT,
-                    new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    NUM_BYTES_OUT_PER_SECOND);
-            metricData.registerMetricsForNumRecordsOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    NUM_RECORDS_OUT_PER_SECOND);
+            metricData = new SinkMetricData(inLongGroupId, inLongStreamId, nodeId, ctx.getMetricGroup());
+            metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
+            metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
+            metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
+            metricData.registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+            metricData.registerMetricsForNumBytesOutPerSecond();
+            metricData.registerMetricsForNumRecordsOutPerSecond();
         }
 
         if (auditHostAndPorts != null) {
