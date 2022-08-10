@@ -104,17 +104,17 @@ export default (
       type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.QueueModule'),
       name: 'queueModule',
-      initialValue: currentValues.queueModule ?? 'serial',
+      initialValue: currentValues.queueModule ?? 'SERIAL',
       rules: [{ required: true }],
       props: {
         options: [
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Parallel'),
-            value: 'parallel',
+            value: 'PARALLEL',
           },
           {
             label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Serial'),
-            value: 'serial',
+            value: 'SERIAL',
           },
         ],
       },
@@ -131,7 +131,7 @@ export default (
         max: 20,
         precision: 0,
       },
-      visible: values => values.mqType === 'PULSAR' && values.queueModule === 'parallel',
+      visible: values => values.mqType === 'PULSAR' && values.queueModule === 'PARALLEL',
     },
     {
       type: 'inputnumber',
