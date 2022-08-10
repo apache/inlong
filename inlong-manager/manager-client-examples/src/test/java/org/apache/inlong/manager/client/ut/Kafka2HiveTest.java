@@ -130,7 +130,7 @@ class Kafka2HiveTest extends BaseTest {
                                         + "\"creator\":\"admin\",\"modifier\":\"admin\","
                                         + "\"createTime\":\"2022-06-06 09:59:10\","
                                         + "\"modifyTime\":\"2022-06-06 02:24:50\",\"extList\":[],\"tenant\":null,"
-                                        + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"parallel\","
+                                        + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"PARALLEL\","
                                         + "\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,\"ackQuorum\":2,"
                                         + "\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
                                         + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,"
@@ -187,7 +187,7 @@ class Kafka2HiveTest extends BaseTest {
                                 + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
                                 + "\"createTime\":\"2022-06-06 16:36:35\",\"modifyTime\":\"2022-06-06 08:37:04\","
                                 + "\"extList\":[],\"tenant\":null,\"adminUrl\":null,\"serviceUrl\":null,"
-                                + "\"queueModule\":\"parallel\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
+                                + "\"queueModule\":\"PARALLEL\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
                                 + "\"ackQuorum\":2,\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
                                 + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,\"retentionSizeUnit\":\"MB\"},"
                                 + "\"streamInfoList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
@@ -230,7 +230,7 @@ class Kafka2HiveTest extends BaseTest {
                                                 .createTime(new Date())
                                                 .modifyTime(new Date())
                                                 .extList(new ArrayList<>())
-                                                .queueModule("parallel")
+                                                .queueModule("PARALLEL")
                                                 .partitionNum(3)
                                                 .ensemble(3)
                                                 .writeQuorum(3)
