@@ -70,8 +70,8 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.cre
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.INLONG_METRIC;
-import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.KAFKA_IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.INLONG_METRIC;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5

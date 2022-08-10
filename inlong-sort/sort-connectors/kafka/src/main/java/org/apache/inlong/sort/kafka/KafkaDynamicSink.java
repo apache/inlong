@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.kafka.table.KafkaInLongOptions.KAFKA_IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * A version-agnostic Kafka {@link DynamicTableSink}.
