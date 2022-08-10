@@ -107,10 +107,11 @@ public class KafkaOperator {
     return topicList.contains(topic);
   }
 
-  public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String topic) {
+  public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String subscription) {
+
     KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
     //订阅
-    kafkaConsumer.subscribe(Collections.singletonList(topic));
+    kafkaConsumer.subscribe(Collections.singletonList(subscription));
   }
 
   public boolean subscriptionIsExists(KafkaClusterInfo kafkaClusterInfo, String topic) {

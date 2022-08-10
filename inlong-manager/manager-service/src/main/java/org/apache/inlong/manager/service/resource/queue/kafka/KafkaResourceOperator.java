@@ -92,7 +92,7 @@ public class KafkaResourceOperator implements QueueResourceOperator {
                 return;
             }
             for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.deleteKafkaTopic(groupInfo, (KafkaClusterInfo) clusterInfo, streamInfo.getMqResource());
+                this.deleteKafkaTopic(groupInfo, (KafkaClusterInfo) clusterInfo, streamInfo.getInlongStreamId());
             }
         } catch (Exception e) {
             log.error("failed to delete kafka resource for groupId=" + groupId, e);
@@ -163,7 +163,6 @@ public class KafkaResourceOperator implements QueueResourceOperator {
         String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.createTopic(kafkaCluster, topicName);
 
-        // 2. create a subscription for the kafka topic
         boolean exist = kafkaOperator.topicIsExists(topicName);
         if (!exist) {
             String bootStrapServers = kafkaCluster.getBootStrapServers();
@@ -171,23 +170,23 @@ public class KafkaResourceOperator implements QueueResourceOperator {
             throw new WorkflowListenerException("topic=" + topicName + " not exists in " + bootStrapServers);
         }
 
-        // subscription naming rules:
+        // 2. create a subscription for the kafka topic
         kafkaOperator.createSubscription(kafkaCluster, topicName);
-        String subscription = "todo_name";
         String groupId = groupInfo.getInlongGroupId();
         log.info("success to create pulsar subscription for groupId={}, topic={}, subs={}",
-                groupId, topicName, subscription);
+                groupId, topicName, topicName);
 
         // 3. insert the consumer group info into the consumption table
-        consumptionService.saveSortConsumption(groupInfo, topicName, subscription);
-        log.info("success to save consume for groupId={}, topic={}, subs={}", groupId, topicName, subscription);
+        consumptionService.saveSortConsumption(groupInfo, topicName, topicName);
+        log.info("success to save consume for groupId={}, topic={}, subs={}", groupId, topicName, topicName);
     }
 
     /**
      * Delete Kafka Topic and Subscription, and delete the consumer group info.
      */
-    private void deleteKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo clusterInfo, String topicName) {
+    private void deleteKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo clusterInfo, String streamId) {
         // 1. delete kafka topic
+        String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.forceDeleteTopic(clusterInfo, topicName);
     }
 }
