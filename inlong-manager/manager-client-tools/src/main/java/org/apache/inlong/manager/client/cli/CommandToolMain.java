@@ -40,6 +40,8 @@ public class CommandToolMain {
         jcommander.addCommand("list", new ListCommand());
         jcommander.addCommand("describe", new DescribeCommand());
         jcommander.addCommand("create", new CreateCommand());
+        jcommander.addCommand("delete", new DeleteCommand());
+        jcommander.addCommand("update", new UpdateCommand());
     }
 
     public static void main(String[] args) {
