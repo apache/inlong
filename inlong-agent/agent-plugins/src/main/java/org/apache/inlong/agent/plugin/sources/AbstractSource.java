@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sources.reader;
+package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.common.metric.MetricRegister;
 
 import java.util.HashMap;
@@ -35,37 +35,29 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_I
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 
-/**
- * Abstract reader, init reader and reader metrics
- */
-public abstract class AbstractReader implements Reader {
+public abstract class AbstractSource implements Source {
 
-    protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     protected String inlongGroupId;
     protected String inlongStreamId;
     //metric
     protected AgentMetricItemSet metricItemSet;
-    protected AgentMetricItem readerMetric;
+    protected AgentMetricItem sourceMetric;
     protected String metricName;
     protected Map<String, String> dimensions;
+    protected static final AtomicLong METRIX_INDEX = new AtomicLong(0);
 
-    @Override
-    public void init(JobProfile jobConf) {
-        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-
+    protected void init(JobProfile conf) {
+        inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+        //register metric
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
         metricName = String.join("-", this.getClass().getSimpleName(),
-                String.valueOf(METRIC_INDEX.incrementAndGet()));
+                String.valueOf(METRIX_INDEX.incrementAndGet()));
         this.metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
-        readerMetric = metricItemSet.findMetricItem(dimensions);
-    }
-
-    public String getInlongGroupId() {
-        return inlongGroupId;
+        sourceMetric = metricItemSet.findMetricItem(dimensions);
     }
 }

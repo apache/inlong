@@ -43,7 +43,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
@@ -122,7 +121,7 @@ public class KafkaReader<K, V> extends AbstractReader {
                         "partition:" + record.partition()
                                 + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
-                GLOBAL_METRICS.incReadNum(metricTagName);
+                readerMetric.pluginReadCount.incrementAndGet();
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
                 DefaultMessage message = new DefaultMessage(recordValue, headerMap);
@@ -171,7 +170,6 @@ public class KafkaReader<K, V> extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        metricTagName = KAFKA_READER_TAG_NAME + "_" + inlongGroupId;
         // get offset from jobConf
         snapshot = jobConf.get(JOB_KAFKA_OFFSET, null);
         initReadTimeout(jobConf);

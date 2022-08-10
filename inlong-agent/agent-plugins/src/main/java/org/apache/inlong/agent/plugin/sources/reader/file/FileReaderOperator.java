@@ -40,7 +40,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
@@ -53,7 +52,7 @@ import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
 public class FileReaderOperator extends AbstractReader {
 
     public static final int NEVER_STOP_SIGN = -1;
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileReaderOperator.class);
     private static final String TEXT_FILE_READER_TAG_NAME = "AgentTextMetric";
     public File file;
     public int position;
@@ -90,7 +89,7 @@ public class FileReaderOperator extends AbstractReader {
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GLOBAL_METRICS.incReadNum(metricTagName);
+                readerMetric.pluginReadCount.incrementAndGet();
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -166,7 +165,6 @@ public class FileReaderOperator extends AbstractReader {
         try {
             this.jobConf = jobConf;
             super.init(jobConf);
-            metricTagName = TEXT_FILE_READER_TAG_NAME + "_" + inlongGroupId;
             initReadTimeout(jobConf);
             String md5 = AgentUtils.getFileMd5(file);
             if (StringUtils.isNotBlank(this.md5) && !this.md5.equals(md5)) {
@@ -189,7 +187,7 @@ public class FileReaderOperator extends AbstractReader {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
     }
-    
+
     private void initReadTimeout(JobProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_FILE_MAX_WAIT,
                 DEFAULT_JOB_FILE_MAX_WAIT);
@@ -207,7 +205,7 @@ public class FileReaderOperator extends AbstractReader {
         }
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                metricTagName, GLOBAL_METRICS.getReadNum(metricTagName));
+                metricName, readerMetric.pluginReadCount.get());
     }
 
     public List<AbstractFileReader> getInstance(FileReaderOperator reader, JobProfile jobConf) {
