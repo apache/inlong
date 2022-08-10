@@ -17,30 +17,26 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-
-import java.util.List;
+import org.apache.inlong.sdk.sort.impl.kafka.KafkaSeeker;
+import org.apache.inlong.sdk.sort.impl.pulsar.PulsarSeeker;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.pulsar.client.api.Consumer;
 
 /**
- * Interceptor interface.
- * Use to filter messages by configured strategies.
- *
+ * Factory that create configured seeker
  */
-public interface Interceptor {
+public class SeekerFactory {
 
-    /**
-     * Intercept the fetched message by configured strategies.
-     *
-     * @param messages message to be intercepted.
-     * @return Message after being intercepted.
-     */
-    List<InLongMessage> intercept(List<InLongMessage> messages);
+    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InLongTopic inLongTopic) {
+        PulsarSeeker seeker = new PulsarSeeker(consumer);
+        seeker.configure(inLongTopic);
+        return seeker;
+    }
 
-    /**
-     * configure seeker if topic properties have changed.
-     * @param inLongTopic InlongTopic info.
-     */
-    void configure(InLongTopic inLongTopic);
-
+    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
+        KafkaSeeker seeker = new KafkaSeeker(consumer);
+        seeker.configure(inLongTopic);
+        return seeker;
+    }
 }

@@ -148,6 +148,7 @@ public class InLongPulsarFetcherImplTest {
             when(consumerBuilder.subscriptionType(any())).thenReturn(consumerBuilder);
             when(consumerBuilder.startMessageIdInclusive()).thenReturn(consumerBuilder);
             when(consumerBuilder.ackTimeout(anyLong(), any())).thenReturn(consumerBuilder);
+            when(consumerBuilder.subscriptionInitialPosition(any())).thenReturn(consumerBuilder);
 
             when(consumerBuilder.receiverQueueSize(anyInt())).thenReturn(consumerBuilder);
             when(consumerBuilder.messageListener(any())).thenReturn(consumerBuilder);

@@ -116,7 +116,7 @@ public class KafkaLoadNode extends LoadNode implements Metadata, Serializable {
                 options.put("sink.ignore.changelog", "true");
                 options.putAll(format.generateOptions(false));
             } else {
-                options.put("connector", "upsert-kafka");
+                options.put("connector", "upsert-kafka-inlong");
                 options.putAll(format.generateOptions(true));
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
