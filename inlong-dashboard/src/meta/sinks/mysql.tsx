@@ -25,33 +25,30 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
-// tdsqlpostgreSQLFieldTypes
-const tdsqlpostgreSQLFieldTypes = [
+// mysqlFieldTypes
+const mysqlFieldTypes = [
+  'TINYINT',
   'SMALLINT',
-  'SMALLSERIAL',
-  'INT2',
-  'SERIAL2',
-  'INTEGER',
-  'SERIAL',
+  'MEDIUMINT',
+  'INT',
+  'FLOAT',
   'BIGINT',
-  'BIGSERIAL',
-  'REAL',
-  'FLOAT4',
-  'FLOAT8',
   'DOUBLE',
   'NUMERIC',
   'DECIMAL',
   'BOOLEAN',
   'DATE',
   'TIME',
-  'TIMESTAMP',
+  'DATETIME',
   'CHAR',
-  'CHARACTER',
   'VARCHAR',
   'TEXT',
-  'BYTEA',
+  'BINARY',
+  'VARBINARY',
+  'BLOB',
+  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
@@ -68,24 +65,14 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:postgresql://127.0.0.1:5432/db_name',
+        placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.SchemaName'),
-      name: 'schemaName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.TableName'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -95,7 +82,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.PrimaryKey'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -165,18 +152,16 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
-      title: `TDSQLPOSTGRESQL${i18n.t(
-        'components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldName',
-      )}`,
+      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -184,22 +169,20 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `TDSQLPOSTGRESQL${i18n.t(
-        'components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldType',
-      )}`,
+      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: tdsqlpostgreSQLFieldTypes[0].value,
+      initialValue: mysqlFieldTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        options: tdsqlpostgreSQLFieldTypes,
+        options: mysqlFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.IsMetaField'),
-      initialValue: 0,
+      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.IsMetaField'),
       dataIndex: 'isMetaField',
+      initialValue: 0,
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -215,9 +198,9 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldFormat'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: '',
+      initialValue: 0,
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -229,7 +212,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -238,7 +221,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageTDSQLPostgreSQL = {
+export const mysql = {
   getForm,
   getFieldListColumns,
   tableColumns,

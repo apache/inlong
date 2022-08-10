@@ -25,7 +25,7 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
 // hbaseFieldTypes
 const hbaseFieldTypes = [
@@ -157,7 +157,7 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
       title: `HBASE${i18n.t('components.AccessHelper.StorageMetaData.HBase.FieldName')}`,
       dataIndex: 'fieldName',
@@ -208,7 +208,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageHBase = {
+export const hbase = {
   getForm,
   getFieldListColumns,
   tableColumns,

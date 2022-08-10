@@ -28,7 +28,7 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import TextSwitch from '@/components/TextSwitch';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 // import { Button, message } from 'antd';
 // import request from '@/utils/request';
 
@@ -285,7 +285,7 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
       title: `Iceberg ${i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FieldName')}`,
       width: 110,
@@ -373,7 +373,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageIceberg = {
+export const iceberg = {
   getForm,
   getFieldListColumns,
   tableColumns,

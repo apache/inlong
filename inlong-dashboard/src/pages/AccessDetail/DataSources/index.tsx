@@ -17,14 +17,13 @@
  * under the License.
  */
 
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import { DataSourcesCreateModal } from '@/components/AccessHelper';
-import { dataSourcesBinLogColumns } from '@/components/MetaData/DataSourcesBinLog';
-import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
+import { sources } from '@/meta/sources';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -44,16 +43,10 @@ const getFilterFormContent = defaultValues => [
     initialValue: defaultValues.sourceType,
     props: {
       buttonStyle: 'solid',
-      options: [
-        {
-          label: 'File',
-          value: 'FILE',
-        },
-        {
-          label: 'MySQL BinLog',
-          value: 'MYSQL_BINLOG',
-        },
-      ],
+      options: sources.map(item => ({
+        label: item.label,
+        value: item.value,
+      })),
     },
   },
   {
@@ -73,7 +66,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sourceType: 'FILE',
+    sourceType: sources[0].value,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -156,13 +149,29 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     total: data?.total,
   };
 
+  const columnsMap = useMemo(
+    () =>
+      sources.reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur.value]: cur.tableColumns,
+        }),
+        {},
+      ),
+    [],
+  );
+
   const columns = [
     {
       title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
       dataIndex: 'inlongStreamId',
-    } as any,
+    },
+    {
+      title: i18n.t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
+      dataIndex: 'sourceName',
+    },
   ]
-    .concat(options.sourceType === 'FILE' ? dataSourcesFileColumns : dataSourcesBinLogColumns)
+    .concat(columnsMap[options.sourceType])
     .concat([
       {
         title: i18n.t('basic.Status'),

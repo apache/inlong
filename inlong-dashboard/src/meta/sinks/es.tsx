@@ -26,7 +26,7 @@ import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
 const esTypes = [
   'text',
@@ -179,7 +179,7 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
       title: `ES ${i18n.t('components.AccessHelper.StorageMetaData.Es.FieldName')}`,
       dataIndex: 'fieldName',
@@ -250,7 +250,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageEs = {
+export const es = {
   getForm,
   getFieldListColumns,
   tableColumns,

@@ -17,13 +17,12 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, Table, Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { useUpdateEffect, usePrevious } from '@/hooks';
-import { dataSourcesBinLogColumns as binLogColumns } from '@/components/MetaData/DataSourcesBinLog';
-import { dataSourcesFileColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
+import { sources } from '@/meta/sources';
 import CreateModal from './CreateModal';
 
 export interface DataSourcesEditorProps {
@@ -162,7 +161,19 @@ const Comp = ({
     setData(newData);
   };
 
-  const columns = (type === 'MYSQL_BINLOG' ? binLogColumns : fileColumns).concat(
+  const columnsMap = useMemo(
+    () =>
+      sources.reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur.value]: cur.tableColumns,
+        }),
+        {},
+      ),
+    [],
+  );
+
+  const columns = columnsMap[type].concat(
     readonly
       ? []
       : [
