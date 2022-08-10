@@ -56,6 +56,12 @@ import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStateme
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
 /**
  * A JDBC outputFormat that supports batching records before writing records to database.
@@ -138,17 +144,17 @@ public class JdbcBatchingOutputFormat<
             inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
             sinkMetricData.registerMetricsForDirtyBytes(inLongGroupId, inLongStreamId,
-                    nodeId, "dirtyBytes");
+                    nodeId, DIRTY_BYTES);
             sinkMetricData.registerMetricsForDirtyRecords(inLongGroupId, inLongStreamId,
-                    nodeId, "dirtyRecords");
+                    nodeId, DIRTY_RECORDS);
             sinkMetricData.registerMetricsForNumBytesOut(inLongGroupId, inLongStreamId,
-                    nodeId, "numBytesOut");
+                    nodeId, NUM_BYTES_OUT);
             sinkMetricData.registerMetricsForNumRecordsOut(inLongGroupId, inLongStreamId,
-                    nodeId, "numRecordsOut");
+                    nodeId, NUM_RECORDS_OUT);
             sinkMetricData.registerMetricsForNumBytesOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    "numBytesOutPerSecond");
+                    NUM_BYTES_OUT_PER_SECOND);
             sinkMetricData.registerMetricsForNumRecordsOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    "numRecordsOutPerSecond");
+                    NUM_RECORDS_OUT_PER_SECOND);
         }
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
