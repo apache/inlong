@@ -29,6 +29,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
@@ -58,7 +59,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
  */
 public class BinlogReader extends AbstractReader {
 
-    public static final String COMPONENT_NAME = "BinlogReader";
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
@@ -77,7 +77,6 @@ public class BinlogReader extends AbstractReader {
     public static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
     private static final Gson GSON = new Gson();
-    private static final String BINLOG_READER_TAG_NAME = "AgentBinlogMetric";
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
      * pair.left: table name
@@ -167,7 +166,11 @@ public class BinlogReader extends AbstractReader {
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
+                        readerMetric.pluginReadFailCount.addAndGet(records.size());
                         LOGGER.error("parse binlog message error", e);
                     }
                 })
