@@ -144,11 +144,6 @@ public class ElasticsearchOptions {
                     .withDescription(
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     private ElasticsearchOptions() {
 
