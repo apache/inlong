@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.listener.sort;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -63,8 +62,7 @@ public class SortConfigListener implements SortOperateListener {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper())
-                    && !MQType.NONE.equals(groupInfo.getMqType());
+            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper());
 
             LOGGER.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
             return enable;
@@ -72,8 +70,7 @@ public class SortConfigListener implements SortOperateListener {
             StreamResourceProcessForm streamResourceForm = (StreamResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = streamResourceForm.getGroupInfo();
             InlongStreamInfo streamInfo = streamResourceForm.getStreamInfo();
-            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper())
-                    && !MQType.NONE.equals(groupInfo.getMqType());
+            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper());
             LOGGER.info("zookeeper disabled was [{}] for groupId [{}] and streamId [{}] ", enable, groupId,
                     streamInfo.getInlongStreamId());
             return enable;
