@@ -54,7 +54,7 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
     private final ExecutorService executorService = new ThreadPoolExecutor(
             20,
             40,
-            0L, g
+            0L,
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
