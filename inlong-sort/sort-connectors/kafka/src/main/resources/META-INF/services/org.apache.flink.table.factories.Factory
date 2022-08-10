@@ -14,3 +14,4 @@
 # limitations under the License.
 
 org.apache.inlong.sort.kafka.table.KafkaDynamicTableFactory
+org.apache.inlong.sort.kafka.table.UpsertKafkaDynamicTableFactory
