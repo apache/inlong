@@ -35,10 +35,4 @@ public class KafkaOptions {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
-
 }
