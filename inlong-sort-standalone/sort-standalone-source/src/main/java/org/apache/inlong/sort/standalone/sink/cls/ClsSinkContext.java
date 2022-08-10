@@ -292,8 +292,8 @@ public class ClsSinkContext extends SinkContext {
      * Get report dimensions.
      *
      * @param  currentRecord Event.
-     * @param  bid           Topic or dest ip.
-     * @return               Prepared dimensions map.
+     * @param  bid  Topic or dest ip.
+     * @return  Prepared dimensions map.
      */
     private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
@@ -313,7 +313,7 @@ public class ClsSinkContext extends SinkContext {
      * Get {@link ClsIdConfig} by uid.
      *
      * @param  uid Uid of event.
-     * @return     Corresponding cls id config.
+     * @return  Corresponding cls id config.
      */
     public ClsIdConfig getIdConfig(String uid) {
         return idConfigMap.get(uid);
@@ -341,7 +341,7 @@ public class ClsSinkContext extends SinkContext {
      * Get cls client.
      *
      * @param  secretId ID of client.
-     * @return          Client instance.
+     * @return  Client instance.
      */
     public AsyncProducerClient getClient(String secretId) {
         return clientMap.get(secretId);
