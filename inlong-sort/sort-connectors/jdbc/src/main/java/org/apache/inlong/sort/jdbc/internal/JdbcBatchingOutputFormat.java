@@ -33,7 +33,8 @@ import org.apache.flink.connector.jdbc.utils.JdbcUtils;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.jdbc.metric.MetricData;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -51,6 +54,8 @@ import java.util.function.Function;
 
 import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * A JDBC outputFormat that supports batching records before writing records to database.
@@ -66,6 +71,7 @@ public class JdbcBatchingOutputFormat<
     private final StatementExecutorFactory<JdbcExec> statementExecutorFactory;
     private final RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
     private final String inLongMetric;
+    private final String auditHostAndPorts;
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
     private transient volatile boolean closed = false;
@@ -74,7 +80,10 @@ public class JdbcBatchingOutputFormat<
     private transient volatile Exception flushException;
     private transient RuntimeContext runtimeContext;
 
-    private MetricData metricData;
+    private SinkMetricData sinkMetricData;
+    private String inLongGroupId;
+    private String inLongStreamId;
+    private transient AuditImp auditImp;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
 
@@ -83,12 +92,14 @@ public class JdbcBatchingOutputFormat<
             @Nonnull JdbcExecutionOptions executionOptions,
             @Nonnull StatementExecutorFactory<JdbcExec> statementExecutorFactory,
             @Nonnull RecordExtractor<In, JdbcIn> recordExtractor,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
         this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     public static Builder builder() {
@@ -120,19 +131,28 @@ public class JdbcBatchingOutputFormat<
     public void open(int taskNumber, int numTasks) throws IOException {
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
-        metricData = new MetricData(runtimeContext.getMetricGroup());
+        sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("&");
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
+            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
+            inLongGroupId = inLongMetricArray[0];
+            inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
-            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId, "numBytesOutPerSecond");
-            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+            sinkMetricData.registerMetricsForDirtyBytes(inLongGroupId, inLongStreamId,
+                    nodeId, "dirtyBytes");
+            sinkMetricData.registerMetricsForDirtyRecords(inLongGroupId, inLongStreamId,
+                    nodeId, "dirtyRecords");
+            sinkMetricData.registerMetricsForNumBytesOut(inLongGroupId, inLongStreamId,
+                    nodeId, "numBytesOut");
+            sinkMetricData.registerMetricsForNumRecordsOut(inLongGroupId, inLongStreamId,
+                    nodeId, "numRecordsOut");
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
+                    "numBytesOutPerSecond");
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
                     "numRecordsOutPerSecond");
+        }
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
         }
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
@@ -146,20 +166,20 @@ public class JdbcBatchingOutputFormat<
                                     if (!closed) {
                                         try {
                                             flush();
-                                            if (metricData.getNumRecordsOut() != null) {
-                                                metricData.getNumRecordsOut().inc(rowSize);
+                                            if (sinkMetricData.getNumRecordsOut() != null) {
+                                                sinkMetricData.getNumRecordsOut().inc(rowSize);
                                             }
-                                            if (metricData.getNumBytesOut() != null) {
-                                                metricData.getNumBytesOut()
+                                            if (sinkMetricData.getNumBytesOut() != null) {
+                                                sinkMetricData.getNumBytesOut()
                                                         .inc(dataSize);
                                             }
                                             resetStateAfterFlush();
                                         } catch (Exception e) {
-                                            if (metricData.getDirtyRecords() != null) {
-                                                metricData.getDirtyRecords().inc(rowSize);
+                                            if (sinkMetricData.getDirtyRecords() != null) {
+                                                sinkMetricData.getDirtyRecords().inc(rowSize);
                                             }
-                                            if (metricData.getDirtyBytes() != null) {
-                                                metricData.getDirtyBytes().inc(dataSize);
+                                            if (sinkMetricData.getDirtyBytes() != null) {
+                                                sinkMetricData.getDirtyBytes().inc(dataSize);
                                             }
                                             resetStateAfterFlush();
                                             flushException = e;
@@ -190,33 +210,46 @@ public class JdbcBatchingOutputFormat<
         }
     }
 
+    private void outputMetricForAudit(long length) {
+        if (auditImp != null) {
+            auditImp.add(
+                    AUDIT_SORT_INPUT,
+                    inLongGroupId,
+                    inLongStreamId,
+                    System.currentTimeMillis(),
+                    1,
+                    length);
+        }
+    }
+
     @Override
     public final synchronized void writeRecord(In record) throws IOException {
         checkFlushException();
 
         rowSize++;
         dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
+        outputMetricForAudit(dataSize);
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
             batchCount++;
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
                 flush();
-                if (metricData.getNumRecordsOut() != null) {
-                    metricData.getNumRecordsOut().inc(rowSize);
+                if (sinkMetricData.getNumRecordsOut() != null) {
+                    sinkMetricData.getNumRecordsOut().inc(rowSize);
                 }
-                if (metricData.getNumBytesOut() != null) {
-                    metricData.getNumBytesOut()
+                if (sinkMetricData.getNumBytesOut() != null) {
+                    sinkMetricData.getNumBytesOut()
                             .inc(dataSize);
                 }
                 resetStateAfterFlush();
             }
         } catch (Exception e) {
-            if (metricData.getDirtyRecords() != null) {
-                metricData.getDirtyRecords().inc(rowSize);
+            if (sinkMetricData.getDirtyRecords() != null) {
+                sinkMetricData.getDirtyRecords().inc(rowSize);
             }
-            if (metricData.getDirtyBytes() != null) {
-                metricData.getDirtyBytes().inc(dataSize);
+            if (sinkMetricData.getDirtyBytes() != null) {
+                sinkMetricData.getDirtyBytes().inc(dataSize);
             }
             resetStateAfterFlush();
             throw new IOException("Writing records to JDBC failed.", e);
@@ -346,6 +379,7 @@ public class JdbcBatchingOutputFormat<
         private String[] keyFields;
         private int[] fieldTypes;
         private String inLongMetric;
+        private String auditHostAndPorts;
         private JdbcExecutionOptions.Builder executionOptionsBuilder =
                 JdbcExecutionOptions.builder();
 
@@ -386,6 +420,14 @@ public class JdbcBatchingOutputFormat<
          */
         public Builder setinLongMetric(String inLongMetric) {
             this.inLongMetric = inLongMetric;
+            return this;
+        }
+
+        /**
+         * auditHostAndPorts
+         */
+        public Builder setAuditHostAndPorts(String auditHostAndPorts) {
+            this.auditHostAndPorts = auditHostAndPorts;
             return this;
         }
 
@@ -436,7 +478,8 @@ public class JdbcBatchingOutputFormat<
                         new SimpleJdbcConnectionProvider(options),
                         dml,
                         executionOptionsBuilder.build(),
-                        inLongMetric);
+                        inLongMetric,
+                        auditHostAndPorts);
             } else {
                 // warn: don't close over builder fields
                 String sql =
@@ -457,7 +500,8 @@ public class JdbcBatchingOutputFormat<
                             Preconditions.checkArgument(tuple2.f0);
                             return tuple2.f1;
                         },
-                        inLongMetric);
+                        inLongMetric,
+                        auditHostAndPorts);
             }
         }
     }
