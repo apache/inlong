@@ -47,7 +47,7 @@ public interface ProcessEventListener extends EventListener<ProcessEvent> {
             0L,
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("inlong-event-process-%s").build(),
+            new ThreadFactoryBuilder().setNameFormat("inlong-workflow-%s").build(),
             new CallerRunsPolicy());
 
 }
