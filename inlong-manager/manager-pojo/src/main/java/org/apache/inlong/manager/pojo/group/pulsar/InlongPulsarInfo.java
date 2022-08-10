@@ -52,7 +52,7 @@ public class InlongPulsarInfo extends InlongGroupInfo {
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
-    private String queueModule = "parallel";
+    private String queueModule = "PARALLEL";
 
     @ApiModelProperty("The number of partitions of Topic, 1-20")
     private int partitionNum = 3;
