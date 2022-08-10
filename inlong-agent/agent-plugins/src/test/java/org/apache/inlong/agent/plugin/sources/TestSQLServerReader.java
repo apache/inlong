@@ -157,8 +157,8 @@ public class TestSQLServerReader {
         final String v21 = "aa";
         final String v22 = "bb";
 
-        String msg1 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v11, v12);
-        String msg2 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v21, v22);
+        final String msg1 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v11, v12);
+        final String msg2 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v21, v22);
 
         when(resultSet.next()).thenReturn(true, true, false);
         when(resultSet.getString(1)).thenReturn(v11, v21);
