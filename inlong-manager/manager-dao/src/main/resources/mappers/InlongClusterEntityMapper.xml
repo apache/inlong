@@ -119,7 +119,7 @@
             <if test="type != null and type != ''">
                 and `type` = #{type, jdbcType=VARCHAR}
             </if>
-            <if test="typeList != null and typeList.size()>0">
+            <if test="typeList != null and typeList.size() > 0">
                 and `type` in
                 <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
                     #{item}
@@ -128,7 +128,7 @@
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
-            <if test="clusterTagList != null and clusterTagList.size()>0">
+            <if test="clusterTagList != null and clusterTagList.size() > 0">
                 and
                 <foreach item="item" index="index" collection="clusterTagList" open="(" close=")" separator="or">
                     find_in_set(#{item}, cluster_tags)
