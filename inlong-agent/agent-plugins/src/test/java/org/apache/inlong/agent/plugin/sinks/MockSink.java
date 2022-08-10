@@ -21,19 +21,17 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
-public class MockSink implements Sink {
+public class MockSink extends AbstractSink {
 
     public static final String MOCK_SINK_TAG_NAME = "AgentMockSinkMetric";
     private static final Logger LOGGER = LoggerFactory.getLogger(MockSink.class);
@@ -54,10 +52,10 @@ public class MockSink implements Sink {
             number.incrementAndGet();
             taskPositionManager.updateSinkPosition(jobInstanceId, sourceFileName, 1);
             // increment the count of successful sinks
-            GLOBAL_METRICS.incSinkSuccessCount(tagName);
+            sinkMetric.sinkSuccessCount.incrementAndGet();
         } else {
             // increment the count of failed sinks
-            GLOBAL_METRICS.incSinkFailCount(tagName);
+            sinkMetric.sinkFailCount.incrementAndGet();
         }
     }
 

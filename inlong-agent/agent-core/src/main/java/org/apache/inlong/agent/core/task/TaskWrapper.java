@@ -186,7 +186,7 @@ public class TaskWrapper extends AbstractStateWrapper {
             retryTime.incrementAndGet();
             if (!shouldRetry()) {
                 doChangeState(State.FATAL);
-                taskManager.getTaskMetrics().incFatalTaskCount();
+                taskManager.getTaskMetrics().taskFatalCount.incrementAndGet();
             }
         }).addCallback(State.FAILED, State.FATAL, (before, after) -> {
 

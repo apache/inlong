@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
@@ -35,12 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
@@ -49,20 +43,16 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOU
 /**
  * Read text files
  */
-public class TextFileSource implements Source {
+public class TextFileSource extends AbstractSource {
 
-    // path + suffix
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
-    private static final String TEXT_FILE_SOURCE_TAG_NAME = "AgentTextFileSourceMetric";
 
     public TextFileSource() {
     }
 
     @Override
     public List<Reader> split(JobProfile jobConf) {
-        String inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        String inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        String metricTagName = TEXT_FILE_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
+        super.init(jobConf);
         Collection<File> allFiles = PluginUtils.findSuitFiles(jobConf);
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
@@ -77,7 +67,7 @@ public class TextFileSource implements Source {
             result.add(fileReader);
         }
         // increment the count of successful sources
-        GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
+        sourceMetric.sourceSuccessCount.incrementAndGet();
         return result;
     }
 

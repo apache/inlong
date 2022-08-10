@@ -17,30 +17,23 @@
 
 package org.apache.inlong.agent.metrics;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItemSet;
 
-/**
- * metric
- */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Metrics {
+@MetricDomain(name = "Agent")
+public class AgentMetricItemSet extends MetricItemSet<AgentMetricItem> {
 
     /**
-     * Metrics name
+     * Constructor
+     *
+     * @param name
      */
-    String name() default "";
+    public AgentMetricItemSet(String name) {
+        super(name);
+    }
 
-    /**
-     * Metrics context
-     */
-    String context() default "";
-
-    /**
-     * Metrics description
-     */
-    String desc() default "";
+    @Override
+    protected AgentMetricItem createItem() {
+        return new AgentMetricItem();
+    }
 }

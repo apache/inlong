@@ -22,19 +22,24 @@ import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
-import org.apache.inlong.agent.metrics.task.TaskMetrics;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
 
 /**
  * Task manager maintains lots of tasks and communicate with job level components.
@@ -47,13 +52,16 @@ public class TaskManager extends AbstractDaemon {
     // task thread pool;
     private final ThreadPoolExecutor runningPool;
     private final AgentManager agentManager;
-    private final TaskMetrics taskMetrics;
     private final ConcurrentHashMap<String, TaskWrapper> tasks;
     private final BlockingQueue<TaskWrapper> retryTasks;
     private final int monitorInterval;
     private final int taskMaxCapacity;
     private final int taskRetryMaxTime;
     private final long waitTime;
+
+    // metrics
+    private final AgentMetricItemSet taskMetrics;
+    private final Map<String, String> dimensions;
 
     /**
      * Init task manager.
@@ -68,7 +76,10 @@ public class TaskManager extends AbstractDaemon {
                 new SynchronousQueue<>(),
                 new AgentThreadFactory("task"));
         // metric for task level
-        this.taskMetrics = AgentMetricSingleton.getAgentMetricHandler().taskMetrics;
+        this.taskMetrics = new AgentMetricItemSet(this.getClass().getSimpleName());
+        this.dimensions = new HashMap<>();
+        this.dimensions.put(KEY_COMPONENT_NAME, this.getClass().getSimpleName());
+        MetricRegister.register(taskMetrics);
 
         tasks = new ConcurrentHashMap<>();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -91,8 +102,8 @@ public class TaskManager extends AbstractDaemon {
      *
      * @return task metrics
      */
-    public TaskMetrics getTaskMetrics() {
-        return taskMetrics;
+    public AgentMetricItem getTaskMetrics() {
+        return this.taskMetrics.findMetricItem(dimensions);
     }
 
     public TaskWrapper getTaskWrapper(String taskId) {
@@ -124,7 +135,7 @@ public class TaskManager extends AbstractDaemon {
                     LOGGER.warn("reject task {}", wrapper.getTask().getTaskId(), ex);
                 }
             }
-            taskMetrics.incRunningTaskCount();
+            getTaskMetrics().taskRunningCount.incrementAndGet();
         } else {
             LOGGER.warn("task cannot be repeated added taskId {}", wrapper.getTask().getTaskId());
         }
@@ -143,7 +154,7 @@ public class TaskManager extends AbstractDaemon {
                 LOGGER.error("cannot submit to retry queue, max {}, current {}", taskMaxCapacity,
                         retryTasks.size());
             } else {
-                taskMetrics.incRetryingTaskCount();
+                getTaskMetrics().taskRetryingCount.incrementAndGet();
             }
             return success;
         } catch (Exception ex) {
@@ -186,7 +197,7 @@ public class TaskManager extends AbstractDaemon {
      * @param taskId task id
      */
     public void removeTask(String taskId) {
-        taskMetrics.decRunningTaskCount();
+        getTaskMetrics().taskRunningCount.decrementAndGet();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {
             taskWrapper.destroyTask();
@@ -229,7 +240,7 @@ public class TaskManager extends AbstractDaemon {
                     while (!retryTasks.isEmpty()) {
                         TaskWrapper taskWrapper = retryTasks.poll();
                         if (taskWrapper != null) {
-                            taskMetrics.decRetryingTaskCount();
+                            getTaskMetrics().taskRetryingCount.decrementAndGet();
                             submitTask(taskWrapper);
                         }
                     }
