@@ -63,20 +63,20 @@ public class KafkaOperator {
   }
 
   /**
-   * Create Pulsar namespace
+   * Create Kafka topic
    */
-  public void createTopic(KafkaClusterInfo kafkaClusterInfo)
+  public void createTopic(KafkaClusterInfo kafkaClusterInfo,String topicName)
       throws InterruptedException, ExecutionException {
     AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
-    NewTopic topic = new NewTopic(kafkaClusterInfo.getTopicName(),
+    NewTopic topic = new NewTopic(topicName,
         kafkaClusterInfo.getNumPartitions(),
         kafkaClusterInfo.getReplicationFactor());
     CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
     // 避免客户端连接太快断开而导致Topic没有创建成功
     Thread.sleep(500);
     LOGGER.info("success to create kafka topic={}, with={} numPartitions",
-        kafkaClusterInfo.getTopicName(),
-        result.numPartitions(kafkaClusterInfo.getTopicName()).get());
+        topicName,
+        result.numPartitions(topicName).get());
   }
 
 //  /**

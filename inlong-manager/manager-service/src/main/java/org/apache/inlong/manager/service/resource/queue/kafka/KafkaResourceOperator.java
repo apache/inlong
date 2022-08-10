@@ -65,7 +65,7 @@ public class KafkaResourceOperator implements QueueResourceOperator {
                 return;
             }
             for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.createKafkaTopic(groupInfo, kafkaCluster, streamInfo.getMqResource());
+                this.createKafkaTopic(groupInfo, kafkaCluster, streamInfo.getInlongStreamId());
             }
         } catch (Exception e) {
             String msg = String.format("failed to create pulsar resource for groupId=%s", groupId);
@@ -120,7 +120,7 @@ public class KafkaResourceOperator implements QueueResourceOperator {
             String clusterTag = groupInfo.getInlongClusterTag();
             ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.KAFKA);
             // create kafka topic
-            this.createKafkaTopic(groupInfo, (KafkaClusterInfo) clusterInfo, streamInfo.getMqResource());
+            this.createKafkaTopic(groupInfo, (KafkaClusterInfo) clusterInfo, streamInfo.getInlongStreamId());
         } catch (Exception e) {
             String msg = String.format("failed to create kafka topic for groupId=%s, streamId=%s", groupId, streamId);
             log.error(msg, e);
@@ -157,18 +157,18 @@ public class KafkaResourceOperator implements QueueResourceOperator {
     /**
      * Create Kafka Topic and Subscription, and save the consumer group info.
      */
-    private void createKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo kafkaCluster, String topicName)
+    private void createKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo kafkaCluster, String streamId)
             throws Exception {
         // 1. create kafka topic
-        kafkaOperator.createTopic(kafkaCluster);
+        String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
+        kafkaOperator.createTopic(kafkaCluster, topicName);
 
         // 2. create a subscription for the kafka topic
         boolean exist = kafkaOperator.topicIsExists(topicName);
         if (!exist) {
-            String topicFullName = "";
             String bootStrapServers = kafkaCluster.getBootStrapServers();
-            log.error("topic={} not exists in {}", topicFullName, bootStrapServers);
-            throw new WorkflowListenerException("topic=" + topicFullName + " not exists in " + bootStrapServers);
+            log.error("topic={} not exists in {}", topicName, bootStrapServers);
+            throw new WorkflowListenerException("topic=" + topicName + " not exists in " + bootStrapServers);
         }
 
         // subscription naming rules:
@@ -188,6 +188,6 @@ public class KafkaResourceOperator implements QueueResourceOperator {
      */
     private void deleteKafkaTopic(InlongGroupInfo groupInfo, KafkaClusterInfo clusterInfo, String topicName) {
         // 1. delete kafka topic
-        kafkaOperator.forceDeleteTopic(clusterInfo,topicName);
+        kafkaOperator.forceDeleteTopic(clusterInfo, topicName);
     }
 }
