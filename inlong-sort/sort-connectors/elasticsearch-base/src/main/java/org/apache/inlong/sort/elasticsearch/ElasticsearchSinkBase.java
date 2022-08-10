@@ -265,20 +265,18 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-        sinkMetricData = new SinkMetricData(getRuntimeContext().getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split("&");
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-            sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-            sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-            sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
-                    "numBytesOutPerSecond");
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
-                    "numRecordsOutPerSecond");
+            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
+            sinkMetricData.registerMetricsForDirtyBytes();
+            sinkMetricData.registerMetricsForDirtyRecords();
+            sinkMetricData.registerMetricsForNumBytesOut();
+            sinkMetricData.registerMetricsForNumRecordsOut();
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
         }
         callBridge.verifyClientConnection(client);
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
