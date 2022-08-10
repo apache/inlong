@@ -17,30 +17,28 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
-import java.util.List;
-
 /**
- * Interceptor interface.
- * Use to filter messages by configured strategies.
- *
+ * the seeker is used to reset the offset of topic-partition of rollback task
  */
-public interface Interceptor {
-
-    /**
-     * Intercept the fetched message by configured strategies.
-     *
-     * @param messages message to be intercepted.
-     * @return Message after being intercepted.
-     */
-    List<InLongMessage> intercept(List<InLongMessage> messages);
+public interface Seeker {
 
     /**
      * configure seeker if topic properties have changed.
      * @param inLongTopic InlongTopic info.
      */
     void configure(InLongTopic inLongTopic);
+
+    /**
+     * do seek
+     */
+    void seek();
+
+    /**
+     * return the expected seek time of seeker
+     * @return expected seek time
+     */
+    long getSeekTime();
 
 }

@@ -27,7 +27,7 @@ public class InLongTopic {
     private int partitionId;
     //pulsar,kafka,tube
     private String topicType;
-    private Map<String, Object> properties;
+    private Map<String, String> properties;
 
     public String getTopic() {
         return topic;
@@ -61,11 +61,11 @@ public class InLongTopic {
         this.topicType = topicType;
     }
 
-    public Map<String, Object> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
@@ -80,7 +80,8 @@ public class InLongTopic {
         InLongTopic that = (InLongTopic) o;
         return partitionId == that.partitionId
                 && Objects.equals(topic, that.topic)
-                && Objects.equals(cacheZoneCluster, that.cacheZoneCluster);
+                && Objects.equals(cacheZoneCluster, that.cacheZoneCluster)
+                && Objects.equals(properties, that.properties);
     }
 
     @Override
