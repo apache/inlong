@@ -39,14 +39,19 @@ public class DispatchManager {
     public static final String KEY_DISPATCH_TIMEOUT = "dispatchTimeout";
     public static final String KEY_DISPATCH_MAX_PACKCOUNT = "dispatchMaxPackCount";
     public static final String KEY_DISPATCH_MAX_PACKSIZE = "dispatchMaxPackSize";
+    public static final String KEY_DISPATCH_AHEAD_TIME = "dispatchAheadTime";
+    public static final String KEY_DISPATCH_DELAY_TIME = "dispatchDelayTime";
     public static final long DEFAULT_DISPATCH_TIMEOUT = 2000;
     public static final long DEFAULT_DISPATCH_MAX_PACKCOUNT = 256;
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
     public static final long MINUTE_MS = 60L * 1000;
-
+    public static final long DEFAULT_DISPATCH_AHEAD_TIME = 60 * 60 * 1000L;
+    public static final long DEFAULT_DISPATCH_DELAY_TIME = 60 * 60 * 1000 * 16L;
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
+    private final long dispatchAheadTime;
+    private final long dispatchDelayTime;
     private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
@@ -65,6 +70,8 @@ public class DispatchManager {
         this.dispatchTimeout = context.getLong(KEY_DISPATCH_TIMEOUT, DEFAULT_DISPATCH_TIMEOUT);
         this.maxPackCount = context.getLong(KEY_DISPATCH_MAX_PACKCOUNT, DEFAULT_DISPATCH_MAX_PACKCOUNT);
         this.maxPackSize = context.getLong(KEY_DISPATCH_MAX_PACKSIZE, DEFAULT_DISPATCH_MAX_PACKSIZE);
+        this.dispatchAheadTime = context.getLong(KEY_DISPATCH_AHEAD_TIME, DEFAULT_DISPATCH_AHEAD_TIME);
+        this.dispatchDelayTime = -1 * context.getLong(KEY_DISPATCH_DELAY_TIME, DEFAULT_DISPATCH_DELAY_TIME);
     }
 
     /**
@@ -90,6 +97,8 @@ public class DispatchManager {
             DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
+            long curTime = System.currentTimeMillis();
+            this.checkAndResetDispatchTime(dispatchProfile, curTime);
             this.dispatchQueue.offer(oldDispatchProfile);
             outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
@@ -121,9 +130,11 @@ public class DispatchManager {
             removeKeys.add(entry.getKey());
         }
         // output
+        long curTime = System.currentTimeMillis();
         removeKeys.forEach((key) -> {
             DispatchProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
+                this.checkAndResetDispatchTime(dispatchProfile, curTime);
                 dispatchQueue.offer(dispatchProfile);
                 outCounter.addAndGet(dispatchProfile.getCount());
             }
@@ -132,6 +143,17 @@ public class DispatchManager {
                 + "inCounter:{},outCounter:{}",
                 profileCache.size(), dispatchQueue.size(), eventCount,
                 inCounter.getAndSet(0), outCounter.getAndSet(0));
+    }
+
+    /**
+     * reset dispatch time if the dispatch time is invalid.
+     * The default ahead time is 1 hour, and default delay time is 16 hours.
+     */
+    private void checkAndResetDispatchTime(DispatchProfile dispatchProfile, long cur) {
+        long diff = dispatchProfile.getDispatchTime() - cur;
+        if (dispatchAheadTime <= diff || diff <= dispatchDelayTime) {
+            dispatchProfile.setDispatchTime(cur - cur % MINUTE_MS);
+        }
     }
 
     /**
