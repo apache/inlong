@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -36,11 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The listener that approves to apply for InlongGroup.
@@ -50,15 +44,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class ApproveApplyProcessListener implements ProcessEventListener {
-
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
-            new CallerRunsPolicy());
 
     @Autowired
     private InlongGroupService groupService;
