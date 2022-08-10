@@ -76,13 +76,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
@@ -419,13 +414,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             String groupId = inlongMetricArray[0];
             String streamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            sourceMetricData = new SourceMetricData(metricGroup);
-            sourceMetricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, NUM_RECORDS_IN);
-            sourceMetricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, NUM_BYTES_IN);
-            sourceMetricData.registerMetricsForNumBytesInPerSecond(groupId, streamId,
-                    nodeId, NUM_BYTES_IN_PER_SECOND);
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId,
-                    nodeId, NUM_RECORDS_IN_PER_SECOND);
+            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup);
+            sourceMetricData.registerMetricsForNumRecordsIn();
+            sourceMetricData.registerMetricsForNumBytesIn();
+            sourceMetricData.registerMetricsForNumBytesInPerSecond();
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());

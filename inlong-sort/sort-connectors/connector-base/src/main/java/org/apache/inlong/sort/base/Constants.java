@@ -48,7 +48,22 @@ public final class Constants {
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
-
+    /**
+     * Time span in seconds
+     */
+    public static final Integer TIME_SPAN_IN_SECONDS = 60;
+    /**
+     * Stream id used in inlong metric
+     */
+    public static final String STREAM_ID = "streamId";
+    /**
+     * Group id used in inlong metric
+     */
+    public static final String GROUP_ID = "groupId";
+    /**
+     * Node id used in inlong metric
+     */
+    public static final String NODE_ID = "nodeId";
     /**
      * It is used for inlong.metric
      */

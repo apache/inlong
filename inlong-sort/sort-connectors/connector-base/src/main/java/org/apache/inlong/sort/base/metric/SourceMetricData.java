@@ -20,26 +20,32 @@ package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
+
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 
 /**
  * A collection class for handling metrics
  */
-public class SourceMetricData {
+public class SourceMetricData implements MetricData {
 
-    private static Integer TIME_SPAN_IN_SECONDS = 60;
-    private static String STREAM_ID = "streamId";
-    private static String GROUP_ID = "groupId";
-    private static String NODE_ID = "nodeId";
     private final MetricGroup metricGroup;
+    private final String groupId;
+    private final String streamId;
+    private final String nodeId;
     private Counter numRecordsIn;
     private Counter numBytesIn;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
 
-    public SourceMetricData(MetricGroup metricGroup) {
+    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
+        this.groupId = groupId;
+        this.streamId = streamId;
+        this.nodeId = nodeId;
         this.metricGroup = metricGroup;
     }
 
@@ -47,76 +53,44 @@ public class SourceMetricData {
      * Default counter is {@link SimpleCounter}
      * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
      * prometheus
-     *
-     * @param groupId inlong groupId
-     * @param streamId inlong streamId
-     * @param nodeId inlong nodeId
-     * @param metricName metric name
      */
-    public void registerMetricsForNumRecordsIn(String groupId, String streamId, String nodeId, String metricName) {
-        registerMetricsForNumRecordsIn(groupId, streamId, nodeId, metricName, new SimpleCounter());
+    public void registerMetricsForNumRecordsIn() {
+        registerMetricsForNumRecordsIn(new SimpleCounter());
     }
 
     /**
      * User can use custom counter that extends from {@link Counter}
      * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
      * prometheus
-     *
-     * @param groupId inlong groupId
-     * @param streamId inlong streamId
-     * @param nodeId inlong nodeId
-     * @param metricName metric name
      */
-    public void registerMetricsForNumRecordsIn(String groupId, String streamId, String nodeId, String metricName,
-            Counter counter) {
-        numRecordsIn =
-                metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID, nodeId)
-                        .counter(metricName, counter);
+    public void registerMetricsForNumRecordsIn(Counter counter) {
+        numRecordsIn = registerCounter(NUM_RECORDS_IN, counter);
     }
 
     /**
      * Default counter is {@link SimpleCounter}
      * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
      * prometheus
-     *
-     * @param groupId inlong groupId
-     * @param streamId inlong streamId
-     * @param nodeId inlong nodeId
-     * @param metricName metric name
      */
-    public void registerMetricsForNumBytesIn(String groupId, String streamId, String nodeId, String metricName) {
-        registerMetricsForNumBytesIn(groupId, streamId, nodeId, metricName, new SimpleCounter());
+    public void registerMetricsForNumBytesIn() {
+        registerMetricsForNumBytesIn(new SimpleCounter());
     }
 
     /**
      * User can use custom counter that extends from {@link Counter}
      * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
      * prometheus
-     *
-     * @param groupId inlong groupId
-     * @param streamId inlong streamId
-     * @param nodeId inlong nodeId
-     * @param metricName metric name
      */
-    public void registerMetricsForNumBytesIn(String groupId, String streamId, String nodeId, String metricName,
-            Counter counter) {
-        numBytesIn =
-                metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID, nodeId)
-                        .counter(metricName, counter);
+    public void registerMetricsForNumBytesIn(Counter counter) {
+        numBytesIn = registerCounter(NUM_BYTES_IN, counter);
     }
 
-    public void registerMetricsForNumRecordsInPerSecond(String groupId, String streamId, String nodeId,
-            String metricName) {
-        numRecordsInPerSecond = metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId).addGroup(NODE_ID,
-                        nodeId)
-                .meter(metricName, new MeterView(this.numRecordsIn, TIME_SPAN_IN_SECONDS));
+    public void registerMetricsForNumRecordsInPerSecond() {
+        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsIn);
     }
 
-    public void registerMetricsForNumBytesInPerSecond(String groupId, String streamId, String nodeId,
-            String metricName) {
-        numBytesInPerSecond = metricGroup.addGroup(GROUP_ID, groupId).addGroup(STREAM_ID, streamId)
-                .addGroup(NODE_ID, nodeId)
-                .meter(metricName, new MeterView(this.numBytesIn, TIME_SPAN_IN_SECONDS));
+    public void registerMetricsForNumBytesInPerSecond() {
+        numBytesInPerSecond = registerMeter(NUM_BYTES_IN_PER_SECOND, this.numBytesIn);
     }
 
     public Counter getNumRecordsIn() {
@@ -135,4 +109,23 @@ public class SourceMetricData {
         return numBytesInPerSecond;
     }
 
+    @Override
+    public MetricGroup getMetricGroup() {
+        return metricGroup;
+    }
+
+    @Override
+    public String getGroupId() {
+        return groupId;
+    }
+
+    @Override
+    public String getStreamId() {
+        return streamId;
+    }
+
+    @Override
+    public String getNodeId() {
+        return nodeId;
+    }
 }
