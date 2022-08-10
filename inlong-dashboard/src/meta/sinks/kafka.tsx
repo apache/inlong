@@ -118,7 +118,7 @@ const getForm: GetStorageFormFieldsType = (
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageKafka = {
+export const kafka = {
   getForm,
   tableColumns,
 };

@@ -25,34 +25,35 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
-// greenplumFieldTypes
-const greenplumFieldTypes = [
-  'SMALLINT',
-  'INT2',
-  'SMALLSERIAL',
-  'SERIAL',
-  'SERIAL2',
-  'INTEGER',
+// sqlserverFieldTypes
+const sqlserverFieldTypes = [
+  'char',
+  'varchar',
+  'nchar',
+  'nvarchar',
+  'text',
+  'ntext',
+  'xml',
   'BIGINT',
   'BIGSERIAL',
-  'REAL',
-  'FLOAT4',
-  'FLOAT8',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'TIMESTAMP',
-  'CHAR',
-  'CHARACTER',
-  'VARCHAR',
-  'TEXT',
-  'BYTEA',
-  // 'interval',
+  'decimal',
+  'money',
+  'smallmoney',
+  'numeric',
+  'float',
+  'real',
+  'bit',
+  'int',
+  'tinyint',
+  'smallint',
+  'bigint',
+  'time',
+  'datetime',
+  'datetime2',
+  'smalldatetime',
+  'datetimeoffset',
 ].map(item => ({
   label: item,
   value: item,
@@ -69,14 +70,35 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:postgresql://127.0.0.1:5432/write',
+        placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.TableName'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.SchemaName'),
+      name: 'schemaName',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.ServerTimezone'),
+      name: 'serverTimezone',
+      initialValue: 'UTC',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -86,7 +108,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -111,6 +133,26 @@ const getForm: GetStorageFormFieldsType = (
           {
             label: i18n.t('basic.No'),
             value: 0,
+          },
+        ],
+      },
+    },
+    {
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.AllMigration'),
+      name: 'allMigration',
+      rules: [{ required: true }],
+      initialValue: true,
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: true,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: false,
           },
         ],
       },
@@ -156,16 +198,16 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
-      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldName')}`,
+      title: `SQLSERVER${i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -173,20 +215,20 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldType')}`,
+      title: `SQLSERVER${i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: greenplumFieldTypes[0].value,
+      initialValue: sqlserverFieldTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        options: greenplumFieldTypes,
+        options: sqlserverFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.IsMetaField'),
-      dataIndex: 'isMetaField',
+      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.IsMetaField'),
       initialValue: 0,
+      dataIndex: 'isMetaField',
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -202,9 +244,9 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldFormat'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: 0,
+      initialValue: '',
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -216,7 +258,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -225,7 +267,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageGreenplum = {
+export const sqlServer = {
   getForm,
   getFieldListColumns,
   tableColumns,

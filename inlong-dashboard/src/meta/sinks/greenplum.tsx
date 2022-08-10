@@ -25,16 +25,16 @@ import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
-import { sourceDataFields } from './SourceDataFields';
+import { sourceFields } from './common/sourceFields';
 
-// postgreSQLFieldTypes
-const postgreSQLFieldTypes = [
+// greenplumFieldTypes
+const greenplumFieldTypes = [
   'SMALLINT',
   'INT2',
   'SMALLSERIAL',
+  'SERIAL',
   'SERIAL2',
   'INTEGER',
-  'SERIAL',
   'BIGINT',
   'BIGSERIAL',
   'REAL',
@@ -52,6 +52,7 @@ const postgreSQLFieldTypes = [
   'VARCHAR',
   'TEXT',
   'BYTEA',
+  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
@@ -68,24 +69,14 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:postgresql://127.0.0.1:5432/db_name',
+        placeholder: 'jdbc:postgresql://127.0.0.1:5432/write',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.DbName'),
-      name: 'dbName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.TableName'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -95,7 +86,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.PrimaryKey'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -165,16 +156,16 @@ const getForm: GetStorageFormFieldsType = (
 
 const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
-    ...sourceDataFields,
+    ...sourceFields,
     {
-      title: `POSTGRESQL${i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.FieldName')}`,
+      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.FieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -182,20 +173,20 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `POSTGRESQL${i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.FieldType')}`,
+      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: postgreSQLFieldTypes[0].value,
+      initialValue: greenplumFieldTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        options: postgreSQLFieldTypes,
+        options: greenplumFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.IsMetaField'),
-      initialValue: 0,
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.IsMetaField'),
       dataIndex: 'isMetaField',
+      initialValue: 0,
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -211,9 +202,9 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.FieldFormat'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: '',
+      initialValue: 0,
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -225,7 +216,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.PostgreSQL.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -234,7 +225,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StoragePostgreSQL = {
+export const greenplum = {
   getForm,
   getFieldListColumns,
   tableColumns,

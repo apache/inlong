@@ -27,7 +27,7 @@ export const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', '
   }),
 );
 
-export const sourceDataFields: ColumnsItemProps[] = [
+export const sourceFields: ColumnsItemProps[] = [
   {
     title: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldName'),
     dataIndex: 'sourceFieldName',
