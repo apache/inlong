@@ -24,6 +24,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
+import rulesPattern from '@/utils/pattern';
 
 export interface NodeEditModalProps extends ModalProps {
   id?: number;
@@ -83,11 +84,27 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         type: 'input',
         label: 'IP',
         name: 'ip',
+        rules: [
+          {
+            pattern: rulesPattern.ip,
+            message: i18n.t('pages.Clusters.Node.IpRule'),
+          },
+        ],
       },
       {
-        type: 'input',
+        type: 'inputnumber',
         label: i18n.t('pages.Clusters.Node.Port'),
         name: 'port',
+        rules: [
+          {
+            pattern: rulesPattern.port,
+            message: i18n.t('pages.Clusters.Node.PortRule'),
+          },
+        ],
+        props: {
+          min: 0,
+          max: 65535,
+        },
       },
       {
         type: 'textarea',
