@@ -97,7 +97,8 @@ public class DispatchManager {
             DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
-            this.checkAndResetDispatchTime(dispatchProfile);
+            long curTime = System.currentTimeMillis();
+            this.checkAndResetDispatchTime(dispatchProfile, curTime);
             this.dispatchQueue.offer(oldDispatchProfile);
             outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
@@ -129,10 +130,11 @@ public class DispatchManager {
             removeKeys.add(entry.getKey());
         }
         // output
+        long curTime = System.currentTimeMillis();
         removeKeys.forEach((key) -> {
             DispatchProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
-                this.checkAndResetDispatchTime(dispatchProfile);
+                this.checkAndResetDispatchTime(dispatchProfile, curTime);
                 dispatchQueue.offer(dispatchProfile);
                 outCounter.addAndGet(dispatchProfile.getCount());
             }
@@ -147,8 +149,7 @@ public class DispatchManager {
      * reset dispatch time if the dispatch time is invalid.
      * The default ahead time is 1 hour, and default delay time is 16 hours.
      */
-    private void checkAndResetDispatchTime(DispatchProfile dispatchProfile) {
-        long cur = System.currentTimeMillis();
+    private void checkAndResetDispatchTime(DispatchProfile dispatchProfile, long cur) {
         long diff = dispatchProfile.getDispatchTime() - cur;
         if (dispatchAheadTime <= diff || diff <= dispatchDelayTime) {
             dispatchProfile.setDispatchTime(cur - cur % MINUTE_MS);
