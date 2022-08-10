@@ -18,14 +18,6 @@
 
 package org.apache.inlong.sort.kafka.table;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
@@ -41,6 +33,14 @@ import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
 /**
  * deserialization schema for {@link KafkaDynamicSource}.
  */
@@ -48,7 +48,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable DeserializationSchema<RowData> keyDeserialization;
+    private final @Nullable
+    DeserializationSchema<RowData> keyDeserialization;
 
     private final DeserializationSchema<RowData> valueDeserialization;
 
@@ -85,7 +86,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
             String inLongMetric,
-        String auditHostAndPorts) {
+            String auditHostAndPorts) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -120,14 +121,11 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             inLongGroupId = inLongMetricArray[0];
             inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData = new SourceMetricData(context.getMetricGroup());
-            metricData.registerMetricsForNumBytesIn(inLongGroupId, inLongStreamId, nodeId, "numBytesIn");
-            metricData.registerMetricsForNumBytesInPerSecond(inLongGroupId, inLongStreamId,
-                nodeId, "numBytesInPerSecond");
-            metricData.registerMetricsForNumRecordsIn(inLongGroupId, inLongStreamId,
-                nodeId, "numRecordsIn");
-            metricData.registerMetricsForNumRecordsInPerSecond(inLongGroupId, inLongStreamId,
-                nodeId, "numRecordsInPerSecond");
+            metricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
+            metricData.registerMetricsForNumBytesIn();
+            metricData.registerMetricsForNumBytesInPerSecond();
+            metricData.registerMetricsForNumRecordsIn();
+            metricData.registerMetricsForNumRecordsInPerSecond();
         }
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
@@ -187,12 +185,12 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     private void outputMetricForAudit(ConsumerRecord<byte[], byte[]> record) {
         if (auditImp != null) {
             auditImp.add(
-                Constants.AUDIT_SORT_INPUT,
-                inLongGroupId,
-                inLongStreamId,
-                System.currentTimeMillis(),
-                1,
-                record.value().length);
+                    Constants.AUDIT_SORT_INPUT,
+                    inLongGroupId,
+                    inLongStreamId,
+                    System.currentTimeMillis(),
+                    1,
+                    record.value().length);
         }
     }
 
@@ -211,6 +209,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     // --------------------------------------------------------------------------------------------
 
     interface MetadataConverter extends Serializable {
+
         Object read(ConsumerRecord<?, ?> record);
     }
 
@@ -311,8 +310,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                 } else {
                     throw new DeserializationException(
                             "Invalid null value received "
-                                + "in non-upsert mode. Could not to "
-                                + "set row kind for output record.");
+                                    + "in non-upsert mode. Could not to "
+                                    + "set row kind for output record.");
                 }
             } else {
                 rowKind = physicalValueRow.getRowKind();

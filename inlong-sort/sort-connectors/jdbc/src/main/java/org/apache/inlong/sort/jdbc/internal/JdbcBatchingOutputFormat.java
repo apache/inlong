@@ -51,17 +51,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
 import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
-import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
 /**
  * A JDBC outputFormat that supports batching records before writing records to database.
@@ -137,24 +130,18 @@ public class JdbcBatchingOutputFormat<
     public void open(int taskNumber, int numTasks) throws IOException {
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
-        sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
             String[] inLongMetricArray = inLongMetric.split(DELIMITER);
             inLongGroupId = inLongMetricArray[0];
             inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            sinkMetricData.registerMetricsForDirtyBytes(inLongGroupId, inLongStreamId,
-                    nodeId, DIRTY_BYTES);
-            sinkMetricData.registerMetricsForDirtyRecords(inLongGroupId, inLongStreamId,
-                    nodeId, DIRTY_RECORDS);
-            sinkMetricData.registerMetricsForNumBytesOut(inLongGroupId, inLongStreamId,
-                    nodeId, NUM_BYTES_OUT);
-            sinkMetricData.registerMetricsForNumRecordsOut(inLongGroupId, inLongStreamId,
-                    nodeId, NUM_RECORDS_OUT);
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    NUM_BYTES_OUT_PER_SECOND);
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond(inLongGroupId, inLongStreamId, nodeId,
-                    NUM_RECORDS_OUT_PER_SECOND);
+            sinkMetricData = new SinkMetricData(inLongGroupId, inLongStreamId, nodeId, runtimeContext.getMetricGroup());
+            sinkMetricData.registerMetricsForDirtyBytes();
+            sinkMetricData.registerMetricsForDirtyRecords();
+            sinkMetricData.registerMetricsForNumBytesOut();
+            sinkMetricData.registerMetricsForNumRecordsOut();
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
         }
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
