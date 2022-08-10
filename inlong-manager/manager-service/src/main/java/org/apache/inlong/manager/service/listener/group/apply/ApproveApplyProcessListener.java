@@ -17,15 +17,16 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -35,6 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The listener that approves to apply for InlongGroup.
@@ -44,6 +50,15 @@ import java.util.List;
 @Slf4j
 @Component
 public class ApproveApplyProcessListener implements ProcessEventListener {
+
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            20,
+            40,
+            0L, g
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(),
+            new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
+            new CallerRunsPolicy());
 
     @Autowired
     private InlongGroupService groupService;
@@ -61,7 +76,6 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        log.info("begin to execute ApproveApplyProcessListener for groupId={}", groupId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
@@ -69,9 +83,10 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
         String username = context.getOperator();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);
-        workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
 
-        log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
+        // may run for long time, make it async processing
+        executorService.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
+
         return ListenerResult.success();
     }
 
