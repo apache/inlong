@@ -155,7 +155,7 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
