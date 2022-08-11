@@ -67,7 +67,6 @@ public class KafkaOperator {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         DeleteTopicsResult result = adminClient.deleteTopics(Collections.singletonList(topicName));
         LOGGER.info("success to delete topic={}", topicName);
-//    System.out.println(result.all().get());
     }
 
     public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
