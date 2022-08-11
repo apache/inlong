@@ -37,7 +37,7 @@ export default (
   const fields: FormItemProps[] = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamID'),
+      label: i18n.t('meta.Stream.DataStreamID'),
       name: 'inlongStreamId',
       props: {
         maxLength: 32,
@@ -47,19 +47,19 @@ export default (
         { required: true },
         {
           pattern: /^[0-9a-z_-]+$/,
-          message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.InlongStreamIdRules'),
+          message: i18n.t('meta.Stream.InlongStreamIdRules'),
         },
       ],
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataStreamName'),
+      label: i18n.t('meta.Stream.DataStreamName'),
       name: 'name',
       initialValue: currentValues.name,
     },
     {
       type: 'textarea',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowIntroduction'),
+      label: i18n.t('meta.Stream.DataFlowIntroduction'),
       name: 'description',
       props: {
         showCount: true,
@@ -69,10 +69,10 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
+      label: i18n.t('meta.Stream.DataType'),
       name: 'dataType',
       initialValue: currentValues.dataType ?? 'CSV',
-      tooltip: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataTypeCsvHelp'),
+      tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
       props: {
         options: [
           {
@@ -98,7 +98,7 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataEncoding'),
+      label: i18n.t('meta.Stream.DataEncoding'),
       name: 'dataEncoding',
       initialValue: currentValues.dataEncoding ?? 'UTF-8',
       props: {
@@ -118,34 +118,34 @@ export default (
     },
     {
       type: 'select',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.fileDelimiter'),
+      label: i18n.t('meta.Stream.fileDelimiter'),
       name: 'dataSeparator',
       initialValue: '124',
       props: {
         dropdownMatchSelectWidth: false,
         options: [
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
+            label: i18n.t('meta.Stream.Space'),
             value: '32',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
+            label: i18n.t('meta.Stream.VerticalLine'),
             value: '124',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Comma'),
+            label: i18n.t('meta.Stream.Comma'),
             value: '44',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
+            label: i18n.t('meta.Stream.Semicolon'),
             value: '59',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
+            label: i18n.t('meta.Stream.Asterisk'),
             value: '42',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
+            label: i18n.t('meta.Stream.DoubleQuotes'),
             value: '34',
           },
         ],
@@ -175,7 +175,7 @@ export default (
           editing={fieldListEditing}
           columns={[
             {
-              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldName'),
+              title: i18n.t('meta.Stream.FieldName'),
               dataIndex: 'fieldName',
               props: () => ({
                 disabled: !fieldListEditing,
@@ -184,12 +184,12 @@ export default (
                 { required: true },
                 {
                   pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-                  message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldNameRule'),
+                  message: i18n.t('meta.Stream.FieldNameRule'),
                 },
               ],
             },
             {
-              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldType'),
+              title: i18n.t('meta.Stream.FieldType'),
               dataIndex: 'fieldType',
               type: 'select',
               initialValue: sourceFieldsTypes[0].value,
@@ -200,13 +200,13 @@ export default (
               rules: [{ required: true }],
             },
             {
-              title: i18n.t('components.AccessHelper.FieldsConfig.dataFields.FieldComment'),
+              title: i18n.t('meta.Stream.FieldComment'),
               dataIndex: 'fieldComment',
             },
           ]}
         />
       ),
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.SourceDataField'),
+      label: i18n.t('meta.Stream.SourceDataField'),
       name: 'rowTypeFields',
       visible: () => !(currentValues.dataType as string[])?.includes('PB'),
     },

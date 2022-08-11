@@ -75,7 +75,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.SchemaName'),
+      label: i18n.t('meta.Sinks.TDSQLPostgreSQL.SchemaName'),
       name: 'schemaName',
       rules: [{ required: true }],
       props: {
@@ -85,7 +85,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.TableName'),
+      label: i18n.t('meta.Sinks.TDSQLPostgreSQL.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -95,7 +95,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.PrimaryKey'),
+      label: i18n.t('meta.Sinks.TDSQLPostgreSQL.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -105,11 +105,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -126,7 +126,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -136,7 +136,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
@@ -167,16 +167,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `TDSQLPOSTGRESQL${i18n.t(
-        'components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldName',
-      )}`,
+      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldNameRule'),
+          message: i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -184,9 +182,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `TDSQLPOSTGRESQL${i18n.t(
-        'components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldType',
-      )}`,
+      title: `TDSQLPOSTGRESQL${i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: tdsqlpostgreSQLFieldTypes[0].value,
       type: 'select',
@@ -197,7 +193,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.IsMetaField'),
+      title: i18n.t('meta.Sinks.TDSQLPostgreSQL.IsMetaField'),
       initialValue: 0,
       dataIndex: 'isMetaField',
       type: 'select',
@@ -215,7 +211,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldFormat'),
+      title: i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: '',
       type: 'autocomplete',
@@ -229,7 +225,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.TDSQLPostgreSQL.FieldDescription'),
+      title: i18n.t('meta.Sinks.TDSQLPostgreSQL.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

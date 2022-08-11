@@ -77,7 +77,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.SchemaName'),
+      label: i18n.t('meta.Sinks.SQLServer.SchemaName'),
       name: 'schemaName',
       rules: [{ required: true }],
       props: {
@@ -87,7 +87,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.ServerTimezone'),
+      label: i18n.t('meta.Sinks.SQLServer.ServerTimezone'),
       name: 'serverTimezone',
       initialValue: 'UTC',
       rules: [{ required: true }],
@@ -98,7 +98,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.TableName'),
+      label: i18n.t('meta.Sinks.SQLServer.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -108,7 +108,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.PrimaryKey'),
+      label: i18n.t('meta.Sinks.SQLServer.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -118,11 +118,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -139,7 +139,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.AllMigration'),
+      label: i18n.t('meta.Sinks.SQLServer.AllMigration'),
       name: 'allMigration',
       rules: [{ required: true }],
       initialValue: true,
@@ -159,7 +159,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -169,7 +169,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
@@ -200,14 +200,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `SQLSERVER${i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldName')}`,
+      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldNameRule'),
+          message: i18n.t('meta.Sinks.SQLServer.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -215,7 +215,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `SQLSERVER${i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldType')}`,
+      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: sqlserverFieldTypes[0].value,
       type: 'select',
@@ -226,7 +226,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.IsMetaField'),
+      title: i18n.t('meta.Sinks.SQLServer.IsMetaField'),
       initialValue: 0,
       dataIndex: 'isMetaField',
       type: 'select',
@@ -244,7 +244,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldFormat'),
+      title: i18n.t('meta.Sinks.SQLServer.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: '',
       type: 'autocomplete',
@@ -258,7 +258,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.FieldDescription'),
+      title: i18n.t('meta.Sinks.SQLServer.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

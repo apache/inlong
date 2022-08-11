@@ -30,26 +30,24 @@ export default (
   const fields: FormItemProps[] = [
     {
       type: 'input',
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupName'),
+      label: i18n.t('meta.Consumption.ConsumerGroupName'),
       name: 'consumerGroup',
       initialValue: currentValues.consumerGroup,
-      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules'),
+      extra: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
       rules: [
         { required: true },
         {
           pattern: /^[0-9a-z_\d]+$/,
-          message: i18n.t(
-            'components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules',
-          ),
+          message: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
         },
       ],
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Consumption'),
+      label: i18n.t('meta.Consumption.Owner'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
-      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.OwnersExtra'),
+      extra: i18n.t('meta.Consumption.OwnersExtra'),
       rules: [
         {
           required: true,
@@ -58,7 +56,7 @@ export default (
     },
     {
       type: 'select',
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
+      label: i18n.t('meta.Consumption.ConsumerTargetBusinessID'),
       name: 'inlongGroupId',
       extraNames: ['mqType'],
       initialValue: currentValues.inlongGroupId,
@@ -124,17 +122,17 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.filterEnabled'),
+      label: i18n.t('meta.Consumption.filterEnabled'),
       name: 'filterEnabled',
       initialValue: currentValues.filterEnabled ?? 0,
       props: {
         options: [
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
+            label: i18n.t('meta.Consumption.Yes'),
             value: 1,
           },
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
+            label: i18n.t('meta.Consumption.No'),
             value: 0,
           },
         ],
@@ -144,10 +142,10 @@ export default (
     },
     {
       type: 'input',
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerDataStreamID'),
+      label: i18n.t('meta.Consumption.ConsumerDataStreamID'),
       name: 'inlongStreamId',
       initialValue: currentValues.inlongStreamId,
-      extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.DataStreamIDsHelp'),
+      extra: i18n.t('meta.Consumption.DataStreamIDsHelp'),
       rules: [{ required: true }],
       style:
         currentValues.mqType === 'PULSAR'
@@ -159,7 +157,7 @@ export default (
     },
     {
       type: 'text',
-      label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.MasterAddress'),
+      label: i18n.t('meta.Consumption.MasterAddress'),
       name: 'masterUrl',
       initialValue: currentValues.masterUrl,
     },
@@ -172,11 +170,11 @@ export default (
       props: {
         options: [
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
+            label: i18n.t('meta.Consumption.Yes'),
             value: 1,
           },
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
+            label: i18n.t('meta.Consumption.No'),
             value: 0,
           },
         ],
@@ -200,11 +198,11 @@ export default (
       props: {
         options: [
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.Yes'),
+            label: i18n.t('meta.Consumption.Yes'),
             value: 1,
           },
           {
-            label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.No'),
+            label: i18n.t('meta.Consumption.No'),
             value: 0,
           },
         ],

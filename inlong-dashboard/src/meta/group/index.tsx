@@ -30,7 +30,7 @@ export default (
   const fields: FormItemProps[] = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupId'),
+      label: i18n.t('meta.Group.InlongGroupId'),
       name: 'inlongGroupId',
       props: {
         maxLength: 32,
@@ -39,7 +39,7 @@ export default (
         { required: true },
         {
           pattern: /^[a-z_\-\d]+$/,
-          message: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupIdRules'),
+          message: i18n.t('meta.Group.InlongGroupIdRules'),
         },
       ],
       initialValue: currentValues.inlongGroupId,
@@ -52,7 +52,7 @@ export default (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupName'),
+      label: i18n.t('meta.Group.InlongGroupName'),
       name: 'name',
       props: {
         maxLength: 32,
@@ -61,7 +61,7 @@ export default (
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessOwners'),
+      label: i18n.t('meta.Group.BusinessOwners'),
       name: 'inCharges',
       initialValue: currentValues.inCharges,
       rules: [
@@ -69,11 +69,11 @@ export default (
           required: true,
         },
       ],
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessOwnersExtra'),
+      extra: i18n.t('meta.Group.BusinessOwnersExtra'),
     },
     {
       type: 'textarea',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessIntroduction'),
+      label: i18n.t('meta.Group.BusinessIntroduction'),
       name: 'description',
       props: {
         showCount: true,
@@ -83,7 +83,7 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.MessageMiddleware'),
+      label: i18n.t('meta.Group.MessageMiddleware'),
       name: 'mqType',
       initialValue: currentValues.mqType ?? 'TUBEMQ',
       rules: [{ required: true }],
@@ -102,18 +102,18 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.QueueModule'),
+      label: i18n.t('meta.Group.QueueModule'),
       name: 'queueModule',
       initialValue: currentValues.queueModule ?? 'SERIAL',
       rules: [{ required: true }],
       props: {
         options: [
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Parallel'),
+            label: i18n.t('meta.Group.Parallel'),
             value: 'PARALLEL',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Serial'),
+            label: i18n.t('meta.Group.Serial'),
             value: 'SERIAL',
           },
         ],
@@ -122,7 +122,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.PartitionNum'),
+      label: i18n.t('meta.Group.PartitionNum'),
       name: 'partitionNum',
       initialValue: currentValues.partitionNum ?? 3,
       rules: [{ required: true }],
@@ -135,11 +135,11 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.NumberOfAccess'),
+      label: i18n.t('meta.Group.NumberOfAccess'),
       name: 'dailyRecords',
       initialValue: currentValues.dailyRecords,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.thousand/day'),
+      suffix: i18n.t('meta.Group.thousand/day'),
       props: {
         min: 1,
         precision: 0,
@@ -148,11 +148,11 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AccessSize'),
+      label: i18n.t('meta.Group.AccessSize'),
       name: 'dailyStorage',
       initialValue: currentValues.dailyStorage,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.GB/Day'),
+      suffix: i18n.t('meta.Group.GB/Day'),
       props: {
         min: 1,
         precision: 0,
@@ -161,11 +161,11 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AccessPeakPerSecond'),
+      label: i18n.t('meta.Group.AccessPeakPerSecond'),
       name: 'peakRecords',
       initialValue: currentValues.peakRecords,
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.Stripe/Second'),
+      suffix: i18n.t('meta.Group.Stripe/Second'),
       props: {
         min: 1,
         precision: 0,
@@ -174,7 +174,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.SingleStripMaximumLength'),
+      label: i18n.t('meta.Group.SingleStripMaximumLength'),
       name: 'maxLength',
       initialValue: currentValues.maxLength,
       rules: [{ required: true }],
@@ -190,8 +190,8 @@ export default (
       label: 'ensemble',
       name: 'ensemble',
       initialValue: currentValues?.ensemble ?? 3,
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleSuffix'),
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleExtra'),
+      suffix: i18n.t('meta.Group.EnsembleSuffix'),
+      extra: i18n.t('meta.Group.EnsembleExtra'),
       rules: [
         ({ getFieldValue }) => ({
           validator(_, val) {
@@ -218,8 +218,8 @@ export default (
       label: 'Write Quorum',
       name: 'writeQuorum',
       initialValue: currentValues?.writeQuorum ?? 3,
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumSuffix'),
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumExtra'),
+      suffix: i18n.t('meta.Group.WriteQuorumSuffix'),
+      extra: i18n.t('meta.Group.WriteQuorumExtra'),
       props: {
         min: 1,
         max: 10,
@@ -232,8 +232,8 @@ export default (
       label: 'ACK Quorum',
       name: 'ackQuorum',
       initialValue: currentValues?.ackQuorum ?? 2,
-      suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumSuffix'),
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumExtra'),
+      suffix: i18n.t('meta.Group.AckQuorumSuffix'),
+      extra: i18n.t('meta.Group.AckQuorumExtra'),
       props: {
         min: 1,
         max: 10,
@@ -275,7 +275,7 @@ export default (
           ],
         },
       },
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.TtlExtra'),
+      extra: i18n.t('meta.Group.TtlExtra'),
       props: {
         min: 1,
         precision: 0,
@@ -324,7 +324,7 @@ export default (
           ],
         },
       },
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionTimeExtra'),
+      extra: i18n.t('meta.Group.RetentionTimeExtra'),
       props: {
         min: -1,
         precision: 0,
@@ -357,7 +357,7 @@ export default (
           ],
         },
       },
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionSizeExtra'),
+      extra: i18n.t('meta.Group.RetentionSizeExtra'),
       props: {
         min: -1,
         precision: 0,

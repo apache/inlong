@@ -30,7 +30,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'bootstrapServers',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Kafka.Server'),
+      label: i18n.t('meta.Sinks.Kafka.Server'),
       rules: [{ required: true }],
       initialValue: '127.0.0.1:9092',
       props: {
@@ -51,7 +51,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'serializationType',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Kafka.SerializationType'),
+      label: i18n.t('meta.Sinks.Kafka.SerializationType'),
       initialValue: 'JSON',
       rules: [{ required: true }],
       props: {
@@ -76,7 +76,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'partitionNum',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Kafka.PartitionNum'),
+      label: i18n.t('meta.Sinks.Kafka.PartitionNum'),
       initialValue: 3,
       props: {
         min: 1,
@@ -88,7 +88,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'autoOffsetReset',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Kafka.AutoOffsetReset'),
+      label: i18n.t('meta.Sinks.Kafka.AutoOffsetReset'),
       initialValue: 'earliest',
       rules: [{ required: true }],
       props: {

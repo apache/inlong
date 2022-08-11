@@ -54,7 +54,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'indexName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.IndexName'),
+      label: i18n.t('meta.Sinks.Es.IndexName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -64,10 +64,10 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'enableCreateResource',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -85,7 +85,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'username',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -95,7 +95,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'password',
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -106,7 +106,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.Host'),
+      label: i18n.t('meta.Sinks.Es.Host'),
       name: 'host',
       rules: [{ required: true }],
       props: {
@@ -116,7 +116,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'port',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.Port'),
+      label: i18n.t('meta.Sinks.Es.Port'),
       initialValue: 9200,
       props: {
         min: 1,
@@ -128,38 +128,38 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'flushInterval',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.FlushInterval'),
+      label: i18n.t('meta.Sinks.Es.FlushInterval'),
       initialValue: 1,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Es.FlushIntervalUnit'),
+      suffix: i18n.t('meta.Sinks.Es.FlushIntervalUnit'),
     },
     {
       name: 'flushRecord',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.FlushRecord'),
+      label: i18n.t('meta.Sinks.Es.FlushRecord'),
       initialValue: 1000,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Es.FlushRecordUnit'),
+      suffix: i18n.t('meta.Sinks.Es.FlushRecordUnit'),
     },
     {
       name: 'retryTime',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Es.RetryTimes'),
+      label: i18n.t('meta.Sinks.Es.RetryTimes'),
       initialValue: 3,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Es.RetryTimesUnit'),
+      suffix: i18n.t('meta.Sinks.Es.RetryTimesUnit'),
     },
     {
       name: 'sinkFieldList',
@@ -181,13 +181,13 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `ES ${i18n.t('components.AccessHelper.StorageMetaData.Es.FieldName')}`,
+      title: `ES ${i18n.t('meta.Sinks.Es.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Es.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Es.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -195,7 +195,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `ES ${i18n.t('components.AccessHelper.StorageMetaData.Es.FieldType')}`,
+      title: `ES ${i18n.t('meta.Sinks.Es.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -223,7 +223,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Es.DateFormat'),
+      title: i18n.t('meta.Sinks.Es.DateFormat'),
       dataIndex: 'format',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
@@ -239,7 +239,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
     {
-      title: `ES ${i18n.t('components.AccessHelper.StorageMetaData.Es.FieldDescription')}`,
+      title: `ES ${i18n.t('meta.Sinks.Es.FieldDescription')}`,
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,

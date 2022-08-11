@@ -72,7 +72,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.TableName'),
+      label: i18n.t('meta.Sinks.MySQL.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -82,7 +82,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
+      label: i18n.t('meta.Sinks.Greenplum.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -92,11 +92,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -113,7 +113,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -123,7 +123,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
@@ -154,14 +154,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldName')}`,
+      title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldNameRule'),
+          message: i18n.t('meta.Sinks.MySQL.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -169,7 +169,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `MYSQL${i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldType')}`,
+      title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: mysqlFieldTypes[0].value,
       type: 'select',
@@ -180,7 +180,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.IsMetaField'),
+      title: i18n.t('meta.Sinks.MySQL.IsMetaField'),
       dataIndex: 'isMetaField',
       initialValue: 0,
       type: 'select',
@@ -198,7 +198,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldFormat'),
+      title: i18n.t('meta.Sinks.MySQL.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: 0,
       type: 'autocomplete',
@@ -212,7 +212,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldDescription'),
+      title: i18n.t('meta.Sinks.MySQL.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
