@@ -21,6 +21,7 @@ import { message as Message } from 'antd';
 import { extend } from 'umi-request';
 import { RequestOptionsInit } from 'umi-request/types';
 import nprogress from 'nprogress';
+import { config } from '@/configs/default';
 import requestConcurrentMiddleware from './requestConcurrentMiddleware';
 
 export interface FetchOptions extends RequestOptionsInit {
@@ -94,8 +95,8 @@ export default function request(_options: RequestOptions | string) {
         // 404, 500, ...
         const { status, message } = data;
         if (status === 403) {
-          localStorage.removeItem('userName');
-          window.location.href = '/';
+          window.location.href = config.loginUrl;
+          return Promise.reject(new Error('not logged in'));
         }
         msg = message || status;
       }

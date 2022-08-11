@@ -737,6 +737,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             MQClusterInfo clusterInfo = new MQClusterInfo();
             clusterInfo.setUrl(cluster.getUrl());
             clusterInfo.setToken(cluster.getToken());
+            clusterInfo.setMqType(cluster.getType());
             Map<String, String> configParams = GSON.fromJson(cluster.getExtParams(), Map.class);
             clusterInfo.setParams(configParams);
             mqSet.add(clusterInfo);

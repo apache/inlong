@@ -19,8 +19,8 @@
 
 package org.apache.inlong.sdk.sort.impl.kafka;
 
+import org.apache.inlong.sdk.sort.api.Seeker;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -33,19 +33,19 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     private final Logger logger = LoggerFactory.getLogger(AckOffsetOnRebalance.class);
     private final String clusterId;
-    private final KafkaConsumer<byte[], byte[]> consumer;
+    private final Seeker seeker;
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
 
-    public AckOffsetOnRebalance(String clusterId, KafkaConsumer<byte[], byte[]> consumer,
-            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
+    public AckOffsetOnRebalance(String clusterId, Seeker seeker,
+                                ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
         this.clusterId = clusterId;
-        this.consumer = consumer;
+        this.seeker = seeker;
         this.commitOffsetMap = commitOffsetMap;
     }
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-        logger.debug("execute Rebalance:onPartitionsRevoked");
+        logger.debug("*- in re-balance:onPartitionsRevoked");
         collection.forEach((v) -> {
             logger.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
         });
@@ -53,9 +53,10 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
-        logger.debug("execute onPartitionsAssigned");
+        logger.debug("*- in re-balance:onPartitionsAssigned  ");
         collection.forEach((v) -> {
             logger.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
         });
+        seeker.seek();
     }
 }

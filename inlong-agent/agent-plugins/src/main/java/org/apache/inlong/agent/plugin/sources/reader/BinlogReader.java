@@ -50,7 +50,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
@@ -113,7 +112,7 @@ public class BinlogReader extends AbstractReader {
     @Override
     public Message read() {
         if (!binlogMessagesQueue.isEmpty()) {
-            GLOBAL_METRICS.incReadNum(metricTagName);
+            readerMetric.pluginReadCount.incrementAndGet();
             return getBinlogMessage();
         } else {
             return null;
@@ -157,8 +156,6 @@ public class BinlogReader extends AbstractReader {
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         String offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         binlogSnapshot.save(offset);
-
-        metricTagName = String.join("_", BINLOG_READER_TAG_NAME, inlongGroupId, inlongStreamId);
 
         Properties props = getEngineProps();
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(io.debezium.engine.format.Json.class)

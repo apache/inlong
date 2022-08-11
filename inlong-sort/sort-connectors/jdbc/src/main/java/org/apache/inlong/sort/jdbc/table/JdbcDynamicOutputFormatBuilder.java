@@ -65,6 +65,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private TypeInformation<RowData> rowDataTypeInformation;
     private DataType[] fieldDataTypes;
     private String inLongMetric;
+    private String auditHostAndPorts;
 
     public JdbcDynamicOutputFormatBuilder() {
 
@@ -240,6 +241,11 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         return this;
     }
 
+    public JdbcDynamicOutputFormatBuilder setAuditHostAndPorts(String auditHostAndPorts) {
+        this.auditHostAndPorts = auditHostAndPorts;
+        return this;
+    }
+
     public JdbcBatchingOutputFormat<RowData, ?, ?> build() {
         checkNotNull(jdbcOptions, "jdbc options can not be null");
         checkNotNull(dmlOptions, "jdbc dml options can not be null");
@@ -258,7 +264,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             createBufferReduceExecutor(
                                     dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
-                    inLongMetric);
+                    inLongMetric,
+                    auditHostAndPorts);
         } else {
             // append only query
             final String sql =
@@ -278,7 +285,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                                     sql,
                                     rowDataTypeInformation),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
-                    inLongMetric);
+                    inLongMetric,
+                    auditHostAndPorts);
         }
     }
 }

@@ -23,13 +23,8 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { getDataSourcesFileFields as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
-import {
-  getDataSourcesBinLogFields,
-  toFormValues,
-  toSubmitValues,
-} from '@/components/MetaData/DataSourcesBinLog';
 import { FormItemProps } from '@/components/FormGenerator';
+import { sources, SourceType } from '@/meta/sources';
 
 export interface Props extends ModalProps {
   type: 'MYSQL_BINLOG' | 'FILE';
@@ -41,6 +36,14 @@ export interface Props extends ModalProps {
   content?: FormItemProps[];
 }
 
+const sourcesMap: Record<string, SourceType> = sources.reduce(
+  (acc, cur) => ({
+    ...acc,
+    [cur.value]: cur,
+  }),
+  {},
+);
+
 const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
@@ -49,9 +52,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const toFormVals = useCallback(
     v => {
-      const mapFunc = {
-        MYSQL_BINLOG: toFormValues,
-      }[type];
+      const mapFunc = sourcesMap[type]?.toFormValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [type],
@@ -59,9 +60,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   const toSubmitVals = useCallback(
     v => {
-      const mapFunc = {
-        MYSQL_BINLOG: toSubmitValues,
-      }[type];
+      const mapFunc = sourcesMap[type]?.toSubmitValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [type],
@@ -105,26 +104,24 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
     }
   }, [modalProps.visible]);
 
-  const getCreateFormContent = useMemo(
-    () => currentValues => {
-      const config = {
-        MYSQL_BINLOG: getDataSourcesBinLogFields,
-        FILE: getFileCreateFormContent,
-      }[type]('form', { currentValues }) as FormItemProps[];
-      return [
-        {
-          name: 'sourceName',
-          type: 'input',
-          label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
-          rules: [{ required: true }],
-          props: {
-            disabled: !!id,
-          },
-        } as FormItemProps,
-      ].concat(config);
-    },
-    [type, id, t],
-  );
+  const formContent = useMemo(() => {
+    const getForm = sourcesMap[type].getForm;
+    const config = getForm('form', {
+      currentValues,
+      form,
+    }) as FormItemProps[];
+    return [
+      {
+        name: 'sourceName',
+        type: 'input',
+        label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
+        rules: [{ required: true }],
+        props: {
+          disabled: !!id,
+        },
+      } as FormItemProps,
+    ].concat(config);
+  }, [type, id, currentValues, form, t]);
 
   return (
     <>
@@ -139,7 +136,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
         onOk={onOk}
       >
         <FormGenerator
-          content={content.concat(getCreateFormContent(currentValues))}
+          content={content.concat(formContent)}
           onValuesChange={vals => setCurrentValues(prev => ({ ...prev, ...vals }))}
           allValues={currentValues}
           form={form}

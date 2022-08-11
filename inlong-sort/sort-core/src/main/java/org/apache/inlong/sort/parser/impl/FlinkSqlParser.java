@@ -186,6 +186,10 @@ public class FlinkSqlParser implements Parser {
             properties.put(InlongMetric.METRIC_KEY,
                     String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
                             streamInfo.getStreamId(), node.getId()));
+            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
+                properties.put(InlongMetric.AUDIT_KEY,
+                    groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+            }
         });
     }
 

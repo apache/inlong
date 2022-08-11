@@ -28,6 +28,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.SeekerFactory;
+import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
@@ -39,6 +41,7 @@ import org.apache.pulsar.client.api.Messages;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
+import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +54,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     private Consumer<byte[]> consumer;
 
     public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
-            ClientContext context) {
+                                   ClientContext context) {
         super(inLongTopic, context);
     }
 
@@ -97,7 +100,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             try {
                 if (consumer == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
                     logger.error("consumer == null {}", inLongTopic);
                     return;
@@ -105,7 +108,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 MessageId messageId = offsetCache.get(msgOffset);
                 if (messageId == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
                     logger.error("messageId == null {}", inLongTopic);
                     return;
@@ -113,10 +116,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
                         .exceptionally(exception -> {
-                            logger.error("ack fail:{} {},error:{}", 
+                            logger.error("ack fail:{} {},error:{}",
                                     inLongTopic, msgOffset, exception.getMessage(), exception);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addAckFailTimes(1L);
                             return null;
                         });
@@ -145,15 +148,25 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             return false;
         }
         try {
+            SubscriptionInitialPosition position = SubscriptionInitialPosition.Latest;
+            SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+            if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
+                    || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
+                logger.info("the subscription initial position is earliest!");
+                position = SubscriptionInitialPosition.Earliest;
+            }
+
             consumer = client.newConsumer(Schema.BYTES)
                     .topic(inLongTopic.getTopic())
                     .subscriptionName(context.getConfig().getSortTaskId())
                     .subscriptionType(SubscriptionType.Shared)
                     .startMessageIdInclusive()
+                    .subscriptionInitialPosition(position)
                     .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
                     .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
                     .subscribe();
 
+            this.seeker = SeekerFactory.createPulsarSeeker(consumer, inLongTopic);
             String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             this.fetchThread.start();
@@ -272,6 +285,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> messages = consumer.batchReceive();
+
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
@@ -279,11 +293,23 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     if (null != messages && messages.size() != 0) {
                         List<MessageRecord> msgs = new ArrayList<>();
                         for (Message<byte[]> msg : messages) {
+                            // if need seek
+                            if (msg.getPublishTime() < seeker.getSeekTime()) {
+                                seeker.seek();
+                                break;
+                            }
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
+                            //deserialize
                             List<InLongMessage> inLongMessages = deserializer
                                     .deserialize(context, inLongTopic, msg.getProperties(), msg.getData());
+                            // intercept
+                            inLongMessages = interceptor.intercept(inLongMessages);
+                            if (inLongMessages.isEmpty()) {
+                                ack(offsetKey);
+                                continue;
+                            }
 
                             msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
                                     inLongMessages,

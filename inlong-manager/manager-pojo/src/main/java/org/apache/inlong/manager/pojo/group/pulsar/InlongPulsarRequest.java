@@ -38,7 +38,7 @@ public class InlongPulsarRequest extends InlongGroupRequest {
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
-    private String queueModule = "parallel";
+    private String queueModule = "PARALLEL";
 
     @ApiModelProperty(value = "Number of partitions of Topic, 1-20")
     private Integer partitionNum = 3;

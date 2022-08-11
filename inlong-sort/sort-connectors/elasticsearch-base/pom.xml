@@ -31,6 +31,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- core dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>

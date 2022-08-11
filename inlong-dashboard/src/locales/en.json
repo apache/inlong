@@ -449,6 +449,8 @@
   "pages.Clusters.Node.Port": "Port",
   "pages.Clusters.Node.LastModifier": "LastModifier",
   "pages.Clusters.Node.Create": "Create",
+  "pages.Clusters.Node.IpRule": "Please enter the IP address correctly",
+  "pages.Clusters.Node.PortRule": "Please enter the port address correctly",
   "pages.Clusters.Pulsar.Tenant": "Default Tenant",
   "pages.Clusters.Pulsar.ServiceUrlHelper": "For producing and consuming data",
   "pages.Clusters.Pulsar.AdminUrlHelper": "Used to manage (e.g. create, modify) tenants, namespaces, topics and subscription groups",
@@ -488,9 +490,6 @@
   "pages.Login.PasswordRules": "Only lowercase letters, numbers, minus, and underscores",
   "pages.Login.LogIn": "LogIn",
   "pages.Login.PleaseEnterYourPassword": "Please enter your password",
-  "pages.Login.Reset": "Please contact administrator reset",
-  "pages.Login.PasswordCanNotBeBlank": "Password can not be empty",
-  "pages.Login.UsernameCanNotBeEmpty": "Username can not be empty",
   "pages.UserManagement.DetailModal.Day": "Days",
   "pages.UserManagement.DetailModal.New": "New construction",
   "pages.UserManagement.DetailModal.UserPassword": "Password",
@@ -510,7 +509,5 @@
   "pages.ApprovalManagement.Approvers": "Approvers",
   "pages.ApprovalManagement.Creator": "Creator Name",
   "pages.ApprovalManagement.Modifier": "Modifier Name",
-  "pages.ApprovalManagement.CreateTime": "Create Time",
-  "pages.ApprovalManagement.ModifyTime": "Modify Time",
-  "pages.ApprovalManagement.CreateResponsible": "Create Responsible"
+  "pages.ApprovalManagement.CreateProcess": "Create Process"
 }

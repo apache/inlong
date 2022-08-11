@@ -32,7 +32,7 @@ import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
  * A wrapper class for Audit report operations
  */
 public class AuditUtils {
-    private static ADConfig auditConfig;
+    private static ADConfig auditConfig = new ADConfig();
 
     /**
      * init audit instance

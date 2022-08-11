@@ -20,7 +20,6 @@ package org.apache.inlong.sort.kafka;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.kafka.table.BufferedUpsertSinkFunction;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaSinkSemantic;
@@ -60,9 +59,12 @@ import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_C
 
 /**
  * A version-agnostic Kafka {@link DynamicTableSink}.
+ *
+ * Add an option `inlong.metric` to support metrics.
  */
 @Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaDynamicSink.class);
 
     // --------------------------------------------------------------------------------------------
@@ -105,19 +107,14 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * Properties for the Kafka producer.
      */
     protected final Properties properties;
-
-    /**
-     * CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG
-     */
-    private final CatalogTable catalogTable;
-
-    // --------------------------------------------------------------------------------------------
-    // Kafka-specific attributes
-    // --------------------------------------------------------------------------------------------
     /**
      * Partitioner to select Kafka partition for each item.
      */
     protected final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
+
+    // --------------------------------------------------------------------------------------------
+    // Kafka-specific attributes
+    // --------------------------------------------------------------------------------------------
     /**
      * Sink commit semantic.
      */
@@ -135,6 +132,18 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * Parallelism of the physical Kafka producer. *
      */
     protected final @Nullable Integer parallelism;
+    /**
+     * CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG
+     */
+    private final CatalogTable catalogTable;
+    /**
+     * Metric for inLong
+     */
+    private final String inLongMetric;
+    /**
+     * audit host and ports
+     */
+    private final String auditHostAndPorts;
     /**
      * Metadata that is appended at the end of a physical sink row.
      */
@@ -162,7 +171,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             KafkaSinkSemantic semantic,
             boolean upsertMode,
             SinkBufferFlushMode flushMode,
-            @Nullable Integer parallelism) {
+            @Nullable Integer parallelism,
+            String inLongMetric,
+            String auditHostAndPorts) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -189,6 +200,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                     "Sink buffer flush is only supported in upsert-kafka.");
         }
         this.parallelism = parallelism;
+        this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -288,7 +301,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         semantic,
                         upsertMode,
                         flushMode,
-                        parallelism);
+                        parallelism,
+                        inLongMetric,
+                        auditHostAndPorts);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -321,7 +336,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 && Objects.equals(semantic, that.semantic)
                 && Objects.equals(upsertMode, that.upsertMode)
                 && Objects.equals(flushMode, that.flushMode)
-                && Objects.equals(parallelism, that.parallelism);
+                && Objects.equals(parallelism, that.parallelism)
+                && Objects.equals(inLongMetric, that.inLongMetric)
+                && Objects.equals(auditHostAndPorts, that.auditHostAndPorts);
     }
 
     @Override
@@ -341,7 +358,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 semantic,
                 upsertMode,
                 flushMode,
-                parallelism);
+                parallelism,
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -400,7 +419,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 kafkaSerializer,
                 properties,
                 FlinkKafkaProducer.Semantic.valueOf(semantic.toString()),
-                FlinkKafkaProducer.DEFAULT_KAFKA_PRODUCERS_POOL_SIZE);
+                FlinkKafkaProducer.DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     private @Nullable SerializationSchema<RowData> createSerialization(

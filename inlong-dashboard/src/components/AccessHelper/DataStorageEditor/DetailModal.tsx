@@ -27,7 +27,7 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import { Storages, StoragesType } from '@/components/MetaData';
+import { Storages, StoragesType } from '@/meta/sinks';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -37,7 +37,7 @@ export interface DetailModalProps extends ModalProps {
   id?: string;
   // (False operation) Need to pass when editing, row data
   record?: Record<string, any>;
-  sinkType: 'HIVE' | 'TEST';
+  sinkType: string;
   dataType?: string;
   // defaultRowTypeFields, which can be used to auto-fill form default values
   defaultRowTypeFields?: Record<string, unknown>[];

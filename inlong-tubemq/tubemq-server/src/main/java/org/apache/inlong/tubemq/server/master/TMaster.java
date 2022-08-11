@@ -121,6 +121,7 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeproducer.ProducerInfoHolder;
 import org.apache.inlong.tubemq.server.master.stats.MasterJMXHolder;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+import org.apache.inlong.tubemq.server.master.stats.prometheus.MasterPromMetricService;
 import org.apache.inlong.tubemq.server.master.utils.Chore;
 import org.apache.inlong.tubemq.server.master.utils.SimpleVisitTokenManager;
 import org.apache.inlong.tubemq.server.master.web.WebServer;
@@ -150,6 +151,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private final MasterConfig masterConfig;                    //master config
     private final NodeAddrInfo masterAddInfo;                   //master address info
     private final HeartbeatManager heartbeatManager;            //heartbeat manager
+    private final MasterPromMetricService promMetricService;
     private final ShutdownHook shutdownHook;                    //shutdown hook
     private final CertificateMasterHandler serverAuthHandler;           //server auth handler
     private AtomicBoolean shutdownHooked = new AtomicBoolean(false);
@@ -212,6 +214,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         this.defMetaDataService = new DefaultMetaDataService(this);
         this.brokerRunManager = new DefBrokerRunManager(this);
         this.defMetaDataService.start();
+        this.promMetricService =
+                new MasterPromMetricService(this.masterConfig.getPromConfig());
+        this.promMetricService.start();
         RpcConfig rpcTcpConfig = new RpcConfig();
         rpcTcpConfig.put(RpcConstants.REQUEST_TIMEOUT,
                 masterConfig.getRpcReadTimeoutMs());

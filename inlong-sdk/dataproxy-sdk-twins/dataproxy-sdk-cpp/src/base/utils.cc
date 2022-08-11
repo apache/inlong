@@ -21,7 +21,6 @@
 
 #include <arpa/inet.h>
 #include <ctime>
-#include <curl/curl.h>
 #include <errno.h>
 #include <fstream>
 #include <iostream>
@@ -40,6 +39,7 @@
 
 #include "logger.h"
 #include "tc_api.h"
+#include "curl/curl.h"
 namespace dataproxy_sdk
 {
 uint16_t Utils::sequence     = 0;

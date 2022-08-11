@@ -37,6 +37,17 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,6 +65,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>org.apache.kafka:*</include>
                                     <include>org.apache.flink:flink-connector-kafka_${scala.binary.version}</include>
                                 </includes>

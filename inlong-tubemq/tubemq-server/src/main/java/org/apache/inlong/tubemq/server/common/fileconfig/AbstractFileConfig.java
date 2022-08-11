@@ -19,9 +19,12 @@ package org.apache.inlong.tubemq.server.common.fileconfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.exception.StartupException;
@@ -40,6 +43,7 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_META_BDB = "meta_bdb";
     protected static final String SECT_TOKEN_META_ZK = "meta_zookeeper";
     protected static final String SECT_TOKEN_META_AUDIT = "audit";
+    protected static final String SECT_TOKEN_META_PROMETHEUS = "prometheus";
 
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractFileConfig.class);
@@ -292,14 +296,43 @@ public abstract class AbstractFileConfig {
             adConfig.setAuditEnable(getBoolean(auditSect, "auditEnable"));
         }
         // parse auditProxyAddr configure
-        String auditProxyAddrStr = auditSect.get("auditProxyAddr");
-        if (TStringUtils.isBlank(auditProxyAddrStr)) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("auditProxyAddr is null or Blank in ")
-                    .append(SECT_TOKEN_META_AUDIT).append(" section!").toString());
+        if (TStringUtils.isNotBlank(auditSect.get("auditProxyAddr"))) {
+            List<String> auditAddrs = new ArrayList<>();
+            String auditProxyAddrs = auditSect.get("auditProxyAddr").trim();
+            if (!auditProxyAddrs.contains(TokenConstants.ATTR_SEP)) {
+                throw new IllegalArgumentException(
+                        "Illegal parameter: auditProxyAddr's value must like \"ip1:port,ip2:port\"!");
+            }
+            String[] hostAndPortArray =
+                    auditProxyAddrs.split(TokenConstants.ARRAY_SEP);
+            for (String addr : hostAndPortArray) {
+                if (TStringUtils.isBlank(addr)) {
+                    throw new IllegalArgumentException(
+                            "Illegal parameter: auditProxyAddr's value must "
+                                    + "like \"ip1:port,ip2:port\" and ip:port not Blank!");
+                }
+                String[] hostPortItem = addr.split(TokenConstants.ATTR_SEP);
+                if (hostPortItem.length != 2) {
+                    throw new IllegalArgumentException(
+                            "Illegal parameter: auditProxyAddr's value must like \"ip1:port,ip2:port\"!");
+                }
+                String hostName = hostPortItem[0].trim();
+                if (TStringUtils.isBlank(hostName)) {
+                    throw new IllegalArgumentException(
+                            "Illegal parameter: auditProxyAddr's value must "
+                                    + "like \"ip1:port,ip2:port\" and ip's value not Blank!");
+                }
+                if (TStringUtils.isBlank(hostPortItem[1])) {
+                    throw new IllegalArgumentException(
+                            "Illegal parameter: auditProxyAddr's value must"
+                                    + " like \"ip1:port,ip2:port\" and port's value not Blank!");
+                }
+                int port = Integer.parseInt(hostPortItem[1].trim());
+                auditAddrs.add(hostName + TokenConstants.ATTR_SEP + String.valueOf(port));
+            }
+            Collections.sort(auditAddrs);
+            adConfig.setAuditProxyAddrSet(auditAddrs);
         }
-        MasterInfo auditAddrInfo = new MasterInfo(auditProxyAddrStr);
-        adConfig.setAuditProxyAddrSet(auditAddrInfo.getNodeHostPortList());
         // get cache file path
         if (TStringUtils.isNotBlank(auditSect.get("auditCacheFilePath"))) {
             adConfig.setAuditCacheFilePath(auditSect.get("auditCacheFilePath").trim());
@@ -314,6 +347,30 @@ public abstract class AbstractFileConfig {
             adConfig.setAuditIdConsume(getInt(auditSect, "auditIdConsume"));
         }
         return adConfig;
+    }
+
+    protected PrometheusConfig loadPrometheusSecConf(final Ini iniConf) {
+        final Profile.Section promSect = iniConf.get(SECT_TOKEN_META_PROMETHEUS);
+        PrometheusConfig promConfig = new PrometheusConfig();
+        if (promSect == null) {
+            return promConfig;
+        }
+        Set<String> configKeySet = promSect.keySet();
+        if (configKeySet.isEmpty()) {
+            return promConfig;
+        }
+        if (TStringUtils.isNotBlank(promSect.get("promEnable"))) {
+            promConfig.setPromEnable(getBoolean(promSect, "promEnable"));
+        }
+        // parse promClusterName configure
+        if (TStringUtils.isNotBlank(promSect.get("promClusterName"))) {
+            promConfig.setPromClusterName(promSect.get("promClusterName").trim());
+        }
+        // get prometheus port
+        if (TStringUtils.isNotBlank(promSect.get("promHttpPort"))) {
+            promConfig.setPromHttpPort(getInt(promSect, "promHttpPort"));
+        }
+        return promConfig;
     }
 
     @Override

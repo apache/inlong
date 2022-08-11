@@ -29,8 +29,6 @@ import lombok.Data;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sortType")
 public abstract class BaseSortConf {
 
-    public String sortType;
-
     public abstract SortType getType();
 
     public static final String SORT_FLINK = "flink";

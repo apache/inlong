@@ -55,6 +55,7 @@ import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordService;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerJMXHolder;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.prometheus.BrokerPromMetricService;
 import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
@@ -96,6 +97,7 @@ public class TubeBroker implements Stoppable {
     private final ClientAuthenticateHandler clientAuthHandler =
             new SimpleClientAuthenticateHandler();
     private MasterService masterService;
+    private BrokerPromMetricService promMetricService;
     private boolean requireReportConf = false;
     private boolean isOnline = false;
     private final AtomicBoolean shutdown = new AtomicBoolean(true);
@@ -136,6 +138,10 @@ public class TubeBroker implements Stoppable {
         // web server.
         this.webServer = new WebServer(tubeConfig.getHostName(), tubeConfig.getWebPort(), this);
         this.webServer.start();
+        // prometheus service
+        this.promMetricService =
+                new BrokerPromMetricService(this, tubeConfig.getPrometheusConfig());
+        this.promMetricService.start();
         // used for communicate to master.
         this.masterService =
                 rpcServiceFactory.getFailoverService(MasterService.class,
