@@ -39,6 +39,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
@@ -78,7 +80,9 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
                     CONNECTION_PATH_PREFIX,
                     FORMAT_OPTION,
                     PASSWORD_OPTION,
-                    USERNAME_OPTION)
+                    USERNAME_OPTION,
+                    INLONG_METRIC,
+                    INLONG_AUDIT)
                     .collect(Collectors.toSet());
 
     @Override
@@ -100,8 +104,12 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
 
         validate(config, configuration);
 
+        String inLongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(null);
+
+        String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
+
         return new Elasticsearch7DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema));
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric, auditHostAndPorts);
     }
 
     private void validate(Elasticsearch7Configuration config, Configuration originalConfiguration) {
