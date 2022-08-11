@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.iceberg.flink.sink;
+package org.apache.inlong.sort.iceberg.sink;
 
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.table.data.RowData;
@@ -26,6 +26,7 @@ import org.apache.iceberg.PartitionKey;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.flink.RowDataWrapper;
+import org.apache.iceberg.flink.sink.FlinkSink;
 
 /**
  * Create a {@link KeySelector} to shuffle by partition key, then each partition/bucket will be wrote by only one
@@ -33,32 +34,32 @@ import org.apache.iceberg.flink.RowDataWrapper;
  */
 class PartitionKeySelector implements KeySelector<RowData, String> {
 
-  private final Schema schema;
-  private final PartitionKey partitionKey;
-  private final RowType flinkSchema;
+    private final Schema schema;
+    private final PartitionKey partitionKey;
+    private final RowType flinkSchema;
 
-  private transient RowDataWrapper rowDataWrapper;
+    private transient RowDataWrapper rowDataWrapper;
 
-  PartitionKeySelector(PartitionSpec spec, Schema schema, RowType flinkSchema) {
-    this.schema = schema;
-    this.partitionKey = new PartitionKey(spec, schema);
-    this.flinkSchema = flinkSchema;
-  }
-
-  /**
-   * Construct the {@link RowDataWrapper} lazily here because few members in it are not serializable. In this way, we
-   * don't have to serialize them with forcing.
-   */
-  private RowDataWrapper lazyRowDataWrapper() {
-    if (rowDataWrapper == null) {
-      rowDataWrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
+    PartitionKeySelector(PartitionSpec spec, Schema schema, RowType flinkSchema) {
+        this.schema = schema;
+        this.partitionKey = new PartitionKey(spec, schema);
+        this.flinkSchema = flinkSchema;
     }
-    return rowDataWrapper;
-  }
 
-  @Override
-  public String getKey(RowData row) {
-    partitionKey.partition(lazyRowDataWrapper().wrap(row));
-    return partitionKey.toPath();
-  }
+    /**
+     * Construct the {@link RowDataWrapper} lazily here because few members in it are not serializable. In this way, we
+     * don't have to serialize them with forcing.
+     */
+    private RowDataWrapper lazyRowDataWrapper() {
+        if (rowDataWrapper == null) {
+            rowDataWrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
+        }
+        return rowDataWrapper;
+    }
+
+    @Override
+    public String getKey(RowData row) {
+        partitionKey.partition(lazyRowDataWrapper().wrap(row));
+        return partitionKey.toPath();
+    }
 }
