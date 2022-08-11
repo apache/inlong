@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
@@ -44,28 +45,28 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaOperator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
 
 
-  @Autowired
-  private ConversionHandle conversionHandle;
+    @Autowired
+    private ConversionHandle conversionHandle;
 
-  /**
-   * Create Kafka topic
-   */
-  public void createTopic(KafkaClusterInfo kafkaClusterInfo, String topicName)
-      throws InterruptedException, ExecutionException {
-    AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
-    NewTopic topic = new NewTopic(topicName,
-        kafkaClusterInfo.getNumPartitions(),
-        kafkaClusterInfo.getReplicationFactor());
-    CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
-    // 避免客户端连接太快断开而导致Topic没有创建成功
-    Thread.sleep(500);
-    LOGGER.info("success to create kafka topic={}, with={} numPartitions",
-        topicName,
-        result.numPartitions(topicName).get());
-  }
+    /**
+     * Create Kafka topic
+     */
+    public void createTopic(KafkaClusterInfo kafkaClusterInfo, String topicName)
+            throws InterruptedException, ExecutionException {
+        AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
+        NewTopic topic = new NewTopic(topicName,
+                kafkaClusterInfo.getNumPartitions(),
+                kafkaClusterInfo.getReplicationFactor());
+        CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
+        // 避免客户端连接太快断开而导致Topic没有创建成功
+        Thread.sleep(500);
+        LOGGER.info("success to create kafka topic={}, with={} numPartitions",
+                topicName,
+                result.numPartitions(topicName).get());
+    }
 
 //  /**
 //   * Create Pulsar topic
@@ -79,44 +80,44 @@ public class KafkaOperator {
 //    System.out.println(result.all().get());
 //  }
 
-  /**
-   * Force delete Pulsar topic
-   */
-  public void forceDeleteTopic(KafkaClusterInfo kafkaClusterInfo, String topicName) {
-    AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
-    DeleteTopicsResult result = adminClient.deleteTopics(Collections.singletonList(topicName));
-    LOGGER.info("success to delete topic={}", topicName);
+    /**
+     * Force delete Pulsar topic
+     */
+    public void forceDeleteTopic(KafkaClusterInfo kafkaClusterInfo, String topicName) {
+        AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
+        DeleteTopicsResult result = adminClient.deleteTopics(Collections.singletonList(topicName));
+        LOGGER.info("success to delete topic={}", topicName);
 //    System.out.println(result.all().get());
-  }
-
-  public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
-      throws ExecutionException, InterruptedException {
-    AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
-    Set<String> topicList = adminClient.listTopics().names().get();
-    return topicList.contains(topic);
-  }
-
-  public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String subscription) {
-
-    KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
-    //订阅
-    kafkaConsumer.subscribe(Collections.singletonList(subscription));
-  }
-
-  public boolean subscriptionIsExists(KafkaClusterInfo kafkaClusterInfo, String topic) {
-    KafkaConsumer consumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
-    try {
-      Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-      List<PartitionInfo> partitions = topics.get(topic);
-      if (partitions == null) {
-        LOGGER.info("subscription is exist");
-        return false;
-      }
-      return true;
-    } finally {
-      consumer.close();
     }
 
-  }
+    public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
+            throws ExecutionException, InterruptedException {
+        AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
+        Set<String> topicList = adminClient.listTopics().names().get();
+        return topicList.contains(topic);
+    }
+
+    public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String subscription) {
+
+        KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
+        //订阅
+        kafkaConsumer.subscribe(Collections.singletonList(subscription));
+    }
+
+    public boolean subscriptionIsExists(KafkaClusterInfo kafkaClusterInfo, String topic) {
+        KafkaConsumer consumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
+        try {
+            Map<String, List<PartitionInfo>> topics = consumer.listTopics();
+            List<PartitionInfo> partitions = topics.get(topic);
+            if (partitions == null) {
+                LOGGER.info("subscription is exist");
+                return false;
+            }
+            return true;
+        } finally {
+            consumer.close();
+        }
+
+    }
 
 }

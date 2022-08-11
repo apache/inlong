@@ -180,7 +180,7 @@ public class KafkaResourceOperator implements QueueResourceOperator {
         String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.createTopic(kafkaCluster, topicName);
 
-        boolean exist = kafkaOperator.topicIsExists(kafkaCluster,topicName);
+        boolean exist = kafkaOperator.topicIsExists(kafkaCluster, topicName);
         if (!exist) {
             String bootStrapServers = kafkaCluster.getBootStrapServers();
             log.error("topic={} not exists in {}", topicName, bootStrapServers);
