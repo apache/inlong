@@ -73,7 +73,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 .scheduler(evictScheduler)
                 .expireAfterAccess(expireTime, TimeUnit.SECONDS)
                 .removalListener((ComponentHeartbeat k, HeartbeatMsg msg, RemovalCause c) -> {
-                    if (c.wasEvicted() && msg != null) {
+                    if ((c.wasEvicted() || c == RemovalCause.EXPLICIT) && msg != null) {
                         evictClusterNode(msg);
                     }
                 }).build();
