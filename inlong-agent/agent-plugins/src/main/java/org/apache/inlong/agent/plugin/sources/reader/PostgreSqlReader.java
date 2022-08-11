@@ -63,7 +63,6 @@ public class PostgreSqlReader extends AbstractReader {
     public static final String JOB_DATABASE_PASSWORD = "job.postgreSqlJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.postgreSqlJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.postgreSqlJob.port";
-    public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.postgreSqljob.serverTimezone";
     public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSqljob.offset.intervalMs";
     public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSqljob.history.filename";
     public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSqljob.snapshot.mode";
