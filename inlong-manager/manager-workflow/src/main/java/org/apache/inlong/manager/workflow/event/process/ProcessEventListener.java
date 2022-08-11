@@ -41,7 +41,7 @@ public interface ProcessEventListener extends EventListener<ProcessEvent> {
     /**
      * Async process common thread pool
      */
-    ExecutorService executorService = new ThreadPoolExecutor(
+    ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
             20,
             40,
             0L,

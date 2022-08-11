@@ -71,7 +71,7 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
         processForm.setStreamInfos(streamList);
 
         // may run for long time, make it async processing
-        executorService.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
+        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
         log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
