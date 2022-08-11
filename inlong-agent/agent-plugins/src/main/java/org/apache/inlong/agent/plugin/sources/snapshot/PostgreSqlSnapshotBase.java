@@ -60,12 +60,12 @@ public class PostgreSqlSnapshotBase implements SnapshotBase {
                 // if parentDir not exist, create first
                 File parentDir = file.getParentFile();
                 if (parentDir == null) {
-                    log.info("no parent dir, file:{}",file.getAbsolutePath());
+                    log.info("no parent dir, file:{}", file.getAbsolutePath());
                     return;
                 }
                 if (!parentDir.exists()) {
                     boolean success = parentDir.mkdir();
-                    log.info("create dir {} result {}",parentDir,success);
+                    log.info("create dir {} result {}", parentDir, success);
                 }
                 file.createNewFile();
             }
@@ -75,14 +75,14 @@ public class PostgreSqlSnapshotBase implements SnapshotBase {
             int len;
             byte[] buf = new byte[BUFFER_SIZE];
             while ((len = inputStream.read(buf)) != -1) {
-                outputStream.write(buf,START_OFFSET,len);
+                outputStream.write(buf, START_OFFSET, len);
             }
             offset = outputStream.toByteArray();
             inputStream.close();
             outputStream.close();
         } catch (Throwable ex) {
-            log.error("load postgreSql WAL log error",ex);
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(),ex);
+            log.error("load postgreSql WAL log error", ex);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
         }
     }
 
@@ -96,8 +96,8 @@ public class PostgreSqlSnapshotBase implements SnapshotBase {
             try (OutputStream output = new FileOutputStream(file)) {
                 output.write(bytes);
             } catch (Throwable e) {
-                log.error("save offset to file error",e);
-                ThreadUtils.threadThrowableHandler(Thread.currentThread(),e);
+                log.error("save offset to file error", e);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
             }
         }
     }

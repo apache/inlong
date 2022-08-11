@@ -36,13 +36,13 @@ import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 /**
  * PostgreSql source, split PostgreSql source job into multi readers
  */
-public class PostgreSqlSource implements Source {
+public class PostgreSQLSource implements Source {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSqlSource.class);
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLSource.class);
 
     private static final String POSTGRESQL_SOURCE_TAG_NAME = "PostgreSqlSourceMetric";
 
-    public PostgreSqlSource() {
+    public PostgreSQLSource() {
 
     }
 

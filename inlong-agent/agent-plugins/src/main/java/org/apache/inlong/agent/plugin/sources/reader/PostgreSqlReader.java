@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.SnapshotModeConstants;
+import org.apache.inlong.agent.constant.PostgresSnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSqlSnapshotBase;
@@ -59,17 +59,14 @@ public class PostgreSqlReader extends AbstractReader {
 
 
     public static final String COMPONENT_NAME = "PostgreSqlReader";
-    public static final String JOB_DATABASE_USER = "job.postgreSqlJob.user";
+    public static final String JOB_POSTGRESQL_USER = "job.postgreSqlJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.postgreSqlJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.postgreSqlJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.postgreSqlJob.port";
-    public static final String JOB_TABLE_WHITELIST = "job.postgreSqljob.tableWhiteList";
-    public static final String JOB_DATABASE_WHITELIST = "job.postgreSqljob.databaseWhiteList";
     public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.postgreSqljob.serverTimezone";
     public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSqljob.offset.intervalMs";
     public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSqljob.history.filename";
     public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSqljob.snapshot.mode";
-    public static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.postgreSqljob.schema";
     public static final String JOB_DATABASE_QUEUE_SIZE = "job.postgreSqljob.queueSize";
     public static final String JOB_DATABASE_OFFSETS = "job.postgreSqljob.offsets";
     public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSqljob.offset.specificOffsetFile";
@@ -83,13 +80,9 @@ public class PostgreSqlReader extends AbstractReader {
     private String password;
     private String hostName;
     private String port;
-    private String tableWhiteList;
-    private String databaseWhiteList;
-    private String serverTimeZone;
     private String offsetFlushIntervalMs;
     private String offsetStoreFileName;
     private String snapshotMode;
-    private String includeSchemaChanges;
     private String instanceId;
     private String offset;
     private String specificOffsetFile;
@@ -140,21 +133,17 @@ public class PostgreSqlReader extends AbstractReader {
     public void init(JobProfile jobConf) {
         jobProfile = jobConf;
         LOGGER.info("init postgreSql reader with jobConf {}",jobConf.toJsonStr());
-        userName = jobConf.get(JOB_DATABASE_USER);
+        userName = jobConf.get(JOB_POSTGRESQL_USER);
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
         dbName = jobConf.get(JOB_DATABASE_DBNAME);
-        pluginName = jobConf.get(JOB_DATABASE_PLUGIN_NAME,"pgoutput");
         serverName = jobConf.get(JOB_DATABASE_SERVER_NAME);
-        tableWhiteList = jobConf.get(JOB_TABLE_WHITELIST,"[\\s\\S]*.*");
-        databaseWhiteList = jobConf.get(JOB_DATABASE_WHITELIST,"");
-        serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE,"");
+        pluginName = jobConf.get(JOB_DATABASE_PLUGIN_NAME,"pgoutput");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS,"100000");
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
                 tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE,"");
-        includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES,"false");
         postgreSqlMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         finished = false;
@@ -219,19 +208,14 @@ public class PostgreSqlReader extends AbstractReader {
         props.setProperty("database.user", userName);
         props.setProperty("database.dbname",dbName);
         props.setProperty("database.password", password);
-        props.setProperty("database.serverTimezone", serverTimeZone);
-        props.setProperty("table.whitelist", tableWhiteList);
-        props.setProperty("database.whitelist",databaseWhiteList);
 
         props.setProperty("offset.flush.interval.ms",offsetFlushIntervalMs);
         props.setProperty("database.snapshot.mode",snapshotMode);
-        props.setProperty("database.allowPublicKeyRetrieval", "true");
         props.setProperty("key.converter.schemas.enable", "false");
         props.setProperty("value.converter.schemas.enable", "false");
-        props.setProperty("include.schema.changes", includeSchemaChanges);
         props.setProperty("snapshot.mode", snapshotMode);
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
-        if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
+        if (PostgresSnapshotModeConstants.CUSTOM.equals(snapshotMode)) {
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
             props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,serializeOffset());
         } else {
@@ -244,7 +228,6 @@ public class PostgreSqlReader extends AbstractReader {
         props.setProperty("datetime.format.time", "HH:mm:ss");
         props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
         props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
-        props.setProperty("datetime.format.timestamp.zone", serverTimeZone);
 
         LOGGER.info("postgreslog job {} start with props {}",jobProfile.getInstanceId(),props);
         return props;
