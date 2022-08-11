@@ -4,15 +4,9 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupContext;
-import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
@@ -25,7 +19,7 @@ public class UpdateCommand extends AbstractCommand {
 
     public UpdateCommand() {
         super("update");
-        jcommander.addCommand("update", new UpdateCommand.UpdateGroup());
+        jcommander.addCommand("group", new UpdateCommand.UpdateGroup());
     }
 
     @Parameters(commandDescription = "Update group by json file")
@@ -44,19 +38,30 @@ public class UpdateCommand extends AbstractCommand {
                 description = "json file")
         private File file;
 
+        @Parameter(names={"-t","--test"})
+        private boolean debug = false;
+
         @Override
         void run() {
+            InlongClient inlongClient;
+            InlongGroup group;
             try {
-                InlongClient inlongClient = ClientUtils.getClient();
-                InlongGroup group = inlongClient.getGroup(groupId);
+                if(debug){
+                    inlongClient = CommandToolMain.getMockClient();
+                }
+                else{
+                    inlongClient = ClientUtils.getClient();
+                }
+                group = inlongClient.getGroup(groupId);
                 String fileContent = ClientUtils.readFile(file);
                 if (StringUtils.isBlank(fileContent)) {
-                    System.out.println("Create group failed: file was empty!");
+                    System.out.println("Update group failed: file was empty!");
                     return;
                 }
                 //first extract groupconfig from the file passed in
                 BaseSortConf sortConf = objectMapper.readValue(fileContent, BaseSortConf.class);
                 group.update(sortConf);
+                System.out.println("update group success");
             } catch (Exception e) {
                 e.printStackTrace();
             }

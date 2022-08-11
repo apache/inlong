@@ -1,0 +1,9 @@
+{
+  "FlinkSortConf": {
+    "sortType": "flink",
+    "authentication": "NONE",
+    "serviceUrl": "123.456.789",
+    "region": "beijing",
+    "properties": {}
+  }
+}

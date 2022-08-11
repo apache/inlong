@@ -14,6 +14,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.client.cli.CommandToolMain.*;
 
 import java.io.File;
 
@@ -38,16 +39,24 @@ public class DeleteCommand extends AbstractCommand {
                 description = "group id")
         private String groupId;
 
+        @Parameter(names={"-t","--test"})
+        private boolean debug = false;
+
         @Override
         void run() {
-            //get the inlong client
-            InlongClient inlongClient = ClientUtils.getClient();
-            //get the group and the corresponding context(snapshot)
+            InlongClient inlongClient;
             InlongGroup group;
+            if(debug){
+                inlongClient = CommandToolMain.getMockClient();
+            }
+            else{
+                inlongClient = ClientUtils.getClient();
+            }
+            //get the group and the corresponding context(snapshot)
             try{
                 group = inlongClient.getGroup(groupId);
-                InlongGroupContext context = group.delete();
-                System.out.println(JsonUtils.toJsonString(context));
+                group.delete();
+                System.out.println("delete group success");
             }
             //TODO: handle and/or classify the exceptions
             catch(Exception e){

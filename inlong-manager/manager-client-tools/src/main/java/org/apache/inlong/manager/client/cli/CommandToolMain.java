@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import org.apache.inlong.manager.client.api.InlongClient;
 
 import java.util.Arrays;
 
@@ -28,15 +29,16 @@ import java.util.Arrays;
 public class CommandToolMain {
 
     private final JCommander jcommander;
+    private static volatile InlongClient mockClient;
 
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
+
 
     CommandToolMain() {
         jcommander = new JCommander();
         jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
-
         jcommander.addCommand("list", new ListCommand());
         jcommander.addCommand("describe", new DescribeCommand());
         jcommander.addCommand("create", new CreateCommand());
@@ -51,6 +53,14 @@ public class CommandToolMain {
         } else {
             System.exit(1);
         }
+    }
+
+    public static void setMockClient(InlongClient client){
+        mockClient = client;
+    }
+
+    public static InlongClient getMockClient(){
+        return mockClient;
     }
 
     boolean run(String[] args) {

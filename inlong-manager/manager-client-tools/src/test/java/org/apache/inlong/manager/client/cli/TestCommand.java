@@ -20,13 +20,10 @@ package org.apache.inlong.manager.client.cli;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 
 /**
  * Command service test for {@link CommandToolMain}
@@ -60,29 +57,26 @@ public class TestCommand {
     }
 
     @Test
-    public void testDeleteGroup(){
-        String[] arg = {"delete", "group", "-id", "test_group"};
+    public void testDeleteGroup() throws Exception  {
+        String[] arg = {"delete","group", "-id", "test_group", "-t"};
+        CommandToolMain.setMockClient(getMockClient());
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
+
 
     @Test
-    public void testUpdateGroup(){
-        String[] arg = {"update", "group", "-id", "test_group", "-c", "src/test/resources/test_config.json"};
+    public void testUpdateGroup() throws Exception{
+        String[] arg = {"update", "group", "-id", "test_group", "-c", "src/test/resources/test_config.json","-t"};
+        CommandToolMain.setMockClient(getMockClient());
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
-    @TestConfiguration
-    public static class ClientUtils {
-        public InlongClient getInlongClient() throws Exception {
-            return getMockClient();
-        }
-    }
-
-    private static InlongClient getMockClient() throws Exception {
-        InlongClient inlongClient  = Mockito.mock(InlongClient.class);
+    //for now the unit test is done using mockito,which is far from the best strategy. TODO:improve this.
+    public static InlongClient getMockClient() throws Exception {
+        System.out.println("mock start");
+        InlongClient inlongClient  = Mockito.mock(InlongClientImpl.class);
         InlongGroup group = Mockito.mock(InlongGroup.class);
         Mockito.when(inlongClient.getGroup("test_group")).thenReturn(group);
-        //Mockito.when(localMockRepository.count()).thenReturn(111L);
         return inlongClient;
     }
 }
