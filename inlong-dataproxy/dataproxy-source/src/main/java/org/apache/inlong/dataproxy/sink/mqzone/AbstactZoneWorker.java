@@ -31,6 +31,8 @@ public class AbstactZoneWorker extends Thread {
     protected AbstractZoneProducer zoneProducer;
     protected LifecycleState status;
 
+    protected int workerIndex;
+
     /**
      * Constructor
      *
@@ -42,6 +44,7 @@ public class AbstactZoneWorker extends Thread {
                              AbstractZoneProducer zoneProducer) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
+        this.workerIndex = workerIndex;
         this.context = context;
         this.zoneProducer = zoneProducer;
         this.status = LifecycleState.IDLE;

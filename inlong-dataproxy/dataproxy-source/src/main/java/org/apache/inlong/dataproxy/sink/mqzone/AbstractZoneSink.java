@@ -19,6 +19,8 @@ package org.apache.inlong.dataproxy.sink.mqzone;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +35,7 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.dataproxy.dispatch.DispatchManager;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
@@ -90,6 +93,19 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
             LOG.error(e.getMessage(), e);
         }
         super.start();
+    }
+
+    @Deprecated
+    public void diffSetPublish(PulsarClientService pulsarClientService, Set<String> originalSet, Set<String> endSet) {
+        return;
+    }
+
+    @Deprecated
+    public void diffUpdatePulsarClient(PulsarClientService pulsarClientService, Map<String, String> originalCluster,
+                                       Map<String, String> endCluster) {
+        this.workers.forEach(worker -> {
+            worker.zoneProducer.reload();
+        });
     }
 
     /**

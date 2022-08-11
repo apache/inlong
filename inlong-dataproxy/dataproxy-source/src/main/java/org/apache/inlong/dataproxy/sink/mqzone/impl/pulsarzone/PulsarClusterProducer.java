@@ -17,6 +17,23 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_AUTHENTICATION;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXBYTES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXPUBLISHDELAY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BLOCKIFQUEUEFULL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_COMPRESSIONTYPE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_CONNECTIONSPERBROKER;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ENABLEBATCHING;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_IOTHREADS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGESACROSSPARTITIONS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MEMORYLIMIT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SENDTIMEOUT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SERVICE_URL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_TENANT;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -48,28 +65,6 @@ import java.util.concurrent.TimeUnit;
 public class PulsarClusterProducer extends AbstractZoneClusterProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarClusterProducer.class);
-
-    public static final String KEY_TENANT = "tenant";
-    public static final String KEY_NAMESPACE = "namespace";
-
-    public static final String KEY_SERVICE_URL = "serviceUrl";
-    public static final String KEY_AUTHENTICATION = "authentication";
-
-    public static final String KEY_ENABLEBATCHING = "enableBatching";
-    public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
-    public static final String KEY_BATCHINGMAXMESSAGES = "batchingMaxMessages";
-    public static final String KEY_BATCHINGMAXPUBLISHDELAY = "batchingMaxPublishDelay";
-    public static final String KEY_MAXPENDINGMESSAGES = "maxPendingMessages";
-    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS = "maxPendingMessagesAcrossPartitions";
-    public static final String KEY_SENDTIMEOUT = "sendTimeout";
-    public static final String KEY_COMPRESSIONTYPE = "compressionType";
-    public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
-    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
-            + "BatchingPartitionSwitchFrequency";
-
-    public static final String KEY_IOTHREADS = "ioThreads";
-    public static final String KEY_MEMORYLIMIT = "memoryLimit";
-    public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
 
     private String tenant;
     private String namespace;
