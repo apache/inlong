@@ -497,24 +497,24 @@ public class LoadNodeUtils {
     /**
      * Create load node of Doris.
      */
-//    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
-//               List<FieldRelation> fieldRelations, Map<String, String> properties) {
-//        return new DorisLoadNode(
-//                dorisSink.getSinkName(),
-//                dorisSink.getSinkName(),
-//                fieldInfos,
-//                fieldRelations,
-//                null,
-//                null,
-//                null,
-//                properties,
-//                dorisSink.getJdbcUrl(),
-//                dorisSink.getUsername(),
-//                dorisSink.getPassword(),
-//                dorisSink.getTableName(),
-//                dorisSink.getPrimaryKey()
-//        );
-//    }
+    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
+               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        return new DorisLoadNode(
+                dorisSink.getSinkName(),
+                dorisSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                dorisSink.getJdbcUrl(),
+                dorisSink.getUsername(),
+                dorisSink.getPassword(),
+                dorisSink.getTableName(),
+                dorisSink.getPrimaryKey()
+        );
+    }
 
     /**
      * Parse information field of data sink.
