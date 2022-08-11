@@ -83,7 +83,7 @@ public class FileSourceDTO {
     private String dataSeparator;
 
     @ApiModelProperty("Metadata filters by label")
-    private List<Map<String, String>> filterMetaByLabels;
+    private Map<String, String> filterMetaByLabels;
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()

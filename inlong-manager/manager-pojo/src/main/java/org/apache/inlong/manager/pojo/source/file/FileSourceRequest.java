@@ -75,7 +75,7 @@ public class FileSourceRequest extends SourceRequest {
     private String dataContentStyle;
 
     @ApiModelProperty("Metadata filters by label")
-    private List<Map<String, String>> filterMetaByLabels;
+    private Map<String, String> filterMetaByLabels;
 
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
