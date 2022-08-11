@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.sort.function;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.functions.ScalarFunction;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * json getter function, used to get a field value from a json string
  */
 public class JsonGetterFunction extends ScalarFunction {
 
-
     private static final long serialVersionUID = -7185622027483662395L;
+
+    public static final Logger LOG = LoggerFactory.getLogger(JsonGetterFunction.class);
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * eval is String replacement execution method
@@ -36,12 +40,12 @@ public class JsonGetterFunction extends ScalarFunction {
      * @return replaced value
      */
     public String eval(String field, String key) {
-
-        // 1 use jackson to parse json
-
-        // 2 get the value of the key and return it
-
-        return null;
+        try {
+            return mapper.readTree(field).findValue(key).asText();
+        } catch (Exception e) {
+            LOG.error("json getter function error, key {}, field {}", key, field, e);
+            return null;
+        }
     }
 
 }

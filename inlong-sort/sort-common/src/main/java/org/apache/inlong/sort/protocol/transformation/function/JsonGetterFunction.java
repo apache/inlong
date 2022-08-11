@@ -29,7 +29,6 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-
 /**
  * Json getter function, used to get a field value from a json string
  */
@@ -76,6 +75,5 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
         return new ConstantParam(String.format("%s(%s, %s)", getName(),
             constantParam.format(), key.format()));
     }
-
 
 }
