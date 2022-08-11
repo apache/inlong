@@ -51,21 +51,9 @@ public class KafkaOperator {
   private ConversionHandle conversionHandle;
 
   /**
-   * 配置并创建AdminClient
-   */
-  public static AdminClient adminClient() {
-    Properties properties = new Properties();
-    // 配置Kafka服务的访问地址及端口号
-    properties.setProperty(AdminClientConfig.
-        BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-    // 创建AdminClient实例
-    return AdminClient.create(properties);
-  }
-
-  /**
    * Create Kafka topic
    */
-  public void createTopic(KafkaClusterInfo kafkaClusterInfo,String topicName)
+  public void createTopic(KafkaClusterInfo kafkaClusterInfo, String topicName)
       throws InterruptedException, ExecutionException {
     AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
     NewTopic topic = new NewTopic(topicName,
@@ -101,8 +89,9 @@ public class KafkaOperator {
 //    System.out.println(result.all().get());
   }
 
-  public boolean topicIsExists(String topic) throws ExecutionException, InterruptedException {
-    AdminClient adminClient = adminClient();
+  public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
+      throws ExecutionException, InterruptedException {
+    AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
     Set<String> topicList = adminClient.listTopics().names().get();
     return topicList.contains(topic);
   }
@@ -120,7 +109,7 @@ public class KafkaOperator {
       Map<String, List<PartitionInfo>> topics = consumer.listTopics();
       List<PartitionInfo> partitions = topics.get(topic);
       if (partitions == null) {
-        LOGGER.info("subscription is exit");
+        LOGGER.info("subscription is exist");
         return false;
       }
       return true;
