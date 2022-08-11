@@ -21,7 +21,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
     <select id="selectProxyCluster" resultType="org.apache.inlong.manager.pojo.dataproxy.ProxyCluster">
-        select name as cluster_name, cluster_tags, ext_tag, ext_params
+        select name as cluster_name, cluster_tags as cluster_tag, ext_tag, ext_params
         from inlong_cluster
         where type = 'DATAPROXY'
           and is_deleted = '0'
