@@ -22,7 +22,15 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 
+import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -39,6 +47,7 @@ public class SinkMetricData implements MetricData {
     private final String groupId;
     private final String streamId;
     private final String nodeId;
+    private AuditImp auditImp;
     private Counter numRecordsOut;
     private Counter numBytesOut;
     private Counter dirtyRecords;
@@ -51,6 +60,19 @@ public class SinkMetricData implements MetricData {
         this.groupId = groupId;
         this.streamId = streamId;
         this.nodeId = nodeId;
+    }
+
+    public SinkMetricData(
+            String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+            @Nullable String auditHostAndPorts) {
+        this.metricGroup = metricGroup;
+        this.groupId = groupId;
+        this.streamId = streamId;
+        this.nodeId = nodeId;
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            this.auditImp = AuditImp.getInstance();
+        }
     }
 
     /**
@@ -166,5 +188,34 @@ public class SinkMetricData implements MetricData {
     @Override
     public String getNodeId() {
         return nodeId;
+    }
+
+    public void invokeWithEstimate(Object o) {
+        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
+        getNumRecordsOut().inc();
+        getNumBytesOut().inc(size);
+        if (auditImp != null) {
+            auditImp.add(
+                    Constants.AUDIT_SORT_OUTPUT,
+                    getGroupId(),
+                    getStreamId(),
+                    System.currentTimeMillis(),
+                    1,
+                    size);
+        }
+    }
+
+    public void invoke(long rowCount, long rowSize) {
+        getNumRecordsOut().inc(rowCount);
+        getNumBytesOut().inc(rowSize);
+        if (auditImp != null) {
+            auditImp.add(
+                    Constants.AUDIT_SORT_OUTPUT,
+                    getGroupId(),
+                    getStreamId(),
+                    System.currentTimeMillis(),
+                    rowCount,
+                    rowSize);
+        }
     }
 }
