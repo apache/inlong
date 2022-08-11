@@ -65,6 +65,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     private final EncodingFormat<SerializationSchema<RowData>> format;
     private final TableSchema schema;
     private final Elasticsearch7Configuration config;
+    private final String inLongMetric;
     private final ElasticSearchBuilderProvider builderProvider;
 
     // --------------------------------------------------------------
@@ -80,19 +81,22 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     public Elasticsearch7DynamicSink(
             EncodingFormat<SerializationSchema<RowData>> format,
             Elasticsearch7Configuration config,
-            TableSchema schema) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new));
+            TableSchema schema,
+            String inLongMetric) {
+        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric);
     }
 
     Elasticsearch7DynamicSink(
             EncodingFormat<SerializationSchema<RowData>> format,
             Elasticsearch7Configuration config,
             TableSchema schema,
-            ElasticSearchBuilderProvider builderProvider) {
+            ElasticSearchBuilderProvider builderProvider,
+            String inLongMetric) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
+        this.inLongMetric = inLongMetric;
     }
 
     @Override
@@ -126,7 +130,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                             KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
-                            null);
+                            inLongMetric);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
@@ -136,6 +140,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             builder.setBulkFlushMaxSizeMb((int) (config.getBulkFlushMaxByteSize() >> 20));
             builder.setBulkFlushInterval(config.getBulkFlushInterval());
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
+            builder.setInLongMetric(inLongMetric);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
@@ -188,12 +193,13 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
         return Objects.equals(format, that.format)
                 && Objects.equals(schema, that.schema)
                 && Objects.equals(config, that.config)
-                && Objects.equals(builderProvider, that.builderProvider);
+                && Objects.equals(builderProvider, that.builderProvider)
+                && Objects.equals(inLongMetric, that.inLongMetric);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, schema, config, builderProvider);
+        return Objects.hash(format, schema, config, builderProvider, inLongMetric);
     }
 
     @FunctionalInterface
