@@ -428,7 +428,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                         inlongGroupEntity.getMqResource(), info.getTopic()));
             }
 
-        }//TODO add Kafka
+        }
+        //TODO add Kafka
         info.setMqType(mqType);
     }
 

@@ -20,15 +20,12 @@ package org.apache.inlong.manager.service.resource.queue.kafka;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -36,20 +33,15 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Pulsar operator, supports creating topics and creating subscription.
+ * kafka operator, supports creating topics and creating subscription.
  */
 @Service
 public class KafkaOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
-
-
-    @Autowired
-    private ConversionHandle conversionHandle;
 
     /**
      * Create Kafka topic
@@ -61,24 +53,12 @@ public class KafkaOperator {
                 kafkaClusterInfo.getNumPartitions(),
                 kafkaClusterInfo.getReplicationFactor());
         CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
-        // 避免客户端连接太快断开而导致Topic没有创建成功
+        // To prevent the client from disconnecting too quickly and causing the Topic to not be created successfully
         Thread.sleep(500);
         LOGGER.info("success to create kafka topic={}, with={} numPartitions",
                 topicName,
                 result.numPartitions(topicName).get());
     }
-
-//  /**
-//   * Create Pulsar topic
-//   */
-//  public void createPartition() throws ExecutionException, InterruptedException {
-//    AdminClient adminClient = adminClient();
-//    Map<String, NewPartitions> newPartitions = new HashMap<>();
-//    // 将MyTopic的Partition数量调整为2
-//    newPartitions.put("MyTopic", NewPartitions.increaseTo(2));
-//    CreatePartitionsResult result = adminClient.createPartitions(newPartitions);
-//    System.out.println(result.all().get());
-//  }
 
     /**
      * Force delete Pulsar topic
@@ -100,7 +80,7 @@ public class KafkaOperator {
     public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String subscription) {
 
         KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
-        //订阅
+        // subscription
         kafkaConsumer.subscribe(Collections.singletonList(subscription));
     }
 

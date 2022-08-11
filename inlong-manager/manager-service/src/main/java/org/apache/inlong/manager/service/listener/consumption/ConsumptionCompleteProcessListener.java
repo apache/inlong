@@ -91,10 +91,10 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             return ListenerResult.success("Create TubeMQ consumer group successful");
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
-        } else if(MQType.KAFKA.equals(mqType)){
+        } else if (MQType.KAFKA.equals(mqType)) {
             //TODO add kakfa
 
-        }else {
+        } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);
         }
 

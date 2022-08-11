@@ -40,9 +40,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * @author zcy
- * @Date 2022/8/6 18:58
- * @Version 1.0
+ * kafka for create kafka Topic and Subscription
  */
 @Slf4j
 @Service
@@ -93,7 +91,6 @@ public class KafkaResourceOperator implements QueueResourceOperator {
         log.info("success to create kafka resource for groupId={}, cluster={}", groupId, kafkaCluster);
     }
 
-
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
@@ -119,7 +116,6 @@ public class KafkaResourceOperator implements QueueResourceOperator {
         log.info("success to delete kafka resource for groupId={}, cluster={}", groupId, clusterInfo);
 
     }
-
 
     @Override
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,

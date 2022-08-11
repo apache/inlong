@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.pojo.group.kafka;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
