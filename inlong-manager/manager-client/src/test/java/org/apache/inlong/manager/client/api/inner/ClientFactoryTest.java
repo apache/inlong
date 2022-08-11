@@ -33,6 +33,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
@@ -41,6 +42,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -81,6 +83,8 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -113,6 +117,7 @@ class ClientFactoryTest {
     private static StreamSinkClient sinkClient;
     private static InlongClusterClient clusterClient;
     private static DataNodeClient dataNodeClient;
+    private static UserClient userClient;
 
     @BeforeAll
     static void setup() {
@@ -132,6 +137,7 @@ class ClientFactoryTest {
         streamClient = clientFactory.getStreamClient();
         clusterClient = clientFactory.getClusterClient();
         dataNodeClient = clientFactory.getDataNodeClient();
+        userClient = clientFactory.getUserClient();
     }
 
     @AfterAll
@@ -1039,5 +1045,76 @@ class ClientFactoryTest {
         );
         Boolean isUpdate = dataNodeClient.delete(1);
         Assertions.assertTrue(isUpdate);
+    }
+
+    @Test
+    void testRegisterUser() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/user/register.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        UserRequest request = new UserRequest();
+        request.setName("test_user");
+        request.setPassword("test_pwd");
+        Integer userId = userClient.register(request);
+        Assertions.assertEquals(1, userId);
+    }
+
+    @Test
+    void testGetUserById() {
+        UserInfo userInfo = UserInfo.builder()
+                .id(1)
+                .name("test_user")
+                .password("test_pwd")
+                .build();
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/user/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(userInfo))
+                                )
+                        )
+        );
+        UserInfo info = userClient.getById(1);
+        Assertions.assertEquals(info.getId(), 1);
+    }
+
+    @Test
+    void testUpdateUser() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/user/update.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        UserRequest request = new UserRequest();
+        request.setId(1);
+        request.setName("test_user");
+        request.setPassword("test_pwd");
+        request.setNewPassword("test_new_pwd");
+        request.setAccountType(UserTypeEnum.ADMIN.getCode());
+        Integer userId = userClient.update(request);
+        Assertions.assertEquals(userId, 1);
+    }
+
+    @Test
+    void testDeleteUser() {
+        stubFor(
+                delete(urlMatching("/inlong/manager/api/user/delete.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        Boolean isDelete = userClient.delete(1);
+        Assertions.assertTrue(isDelete);
     }
 }
