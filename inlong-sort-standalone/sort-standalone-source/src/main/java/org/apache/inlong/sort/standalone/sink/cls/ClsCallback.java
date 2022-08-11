@@ -19,10 +19,14 @@ package org.apache.inlong.sort.standalone.sink.cls;
 
 import com.tencentcloudapi.cls.producer.Callback;
 import com.tencentcloudapi.cls.producer.Result;
+import com.tencentcloudapi.cls.producer.common.Attempt;
+import com.tencentcloudapi.cls.producer.common.ErrorCodes;
 import org.apache.flume.Transaction;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 /**
  * Implementation of CLS {@link Callback}.
@@ -75,9 +79,29 @@ public class ClsCallback implements Callback {
      * @param result Send result.
      */
     private void onFailed(Result result) {
-        tx.rollback();
-        tx.close();
-        LOG.error(result.toString());
-        context.addSendResultMetric(event, topicId, false, System.currentTimeMillis());
+        if (isRetryable(result.getReservedAttempts())) {
+            tx.rollback();
+            tx.close();
+        } else {
+            event.ack();
+            tx.commit();
+            tx.close();
+            LOG.error(result.toString());
+            context.addSendResultMetric(event, topicId, false, System.currentTimeMillis());
+        }
+    }
+
+    private boolean isRetryable(List<Attempt> reservedAttempts) {
+        if (reservedAttempts.isEmpty()) {
+            LOG.error("attempts is empty, just discards");
+            return false;
+        }
+        for (Attempt attempt : reservedAttempts) {
+            String errorCode = attempt.getErrorCode();
+            if (!errorCode.equals(ErrorCodes.SpeedQuotaExceed)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
