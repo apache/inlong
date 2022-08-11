@@ -45,6 +45,8 @@ public class FileJob {
 
     private String dataSeparator;
 
+    private List<Map<String, String>> filterMetaByLabels;
+
     @Data
     public static class Dir {
 
@@ -100,6 +102,9 @@ public class FileJob {
 
         // Column separator of data source 
         private String dataSeparator;
+
+        // Metadata filters by label
+        private List<Map<String, String>> filterMetaByLabels;
     }
 
 }

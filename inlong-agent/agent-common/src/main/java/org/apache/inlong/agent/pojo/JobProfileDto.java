@@ -128,6 +128,10 @@ public class JobProfileDto {
         if (null != fileJobTaskConfig.getMetaFields()) {
             fileJob.setMetaFields(fileJob.getMetaFields());
         }
+
+        if (null != fileJobTaskConfig.getFilterMetaByLabels()) {
+            fileJob.setFilterMetaByLabels(fileJobTaskConfig.getFilterMetaByLabels());
+        }
         return fileJob;
     }
 

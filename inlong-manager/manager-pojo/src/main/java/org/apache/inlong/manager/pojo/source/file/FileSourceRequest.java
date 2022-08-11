@@ -74,6 +74,9 @@ public class FileSourceRequest extends SourceRequest {
             + "         Json format, set this parameter to json ")
     private String dataContentStyle;
 
+    @ApiModelProperty("Metadata filters by label")
+    private List<Map<String, String>> filterMetaByLabels;
+
     public FileSourceRequest() {
         this.setSourceType(SourceType.FILE);
         this.setSerializationType(DataFormat.CSV.getName());

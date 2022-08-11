@@ -79,6 +79,9 @@ public class FileSource extends StreamSource {
             + "         Json format, set this parameter to json ")
     private String dataContentStyle;
 
+    @ApiModelProperty("Metadata filters by label")
+    private List<Map<String, String>> filterMetaByLabels;
+
     public FileSource() {
         this.setSourceType(SourceType.FILE);
     }
