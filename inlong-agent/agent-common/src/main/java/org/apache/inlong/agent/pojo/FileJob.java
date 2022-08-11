@@ -105,7 +105,7 @@ public class FileJob {
         // Column separator of data source 
         private String dataSeparator;
 
-        // Metadata filters by label
+        // Metadata filters by label, special parameters for K8S
         private Map<String, String> filterMetaByLabels;
 
         // Properties for File

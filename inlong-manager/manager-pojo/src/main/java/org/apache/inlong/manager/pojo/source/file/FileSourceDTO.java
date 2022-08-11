@@ -82,7 +82,7 @@ public class FileSourceDTO {
     @ApiModelProperty("Column separator of data source ")
     private String dataSeparator;
 
-    @ApiModelProperty("Metadata filters by label")
+    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
