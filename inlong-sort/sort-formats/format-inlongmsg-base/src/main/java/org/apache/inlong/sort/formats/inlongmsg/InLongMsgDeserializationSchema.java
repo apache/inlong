@@ -50,7 +50,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     /** status of error */
     private final boolean ignoreErrors;
 
-    public  InLongMsgDeserializationSchema(
+    public InLongMsgDeserializationSchema(
             DeserializationSchema<RowData> schema,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
