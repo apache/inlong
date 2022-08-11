@@ -98,7 +98,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
         @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
         @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
-        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "JsonGetterFunction")
+        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction")
 })
 public interface FunctionParam {
 

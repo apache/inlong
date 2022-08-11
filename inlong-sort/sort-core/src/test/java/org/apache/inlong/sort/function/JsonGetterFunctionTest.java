@@ -57,7 +57,7 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        // step 1. Register custom function of Encrypt
+        // step 1. Register custom function of json getter
         tableEnv.createTemporaryFunction("JSON_GETTER", JsonGetterFunction.class);
         // step 2. Generate test data and convert to DataStream
         List<Row> data = new ArrayList<>();
