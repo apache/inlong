@@ -22,7 +22,6 @@ import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
 import StaffSelect from '@/components/StaffSelect';
 import i18n from '@/i18n';
-import BusinessSelect from '../BusinessSelect';
 
 export default (
   names: (string | FormItemProps)[],
@@ -58,17 +57,39 @@ export default (
       ],
     },
     {
-      type: BusinessSelect,
+      type: 'select',
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
       name: 'inlongGroupId',
       extraNames: ['mqType'],
       initialValue: currentValues.inlongGroupId,
       rules: [{ required: true }],
       props: {
-        style: { width: 500 },
-        onChange: (inlongGroupId, record) => ({
+        showSearch: true,
+        filterOption: false,
+        options: {
+          requestTrigger: ['onOpen', 'onSearch'],
+          requestService: keyword => ({
+            url: '/group/list',
+            method: 'POST',
+            data: {
+              keyword,
+              pageNum: 1,
+              pageSize: 20,
+              status: 130,
+            },
+          }),
+          requestParams: {
+            formatResult: result =>
+              result?.list?.map(item => ({
+                ...item,
+                label: `${item.inlongGroupId} (${item.mqType})`,
+                value: item.inlongGroupId,
+              })),
+          },
+        },
+        onChange: (value, option) => ({
           topic: undefined,
-          mqType: record.mqType,
+          mqType: option.mqType,
         }),
       },
     },

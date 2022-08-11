@@ -23,7 +23,7 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { DataStorageDetailModal } from '@/components/AccessHelper';
+import DetailModal from './DetailModal';
 import { Storages } from '@/meta/sinks';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -256,7 +256,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         }}
       />
 
-      <DataStorageDetailModal
+      <DetailModal
         {...createModal}
         inlongGroupId={inlongGroupId}
         content={createContent}

@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import StaffSelect from '../../StaffSelect';
+import StaffSelect from '@/components/StaffSelect';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
 import i18n from '@/i18n';
