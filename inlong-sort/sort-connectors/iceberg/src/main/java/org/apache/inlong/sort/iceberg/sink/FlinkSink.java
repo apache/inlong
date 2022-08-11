@@ -134,6 +134,8 @@ public class FlinkSink {
         private boolean upsert = false;
         private List<String> equalityFieldColumns = null;
         private String uidPrefix = null;
+        private String inLongMetric = null;
+        private String auditHostAndPorts = null;
 
         private Builder() {
         }
@@ -191,6 +193,18 @@ public class FlinkSink {
 
         public Builder overwrite(boolean newOverwrite) {
             this.overwrite = newOverwrite;
+            return this;
+        }
+
+        /**
+         * Add metric output for iceberg writer
+         * @param inLongMetric
+         * @param auditHostAndPorts
+         * @return
+         */
+        public Builder metric(String inLongMetric, String auditHostAndPorts) {
+            this.inLongMetric = inLongMetric;
+            this.auditHostAndPorts = auditHostAndPorts;
             return this;
         }
 
@@ -385,8 +399,8 @@ public class FlinkSink {
                 }
             }
 
-            IcebergStreamWriter<RowData> streamWriter =
-                    createStreamWriter(table, flinkRowType, equalityFieldIds, upsertMode);
+            IcebergStreamWriter<RowData> streamWriter = createStreamWriter(
+                    table, flinkRowType, equalityFieldIds, upsertMode, inLongMetric, auditHostAndPorts);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = input
@@ -459,7 +473,9 @@ public class FlinkSink {
     static IcebergStreamWriter<RowData> createStreamWriter(Table table,
             RowType flinkRowType,
             List<Integer> equalityFieldIds,
-            boolean upsert) {
+            boolean upsert,
+            String inLongMetric,
+            String auditHostAndPorts) {
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
         Map<String, String> props = table.properties();
         long targetFileSize = getTargetFileSizeBytes(props);
@@ -470,7 +486,7 @@ public class FlinkSink {
                 serializableTable, flinkRowType, targetFileSize,
                 fileFormat, equalityFieldIds, upsert);
 
-        return new IcebergStreamWriter<>(table.name(), taskWriterFactory);
+        return new IcebergStreamWriter<>(table.name(), taskWriterFactory, inLongMetric, auditHostAndPorts);
     }
 
     private static FileFormat getFileFormat(Map<String, String> properties) {
