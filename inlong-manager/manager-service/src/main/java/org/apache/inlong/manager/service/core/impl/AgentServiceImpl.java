@@ -192,6 +192,7 @@ public class AgentServiceImpl implements AgentService {
             sourceEntity.setAgentIp(taskRequest.getAgentIp());
             sourceEntity.setUuid(taskRequest.getUuid());
             if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                sourceEntity.setVersion(sourceEntity.getVersion() + 1);
                 nonFileTasks.add(getDataConfig(sourceEntity, op));
             }
         }
@@ -226,6 +227,7 @@ public class AgentServiceImpl implements AgentService {
                     sourceEntity.setUuid(uuid);
                     sourceEntity.setStatus(nextStatus);
                     if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                        sourceEntity.setVersion(sourceEntity.getVersion() + 1);
                         fileTasks.add(getDataConfig(sourceEntity, op));
                     }
                 }
@@ -279,6 +281,7 @@ public class AgentServiceImpl implements AgentService {
             int nextStatus = getNextStatus(issuedTask.getStatus());
             issuedTask.setStatus(nextStatus);
             if (sourceMapper.updateByPrimaryKeySelective(issuedTask) == 1) {
+                issuedTask.setVersion(issuedTask.getVersion() + 1);
                 issuedTasks.add(getDataConfig(issuedTask, op));
             }
         }
