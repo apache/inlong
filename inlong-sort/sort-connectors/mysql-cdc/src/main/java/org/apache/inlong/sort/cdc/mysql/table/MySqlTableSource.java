@@ -285,6 +285,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .serverTimeZone(serverTimeZone.toString())
                             .debeziumProperties(dbzProperties)
                             .startupOptions(startupOptions)
+                            .inlongMetric(inlongMetric)
                             .deserializer(deserializer);
             Optional.ofNullable(serverId)
                     .ifPresent(serverId -> builder.serverId(Integer.parseInt(serverId)));
