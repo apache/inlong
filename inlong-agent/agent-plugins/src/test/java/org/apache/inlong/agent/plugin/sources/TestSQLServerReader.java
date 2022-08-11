@@ -20,10 +20,9 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.metrics.AgentMetricBaseListener;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
-import org.apache.inlong.agent.metrics.AgentPrometheusMetricListener;
-import org.apache.inlong.agent.metrics.global.GlobalMetrics;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
@@ -44,11 +43,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -57,12 +58,13 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.field;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * Test cases for {@link SQLServerReader}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AgentDbUtils.class, AgentMetricSingleton.class})
+@PrepareForTest({AgentDbUtils.class, AuditUtils.class, SQLServerReader.class})
 @PowerMockIgnore({"javax.management.*"})
 public class TestSQLServerReader {
 
@@ -84,7 +86,12 @@ public class TestSQLServerReader {
     private ResultSetMetaData metaData;
 
     @Mock
-    private GlobalMetrics metrics;
+    private AgentMetricItemSet agentMetricItemSet;
+
+    @Mock
+    private AgentMetricItem agentMetricItem;
+
+    private AtomicLong atomicLong;
 
     private String tagName;
 
@@ -102,6 +109,7 @@ public class TestSQLServerReader {
         final String typeName2 = "varchar";
         final String groupId = "group01";
         final String streamId = "stream01";
+        atomicLong = new AtomicLong(0L);
 
         sql = "select * from dbo.test01";
         tagName = String.join("_", SQLServerReader.SQLSERVER_READER_TAG_NAME, groupId, streamId);
@@ -136,10 +144,10 @@ public class TestSQLServerReader {
         when(metaData.getColumnTypeName(2)).thenReturn(typeName2);
 
         //mock metrics
-        AgentMetricBaseListener listener = new AgentPrometheusMetricListener();
-        field(AgentMetricBaseListener.class, "globalMetrics").set(listener, metrics);
-        mockStatic(AgentMetricSingleton.class);
-        when(AgentMetricSingleton.getAgentMetricHandler()).thenReturn(listener);
+        whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
+        when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
+        field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
+
         //init method
         reader = new SQLServerReader(sql);
         reader.init(jobProfile);
@@ -168,7 +176,7 @@ public class TestSQLServerReader {
         verify(preparedStatement, times(1)).setFetchSize(SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
         Message message2 = reader.read();
         assertEquals(msg2, message2.toString());
-        verify(metrics, times(2)).incReadNum(tagName);
+        assertEquals(2L, atomicLong.get());
     }
 
     /**
@@ -218,7 +226,7 @@ public class TestSQLServerReader {
      */
     @Test
     public void testGetReadSource() {
-        assertEquals(sql,reader.getReadSource());
+        assertEquals(sql, reader.getReadSource());
     }
 
     /**

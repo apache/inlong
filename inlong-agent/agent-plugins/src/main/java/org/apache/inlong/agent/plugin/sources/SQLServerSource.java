@@ -21,7 +21,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
@@ -32,17 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-
-public class SQLServerSource implements Source {
+public class SQLServerSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
-
-    private static final String SQLSERVER_SOURCE_TAG_NAME = "SQLServerSourceMetric";
 
     public static final String JOB_DATABASE_SQL = "job.sql.command";
 
@@ -62,18 +53,16 @@ public class SQLServerSource implements Source {
 
     @Override
     public List<Reader> split(JobProfile conf) {
-        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        String metricTagName = String.join("_", SQLSERVER_SOURCE_TAG_NAME, inlongGroupId, inlongStreamId);
+        super.init(conf);
         String sqlPattern = conf.get(JOB_DATABASE_SQL, StringUtils.EMPTY).toLowerCase();
         List<Reader> readerList = null;
         if (StringUtils.isNotEmpty(sqlPattern)) {
             readerList = splitSqlJob(sqlPattern);
         }
         if (CollectionUtils.isNotEmpty(readerList)) {
-            GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
+            sourceMetric.sourceSuccessCount.incrementAndGet();
         } else {
-            GLOBAL_METRICS.incSourceFailCount(metricTagName);
+            sourceMetric.sourceFailCount.incrementAndGet();
         }
         return readerList;
     }
