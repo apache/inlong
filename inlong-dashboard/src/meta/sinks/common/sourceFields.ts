@@ -29,14 +29,14 @@ export const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', '
 
 export const sourceFields: ColumnsItemProps[] = [
   {
-    title: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldName'),
+    title: i18n.t('meta.Sinks.SourceFieldName'),
     dataIndex: 'sourceFieldName',
     initialValue: '',
     rules: [
       { required: true },
       {
         pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        message: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldNameRule'),
+        message: i18n.t('meta.Sinks.SourceFieldNameRule'),
       },
     ],
     props: (text, record, idx, isNew) => ({
@@ -44,7 +44,7 @@ export const sourceFields: ColumnsItemProps[] = [
     }),
   },
   {
-    title: i18n.t('components.AccessHelper.StorageMetaData.SourceFieldType'),
+    title: i18n.t('meta.Sinks.SourceFieldType'),
     dataIndex: 'sourceFieldType',
     initialValue: fieldTypes[0].value,
     type: 'select',

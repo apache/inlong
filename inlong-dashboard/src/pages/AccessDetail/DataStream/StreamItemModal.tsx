@@ -23,7 +23,8 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import getGroupFields from '@/meta/group';
+import getStreamFields from '@/meta/stream';
 import request from '@/utils/request';
 import { dataToValues, valuesToData } from './helper';
 
@@ -36,7 +37,7 @@ export interface Props extends ModalProps {
 
 export const genFormContent = (isCreate, mqType) => {
   return [
-    ...genDataFields([
+    ...getStreamFields([
       {
         type: (
           <Divider orientation="left">
@@ -67,12 +68,10 @@ export const genFormContent = (isCreate, mqType) => {
         visible: mqType === 'PULSAR',
       },
     ]),
-    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
-      item => ({
-        ...item,
-        visible: mqType === 'PULSAR',
-      }),
-    ),
+    ...getGroupFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(item => ({
+      ...item,
+      visible: mqType === 'PULSAR',
+    })),
   ].map(item => {
     const obj = { ...item };
 

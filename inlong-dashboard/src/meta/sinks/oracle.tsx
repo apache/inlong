@@ -71,7 +71,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.TableName'),
+      label: i18n.t('meta.Sinks.Oracle.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -81,7 +81,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.PrimaryKey'),
+      label: i18n.t('meta.Sinks.Oracle.PrimaryKey'),
       name: 'primaryKey',
       rules: [{ required: true }],
       props: {
@@ -91,11 +91,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -112,7 +112,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -122,7 +122,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
@@ -153,14 +153,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `ORACLE${i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldName')}`,
+      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Oracle.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -168,7 +168,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `ORACLE${i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldType')}`,
+      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: oracleFieldTypes[0].value,
       type: 'select',
@@ -179,7 +179,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.IsMetaField'),
+      title: i18n.t('meta.Sinks.Oracle.IsMetaField'),
       initialValue: 0,
       dataIndex: 'isMetaField',
       type: 'select',
@@ -197,7 +197,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldFormat'),
+      title: i18n.t('meta.Sinks.Oracle.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: '',
       type: 'autocomplete',
@@ -211,7 +211,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldDescription'),
+      title: i18n.t('meta.Sinks.Oracle.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

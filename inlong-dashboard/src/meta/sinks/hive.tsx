@@ -61,7 +61,7 @@ const getForm: GetStorageFormFieldsType = (
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DbName'),
+      label: i18n.t('meta.Sinks.Hive.DbName'),
       name: 'dbName',
       rules: [{ required: true }],
       props: {
@@ -71,7 +71,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.TableName'),
+      label: i18n.t('meta.Sinks.Hive.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -81,11 +81,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -102,7 +102,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       name: 'username',
       rules: [{ required: true }],
       props: {
@@ -112,7 +112,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       name: 'password',
       rules: [{ required: true }],
       props: {
@@ -143,23 +143,23 @@ const getForm: GetStorageFormFieldsType = (
             });
             res
               ? message.success(
-                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded'),
+                  i18n.t('meta.Sinks.Hive.ConnectionSucceeded'),
                 )
               : message.error(
-                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionFailed'),
+                  i18n.t('meta.Sinks.Hive.ConnectionFailed'),
                 );
           }}
         >
-          {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
+          {i18n.t('meta.Sinks.Hive.ConnectionTest')}
         </Button>
       ),*/
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
+      label: i18n.t('meta.Sinks.Hive.DataPath'),
       name: 'dataPath',
       rules: [{ required: true }],
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.DataPathHelp'),
+      tooltip: i18n.t('meta.Sinks.DataPathHelp'),
       props: {
         placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -167,10 +167,10 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDir'),
+      label: i18n.t('meta.Sinks.Hive.ConfDir'),
       name: 'hiveConfDir',
       rules: [{ required: true }],
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDirHelp'),
+      tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
       props: {
         placeholder: '/usr/hive/conf',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -179,7 +179,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'fileFormat',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.FileFormat'),
+      label: i18n.t('meta.Sinks.Hive.FileFormat'),
       initialValue: 'TextFile',
       rules: [{ required: true }],
       props: {
@@ -215,7 +215,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dataEncoding',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataEncoding'),
+      label: i18n.t('meta.Sinks.Hive.DataEncoding'),
       initialValue: 'UTF-8',
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -235,34 +235,34 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dataSeparator',
       type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataSeparator'),
+      label: i18n.t('meta.Sinks.Hive.DataSeparator'),
       initialValue: '124',
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         dropdownMatchSelectWidth: false,
         options: [
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.VerticalLine'),
+            label: i18n.t('meta.Stream.VerticalLine'),
             value: '124',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Comma'),
+            label: i18n.t('meta.Stream.Comma'),
             value: '44',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DoubleQuotes'),
+            label: i18n.t('meta.Stream.DoubleQuotes'),
             value: '34',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Asterisk'),
+            label: i18n.t('meta.Stream.Asterisk'),
             value: '42',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Space'),
+            label: i18n.t('meta.Stream.Space'),
             value: '32',
           },
           {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Semicolon'),
+            label: i18n.t('meta.Stream.Semicolon'),
             value: '59',
           },
         ],
@@ -295,20 +295,20 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       name: 'partitionFieldList',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldList'),
+      label: i18n.t('meta.Sinks.Hive.PartitionFieldList'),
       type: EditableTable,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp'),
+      tooltip: i18n.t('meta.Sinks.Hive.PartitionFieldListHelp'),
       props: {
         size: 'small',
         required: false,
         columns: [
           {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName'),
+            title: i18n.t('meta.Sinks.Hive.FieldName'),
             dataIndex: 'fieldName',
             rules: [{ required: true }],
           },
           {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType'),
+            title: i18n.t('meta.Sinks.Hive.FieldType'),
             dataIndex: 'fieldType',
             type: 'select',
             initialValue: 'string',
@@ -320,7 +320,7 @@ const getForm: GetStorageFormFieldsType = (
             },
           },
           {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
+            title: i18n.t('meta.Sinks.Hive.FieldFormat'),
             dataIndex: 'fieldFormat',
             type: 'autocomplete',
             props: {
@@ -346,14 +346,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName')}`,
+      title: `HIVE${i18n.t('meta.Sinks.Hive.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Hive.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -361,7 +361,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType')}`,
+      title: `HIVE${i18n.t('meta.Sinks.Hive.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: hiveFieldTypes[0].value,
       type: 'select',
@@ -372,7 +372,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.IsMetaField'),
+      title: i18n.t('meta.Sinks.Hive.IsMetaField'),
       dataIndex: 'isMetaField',
       initialValue: 0,
       type: 'select',
@@ -390,7 +390,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
+      title: i18n.t('meta.Sinks.Hive.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: 0,
       type: 'autocomplete',
@@ -404,7 +404,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldDescription'),
+      title: i18n.t('meta.Sinks.Hive.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },

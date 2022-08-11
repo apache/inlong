@@ -52,7 +52,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dbName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.DbName'),
+      label: i18n.t('meta.Sinks.Clickhouse.DbName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -62,7 +62,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'tableName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.TableName'),
+      label: i18n.t('meta.Sinks.Clickhouse.TableName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -72,10 +72,10 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'enableCreateResource',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -93,7 +93,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'username',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      label: i18n.t('meta.Sinks.Username'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -103,7 +103,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'password',
       type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      label: i18n.t('meta.Sinks.Password'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -126,52 +126,52 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'flushInterval',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushInterval'),
+      label: i18n.t('meta.Sinks.Clickhouse.FlushInterval'),
       initialValue: 1,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushIntervalUnit'),
+      suffix: i18n.t('meta.Sinks.Clickhouse.FlushIntervalUnit'),
     },
     {
       name: 'flushRecord',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecord'),
+      label: i18n.t('meta.Sinks.Clickhouse.FlushRecord'),
       initialValue: 1000,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecordUnit'),
+      suffix: i18n.t('meta.Sinks.Clickhouse.FlushRecordUnit'),
     },
     {
       name: 'retryTime',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimes'),
+      label: i18n.t('meta.Sinks.Clickhouse.RetryTimes'),
       initialValue: 3,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimesUnit'),
+      suffix: i18n.t('meta.Sinks.Clickhouse.RetryTimesUnit'),
     },
     {
       name: 'isDistributed',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.IsDistributed'),
+      label: i18n.t('meta.Sinks.Clickhouse.IsDistributed'),
       initialValue: 0,
       props: {
         options: [
           {
-            label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Yes'),
+            label: i18n.t('meta.Sinks.Clickhouse.Yes'),
             value: 1,
           },
           {
-            label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.No'),
+            label: i18n.t('meta.Sinks.Clickhouse.No'),
             value: 0,
           },
         ],
@@ -182,7 +182,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'partitionStrategy',
       type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionStrategy'),
+      label: i18n.t('meta.Sinks.Clickhouse.PartitionStrategy'),
       initialValue: 'BALANCE',
       rules: [{ required: true }],
       props: {
@@ -207,7 +207,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'partitionFields',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionFields'),
+      label: i18n.t('meta.Sinks.Clickhouse.PartitionFields'),
       rules: [{ required: true }],
       visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
       props: {
@@ -217,7 +217,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'engine',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Engine'),
+      label: i18n.t('meta.Sinks.Clickhouse.Engine'),
       initialValue: 'Log',
       rules: [{ required: true }],
       props: {
@@ -227,7 +227,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'orderBy',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.OrderBy'),
+      label: i18n.t('meta.Sinks.Clickhouse.OrderBy'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
@@ -235,7 +235,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'partitionBy',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionBy'),
+      label: i18n.t('meta.Sinks.Clickhouse.PartitionBy'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
@@ -243,7 +243,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'primaryKey',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PrimaryKey'),
+      label: i18n.t('meta.Sinks.Clickhouse.PrimaryKey'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
@@ -268,13 +268,13 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `ClickHouse${i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FieldName')}`,
+      title: `ClickHouse${i18n.t('meta.Sinks.Clickhouse.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Clickhouse.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -282,7 +282,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `ClickHouse${i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FieldType')}`,
+      title: `ClickHouse${i18n.t('meta.Sinks.Clickhouse.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: clickhouseTargetTypes[0].value,
       type: 'select',
@@ -315,23 +315,21 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['DEFAULT', 'EPHEMERAL', 'MATERIALIZED', 'ALIAS'].includes(record.defaultType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.CompressionCode'),
+      title: i18n.t('meta.Sinks.Clickhouse.CompressionCode'),
       dataIndex: 'compressionCode',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.TtlExpr'),
+      title: i18n.t('meta.Sinks.Clickhouse.TtlExpr'),
       dataIndex: 'ttlExpr',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
     },
     {
-      title: `ClickHouse${i18n.t(
-        'components.AccessHelper.StorageMetaData.Clickhouse.FieldDescription',
-      )}`,
+      title: `ClickHouse${i18n.t('meta.Sinks.Clickhouse.FieldDescription')}`,
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,

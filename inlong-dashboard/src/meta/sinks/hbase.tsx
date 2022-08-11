@@ -50,7 +50,7 @@ const getForm: GetStorageFormFieldsType = (
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.Namespace'),
+      label: i18n.t('meta.Sinks.HBase.Namespace'),
       name: 'namespace',
       rules: [{ required: true }],
       props: {
@@ -60,7 +60,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.TableName'),
+      label: i18n.t('meta.Sinks.HBase.TableName'),
       name: 'tableName',
       rules: [{ required: true }],
       props: {
@@ -70,7 +70,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.RowKey'),
+      label: i18n.t('meta.Sinks.HBase.RowKey'),
       name: 'rowKey',
       rules: [{ required: true }],
       props: {
@@ -80,7 +80,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.ZkQuorum'),
+      label: i18n.t('meta.Sinks.HBase.ZkQuorum'),
       name: 'zkQuorum',
       rules: [{ required: true }],
       props: {
@@ -91,7 +91,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.ZkNodeParent'),
+      label: i18n.t('meta.Sinks.HBase.ZkNodeParent'),
       name: 'zkNodeParent',
       rules: [{ required: true }],
       props: {
@@ -102,7 +102,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.BufferFlushMaxSize'),
+      label: i18n.t('meta.Sinks.HBase.BufferFlushMaxSize'),
       name: 'bufferFlushMaxSize',
       initialValue: 2,
       rules: [{ required: true }],
@@ -115,7 +115,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.BufferFlushMaxRows'),
+      label: i18n.t('meta.Sinks.HBase.BufferFlushMaxRows'),
       name: 'bufferFlushMaxRows',
       initialValue: 1000,
       rules: [{ required: true }],
@@ -127,7 +127,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.HBase.BufferFlushInterval'),
+      label: i18n.t('meta.Sinks.HBase.BufferFlushInterval'),
       name: 'bufferFlushInterval',
       initialValue: 1,
       rules: [{ required: true }],
@@ -135,7 +135,7 @@ const getForm: GetStorageFormFieldsType = (
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.HBase.FlushIntervalUnit'),
+      suffix: i18n.t('meta.Sinks.HBase.FlushIntervalUnit'),
       _inTable: true,
     },
     {
@@ -159,14 +159,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `HBASE${i18n.t('components.AccessHelper.StorageMetaData.HBase.FieldName')}`,
+      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.HBase.FieldNameRule'),
+          message: i18n.t('meta.Sinks.HBase.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -174,7 +174,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `HBASE${i18n.t('components.AccessHelper.StorageMetaData.HBase.FieldType')}`,
+      title: `HBASE${i18n.t('meta.Sinks.HBase.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: hbaseFieldTypes[0].value,
       type: 'select',

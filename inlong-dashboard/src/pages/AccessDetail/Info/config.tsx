@@ -18,7 +18,7 @@
  */
 
 // import React from 'react';
-import { genBusinessFields } from '@/components/AccessHelper';
+import getGroupFields from '@/meta/group';
 
 export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
   const keys = [
@@ -43,7 +43,7 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
   ].filter(Boolean);
 
   return isCreate
-    ? genBusinessFields(keys, initialValues).map(item => {
+    ? getGroupFields(keys, initialValues).map(item => {
         if (item.name === 'inlongGroupId' && isUpdate) {
           return {
             ...item,
@@ -55,7 +55,7 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
         }
         return item;
       })
-    : genBusinessFields(keys, initialValues).map(item => ({
+    : getGroupFields(keys, initialValues).map(item => ({
         ...item,
         type: transType(editing, item, initialValues),
         suffix:
