@@ -21,6 +21,7 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.function.EncryptFunction;
+import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFunction;
 import org.apache.inlong.sort.parser.Parser;
@@ -68,6 +69,7 @@ public class NativeFlinkSqlParser implements Parser {
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
+        tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
     }
 
     /**
