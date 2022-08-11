@@ -49,6 +49,7 @@ public class SortClientConfig implements Serializable {
     private String managerApiUrl;
     private String managerApiVersion;
     private ConsumeStrategy consumeStrategy;
+    private TopicManagerType topicManagerType;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 0;
@@ -101,6 +102,13 @@ public class SortClientConfig implements Serializable {
         this.consumeStrategy = consumeStrategy;
     }
 
+    public TopicManagerType getTopicManagerType() {
+        return topicManagerType;
+    }
+
+    public void setTopicManagerType(TopicManagerType topicManagerType) {
+        this.topicManagerType = topicManagerType;
+    }
     /**
      * get fetchCallback
      *
@@ -311,6 +319,13 @@ public class SortClientConfig implements Serializable {
         lastest_absolutely
     }
 
+    public enum TopicManagerType {
+        // single topic manager
+        single_topic,
+        // multi topic manager
+        multi_topic
+    }
+
     /**
      * setParameters
      * @param sortSdkParams
@@ -333,8 +348,10 @@ public class SortClientConfig implements Serializable {
         this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
-
+        String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
+                TopicManagerType.single_topic.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
+        this.topicManagerType = TopicManagerType.valueOf(strManagerType);
 
         this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
                 reportStatisticIntervalSec);
