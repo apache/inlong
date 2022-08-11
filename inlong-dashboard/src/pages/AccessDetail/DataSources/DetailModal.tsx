@@ -125,16 +125,7 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
 
   return (
     <>
-      <Modal
-        {...modalProps}
-        title={
-          type === 'MYSQL_BINLOG'
-            ? 'MYSQL_BINLOG'
-            : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
-        }
-        width={666}
-        onOk={onOk}
-      >
+      <Modal {...modalProps} title={sourcesMap[type]?.label} width={666} onOk={onOk}>
         <FormGenerator
           content={content.concat(formContent)}
           onValuesChange={vals => setCurrentValues(prev => ({ ...prev, ...vals }))}

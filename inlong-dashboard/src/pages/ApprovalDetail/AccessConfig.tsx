@@ -20,10 +20,10 @@
 import React from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { genBusinessFields } from '@/components/AccessHelper';
+import getGroupFields from '@/meta/group';
 
-const getBusinessContent = (initialValues, isFinished, isViwer) => [
-  ...genBusinessFields(
+const getContent = (initialValues, isFinished, isViwer) => [
+  ...getGroupFields(
     [
       'inlongGroupId',
       'name',
@@ -85,7 +85,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         </Divider>
       ),
     },
-    ...(getBusinessContent(formData.groupInfo, isFinished, isViwer) || []),
+    ...(getContent(formData.groupInfo, isFinished, isViwer) || []),
     {
       type: (
         <Divider orientation="left">

@@ -27,7 +27,7 @@ import FormGenerator, {
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import { Storages, StoragesType } from '@/meta/sinks';
+import { Sinks, SinkType } from '@/meta/sinks';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -46,7 +46,7 @@ export interface DetailModalProps extends ModalProps {
   onValuesChange?: FormGeneratorProps['onValuesChange'];
 }
 
-const StoragesMap: Record<string, StoragesType> = Storages.reduce(
+const SinksMap: Record<string, SinkType> = Sinks.reduce(
   (acc, cur) => ({
     ...acc,
     [cur.value]: cur,
@@ -94,7 +94,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const toFormVals = useCallback(
     v => {
-      const mapFunc = StoragesMap[sinkType]?.toFormValues;
+      const mapFunc = SinksMap[sinkType]?.toFormValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [sinkType],
@@ -102,7 +102,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const toSubmitVals = useCallback(
     v => {
-      const mapFunc = StoragesMap[sinkType]?.toSubmitValues;
+      const mapFunc = SinksMap[sinkType]?.toSubmitValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [sinkType],
@@ -140,7 +140,7 @@ const Comp: React.FC<DetailModalProps> = ({
           item => item.fieldName && item.fieldType,
         );
         if (fieldListKey && usefulDefaultRowTypeFields?.length) {
-          const getFieldListColumns = Storages.find(item => item.value === sinkType)
+          const getFieldListColumns = Sinks.find(item => item.value === sinkType)
             ?.getFieldListColumns;
           form.setFieldsValue({
             [fieldListKey.columnsKey]: usefulDefaultRowTypeFields?.map(item => ({
@@ -174,7 +174,7 @@ const Comp: React.FC<DetailModalProps> = ({
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const getForm = StoragesMap[sinkType].getForm;
+    const getForm = SinksMap[sinkType].getForm;
     const config = getForm('form', {
       currentValues,
       inlongGroupId,
@@ -186,12 +186,12 @@ const Comp: React.FC<DetailModalProps> = ({
       {
         name: 'sinkName',
         type: 'input',
-        label: t('components.AccessHelper.StorageMetaData.SinkName'),
+        label: t('meta.Sinks.SinkName'),
         rules: [
           { required: true },
           {
             pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
-            message: t('components.AccessHelper.StorageMetaData.SinkNameRule'),
+            message: t('meta.Sinks.SinkNameRule'),
           },
         ],
         props: {
@@ -201,7 +201,7 @@ const Comp: React.FC<DetailModalProps> = ({
       {
         name: 'description',
         type: 'textarea',
-        label: t('components.AccessHelper.StorageMetaData.Description'),
+        label: t('meta.Sinks.Description'),
         props: {
           showCount: true,
           maxLength: 300,
@@ -226,7 +226,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   return (
-    <Modal title={StoragesMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title={SinksMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
       <FormGenerator
         name={name}
         labelCol={{ span: 4 }}

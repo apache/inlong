@@ -23,8 +23,8 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { DataStorageDetailModal } from '@/components/AccessHelper';
-import { Storages } from '@/meta/sinks';
+import DetailModal from './DetailModal';
+import { Sinks } from '@/meta/sinks';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { statusList, genStatusTag } from './status';
@@ -43,7 +43,7 @@ const getFilterFormContent = defaultValues => [
     initialValue: defaultValues.sinkType,
     props: {
       dropdownMatchSelectWidth: false,
-      options: Storages.map(item => ({
+      options: Sinks.map(item => ({
         label: item.label,
         value: item.value,
       })),
@@ -65,7 +65,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: Storages[0].value,
+    sinkType: Sinks[0].value,
   });
 
   const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
@@ -168,7 +168,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columnsMap = useMemo(
     () =>
-      Storages.reduce(
+      Sinks.reduce(
         (acc, cur) => ({
           ...acc,
           [cur.value]: cur.tableColumns,
@@ -256,7 +256,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         }}
       />
 
-      <DataStorageDetailModal
+      <DetailModal
         {...createModal}
         inlongGroupId={inlongGroupId}
         content={createContent}

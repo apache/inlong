@@ -22,7 +22,7 @@ import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { DataSourcesCreateModal } from '@/components/AccessHelper';
+import DetailModal from './DetailModal';
 import { sources } from '@/meta/sources';
 import i18n from '@/i18n';
 import request from '@/utils/request';
@@ -253,7 +253,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         }}
       />
 
-      <DataSourcesCreateModal
+      <DetailModal
         {...createModal}
         type={options.sourceType as any}
         content={createContent}

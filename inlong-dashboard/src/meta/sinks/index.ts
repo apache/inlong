@@ -32,7 +32,7 @@ import { sqlServer } from './sqlServer';
 import { tdsqlPostgreSQL } from './tdsqlPostgreSql';
 import { hbase } from './hbase';
 
-export interface StoragesType {
+export interface SinkType {
   label: string;
   value: string;
   // Generate form configuration for single data
@@ -47,7 +47,7 @@ export interface StoragesType {
   toSubmitValues?: (values: unknown) => unknown;
 }
 
-export const Storages: StoragesType[] = [
+export const Sinks: SinkType[] = [
   {
     label: 'Hive',
     value: 'HIVE',

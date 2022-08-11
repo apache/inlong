@@ -20,10 +20,10 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { genBasicFields } from '@/components/ConsumeHelper';
+import getConsumptionFields from '@/meta/consumption';
 
-const getConsumerContent = initialValues => {
-  return genBasicFields(
+const getContent = initialValues => {
+  return getConsumptionFields(
     [
       'consumerGroup',
       'inCharges',
@@ -74,7 +74,7 @@ export const getFormContent = (
         </Divider>
       ),
     },
-    ...(getConsumerContent(formData.consumptionInfo) || []),
+    ...(getContent(formData.consumptionInfo) || []),
   ];
 
   const extraForm =

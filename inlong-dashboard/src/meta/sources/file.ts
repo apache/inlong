@@ -26,12 +26,12 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
   const fileds = [
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.DataSourceIP'),
+      label: i18n.t('meta.Sources.File.DataSourceIP'),
       name: 'ip',
       rules: [
         {
           pattern: rulesPattern.ip,
-          message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
+          message: i18n.t('meta.Sources.File.IpRule'),
           required: true,
         },
       ],
@@ -39,17 +39,17 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePath'),
+      label: i18n.t('meta.Sources.File.FilePath'),
       name: 'pattern',
-      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.FilePathHelp'),
+      tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
       rules: [{ required: true }],
       _inTable: true,
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffset'),
+      label: i18n.t('meta.Sources.File.TimeOffset'),
       name: 'timeOffset',
-      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.File.TimeOffsetHelp'),
+      tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
       _inTable: true,
     },
   ];

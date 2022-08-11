@@ -116,7 +116,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dbName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.DbName'),
+      label: i18n.t('meta.Sinks.Iceberg.DbName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -126,7 +126,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'tableName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.TableName'),
+      label: i18n.t('meta.Sinks.Iceberg.TableName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -135,11 +135,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      label: i18n.t('meta.Sinks.EnableCreateResource'),
       name: 'enableCreateResource',
       rules: [{ required: true }],
       initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
@@ -175,20 +175,20 @@ const getForm: GetStorageFormFieldsType = (
             });
             res
               ? message.success(
-                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded'),
+                  i18n.t('meta.Sinks.Hive.ConnectionSucceeded'),
                 )
               : message.error(
-                  i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionFailed'),
+                  i18n.t('meta.Sinks.Hive.ConnectionFailed'),
                 );
           }}
         >
-          {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
+          {i18n.t('meta.Sinks.Hive.ConnectionTest')}
         </Button>
       ),*/
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.Warehouse'),
+      label: i18n.t('meta.Sinks.Iceberg.Warehouse'),
       name: 'warehouse',
       rules: [{ required: true }],
       props: {
@@ -199,7 +199,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'fileFormat',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FileFormat'),
+      label: i18n.t('meta.Sinks.Iceberg.FileFormat'),
       initialValue: 'Parquet',
       rules: [{ required: true }],
       props: {
@@ -222,7 +222,7 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       name: 'extList',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.ExtList'),
+      label: i18n.t('meta.Sinks.Iceberg.ExtList'),
       type: EditableTable,
       props: {
         size: 'small',
@@ -250,7 +250,7 @@ const getForm: GetStorageFormFieldsType = (
     {
       name: 'dataConsistency',
       type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.DataConsistency'),
+      label: i18n.t('meta.Sinks.Iceberg.DataConsistency'),
       initialValue: 'EXACTLY_ONCE',
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -287,14 +287,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceFields,
     {
-      title: `Iceberg ${i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FieldName')}`,
+      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldName')}`,
       width: 110,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Iceberg.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -302,7 +302,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `Iceberg ${i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FieldType')}`,
+      title: `Iceberg ${i18n.t('meta.Sinks.Iceberg.FieldType')}`,
       dataIndex: 'fieldType',
       width: 130,
       initialValue: icebergFieldTypes[0].value,
@@ -355,7 +355,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       visible: (text, record) => record.fieldType === 'decimal',
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.PartitionStrategy'),
+      title: i18n.t('meta.Sinks.Iceberg.PartitionStrategy'),
       dataIndex: 'partitionStrategy',
       type: 'select',
       initialValue: 'None',
@@ -365,7 +365,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.FieldDescription'),
+      title: i18n.t('meta.Sinks.Iceberg.FieldDescription'),
       dataIndex: 'fieldComment',
     },
   ];

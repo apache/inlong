@@ -27,7 +27,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'hostname',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Server'),
+      label: i18n.t('meta.Sources.Db.Server'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
@@ -37,7 +37,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'port',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Port'),
+      label: i18n.t('meta.Sources.Db.Port'),
       initialValue: 3306,
       rules: [{ required: true }],
       props: {
@@ -50,7 +50,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'user',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.User'),
+      label: i18n.t('meta.Sources.Db.User'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
@@ -59,7 +59,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'password',
       type: 'password',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.Password'),
+      label: i18n.t('meta.Sources.Db.Password'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
@@ -68,7 +68,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'historyFilename',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.HistoryFilename'),
+      label: i18n.t('meta.Sources.Db.HistoryFilename'),
       rules: [{ required: true }],
       initialValue: '/data/inlong-agent/.history',
       props: {
@@ -79,7 +79,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'serverTimezone',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.ServerTimezone'),
+      label: i18n.t('meta.Sources.Db.ServerTimezone'),
       tooltip: 'UTC, UTC+8, Asia/Shanghai, ...',
       initialValue: 'UTC',
       rules: [{ required: true }],
@@ -90,7 +90,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'intervalMs',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.IntervalMs'),
+      label: i18n.t('meta.Sources.Db.IntervalMs'),
       initialValue: 1000,
       rules: [{ required: true }],
       suffix: 'ms',
@@ -103,7 +103,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'allMigration',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.AllMigration'),
+      label: i18n.t('meta.Sources.Db.AllMigration'),
       rules: [{ required: true }],
       initialValue: false,
       props: {
@@ -123,8 +123,8 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'databaseWhiteList',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.DatabaseWhiteList'),
-      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.Db.WhiteListHelp'),
+      label: i18n.t('meta.Sources.Db.DatabaseWhiteList'),
+      tooltip: i18n.t('meta.Sources.Db.WhiteListHelp'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
@@ -134,8 +134,8 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       name: 'tableWhiteList',
       type: 'input',
-      label: i18n.t('components.AccessHelper.DataSourceMetaData.Db.TableWhiteList'),
-      tooltip: i18n.t('components.AccessHelper.DataSourceMetaData.Db.WhiteListHelp'),
+      label: i18n.t('meta.Sources.Db.TableWhiteList'),
+      tooltip: i18n.t('meta.Sources.Db.WhiteListHelp'),
       rules: [{ required: true }],
       props: {
         disabled: currentValues?.status === 101,
