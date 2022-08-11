@@ -178,11 +178,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         cluster.setModifier(creator);
         cluster.setStatus(ClusterStatus.NORMAL.getStatus());
         cluster.setDescription(AUTO_REGISTERED);
-        int index = clusterMapper.insertOnDuplicateKeyUpdate(cluster);
+        clusterMapper.insertOnDuplicateKeyUpdate(cluster);
 
         InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
         ClusterInfo clusterInfo = operator.getFromEntity(cluster);
-        clusterInfo.setId(index);
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
