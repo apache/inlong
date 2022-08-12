@@ -47,7 +47,7 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
      * @throws Exception The exception may throw when test Encrypt function
      */
     @Test
-    public void testEncryptFunction() throws Exception {
+    public void testJsonGetterFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
             .newInstance()
             .useBlinkPlanner()
