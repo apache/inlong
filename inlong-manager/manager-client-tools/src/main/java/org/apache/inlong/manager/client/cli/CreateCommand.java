@@ -58,15 +58,20 @@ public class CreateCommand extends AbstractCommand {
 
         @Override
         void run() {
-            System.out.println("start running");
             try {
-                String fileContent = ClientUtils.readFile(file);
-                if (StringUtils.isBlank(fileContent)) {
-                    System.out.println("Create group failed: file was empty!");
-                    return;
+                String content;
+                if(input.length()>0){
+                    content = input;
+                }
+                else {
+                    content = ClientUtils.readFile(file);
+                    if (StringUtils.isBlank(content)) {
+                        System.out.println("Create group failed: file was empty!");
+                        return;
+                    }
                 }
                 //first extract groupconfig from the file passed in
-                CreateGroupConf groupConf = objectMapper.readValue(fileContent, CreateGroupConf.class);
+                CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
                 //get the correspodning inlonggroup, a.k.a the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());

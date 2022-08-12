@@ -59,17 +59,6 @@ public class TestCommand {
     }
 
     @Test
-    public void testQueryGroup(){
-        //create invalid groups, for testing uses only.
-        //can be edited to form valid groups, only need to add a validity check on the group.
-        String[] arg1 = {"create", "group", "-s", "groupInfo:{inlongGroupId:1234,mqType:pulsar},streamInfo:{inlongGroupId:1234}"};
-        Assertions.assertTrue(inlongAdminTool.run(arg1));
-        //query by properties, return groupid.
-        String[] arg2 = {"log", "group", "-query", "mqType", "pulsar"};
-        Assertions.assertTrue(inlongAdminTool.run(arg2));
-    }
-
-    @Test
     public void testDeleteGroup() throws Exception  {
         String[] arg = {"delete","group", "-id", "test_group", "-t"};
         CommandToolMain.setMockClient(getMockClient());
