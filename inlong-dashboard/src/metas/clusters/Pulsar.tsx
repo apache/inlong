@@ -18,7 +18,7 @@
  */
 
 import i18n from '@/i18n';
-import type { ClsConfigItemType } from './types';
+import type { ClsConfigItemType } from './common/types';
 
 export const Pulsar: ClsConfigItemType[] = [
   {
