@@ -43,7 +43,7 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-id"},
+        @Parameter(names = {"--group","-g"},
                 required = true)
         private String groupId;
 
@@ -53,21 +53,11 @@ public class UpdateCommand extends AbstractCommand {
                 description = "json file")
         private File file;
 
-        @Parameter(names={"-t","--test"})
-        private boolean debug = false;
-
         @Override
         void run() {
-            InlongClient inlongClient;
-            InlongGroup group;
             try {
-                if(debug){
-                    inlongClient = CommandToolMain.getMockClient();
-                }
-                else{
-                    inlongClient = ClientUtils.getClient();
-                }
-                group = inlongClient.getGroup(groupId);
+                InlongClient inlongClient = ClientUtils.getClient();
+                InlongGroup group = inlongClient.getGroup(groupId);
                 String fileContent = ClientUtils.readFile(file);
                 if (StringUtils.isBlank(fileContent)) {
                     System.out.println("Update group failed: file was empty!");

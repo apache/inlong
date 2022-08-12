@@ -49,27 +49,17 @@ public class DeleteCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-id"},
+        @Parameter(names = {"--group","-g"},
                 required = true,
                 description = "group id")
         private String groupId;
 
-        @Parameter(names={"-t","--test"})
-        private boolean debug = false;
-
         @Override
         void run() {
-            InlongClient inlongClient;
-            InlongGroup group;
-            if(debug){
-                inlongClient = CommandToolMain.getMockClient();
-            }
-            else{
-                inlongClient = ClientUtils.getClient();
-            }
             //get the group and the corresponding context(snapshot)
             try{
-                group = inlongClient.getGroup(groupId);
+                InlongClient inlongClient = ClientUtils.getClient();
+                InlongGroup group = inlongClient.getGroup(groupId);
                 group.delete();
                 System.out.println("delete group success");
             }
