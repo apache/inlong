@@ -53,8 +53,7 @@ public class InLongSingleTopicManager extends InLongTopicManager {
 
     private final Logger logger = LoggerFactory.getLogger(InLongSingleTopicManager.class);
 
-    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TubeConsumerCreater> tubeFactories = new ConcurrentHashMap<>();
 

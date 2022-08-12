@@ -102,13 +102,22 @@ public class SortClientConfig implements Serializable {
         this.consumeStrategy = consumeStrategy;
     }
 
+    /**
+     * get the type of topic manager
+     * @return
+     */
     public TopicManagerType getTopicManagerType() {
         return topicManagerType;
     }
 
+    /**
+     * Set type of topic manager
+     * @param topicManagerType
+     */
     public void setTopicManagerType(TopicManagerType topicManagerType) {
         this.topicManagerType = topicManagerType;
     }
+
     /**
      * get fetchCallback
      *
