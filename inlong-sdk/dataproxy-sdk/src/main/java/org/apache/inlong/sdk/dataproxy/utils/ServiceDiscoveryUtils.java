@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
@@ -53,6 +55,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utils for service discovery
@@ -199,10 +202,18 @@ public class ServiceDiscoveryUtils {
                             + "null ", returnStr, jb);
                     return null;
                 }
-                JsonObject rd = jb.get("resultData").getAsJsonObject();
-                String ip = rd.get("ip").getAsString();
-                log.info("ServiceDiscovery updated manager ip success, ip : " + ip + ", retStr : " + returnStr);
-                return ip;
+                JsonArray retData = jb.get("data").getAsJsonArray();
+                List<String> managerIpList = new ArrayList<>();
+                for (JsonElement datum : retData) {
+                    JsonObject record = datum.getAsJsonObject();
+                    managerIpList.add(record.get("ip").getAsString());
+                }
+                if (managerIpList.isEmpty()) {
+                    return null;
+                }
+                String strIPs = String.join(",", managerIpList);
+                log.info("ServiceDiscovery updated manager ip success, ip : " + strIPs + ", retStr : " + returnStr);
+                return strIPs;
             }
             return null;
         } catch (Throwable t) {

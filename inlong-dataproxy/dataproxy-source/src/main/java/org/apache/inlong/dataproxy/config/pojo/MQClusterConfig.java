@@ -68,10 +68,10 @@ public class MQClusterConfig extends Context {
 
     // TubeMQ params
     private static final String MAX_SURVIVED_TIME = "max_survived_time";
-    private static final int DEFAULT_MAX_SURVIVED_TIME = 300000;
+    private static final int DEFAULT_MAX_SURVIVED_TIME = 30000;
 
     private static final String MAX_SURVIVED_SIZE = "max_survived_size";
-    private static final int DEFAULT_MAX_SURVIVED_SIZE = 3000000;
+    private static final int DEFAULT_MAX_SURVIVED_SIZE = 5000000;
 
     private static final String NEW_CHECK_PATTERN = "new_check_pattern";
     private static final boolean DEFAULT_NEW_CHECK_PATTERN = true;

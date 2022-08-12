@@ -27,7 +27,6 @@ import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcLookupOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcReadOptions;
-import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSink;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSource;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -45,12 +44,17 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  * <p>
  * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
- * JdbcDynamicTableSink}.We modify it to strengthen capacity of registering other dialect.</p>
+ * JdbcDynamicTableSink}.
+ * We modify it to strengthen capacity of registering other dialect.
+ * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * </p>
  */
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
@@ -166,6 +170,11 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                     .intType()
                     .defaultValue(3)
                     .withDescription("The max retry times if writing records to database failed.");
+    private static final ConfigOption<Boolean> SINK_APPEND_MODE =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether to support sink update/delete data without primaryKey.");
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -178,12 +187,17 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         JdbcOptions jdbcOptions = getJdbcOptions(config);
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
-
+        boolean appendMode = config.get(SINK_APPEND_MODE);
+        String inLongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
-                physicalSchema);
+                physicalSchema,
+                appendMode,
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     @Override
@@ -305,9 +319,12 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         optionalOptions.add(SINK_BUFFER_FLUSH_MAX_ROWS);
         optionalOptions.add(SINK_BUFFER_FLUSH_INTERVAL);
         optionalOptions.add(SINK_MAX_RETRIES);
+        optionalOptions.add(SINK_APPEND_MODE);
         optionalOptions.add(FactoryUtil.SINK_PARALLELISM);
         optionalOptions.add(MAX_RETRY_TIMEOUT);
         optionalOptions.add(DIALECT_IMPL);
+        optionalOptions.add(INLONG_METRIC);
+        optionalOptions.add(INLONG_AUDIT);
         return optionalOptions;
     }
 

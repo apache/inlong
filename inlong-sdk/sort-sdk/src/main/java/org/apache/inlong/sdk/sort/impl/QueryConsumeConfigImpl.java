@@ -180,6 +180,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 topic.setInLongCluster(cacheZoneCluster);
                 topic.setTopic(topicInfo.getTopic());
                 topic.setTopicType(cacheZone.getZoneType());
+                topic.setProperties(topicInfo.getTopicProperties());
                 topics.add(topic);
             }
         }

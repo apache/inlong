@@ -63,7 +63,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     const submitData = {
       ...values,
       inCharges: values.inCharges.join(','),
-      consumerGroupId: values.consumerGroupName || data?.consumerGroupId,
+      consumerGroup: values.consumerGroup || data?.consumerGroup,
       topic: Array.isArray(values.topic) ? values.topic.join(',') : values.topic,
       version: data?.version,
       mqExtInfo: {

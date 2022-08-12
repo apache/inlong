@@ -37,6 +37,7 @@ import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.slf4j.Logger;
@@ -50,13 +51,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
-import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
 /**
  * The sink function for HBase.
@@ -126,24 +120,18 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         org.apache.hadoop.conf.Configuration config = prepareRuntimeConfiguration();
         try {
             this.runtimeContext = getRuntimeContext();
-            sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
             if (inLongMetric != null && !inLongMetric.isEmpty()) {
-                String[] inLongMetricArray = inLongMetric.split("_");
+                String[] inLongMetricArray = inLongMetric.split(Constants.DELIMITER);
                 String groupId = inLongMetricArray[0];
                 String streamId = inLongMetricArray[1];
                 String nodeId = inLongMetricArray[2];
-                sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, DIRTY_BYTES,
-                    new ThreadSafeCounter());
-                sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, DIRTY_RECORDS,
-                    new ThreadSafeCounter());
-                sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, NUM_BYTES_OUT,
-                    new ThreadSafeCounter());
-                sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, NUM_RECORDS_OUT,
-                    new ThreadSafeCounter());
-                sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
-                        NUM_BYTES_OUT_PER_SECOND);
-                sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
-                        NUM_RECORDS_OUT_PER_SECOND);
+                sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
+                sinkMetricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                sinkMetricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                sinkMetricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                sinkMetricData.registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                sinkMetricData.registerMetricsForNumBytesOutPerSecond();
+                sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
             }
             this.mutationConverter.open();
             this.numPendingRequests = new AtomicLong(0);

@@ -19,7 +19,7 @@
 
 import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { useHistory, useSelector, useDispatch, useRequest } from '@/hooks';
+import { useSelector, useRequest } from '@/hooks';
 import { State } from '@/models';
 import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
@@ -31,8 +31,6 @@ import KeyModal from './KeyModal';
 const Comp: React.FC = () => {
   const { t } = useTranslation();
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const history = useHistory();
-  const dispatch = useDispatch();
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -44,25 +42,16 @@ const Comp: React.FC = () => {
 
   const { run: runLogout } = useRequest('/anno/logout', {
     manual: true,
-    onSuccess: () => {
-      localStorage.removeItem('userName');
-      history.push('/login');
-      dispatch({
-        type: 'setUser',
-        payload: {
-          userName: null,
-        },
-      });
-    },
+    onSuccess: () => (window.location.href = '/'),
   });
 
   const menu = (
     <Menu>
-      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
-        {t('components.Layout.NavWidget.EditPassword')}
-      </Menu.Item>
       <Menu.Item onClick={() => setKeyModal({ visible: true })}>
         {t('components.Layout.NavWidget.PersonalKey')}
+      </Menu.Item>
+      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
+        {t('components.Layout.NavWidget.EditPassword')}
       </Menu.Item>
       <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
     </Menu>

@@ -31,7 +31,7 @@
     <name>Apache InLong - Sort-connector-iceberg-dlc</name>
     <packaging>jar</packaging>
     <description>
-        DLC is a data lake product.It's storage is based on iceberg.
+        DLC is a data lake product. It's storage is based on iceberg.
         Here is the product: https://cloud.tencent.com/product/dlc
     </description>
 
@@ -133,6 +133,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>org.apache.iceberg:*</include>
                                     <include>org.apache.hive:hive-exec</include>
 

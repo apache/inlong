@@ -160,4 +160,9 @@ public class CommonConstants {
 
     public static final String KEY_METRICS_INDEX = "metricsIndex";
 
+    public static final String COMMA = ",";
+    public static final String DELIMITER_UNDERLINE = "_";
+    public static final String DELIMITER_HYPHEN = "-";
+
+
 }

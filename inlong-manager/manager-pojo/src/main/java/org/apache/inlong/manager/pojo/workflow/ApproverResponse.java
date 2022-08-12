@@ -47,7 +47,7 @@ public class ApproverResponse {
     private String taskName;
 
     @ApiModelProperty("Workflow approvers, separate with commas(,)")
-    private String approver;
+    private String approvers;
 
     @ApiModelProperty(value = "Name of creator")
     private String creator;

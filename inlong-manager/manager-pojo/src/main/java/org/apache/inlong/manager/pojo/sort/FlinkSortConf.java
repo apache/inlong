@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,10 +36,6 @@ import java.util.Map;
 @JsonTypeDefine(value = BaseSortConf.SORT_FLINK)
 public class FlinkSortConf extends BaseSortConf {
 
-    @JsonIgnore
-    @ApiModelProperty(value = "Sort type")
-    private SortType type = SortType.FLINK;
-
     @ApiModelProperty("Authentication")
     private Authentication authentication;
 
@@ -52,4 +47,8 @@ public class FlinkSortConf extends BaseSortConf {
 
     @ApiModelProperty("Other properties if needed")
     private Map<String, String> properties = Maps.newHashMap();
+
+    public SortType getType() {
+        return SortType.FLINK;
+    }
 }

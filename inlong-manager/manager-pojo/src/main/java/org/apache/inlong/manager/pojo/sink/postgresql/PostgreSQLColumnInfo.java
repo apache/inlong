@@ -17,15 +17,21 @@
 
 package org.apache.inlong.manager.pojo.sink.postgresql;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * PostgreSQL column info.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostgreSQLColumnInfo {
 
     private String name;
+
     private String type;
-    private String desc;
+
+    private String comment;
 }

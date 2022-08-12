@@ -21,6 +21,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -66,16 +68,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @PostConstruct
     public void init() {
         long expireTime = heartbeatInterval() * 2L;
+        Scheduler evictScheduler = Scheduler.forScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
         heartbeatCache = Caffeine.newBuilder()
+                .scheduler(evictScheduler)
                 .expireAfterAccess(expireTime, TimeUnit.SECONDS)
                 .removalListener((ComponentHeartbeat k, HeartbeatMsg msg, RemovalCause c) -> {
-                    if (msg != null) {
+                    if ((c.wasEvicted() || c == RemovalCause.EXPLICIT) && msg != null) {
                         evictClusterNode(msg);
                     }
                 }).build();
 
+        // The expire time of cluster info cache must be greater than heartbeat cache
+        // because the eviction handler needs to query cluster info cache
         clusterInfoCache = Caffeine.newBuilder()
-                .expireAfterAccess(expireTime, TimeUnit.SECONDS)
+                .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
                 .build(this::fetchCluster);
     }
 
@@ -174,11 +180,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         cluster.setModifier(creator);
         cluster.setStatus(ClusterStatus.NORMAL.getStatus());
         cluster.setDescription(AUTO_REGISTERED);
-        int index = clusterMapper.insertOnDuplicateKeyUpdate(cluster);
+        clusterMapper.insertOnDuplicateKeyUpdate(cluster);
 
         InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
         ClusterInfo clusterInfo = operator.getFromEntity(cluster);
-        clusterInfo.setId(index);
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;

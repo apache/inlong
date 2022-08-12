@@ -526,6 +526,8 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
     `meta_field_name`   varchar(20)   DEFAULT NULL COMMENT 'Meta field name',
     `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
+    `origin_node_name`  varchar(256)  DEFAULT '' COMMENT 'Origin node name which stream field belongs',
+    `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
@@ -545,6 +547,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `encrypt_version` int(11)               DEFAULT NULL COMMENT 'Encryption key version',
     `account_type`    int(11)      NOT NULL DEFAULT '1' COMMENT 'Account type, 0-manager 1-normal',
     `due_date`        datetime              DEFAULT NULL COMMENT 'Due date for user',
+    `ext_params`      text         COMMENT 'Json extension info',
     `status`          int(11)               DEFAULT '100' COMMENT 'Status',
     `is_deleted`      int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     `creator`         varchar(256) NOT NULL COMMENT 'Creator name',

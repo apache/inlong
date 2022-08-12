@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
@@ -29,16 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-
 /**
  * Make database as Source
  */
-public class DatabaseSqlSource implements Source {
+public class DatabaseSqlSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSqlSource.class);
 
@@ -76,9 +69,7 @@ public class DatabaseSqlSource implements Source {
      */
     @Override
     public List<Reader> split(JobProfile conf) {
-        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        String metricTagName = DATABASE_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
+        super.init(conf);
         String sqlPattern = conf.get(JOB_DATABASE_SQL, "").toLowerCase();
         List<Reader> readerList = null;
         if (!sqlPattern.isEmpty()) {
@@ -86,11 +77,11 @@ public class DatabaseSqlSource implements Source {
         }
         if (readerList != null) {
             // increment the count of successful sources
-            GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
+            sourceMetric.sourceSuccessCount.incrementAndGet();
         } else {
             // database type or sql is incorrect
             // increment the count of failed sources
-            GLOBAL_METRICS.incSourceFailCount(metricTagName);
+            sourceMetric.sourceFailCount.incrementAndGet();
         }
         return readerList;
     }

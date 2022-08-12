@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
@@ -68,6 +69,7 @@ public class InLongPulsarFetcherImplTest {
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
         inLongTopic.setTopicType("pulsar");
+        inLongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
@@ -146,6 +148,7 @@ public class InLongPulsarFetcherImplTest {
             when(consumerBuilder.subscriptionType(any())).thenReturn(consumerBuilder);
             when(consumerBuilder.startMessageIdInclusive()).thenReturn(consumerBuilder);
             when(consumerBuilder.ackTimeout(anyLong(), any())).thenReturn(consumerBuilder);
+            when(consumerBuilder.subscriptionInitialPosition(any())).thenReturn(consumerBuilder);
 
             when(consumerBuilder.receiverQueueSize(anyInt())).thenReturn(consumerBuilder);
             when(consumerBuilder.messageListener(any())).thenReturn(consumerBuilder);

@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
+import java.util.HashMap;
+
 public class InLongTubeFetcherImplTest {
 
     private ClientContext clientContext;
@@ -51,6 +53,7 @@ public class InLongTubeFetcherImplTest {
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
         inLongTopic.setTopicType("pulsar");
+        inLongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);

@@ -33,10 +33,10 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -495,6 +495,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser) {
+        if (StringUtils.isNotBlank(request.getClusterTag())) {
+            List<ClusterNodeResponse> nodeList = listNodeByClusterTag(request);
+            PageInfo<ClusterNodeResponse> page = new PageInfo<>(nodeList);
+            page.setTotal(nodeList.size());
+            return page;
+        }
         Integer parentId = request.getParentId();
         Preconditions.checkNotNull(parentId, "Cluster id cannot be empty");
         InlongClusterEntity cluster = clusterMapper.selectById(parentId);
@@ -512,6 +518,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         LOGGER.debug("success to list inlong cluster node by {}", request);
         return page;
+    }
+
+    public List<ClusterNodeResponse> listNodeByClusterTag(ClusterPageRequest request) {
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(request.getClusterTag(), request.getName(),
+                request.getType());
+        List<InlongClusterNodeEntity> allNodeList = new ArrayList<>();
+        for (InlongClusterEntity cluster : clusterList) {
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(cluster.getId());
+            allNodeList.addAll(nodeList);
+        }
+        return CommonBeanUtils.copyListProperties(allNodeList, ClusterNodeResponse::new);
     }
 
     @Override
@@ -737,6 +754,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             MQClusterInfo clusterInfo = new MQClusterInfo();
             clusterInfo.setUrl(cluster.getUrl());
             clusterInfo.setToken(cluster.getToken());
+            clusterInfo.setMqType(cluster.getType());
             Map<String, String> configParams = GSON.fromJson(cluster.getExtParams(), Map.class);
             clusterInfo.setParams(configParams);
             mqSet.add(clusterInfo);

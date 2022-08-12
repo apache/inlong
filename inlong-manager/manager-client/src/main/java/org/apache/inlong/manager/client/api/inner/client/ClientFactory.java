@@ -40,6 +40,10 @@ public class ClientFactory {
 
     private final WorkflowClient workflowClient;
 
+    private final DataNodeClient dataNodeClient;
+
+    private final UserClient userClient;
+
     public ClientFactory(ClientConfiguration configuration) {
         groupClient = new InlongGroupClient(configuration);
         streamClient = new InlongStreamClient(configuration);
@@ -48,5 +52,7 @@ public class ClientFactory {
         clusterClient = new InlongClusterClient(configuration);
         transformClient = new StreamTransformClient(configuration);
         workflowClient = new WorkflowClient(configuration);
+        dataNodeClient = new DataNodeClient(configuration);
+        userClient = new UserClient(configuration);
     }
 }

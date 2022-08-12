@@ -27,28 +27,23 @@ export interface RouteProps extends Omit<ReactRouteProps, 'component'> {
 
 const routes: RouteProps[] = [
   {
-    path: '/',
-    component: () => import('@/pages/Login'),
-    exact: true,
-  },
-  {
     path: '/login',
     component: () => import('@/pages/Login'),
     exact: true,
   },
   {
     path: '/access',
-    component: () => import('@/pages/AccessDashboard'),
+    component: () => import('@/pages/GroupDashboard'),
     exact: true,
     childRoutes: [
       {
         path: '/create/:id?',
-        component: () => import('@/pages/AccessDetail'),
+        component: () => import('@/pages/GroupDetail'),
         exact: true,
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/AccessDetail'),
+        component: () => import('@/pages/GroupDetail'),
         exact: true,
       },
     ],
@@ -71,24 +66,24 @@ const routes: RouteProps[] = [
     ],
   },
   {
-    path: '/audit',
+    path: '/process',
     exact: true,
     childRoutes: [
       {
         path: '/:type?',
-        component: () => import('@/pages/Approvals'),
+        component: () => import('@/pages/Process'),
         exact: true,
         childRoutes: [
           {
             path: '/:id',
-            component: () => import('@/pages/ApprovalDetail'),
+            component: () => import('@/pages/ProcessDetail'),
             exact: true,
           },
         ],
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/ApprovalDetail'),
+        component: () => import('@/pages/ProcessDetail'),
         exact: true,
       },
     ],
@@ -101,6 +96,11 @@ const routes: RouteProps[] = [
   {
     path: '/user',
     component: () => import('@/pages/UserManagement'),
+    exact: true,
+  },
+  {
+    path: '/approval',
+    component: () => import('@/pages/ProcessManagement'),
     exact: true,
   },
   {

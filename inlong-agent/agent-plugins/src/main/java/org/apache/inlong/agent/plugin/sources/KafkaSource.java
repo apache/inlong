@@ -22,7 +22,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -37,11 +36,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
@@ -56,11 +50,10 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER
 /**
  * kafka source, split kafka source job into multi readers
  */
-public class KafkaSource implements Source {
+public class KafkaSource extends AbstractSource {
 
     public static final String JOB_KAFKA_AUTO_RESETE = "auto.offset.reset";
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSource.class);
-    private static final String KAFKA_SOURCE_TAG_NAME = "AgentKafkaSourceMetric";
     private static final String JOB_KAFKAJOB_PARAM_PREFIX = "job.kafkaJob.";
     private static final String JOB_KAFKAJOB_WAIT_TIMEOUT = "job.kafkajob.wait.timeout";
     private static final String KAFKA_COMMIT_AUTO = "enable.auto.commit";
@@ -77,9 +70,7 @@ public class KafkaSource implements Source {
 
     @Override
     public List<Reader> split(JobProfile conf) {
-        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        String metricTagName = KAFKA_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
+        super.init(conf);
         List<Reader> result = new ArrayList<>();
         String filterPattern = conf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
 
@@ -135,9 +126,9 @@ public class KafkaSource implements Source {
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }
-            GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
+            sourceMetric.sourceSuccessCount.incrementAndGet();
         } else {
-            GLOBAL_METRICS.incSourceFailCount(metricTagName);
+            sourceMetric.sourceFailCount.incrementAndGet();
         }
         return result;
     }

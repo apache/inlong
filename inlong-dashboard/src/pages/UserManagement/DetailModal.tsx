@@ -32,7 +32,7 @@ const content = [
   {
     type: 'radio',
     label: i18n.t('pages.UserManagement.config.AccountRole'),
-    name: 'type',
+    name: 'accountType',
     initialValue: 1,
     rules: [{ required: true }],
     props: {
@@ -51,7 +51,7 @@ const content = [
   {
     type: 'input',
     label: i18n.t('pages.UserManagement.config.UserName'),
-    name: 'username',
+    name: 'name',
     rules: [{ required: true }],
   },
   {
@@ -69,6 +69,24 @@ const content = [
     props: {
       min: 1,
     },
+  },
+  {
+    type: 'input',
+    label: 'SecretKey',
+    name: 'secretKey',
+    rules: [{ required: true }],
+  },
+  {
+    type: 'input',
+    label: 'PublicKey',
+    name: 'publicKey',
+    rules: [{ required: true }],
+  },
+  {
+    type: 'input',
+    label: 'PrivateKey',
+    name: 'privateKey',
+    rules: [{ required: true }],
   },
 ];
 
@@ -117,7 +135,11 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       onOk={onOk}
     >
       <FormGenerator
-        content={id ? content.filter(item => item.name !== 'password') : content}
+        content={
+          id
+            ? content.filter(item => item.name !== 'password')
+            : content.filter(item => !item.name.includes('Key'))
+        }
         form={form}
         useMaxWidth
       />

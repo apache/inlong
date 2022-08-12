@@ -48,7 +48,7 @@ const menus: MenuItemType[] = [
     ],
   },
   {
-    path: '/audit',
+    path: '/process',
     name: i18n.t('configs.menus.ApprovalManagement'),
   },
   // {
@@ -56,8 +56,17 @@ const menus: MenuItemType[] = [
   //   name: i18n.t('configs.menus.Datasources'),
   // },
   {
-    path: '/user',
     name: i18n.t('configs.menus.SystemManagement'),
+    children: [
+      {
+        path: '/user',
+        name: i18n.t('configs.menus.UserManagement'),
+      },
+      {
+        path: '/approval',
+        name: i18n.t('configs.menus.ResponsibleManagement'),
+      },
+    ],
   },
 ];
 

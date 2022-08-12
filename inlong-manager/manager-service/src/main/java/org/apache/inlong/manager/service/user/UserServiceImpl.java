@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     private UserEntityMapper userMapper;
 
     @Override
-    public Integer save(UserRequest request) {
+    public Integer save(UserRequest request, String currentUser) {
         String username = request.getName();
         UserEntity userExists = userMapper.selectByName(username);
         String password = request.getPassword();
@@ -73,9 +73,9 @@ public class UserServiceImpl implements UserService {
         entity.setPassword(SHAUtils.encrypt(password));
         entity.setAccountType(request.getAccountType());
         entity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
-        String currentUser = LoginUserUtils.getLoginUser().getName();
         entity.setCreator(currentUser);
         entity.setModifier(currentUser);
+        entity.setExtParams(request.getExtParams());
         try {
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
@@ -139,7 +139,12 @@ public class UserServiceImpl implements UserService {
     public UserInfo getByName(String name) {
         Preconditions.checkNotNull(name, "User name cannot be null");
         UserEntity entity = userMapper.selectByName(name);
-        return CommonBeanUtils.copyProperties(entity, UserInfo::new);
+        if (entity == null) {
+            return null;
+        }
+        UserInfo userInfo = CommonBeanUtils.copyProperties(entity, UserInfo::new);
+        userInfo.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
+        return userInfo;
     }
 
     @Override
@@ -211,8 +216,9 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
         updateUserEntity.setAccountType(request.getAccountType());
         updateUserEntity.setName(updateName);
+        updateUserEntity.setExtParams(request.getExtParams());
 
-        int rowCount = userMapper.updateById(updateUserEntity);
+        int rowCount = userMapper.updateByPrimaryKeySelective(updateUserEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

@@ -241,7 +241,7 @@
         <jsr.version>3.0.2</jsr.version>
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
-        <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <tencentcloud.cls.version>1.0.9</tencentcloud.cls.version>
         <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
@@ -250,6 +250,8 @@
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
         <kafka.clients.version>3.0.0</kafka.clients.version>
+
+        <kubernetes.client.version>6.0.0</kubernetes.client.version>
     </properties>
 
     <dependencyManagement>
@@ -1562,6 +1564,11 @@
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-client</artifactId>
+                <version>${kubernetes.client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

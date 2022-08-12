@@ -4,7 +4,7 @@
     "inlongGroupId": "test_group",
     "name": "test_name",
     "inCharges": "admin",
-    "queueModule": "serial",
+    "queueModule": "SERIAL",
     "writeQuorum": 1,
     "ackQuorum": 1,
     "ttl": 24,

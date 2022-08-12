@@ -28,11 +28,22 @@ import java.util.List;
 public class PostgreSQLTableInfo {
 
     private String dbName;
+
     private String tableName;
+
     private String tableDesc;
 
+    private String schemaName;
+
     private String partitionBy;
+
     private String orderBy;
+
     private String primaryKey;
+
+    private String comment;
+
+    private String userName;
+
     private List<PostgreSQLColumnInfo> columns;
 }

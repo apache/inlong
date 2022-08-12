@@ -22,8 +22,11 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
@@ -32,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,12 +43,15 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 
 /**
  * proxy client
@@ -57,13 +64,12 @@ public class SenderManager {
     // cache for group and sender list, share the map cross agent lifecycle.
     private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
             new ConcurrentHashMap<>();
-    private static final String SENDER_MANAGER_TAG_NAME = "AgentSenderManager";
 
     // sharing worker threads between sender client
     // in case of thread abusing.
     private static final ThreadFactory SHARED_FACTORY = new DefaultThreadFactory("agent-client-io",
             Thread.currentThread().isDaemon());
-
+    private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     private final String managerHost;
     private final int managerPort;
     private final String netTag;
@@ -80,6 +86,9 @@ public class SenderManager {
     private final String inlongGroupId;
     private final int maxSenderPerGroup;
     private final String sourcePath;
+    //metric
+    private AgentMetricItemSet metricItemSet;
+    private Map<String, String> dimensions;
     private TaskPositionManager taskPositionManager;
     private int ioThreadNum;
     private boolean enableBusyWait;
@@ -126,6 +135,20 @@ public class SenderManager {
 
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
+
+        this.dimensions = new HashMap<>();
+        dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
+        String metricName = String.join("-", this.getClass().getSimpleName(),
+                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        this.metricItemSet = new AgentMetricItemSet(metricName);
+        MetricRegister.register(metricItemSet);
+    }
+
+    private AgentMetricItem getMetricItem(Map<String, String> otherDimensions) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
+        dimensions.putAll(otherDimensions);
+        return this.metricItemSet.findMetricItem(dimensions);
     }
 
     /**
@@ -286,7 +309,10 @@ public class SenderManager {
                 return;
             }
             semaphore.release(bodyList.size());
-            GLOBAL_METRICS.incSendSuccessNum(groupId + "_" + streamId, bodyList.size());
+            Map<String, String> dims = new HashMap<>();
+            dims.put(KEY_INLONG_GROUP_ID, groupId);
+            dims.put(KEY_INLONG_STREAM_ID, streamId);
+            getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
             }
