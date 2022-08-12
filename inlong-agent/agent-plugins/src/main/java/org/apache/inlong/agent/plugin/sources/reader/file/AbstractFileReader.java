@@ -17,10 +17,19 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+import com.google.gson.Gson;
+import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_DATA_CONTENT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_DATA_CONTENT_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_FILTER_BY_LABELS;
 
 /**
  * File reader template
@@ -35,9 +44,26 @@ public abstract class AbstractFileReader {
         if (null == fileReaderOperator.metadata) {
             return;
         }
-
         List<String> lines = fileReaderOperator.stream.collect(Collectors.toList());
-        lines.forEach(data -> data = MetaDataUtils.concatString(data, fileReaderOperator.metadata));
+        if (fileReaderOperator.jobConf.hasKey(JOB_FILE_CONTENT_COLLECT_TYPE)) {
+            long timestamp = System.currentTimeMillis();
+            Gson gson = new Gson();
+            if (Objects.nonNull(fileReaderOperator.metadata)) {
+                lines = lines.stream().map(data -> {
+                    Map<String, String> mergeData = new HashMap<>(fileReaderOperator.metadata);
+                    mergeData.put(JOB_FILE_DATA_CONTENT, FileDataUtils.getK8sJsonLog(data));
+                    mergeData.put(JOB_FILE_DATA_CONTENT_TIME, String.valueOf(timestamp));
+                    return gson.toJson(mergeData);
+                }).collect(Collectors.toList());
+            } else if (!fileReaderOperator.jobConf.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
+                lines = lines.stream().map(data -> {
+                    Map<String, String> mergeData = new HashMap<>();
+                    mergeData.put(JOB_FILE_DATA_CONTENT, FileDataUtils.getK8sJsonLog(data));
+                    mergeData.put(JOB_FILE_DATA_CONTENT_TIME, String.valueOf(timestamp));
+                    return gson.toJson(mergeData);
+                }).collect(Collectors.toList());
+            }
+        }
         fileReaderOperator.stream = lines.stream();
     }
 
