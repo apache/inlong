@@ -75,8 +75,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
         try {
             client = getKubernetesClient();
         } catch (IOException e) {
-            e.printStackTrace();
-            log.error("Get k8s client error: {}", e.getMessage());
+            log.error("Get k8s client error: ", e);
         }
         fileReaderOperator.metadata = getK8sMetadata(fileReaderOperator.jobConf);
     }
