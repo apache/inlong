@@ -62,6 +62,9 @@ public class InlongConstants {
 
     public static final String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
 
+    public static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
+
+
     /**
      * Format of the Pulsar topic: "persistent://tenant/namespace/topic
      */

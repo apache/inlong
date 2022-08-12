@@ -205,7 +205,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             pulsarOperator.createTopic(pulsarAdmin, topicBean);
 
             // 2. create a subscription for the pulsar topic
-            boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topicBean);
+            boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topicName,
+                    !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()));
             if (!exist) {
                 String topicFullName = tenant + "/" + namespace + "/" + topicName;
                 String serviceUrl = pulsarCluster.getAdminUrl();

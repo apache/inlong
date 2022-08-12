@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.queue.pulsar;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -47,7 +48,6 @@ import java.util.Map;
 public class PulsarOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
-    private static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
     private static final int MAX_PARTITION = 100;
     private static final int RETRY_TIMES = 3;
     private static final int DELAY_SECONDS = 5;
@@ -146,13 +146,14 @@ public class PulsarOperator {
         String topicFullName = tenant + "/" + namespace + "/" + topic;
 
         // Topic will be returned if it exists, and created if it does not exist
-        if (topicIsExists(pulsarAdmin, tenant, namespace, topicBean)) {
+        if (topicIsExists(pulsarAdmin, tenant, namespace, topic,
+                !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()))) {
             LOGGER.warn("pulsar topic={} already exists in {}", topicFullName, pulsarAdmin.getServiceUrl());
             return;
         }
 
         try {
-            if (PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule())) {
+            if (InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule())) {
                 pulsarAdmin.topics().createNonPartitionedTopic(topicFullName);
                 String res = pulsarAdmin.lookups().lookupTopic(topicFullName);
                 LOGGER.info("success to create topic={}, lookup result is {}", topicFullName, res);
@@ -202,7 +203,8 @@ public class PulsarOperator {
         String topicFullName = tenant + "/" + namespace + "/" + topic;
 
         // Topic will be returned if it not exists
-        if (topicIsExists(pulsarAdmin, tenant, namespace, topicBean)) {
+        if (topicIsExists(pulsarAdmin, tenant, namespace, topic,
+                !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()))) {
             LOGGER.warn("pulsar topic={} already delete", topicFullName);
             return;
         }
@@ -228,7 +230,7 @@ public class PulsarOperator {
         LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, topicName);
         try {
             boolean isExists = this.subscriptionIsExists(pulsarAdmin, topicName, subscription,
-                    !PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()));
+                    !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()));
             if (isExists) {
                 LOGGER.warn("pulsar subscription={} already exists, skip to create", subscription);
                 return;
@@ -276,8 +278,8 @@ public class PulsarOperator {
      * @apiNote cannot compare whether the string contains, otherwise it may be misjudged, such as:
      *         Topic "ab" does not exist, but if "abc" exists, "ab" will be mistakenly judged to exist
      */
-    public boolean topicIsExists(PulsarAdmin pulsarAdmin, String tenant, String namespace, PulsarTopicBean topicBean) {
-        String topic = topicBean.getTopicName();
+    public boolean topicIsExists(PulsarAdmin pulsarAdmin, String tenant, String namespace, String topic,
+            boolean isPartitioned) {
         if (StringUtils.isBlank(topic)) {
             return true;
         }
@@ -286,10 +288,10 @@ public class PulsarOperator {
         List<String> topicList;
         boolean topicExists = false;
         try {
-            if (PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule())) {
-                topicList = pulsarAdmin.topics().getList(tenant + "/" + namespace);
-            } else {
+            if (isPartitioned) {
                 topicList = pulsarAdmin.topics().getPartitionedTopicList(tenant + "/" + namespace);
+            } else {
+                topicList = pulsarAdmin.topics().getList(tenant + "/" + namespace);
             }
             for (String t : topicList) {
                 t = t.substring(t.lastIndexOf("/") + 1); // not contains /
