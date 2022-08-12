@@ -21,10 +21,10 @@ import com.google.gson.Gson;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.junit.Assert;
 import org.junit.Test;
-import org.apache.inlong.agent.plugin.sources.reader.PostgreSqlReader;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
@@ -66,19 +66,19 @@ public class PostgreSQLReaderTest {
     @Test
     public void postgresLoadTest() {
         JobProfile jobProfile = new JobProfile();
-        jobProfile.set(PostgreSqlReader.JOB_POSTGRESQL_USER, "postgres");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_SERVER_NAME, "postgres");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_PLUGIN_NAME, "pgoutput");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_PASSWORD, "123456");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_HOSTNAME, "localhost");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_PORT, "5432");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "000000010000000000000001");
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.INITIAL);
-        jobProfile.set(PostgreSqlReader.JOB_DATABASE_DBNAME, "postgres");
+        jobProfile.set(PostgreSQLReader.JOB_POSTGRESQL_USER, "postgres");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_SERVER_NAME, "postgres");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_PLUGIN_NAME, "pgoutput");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_PASSWORD, "123456");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_HOSTNAME, "localhost");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_PORT, "5432");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "000000010000000000000001");
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.INITIAL);
+        jobProfile.set(PostgreSQLReader.JOB_DATABASE_DBNAME, "postgres");
         jobProfile.set("job.instance.id", "_1");
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
-        PostgreSqlReader postgreSqlReader = new PostgreSqlReader();
+        PostgreSQLReader postgreSqlReader = new PostgreSQLReader();
         postgreSqlReader.init(jobProfile);
         while (true) {
             Message message = postgreSqlReader.read();

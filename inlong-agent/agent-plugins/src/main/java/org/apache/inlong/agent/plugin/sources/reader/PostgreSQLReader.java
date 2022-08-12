@@ -28,8 +28,10 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.PostgresSnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSqlSnapshotBase;
+import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
@@ -50,15 +52,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 
 /**
  * read PostgreSql data
  */
-public class PostgreSqlReader extends AbstractReader {
+public class PostgreSQLReader extends AbstractReader {
 
 
-    public static final String COMPONENT_NAME = "PostgreSqlReader";
+    public static final String COMPONENT_NAME = "PostgreSQLReader";
     public static final String JOB_POSTGRESQL_USER = "job.postgreSqlJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.postgreSqlJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.postgreSqlJob.hostname";
@@ -74,7 +75,7 @@ public class PostgreSqlReader extends AbstractReader {
     public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSqljob.servername";
     public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSqljob.pluginname";
     private static final Gson gson = new Gson();
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
     private String userName;
     private String password;
     private String hostName;
@@ -89,15 +90,10 @@ public class PostgreSqlReader extends AbstractReader {
     private String dbName;
     private String pluginName;
     private String serverName;
-    private PostgreSqlSnapshotBase postgreSqlSnapshot;
+    private PostgreSQLSnapshotBase postgreSqlSnapshot;
     private boolean finished = false;
     private ExecutorService executor;
-    private static final String POSTGRES_READER_TAG_NAME = "AgentPostgresMetric";
-
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
 
     /**
      * pair.left : table name
@@ -107,14 +103,15 @@ public class PostgreSqlReader extends AbstractReader {
 
     private JobProfile jobProfile;
     private boolean destroyed = false;
+    protected AgentMetricItem readerMetric;
 
-    public PostgreSqlReader() {
+    public PostgreSQLReader() {
     }
 
     @Override
     public Message read() {
         if (!postgreSqlMessageQueue.isEmpty()) {
-            GLOBAL_METRICS.incReadNum(metricTagName);
+            readerMetric.pluginReadCount.incrementAndGet();
             return getPostgreSqlMessage();
         } else {
             return null;
@@ -150,10 +147,9 @@ public class PostgreSqlReader extends AbstractReader {
         offset = jobConf.get(JOB_DATABASE_OFFSETS,"");
         specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,"");
         specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,"-1");
-        postgreSqlSnapshot = new PostgreSqlSnapshotBase(offsetStoreFileName);
+        postgreSqlSnapshot = new PostgreSQLSnapshotBase(offsetStoreFileName);
         postgreSqlSnapshot.save(offset);
 
-        metricTagName = String.join("_", POSTGRES_READER_TAG_NAME, inlongGroupId, inlongStreamId);
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
@@ -168,7 +164,11 @@ public class PostgreSqlReader extends AbstractReader {
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
+                        readerMetric.pluginReadFailCount.addAndGet(records.size());
                         LOGGER.error("parse binlog message error",e);
                     }
                 })

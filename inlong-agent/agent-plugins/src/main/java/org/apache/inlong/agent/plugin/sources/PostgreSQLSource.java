@@ -19,28 +19,19 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.sources.reader.PostgreSqlReader;
+import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
-
 /**
  * PostgreSql source, split PostgreSql source job into multi readers
  */
-public class PostgreSQLSource implements Source {
+public class PostgreSQLSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(PostgreSQLSource.class);
-
-    private static final String POSTGRESQL_SOURCE_TAG_NAME = "PostgreSqlSourceMetric";
 
     public PostgreSQLSource() {
 
@@ -48,13 +39,11 @@ public class PostgreSQLSource implements Source {
 
     @Override
     public List<Reader> split(JobProfile conf) {
-        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
-        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        String metricTagName = POSTGRESQL_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
-        Reader postgreReader = new PostgreSqlReader();
+        super.init(conf);
+        Reader postgreSQLReader = new PostgreSQLReader();
         List<Reader> readerList = new ArrayList<>();
-        readerList.add(postgreReader);
-        GLOBAL_METRICS.incSourceSuccessCount(metricTagName);
+        readerList.add(postgreSQLReader);
+        sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
     }
 }

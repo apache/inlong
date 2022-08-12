@@ -19,7 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
-import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSqlSnapshotBase;
+import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -29,7 +29,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class TestPostgresOffsetManager {
+public class PostgreSQLOffsetManagerTest {
 
     private static AgentBaseTestsHelper helper;
 
@@ -39,7 +39,7 @@ public class TestPostgresOffsetManager {
 
     @BeforeClass
     public static void setup() {
-        helper = new AgentBaseTestsHelper(TestPostgresOffsetManager.class.getName()).setupAgentHome();
+        helper = new AgentBaseTestsHelper(PostgreSQLOffsetManagerTest.class.getName()).setupAgentHome();
         Path testDir = helper.getTestRootDir();
         filePath = Paths.get(testDir.toString(),fileName);
     }
@@ -51,7 +51,7 @@ public class TestPostgresOffsetManager {
 
     @Test
     public void testOffset() {
-        PostgreSqlSnapshotBase snapshotManager = new PostgreSqlSnapshotBase(filePath.toString());
+        PostgreSQLSnapshotBase snapshotManager = new PostgreSQLSnapshotBase(filePath.toString());
         byte[] snapshotBytes = new byte[]{-65,-14,23};
         final Base64 base64 = new Base64();
         String encodeSnapshot = base64.encodeAsString(snapshotBytes);

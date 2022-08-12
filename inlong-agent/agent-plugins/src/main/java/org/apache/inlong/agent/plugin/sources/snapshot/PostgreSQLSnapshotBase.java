@@ -29,17 +29,20 @@ import java.io.OutputStream;
 
 import java.util.Base64;
 
-public class PostgreSqlSnapshotBase implements SnapshotBase {
+/**
+ * PostgreSQL Snapshot
+ */
+public class PostgreSQLSnapshotBase implements SnapshotBase {
 
     public static final int BUFFER_SIZE = 1024;
     public static final int START_OFFSET = 0;
-    private static final Logger log = LoggerFactory.getLogger(PostgreSqlSnapshotBase.class);
+    private static final Logger log = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
     private final Base64.Decoder decoder = Base64.getDecoder();
     private final Base64.Encoder encoder = Base64.getEncoder();
     private File file;
     private byte[] offset;
 
-    public PostgreSqlSnapshotBase(String filePath) {
+    public PostgreSQLSnapshotBase(String filePath) {
         file = new File(filePath);
     }
 
