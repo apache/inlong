@@ -68,9 +68,7 @@ i18n
     },
 
     react: {
-      wait: true,
       useSuspense: false,
-      bindI18n: 'languageChanged loaded',
     },
   });
 

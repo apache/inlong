@@ -23,6 +23,7 @@ export interface MenuItemType {
   name: string;
   children?: MenuItemType[];
   path?: string;
+  isAdmin?: boolean;
 }
 
 const menus: MenuItemType[] = [
@@ -51,12 +52,9 @@ const menus: MenuItemType[] = [
     path: '/process',
     name: i18n.t('configs.menus.ApprovalManagement'),
   },
-  // {
-  //   path: '/datasources',
-  //   name: i18n.t('configs.menus.Datasources'),
-  // },
   {
     name: i18n.t('configs.menus.SystemManagement'),
+    isAdmin: true,
     children: [
       {
         path: '/user',
