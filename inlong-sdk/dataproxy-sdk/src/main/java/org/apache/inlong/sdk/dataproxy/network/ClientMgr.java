@@ -30,19 +30,15 @@ import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
+import org.apache.inlong.sdk.dataproxy.utils.HashRing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
@@ -345,6 +341,37 @@ public class ClientMgr {
             return null;
         }
         //logger.info("get a client {}", client.getChannel());
+        return client;
+    }
+
+    public synchronized NettyClient getClientByRandom() {
+        NettyClient client = null;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        int maxRetry = 1000;
+        Random random = new Random(System.currentTimeMillis());
+        do {
+            int randomId = random.nextInt();
+            client = clientList.get(randomId % currSize);
+            maxRetry--;
+        } while (client != null && client.isActive() && maxRetry > 0);
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return client;
+    }
+
+    public synchronized NettyClient getClientByConsistencyHash(String messageId) {
+        NettyClient client;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        String hash = ConsistencyHashUtil.hashMurMurHash(messageId);
+        HashRing cluster = this.ipManager.getHashRing();
+        HostInfo info = cluster.getNode(hash);
+        client = this.clientMap.get(info);
         return client;
     }
 

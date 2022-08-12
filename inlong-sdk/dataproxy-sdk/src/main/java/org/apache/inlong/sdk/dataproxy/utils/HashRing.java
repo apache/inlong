@@ -1,16 +1,16 @@
 package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
-import org.apache.inlong.sdk.dataproxy.network.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HashRing {
     private int virtualNode = 1000;
-    private TreeMap<String, NettyClient> virtualNode2RealNode = new TreeMap<>();
-    private Map<HostInfo, NettyClient> nodeList = new HashMap<>();
+    private TreeMap<String, HostInfo> virtualNode2RealNode = new TreeMap<>();
+    private List<HostInfo> nodeList = new ArrayList<>();
     private static final HashRing instance = new HashRing();
     private static final Logger LOGGER = LoggerFactory.getLogger(HashRing.class);
 
@@ -18,20 +18,22 @@ public class HashRing {
         return instance;
     }
 
+    public TreeMap<String, HostInfo> getVirtualNode2RealNode() {
+        return virtualNode2RealNode;
+    }
+
     public String node2VirtualNode(HostInfo node, int index) {
         return  "virtual&&" + index + "&&" + node.toString();
     }
 
-    public void initHashRing(Map<HostInfo, NettyClient> ipList) {
+    public void initHashRing(List<HostInfo> ipList) {
         this.virtualNode2RealNode = new TreeMap<>();
         this.nodeList = ipList;
-        Set<HostInfo> hosts = this.nodeList.keySet();
-        for (HostInfo host : hosts) {
-            NettyClient node = this.nodeList.get(host);
+        for (HostInfo host : this.nodeList) {
             for (int i = 0; i < this.virtualNode; i++) {
                 String key = node2VirtualNode(host, i);
                 String hash = ConsistencyHashUtil.hashMurMurHash(key);
-                virtualNode2RealNode.put(hash, node);
+                virtualNode2RealNode.put(hash, host);
             }
         }
         LOGGER.info("init hash ring {}", this.virtualNode2RealNode);
@@ -41,10 +43,10 @@ public class HashRing {
         this.virtualNode = virtualNode;
     }
 
-    public NettyClient getNode(String key) {
+    public HostInfo getNode(String key) {
         String hash = ConsistencyHashUtil.hashMurMurHash(key);
-        SortedMap<String, NettyClient> tailMap = this.virtualNode2RealNode.tailMap(hash);
-        NettyClient node;
+        SortedMap<String, HostInfo> tailMap = this.virtualNode2RealNode.tailMap(hash);
+        HostInfo node;
         if (tailMap.isEmpty()) {
             node = this.virtualNode2RealNode.get(this.virtualNode2RealNode.firstKey());
         } else {
@@ -54,27 +56,26 @@ public class HashRing {
         return node;
     }
 
-    public void appendNode(HostInfo host, NettyClient node) {
-        this.nodeList.put(host, node);
+    public void appendNode(HostInfo host) {
+        this.nodeList.add(host);
         for (int i = 0; i < this.virtualNode; i++) {
             String key = node2VirtualNode(host, i);
             String hash = ConsistencyHashUtil.hashMurMurHash(key);
-            virtualNode2RealNode.put(hash, node);
+            virtualNode2RealNode.put(hash, host);
             LOGGER.info("append node {}", host);
         }
     }
 
-    public void extendNode(Map<HostInfo, NettyClient> nodes) {
-        this.nodeList.putAll(nodes);
-        Set<HostInfo> hosts = nodes.keySet();
-        for (HostInfo host : hosts) {
+    public void extendNode(List<HostInfo> nodes) {
+        this.nodeList.addAll(nodes);
+        for (HostInfo host : this.nodeList) {
             for (int i = 0; i < this.virtualNode; i++) {
                 String key = node2VirtualNode(host, i);
                 String hash = ConsistencyHashUtil.hashMurMurHash(key);
-                virtualNode2RealNode.put(hash, nodes.get(host));
+                virtualNode2RealNode.put(hash, host);
             }
         }
-        LOGGER.info("append node list {}", nodes.keySet());
+        LOGGER.info("append node list {}", nodes);
     }
 
     public void deleteNode(HostInfo host) {
@@ -95,5 +96,14 @@ public class HashRing {
             }
         }
         LOGGER.info("remove node list {}", hosts);
+    }
+
+    public void updateNode(List<HostInfo> nodes) {
+        List<HostInfo> newHosts = new ArrayList<>(nodes);
+        List<HostInfo> oldHosts = new ArrayList<>(this.nodeList);
+        List<HostInfo> append = newHosts.stream().filter(host -> !oldHosts.contains(host)).collect(Collectors.toList());
+        List<HostInfo> remove = oldHosts.stream().filter(host -> !newHosts.contains(host)).collect(Collectors.toList());
+        extendNode(append);
+        removeNode(remove);
     }
 }

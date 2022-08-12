@@ -47,6 +47,8 @@ public class DataProxyNodeResponse {
      */
     private Integer load = 20;
 
+    private String loadBalance;
+
     /**
      * List of the cluster node
      */

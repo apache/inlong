@@ -27,6 +27,7 @@ public class ProxyConfigEntry implements java.io.Serializable {
     private Map<String, HostInfo> hostMap;
     private int load;
     private int switchStat;
+    private String loadBalance;
     private boolean isInterVisit;
 
     public int getLoad() {
@@ -80,9 +81,7 @@ public class ProxyConfigEntry implements java.io.Serializable {
 
     @Override
     public String toString() {
-        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
-                + isInterVisit + ", groupId=" + groupId
-                + ", switch=" + switchStat + "]";
+        return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit=" + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat +  "]";
     }
 
     public int getClusterId() {
