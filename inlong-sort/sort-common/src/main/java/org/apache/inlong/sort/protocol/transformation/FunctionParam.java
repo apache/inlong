@@ -27,6 +27,7 @@ import org.apache.inlong.sort.protocol.transformation.function.EncryptFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopStartFunction;
+import org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
@@ -96,7 +97,8 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
         @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
         @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
-        @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt")
+        @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
+        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction")
 })
 public interface FunctionParam {
 
