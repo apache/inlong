@@ -20,7 +20,7 @@
 import React from 'react';
 import i18n from '@/i18n';
 import StaffSelect from '@/components/StaffSelect';
-import type { ClsConfigItemType, ClsTableItemType } from './types';
+import type { ClsConfigItemType, ClsTableItemType } from './common/types';
 import { DataProxy } from './DataProxy';
 import { Pulsar } from './Pulsar';
 import { TubeMQ } from './TubeMQ';
