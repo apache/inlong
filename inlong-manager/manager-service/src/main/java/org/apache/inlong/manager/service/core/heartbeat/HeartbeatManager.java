@@ -78,6 +78,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     }
                 }).build();
 
+        // The expire time of cluster info cache must be greater than heartbeat cache
+        // because the eviction handler needs to query cluster info cache
         clusterInfoCache = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
                 .build(this::fetchCluster);
