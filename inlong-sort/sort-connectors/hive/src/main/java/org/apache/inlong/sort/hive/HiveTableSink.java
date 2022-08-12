@@ -59,7 +59,6 @@ import org.apache.flink.table.filesystem.FileSystemOutputFormat;
 import org.apache.flink.table.filesystem.FileSystemTableSink;
 import org.apache.flink.table.filesystem.FileSystemTableSink.TableBucketAssigner;
 import org.apache.flink.table.filesystem.stream.PartitionCommitInfo;
-import org.apache.flink.table.filesystem.stream.StreamingSink;
 import org.apache.flink.table.filesystem.stream.compact.CompactReader;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
@@ -77,6 +76,7 @@ import org.apache.hadoop.hive.metastore.api.Table;
 import org.apache.hadoop.hive.ql.exec.Utilities;
 import org.apache.hadoop.hive.ql.io.HiveOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.inlong.sort.hive.filesystem.StreamingSink;
 import org.apache.orc.TypeDescription;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -118,13 +118,17 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     private LinkedHashMap<String, String> staticPartitionSpec = new LinkedHashMap<>();
     private boolean overwrite = false;
     private boolean dynamicGrouping = false;
+    private String inLongMetric;
+    private String auditHostAndPorts;
 
     public HiveTableSink(
             ReadableConfig flinkConf,
             JobConf jobConf,
             ObjectIdentifier identifier,
             CatalogTable table,
-            @Nullable Integer configuredParallelism) {
+            @Nullable Integer configuredParallelism,
+            final String inLongMetric,
+            final String auditHostAndPorts) {
         this.flinkConf = flinkConf;
         this.jobConf = jobConf;
         this.identifier = identifier;
@@ -136,6 +140,8 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
         hiveShim = HiveShimLoader.loadHiveShim(hiveVersion);
         tableSchema = TableSchemaUtils.getPhysicalSchema(table.getSchema());
         this.configuredParallelism = configuredParallelism;
+        this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -332,10 +338,18 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
                             path,
                             createCompactReaderFactory(sd, tableProps),
                             compactionSize,
-                            parallelism);
+                            parallelism,
+                            inLongMetric,
+                            auditHostAndPorts);
         } else {
             writerStream =
-                    StreamingSink.writer(dataStream, bucketCheckInterval, builder, parallelism);
+                    StreamingSink.writer(
+                            dataStream,
+                            bucketCheckInterval,
+                            builder,
+                            parallelism,
+                            inLongMetric,
+                            auditHostAndPorts);
         }
 
         return StreamingSink.sink(
@@ -473,7 +487,13 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     public DynamicTableSink copy() {
         HiveTableSink sink =
                 new HiveTableSink(
-                        flinkConf, jobConf, identifier, catalogTable, configuredParallelism);
+                        flinkConf,
+                        jobConf,
+                        identifier,
+                        catalogTable,
+                        configuredParallelism,
+                        inLongMetric,
+                        auditHostAndPorts);
         sink.staticPartitionSpec = staticPartitionSpec;
         sink.overwrite = overwrite;
         sink.dynamicGrouping = dynamicGrouping;
