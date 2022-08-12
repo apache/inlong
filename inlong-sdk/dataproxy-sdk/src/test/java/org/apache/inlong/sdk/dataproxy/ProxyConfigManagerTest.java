@@ -17,15 +17,19 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ProxyConfigManagerTest {
@@ -50,6 +54,22 @@ public class ProxyConfigManagerTest {
         Assert.assertEquals(proxyEntry.getSize(), 2);
         Assert.assertEquals(proxyEntry.getHostMap().containsKey("127.0.0.1:46801"), true);
         Assert.assertEquals(proxyEntry.getHostMap().containsKey("127.0.0.1:8080"), false);
+
+    }
+
+    @Test
+    public void testHashRing() throws Exception {
+        List<HostInfo> hosts = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            String refer = "refer-" + i;
+            String hostname = "host-" + i;
+            HostInfo host = new HostInfo(refer, hostname, 9000);
+            hosts.add(host);
+        }
+        proxyConfigManager.updateHashRing(hosts);
+        for (int i = 0; i < 30; i++) {
+            System.out.println(proxyConfigManager.getHashRing().getNode(ConsistencyHashUtil.hashMurMurHash("message-" + i)));
+        }
     }
 
 }
