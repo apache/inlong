@@ -6,6 +6,7 @@ import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
 
 public class ConsistencyHashUtil {
+    @Deprecated
     public static String hashMurMurHash(String key, int seed) {
         HashFunction hashFunction = Hashing.murmur3_128(seed);
         return hashFunction.hashString(key, StandardCharsets.UTF_8).toString();
