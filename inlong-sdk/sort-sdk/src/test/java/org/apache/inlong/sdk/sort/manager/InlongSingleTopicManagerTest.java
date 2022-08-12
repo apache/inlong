@@ -20,13 +20,13 @@ package org.apache.inlong.sdk.sort.manager;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
-import org.apache.inlong.sdk.sort.impl.InLongTopicManagerImpl;
+import org.apache.inlong.sdk.sort.impl.InlongTopicManagerImpl;
 import org.apache.inlong.sdk.sort.impl.QueryConsumeConfigImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,12 +45,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
-public class InLongSingleTopicManagerTest {
+public class InlongSingleTopicManagerTest {
 
     private InLongTopic inLongTopic;
     private ClientContext clientContext;
     private QueryConsumeConfig queryConsumeConfig;
-    private InLongTopicManager inLongTopicManager;
+    private InlongTopicManager inLongTopicManager;
 
     {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
@@ -71,12 +71,12 @@ public class InLongSingleTopicManagerTest {
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
         when(sortClientConfig.getUpdateMetaDataIntervalSec()).thenReturn(60);
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
-        inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
     }
 
     @Test
     public void testAddFetcher() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InlongTopicManager inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
 
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);

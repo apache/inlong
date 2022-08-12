@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.manager;
+package org.apache.inlong.sdk.sort.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
@@ -49,11 +49,12 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InLongSingleTopicManager extends InLongTopicManager {
+public class InlongTopicManagerImpl extends InlongTopicManager {
 
-    private final Logger logger = LoggerFactory.getLogger(InLongSingleTopicManager.class);
+    private final Logger logger = LoggerFactory.getLogger(InlongTopicManagerImpl.class);
 
-    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers
+            = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TubeConsumerCreater> tubeFactories = new ConcurrentHashMap<>();
 
@@ -61,7 +62,7 @@ public class InLongSingleTopicManager extends InLongTopicManager {
     private volatile List<String> toBeSelectFetchers = new ArrayList<>();
     private boolean stopAssign = false;
 
-    public InLongSingleTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
+    public InlongTopicManagerImpl(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         super(context, queryConsumeConfig);
         updateMetaDataWorker = new UpdateMetaDataThread(context.getConfig().getUpdateMetaDataIntervalSec(),
                 TimeUnit.SECONDS);

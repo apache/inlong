@@ -330,9 +330,9 @@ public class SortClientConfig implements Serializable {
 
     public enum TopicManagerType {
         // single topic manager
-        single_topic,
+        SINGLE_TOPIC,
         // multi topic manager
-        multi_topic
+        MULTI_TOPIC
     }
 
     /**
@@ -358,7 +358,7 @@ public class SortClientConfig implements Serializable {
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
         String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
-                TopicManagerType.single_topic.toString());
+                TopicManagerType.SINGLE_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
         this.topicManagerType = TopicManagerType.valueOf(strManagerType);
 

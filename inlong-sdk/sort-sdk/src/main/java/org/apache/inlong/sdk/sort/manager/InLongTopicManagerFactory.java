@@ -19,30 +19,30 @@
 package org.apache.inlong.sdk.sort.manager;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicManagerType;
 
 public class InLongTopicManagerFactory {
 
-    public static InLongTopicManager createInLongTopicManager(
+    public static InlongTopicManager createInLongTopicManager(
             TopicManagerType type,
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
         switch (type) {
-            case single_topic: return createSingleTopicManager(context, queryConsumeConfig);
-            case multi_topic: return createMultiTopicManager(context, queryConsumeConfig);
+            case SINGLE_TOPIC: return createSingleTopicManager(context, queryConsumeConfig);
+            case MULTI_TOPIC: return createMultiTopicManager(context, queryConsumeConfig);
             default: return createSingleTopicManager(context, queryConsumeConfig);
         }
     }
 
-    public static InLongTopicManager createSingleTopicManager(
+    public static InlongTopicManager createSingleTopicManager(
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
-        return new InLongSingleTopicManager(context, queryConsumeConfig);
+        return new InlongSingleTopicManager(context, queryConsumeConfig);
     }
 
-    public static InLongTopicManager createMultiTopicManager(
+    public static InlongTopicManager createMultiTopicManager(
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
         return null;

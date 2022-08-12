@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.sort.impl;
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -40,7 +40,7 @@ public class SortClientImpl extends SortClient {
 
     private final ClientContext context;
 
-    private final InLongTopicManager inLongTopicManager;
+    private final InlongTopicManager inLongTopicManager;
 
     /**
      * SortClient Constructor

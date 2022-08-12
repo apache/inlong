@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
@@ -40,12 +40,12 @@ import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
-public class InLongTopicManagerImplTest {
+public class InlongTopicManagerImplTest {
 
     private InLongTopic inLongTopic;
     private ClientContext clientContext;
     private QueryConsumeConfig queryConsumeConfig;
-    private InLongTopicManager inLongTopicManager;
+    private InlongTopicManager inLongTopicManager;
 
     {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
@@ -66,12 +66,12 @@ public class InLongTopicManagerImplTest {
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
         when(sortClientConfig.getUpdateMetaDataIntervalSec()).thenReturn(60);
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
-        inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
     }
 
     @Test
     public void testAddFetcher() {
-        InLongTopicManager inLongTopicManager = new InLongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InlongTopicManager inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
 
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
