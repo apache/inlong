@@ -23,8 +23,8 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import getGroupFields from '@/meta/group';
-import getStreamFields from '@/meta/stream';
+import getGroupFields from '@/metas/group';
+import getStreamFields from '@/metas/stream';
 import request from '@/utils/request';
 import { dataToValues, valuesToData } from './helper';
 

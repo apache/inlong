@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import getConsumptionFields from '@/meta/consumption';
+import getConsumptionFields from '@/metas/consumption';
 
 export const getFormContent = ({ editing, initialValues, isCreate }) => {
   const keys = [

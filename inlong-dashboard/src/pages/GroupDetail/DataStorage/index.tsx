@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import React, { useState, forwardRef, useMemo } from 'react';
+import React, { useState, useMemo, forwardRef } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import DetailModal from './DetailModal';
-import { sources } from '@/meta/sources';
 import i18n from '@/i18n';
+import DetailModal from './DetailModal';
+import { Sinks } from '@/metas/sinks';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { statusList, genStatusTag } from './status';
@@ -37,13 +37,13 @@ const getFilterFormContent = defaultValues => [
     name: 'keyword',
   },
   {
-    type: 'radiobutton',
-    name: 'sourceType',
-    label: i18n.t('pages.AccessDetail.DataSources.Type'),
-    initialValue: defaultValues.sourceType,
+    type: 'select',
+    name: 'sinkType',
+    label: i18n.t('pages.AccessDetail.DataStorage.Type'),
+    initialValue: defaultValues.sinkType,
     props: {
-      buttonStyle: 'solid',
-      options: sources.map(item => ({
+      dropdownMatchSelectWidth: false,
+      options: Sinks.map(item => ({
         label: item.label,
         value: item.value,
       })),
@@ -55,7 +55,6 @@ const getFilterFormContent = defaultValues => [
     label: i18n.t('basic.Status'),
     props: {
       allowClear: true,
-      dropdownMatchSelectWidth: false,
       options: statusList,
     },
   },
@@ -63,11 +62,13 @@ const getFilterFormContent = defaultValues => [
 
 const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const [options, setOptions] = useState({
-    // keyword: '',
+    keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sourceType: sources[0].value,
+    sinkType: Sinks[0].value,
   });
+
+  const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -75,7 +76,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/source/list',
+      url: '/sink/list',
       params: {
         ...options,
         inlongGroupId,
@@ -86,43 +87,59 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     },
   );
 
+  const { data: streamList = [] } = useRequest(
+    {
+      url: '/stream/list',
+      method: 'POST',
+      data: {
+        pageNum: 1,
+        pageSize: 1000,
+        inlongGroupId,
+      },
+    },
+    {
+      ready: !!createModal.visible,
+      formatResult: result => result?.list || [],
+    },
+  );
+
   const onSave = async values => {
     const isUpdate = createModal.id;
     const submitData = {
       ...values,
+      sinkType: options.sinkType,
       inlongGroupId: inlongGroupId,
-      sourceType: options.sourceType,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
     }
-
     await request({
-      url: `/source/${isUpdate ? 'update' : 'save'}`,
+      url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
       data: submitData,
     });
     await getList();
-    message.success(i18n.t('pages.AccessDetail.DataSources.SaveSuccessfully'));
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
-  const onEdit = ({ id }) => {
+  const onEdit = ({ id, inlongStreamId }) => {
     setCreateModal({ visible: true, id });
+    setCurDataStreamIdentifier(inlongStreamId);
   };
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
+      title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/source/delete/${id}`,
+          url: `/sink/delete/${id}`,
           method: 'DELETE',
           params: {
-            sourceType: options.sourceType,
+            sinkType: options.sinkType,
           },
         });
         await getList();
-        message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
+        message.success(i18n.t('basic.DeleteSuccess'));
       },
     });
   };
@@ -151,7 +168,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columnsMap = useMemo(
     () =>
-      sources.reduce(
+      Sinks.reduce(
         (acc, cur) => ({
           ...acc,
           [cur.value]: cur.tableColumns,
@@ -161,17 +178,35 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     [],
   );
 
+  const createContent = useMemo(
+    () => [
+      {
+        type: 'select',
+        label: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
+        name: 'inlongStreamId',
+        props: {
+          notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
+          disabled: !!createModal.id,
+          options: streamList.map(item => ({
+            label: item.inlongStreamId,
+            value: item.inlongStreamId,
+          })),
+        },
+        rules: [{ required: true }],
+      },
+    ],
+    [createModal.id, streamList],
+  );
+
+  const streamItem = streamList.find(item => item.inlongStreamId === curDataStreamIdentifier);
+
   const columns = [
     {
-      title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
+      title: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
       dataIndex: 'inlongStreamId',
     },
-    {
-      title: i18n.t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
-      dataIndex: 'sourceName',
-    },
   ]
-    .concat(columnsMap[options.sourceType])
+    .concat(columnsMap[options.sinkType])
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -197,38 +232,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       } as any,
     ]);
 
-  const createContent = [
-    {
-      type: 'select',
-      label: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
-      name: 'inlongStreamId',
-      props: {
-        notFoundContent: i18n.t('pages.AccessDetail.DataSources.NoDataStreams'),
-        disabled: !!createModal.id,
-        options: {
-          requestService: {
-            url: '/stream/list',
-            method: 'POST',
-            data: {
-              pageNum: 1,
-              pageSize: 1000,
-              inlongGroupId,
-            },
-          },
-          requestParams: {
-            ready: !!(createModal.visible && !createModal.id),
-            formatResult: result =>
-              result?.list.map(item => ({
-                label: item.inlongStreamId,
-                value: item.inlongStreamId,
-              })) || [],
-          },
-        },
-      },
-      rules: [{ required: true }],
-    },
-  ];
-
   return (
     <>
       <HighTable
@@ -239,7 +242,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-              {i18n.t('pages.AccessDetail.DataSources.Create')}
+              {i18n.t('pages.AccessDetail.DataStorage.New')}
             </Button>
           )
         }
@@ -255,9 +258,12 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
       <DetailModal
         {...createModal}
-        type={options.sourceType as any}
+        inlongGroupId={inlongGroupId}
         content={createContent}
+        sinkType={options.sinkType as any}
         visible={createModal.visible as boolean}
+        dataType={streamItem?.dataType}
+        onValuesChange={(c, v) => setCurDataStreamIdentifier(v?.inlongStreamId)}
         onOk={async values => {
           await onSave(values);
           setCreateModal({ visible: false });

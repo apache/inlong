@@ -84,7 +84,7 @@ const Comp: React.FC = () => {
   const onTabsChange = value => {
     setActived(value);
     history.push({
-      pathname: `/audit/${value}`,
+      pathname: `/process/${value}`,
     });
   };
 
