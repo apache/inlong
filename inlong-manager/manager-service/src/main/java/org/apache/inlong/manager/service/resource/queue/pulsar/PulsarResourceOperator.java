@@ -21,9 +21,9 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -205,7 +205,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             pulsarOperator.createTopic(pulsarAdmin, topicBean);
 
             // 2. create a subscription for the pulsar topic
-            boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topicName);
+            boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topicName,
+                    InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicBean.getQueueModule()));
             if (!exist) {
                 String topicFullName = tenant + "/" + namespace + "/" + topicName;
                 String serviceUrl = pulsarCluster.getAdminUrl();
