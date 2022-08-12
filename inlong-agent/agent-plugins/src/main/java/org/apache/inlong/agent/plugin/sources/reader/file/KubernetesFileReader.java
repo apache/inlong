@@ -60,6 +60,7 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
 public final class KubernetesFileReader extends AbstractFileReader {
 
     private static final Logger log = LoggerFactory.getLogger(KubernetesFileReader.class);
+    private static final Gson GSON = new Gson();
 
     private KubernetesClient client;
 
@@ -74,6 +75,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
         try {
             client = getKubernetesClient();
         } catch (IOException e) {
+            e.printStackTrace();
             log.error("Get k8s client error: {}", e.getMessage());
         }
         fileReaderOperator.metadata = getK8sMetadata(fileReaderOperator.jobConf);
@@ -129,7 +131,6 @@ public final class KubernetesFileReader extends AbstractFileReader {
         Pod pod = client.pods().inNamespace(k8sInfo.get(NAMESPACE)).withName(k8sInfo.get(POD_NAME)).get();
         PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
                 .withLabels(MetaDataUtils.getPodLabels(jobConf)).list();
-        Gson gson = new Gson();
         Map<String, String> metadata = new HashMap<>();
         podList.getItems().forEach(data -> {
             if (data.equals(pod)) {
@@ -138,7 +139,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
                 metadata.put(METADATA_CONTAINER_ID, k8sInfo.get(CONTAINER_ID));
                 metadata.put(METADATA_POD_NAME, k8sInfo.get(POD_NAME));
                 metadata.put(METADATA_POD_UID, pod.getMetadata().getUid());
-                metadata.put(METADATA_POD_LABEL, gson.toJson(pod.getMetadata().getLabels()));
+                metadata.put(METADATA_POD_LABEL, GSON.toJson(pod.getMetadata().getLabels()));
             }
         });
         return metadata;

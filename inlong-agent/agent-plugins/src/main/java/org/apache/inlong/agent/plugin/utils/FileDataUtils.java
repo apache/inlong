@@ -30,17 +30,20 @@ import java.util.Map;
  */
 public class FileDataUtils {
 
-    public static final  String KUBERNETES_LOG = "log";
+    public static final String KUBERNETES_LOG = "log";
 
-    // Get standard log for k8s
+    private static final Gson GSON = new Gson();
+
+    /**
+     * Get standard log for k8s
+     */
     public static String getK8sJsonLog(String log) {
         if (!StringUtils.isNoneBlank(log)) {
             return null;
         }
-        Gson gson = new Gson();
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
-        Map<String, String> logJson = gson.fromJson(log, type);
+        Map<String, String> logJson = GSON.fromJson(log, type);
         return logJson.get(KUBERNETES_LOG);
     }
 

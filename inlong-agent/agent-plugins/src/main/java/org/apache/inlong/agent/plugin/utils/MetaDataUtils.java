@@ -42,6 +42,8 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
  */
 public class MetaDataUtils {
 
+    private static final Gson GSON = new Gson();
+
     /**
      * standard log for k8s
      *
@@ -74,8 +76,7 @@ public class MetaDataUtils {
         String labels = jobProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
-        Gson gson = new Gson();
-        return gson.fromJson(labels, type);
+        return GSON.fromJson(labels, type);
     }
 
     public static List<String> getNamespace(JobProfile jobProfile) {
@@ -85,8 +86,7 @@ public class MetaDataUtils {
         String property = jobProfile.get(JOB_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
-        Gson gson = new Gson();
-        Map<String, String> properties = gson.fromJson(property, type);
+        Map<String, String> properties = GSON.fromJson(property, type);
         return properties.keySet().stream().map(data -> {
             if (data.contains(NAMESPACE)) {
                 return properties.get(data);
@@ -107,8 +107,7 @@ public class MetaDataUtils {
         String property = jobProfile.get(JOB_FILE_PROPERTIES);
         Type type = new TypeToken<HashMap<Integer, String>>() {
         }.getType();
-        Gson gson = new Gson();
-        Map<String, String> properties = gson.fromJson(property, type);
+        Map<String, String> properties = GSON.fromJson(property, type);
         List<String> podName = properties.keySet().stream().map(data -> {
             if (data.contains(POD_NAME)) {
                 return properties.get(data);
