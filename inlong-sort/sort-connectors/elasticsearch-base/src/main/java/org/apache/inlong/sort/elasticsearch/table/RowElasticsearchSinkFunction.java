@@ -126,6 +126,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         }
     }
 
+    private void sendMetrics(byte[] document) {
+        if (sinkMetricData.getNumBytesOut() != null) {
+            sinkMetricData.getNumBytesOut().inc(document.length);
+        }
+        outputMetricForAudit(document.length);
+    }
+
     @Override
     public void process(RowData element, RuntimeContext ctx, RequestIndexer indexer) {
         switch (element.getRowKind()) {
@@ -145,10 +152,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void processUpsert(RowData row, RequestIndexer indexer) {
         final byte[] document = serializationSchema.serialize(row);
         final String key = createKey.apply(row);
-        if (sinkMetricData.getNumBytesOut() != null) {
-            sinkMetricData.getNumBytesOut().inc(document.length);
-        }
-        outputMetricForAudit(document.length);
+        sendMetrics(document);
         if (key != null) {
             final UpdateRequest updateRequest =
                     requestFactory.createUpdateRequest(
@@ -165,6 +169,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     }
 
     private void processDelete(RowData row, RequestIndexer indexer) {
+        // the serialization is just for metrics
+        final byte[] document = serializationSchema.serialize(row);
+        sendMetrics(document);
         final String key = createKey.apply(row);
         final DeleteRequest deleteRequest =
                 requestFactory.createDeleteRequest(indexGenerator.generate(row), docType, key);

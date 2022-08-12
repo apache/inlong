@@ -65,6 +65,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     private final TableSchema schema;
     private final Elasticsearch6Configuration config;
     private final String inLongMetric;
+    private final String auditHostAndPorts;
     private final ElasticSearchBuilderProvider builderProvider;
 
     // --------------------------------------------------------------
@@ -81,8 +82,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             EncodingFormat<SerializationSchema<RowData>> format,
             Elasticsearch6Configuration config,
             TableSchema schema,
-            String inLongMetric) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric);
+            String inLongMetric,
+            String auditHostAndPorts) {
+        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric, auditHostAndPorts);
     }
 
     Elasticsearch6DynamicSink(
@@ -90,12 +92,14 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             Elasticsearch6Configuration config,
             TableSchema schema,
             ElasticSearchBuilderProvider builderProvider,
-            String inLongMetric) {
+            String inLongMetric,
+            String auditHostAndPorts) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
         this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -130,7 +134,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
                             inLongMetric,
-                            null);
+                            auditHostAndPorts);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
