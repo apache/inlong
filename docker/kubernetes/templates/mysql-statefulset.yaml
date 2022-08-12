@@ -80,6 +80,8 @@ spec:
               mountPath: /var/lib/mysql
             - name: sql
               mountPath: /docker-entrypoint-initdb.d
+            - name: config-volume
+              mountPath: /etc/mysql/
       volumes:
         - name: data
           {{- if .Values.mysql.volumes.persistence }}
@@ -95,6 +97,12 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+            items:
+            - key: my.cnf
+              path: my.cnf
       restartPolicy: Always
 {{- end }}
 {{- end }}
