@@ -64,6 +64,7 @@ public class InlongConstants {
 
     public static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
 
+    public static final String PULSAR_QUEUE_TYPE_PARALLEL = "PARALLEL";
 
     /**
      * Format of the Pulsar topic: "persistent://tenant/namespace/topic

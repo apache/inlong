@@ -147,7 +147,7 @@ public class PulsarOperator {
 
         // Topic will be returned if it exists, and created if it does not exist
         if (topicIsExists(pulsarAdmin, tenant, namespace, topic,
-                !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()))) {
+                InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicBean.getQueueModule()))) {
             LOGGER.warn("pulsar topic={} already exists in {}", topicFullName, pulsarAdmin.getServiceUrl());
             return;
         }
@@ -204,7 +204,7 @@ public class PulsarOperator {
 
         // Topic will be returned if it not exists
         if (topicIsExists(pulsarAdmin, tenant, namespace, topic,
-                !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()))) {
+                InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicBean.getQueueModule()))) {
             LOGGER.warn("pulsar topic={} already delete", topicFullName);
             return;
         }
@@ -230,7 +230,7 @@ public class PulsarOperator {
         LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, topicName);
         try {
             boolean isExists = this.subscriptionIsExists(pulsarAdmin, topicName, subscription,
-                    !InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()));
+                    InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicBean.getQueueModule()));
             if (isExists) {
                 LOGGER.warn("pulsar subscription={} already exists, skip to create", subscription);
                 return;
