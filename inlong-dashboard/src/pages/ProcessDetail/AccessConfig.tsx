@@ -20,7 +20,7 @@
 import React from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import getGroupFields from '@/meta/group';
+import getGroupFields from '@/metas/group';
 
 const getContent = (initialValues, isFinished, isViwer) => [
   ...getGroupFields(

@@ -178,8 +178,12 @@ const Comp: React.FC = () => {
           style={{ marginBottom: 20, width: 600 }}
           onChange={c => setCurrent(c)}
         >
-          {list.map(item => (
-            <Steps.Step key={item.label} title={item.label} />
+          {list.map((item, index) => (
+            <Steps.Step
+              key={item.label}
+              title={item.label}
+              disabled={index > current && !hasOpened(index)}
+            />
           ))}
         </Steps>
       )}

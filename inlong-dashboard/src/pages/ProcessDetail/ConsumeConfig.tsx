@@ -20,7 +20,7 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import getConsumptionFields from '@/meta/consumption';
+import getConsumptionFields from '@/metas/consumption';
 
 const getContent = initialValues => {
   return getConsumptionFields(
