@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.HashMap;
+
 /**
  * Command service test for {@link CommandToolMain}
  */
@@ -54,6 +56,17 @@ public class TestCommand {
     public void testCreateGroup() {
         String[] arg = {"create", "group", "-f", "src/test/resources/create_group.json"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
+    }
+
+    @Test
+    public void testQueryGroup(){
+        //create invalid groups, for testing uses only.
+        //can be edited to form valid groups, only need to add a validity check on the group.
+        String[] arg1 = {"create", "group", "-s", "groupInfo:{inlongGroupId:1234,mqType:pulsar},streamInfo:{inlongGroupId:1234}"};
+        Assertions.assertTrue(inlongAdminTool.run(arg1));
+        //query by properties, return groupid.
+        String[] arg2 = {"log", "group", "-query", "mqType", "pulsar"};
+        Assertions.assertTrue(inlongAdminTool.run(arg2));
     }
 
     @Test
