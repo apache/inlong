@@ -27,7 +27,7 @@ import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
-import org.apache.inlong.sdk.sort.manager.InLongTopicManagerFactory;
+import org.apache.inlong.sdk.sort.manager.InlongTopicManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class SortClientImpl extends SortClient {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            this.inLongTopicManager = InLongTopicManagerFactory
+            this.inLongTopicManager = InlongTopicManagerFactory
                     .createInLongTopicManager(sortClientConfig.getTopicManagerType(),
                             context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class SortClientImpl extends SortClient {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
-            this.inLongTopicManager = InLongTopicManagerFactory
+            this.inLongTopicManager = InlongTopicManagerFactory
                     .createInLongTopicManager(sortClientConfig.getTopicManagerType(),
                             context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {

@@ -23,7 +23,11 @@ import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicManagerType;
 
-public class InLongTopicManagerFactory {
+/**
+ * Inlong topic manager factory.
+ * To create single or multi topic fetcher manager according to the {@link TopicManagerType}
+ */
+public class InlongTopicManagerFactory {
 
     public static InlongTopicManager createInLongTopicManager(
             TopicManagerType type,
