@@ -294,8 +294,7 @@ public class AgentServiceImpl implements AgentService {
 
     private int getNextStatus(int status) {
         int op = status % MODULUS_100;
-        int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
-        return nextStatus;
+        return ISSUED_STATUS * MODULUS_100 + op;
     }
 
     /**
