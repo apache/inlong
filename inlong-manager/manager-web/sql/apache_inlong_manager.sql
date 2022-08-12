@@ -728,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `status`               varchar(64)   NOT NULL COMMENT 'Status',
     `operator`             varchar(256)  DEFAULT NULL COMMENT 'Actual operator',
     `remark`               varchar(1024) DEFAULT NULL COMMENT 'Remark information',
-    `form_data`            text COMMENT 'Form information submitted by the current task',
+    `form_data`            mediumtext COMMENT 'Form information submitted by the current task',
     `start_time`           datetime      NOT NULL COMMENT 'Start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
