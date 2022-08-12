@@ -69,7 +69,9 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     }
 
     @Override
-    protected void onPartFileOpened(String s, Path newPath) {}
+    protected void onPartFileOpened(String s, Path newPath) {
+
+    }
 
     @Override
     public void snapshotState(StateSnapshotContext context) throws Exception {

@@ -106,8 +106,7 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
             final String auditHostAndPorts = context.getCatalogTable().getOptions()
                     .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
-            
-            
+
             return new HiveTableSink(
                     context.getConfiguration(),
                     new JobConf(hiveConf),
