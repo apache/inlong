@@ -39,6 +39,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
@@ -53,35 +55,38 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FL
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FORMAT_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.INDEX_OPTION;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.KEY_DELIMITER_OPTION;
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
-/** A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch6DynamicSink}. */
+/**
+ * A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch6DynamicSink}.
+ */
 @Internal
 public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory {
+
     private static final Set<ConfigOption<?>> requiredOptions =
             Stream.of(HOSTS_OPTION, INDEX_OPTION, DOCUMENT_TYPE_OPTION).collect(Collectors.toSet());
     private static final Set<ConfigOption<?>> optionalOptions =
             Stream.of(
-                    KEY_DELIMITER_OPTION,
+                            KEY_DELIMITER_OPTION,
                             ROUTING_FIELD_NAME,
-                    FAILURE_HANDLER_OPTION,
-                    FLUSH_ON_CHECKPOINT_OPTION,
-                    BULK_FLASH_MAX_SIZE_OPTION,
-                    BULK_FLUSH_MAX_ACTIONS_OPTION,
-                    BULK_FLUSH_INTERVAL_OPTION,
-                    BULK_FLUSH_BACKOFF_TYPE_OPTION,
-                    BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
-                    BULK_FLUSH_BACKOFF_DELAY_OPTION,
-                    CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
-                    CONNECTION_PATH_PREFIX,
-                    FORMAT_OPTION,
-                    PASSWORD_OPTION,
-                    USERNAME_OPTION,
-                    INLONG_METRIC)
+                            FAILURE_HANDLER_OPTION,
+                            FLUSH_ON_CHECKPOINT_OPTION,
+                            BULK_FLASH_MAX_SIZE_OPTION,
+                            BULK_FLUSH_MAX_ACTIONS_OPTION,
+                            BULK_FLUSH_INTERVAL_OPTION,
+                            BULK_FLUSH_BACKOFF_TYPE_OPTION,
+                            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
+                            BULK_FLUSH_BACKOFF_DELAY_OPTION,
+                            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
+                            CONNECTION_PATH_PREFIX,
+                            FORMAT_OPTION,
+                            PASSWORD_OPTION,
+                            USERNAME_OPTION,
+                            INLONG_METRIC,
+                            INLONG_AUDIT)
                     .collect(Collectors.toSet());
 
     @Override
@@ -104,8 +109,10 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
 
         String inLongMetric = helper.getOptions().get(INLONG_METRIC);
 
+        String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
+
         return new Elasticsearch6DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric);
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric, auditHostAndPorts);
     }
 
     private void validate(Elasticsearch6Configuration config, Configuration originalConfiguration) {
