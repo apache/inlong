@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.hive.filesystem;
 
-
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -43,10 +42,14 @@ public class CompactFileWriter<T>
     }
 
     @Override
-    protected void partitionCreated(String partition) {}
+    protected void partitionCreated(String partition) {
+
+    }
 
     @Override
-    protected void partitionInactive(String partition) {}
+    protected void partitionInactive(String partition) {
+
+    }
 
     @Override
     protected void onPartFileOpened(String partition, Path newPath) {

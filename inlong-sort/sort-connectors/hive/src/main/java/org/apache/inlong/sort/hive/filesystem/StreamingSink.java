@@ -50,7 +50,9 @@ import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_PARTITION
 
 /** Helper for creating streaming file sink. */
 public class StreamingSink {
-    private StreamingSink() {}
+    private StreamingSink() {
+
+    }
 
     /**
      * Create a file writer by input stream. This is similar to {@link StreamingFileSink}, in
