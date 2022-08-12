@@ -23,7 +23,7 @@ import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import DetailModal from './DetailModal';
-import { sources } from '@/meta/sources';
+import { sources } from '@/metas/sources';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';

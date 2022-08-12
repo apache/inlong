@@ -66,24 +66,24 @@ const routes: RouteProps[] = [
     ],
   },
   {
-    path: '/audit',
+    path: '/process',
     exact: true,
     childRoutes: [
       {
         path: '/:type?',
-        component: () => import('@/pages/Approvals'),
+        component: () => import('@/pages/Process'),
         exact: true,
         childRoutes: [
           {
             path: '/:id',
-            component: () => import('@/pages/ApprovalDetail'),
+            component: () => import('@/pages/ProcessDetail'),
             exact: true,
           },
         ],
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/ApprovalDetail'),
+        component: () => import('@/pages/ProcessDetail'),
         exact: true,
       },
     ],
@@ -100,7 +100,7 @@ const routes: RouteProps[] = [
   },
   {
     path: '/approval',
-    component: () => import('@/pages/ApprovalManagement'),
+    component: () => import('@/pages/ProcessManagement'),
     exact: true,
   },
   {

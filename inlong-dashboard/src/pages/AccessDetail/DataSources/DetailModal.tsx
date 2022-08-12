@@ -24,7 +24,7 @@ import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { FormItemProps } from '@/components/FormGenerator';
-import { sources, SourceType } from '@/meta/sources';
+import { sources, SourceType } from '@/metas/sources';
 
 export interface Props extends ModalProps {
   type: 'MYSQL_BINLOG' | 'FILE';

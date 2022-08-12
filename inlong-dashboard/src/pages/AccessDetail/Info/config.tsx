@@ -18,7 +18,7 @@
  */
 
 // import React from 'react';
-import getGroupFields from '@/meta/group';
+import getGroupFields from '@/metas/group';
 
 export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
   const keys = [

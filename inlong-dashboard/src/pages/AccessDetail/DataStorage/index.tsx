@@ -24,7 +24,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
-import { Sinks } from '@/meta/sinks';
+import { Sinks } from '@/metas/sinks';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { statusList, genStatusTag } from './status';

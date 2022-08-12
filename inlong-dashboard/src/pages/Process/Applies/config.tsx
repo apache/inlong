@@ -52,7 +52,7 @@ export const getColumns = activedName => [
     title: i18n.t('pages.Approvals.ProcessID'),
     dataIndex: 'id',
     width: 90,
-    render: text => <Link to={`/audit/${activedName}/${text}`}>{text}</Link>,
+    render: text => <Link to={`/process/${activedName}/${text}`}>{text}</Link>,
   },
   {
     title: i18n.t('pages.Approvals.ApplicationType'),
@@ -88,7 +88,7 @@ export const getColumns = activedName => [
     dataIndex: 'action',
     width: 100,
     render: (text, record) => (
-      <Link to={`/audit/${activedName}/${record.id}`}>{i18n.t('basic.Detail')}</Link>
+      <Link to={`/process/${activedName}/${record.id}`}>{i18n.t('basic.Detail')}</Link>
     ),
   },
 ];

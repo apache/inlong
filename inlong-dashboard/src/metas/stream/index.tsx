@@ -22,7 +22,7 @@ import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
-import { fieldTypes as sourceFieldsTypes } from '@/meta/sinks/common/sourceFields';
+import { fieldTypes as sourceFieldsTypes } from '@/metas/sinks/common/sourceFields';
 
 type RestParams = {
   // Whether the fieldList is in edit mode

@@ -48,7 +48,7 @@ const menus: MenuItemType[] = [
     ],
   },
   {
-    path: '/audit',
+    path: '/process',
     name: i18n.t('configs.menus.ApprovalManagement'),
   },
   // {

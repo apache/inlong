@@ -101,7 +101,7 @@ const Comp: React.FC = () => {
       method: 'POST',
       data: submitData,
     });
-    history.push('/audit/approvals');
+    history.push('/process/approvals');
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
@@ -117,7 +117,7 @@ const Comp: React.FC = () => {
             remark,
           },
         });
-        history.push('/audit/approvals');
+        history.push('/process/approvals');
         message.success(i18n.t('pages.ApprovalDetail.RejectSuccess'));
       },
     });
@@ -135,7 +135,7 @@ const Comp: React.FC = () => {
             remark: '',
           },
         });
-        history.push('/audit/applies');
+        history.push('/process/applies');
         message.success(i18n.t('pages.ApprovalDetail.RevokeSuccess'));
       },
     });
@@ -156,7 +156,7 @@ const Comp: React.FC = () => {
             {i18n.t('pages.ApprovalDetail.Ok')}
           </Button>
           <Button onClick={onReject}>{i18n.t('pages.ApprovalDetail.Reject')}</Button>
-          <Button onClick={() => history.push('/audit/approvals')}>
+          <Button onClick={() => history.push('/process/approvals')}>
             {i18n.t('pages.ApprovalDetail.Back')}
           </Button>
         </Space>
@@ -164,7 +164,7 @@ const Comp: React.FC = () => {
       {type === 'applies' && processInfo?.status === 'PROCESSING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button onClick={onCancel}>{i18n.t('pages.ApprovalDetail.Withdraw')}</Button>
-          <Button onClick={() => history.push('/audit/applies')}>
+          <Button onClick={() => history.push('/process/applies')}>
             {i18n.t('pages.ApprovalDetail.Back')}
           </Button>
         </Space>
