@@ -45,6 +45,10 @@ public class FileJob {
 
     private String dataSeparator;
 
+    private Map<String, String> filterMetaByLabels;
+
+    private Map<String, Object> properties;
+
     @Data
     public static class Dir {
 
@@ -100,6 +104,13 @@ public class FileJob {
 
         // Column separator of data source 
         private String dataSeparator;
+
+        // Metadata filters by label, special parameters for K8S
+        private Map<String, String> filterMetaByLabels;
+
+        // Properties for File
+        private Map<String, Object> properties;
+
     }
 
 }
