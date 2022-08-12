@@ -55,34 +55,37 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FO
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.INDEX_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.KEY_DELIMITER_OPTION;
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
-/** A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch7DynamicSink}. */
+/**
+ * A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch7DynamicSink}.
+ */
 @Internal
 public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory {
+
     private static final Set<ConfigOption<?>> requiredOptions =
             Stream.of(HOSTS_OPTION, INDEX_OPTION).collect(Collectors.toSet());
     private static final Set<ConfigOption<?>> optionalOptions =
             Stream.of(
-                    KEY_DELIMITER_OPTION,
+                            KEY_DELIMITER_OPTION,
                             ROUTING_FIELD_NAME,
-                    FAILURE_HANDLER_OPTION,
-                    FLUSH_ON_CHECKPOINT_OPTION,
-                    BULK_FLASH_MAX_SIZE_OPTION,
-                    BULK_FLUSH_MAX_ACTIONS_OPTION,
-                    BULK_FLUSH_INTERVAL_OPTION,
-                    BULK_FLUSH_BACKOFF_TYPE_OPTION,
-                    BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
-                    BULK_FLUSH_BACKOFF_DELAY_OPTION,
-                    CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
-                    CONNECTION_PATH_PREFIX,
-                    FORMAT_OPTION,
-                    PASSWORD_OPTION,
-                    USERNAME_OPTION,
-                    INLONG_METRIC,
-                    INLONG_AUDIT)
+                            FAILURE_HANDLER_OPTION,
+                            FLUSH_ON_CHECKPOINT_OPTION,
+                            BULK_FLASH_MAX_SIZE_OPTION,
+                            BULK_FLUSH_MAX_ACTIONS_OPTION,
+                            BULK_FLUSH_INTERVAL_OPTION,
+                            BULK_FLUSH_BACKOFF_TYPE_OPTION,
+                            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
+                            BULK_FLUSH_BACKOFF_DELAY_OPTION,
+                            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
+                            CONNECTION_PATH_PREFIX,
+                            FORMAT_OPTION,
+                            PASSWORD_OPTION,
+                            USERNAME_OPTION,
+                            INLONG_METRIC,
+                            INLONG_AUDIT)
                     .collect(Collectors.toSet());
 
     @Override
