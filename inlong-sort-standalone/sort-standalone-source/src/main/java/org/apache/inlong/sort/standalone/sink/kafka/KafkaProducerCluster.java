@@ -79,13 +79,16 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.state = LifecycleState.START;
         try {
             Properties props = new Properties();
-            props.putAll(context.getParameters());
+            props.put(
+                    ProducerConfig.PARTITIONER_CLASS_CONFIG,
+                    context.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName()));
             props.put(
                     ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     context.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
             props.put(
                     ProducerConfig.CLIENT_ID_CONFIG,
                     context.getString(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
+            props.putAll(context.getParameters());
             LOG.info("init kafka client info: " + props);
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);
