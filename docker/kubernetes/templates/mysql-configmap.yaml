@@ -25,12 +25,8 @@ metadata:
   labels:
     component: {{ .Values.mysql.component }}
 data:
-  my.cnf: |-
+  custom.cnf: |-
     [mysqld]
-    pid-file        = /var/run/mysqld/mysqld.pid
-    socket          = /var/run/mysqld/mysqld.sock
-    datadir         = /var/lib/mysql
-    secure-file-priv= NULL
     default_authentication_plugin=mysql_native_password
 {{- end }}
 {{- end }}
