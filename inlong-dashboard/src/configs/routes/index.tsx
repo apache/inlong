@@ -33,17 +33,17 @@ const routes: RouteProps[] = [
   },
   {
     path: '/access',
-    component: () => import('@/pages/AccessDashboard'),
+    component: () => import('@/pages/GroupDashboard'),
     exact: true,
     childRoutes: [
       {
         path: '/create/:id?',
-        component: () => import('@/pages/AccessDetail'),
+        component: () => import('@/pages/GroupDetail'),
         exact: true,
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/AccessDetail'),
+        component: () => import('@/pages/GroupDetail'),
         exact: true,
       },
     ],
