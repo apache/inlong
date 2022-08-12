@@ -227,7 +227,8 @@ public class PulsarOperator {
         String topicName = topicBean.getTenant() + "/" + topicBean.getNamespace() + "/" + topicBean.getTopicName();
         LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, topicName);
         try {
-            boolean isExists = this.subscriptionIsExists(pulsarAdmin, topicBean, subscription);
+            boolean isExists = this.subscriptionIsExists(pulsarAdmin, topicName, subscription,
+                    !PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule()));
             if (isExists) {
                 LOGGER.warn("pulsar subscription={} already exists, skip to create", subscription);
                 return;
@@ -321,8 +322,8 @@ public class PulsarOperator {
         return topicExists;
     }
 
-    private boolean subscriptionIsExists(PulsarAdmin pulsarAdmin, PulsarTopicBean topicBean, String subscription) {
-        String topic = topicBean.getTenant() + "/" + topicBean.getNamespace() + "/" + topicBean.getTopicName();
+    private boolean subscriptionIsExists(PulsarAdmin pulsarAdmin, String topic, String subscription,
+            boolean isPartitioned) {
         int count = 0;
         while (++count <= RETRY_TIMES) {
             try {
@@ -330,15 +331,15 @@ public class PulsarOperator {
                 Thread.sleep(DELAY_SECONDS);
 
                 // first lookup to load the topic, and then query whether the subscription exists
-                if (PULSAR_QUEUE_TYPE_SERIAL.equals(topicBean.getQueueModule())) {
-                    String lookupTopic = pulsarAdmin.lookups().lookupTopic(topic);
-                    if (StringUtils.isBlank(lookupTopic)) {
+                if (isPartitioned) {
+                    Map<String, String> topicMap = pulsarAdmin.lookups().lookupPartitionedTopic(topic);
+                    if (topicMap.isEmpty()) {
                         LOGGER.error("result of lookups topic={} is empty, continue retry", topic);
                         continue;
                     }
                 } else {
-                    Map<String, String> topicMap = pulsarAdmin.lookups().lookupPartitionedTopic(topic);
-                    if (topicMap.isEmpty()) {
+                    String lookupTopic = pulsarAdmin.lookups().lookupTopic(topic);
+                    if (StringUtils.isBlank(lookupTopic)) {
                         LOGGER.error("result of lookups topic={} is empty, continue retry", topic);
                         continue;
                     }
