@@ -143,7 +143,6 @@ public class InlongGroupImpl implements InlongGroup {
             originGroupInfo = this.groupInfo;
         }
 
-
         final String groupId = originGroupInfo.getInlongGroupId();
         Preconditions.checkTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
                 "groupId must be same");
