@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
  */
 public class InlongGroupImpl implements InlongGroup {
 
+    public static final Integer DEFAULT_VERSION = 1;
     public static final String GROUP_FIELD = "groupInfo";
     public static final String MQ_FIELD_OLD = "middlewareType";
     public static final String MQ_FIELD = "mqType";
@@ -81,7 +82,7 @@ public class InlongGroupImpl implements InlongGroup {
 
         InlongGroupInfo newGroupInfo = groupClient.getGroupIfExists(groupInfo.getInlongGroupId());
         if (newGroupInfo != null) {
-            this.groupContext.setGroupInfo(groupInfo);
+            this.groupContext.setGroupInfo(newGroupInfo);
         } else {
             BaseSortConf sortConf = groupInfo.getSortConf();
             InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
@@ -143,16 +144,21 @@ public class InlongGroupImpl implements InlongGroup {
             originGroupInfo = this.groupInfo;
         }
 
+        Integer version = DEFAULT_VERSION;
         final String groupId = originGroupInfo.getInlongGroupId();
         Preconditions.checkTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
-        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
-        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
-                "inlong group is in init status, should not be updated");
+        if (existGroupInfo != null) {
+            SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
+            Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
+                    "inlong group is in init status, should not be updated");
+            version = existGroupInfo.getVersion();
+        }
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
+        groupInfo.setVersion(version);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
@@ -166,14 +172,19 @@ public class InlongGroupImpl implements InlongGroup {
     public void update(BaseSortConf sortConf) throws Exception {
         Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
 
+        Integer version = DEFAULT_VERSION;
         final String groupId = this.groupInfo.getInlongGroupId();
-        InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
 
-        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
-        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
-                "inlong group is in init status, should not be updated");
+        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
+        if (existGroupInfo != null) {
+            SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
+            Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
+                    "inlong group is in init status, should not be updated");
+            version = existGroupInfo.getVersion();
+        }
 
-        groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        groupInfo.setVersion(version);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
