@@ -53,6 +53,7 @@ public class SqlServerSource {
         private StartupOptions startupOptions = StartupOptions.initial();
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
+        private String auditHostAndPorts;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -115,6 +116,11 @@ public class SqlServerSource {
             return this;
         }
 
+        public Builder<T> auditHostAndPorts(String auditHostAndPorts) {
+            this.auditHostAndPorts = auditHostAndPorts;
+            return this;
+        }
+
         /** Specifies the startup options. */
         public Builder<T> startupOptions(StartupOptions startupOptions) {
             this.startupOptions = startupOptions;
@@ -161,7 +167,8 @@ public class SqlServerSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, new SqlServerValidator(props), inlongMetric);
+                    deserializer, props, null, new SqlServerValidator(props),
+                inlongMetric, auditHostAndPorts);
         }
     }
 }

@@ -35,6 +35,7 @@ import java.util.Set;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /** Factory for creating configured instance of {@link SqlServerTableSource}. */
@@ -114,7 +115,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         String databaseName = config.get(DATABASE_NAME);
         String tableName = config.get(TABLE_NAME);
         String inlongMetric = config.get(INLONG_METRIC);
-
+        String auditHostAndPorts = config.get(INLONG_AUDIT);
         ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
@@ -133,7 +134,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-            inlongMetric);
+            inlongMetric, auditHostAndPorts);
     }
 
     @Override
@@ -160,6 +161,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         options.add(SERVER_TIME_ZONE);
         options.add(SCAN_STARTUP_MODE);
         options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 

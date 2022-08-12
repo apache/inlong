@@ -79,6 +79,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
     private String inlongMetric;
 
+    private String auditHostAndPorts;
+
     public SqlServerTableSource(
             ResolvedSchema physicalSchema,
             int port,
@@ -91,7 +93,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
             String password,
             Properties dbzProperties,
             StartupOptions startupOptions,
-            String inlongMetric) {
+            String inlongMetric,
+        String auditHostAndPorts) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -106,6 +109,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
         this.metadataKeys = Collections.emptyList();
         this.startupOptions = startupOptions;
         this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -146,6 +150,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .startupOptions(startupOptions)
                         .deserializer(deserializer)
                     .inlongMetric(inlongMetric)
+                    .auditHostAndPorts(auditHostAndPorts)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
@@ -181,7 +186,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         password,
                         dbzProperties,
                         startupOptions,
-                    inlongMetric);
+                    inlongMetric,
+                    auditHostAndPorts);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
