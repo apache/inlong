@@ -403,11 +403,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             String groupId = inlongMetricArray[0];
             String streamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            metricData = new SourceMetricData(metricGroup);
-            metricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, "numRecordsIn");
-            metricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, "numBytesIn");
-            metricData.registerMetricsForNumBytesInPerSecond(groupId, streamId, nodeId, "numBytesInPerSecond");
-            metricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId, nodeId, "numRecordsInPerSecond");
+            metricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup);
+            metricData.registerMetricsForNumRecordsIn();
+            metricData.registerMetricsForNumBytesIn();
+            metricData.registerMetricsForNumBytesInPerSecond();
+            metricData.registerMetricsForNumRecordsInPerSecond();
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
