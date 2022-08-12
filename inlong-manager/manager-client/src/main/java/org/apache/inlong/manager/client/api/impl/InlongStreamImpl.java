@@ -33,6 +33,8 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -42,8 +44,6 @@ import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
@@ -343,6 +343,7 @@ public class InlongStreamImpl implements InlongStream {
                 TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(newTransform,
                         streamInfo);
                 transformRequest.setId(id);
+                transformRequest.setVersion(transformResponse.getVersion());
                 Pair<Boolean, String> updateState = transformClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
@@ -379,6 +380,7 @@ public class InlongStreamImpl implements InlongStream {
                 streamSource.setId(id);
                 streamSource.setInlongGroupId(streamInfo.getInlongGroupId());
                 streamSource.setInlongStreamId(streamInfo.getInlongStreamId());
+                streamSource.setVersion(source.getVersion());
                 Pair<Boolean, String> updateState = sourceClient.updateSource(streamSource.genSourceRequest());
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update source=%s failed with err=%s", streamSource,
@@ -416,6 +418,7 @@ public class InlongStreamImpl implements InlongStream {
                 streamSink.setId(id);
                 streamSink.setInlongGroupId(streamInfo.getInlongGroupId());
                 streamSink.setInlongStreamId(streamInfo.getInlongStreamId());
+                streamSink.setVersion(sink.getVersion());
                 Pair<Boolean, String> updateState = sinkClient.updateSink(streamSink.genSinkRequest());
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update sink=%s failed with err=%s", streamSink,
