@@ -330,6 +330,7 @@ public class PulsarDynamicTableFactory implements
         options.add(SINK_PARALLELISM);
         options.add(PROPERTIES);
         options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
 
         return options;
     }
