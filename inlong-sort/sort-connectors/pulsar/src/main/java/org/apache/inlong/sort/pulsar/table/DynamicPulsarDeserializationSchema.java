@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
@@ -30,6 +32,8 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
@@ -63,6 +67,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     private final boolean upsertMode;
     private SourceMetricData sourceMetricData;
     private String inlongMetric;
+    private String auditHostAndPorts;
+
+    private AuditImp auditImp;
+
+    private String inLongGroupId;
+
+    private String inLongStreamId;
 
     DynamicPulsarDeserializationSchema(
             int physicalArity,
@@ -74,7 +85,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
-            String inlongMetric) {
+            String inlongMetric, String auditHostAndPorts) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -92,6 +103,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -103,14 +115,19 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
 
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
             String[] inLongMetricArray = inlongMetric.split(DELIMITER);
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
+            inLongGroupId = inLongMetricArray[0];
+            inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, context.getMetricGroup());
+            sourceMetricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
             sourceMetricData.registerMetricsForNumBytesIn();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsIn();
             sourceMetricData.registerMetricsForNumRecordsInPerSecond();
+        }
+
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
         }
 
     }
@@ -133,11 +150,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), collector);
-            if (sourceMetricData != null) {
-                sourceMetricData.getNumRecordsIn().inc(1L);
-                sourceMetricData.getNumBytesIn()
-                        .inc(message.getData().length);
-            }
+            outputMetrics(message);
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();
@@ -156,14 +169,27 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             outputCollector.collect(null);
         } else {
             valueDeserialization.deserialize(message.getData(), outputCollector);
-            if (sourceMetricData != null) {
-                sourceMetricData.getNumRecordsIn().inc(1L);
-                sourceMetricData.getNumBytesIn()
-                        .inc(message.getData().length);
-            }
+            outputMetrics(message);
         }
 
         keyCollector.buffer.clear();
+    }
+
+    private void outputMetrics(Message<RowData> message) {
+        if (sourceMetricData != null) {
+            sourceMetricData.getNumRecordsIn().inc(1L);
+            sourceMetricData.getNumBytesIn()
+                    .inc(message.getData().length);
+        }
+        if (auditImp != null) {
+            auditImp.add(
+                Constants.AUDIT_SORT_INPUT,
+                inLongGroupId,
+                inLongStreamId,
+                System.currentTimeMillis(),
+                1,
+                message.getData().length);
+        }
     }
 
     @Override

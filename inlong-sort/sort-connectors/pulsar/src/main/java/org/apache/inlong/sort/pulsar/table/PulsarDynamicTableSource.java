@@ -148,6 +148,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
 
     protected String inLongMetric;
 
+    protected String auditHostAndPorts;
+
     public PulsarDynamicTableSource(
             DataType physicalDataType,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat,
@@ -162,7 +164,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
-            String inlongMetric) {
+            String inlongMetric,
+        String auditHostAndPorts) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -190,7 +193,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.startupOptions = startupOptions;
         this.upsertMode = upsertMode;
         this.inLongMetric = inlongMetric;
-
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     private void setTopicInfo(Properties properties, List<String> topics, String topicPattern) {
@@ -295,7 +298,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 metadataConverters,
                 producedTypeInfo,
                 upsertMode,
-            inLongMetric);
+            inLongMetric,
+            auditHostAndPorts);
     }
 
     @Override
@@ -313,7 +317,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 adminUrl,
                 properties,
                 startupOptions,
-                false, inLongMetric);
+                false, inLongMetric, auditHostAndPorts);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
