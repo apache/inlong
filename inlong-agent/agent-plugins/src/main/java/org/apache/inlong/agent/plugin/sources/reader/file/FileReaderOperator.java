@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -58,7 +59,7 @@ public class FileReaderOperator extends AbstractReader {
     public int position;
     public String md5;
     public Stream<String> stream;
-    public String metadata;
+    public Map<String, String> metadata;
     public JobProfile jobConf;
     private Iterator<String> iterator;
     private long timeout;
