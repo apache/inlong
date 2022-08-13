@@ -99,7 +99,7 @@ public class DispatchManager {
             DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
-            this.dispatchQueues.get(dispatchProfile.getSend_index() % dispatchQueues.size())
+            this.dispatchQueues.get(dispatchProfile.getSendIndex() % dispatchQueues.size())
                     .offer(dispatchProfile);
             outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
@@ -110,11 +110,11 @@ public class DispatchManager {
     private void addSendIndex(Event event, DispatchProfile dispatchProfile) {
         if ((MessageUtils.isSyncSendForOrder(event))) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
-            int send_index = Math.abs(partitionKey.hashCode());
+            int sendIndex = Math.abs(partitionKey.hashCode());
             dispatchProfile.setOrder(true);
-            dispatchProfile.setSend_index(send_index);
+            dispatchProfile.setSendIndex(sendIndex);
         } else {
-            dispatchProfile.setSend_index(sendIndex.incrementAndGet());
+            dispatchProfile.setSendIndex(sendIndex.incrementAndGet());
         }
     }
 
@@ -139,7 +139,7 @@ public class DispatchManager {
             // dispatch profile is full
             if (!addResult) {
                 outCounter.addAndGet(dispatchProfile.getCount());
-                this.dispatchQueues.get(dispatchProfile.getSend_index() % dispatchQueues.size())
+                this.dispatchQueues.get(dispatchProfile.getSendIndex() % dispatchQueues.size())
                         .offer(dispatchProfile);
                 dispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
                         dispatchTime);
@@ -150,7 +150,7 @@ public class DispatchManager {
         // last dispatch profile
         if (dispatchProfile.getEvents().size() > 0) {
             outCounter.addAndGet(dispatchProfile.getCount());
-            this.dispatchQueues.get(dispatchProfile.getSend_index() % dispatchQueues.size())
+            this.dispatchQueues.get(dispatchProfile.getSendIndex() % dispatchQueues.size())
                     .offer(dispatchProfile);
         }
     }
@@ -182,7 +182,7 @@ public class DispatchManager {
         removeKeys.forEach((key) -> {
             DispatchProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
-                this.dispatchQueues.get(dispatchProfile.getSend_index() % dispatchQueues.size())
+                this.dispatchQueues.get(dispatchProfile.getSendIndex() % dispatchQueues.size())
                         .offer(dispatchProfile);
                 outCounter.addAndGet(dispatchProfile.getCount());
             }

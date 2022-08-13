@@ -234,11 +234,6 @@ public abstract class AbstractZoneSinkContext {
     }
 
     /**
-     * get dispatchQueue
-     *
-     * @return the dispatchQueue
-     */
-    /**
      * get producerContext
      *
      * @return the producerContext
@@ -342,7 +337,11 @@ public abstract class AbstractZoneSinkContext {
         }
     }
 
-
+    /**
+     * get dispatchQueue
+     *
+     * @return the dispatchQueue
+     */
     public ArrayList<LinkedBlockingQueue<DispatchProfile>> getDispatchQueues() {
         return dispatchQueues;
     }
@@ -360,7 +359,7 @@ public abstract class AbstractZoneSinkContext {
      */
     public void processSendFail(DispatchProfile currentRecord, String producerTopic, long sendTime) {
         if (currentRecord.isResend()) {
-            dispatchQueues.get(currentRecord.getSend_index() % maxThreads).offer(currentRecord);
+            dispatchQueues.get(currentRecord.getSendIndex() % maxThreads).offer(currentRecord);
             this.addSendResultMetric(currentRecord, producerTopic, false, sendTime);
         } else {
             currentRecord.fail();

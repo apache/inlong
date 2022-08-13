@@ -38,7 +38,7 @@ public class DispatchProfile {
     private long dispatchTime;
     private DispatchProfileCallback callback;
     private boolean isOrder;
-    private int send_index;
+    private int sendIndex;
 
     /**
      * Constructor
@@ -217,12 +217,12 @@ public class DispatchProfile {
         this.callback = callback;
     }
 
-    public int getSend_index() {
-        return send_index;
+    public int getSendIndex() {
+        return sendIndex;
     }
 
-    public void setSend_index(int send_index) {
-        this.send_index = send_index;
+    public void setSendIndex(int sendIndex) {
+        this.sendIndex = sendIndex;
     }
 
     public boolean isOrder() {
