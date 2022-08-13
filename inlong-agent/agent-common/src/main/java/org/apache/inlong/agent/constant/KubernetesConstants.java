@@ -39,6 +39,8 @@ public class KubernetesConstants {
     public static final String METADATA_POD_UID = "_pod_uid_";
     public static final String METADATA_POD_NAME = "_pod_name_";
     public static final String METADATA_POD_LABEL = "_pod_label_";
+    public static final String DATA_CONTENT = "_content_";
+    public static final String DATA_CONTENT_TIME = "_time_";
 
 
 }
