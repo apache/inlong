@@ -73,7 +73,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
      */
     @Override
     public void start() {
-        this.state = LifecycleState.START;
+        super.state = LifecycleState.START;
         // create tube producer
         try {
             // prepare configuration
@@ -124,7 +124,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
      */
     @Override
     public void stop() {
-        this.state = LifecycleState.STOP;
+        super.state = LifecycleState.STOP;
         // producer
         if (this.producer != null) {
             try {

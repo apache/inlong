@@ -34,7 +34,7 @@ public class KafkaZoneSink extends AbstractZoneSink {
     @Override
     public void start() {
         try {
-            super.context = new KafkaZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueues);
+            super.context = new KafkaZoneSinkContext(getName(), parentContext, getChannel(), super.dispatchQueues);
             super.start((sinkName, workIndex, context)
                     -> new KafkaZoneWorker(sinkName, workIndex, (KafkaZoneSinkContext) context));
         } catch (Exception e) {

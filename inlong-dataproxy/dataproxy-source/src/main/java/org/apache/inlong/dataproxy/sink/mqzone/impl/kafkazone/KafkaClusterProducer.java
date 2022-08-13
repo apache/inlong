@@ -60,7 +60,7 @@ public class KafkaClusterProducer extends AbstractZoneClusterProducer {
      */
     @Override
     public void start() {
-        this.state = LifecycleState.START;
+        super.state = LifecycleState.START;
         // create kafka producer
         try {
             // prepare configuration
@@ -80,7 +80,7 @@ public class KafkaClusterProducer extends AbstractZoneClusterProducer {
      */
     @Override
     public void stop() {
-        this.state = LifecycleState.STOP;
+        super.state = LifecycleState.STOP;
         // kafka producer
         this.producer.close();
     }

@@ -34,7 +34,7 @@ public class PulsarZoneSink extends AbstractZoneSink {
     @Override
     public void start() {
         try {
-            super.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueues);
+            super.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), super.dispatchQueues);
             super.start((sinkName, workIndex, context)
                     -> new PulsarZoneWorker(sinkName, workIndex, (PulsarZoneSinkContext) context));
         } catch (Exception e) {

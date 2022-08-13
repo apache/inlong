@@ -46,7 +46,7 @@ public class PulsarZoneWorker extends AbstactZoneWorker {
      */
     @Override
     public void run() {
-        LOG.info(String.format("start PulsarZoneWorker:%s", this.workerName));
+        LOG.info(String.format("start PulsarZoneWorker:%s", super.workerName));
         super.run();
     }
 }

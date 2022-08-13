@@ -161,7 +161,7 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
      */
     @Override
     public void stop() {
-        this.state = LifecycleState.STOP;
+        super.state = LifecycleState.STOP;
         //
         for (Entry<String, Producer<byte[]>> entry : this.producerMap.entrySet()) {
             try {
