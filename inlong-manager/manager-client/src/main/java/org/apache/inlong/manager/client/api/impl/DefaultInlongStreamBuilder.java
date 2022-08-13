@@ -156,8 +156,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         dataStreamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
-        InlongStreamInfo existStreamInfo = streamClient.getStreamInfo(dataStreamInfo.getInlongGroupId(),
-                dataStreamInfo.getInlongStreamId());
+        InlongStreamInfo existStreamInfo = streamClient.getStreamIfExists(dataStreamInfo);
         if (existStreamInfo != null) {
             dataStreamInfo.setVersion(existStreamInfo.getVersion());
             Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(dataStreamInfo);
