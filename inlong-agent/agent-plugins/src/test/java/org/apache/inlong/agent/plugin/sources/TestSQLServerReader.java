@@ -93,13 +93,10 @@ public class TestSQLServerReader {
 
     private AtomicLong atomicLong;
 
-    private String tagName;
-
     private String sql;
 
     @Before
     public void setUp() throws Exception {
-
         final String username = "sa";
         final String password = "123456";
         final String hostname = "127.0.0.1";
@@ -112,7 +109,6 @@ public class TestSQLServerReader {
         atomicLong = new AtomicLong(0L);
 
         sql = "select * from dbo.test01";
-        tagName = String.join("_", SQLServerReader.SQLSERVER_READER_TAG_NAME, groupId, streamId);
 
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn(groupId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn(streamId);
@@ -149,17 +145,14 @@ public class TestSQLServerReader {
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
 
         //init method
-        reader = new SQLServerReader(sql);
-        reader.init(jobProfile);
+        (reader = new SQLServerReader(sql)).init(jobProfile);
     }
-
 
     /**
      * Test cases for {@link SQLServerReader#read()}.
      */
     @Test
     public void testRead() throws Exception {
-
         final String v11 = "11";
         final String v12 = "12";
         final String v21 = "aa";
@@ -240,9 +233,9 @@ public class TestSQLServerReader {
         jobProfile.set(SQLServerReader.JOB_DATABASE_HOSTNAME, "127.0.0.1");
         jobProfile.set(SQLServerReader.JOB_DATABASE_PORT, "1434");
         jobProfile.set(SQLServerReader.JOB_DATABASE_DBNAME, "inlong");
-        String sql = "select * from dbo.test01";
+        final String sql = "select * from dbo.test01";
         jobProfile.set(SQLServerSource.JOB_DATABASE_SQL, sql);
-        SQLServerSource source = new SQLServerSource();
+        final SQLServerSource source = new SQLServerSource();
         List<Reader> readers = source.split(jobProfile);
         for (Reader reader : readers) {
             reader.init(jobProfile);

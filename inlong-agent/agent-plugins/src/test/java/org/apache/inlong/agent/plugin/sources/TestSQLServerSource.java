@@ -83,7 +83,6 @@ public class TestSQLServerSource {
      */
     @Test
     public void testSplit() {
-
         final String sql1 = "select * from dbo.test01";
         final String sql2 = "select * from dbo.test${01,99}";
 
@@ -95,7 +94,7 @@ public class TestSQLServerSource {
 
         final SQLServerSource source = new SQLServerSource();
 
-        //assert
+        // assert
         assertEquals(null, source.split(jobProfile));
         assertEquals(1, source.split(jobProfile).size());
         assertEquals(99, source.split(jobProfile).size());

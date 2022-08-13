@@ -90,39 +90,38 @@ public class SQLServerReader extends AbstractReader {
     @Override
     public Message read() {
         try {
-            if (resultSet.next()) {
-                final List<String> lineColumns = new ArrayList<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    String dataValue;
-                    /* handle special blob value, encode with base64, BLOB=2004 */
-                    final int typeCode = columnTypeCodes[i - 1];
-                    final String typeName = columnTypeNames[i - 1];
-
-                    // binary type
-                    if (typeCode == BLOB || typeCode == BINARY || typeCode == VARBINARY
-                            || typeCode == LONGVARBINARY || typeName.contains("BLOB")) {
-                        final byte[] data = resultSet.getBytes(i);
-                        dataValue = new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
-                    } else {
-                        // non-binary type
-                        dataValue = StringUtils.replaceEachRepeatedly(resultSet.getString(i),
-                                NEW_LINE_CHARS, EMPTY_CHARS);
-                    }
-                    lineColumns.add(dataValue);
-                }
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                readerMetric.pluginReadCount.incrementAndGet();
-                return generateMessage(lineColumns);
-            } else {
+            if (!resultSet.next()) {
                 finished = true;
+                return null;
             }
+            final List<String> lineColumns = new ArrayList<>();
+            for (int i = 1; i <= columnCount; i++) {
+                final String dataValue;
+                /* handle special blob value, encode with base64, BLOB=2004 */
+                final int typeCode = columnTypeCodes[i - 1];
+                final String typeName = columnTypeNames[i - 1];
+
+                // binary type
+                if (typeCode == BLOB || typeCode == BINARY || typeCode == VARBINARY
+                        || typeCode == LONGVARBINARY || typeName.contains("BLOB")) {
+                    final byte[] data = resultSet.getBytes(i);
+                    dataValue = new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
+                } else {
+                    // non-binary type
+                    dataValue = StringUtils.replaceEachRepeatedly(resultSet.getString(i),
+                            NEW_LINE_CHARS, EMPTY_CHARS);
+                }
+                lineColumns.add(dataValue);
+            }
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                    System.currentTimeMillis());
+            readerMetric.pluginReadCount.incrementAndGet();
+            return generateMessage(lineColumns);
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
             readerMetric.pluginReadFailCount.incrementAndGet();
             throw new RuntimeException(ex);
         }
-        return null;
     }
 
     private Message generateMessage(List<String> lineColumns) {
