@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
+import java.util.ArrayList;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -35,8 +36,8 @@ public class TubeZoneSinkContext extends AbstractZoneSinkContext {
      * @param context
      */
     public TubeZoneSinkContext(String sinkName, Context context, Channel channel,
-                               LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
-        super(sinkName, context, channel, dispatchQueue);
+                               ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+        super(sinkName, context, channel, dispatchQueues);
     }
 
 }

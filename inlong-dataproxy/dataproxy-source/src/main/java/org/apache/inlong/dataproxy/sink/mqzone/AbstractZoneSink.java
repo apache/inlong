@@ -49,7 +49,7 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
     protected List<AbstactZoneWorker> workers = new ArrayList<>();
     // message group
     protected DispatchManager dispatchManager;
-    protected LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
+    protected ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues = new ArrayList<>();
     // scheduled thread pool
     // reload
     // dispatch
@@ -72,7 +72,11 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
                 LOG.error("channel is null");
             }
             this.context.start();
-            this.dispatchManager = new DispatchManager(parentContext, dispatchQueue);
+            for (int i = 0; i < context.getMaxThreads(); i++) {
+                LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
+                dispatchQueues.add(dispatchQueue);
+            }
+            this.dispatchManager = new DispatchManager(parentContext, dispatchQueues);
             this.scheduledPool = Executors.newScheduledThreadPool(2);
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -68,7 +69,7 @@ public abstract class AbstractZoneSinkContext {
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
 
-    protected final LinkedBlockingQueue<DispatchProfile> dispatchQueue;
+    protected ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues = new ArrayList<>();
 
     protected final String proxyClusterId;
     protected final String nodeId;
@@ -81,7 +82,7 @@ public abstract class AbstractZoneSinkContext {
      * Constructor
      */
     public AbstractZoneSinkContext(String sinkName, Context context, Channel channel,
-                                   LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
+                                   ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
@@ -92,7 +93,7 @@ public abstract class AbstractZoneSinkContext {
         this.metricItemSet = new DataProxyMetricItemSet(sinkName);
         MetricRegister.register(this.metricItemSet);
 
-        this.dispatchQueue = dispatchQueue;
+        this.dispatchQueues = dispatchQueues;
         // proxyClusterId
         this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         // nodeId
@@ -237,10 +238,6 @@ public abstract class AbstractZoneSinkContext {
      *
      * @return the dispatchQueue
      */
-    public LinkedBlockingQueue<DispatchProfile> getDispatchQueue() {
-        return dispatchQueue;
-    }
-
     /**
      * get producerContext
      *
@@ -345,6 +342,16 @@ public abstract class AbstractZoneSinkContext {
         }
     }
 
+
+    public ArrayList<LinkedBlockingQueue<DispatchProfile>> getDispatchQueues() {
+        return dispatchQueues;
+    }
+
+    public void setDispatchQueues(
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+        this.dispatchQueues = dispatchQueues;
+    }
+
     /**
      * processSendFail
      * @param currentRecord
@@ -353,7 +360,7 @@ public abstract class AbstractZoneSinkContext {
      */
     public void processSendFail(DispatchProfile currentRecord, String producerTopic, long sendTime) {
         if (currentRecord.isResend()) {
-            dispatchQueue.offer(currentRecord);
+            dispatchQueues.get(currentRecord.getSend_index() % maxThreads).offer(currentRecord);
             this.addSendResultMetric(currentRecord, producerTopic, false, sendTime);
         } else {
             currentRecord.fail();

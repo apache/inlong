@@ -34,7 +34,7 @@ public class TubeZoneSink extends AbstractZoneSink {
     @Override
     public void start() {
         try {
-            super.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
+            super.context = new TubeZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueues);
             super.start((sinkName, workIndex, context) -> {
                 return new TubeZoneWorker(sinkName, workIndex, (TubeZoneSinkContext) context);
             });
