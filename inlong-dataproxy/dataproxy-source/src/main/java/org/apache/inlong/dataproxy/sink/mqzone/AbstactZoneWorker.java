@@ -77,7 +77,7 @@ public class AbstactZoneWorker extends Thread {
     public void run() {
         while (status != LifecycleState.STOP) {
             try {
-                DispatchProfile event = context.getDispatchQueue().poll();
+                DispatchProfile event = context.getDispatchQueues().get(workerIndex).poll();
                 if (event == null) {
                     this.sleepOneInterval();
                     continue;
