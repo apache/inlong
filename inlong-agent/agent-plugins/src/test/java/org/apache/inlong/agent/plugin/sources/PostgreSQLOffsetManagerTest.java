@@ -29,6 +29,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * test postgres snapshot
+ */
 public class PostgreSQLOffsetManagerTest {
 
     private static AgentBaseTestsHelper helper;
@@ -41,7 +44,7 @@ public class PostgreSQLOffsetManagerTest {
     public static void setup() {
         helper = new AgentBaseTestsHelper(PostgreSQLOffsetManagerTest.class.getName()).setupAgentHome();
         Path testDir = helper.getTestRootDir();
-        filePath = Paths.get(testDir.toString(),fileName);
+        filePath = Paths.get(testDir.toString(), fileName);
     }
 
     @AfterClass

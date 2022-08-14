@@ -36,7 +36,7 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
 
     public static final int BUFFER_SIZE = 1024;
     public static final int START_OFFSET = 0;
-    private static final Logger log = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
     private final Base64.Decoder decoder = Base64.getDecoder();
     private final Base64.Encoder encoder = Base64.getEncoder();
     private File file;
@@ -57,18 +57,21 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
 
     }
 
+    /**
+     * load postgres offset from local file
+     */
     private void load() {
         try {
             if (!file.exists()) {
                 // if parentDir not exist, create first
                 File parentDir = file.getParentFile();
                 if (parentDir == null) {
-                    log.info("no parent dir, file:{}", file.getAbsolutePath());
+                    LOGGER.info("no parent dir, file:{}", file.getAbsolutePath());
                     return;
                 }
                 if (!parentDir.exists()) {
                     boolean success = parentDir.mkdir();
-                    log.info("create dir {} result {}", parentDir, success);
+                    LOGGER.info("create dir {} result {}", parentDir, success);
                 }
                 file.createNewFile();
             }
@@ -84,7 +87,7 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
             inputStream.close();
             outputStream.close();
         } catch (Throwable ex) {
-            log.error("load postgreSql WAL log error", ex);
+            LOGGER.error("load postgreSql WAL log error", ex);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
         }
     }
@@ -92,14 +95,14 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
     /**
      * save binlog offset to local file
      */
-    public void save(String snapShot) {
-        byte[] bytes = decoder.decode(snapShot);
+    public void save(String snapshot) {
+        byte[] bytes = decoder.decode(snapshot);
         if (bytes.length != 0) {
             offset = bytes;
             try (OutputStream output = new FileOutputStream(file)) {
                 output.write(bytes);
             } catch (Throwable e) {
-                log.error("save offset to file error", e);
+                LOGGER.error("save offset to file error", e);
                 ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
             }
         }

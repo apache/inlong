@@ -20,7 +20,7 @@ package org.apache.inlong.agent.constant;
 /**
  * Constants of job fetcher Postgressnapshot mode
  */
-public class PostgresSnapshotModeConstants {
+public class PostgreSQLConstants {
     public static final String INITIAL = "initial";
 
     public static final String EARLIEST_OFFSET = "never";

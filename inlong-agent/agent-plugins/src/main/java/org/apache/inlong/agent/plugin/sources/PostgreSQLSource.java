@@ -22,7 +22,6 @@ import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +30,7 @@ import java.util.List;
  */
 public class PostgreSQLSource extends AbstractSource {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSource.class);
 
     public PostgreSQLSource() {
 

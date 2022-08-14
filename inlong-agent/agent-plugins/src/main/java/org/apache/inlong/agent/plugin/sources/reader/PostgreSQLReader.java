@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.PostgresSnapshotModeConstants;
+import org.apache.inlong.agent.constant.PostgreSQLConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -40,7 +40,6 @@ import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -74,7 +73,7 @@ public class PostgreSQLReader extends AbstractReader {
     public static final String JOB_DATABASE_DBNAME = "job.postgreSqljob.dbname";
     public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSqljob.servername";
     public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSqljob.pluginname";
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
     private String userName;
     private String password;
@@ -99,7 +98,7 @@ public class PostgreSQLReader extends AbstractReader {
      * pair.left : table name
      * pair.right : actual data
      */
-    private LinkedBlockingQueue<Pair<String,String>> postgreSqlMessageQueue;
+    private LinkedBlockingQueue<Pair<String, String>> postgreSqlMessageQueue;
 
     private JobProfile jobProfile;
     private boolean destroyed = false;
@@ -120,33 +119,34 @@ public class PostgreSQLReader extends AbstractReader {
 
     private DefaultMessage getPostgreSqlMessage() {
         Pair<String, String> message = postgreSqlMessageQueue.poll();
-        Map<String,String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
-        header.put(PROXY_KEY_DATA,message.getKey());
-        return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8),header);
+        Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
+        header.put(PROXY_KEY_DATA, message.getKey());
+        return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8), header);
     }
 
     @Override
     public void init(JobProfile jobConf) {
+        super.init(jobConf);
         jobProfile = jobConf;
-        LOGGER.info("init postgreSql reader with jobConf {}",jobConf.toJsonStr());
+        LOGGER.info("init postgreSql reader with jobConf {}", jobConf.toJsonStr());
         userName = jobConf.get(JOB_POSTGRESQL_USER);
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
         port = jobConf.get(JOB_DATABASE_PORT);
         dbName = jobConf.get(JOB_DATABASE_DBNAME);
         serverName = jobConf.get(JOB_DATABASE_SERVER_NAME);
-        pluginName = jobConf.get(JOB_DATABASE_PLUGIN_NAME,"pgoutput");
-        offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS,"100000");
+        pluginName = jobConf.get(JOB_DATABASE_PLUGIN_NAME, "pgoutput");
+        offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
                 tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
-        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE,"");
+        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         postgreSqlMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         finished = false;
 
-        offset = jobConf.get(JOB_DATABASE_OFFSETS,"");
-        specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,"");
-        specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,"-1");
+        offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
+        specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
+        specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
         postgreSqlSnapshot = new PostgreSQLSnapshotBase(offsetStoreFileName);
         postgreSqlSnapshot.save(offset);
 
@@ -155,12 +155,12 @@ public class PostgreSQLReader extends AbstractReader {
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
                 io.debezium.engine.format.Json.class)
                 .using(props)
-                .notifying((records,committer) -> {
+                .notifying((records, committer) -> {
                     try {
                         for (ChangeEvent<String, String> record:records) {
-                            DebeziumFormat debeziumFormat = gson
-                                    .fromJson(record.value(),DebeziumFormat.class);
-                            postgreSqlMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(),record.value()));
+                            DebeziumFormat debeziumFormat = GSON
+                                    .fromJson(record.value(), DebeziumFormat.class);
+                            postgreSqlMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
@@ -169,13 +169,13 @@ public class PostgreSQLReader extends AbstractReader {
                         readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
                         readerMetric.pluginReadFailCount.addAndGet(records.size());
-                        LOGGER.error("parse binlog message error",e);
+                        LOGGER.error("parse binlog message error", e);
                     }
                 })
                 .using((success, message, error) -> {
                     if (!success) {
                         LOGGER.error("postgreslog job with jobConf {} has error {}",
-                                jobConf.getInstanceId(),message,error);
+                                jobConf.getInstanceId(), message, error);
                     }
                 }).build();
 
@@ -183,7 +183,7 @@ public class PostgreSQLReader extends AbstractReader {
         executor.execute(engine);
 
         LOGGER.info("get initial snapshot of job {}, snapshot {}",
-                jobConf.getInstanceId(),getSnapshot());
+                jobConf.getInstanceId(), getSnapshot());
 
     }
 
@@ -198,25 +198,25 @@ public class PostgreSQLReader extends AbstractReader {
     private Properties getEngineProps() {
         Properties props = new Properties();
 
-        props.setProperty("name","engine" + instanceId);
+        props.setProperty("name", "engine" + instanceId);
         props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
         props.setProperty("database.server.name", serverName);
-        props.setProperty("plugin.name",pluginName);
+        props.setProperty("plugin.name", pluginName);
         props.setProperty("database.hostname", hostName);
         props.setProperty("database.port", port);
         props.setProperty("database.user", userName);
-        props.setProperty("database.dbname",dbName);
+        props.setProperty("database.dbname", dbName);
         props.setProperty("database.password", password);
 
-        props.setProperty("offset.flush.interval.ms",offsetFlushIntervalMs);
-        props.setProperty("database.snapshot.mode",snapshotMode);
+        props.setProperty("offset.flush.interval.ms", offsetFlushIntervalMs);
+        props.setProperty("database.snapshot.mode", snapshotMode);
         props.setProperty("key.converter.schemas.enable", "false");
         props.setProperty("value.converter.schemas.enable", "false");
         props.setProperty("snapshot.mode", snapshotMode);
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
-        if (PostgresSnapshotModeConstants.CUSTOM.equals(snapshotMode)) {
+        if (PostgreSQLConstants.CUSTOM.equals(snapshotMode)) {
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,serializeOffset());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
         }
@@ -228,7 +228,7 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
         props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
 
-        LOGGER.info("postgreslog job {} start with props {}",jobProfile.getInstanceId(),props);
+        LOGGER.info("postgreslog job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
     }
 
@@ -236,22 +236,22 @@ public class PostgreSQLReader extends AbstractReader {
         Map<String, Object> sourceOffset = new HashMap<>();
         Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
                 JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + "shouldn't be null");
-        sourceOffset.put("file",specificOffsetFile);
+        sourceOffset.put("file", specificOffsetFile);
         Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
                             JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + "shouldn't be null");
-        sourceOffset.put("pos",specificOffsetPos);
+        sourceOffset.put("pos", specificOffsetPos);
         DebeziumOffset specificOffset = new DebeziumOffset();
         specificOffset.setSourceOffset(sourceOffset);
         Map<String, String> sourcePartition = new HashMap<>();
-        sourcePartition.put("server",instanceId);
+        sourcePartition.put("server", instanceId);
         specificOffset.setSourcePartition(sourcePartition);
         byte[] serializedOffset = new byte[0];
         try {
             serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
         } catch (IOException e) {
-            LOGGER.error("serialize offset message error",e);
+            LOGGER.error("serialize offset message error", e);
         }
-        return new String(serializedOffset,StandardCharsets.UTF_8);
+        return new String(serializedOffset, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -289,9 +289,8 @@ public class PostgreSQLReader extends AbstractReader {
     public String getSnapshot() {
         if (postgreSqlSnapshot != null) {
             return postgreSqlSnapshot.getSnapshot();
-        } else {
-            return "";
         }
+        return "";
     }
 
     @Override

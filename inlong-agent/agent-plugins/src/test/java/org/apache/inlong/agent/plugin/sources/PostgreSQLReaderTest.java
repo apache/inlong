@@ -29,8 +29,11 @@ import org.junit.Test;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
+/**
+ * test postgres reader
+ */
 public class PostgreSQLReaderTest {
-    private static Gson gson = new Gson();
+    private static Gson GSON = new Gson();
 
     @Test
     public void testDebeziumFormat() {
@@ -57,10 +60,10 @@ public class PostgreSQLReaderTest {
                 + "    \"op\": \"r\",\n"
                 + "    \"ts_ms\": 1486500577691\n"
                 + "  }";
-        DebeziumFormat debeziumFormat = gson
+        DebeziumFormat debeziumFormat = GSON
                 .fromJson(debeziumJson, DebeziumFormat.class);
-        Assert.assertEquals("customers",debeziumFormat.getSource().getTable());
-        Assert.assertEquals("true",debeziumFormat.getSource().getSnapshot());
+        Assert.assertEquals("customers", debeziumFormat.getSource().getTable());
+        Assert.assertEquals("true", debeziumFormat.getSource().getSnapshot());
     }
 
 //    @Test
