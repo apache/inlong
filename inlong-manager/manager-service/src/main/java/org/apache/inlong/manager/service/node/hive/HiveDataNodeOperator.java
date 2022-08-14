@@ -77,8 +77,9 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         try {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for hive data node");
+            LOGGER.debug("success to set entity for hive data node");
         } catch (Exception e) {
+            LOGGER.error("failed to set entity for hive data node, err msg={}", e.getMessage());
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
