@@ -52,39 +52,20 @@ public class HiveDataNodeDTO {
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username of the Hive server")
-    private String username;
-
-    @ApiModelProperty("User password of the Hive server")
-    private String password;
-
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
     @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
-    @ApiModelProperty("Password encrypt version")
-    private Integer encryptVersion;
-
     /**
      * Get the dto instance from the request
      */
     public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request) throws Exception {
-
-        Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getToken())) {
-            passwd = AESUtils.encryptToString(request.getToken().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
         return HiveDataNodeDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
-                .username(request.getUsername())
-                .password(passwd)
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
-                .encryptVersion(encryptVersion)
                 .build();
     }
 
@@ -94,18 +75,11 @@ public class HiveDataNodeDTO {
     public static HiveDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class).decryptPassword();
+            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class);
         } catch (Exception e) {
             LOGGER.error("Failed to extract additional parameters for hive data node, err msg={}", e.getMessage());
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }
     }
 
-    private HiveDataNodeDTO decryptPassword() throws Exception {
-        if (StringUtils.isNotEmpty(this.password)) {
-            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
-            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
-        }
-        return this;
-    }
 }

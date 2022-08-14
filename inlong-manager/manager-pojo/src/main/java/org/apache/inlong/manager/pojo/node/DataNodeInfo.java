@@ -49,20 +49,11 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Data node url")
     private String url;
 
-    @ApiModelProperty(value = "Cluster tags, separated by commas")
-    private String clusterTags;
-
-    @ApiModelProperty(value = "Extension tag")
-    private String extTag;
-
-    @ApiModelProperty("Username of the Hive server")
+    @ApiModelProperty("Node username")
     private String username;
 
-    @ApiModelProperty(value = "Data node token")
+    @ApiModelProperty(value = "Node token if needed")
     private String token;
-
-    @ApiModelProperty(value = "Data node heartbeat info")
-    private String heartbeat;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
@@ -70,8 +61,8 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 
-    @ApiModelProperty(value = "Cluster status")
-    private Integer status;
+    @ApiModelProperty(value = "Description of the data node")
+    private String description;
 
     @ApiModelProperty(value = "Name of in creator")
     private String creator;
