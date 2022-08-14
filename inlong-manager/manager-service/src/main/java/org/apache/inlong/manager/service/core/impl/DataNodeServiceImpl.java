@@ -71,8 +71,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException(errMsg);
         }
         // According to the data type, save sink information
-        DataNodeOperator operation = operatorFactory.getInstance(request.getType());
-        int id = operation.saveOpt(request, operator);
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
+        int id = dataNodeOperator.saveOpt(request, operator);
         LOGGER.debug("success to save data node={}", request);
         return id;
     }
@@ -85,8 +85,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException("data node not found");
         }
         String dataNodeType = entity.getType();
-        DataNodeOperator operation = operatorFactory.getInstance(dataNodeType);
-        DataNodeInfo dataNodeInfo = operation.getFromEntity(entity);
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
+        DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
 
         LOGGER.debug("success to get data node info by id={}", id);
         return dataNodeInfo;
@@ -98,8 +98,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
         List<DataNodeInfo> list = entityPage.stream()
                 .map(entity -> {
-                    DataNodeOperator instance = operatorFactory.getInstance(entity.getType());
-                    return instance.getFromEntity(entity);
+                    DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
+                    return dataNodeOperator.getFromEntity(entity);
                 }).collect(Collectors.toList());
         PageInfo<DataNodeInfo> page = new PageInfo<>(list);
         page.setTotal(entityPage.getTotal());
@@ -131,8 +131,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        DataNodeOperator instance = operatorFactory.getInstance(request.getType());
-        instance.updateOpt(request, operator);
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
+        dataNodeOperator.updateOpt(request, operator);
         LOGGER.info("success to update data node={}", request);
         return true;
     }

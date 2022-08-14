@@ -40,13 +40,13 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Cluster name")
+    @ApiModelProperty(value = "Data node name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, DATAPROXY, etc.")
+    @ApiModelProperty(value = "Data node type, including HIVE, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster url")
+    @ApiModelProperty(value = "Data node url")
     private String url;
 
     @ApiModelProperty(value = "Cluster tags, separated by commas")
@@ -55,10 +55,13 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Extension tag")
     private String extTag;
 
-    @ApiModelProperty(value = "Cluster token")
+    @ApiModelProperty("Username of the Hive server")
+    private String username;
+
+    @ApiModelProperty(value = "Data node token")
     private String token;
 
-    @ApiModelProperty(value = "Cluster heartbeat info")
+    @ApiModelProperty(value = "Data node heartbeat info")
     private String heartbeat;
 
     @ApiModelProperty(value = "Extended params")

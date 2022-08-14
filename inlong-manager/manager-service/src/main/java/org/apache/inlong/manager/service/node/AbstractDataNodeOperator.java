@@ -30,6 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Default operation of data node.
+ */
 public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDataNodeOperator.class);

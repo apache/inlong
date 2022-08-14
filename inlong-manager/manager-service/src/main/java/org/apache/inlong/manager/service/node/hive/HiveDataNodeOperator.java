@@ -66,7 +66,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             CommonBeanUtils.copyProperties(dto, hiveDataNodeInfo);
         }
 
-        LOGGER.info("success to get data node info from entity");
+        LOGGER.debug("success to get data node info from entity");
         return hiveDataNodeInfo;
     }
 

@@ -29,6 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +44,8 @@ import java.nio.charset.StandardCharsets;
 @AllArgsConstructor
 @ApiModel("Hive data node info")
 public class HiveDataNodeDTO {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HiveDataNodeDTO.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
@@ -92,6 +96,7 @@ public class HiveDataNodeDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class).decryptPassword();
         } catch (Exception e) {
+            LOGGER.error("Failed to extract additional parameters for hive data node, err msg={}", e.getMessage());
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }
     }

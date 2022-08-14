@@ -21,6 +21,9 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
+/**
+ * Interface of the data node operator.
+ */
 public interface DataNodeOperator {
 
     /**
