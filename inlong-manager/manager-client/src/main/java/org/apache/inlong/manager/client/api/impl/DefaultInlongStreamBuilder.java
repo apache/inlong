@@ -156,8 +156,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         dataStreamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
-        Boolean isExist = streamClient.isStreamExists(dataStreamInfo);
-        if (isExist) {
+        InlongStreamInfo existStreamInfo = streamClient.getStreamIfExists(dataStreamInfo);
+        if (existStreamInfo != null) {
+            dataStreamInfo.setVersion(existStreamInfo.getVersion());
             Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(dataStreamInfo);
             if (!updateMsg.getKey()) {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));

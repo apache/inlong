@@ -100,6 +100,19 @@ public class InlongStreamClient {
     }
 
     /**
+     * Get inlong stream by the given inlong group id and stream id.
+     *
+     * @param streamInfo the given inlong stream info
+     * @return inlong stream info if exists, null will be returned if not exits
+     */
+    public InlongStreamInfo getStreamIfExists(InlongStreamInfo streamInfo) {
+        if (this.isStreamExists(streamInfo)) {
+            return getStreamInfo(streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
+        }
+        return null;
+    }
+
+    /**
      * Paging query inlong stream brief info list
      *
      * @param request query request
