@@ -125,6 +125,8 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
+    CONSUMER_INFO_INCORRECT(2609, "Consumer info was incorrect"),
+    CONSUMER_NOR_FOUND(2609, "Consumer not found"),
 
     ;
 
