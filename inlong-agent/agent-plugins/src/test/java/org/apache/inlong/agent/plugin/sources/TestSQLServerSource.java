@@ -68,7 +68,8 @@ public class TestSQLServerSource {
     public void setup() throws Exception {
         sourceSuccessCount = new AtomicLong(0);
         sourceFailCount = new AtomicLong(0);
-        //mock metrics
+
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "sourceSuccessCount").set(agentMetricItem, sourceSuccessCount);
