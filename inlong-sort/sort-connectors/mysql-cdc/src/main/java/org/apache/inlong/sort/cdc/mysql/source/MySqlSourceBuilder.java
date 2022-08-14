@@ -252,8 +252,13 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    public MySqlSourceBuilder<T> inlongMetric(String inlongMetric) {
-        this.configFactory.inlongMetric(inlongMetric);
+    public MySqlSourceBuilder<T> inLongMetric(String inLongMetric) {
+        this.configFactory.inLongMetric(inLongMetric);
+        return this;
+    }
+
+    public MySqlSourceBuilder<T> inLongAudit(String inLongAudit) {
+        this.configFactory.inLongAudit(inLongAudit);
         return this;
     }
 

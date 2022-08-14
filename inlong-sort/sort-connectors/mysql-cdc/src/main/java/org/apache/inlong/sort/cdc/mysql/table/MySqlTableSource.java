@@ -81,7 +81,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final Properties jdbcProperties;
     private final Duration heartbeatInterval;
     private final boolean migrateAll;
-    private final String inlongMetric;
+    private final String inLongMetric;
+    private final String inLongAudit;
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
@@ -123,7 +124,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             StartupOptions startupOptions,
             Duration heartbeatInterval,
             boolean migrateAll,
-            String inlongMetric) {
+            String inLongMetric,
+            String inLongAudit) {
         this(
                 physicalSchema,
                 port,
@@ -150,7 +152,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 new Properties(),
                 heartbeatInterval,
                 migrateAll,
-                inlongMetric);
+                inLongMetric,
+                inLongAudit);
     }
 
     /**
@@ -182,7 +185,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             Properties jdbcProperties,
             Duration heartbeatInterval,
             boolean migrateAll,
-            String inlongMetric) {
+            String inLongMetric,
+            String inLongAudit) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -211,7 +215,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.metadataKeys = Collections.emptyList();
         this.heartbeatInterval = heartbeatInterval;
         this.migrateAll = migrateAll;
-        this.inlongMetric = inlongMetric;
+        this.inLongMetric = inLongMetric;
+        this.inLongAudit = inLongAudit;
     }
 
     @Override
@@ -270,7 +275,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
                             .jdbcProperties(jdbcProperties)
                             .heartbeatInterval(heartbeatInterval)
-                            .inlongMetric(inlongMetric)
+                            .inLongMetric(inLongMetric)
+                            .inLongAudit(inLongAudit)
                             .build();
             return SourceProvider.of(parallelSource);
         } else {
@@ -285,7 +291,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .serverTimeZone(serverTimeZone.toString())
                             .debeziumProperties(dbzProperties)
                             .startupOptions(startupOptions)
-                            .inlongMetric(inlongMetric)
+                            .inLongMetric(inLongMetric)
+                            .inLongAudit(inLongAudit)
                             .deserializer(deserializer);
             Optional.ofNullable(serverId)
                     .ifPresent(serverId -> builder.serverId(Integer.parseInt(serverId)));
@@ -358,7 +365,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         jdbcProperties,
                         heartbeatInterval,
                         migrateAll,
-                        inlongMetric);
+                        inLongMetric,
+                        inLongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -397,7 +405,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
                 && Objects.equals(jdbcProperties, that.jdbcProperties)
-                && Objects.equals(inlongMetric, that.inlongMetric);
+                && Objects.equals(inLongMetric, that.inLongMetric)
+                && Objects.equals(inLongAudit, that.inLongAudit);
     }
 
     @Override
@@ -427,7 +436,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 metadataKeys,
                 scanNewlyAddedTableEnabled,
                 jdbcProperties,
-                inlongMetric);
+                inLongMetric,
+                inLongAudit);
     }
 
     @Override

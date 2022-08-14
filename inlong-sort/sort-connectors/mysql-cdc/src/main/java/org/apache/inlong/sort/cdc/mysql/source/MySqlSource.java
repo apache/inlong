@@ -36,6 +36,8 @@ import org.apache.flink.connector.base.source.reader.synchronization.FutureCompl
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.MySqlValidator;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
@@ -60,9 +62,12 @@ import org.apache.inlong.sort.cdc.mysql.table.StartupMode;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
 import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
 
@@ -143,17 +148,21 @@ public class MySqlSource<T>
         // create source config for the given subtask (e.g. unique server id)
         MySqlSourceConfig sourceConfig =
                 configFactory.createConfig(readerContext.getIndexOfSubtask());
-        String inlongMetric = sourceConfig.getInlongMetric();
-        if (StringUtils.isNotEmpty(inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split("&");
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            sourceReaderMetrics.registerMetricsForNumBytesIn(groupId, streamId, nodeId, "numBytesIn");
-            sourceReaderMetrics.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, "numRecordsIn");
-            sourceReaderMetrics.registerMetricsForNumBytesInPerSecond(groupId, streamId, nodeId, "numBytesInPerSecond");
-            sourceReaderMetrics.registerMetricsForNumRecordsInPerSecond(groupId, streamId, nodeId,
-                    "numRecordsInPerSecond");
+        String inLongMetric = sourceConfig.getInLongMetric();
+        String inLongAudit = sourceConfig.getInLongAudit();
+        if (StringUtils.isNotEmpty(inLongMetric)) {
+            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
+            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[0]);
+            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[1]);
+            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[2]);
+            if (inLongAudit != null) {
+                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inLongAudit.split(DELIMITER))));
+                sourceReaderMetrics.setAuditImp(AuditImp.getInstance());
+            }
+            sourceReaderMetrics.registerMetricsForNumBytesIn(Constants.NUM_BYTES_IN);
+            sourceReaderMetrics.registerMetricsForNumRecordsIn(Constants.NUM_RECORDS_IN);
+            sourceReaderMetrics.registerMetricsForNumBytesInPerSecond(Constants.NUM_BYTES_IN_PER_SECOND);
+            sourceReaderMetrics.registerMetricsForNumRecordsInPerSecond(Constants.NUM_RECORDS_IN_PER_SECOND);
         }
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecord>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();

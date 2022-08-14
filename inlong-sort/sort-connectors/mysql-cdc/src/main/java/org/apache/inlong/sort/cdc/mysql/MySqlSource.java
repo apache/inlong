@@ -70,7 +70,8 @@ public class MySqlSource {
         private Properties dbzProperties;
         private StartupOptions startupOptions = StartupOptions.initial();
         private DebeziumDeserializationSchema<T> deserializer;
-        private String inlongMetric;
+        private String inLongMetric;
+        private String inLongAudit;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -168,8 +169,13 @@ public class MySqlSource {
             return this;
         }
 
-        public Builder<T> inlongMetric(String inlongMetric) {
-            this.inlongMetric = inlongMetric;
+        public Builder<T> inLongMetric(String inLongMetric) {
+            this.inLongMetric = inLongMetric;
+            return this;
+        }
+
+        public Builder<T> inLongAudit(String inLongAudit) {
+            this.inLongAudit = inLongAudit;
             return this;
         }
 
@@ -267,7 +273,7 @@ public class MySqlSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric);
+                    deserializer, props, specificOffset, new MySqlValidator(props), inLongMetric, inLongAudit);
         }
     }
 }

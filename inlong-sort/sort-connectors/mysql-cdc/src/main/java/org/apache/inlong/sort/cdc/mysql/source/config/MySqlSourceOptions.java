@@ -30,12 +30,6 @@ import java.time.Duration;
  */
 public class MySqlSourceOptions {
 
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
-
     public static final ConfigOption<String> HOSTNAME =
             ConfigOptions.key("hostname")
                     .stringType()

@@ -47,6 +47,7 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeConsumer;
@@ -66,7 +67,9 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -75,6 +78,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
@@ -151,7 +155,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable DebeziumOffset specificOffset;
+    private final @Nullable
+    DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -219,7 +224,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient Handover handover;
 
-    private String inlongMetric;
+    private String inLongMetric;
+
+    private String inLongAudit;
 
     private SourceMetricData sourceMetricData;
 
@@ -230,12 +237,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
             Validator validator,
-            String inlongMetric) {
+            String inLongMetric,
+            String inLongAudit) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
-        this.inlongMetric = inlongMetric;
+        this.inLongMetric = inLongMetric;
+        this.inLongAudit = inLongAudit;
     }
 
     @Override
@@ -408,12 +417,17 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 (Gauge<Long>) () -> debeziumChangeFetcher.getEmitDelay());
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
-        if (StringUtils.isNotEmpty(this.inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split(Constants.DELIMITER);
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup);
+        if (StringUtils.isNotEmpty(this.inLongMetric)) {
+            String[] inLongMetricArray = inLongMetric.split(Constants.DELIMITER);
+            String groupId = inLongMetricArray[0];
+            String streamId = inLongMetricArray[1];
+            String nodeId = inLongMetricArray[2];
+            AuditImp auditImp = null;
+            if (inLongAudit != null) {
+                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inLongAudit.split(DELIMITER))));
+                auditImp = AuditImp.getInstance();
+            }
+            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
             sourceMetricData.registerMetricsForNumRecordsIn();
             sourceMetricData.registerMetricsForNumBytesIn();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
@@ -458,9 +472,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
                                 if (sourceMetricData != null) {
-                                    sourceMetricData.getNumRecordsIn().inc(1L);
-                                    sourceMetricData.getNumBytesIn()
-                                            .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
+                                    sourceMetricData.outputMetrics(1L,
+                                            record.value().toString().getBytes(StandardCharsets.UTF_8).length);
                                 }
                                 deserializer.deserialize(record, out);
                             }

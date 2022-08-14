@@ -75,7 +75,6 @@ public final class Constants {
     // sort send successfully
     public static final Integer AUDIT_SORT_OUTPUT = 8;
 
-
     public static final ConfigOption<String> INLONG_METRIC =
         ConfigOptions.key("inlong.metric")
             .stringType()
