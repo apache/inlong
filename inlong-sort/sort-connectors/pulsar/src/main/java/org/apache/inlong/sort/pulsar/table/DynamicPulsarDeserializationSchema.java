@@ -71,9 +71,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
 
     private AuditImp auditImp;
 
-    private String inLongGroupId;
+    private String inlongGroupId;
 
-    private String inLongStreamId;
+    private String inlongStreamId;
 
     DynamicPulsarDeserializationSchema(
             int physicalArity,
@@ -114,11 +114,11 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         valueDeserialization.open(context);
 
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inLongMetricArray = inlongMetric.split(DELIMITER);
-            inLongGroupId = inLongMetricArray[0];
-            inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            sourceMetricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
+            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
             sourceMetricData.registerMetricsForNumBytesIn();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsIn();
@@ -184,8 +184,8 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         if (auditImp != null) {
             auditImp.add(
                 Constants.AUDIT_SORT_INPUT,
-                inLongGroupId,
-                inLongStreamId,
+                inlongGroupId,
+                inlongStreamId,
                 System.currentTimeMillis(),
                 1,
                 message.getData().length);

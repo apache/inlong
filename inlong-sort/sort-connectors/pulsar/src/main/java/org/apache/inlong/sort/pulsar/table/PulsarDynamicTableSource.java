@@ -146,7 +146,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
     /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. **/
     protected final boolean upsertMode;
 
-    protected String inLongMetric;
+    protected String inlongMetric;
 
     protected String auditHostAndPorts;
 
@@ -165,7 +165,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
             String inlongMetric,
-        String auditHostAndPorts) {
+            String auditHostAndPorts) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -192,7 +192,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.properties = Preconditions.checkNotNull(properties, "Properties must not be null.");
         this.startupOptions = startupOptions;
         this.upsertMode = upsertMode;
-        this.inLongMetric = inlongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -298,7 +298,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 metadataConverters,
                 producedTypeInfo,
                 upsertMode,
-            inLongMetric,
+            inlongMetric,
             auditHostAndPorts);
     }
 
@@ -317,7 +317,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 adminUrl,
                 properties,
                 startupOptions,
-                false, inLongMetric, auditHostAndPorts);
+                false, inlongMetric, auditHostAndPorts);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
