@@ -29,7 +29,6 @@ public class TestCommand {
 
     CommandToolMain inlongAdminTool = new CommandToolMain();
 
-
     @Test
     public void blankTest() {
         log.info("client tools cannot run the unit tests, as the application.properties not exist");
@@ -58,7 +57,6 @@ public class TestCommand {
         String[] arg = {"delete", "group", "-g", "test_group"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
-
 
     //@Test
     public void testUpdateGroup() throws Exception {

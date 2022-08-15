@@ -33,7 +33,6 @@ public class CommandToolMain {
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
-
     CommandToolMain() {
         jcommander = new JCommander();
         jcommander.setProgramName("managerctl");

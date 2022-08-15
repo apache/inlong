@@ -46,14 +46,13 @@ public class DeleteCommand extends AbstractCommand {
         @Override
         void run() {
             //get the group and the corresponding context(snapshot)
+            //TODO: handle and/or classify the exceptions
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(groupId);
                 group.delete();
                 System.out.println("delete group success");
-            }
-            //TODO: handle and/or classify the exceptions
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.format("Delete group failed! message: %s \n", e.getMessage());
             }
         }
