@@ -148,15 +148,15 @@ public class MySqlSource<T>
         // create source config for the given subtask (e.g. unique server id)
         MySqlSourceConfig sourceConfig =
                 configFactory.createConfig(readerContext.getIndexOfSubtask());
-        String inLongMetric = sourceConfig.getInLongMetric();
-        String inLongAudit = sourceConfig.getInLongAudit();
-        if (StringUtils.isNotEmpty(inLongMetric)) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[0]);
-            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[1]);
-            sourceReaderMetrics.setInLongGroupId(inLongMetricArray[2]);
-            if (inLongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inLongAudit.split(DELIMITER))));
+        String inlongMetric = sourceConfig.getInlongMetric();
+        String inlongAudit = sourceConfig.getInlongAudit();
+        if (StringUtils.isNotEmpty(inlongMetric)) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            sourceReaderMetrics.setInlongGroupId(inlongMetricArray[0]);
+            sourceReaderMetrics.setInlongGroupId(inlongMetricArray[1]);
+            sourceReaderMetrics.setInlongGroupId(inlongMetricArray[2]);
+            if (inlongAudit != null) {
+                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
                 sourceReaderMetrics.setAuditImp(AuditImp.getInstance());
             }
             sourceReaderMetrics.registerMetricsForNumBytesIn(Constants.NUM_BYTES_IN);

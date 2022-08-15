@@ -61,8 +61,8 @@ public class MySqlSourceReaderMetrics {
     private static String STREAM_ID = "streamId";
     private static String GROUP_ID = "groupId";
     private static String NODE_ID = "nodeId";
-    private String inLongGroupId;
-    private String inLongSteamId;
+    private String inlongGroupId;
+    private String inlongSteamId;
     private String nodeId;
     private AuditImp auditImp;
 
@@ -78,27 +78,27 @@ public class MySqlSourceReaderMetrics {
 
     public void registerMetricsForNumRecordsIn(String metricName) {
         numRecordsIn =
-                metricGroup.addGroup(GROUP_ID, this.inLongGroupId).addGroup(STREAM_ID, this.inLongSteamId)
+                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, this.nodeId)
                         .counter(metricName);
     }
 
     public void registerMetricsForNumBytesIn(String metricName) {
         numBytesIn =
-                metricGroup.addGroup(GROUP_ID, this.inLongGroupId).addGroup(STREAM_ID, this.inLongSteamId)
+                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, this.nodeId)
                         .counter(metricName);
     }
 
     public void registerMetricsForNumRecordsInPerSecond(String metricName) {
         numRecordsInPerSecond =
-                metricGroup.addGroup(GROUP_ID, this.inLongGroupId).addGroup(STREAM_ID, this.inLongSteamId)
+                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, nodeId)
                         .meter(metricName, new MeterView(this.numRecordsIn, TIME_SPAN_IN_SECONDS));
     }
 
     public void registerMetricsForNumBytesInPerSecond(String metricName) {
-        numBytesInPerSecond = metricGroup.addGroup(GROUP_ID, this.inLongGroupId).addGroup(STREAM_ID, this.inLongSteamId)
+        numBytesInPerSecond = metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
                 .addGroup(NODE_ID, this.nodeId)
                 .meter(metricName, new MeterView(this.numBytesIn, TIME_SPAN_IN_SECONDS));
     }
@@ -147,24 +147,24 @@ public class MySqlSourceReaderMetrics {
         return numBytesInPerSecond;
     }
 
-    public String getInLongGroupId() {
-        return inLongGroupId;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
-    public String getInLongSteamId() {
-        return inLongSteamId;
+    public String getInlongSteamId() {
+        return inlongSteamId;
     }
 
     public String getNodeId() {
         return nodeId;
     }
 
-    public void setInLongGroupId(String inLongGroupId) {
-        this.inLongGroupId = inLongGroupId;
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
     }
 
-    public void setInLongSteamId(String inLongSteamId) {
-        this.inLongSteamId = inLongSteamId;
+    public void setInlongSteamId(String inlongSteamId) {
+        this.inlongSteamId = inlongSteamId;
     }
 
     public void setNodeId(String nodeId) {
@@ -188,8 +188,8 @@ public class MySqlSourceReaderMetrics {
         if (this.auditImp != null) {
             this.auditImp.add(
                     Constants.AUDIT_SORT_INPUT,
-                    getInLongGroupId(),
-                    getInLongSteamId(),
+                    getInlongGroupId(),
+                    getInlongSteamId(),
                     System.currentTimeMillis(),
                     rowCountSize,
                     rowDataSize);

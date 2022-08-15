@@ -74,16 +74,16 @@ public class MySqlSourceConfigFactory implements Serializable {
     private Duration heartbeatInterval = HEARTBEAT_INTERVAL.defaultValue();
     private Properties dbzProperties;
 
-    private String inLongMetric;
-    private String inLongAudit;
+    private String inlongMetric;
+    private String inlongAudit;
 
-    public MySqlSourceConfigFactory inLongMetric(String inLongMetric) {
-        this.inLongMetric = inLongMetric;
+    public MySqlSourceConfigFactory inlongMetric(String inlongMetric) {
+        this.inlongMetric = inlongMetric;
         return this;
     }
 
-    public MySqlSourceConfigFactory inLongAudit(String inLongAudit) {
-        this.inLongAudit = inLongAudit;
+    public MySqlSourceConfigFactory inlongAudit(String inlongAudit) {
+        this.inlongAudit = inlongAudit;
         return this;
     }
 
@@ -369,7 +369,7 @@ public class MySqlSourceConfigFactory implements Serializable {
                 scanNewlyAddedTableEnabled,
                 props,
                 jdbcProperties,
-                inLongMetric,
-                inLongAudit);
+                inlongMetric,
+                inlongAudit);
     }
 }

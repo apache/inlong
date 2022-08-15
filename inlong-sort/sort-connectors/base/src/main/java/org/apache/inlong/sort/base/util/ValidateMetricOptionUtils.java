@@ -27,11 +27,11 @@ public class ValidateMetricOptionUtils {
 
     /**
      * validate inlong metric when set inlong audit
-     * @param inLongMetric
-     * @param inLongAudit
+     * @param inlongMetric inlong.metric option value
+     * @param inlongAudit inlong.audit option value
      */
-    public static void validateInLongMetricIfSetInLongAudit(String inLongMetric, String inLongAudit) {
-        if (inLongAudit != null && inLongMetric == null) {
+    public static void validateInlongMetricIfSetInlongAudit(String inlongMetric, String inlongAudit) {
+        if (inlongAudit != null && inlongMetric == null) {
             throw new ValidationException("inlong metric is necessary when set inlong audit");
         }
     }

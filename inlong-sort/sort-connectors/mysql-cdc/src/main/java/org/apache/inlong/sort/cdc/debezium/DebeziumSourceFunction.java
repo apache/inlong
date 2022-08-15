@@ -224,9 +224,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient Handover handover;
 
-    private String inLongMetric;
+    private String inlongMetric;
 
-    private String inLongAudit;
+    private String inlongAudit;
 
     private SourceMetricData sourceMetricData;
 
@@ -237,14 +237,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
             Validator validator,
-            String inLongMetric,
-            String inLongAudit) {
+            String inlongMetric,
+            String inlongAudit) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
-        this.inLongMetric = inLongMetric;
-        this.inLongAudit = inLongAudit;
+        this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -417,14 +417,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 (Gauge<Long>) () -> debeziumChangeFetcher.getEmitDelay());
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
-        if (StringUtils.isNotEmpty(this.inLongMetric)) {
-            String[] inLongMetricArray = inLongMetric.split(Constants.DELIMITER);
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+        if (StringUtils.isNotEmpty(this.inlongMetric)) {
+            String[] inlongMetricArray = inlongMetric.split(Constants.DELIMITER);
+            String groupId = inlongMetricArray[0];
+            String streamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             AuditImp auditImp = null;
-            if (inLongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inLongAudit.split(DELIMITER))));
+            if (inlongAudit != null) {
+                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
                 auditImp = AuditImp.getInstance();
             }
             sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);

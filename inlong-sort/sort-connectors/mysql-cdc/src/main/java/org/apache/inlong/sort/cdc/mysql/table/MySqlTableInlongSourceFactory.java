@@ -122,9 +122,9 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX, JdbcUrlUtils.PROPERTIES_PREFIX);
 
         final ReadableConfig config = helper.getOptions();
-        final String inLongMetric = config.get(INLONG_METRIC);
-        final String inLongAudit = config.get(INLONG_AUDIT);
-        ValidateMetricOptionUtils.validateInLongMetricIfSetInLongAudit(inLongMetric, inLongAudit);
+        final String inlongMetric = config.get(INLONG_METRIC);
+        final String inlongAudit = config.get(INLONG_AUDIT);
+        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
         final String hostname = config.get(HOSTNAME);
         final String username = config.get(USERNAME);
         final String password = config.get(PASSWORD);
@@ -190,8 +190,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 JdbcUrlUtils.getJdbcProperties(context.getCatalogTable().getOptions()),
                 heartbeatInterval,
                 migrateAll,
-                inLongMetric,
-                inLongAudit);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override
