@@ -292,7 +292,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                         if (es == null) {
                             continue;
                         }
-                        takenMsgCnt.incrementAndGet();
                         resendMsgCnt.decrementAndGet();
                         event = es.getEvent();
                         if (event.getHeaders().containsKey(TOPIC)) {
@@ -325,10 +324,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                         continue;
                     }
                     // send message
-                    sendFinished = false;
-                    sendMessage(es, event, topic);
-                    inflightMsgCnt.incrementAndGet();
-                    sendFinished = true;
+                    sendFinished = sendMessage(es, event, topic);
                 } catch (InterruptedException e) {
                     logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
@@ -351,7 +347,7 @@ public class TubeSink extends AbstractSink implements Configurable {
             logger.info("sink task {} stopped!", Thread.currentThread().getName());
         }
 
-        private void sendMessage(EventStat es, Event event, String topic) throws Exception {
+        private boolean sendMessage(EventStat es, Event event, String topic) throws Exception {
             MessageProducer producer = producerHolder.getProducer(topic);
             if (producer == null) {
                 frozenTopicDiscardMsgCnt.incrementAndGet();
@@ -359,7 +355,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error("Get producer failed for " + topic);
                 }
-                return;
+                return false;
             }
             if (MSG_DEDUP_HANDLER.judgeDupAndPutMsgSeqId(
                     event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
@@ -368,10 +364,12 @@ public class TubeSink extends AbstractSink implements Configurable {
                 logger.info("{} agent package {} existed,just discard.",
                         Thread.currentThread().getName(),
                         event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
+                return false;
             } else {
                 producer.sendMessage(TubeUtils.buildMessage(
                         topic, event, false), new MyCallback(es));
                 inflightMsgCnt.incrementAndGet();
+                return true;
             }
         }
     }
@@ -390,6 +388,7 @@ public class TubeSink extends AbstractSink implements Configurable {
         public void onMessageSent(final MessageSentResult result) {
             if (result.isSuccess()) {
                 successMsgCnt.incrementAndGet();
+                inflightMsgCnt.decrementAndGet();
                 takenMsgCnt.decrementAndGet();
                 this.addMetric(myEventStat.getEvent(), true, sendTime);
             } else {
@@ -474,6 +473,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 inflightMsgCnt.decrementAndGet();
             }
             if (es == null || es.getEvent() == null) {
+                takenMsgCnt.decrementAndGet();
                 return;
             }
             MSG_DEDUP_HANDLER.invalidMsgSeqId(es.getEvent()
@@ -482,6 +482,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 resendMsgCnt.incrementAndGet();
             } else {
                 FailoverChannelProcessorHolder.getChannelProcessor().processEvent(es.getEvent());
+                takenMsgCnt.decrementAndGet();
                 if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error(Thread.currentThread().getName()
                             + " Channel --> Tube --> ResendQueue(full) -->"
@@ -490,6 +491,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 }
             }
         } catch (Throwable throwable) {
+            takenMsgCnt.decrementAndGet();
             if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                 logger.error(getName() + " Discard msg because put events to both of queue and "
                         + "fileChannel fail,current resendQueue.size = "
