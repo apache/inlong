@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
 public class TubeSink extends AbstractSink implements Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
-    private static final MsgDedupHandler msgDedupHandler = new MsgDedupHandler();
+    private static final MsgDedupHandler MSG_DEDUP_HANDLER = new MsgDedupHandler();
     private TubeProducerHolder producerHolder = null;
     private static final String TOPIC = "topic";
     private volatile boolean canTake = false;
@@ -83,7 +83,7 @@ public class TubeSink extends AbstractSink implements Configurable {
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
     private final AtomicBoolean started = new AtomicBoolean(false);
-    private static final LogCounter logSinkTaskPrinter =
+    private static final LogCounter LOG_SINK_TASK_PRINTER =
             new LogCounter(10, 100000, 60 * 1000);
     private LinkedBlockingQueue<Event> eventQueue;
     private LinkedBlockingQueue<EventStat> resendQueue;
@@ -114,7 +114,7 @@ public class TubeSink extends AbstractSink implements Configurable {
         topicProperties = configManager.getTopicProperties();
         masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
         // start message deduplication handler
-        msgDedupHandler.start(tubeConfig.getClientIdCache(),
+        MSG_DEDUP_HANDLER.start(tubeConfig.getClientIdCache(),
                 tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
         // only use first cluster address now
         usedMasterAddr = getFirstClusterAddr(masterHostAndPortLists);
@@ -318,7 +318,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                     if (StringUtils.isBlank(topic)) {
                         blankTopicDiscardMsgCnt.incrementAndGet();
                         takenMsgCnt.decrementAndGet();
-                        if (logSinkTaskPrinter.shouldPrint()) {
+                        if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                             logger.error("No topic specified, just discard the event, event header is "
                                     + event.getHeaders().toString());
                         }
@@ -341,7 +341,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                             isOverFlow = true;
                         }
                     }
-                    if (logSinkTaskPrinter.shouldPrint()) {
+                    if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                         logger.error("Sink task fail to send the message, finished =" + sendFinished
                                 + ",sink.name=" + Thread.currentThread().getName()
                                 + ",event.headers=" + es.getEvent().getHeaders(), t);
@@ -356,12 +356,12 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (producer == null) {
                 frozenTopicDiscardMsgCnt.incrementAndGet();
                 takenMsgCnt.decrementAndGet();
-                if (logSinkTaskPrinter.shouldPrint()) {
+                if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error("Get producer failed for " + topic);
                 }
                 return;
             }
-            if (msgDedupHandler.judgeDupAndPutMsgSeqId(
+            if (MSG_DEDUP_HANDLER.judgeDupAndPutMsgSeqId(
                     event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
                 dupDiscardMsgCnt.incrementAndGet();
                 takenMsgCnt.decrementAndGet();
@@ -400,7 +400,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                             myEventStat.getEvent().hashCode());
                     return;
                 } else if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW
-                        && logSinkTaskPrinter.shouldPrint()) {
+                        && LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             result.getErrMsg(), resendQueue.size(),
                             myEventStat.getEvent().hashCode());
@@ -476,13 +476,13 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (es == null || es.getEvent() == null) {
                 return;
             }
-            msgDedupHandler.invalidMsgSeqId(es.getEvent()
+            MSG_DEDUP_HANDLER.invalidMsgSeqId(es.getEvent()
                     .getHeaders().get(ConfigConstants.SEQUENCE_ID));
             if (resendQueue.offer(es)) {
                 resendMsgCnt.incrementAndGet();
             } else {
                 FailoverChannelProcessorHolder.getChannelProcessor().processEvent(es.getEvent());
-                if (logSinkTaskPrinter.shouldPrint()) {
+                if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error(Thread.currentThread().getName()
                             + " Channel --> Tube --> ResendQueue(full) -->"
                             + "FailOverChannelProcessor(current code point),"
@@ -490,7 +490,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 }
             }
         } catch (Throwable throwable) {
-            if (logSinkTaskPrinter.shouldPrint()) {
+            if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                 logger.error(getName() + " Discard msg because put events to both of queue and "
                         + "fileChannel fail,current resendQueue.size = "
                         + resendQueue.size(), throwable);

@@ -51,7 +51,7 @@ public class TubeProducerHolder {
     private final Map<String, MessageProducer> producerMap = new ConcurrentHashMap<>();
     private MessageProducer lastProducer = null;
     private final AtomicInteger lastPubTopicCnt = new AtomicInteger(0);
-    private static final ConcurrentHashMap<String, AtomicLong> frozenTopicMap
+    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP
             = new ConcurrentHashMap<>();
 
     public TubeProducerHolder(String sinkName, String clusterAddr, MQClusterConfig tubeConfig) {
@@ -106,7 +106,7 @@ public class TubeProducerHolder {
         producerMap.clear();
         lastProducer = null;
         lastPubTopicCnt.set(0);
-        frozenTopicMap.clear();
+        FROZEN_TOPIC_MAP.clear();
         if (sessionFactory != null) {
             try {
                 sessionFactory.shutdown();
@@ -134,19 +134,19 @@ public class TubeProducerHolder {
      * @throws  TubeClientException
      */
     public MessageProducer getProducer(String topicName) throws TubeClientException {
-        AtomicLong fbdTime = frozenTopicMap.get(topicName);
+        AtomicLong fbdTime = FROZEN_TOPIC_MAP.get(topicName);
         if (fbdTime != null && fbdTime.get() > System.currentTimeMillis()) {
             return null;
         }
         MessageProducer tmpProducer = producerMap.get(topicName);
         if (tmpProducer != null) {
             if (fbdTime != null) {
-                frozenTopicMap.remove(topicName);
+                FROZEN_TOPIC_MAP.remove(topicName);
             }
             return tmpProducer;
         }
         synchronized (lastPubTopicCnt) {
-            fbdTime = frozenTopicMap.get(topicName);
+            fbdTime = FROZEN_TOPIC_MAP.get(topicName);
             if (fbdTime != null && fbdTime.get() > System.currentTimeMillis()) {
                 return null;
             }
@@ -158,10 +158,10 @@ public class TubeProducerHolder {
             try {
                 lastProducer.publish(topicName);
             } catch (Throwable e) {
-                fbdTime = frozenTopicMap.get(topicName);
+                fbdTime = FROZEN_TOPIC_MAP.get(topicName);
                 if (fbdTime == null) {
                     AtomicLong tmpFbdTime = new AtomicLong();
-                    fbdTime = frozenTopicMap.putIfAbsent(topicName, tmpFbdTime);
+                    fbdTime = FROZEN_TOPIC_MAP.putIfAbsent(topicName, tmpFbdTime);
                     if (fbdTime == null) {
                         fbdTime = tmpFbdTime;
                     }
@@ -190,10 +190,10 @@ public class TubeProducerHolder {
             String message = throwable.getMessage();
             if (message != null && (message.contains("No available partition for topic")
                     || message.contains("The brokers of topic are all forbidden"))) {
-                AtomicLong fbdTime = frozenTopicMap.get(topicName);
+                AtomicLong fbdTime = FROZEN_TOPIC_MAP.get(topicName);
                 if (fbdTime == null) {
                     AtomicLong tmpFbdTime = new AtomicLong(0);
-                    fbdTime = frozenTopicMap.putIfAbsent(topicName, tmpFbdTime);
+                    fbdTime = FROZEN_TOPIC_MAP.putIfAbsent(topicName, tmpFbdTime);
                     if (fbdTime == null) {
                         fbdTime = tmpFbdTime;
                     }
