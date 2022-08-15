@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -46,10 +46,10 @@ public interface InlongStreamApi {
             @Query("streamId") String streamId);
 
     @POST("/stream/list")
-    Call<Response<PageInfo<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
+    Call<Response<PageResult<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
 
     @POST("stream/listAll")
-    Call<Response<PageInfo<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
+    Call<Response<PageResult<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
     @POST("/stream/startProcess/{groupId}/{streamId}")
     Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);

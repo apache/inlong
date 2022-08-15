@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -41,7 +41,7 @@ public interface UserApi {
     Call<Response<UserInfo>> getById(@Path("id") Integer id);
 
     @GET("user/listAll")
-    Call<Response<PageInfo<UserInfo>>> list(UserRequest request);
+    Call<Response<PageResult<UserInfo>>> list(UserRequest request);
 
     @POST("user/update")
     Call<Response<Integer>> update(@Body UserRequest userInfo);

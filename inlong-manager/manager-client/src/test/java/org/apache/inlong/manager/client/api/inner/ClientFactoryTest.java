@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.github.pagehelper.PageInfo;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.collect.Lists;
@@ -53,6 +52,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -211,11 +211,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -247,11 +247,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -285,11 +285,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -325,11 +325,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -396,12 +396,12 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos)))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos)))
                                 )
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -417,7 +417,7 @@ class ClientFactoryTest {
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertNull(pageInfo);
     }
 
@@ -659,7 +659,7 @@ class ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/stream/listAll.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(Lists.newArrayList(streamInfo))))
+                                        Response.success(new PageResult<>(Lists.newArrayList(streamInfo))))
                                 )
                         )
         );
@@ -718,7 +718,7 @@ class ClientFactoryTest {
                 get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(Lists.newArrayList(sinkList))))
+                                        Response.success(new PageResult<>(Lists.newArrayList(sinkList))))
                                 )
                         )
         );
@@ -1003,14 +1003,14 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/node/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(nodeResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(nodeResponses))))
                         )
         );
 
         DataNodeRequest request = new DataNodeRequest();
         request.setName("test_node");
         request.setToken(DataNodeType.HIVE);
-        PageInfo<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
+        PageResult<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
         Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
     }
 

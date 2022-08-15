@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.dao.util.PageUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -65,8 +66,8 @@ public class StreamSinkController {
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream sink list by paginating")
-    public Response<PageInfo<? extends StreamSink>> listByCondition(SinkPageRequest request) {
-        return Response.success(sinkService.listByCondition(request));
+    public Response<PageResult<? extends StreamSink>> listByCondition(SinkPageRequest request) {
+        return Response.success(PageUtils.of(sinkService.listByCondition(request)));
     }
 
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)

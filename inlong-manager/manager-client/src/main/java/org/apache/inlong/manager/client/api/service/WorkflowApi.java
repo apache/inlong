@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
@@ -38,7 +38,7 @@ public interface WorkflowApi {
     Call<Response<WorkflowResult>> startInlongGroup(@Path("taskId") Integer taskId, @Body Map<String, Object> request);
 
     @GET("workflow/event/list")
-    Call<Response<PageInfo<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
+    Call<Response<PageResult<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
             @Query("status") Integer status);
 
 }

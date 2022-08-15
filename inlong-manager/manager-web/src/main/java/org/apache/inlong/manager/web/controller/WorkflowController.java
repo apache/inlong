@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.dao.util.PageUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
@@ -36,11 +37,11 @@ import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowApprovalRequest;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
+import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
-import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -141,16 +142,16 @@ public class WorkflowController {
 
     @GetMapping("/workflow/listProcess")
     @ApiOperation(value = "Get process list by paginating")
-    public Response<PageInfo<ProcessResponse>> listProcess(ProcessRequest query) {
+    public Response<PageResult<ProcessResponse>> listProcess(ProcessRequest query) {
         query.setApplicant(LoginUserUtils.getLoginUser().getName());
-        return Response.success(workflowService.listProcess(query));
+        return Response.success(PageUtils.of(workflowService.listProcess(query)));
     }
 
     @GetMapping("/workflow/listTask")
     @ApiOperation(value = "Get task list by paginating")
-    public Response<PageInfo<TaskResponse>> listTask(TaskRequest query) {
+    public Response<PageResult<TaskResponse>> listTask(TaskRequest query) {
         query.setApprover(LoginUserUtils.getLoginUser().getName());
-        return Response.success(workflowService.listTask(query));
+        return Response.success(PageUtils.of(workflowService.listTask(query)));
     }
 
     @GetMapping("/workflow/processSummary")
@@ -169,8 +170,8 @@ public class WorkflowController {
 
     @GetMapping("/workflow/listTaskLogs")
     @ApiOperation(value = "Get task execution logs")
-    public Response<PageInfo<WorkflowExecuteLog>> listTaskLogs(TaskLogRequest query) {
-        return Response.success(workflowService.listTaskLogs(query));
+    public Response<PageResult<WorkflowExecuteLog>> listTaskLogs(TaskLogRequest query) {
+        return Response.success(PageUtils.of(workflowService.listTaskLogs(query)));
     }
 
 }

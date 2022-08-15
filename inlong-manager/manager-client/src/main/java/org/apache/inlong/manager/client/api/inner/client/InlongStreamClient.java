@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -118,8 +118,8 @@ public class InlongStreamClient {
      * @param request query request
      * @return inlong stream brief list
      */
-    public PageInfo<InlongStreamBriefInfo> listByCondition(InlongStreamPageRequest request) {
-        Response<PageInfo<InlongStreamBriefInfo>> response = ClientUtils.executeHttpCall(
+    public PageResult<InlongStreamBriefInfo> listByCondition(InlongStreamPageRequest request) {
+        Response<PageResult<InlongStreamBriefInfo>> response = ClientUtils.executeHttpCall(
                 inlongStreamApi.listByCondition(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -132,7 +132,7 @@ public class InlongStreamClient {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
 
-        Response<PageInfo<InlongStreamInfo>> response = ClientUtils.executeHttpCall(
+        Response<PageResult<InlongStreamInfo>> response = ClientUtils.executeHttpCall(
                 inlongStreamApi.listStream(pageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();
