@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.sink.common;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -94,5 +95,12 @@ public class MsgDedupHandler {
             return msgSeqIdCache.stats().toString();
         }
         return "Disable for message data deduplication function";
+    }
+
+    public CacheStats getCacheData() {
+        if (enableDataDedup) {
+            return msgSeqIdCache.stats();
+        }
+        return null;
     }
 }
