@@ -44,7 +44,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class KafkaResourceOperator implements QueueResourceOperator {
+public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Autowired
     private InlongClusterService clusterService;

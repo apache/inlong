@@ -45,9 +45,9 @@ import java.util.Properties;
  * Kafka resource operator for creating Kafka topic
  */
 @Service
-public class KafkaResourceOperators implements SinkResourceOperator {
+public class KafkaResourceOperator implements SinkResourceOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaResourceOperators.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaResourceOperator.class);
 
     @Autowired
     private StreamSinkService sinkService;
