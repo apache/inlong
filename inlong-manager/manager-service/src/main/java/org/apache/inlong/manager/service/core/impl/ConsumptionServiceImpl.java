@@ -429,7 +429,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             }
 
         }
-        //TODO add Kafka
         info.setMqType(mqType);
     }
 
