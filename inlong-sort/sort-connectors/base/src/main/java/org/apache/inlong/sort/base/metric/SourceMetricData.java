@@ -22,6 +22,8 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
@@ -41,12 +43,19 @@ public class SourceMetricData implements MetricData {
     private Counter numBytesIn;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
+    private final AuditImp auditImp;
 
     public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
+        this(groupId, streamId, nodeId, metricGroup, null);
+    }
+
+    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+            AuditImp auditImp) {
         this.groupId = groupId;
         this.streamId = streamId;
         this.nodeId = nodeId;
         this.metricGroup = metricGroup;
+        this.auditImp = auditImp;
     }
 
     /**
@@ -127,5 +136,27 @@ public class SourceMetricData implements MetricData {
     @Override
     public String getNodeId() {
         return nodeId;
+    }
+
+    public void outputMetrics(long rowCountSize, long rowDataSize) {
+        outputMetricForFlink(rowCountSize, rowDataSize);
+        outputMetricForAudit(rowCountSize, rowDataSize);
+    }
+
+    public void outputMetricForAudit(long rowCountSize, long rowDataSize) {
+        if (auditImp != null) {
+            auditImp.add(
+                    Constants.AUDIT_SORT_INPUT,
+                    getGroupId(),
+                    getStreamId(),
+                    System.currentTimeMillis(),
+                    rowCountSize,
+                    rowDataSize);
+        }
+    }
+
+    public void outputMetricForFlink(long rowCountSize, long rowDataSize) {
+        this.numBytesIn.inc(rowDataSize);
+        this.numRecordsIn.inc(rowCountSize);
     }
 }

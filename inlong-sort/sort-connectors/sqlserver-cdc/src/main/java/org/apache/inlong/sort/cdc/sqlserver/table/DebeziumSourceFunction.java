@@ -16,14 +16,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium;
+package org.apache.inlong.sort.cdc.sqlserver.table;
 
+import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.Validator;
+import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
+import com.ververica.cdc.debezium.internal.DebeziumChangeFetcher;
+import com.ververica.cdc.debezium.internal.DebeziumOffset;
+import com.ververica.cdc.debezium.internal.DebeziumOffsetSerializer;
+import com.ververica.cdc.debezium.internal.FlinkDatabaseHistory;
+import com.ververica.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
+import com.ververica.cdc.debezium.internal.FlinkOffsetBackingStore;
+import com.ververica.cdc.debezium.internal.Handover;
+import com.ververica.cdc.debezium.internal.SchemaRecord;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.PublicEvolving;
@@ -50,98 +79,55 @@ import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
-
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
  * from databases into Flink.
  *
- * <p>There are two workers during the runtime. One worker periodically pulls records from the
- * database and pushes the records into the {@link Handover}. The other worker consumes the records
- * from the {@link Handover} and convert the records to the data in Flink style. The reason why
- * don't use one workers is because debezium has different behaviours in snapshot phase and
- * streaming phase.</p>
- *
- * <p>Here we use the {@link Handover} as the buffer to submit data from the producer to the
- * consumer. Because the two threads don't communicate to each other directly, the error reporting
- * also relies on {@link Handover}. When the engine gets errors, the engine uses the {@link
- * DebeziumEngine.CompletionCallback} to report errors to the {@link Handover} and wakes up the
- * consumer to check the error. However, the source function just closes the engine and wakes up the
- * producer if the error is from the Flink side.</p>
- *
- * <p>If the execution is canceled or finish(only snapshot phase), the exit logic is as same as the
- * logic in the error reporting.</p>
- *
- * <p>The source function participates in checkpointing and guarantees that no data is lost during a
- * failure, and that the computation processes elements "exactly once".</p>
- *
- * <p>Note: currently, the source function can't run in multiple parallel instances.</p>
- *
  * <p>Please refer to Debezium's documentation for the available configuration properties:
- * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties</p>
+ * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
 
+    private static final long serialVersionUID = -5808108641062931623L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
+
     /**
      * State name of the consumer's partition offset states.
      */
     public static final String OFFSETS_STATE_NAME = "offset-states";
+
     /**
      * State name of the consumer's history records state.
      */
     public static final String HISTORY_RECORDS_STATE_NAME = "history-records-states";
+
     /**
      * The maximum number of pending non-committed checkpoints to track, to avoid memory leaks.
      */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
+
     /**
      * The configuration represents the Debezium MySQL Connector uses the legacy implementation or
      * not.
      */
     public static final String LEGACY_IMPLEMENTATION_KEY = "internal.implementation";
+
     /**
      * The configuration value represents legacy implementation.
      */
     public static final String LEGACY_IMPLEMENTATION_VALUE = "legacy";
-    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
-    private static final long serialVersionUID = -5808108641062931623L;
 
     // ---------------------------------------------------------------------------------------
     // Properties
     // ---------------------------------------------------------------------------------------
+
     /**
      * The schema to convert from Debezium's messages into Flink's objects.
      */
@@ -162,25 +148,28 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * Data for pending but uncommitted offsets.
      */
     private final LinkedMap pendingOffsetsToCommit = new LinkedMap();
-    /**
-     * Validator to validate the connected database satisfies the cdc connector's requirements.
-     */
-    private final Validator validator;
+
     /**
      * Flag indicating whether the Debezium Engine is started.
      */
     private volatile boolean debeziumStarted = false;
 
+    /**
+     * Validator to validate the connected database satisfies the cdc connector's requirements.
+     */
+    private final Validator validator;
+
     // ---------------------------------------------------------------------------------------
     // State
     // ---------------------------------------------------------------------------------------
+
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
      * <p>This map will be populated by the {@link #initializeState(FunctionInitializationContext)}
-     * method.</p>
+     * method.
      *
-     * <p>Using a String because we are encoding the offset state in JSON bytes.</p>
+     * <p>Using a String because we are encoding the offset state in JSON bytes.
      */
     private transient volatile String restoredOffsetState;
 
@@ -226,9 +215,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongMetric;
 
-    private String inlongAudit;
+    private SourceMetricData metricData;
 
-    private SourceMetricData sourceMetricData;
+    private String inLongGroupId;
+
+    private String auditHostAndPorts;
+
+    private String inLongStreamId;
+
+    private transient AuditImp auditImp;
 
     // ---------------------------------------------------------------------------------------
 
@@ -236,15 +231,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator,
-            String inlongMetric,
-            String inlongAudit) {
+            Validator validator, String inlongMetric,
+        String auditHostAndPorts) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
         this.inlongMetric = inlongMetric;
-        this.inlongAudit = inlongAudit;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -401,6 +395,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
+
         // initialize metrics
         // make RuntimeContext#getMetricGroup compatible between Flink 1.13 and Flink 1.14
         final Method getMetricGroupMethod =
@@ -419,21 +414,19 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
         if (StringUtils.isNotEmpty(this.inlongMetric)) {
             String[] inlongMetricArray = inlongMetric.split(Constants.DELIMITER);
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
+            inLongGroupId = inlongMetricArray[0];
+            inLongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            AuditImp auditImp = null;
-            if (inlongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
-                auditImp = AuditImp.getInstance();
-            }
-            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
-            sourceMetricData.registerMetricsForNumRecordsIn();
-            sourceMetricData.registerMetricsForNumBytesIn();
-            sourceMetricData.registerMetricsForNumBytesInPerSecond();
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
+            metricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, metricGroup);
+            metricData.registerMetricsForNumRecordsIn();
+            metricData.registerMetricsForNumBytesIn();
+            metricData.registerMetricsForNumBytesInPerSecond();
+            metricData.registerMetricsForNumRecordsInPerSecond();
         }
-
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
+        }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
         if (restoredOffsetState != null) {
@@ -471,10 +464,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetrics(1L,
-                                            record.value().toString().getBytes(StandardCharsets.UTF_8).length);
-                                }
+                                outputMetrics(record);
                                 deserializer.deserialize(record, out);
                             }
 
@@ -510,6 +500,23 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
         // start the real debezium consumer
         debeziumChangeFetcher.runFetchLoop();
+    }
+
+    private void outputMetrics(SourceRecord record) {
+        if (metricData != null) {
+            metricData.getNumRecordsIn().inc(1L);
+            metricData.getNumBytesIn()
+                    .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
+        }
+        if (auditImp != null) {
+            auditImp.add(
+                Constants.AUDIT_SORT_INPUT,
+                inLongGroupId,
+                inLongStreamId,
+                System.currentTimeMillis(),
+                1,
+                record.value().toString().getBytes(StandardCharsets.UTF_8).length);
+        }
     }
 
     @Override
@@ -625,9 +632,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 return FlinkDatabaseHistory.class;
             } else {
                 throw new IllegalStateException(
-                        "The configured option 'debezium.internal.implementation' is 'legacy', "
-                                + "but the state of source is incompatible with this implementation, "
-                                + "you should remove the the option.");
+                        "The configured option 'debezium.internal.implementation' is 'legacy', but the state of "
+                                + "source is incompatible with this implementation, you should remove the the option.");
             }
         } else if (FlinkDatabaseSchemaHistory.isCompatible(retrieveHistory(engineInstanceName))) {
             // tries the non-legacy first
@@ -644,5 +650,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     @VisibleForTesting
     public String getEngineInstanceName() {
         return engineInstanceName;
+    }
+
+    public SourceMetricData getMetricData() {
+        return metricData;
     }
 }

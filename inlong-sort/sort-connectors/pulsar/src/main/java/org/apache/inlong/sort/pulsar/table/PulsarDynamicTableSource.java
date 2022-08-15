@@ -146,7 +146,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
     /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. **/
     protected final boolean upsertMode;
 
-    protected String inLongMetric;
+    protected String inlongMetric;
+
+    protected String auditHostAndPorts;
 
     public PulsarDynamicTableSource(
             DataType physicalDataType,
@@ -162,7 +164,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
-            String inlongMetric) {
+            String inlongMetric,
+            String auditHostAndPorts) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -189,8 +192,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.properties = Preconditions.checkNotNull(properties, "Properties must not be null.");
         this.startupOptions = startupOptions;
         this.upsertMode = upsertMode;
-        this.inLongMetric = inlongMetric;
-
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     private void setTopicInfo(Properties properties, List<String> topics, String topicPattern) {
@@ -295,7 +298,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 metadataConverters,
                 producedTypeInfo,
                 upsertMode,
-            inLongMetric);
+            inlongMetric,
+            auditHostAndPorts);
     }
 
     @Override
@@ -313,7 +317,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 adminUrl,
                 properties,
                 startupOptions,
-                false, inLongMetric);
+                false, inlongMetric, auditHostAndPorts);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;

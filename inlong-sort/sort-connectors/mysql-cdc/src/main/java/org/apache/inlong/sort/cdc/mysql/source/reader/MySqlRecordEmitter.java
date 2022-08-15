@@ -145,13 +145,8 @@ public final class MySqlRecordEmitter<T>
                     new Collector<T>() {
                         @Override
                         public void collect(final T t) {
-                            if (sourceReaderMetrics.getNumRecordsIn() != null) {
-                                sourceReaderMetrics.getNumRecordsIn().inc(1L);
-                            }
-                            if (sourceReaderMetrics.getNumBytesIn() != null) {
-                                sourceReaderMetrics.getNumBytesIn()
-                                        .inc(t.toString().getBytes(StandardCharsets.UTF_8).length);
-                            }
+                            sourceReaderMetrics.outputMetrics(1L,
+                                    t.toString().getBytes(StandardCharsets.UTF_8).length);
                             output.collect(t);
                         }
 
