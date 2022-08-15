@@ -21,6 +21,7 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.TableType;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
@@ -40,7 +41,8 @@ public class HudiLoadNodeTest extends SerializeBaseTest<HudiLoadNode> {
                 null,
                 1,
                 null,
-                "hoodie.base.path",
+                "/tmp/inlong/hudi",
+                TableType.COPY_ON_WRITE,
                 "id");
     }
 }

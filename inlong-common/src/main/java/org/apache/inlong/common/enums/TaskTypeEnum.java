@@ -29,7 +29,8 @@ public enum TaskTypeEnum {
     ORACLE(7),
     SQLSERVER(8),
     MONGODB(9),
-    TUBEMQ(10)
+    TUBEMQ(10),
+    HUDI(11)
 
 
     ;
@@ -64,6 +65,8 @@ public enum TaskTypeEnum {
                 return MONGODB;
             case 10:
                 return TUBEMQ;
+            case 11:
+                return HUDI;
             default:
                 throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
         }

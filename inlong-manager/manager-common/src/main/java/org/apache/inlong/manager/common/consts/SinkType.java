@@ -36,5 +36,6 @@ public class SinkType {
     public static final String ORACLE = "ORACLE";
     public static final String TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
     public static final String DLCICEBERG = "DLCICEBERG";
+    public static final String HUDI = "HUDI";
 
 }

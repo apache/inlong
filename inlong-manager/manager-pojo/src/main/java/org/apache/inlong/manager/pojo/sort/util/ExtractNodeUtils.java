@@ -34,9 +34,11 @@ import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
+import org.apache.inlong.manager.pojo.source.hudi.HudiSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.TableType;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -48,6 +50,7 @@ import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -96,6 +99,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((MongoDBSource) sourceInfo);
             case SourceType.TUBEMQ:
                 return createExtractNode((TubeMQSource) sourceInfo);
+            case SourceType.HUDI:
+                return createExtractNode((HudiSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -388,6 +393,28 @@ public class ExtractNodeUtils {
                 source.getGroupId(),
                 source.getSessionKey(),
                 source.getTid()
+        );
+    }
+
+    /**
+     * Create Hudi extract node
+     *
+     * @param source Hudi source info
+     * @return Hudi extract node info
+     */
+    public static HudiExtractNode createExtractNode(HudiSource source) {
+        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
+        TableType tableType = TableType.forName(source.getTableType());
+        Map<String, String> properties = parseProperties(source.getProperties());
+        return new HudiExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                source.getPath(),
+                tableType,
+                source.getPrimaryKey()
         );
     }
 

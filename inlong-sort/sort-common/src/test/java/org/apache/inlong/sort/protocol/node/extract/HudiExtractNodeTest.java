@@ -27,6 +27,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import java.util.Arrays;
 
 import java.util.List;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.TableType;
 
 /**
  * Test for {@link HudiExtractNode} serialize
@@ -38,7 +39,7 @@ public class HudiExtractNodeTest extends SerializeBaseTest<HudiExtractNode> {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("val_char", new StringFormatInfo()));
         return new HudiExtractNode("1", "hudi_test", fields,
-                null, null, "hoodie.base.path",
-                null);
+                null, null, "/tmp/inlong/hudi",
+                TableType.COPY_ON_WRITE,null);
     }
 }

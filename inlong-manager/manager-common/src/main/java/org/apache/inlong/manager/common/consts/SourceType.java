@@ -39,6 +39,7 @@ public class SourceType {
     public static final String ORACLE = "ORACLE";
     public static final String SQLSERVER = "SQLSERVER";
     public static final String MONGODB = "MONGODB";
+    public static final String HUDI = "HUDI";
 
     public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP = new HashMap<String, TaskTypeEnum>() {
         {
@@ -54,6 +55,7 @@ public class SourceType {
             put(ORACLE, TaskTypeEnum.ORACLE);
             put(SQLSERVER, TaskTypeEnum.SQLSERVER);
             put(MONGODB, TaskTypeEnum.MONGODB);
+            put(HUDI, TaskTypeEnum.HUDI);
 
         }
     };

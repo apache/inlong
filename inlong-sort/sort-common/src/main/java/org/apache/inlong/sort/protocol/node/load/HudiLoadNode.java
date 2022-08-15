@@ -26,6 +26,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.HudiConstant;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.TableType;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -48,6 +50,9 @@ public class HudiLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String path;
 
+    @JsonProperty("tableType")
+    private HudiConstant.TableType tableType;
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -61,9 +66,11 @@ public class HudiLoadNode extends LoadNode implements Serializable {
                         @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
                         @JsonProperty("properties") Map<String, String> properties,
                         @Nonnull @JsonProperty("path") String path,
+                        @JsonProperty("catalogType") HudiConstant.TableType tableType,
                         @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.path = Preconditions.checkNotNull(path, "path is null");
+        this.tableType = tableType == null ? TableType.COPY_ON_WRITE : tableType;
         this.primaryKey = primaryKey;
     }
 
@@ -72,6 +79,7 @@ public class HudiLoadNode extends LoadNode implements Serializable {
         Map<String, String> options = super.tableOptions();
         options.put("connector", "inlong-hudi");
         options.put("path", path);
+        options.put("table.type", tableType.name());
         return options;
     }
 

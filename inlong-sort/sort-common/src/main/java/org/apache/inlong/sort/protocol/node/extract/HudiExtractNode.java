@@ -24,6 +24,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.HudiConstant;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.TableType;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
@@ -43,6 +45,9 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
     @Nonnull
     private String path;
 
+    @JsonProperty("tableType")
+    private HudiConstant.TableType tableType;
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -53,9 +58,11 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
                            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
                            @JsonProperty("properties") Map<String, String> properties,
                            @JsonProperty("path") @Nonnull String path,
+                           @JsonProperty("catalogType") HudiConstant.TableType tableType,
                            @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, waterMarkField, properties);
         this.path = Preconditions.checkNotNull(path, "path is null");
+        this.tableType = tableType == null ? TableType.COPY_ON_WRITE : tableType;
         this.primaryKey = primaryKey;
     }
 
@@ -64,7 +71,7 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
         Map<String, String> options = super.tableOptions();
         options.put("connector", "inlong-hudi");
         options.put("path", path);
-
+        options.put("table.type", tableType.name());
         return options;
     }
 
