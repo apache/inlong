@@ -75,9 +75,15 @@ public class MySqlSourceConfigFactory implements Serializable {
     private Properties dbzProperties;
 
     private String inlongMetric;
+    private String inlongAudit;
 
     public MySqlSourceConfigFactory inlongMetric(String inlongMetric) {
         this.inlongMetric = inlongMetric;
+        return this;
+    }
+
+    public MySqlSourceConfigFactory inlongAudit(String inlongAudit) {
+        this.inlongAudit = inlongAudit;
         return this;
     }
 
@@ -341,10 +347,6 @@ public class MySqlSourceConfigFactory implements Serializable {
             jdbcProperties = new Properties();
         }
 
-        if (inlongMetric == null) {
-            inlongMetric = "";
-        }
-
         return new MySqlSourceConfig(
                 hostname,
                 port,
@@ -367,6 +369,7 @@ public class MySqlSourceConfigFactory implements Serializable {
                 scanNewlyAddedTableEnabled,
                 props,
                 jdbcProperties,
-                inlongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 }
