@@ -28,70 +28,71 @@ export interface Props extends ModalProps {
   id?: number;
 }
 
-const content = [
-  {
-    type: 'radio',
-    label: i18n.t('pages.UserManagement.config.AccountRole'),
-    name: 'accountType',
-    initialValue: 1,
-    rules: [{ required: true }],
-    props: {
-      options: [
-        {
-          label: i18n.t('pages.UserManagement.config.GeneralUser'),
-          value: 1,
-        },
-        {
-          label: i18n.t('pages.UserManagement.config.Admin'),
-          value: 0,
-        },
-      ],
-    },
-  },
-  {
-    type: 'input',
-    label: i18n.t('pages.UserManagement.config.UserName'),
-    name: 'name',
-    rules: [{ required: true }],
-  },
-  {
-    type: 'password',
-    label: i18n.t('pages.UserManagement.DetailModal.UserPassword'),
-    name: 'password',
-    rules: [{ required: true }],
-  },
-  {
-    type: 'inputnumber',
-    label: i18n.t('pages.UserManagement.DetailModal.EffectiveTime'),
-    name: 'validDays',
-    suffix: i18n.t('pages.UserManagement.DetailModal.Day'),
-    rules: [{ required: true }],
-    props: {
-      min: 1,
-    },
-  },
-  {
-    type: 'input',
-    label: 'SecretKey',
-    name: 'secretKey',
-    rules: [{ required: true }],
-  },
-  {
-    type: 'input',
-    label: 'PublicKey',
-    name: 'publicKey',
-    rules: [{ required: true }],
-  },
-  {
-    type: 'input',
-    label: 'PrivateKey',
-    name: 'privateKey',
-    rules: [{ required: true }],
-  },
-];
-
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
+  const content = [
+    {
+      type: 'radio',
+      label: i18n.t('pages.UserManagement.config.AccountRole'),
+      name: 'accountType',
+      initialValue: 1,
+      rules: [{ required: true }],
+      props: {
+        disabled: id ? true : false,
+        options: [
+          {
+            label: i18n.t('pages.UserManagement.config.GeneralUser'),
+            value: 1,
+          },
+          {
+            label: i18n.t('pages.UserManagement.config.Admin'),
+            value: 0,
+          },
+        ],
+      },
+    },
+    {
+      type: 'input',
+      label: i18n.t('pages.UserManagement.config.UserName'),
+      name: 'name',
+      rules: [{ required: true }],
+      props: { disabled: id ? true : false },
+    },
+    {
+      type: 'password',
+      label: i18n.t('pages.UserManagement.DetailModal.UserPassword'),
+      name: 'password',
+      rules: [{ required: true }],
+    },
+    {
+      type: 'inputnumber',
+      label: i18n.t('pages.UserManagement.DetailModal.EffectiveTime'),
+      name: 'validDays',
+      suffix: i18n.t('pages.UserManagement.DetailModal.Day'),
+      rules: [{ required: true }],
+      props: {
+        min: 1,
+      },
+    },
+    {
+      type: 'input',
+      label: 'SecretKey',
+      name: 'secretKey',
+      rules: [{ required: true }],
+    },
+    {
+      type: 'input',
+      label: 'PublicKey',
+      name: 'publicKey',
+      rules: [{ required: true }],
+    },
+    {
+      type: 'input',
+      label: 'PrivateKey',
+      name: 'privateKey',
+      rules: [{ required: true }],
+    },
+  ];
 
   const { data: savedData, run: getData } = useRequest(
     id => ({

@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -45,7 +46,6 @@ import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -156,8 +156,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         dataStreamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
-        Boolean isExist = streamClient.isStreamExists(dataStreamInfo);
-        if (isExist) {
+        InlongStreamInfo existStreamInfo = streamClient.getStreamIfExists(dataStreamInfo);
+        if (existStreamInfo != null) {
+            dataStreamInfo.setVersion(existStreamInfo.getVersion());
             Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(dataStreamInfo);
             if (!updateMsg.getKey()) {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
@@ -192,6 +193,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             } else {
                 TransformRequest transformRequest = transformRequests.get(transformName);
                 transformRequest.setId(id);
+                transformRequest.setVersion(transformResponse.getVersion());
                 Pair<Boolean, String> updateState = transformClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
@@ -230,6 +232,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 } else {
                     SourceRequest sourceRequest = sourceRequests.get(sourceName);
                     sourceRequest.setId(id);
+                    sourceRequest.setVersion(source.getVersion());
                     Pair<Boolean, String> updateState = sourceClient.updateSource(sourceRequest);
                     if (!updateState.getKey()) {
                         throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
@@ -268,6 +271,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             } else {
                 SinkRequest sinkRequest = sinkRequests.get(sinkName);
                 sinkRequest.setId(id);
+                sinkRequest.setVersion(sink.getVersion());
                 Pair<Boolean, String> updateState = sinkClient.updateSink(sinkRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update sink=%s failed with err=%s", sinkRequest,

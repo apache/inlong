@@ -20,7 +20,7 @@
 import { config } from '@/configs/default';
 import menus from '@/configs/menus';
 import defaultSettings from '@/defaultSettings';
-import { useLocation } from '@/hooks';
+import { useLocation, useSelector } from '@/hooks';
 import { isDevelopEnv } from '@/utils';
 import ProBasicLayout, {
   getMenuData,
@@ -31,6 +31,7 @@ import ProBasicLayout, {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { MenuProps } from 'antd/es/menu';
+import { State } from '@/models';
 import NavWidget from './NavWidget';
 import './index.css';
 
@@ -47,7 +48,13 @@ const BasicLayout: React.FC = props => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>(['/']);
   const isDev = isDevelopEnv();
   const { pathname } = location;
-  const { breadcrumbMap, menuData } = useMemo(() => getMenuData(menus), []); // TODO: Need refactor.
+  const roles = useSelector<State, State['roles']>(state => state.roles);
+  const { breadcrumbMap, menuData } = useMemo(() => {
+    const _menus = menus.filter(
+      item => (item.isAdmin && roles?.includes('ADMIN')) || !item.isAdmin,
+    );
+    return getMenuData(_menus);
+  }, [roles]);
 
   useEffect(() => {
     const firstPathname = `/${pathname.slice(1).split('/')?.[0]}`;

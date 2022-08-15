@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { genBasicFields } from '@/components/ConsumeHelper';
+import getConsumptionFields from '@/metas/consumption';
 
 export const getFormContent = ({ editing, initialValues, isCreate }) => {
   const keys = [
@@ -35,10 +35,10 @@ export const getFormContent = ({ editing, initialValues, isCreate }) => {
   ].filter(Boolean);
 
   return isCreate
-    ? genBasicFields(keys, initialValues).map(item => {
+    ? getConsumptionFields(keys, initialValues).map(item => {
         return item;
       })
-    : genBasicFields(keys, initialValues).map(item => ({
+    : getConsumptionFields(keys, initialValues).map(item => ({
         ...item,
         type: transType(editing, item, initialValues),
         suffix:

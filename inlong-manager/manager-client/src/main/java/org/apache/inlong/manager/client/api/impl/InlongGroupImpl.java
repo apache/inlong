@@ -81,7 +81,7 @@ public class InlongGroupImpl implements InlongGroup {
 
         InlongGroupInfo newGroupInfo = groupClient.getGroupIfExists(groupInfo.getInlongGroupId());
         if (newGroupInfo != null) {
-            this.groupContext.setGroupInfo(groupInfo);
+            this.groupContext.setGroupInfo(newGroupInfo);
         } else {
             BaseSortConf sortConf = groupInfo.getSortConf();
             InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
@@ -148,11 +148,13 @@ public class InlongGroupImpl implements InlongGroup {
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
+        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
                 "inlong group is in init status, should not be updated");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
+        groupInfo.setVersion(existGroupInfo.getVersion());
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
@@ -167,13 +169,15 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
 
         final String groupId = this.groupInfo.getInlongGroupId();
-        InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
 
-        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
+        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
+        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
                 "inlong group is in init status, should not be updated");
 
-        groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        groupInfo.setVersion(existGroupInfo.getVersion());
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();

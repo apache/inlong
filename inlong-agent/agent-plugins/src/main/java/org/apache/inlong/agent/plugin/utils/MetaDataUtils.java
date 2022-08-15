@@ -17,12 +17,21 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_FILTER_BY_LABELS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_PROPERTIES;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
@@ -33,9 +42,11 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
  */
 public class MetaDataUtils {
 
+    private static final Gson GSON = new Gson();
+
     /**
      * standard log for k8s
-     * 
+     *
      * get pod_name,namespace,container_name,container_id
      */
     public static Map<String, String> getLogInfo(String fileName) {
@@ -53,10 +64,56 @@ public class MetaDataUtils {
         return podInf;
     }
 
-    public static String concatString(String str1, String str2) {
-        if (!StringUtils.isNoneBlank(str2)) {
-            return str1;
+    /**
+     * standard log for k8s
+     *
+     * get labels of pod
+     */
+    public static Map<String, String> getPodLabels(JobProfile jobProfile) {
+        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
+            return null;
         }
-        return str1.concat("\n").concat(str2);
+        String labels = jobProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
+        Type type = new TypeToken<HashMap<Integer, String>>() {
+        }.getType();
+        return GSON.fromJson(labels, type);
+    }
+
+    public static List<String> getNamespace(JobProfile jobProfile) {
+        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_PROPERTIES)) {
+            return null;
+        }
+        String property = jobProfile.get(JOB_FILE_PROPERTIES);
+        Type type = new TypeToken<HashMap<Integer, String>>() {
+        }.getType();
+        Map<String, String> properties = GSON.fromJson(property, type);
+        return properties.keySet().stream().map(data -> {
+            if (data.contains(NAMESPACE)) {
+                return properties.get(data);
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    /**
+     * standard log for k8s
+     *
+     * get name of pod
+     */
+    public static String getPodName(JobProfile jobProfile) {
+        if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_PROPERTIES)) {
+            return null;
+        }
+        String property = jobProfile.get(JOB_FILE_PROPERTIES);
+        Type type = new TypeToken<HashMap<Integer, String>>() {
+        }.getType();
+        Map<String, String> properties = GSON.fromJson(property, type);
+        List<String> podName = properties.keySet().stream().map(data -> {
+            if (data.contains(POD_NAME)) {
+                return properties.get(data);
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return podName.isEmpty() ? null : podName.get(0);
     }
 }

@@ -60,6 +60,16 @@ public class InlongClusterImpl implements InlongCluster {
     }
 
     @Override
+    public List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, String clusterTag) {
+        ClusterPageRequest request = new ClusterPageRequest();
+        request.setName(clusterName);
+        request.setType(clusterType);
+        request.setClusterTag(clusterTag);
+        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        return clusterNodePage.getList();
+    }
+
+    @Override
     public ClusterInfo saveCluster(ClusterRequest clusterRequest) {
         int clusterIndex = clusterClient.saveCluster(clusterRequest);
         return clusterClient.get(clusterIndex);
