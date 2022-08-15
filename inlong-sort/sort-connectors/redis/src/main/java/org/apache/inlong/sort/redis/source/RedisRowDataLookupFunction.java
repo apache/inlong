@@ -43,7 +43,6 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RedisRowDataLookupFunction.class);
 
-
     private static final long serialVersionUID = 1L;
 
     private final long cacheMaxSize;
