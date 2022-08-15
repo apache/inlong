@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * MySQL table info.
+ * Hudi table info.
  */
 @Data
 public class HudiTableInfo {

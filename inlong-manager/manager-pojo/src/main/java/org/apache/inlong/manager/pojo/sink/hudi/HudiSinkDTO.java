@@ -83,7 +83,7 @@ public class HudiSinkDTO {
     }
 
     /**
-     * Get Greenplum table info
+     * Get Hudi table info
      *
      * @param HudiSink Hudi sink dto,{@link HudiSinkDTO}
      * @param columnList Hudi column info list,{@link HudiColumnInfo}
