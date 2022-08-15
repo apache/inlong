@@ -16,6 +16,7 @@
  */
 
 package org.apache.inlong.manager.client.cli;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
@@ -53,6 +54,7 @@ public class CreateCommand extends AbstractCommand {
                 description = "json file")
         private File file;
 
+        //TODO:add gdbc connector and others
         @Parameter(names = {"-s"})
         private String input;
 
@@ -60,10 +62,9 @@ public class CreateCommand extends AbstractCommand {
         void run() {
             try {
                 String content;
-                if(input.length()>0){
+                if (input.length() > 0) {
                     content = input;
-                }
-                else {
+                } else {
                     content = ClientUtils.readFile(file);
                     if (StringUtils.isBlank(content)) {
                         System.out.println("Create group failed: file was empty!");

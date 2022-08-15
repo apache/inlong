@@ -54,14 +54,14 @@ public class TestCommand {
     }
 
     //@Test
-    public void testDeleteGroup() throws Exception  {
-        String[] arg = {"delete","group", "-g", "test_group"};
+    public void testDeleteGroup() throws Exception {
+        String[] arg = {"delete", "group", "-g", "test_group"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
 
     //@Test
-    public void testUpdateGroup() throws Exception{
+    public void testUpdateGroup() throws Exception {
         String[] arg = {"update", "group", "-g", "test_group", "-c", "src/test/resources/test_config.json"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }

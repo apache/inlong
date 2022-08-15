@@ -28,9 +28,8 @@ import java.util.Arrays;
  */
 public class CommandToolMain {
 
-    private final JCommander jcommander;
     private static volatile InlongClient mockClient;
-
+    private final JCommander jcommander;
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
@@ -55,12 +54,12 @@ public class CommandToolMain {
         }
     }
 
-    public static void setMockClient(InlongClient client){
-        mockClient = client;
+    public static InlongClient getMockClient() {
+        return mockClient;
     }
 
-    public static InlongClient getMockClient(){
-        return mockClient;
+    public static void setMockClient(InlongClient client) {
+        mockClient = client;
     }
 
     boolean run(String[] args) {

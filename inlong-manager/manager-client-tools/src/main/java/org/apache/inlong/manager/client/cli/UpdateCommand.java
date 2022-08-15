@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
@@ -29,6 +30,7 @@ import java.io.File;
 
 @Parameters(commandDescription = "Update resource by json file")
 public class UpdateCommand extends AbstractCommand {
+
     @Parameter()
     private java.util.List<String> params;
 
@@ -43,14 +45,11 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"--group","-g"},
-                required = true)
+        @Parameter(names = {"--group", "-g"}, required = true)
         private String groupId;
 
-        @Parameter(names = {"-c", "--config"},
-                converter = FileConverter.class,
-                required = true,
-                description = "json file")
+        @Parameter(names = {"-c",
+                "--config"}, converter = FileConverter.class, required = true, description = "json file")
         private File file;
 
         @Override

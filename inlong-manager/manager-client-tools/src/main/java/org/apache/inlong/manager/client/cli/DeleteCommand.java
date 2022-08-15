@@ -14,27 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupContext;
-import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
-import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.client.cli.CommandToolMain.*;
-
-import java.io.File;
 
 @Parameters(commandDescription = "Delete resource by json file")
 public class DeleteCommand extends AbstractCommand {
+
     @Parameter()
     private java.util.List<String> params;
 
@@ -49,23 +40,21 @@ public class DeleteCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"--group","-g"},
-                required = true,
-                description = "group id")
+        @Parameter(names = {"--group", "-g"}, required = true, description = "group id")
         private String groupId;
 
         @Override
         void run() {
             //get the group and the corresponding context(snapshot)
-            try{
+            try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(groupId);
                 group.delete();
                 System.out.println("delete group success");
             }
             //TODO: handle and/or classify the exceptions
-            catch(Exception e){
-                System.out.format("Delete group failed! message: %s \n",e.getMessage());
+            catch (Exception e) {
+                System.out.format("Delete group failed! message: %s \n", e.getMessage());
             }
         }
     }
