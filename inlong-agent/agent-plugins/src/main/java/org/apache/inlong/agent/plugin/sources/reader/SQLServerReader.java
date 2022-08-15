@@ -41,6 +41,9 @@ import static java.sql.Types.BLOB;
 import static java.sql.Types.LONGVARBINARY;
 import static java.sql.Types.VARBINARY;
 
+/**
+ * Read data from SQLServer database by SQL
+ */
 public class SQLServerReader extends AbstractReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);

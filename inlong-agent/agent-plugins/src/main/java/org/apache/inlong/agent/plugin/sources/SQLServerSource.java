@@ -31,6 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * SQLServer SQL source, split SQLServer SQL source job into multi readers
+ */
 public class SQLServerSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
