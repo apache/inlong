@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PostgreSql source, split PostgreSql source job into multi readers
+ * PostgreSQL source, split PostgreSQL source job into multi readers
  */
 public class PostgreSQLSource extends AbstractSource {
 
