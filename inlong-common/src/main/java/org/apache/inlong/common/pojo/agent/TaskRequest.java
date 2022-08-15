@@ -29,7 +29,7 @@ import java.util.List;
 @Data
 public class TaskRequest {
 
-    private String clusterTag;
+    private String clusterName;
 
     private String agentIp;
 

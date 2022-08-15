@@ -94,7 +94,9 @@ public class ConfigConstants {
     public static final String CLUSTER_ID_KEY = "clusterId";
     public static final String MANAGER_HOST = "manager.hosts";
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
+    public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
     public static final String PROXY_LOCAL_IP = "proxy.local.ip";
+    public static final String PROXY_LOCAL_PORT = "proxy.local.port";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";

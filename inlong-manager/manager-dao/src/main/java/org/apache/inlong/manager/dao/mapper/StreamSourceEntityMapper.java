@@ -74,6 +74,13 @@ public interface StreamSourceEntityMapper {
             @Param("sourceType") List<String> sourceTypes, @Param("limit") int limit);
 
     /**
+     * Query the tasks by the given status list and type List.
+     */
+    List<StreamSourceEntity> selectTaskByAgentIpOrCluster(@Param("statusList") List<Integer> statusList,
+            @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
+            @Param("clusterName") String clusterName, @Param("limit") int limit);
+
+    /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      *
      * @apiNote Sources with is_deleted > 0 need to be filtered.
@@ -116,6 +123,8 @@ public interface StreamSourceEntityMapper {
             @Param("changeTime") Boolean changeModifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
+
+    int appendAgentIp(@Param("id") Integer id, @Param("agentIp") String agentIp);
 
     /**
      * Physical delete stream sources.
