@@ -25,6 +25,8 @@ import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
@@ -33,6 +35,8 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
  * test postgres reader
  */
 public class PostgreSQLReaderTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReaderTest.class);
     private static Gson GSON = new Gson();
 
     @Test
@@ -66,6 +70,11 @@ public class PostgreSQLReaderTest {
         Assert.assertEquals("true", debeziumFormat.getSource().getSnapshot());
     }
 
+    /**
+     * this test is used for testing collect data from postgreSQL in unit test,
+     * and it may cause failure in compile
+     * thus we annotate it.
+     */
 //    @Test
     public void postgresLoadTest() {
         JobProfile jobProfile = new JobProfile();
@@ -81,12 +90,12 @@ public class PostgreSQLReaderTest {
         jobProfile.set("job.instance.id", "_1");
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
-        PostgreSQLReader postgreSqlReader = new PostgreSQLReader();
-        postgreSqlReader.init(jobProfile);
+        PostgreSQLReader postgreSQLReader = new PostgreSQLReader();
+        postgreSQLReader.init(jobProfile);
         while (true) {
-            Message message = postgreSqlReader.read();
+            Message message = postgreSQLReader.read();
             if (message != null) {
-                System.out.println(message.toString());
+                LOGGER.info("read message is {}",message.toString());
             }
         }
     }

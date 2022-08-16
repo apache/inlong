@@ -36,7 +36,7 @@ public class PostgreSQLOffsetManagerTest {
 
     private static AgentBaseTestsHelper helper;
 
-    private static final String fileName = "testPostgres.txt";
+    private static final String fileName = "testPostgreSQL.txt";
 
     private static Path filePath;
 

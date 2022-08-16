@@ -87,7 +87,7 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
             inputStream.close();
             outputStream.close();
         } catch (Throwable ex) {
-            LOGGER.error("load postgreSql WAL log error", ex);
+            LOGGER.error("load postgreSQL WAL log error", ex);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
         }
     }

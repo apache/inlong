@@ -59,20 +59,20 @@ public class PostgreSQLReader extends AbstractReader {
 
 
     public static final String COMPONENT_NAME = "PostgreSQLReader";
-    public static final String JOB_POSTGRESQL_USER = "job.postgreSqlJob.user";
-    public static final String JOB_DATABASE_PASSWORD = "job.postgreSqlJob.password";
-    public static final String JOB_DATABASE_HOSTNAME = "job.postgreSqlJob.hostname";
-    public static final String JOB_DATABASE_PORT = "job.postgreSqlJob.port";
-    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSqljob.offset.intervalMs";
-    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSqljob.history.filename";
-    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSqljob.snapshot.mode";
-    public static final String JOB_DATABASE_QUEUE_SIZE = "job.postgreSqljob.queueSize";
-    public static final String JOB_DATABASE_OFFSETS = "job.postgreSqljob.offsets";
-    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSqljob.offset.specificOffsetFile";
-    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.postgreSqljob.offset.specificOffsetPos";
-    public static final String JOB_DATABASE_DBNAME = "job.postgreSqljob.dbname";
-    public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSqljob.servername";
-    public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSqljob.pluginname";
+    public static final String JOB_POSTGRESQL_USER = "job.postgreSQLJob.user";
+    public static final String JOB_DATABASE_PASSWORD = "job.postgreSQLJob.password";
+    public static final String JOB_DATABASE_HOSTNAME = "job.postgreSQLJob.hostname";
+    public static final String JOB_DATABASE_PORT = "job.postgreSQLJob.port";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSQLjob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSQLjob.history.filename";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSQLjob.snapshot.mode";
+    public static final String JOB_DATABASE_QUEUE_SIZE = "job.postgreSQLjob.queueSize";
+    public static final String JOB_DATABASE_OFFSETS = "job.postgreSQLjob.offsets";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSQLjob.offset.specificOffsetFile";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.postgreSQLjob.offset.specificOffsetPos";
+    public static final String JOB_DATABASE_DBNAME = "job.postgreSQLjob.dbname";
+    public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSQLjob.servername";
+    public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSQLjob.pluginname";
     private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
     private String userName;
@@ -89,7 +89,7 @@ public class PostgreSQLReader extends AbstractReader {
     private String dbName;
     private String pluginName;
     private String serverName;
-    private PostgreSQLSnapshotBase postgreSqlSnapshot;
+    private PostgreSQLSnapshotBase postgreSQLSnapshot;
     private boolean finished = false;
     private ExecutorService executor;
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
@@ -98,7 +98,7 @@ public class PostgreSQLReader extends AbstractReader {
      * pair.left : table name
      * pair.right : actual data
      */
-    private LinkedBlockingQueue<Pair<String, String>> postgreSqlMessageQueue;
+    private LinkedBlockingQueue<Pair<String, String>> postgreSQLMessageQueue;
 
     private JobProfile jobProfile;
     private boolean destroyed = false;
@@ -109,16 +109,16 @@ public class PostgreSQLReader extends AbstractReader {
 
     @Override
     public Message read() {
-        if (!postgreSqlMessageQueue.isEmpty()) {
+        if (!postgreSQLMessageQueue.isEmpty()) {
             readerMetric.pluginReadCount.incrementAndGet();
-            return getPostgreSqlMessage();
+            return getpostgreSQLMessage();
         } else {
             return null;
         }
     }
 
-    private DefaultMessage getPostgreSqlMessage() {
-        Pair<String, String> message = postgreSqlMessageQueue.poll();
+    private DefaultMessage getpostgreSQLMessage() {
+        Pair<String, String> message = postgreSQLMessageQueue.poll();
         Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
         header.put(PROXY_KEY_DATA, message.getKey());
         return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8), header);
@@ -128,7 +128,7 @@ public class PostgreSQLReader extends AbstractReader {
     public void init(JobProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
-        LOGGER.info("init postgreSql reader with jobConf {}", jobConf.toJsonStr());
+        LOGGER.info("init postgreSQL reader with jobConf {}", jobConf.toJsonStr());
         userName = jobConf.get(JOB_POSTGRESQL_USER);
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
@@ -140,15 +140,15 @@ public class PostgreSQLReader extends AbstractReader {
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
                 tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
-        postgreSqlMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
+        postgreSQLMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         finished = false;
 
         offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
         specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
-        postgreSqlSnapshot = new PostgreSQLSnapshotBase(offsetStoreFileName);
-        postgreSqlSnapshot.save(offset);
+        postgreSQLSnapshot = new PostgreSQLSnapshotBase(offsetStoreFileName);
+        postgreSQLSnapshot.save(offset);
 
         Properties props = getEngineProps();
 
@@ -160,7 +160,7 @@ public class PostgreSQLReader extends AbstractReader {
                         for (ChangeEvent<String, String> record:records) {
                             DebeziumFormat debeziumFormat = GSON
                                     .fromJson(record.value(), DebeziumFormat.class);
-                            postgreSqlMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
+                            postgreSQLMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
@@ -174,7 +174,7 @@ public class PostgreSQLReader extends AbstractReader {
                 })
                 .using((success, message, error) -> {
                     if (!success) {
-                        LOGGER.error("postgreslog job with jobConf {} has error {}",
+                        LOGGER.error("postgreSQLlog job with jobConf {} has error {}",
                                 jobConf.getInstanceId(), message, error);
                     }
                 }).build();
@@ -228,7 +228,7 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
         props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
 
-        LOGGER.info("postgreslog job {} start with props {}", jobProfile.getInstanceId(), props);
+        LOGGER.info("postgreSQLlog job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
     }
 
@@ -259,7 +259,7 @@ public class PostgreSQLReader extends AbstractReader {
         synchronized (this) {
             if (!destroyed) {
                 executor.shutdownNow();
-                postgreSqlSnapshot.close();
+                postgreSQLSnapshot.close();
                 destroyed = true;
             }
         }
@@ -287,8 +287,8 @@ public class PostgreSQLReader extends AbstractReader {
 
     @Override
     public String getSnapshot() {
-        if (postgreSqlSnapshot != null) {
-            return postgreSqlSnapshot.getSnapshot();
+        if (postgreSQLSnapshot != null) {
+            return postgreSQLSnapshot.getSnapshot();
         }
         return "";
     }
