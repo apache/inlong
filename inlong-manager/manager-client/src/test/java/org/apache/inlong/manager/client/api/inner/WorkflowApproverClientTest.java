@@ -64,7 +64,6 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
         Assertions.assertEquals(11, workflowApproverId);
     }
 
-
     @Test
     void testListByCondition() {
         stubFor(
