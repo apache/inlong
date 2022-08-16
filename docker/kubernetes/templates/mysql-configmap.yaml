@@ -28,6 +28,5 @@ data:
   custom.cnf: |-
     [mysqld]
     default_authentication_plugin=mysql_native_password
-    lc-messages-dir=/usr/share/mysql/
 {{- end }}
 {{- end }}
