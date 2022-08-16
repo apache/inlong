@@ -21,12 +21,12 @@ import java.util.Collection;
 import java.util.Set;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
-public abstract class InLongTopicManager implements Cleanable {
+public abstract class InlongTopicManager implements Cleanable {
 
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
 
-    public InLongTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
+    public InlongTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         this.context = context;
         this.queryConsumeConfig = queryConsumeConfig;
     }
@@ -41,7 +41,7 @@ public abstract class InLongTopicManager implements Cleanable {
 
     public abstract Set<String> getManagedInLongTopics();
 
-    public abstract void offlineAllTp();
+    public abstract void offlineAllTopicsAndPartitions();
 
     public abstract void close();
 
