@@ -2384,6 +2384,14 @@ https://github.com/airlift/airlift/blob/master/LICENSE
 
 ========================================================================
 
+flink-connector-redis
+Copyright 2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+========================================================================
+
 Jetty :: Apache JSP Implementation NOTICE
 ------------------------------------------------------
 Apache Calcite Avatica (Shaded) NOTICE
