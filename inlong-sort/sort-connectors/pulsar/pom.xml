@@ -34,6 +34,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.streamnative.connectors</groupId>
             <artifactId>pulsar-flink-connector-origin</artifactId>
         </dependency>
