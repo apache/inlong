@@ -27,6 +27,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Test for {@link DorisExtractNode}
+ */
 public class DorisExtractNodeTest extends SerializeBaseTest<DorisExtractNode> {
     @Override
     public DorisExtractNode getTestObject() {
