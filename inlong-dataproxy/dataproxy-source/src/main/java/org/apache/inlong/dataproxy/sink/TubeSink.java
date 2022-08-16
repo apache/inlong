@@ -19,7 +19,6 @@ package org.apache.inlong.dataproxy.sink;
 
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.STAT_INTERVAL_SEC;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -139,7 +138,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 usedMasterAddr, configManager.getMqClusterConfig());
         // get statistic configure items
         maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
-        statIntervalSec = context.getInteger(STAT_INTERVAL_SEC, 60);
+        statIntervalSec = tubeConfig.getStatIntervalSec();
         Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
         // initial TubeMQ configure
         //     initial resend queue size
