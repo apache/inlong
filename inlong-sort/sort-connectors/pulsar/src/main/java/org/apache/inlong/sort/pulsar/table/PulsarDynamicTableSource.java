@@ -55,6 +55,7 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.pulsar.tdmq.FlinkTDMQSource;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
@@ -160,7 +161,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             List<String> topics,
             String topicPattern,
             String serviceUrl,
-            String adminUrl,
+            @Nullable String adminUrl,
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
@@ -233,35 +234,61 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 valueDeserialization,
                 producedTypeInfo);
         final ClientConfigurationData clientConfigurationData = PulsarClientUtils.newClientConf(serviceUrl, properties);
-        FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
-                adminUrl,
-                clientConfigurationData,
-                deserializationSchema,
-                properties
-        );
+        if (adminUrl != null) {
+            FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
+                    adminUrl,
+                    clientConfigurationData,
+                    deserializationSchema,
+                    properties
+            );
 
-        if (watermarkStrategy != null) {
-            source.assignTimestampsAndWatermarks(watermarkStrategy);
-        }
+            if (watermarkStrategy != null) {
+                source.assignTimestampsAndWatermarks(watermarkStrategy);
+            }
 
-        switch (startupOptions.startupMode) {
-            case EARLIEST:
-                source.setStartFromEarliest();
-                break;
-            case LATEST:
-                source.setStartFromLatest();
-                break;
-            case SPECIFIC_OFFSETS:
-                source.setStartFromSpecificOffsets(startupOptions.specificOffsets);
-                break;
-            case EXTERNAL_SUBSCRIPTION:
-                MessageId subscriptionPosition = MessageId.latest;
-                if (CONNECTOR_STARTUP_MODE_VALUE_EARLIEST.equals(startupOptions.externalSubStartOffset)) {
-                    subscriptionPosition = MessageId.earliest;
-                }
-                source.setStartFromSubscription(startupOptions.externalSubscriptionName, subscriptionPosition);
+            switch (startupOptions.startupMode) {
+                case EARLIEST:
+                    source.setStartFromEarliest();
+                    break;
+                case LATEST:
+                    source.setStartFromLatest();
+                    break;
+                case SPECIFIC_OFFSETS:
+                    source.setStartFromSpecificOffsets(startupOptions.specificOffsets);
+                    break;
+                case EXTERNAL_SUBSCRIPTION:
+                    MessageId subscriptionPosition = MessageId.latest;
+                    if (CONNECTOR_STARTUP_MODE_VALUE_EARLIEST.equals(startupOptions.externalSubStartOffset)) {
+                        subscriptionPosition = MessageId.earliest;
+                    }
+                    source.setStartFromSubscription(startupOptions.externalSubscriptionName, subscriptionPosition);
+            }
+            return SourceFunctionProvider.of(source, false);
+        } else {
+            FlinkTDMQSource<RowData> source = new FlinkTDMQSource<>(
+                    serviceUrl,
+                    clientConfigurationData,
+                    deserializationSchema,
+                    properties
+            );
+
+            if (watermarkStrategy != null) {
+                source.assignTimestampsAndWatermarks(watermarkStrategy);
+            }
+
+            switch (startupOptions.startupMode) {
+                case EARLIEST:
+                    source.setStartFromEarliest();
+                    break;
+                case LATEST:
+                    source.setStartFromLatest();
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown startup mode option for tdmq: " + startupOptions.startupMode);
+            }
+            return SourceFunctionProvider.of(source, false);
         }
-        return SourceFunctionProvider.of(source, false);
     }
 
     private PulsarDeserializationSchema<RowData> createPulsarDeserialization(

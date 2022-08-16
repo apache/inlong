@@ -1,22 +1,4 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements. See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- */
-
-/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,12 +14,12 @@
 
 package org.apache.inlong.sort.pulsar.tdmq;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
+import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.OperatorStateStore;
@@ -50,7 +32,6 @@ import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.api.java.typeutils.runtime.TupleSerializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
-import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.shaded.guava18.com.google.common.collect.Sets;
@@ -63,10 +44,6 @@ import org.apache.flink.streaming.connectors.pulsar.config.StartupMode;
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.MessageIdSerializer;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarClientUtils;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarCommitCallback;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarFetcher;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarSourceStateSerializer;
 import org.apache.flink.streaming.connectors.pulsar.internal.SerializableRange;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceSinkUtils;
@@ -84,6 +61,8 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.Maps;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,7 +82,6 @@ import java.util.stream.Collectors;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_FAILED_METRICS_COUNTER;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_SUCCEEDED_METRICS_COUNTER;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.PULSAR_SOURCE_METRICS_GROUP;
-import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
@@ -113,12 +91,12 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *
  * @param <T> The type of records produced by this data source.
  */
-@Slf4j
 public class FlinkTDMQSource<T>
         extends RichParallelSourceFunction<T>
         implements ResultTypeQueryable<T>,
         CheckpointListener,
         CheckpointedFunction {
+    private static final Logger log = LoggerFactory.getLogger(FlinkTDMQSource.class);
 
     /** The maximum number of pending non-committed checkpoints to track, to avoid memory leaks. */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
@@ -135,7 +113,7 @@ public class FlinkTDMQSource<T>
     //  configuration state, set on the client relevant for all subtasks
     // ------------------------------------------------------------------------
 
-    protected String adminUrl;
+    protected String serverUrl;
 
     protected ClientConfigurationData clientConfigurationData;
 
@@ -163,9 +141,6 @@ public class FlinkTDMQSource<T>
 
     /** The startup mode for the reader (default is {@link StartupMode#LATEST}). */
     private StartupMode startupMode = StartupMode.LATEST;
-
-    /** Specific startup offsets; only relevant when startup mode is {@link StartupMode#SPECIFIC_OFFSETS}. */
-    private transient Map<TopicRange, MessageId> specificStartupOffsets;
 
     /**
      * The subscription name to be used; only relevant when startup mode is {@link StartupMode#EXTERNAL_SUBSCRIPTION}
@@ -196,10 +171,10 @@ public class FlinkTDMQSource<T>
     private final LinkedHashMap<Long, Map<TopicRange, MessageId>> pendingOffsetsToCommit = new LinkedHashMap<>();
 
     /** Fetcher implements Pulsar reads. */
-    private transient volatile PulsarFetcher<T> pulsarFetcher;
+    private transient volatile TDMQFetcher<T> tdmqFetcher;
 
     /** The partition discoverer, used to find new partitions. */
-    protected transient volatile PulsarMetadataReader metadataReader;
+    protected transient volatile TDMQMetadataReader metadataReader;
 
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
@@ -240,19 +215,16 @@ public class FlinkTDMQSource<T>
     /** Counter for failed Pulsar offset commits. */
     private transient Counter failedCommits;
 
-    /** Callback interface that will be invoked upon async pulsar commit completion. */
-    private transient PulsarCommitCallback offsetCommitCallback;
-
     private transient int taskIndex;
 
     private transient int numParallelTasks;
 
     public FlinkTDMQSource(
-            String adminUrl,
+            String serverUrl,
             ClientConfigurationData clientConf,
             PulsarDeserializationSchema<T> deserializer,
             Properties properties) {
-        this.adminUrl = checkNotNull(adminUrl);
+        this.serverUrl = checkNotNull(serverUrl);
         this.clientConfigurationData = checkNotNull(clientConf);
         this.deserializer = deserializer;
         this.properties = properties;
@@ -279,18 +251,9 @@ public class FlinkTDMQSource<T>
 
     public FlinkTDMQSource(
             String serviceUrl,
-            String adminUrl,
-            PulsarDeserializationSchema<T> deserializer,
-            Properties properties) {
-        this(adminUrl, PulsarClientUtils.newClientConf(checkNotNull(serviceUrl), properties), deserializer, properties);
-    }
-
-    public FlinkTDMQSource(
-            String serviceUrl,
-            String adminUrl,
             DeserializationSchema<T> deserializer,
             Properties properties) {
-        this(adminUrl, PulsarClientUtils.newClientConf(checkNotNull(serviceUrl), properties),
+        this(serviceUrl, PulsarClientUtils.newClientConf(checkNotNull(serviceUrl), properties),
                 PulsarDeserializationSchema.valueOnly(deserializer), properties);
     }
 
@@ -344,7 +307,7 @@ public class FlinkTDMQSource<T>
      * watermarks will be merged across partitions in the same way as in the Flink runtime,
      * when streams are merged.
      *
-     * <p>When a subtask of a FlinkPulsarSource source reads multiple Pulsar partitions,
+     * <p>When a subtask of a FlinkTDMQSource source reads multiple Pulsar partitions,
      * the streams from the partitions are unioned in a "first come first serve" fashion.
      * Per-partition characteristics are usually lost that way.
      * For example, if the timestamps are strictly ascending per Pulsar partition,
@@ -386,7 +349,7 @@ public class FlinkTDMQSource<T>
      * (which you can do by using this method), per Pulsar partition, allows users to let them
      * exploit the per-partition characteristics.
      *
-     * <p>When a subtask of a FlinkPulsarSource reads multiple pulsar partitions,
+     * <p>When a subtask of a FlinkTDMQSource reads multiple pulsar partitions,
      * the streams from the partitions are unioned in a "first come first serve" fashion.
      * Per-partition characteristics are usually lost that way. For example, if the timestamps are
      * strictly ascending per Pulsar partition, they will not be strictly ascending in the resulting
@@ -413,26 +376,11 @@ public class FlinkTDMQSource<T>
 
     public FlinkTDMQSource<T> setStartFromEarliest() {
         this.startupMode = StartupMode.EARLIEST;
-        this.specificStartupOffsets = null;
         return this;
     }
 
     public FlinkTDMQSource<T> setStartFromLatest() {
         this.startupMode = StartupMode.LATEST;
-        this.specificStartupOffsets = null;
-        return this;
-    }
-
-    public FlinkTDMQSource<T> setStartFromSpecificOffsets(Map<String, MessageId> specificStartupOffsets) {
-        checkNotNull(specificStartupOffsets);
-        this.specificStartupOffsets = specificStartupOffsets.entrySet()
-                .stream()
-                .collect(Collectors.toMap(e -> new TopicRange(e.getKey()), Map.Entry::getValue));
-        this.startupMode = StartupMode.SPECIFIC_OFFSETS;
-        this.specificStartupOffsetsAsBytes = new HashMap<>();
-        for (Map.Entry<TopicRange, MessageId> entry : this.specificStartupOffsets.entrySet()) {
-            specificStartupOffsetsAsBytes.put(entry.getKey(), entry.getValue().toByteArray());
-        }
         return this;
     }
 
@@ -473,14 +421,7 @@ public class FlinkTDMQSource<T>
         excludeStartMessageIds = new HashSet<>();
         Set<TopicRange> allTopics = metadataReader.discoverTopicChanges();
 
-        if (specificStartupOffsets == null && specificStartupOffsetsAsBytes != null) {
-            specificStartupOffsets = new HashMap<>();
-            for (Map.Entry<TopicRange, byte[]> entry : specificStartupOffsetsAsBytes.entrySet()) {
-                specificStartupOffsets.put(entry.getKey(), MessageId.fromByteArray(entry.getValue()));
-            }
-        }
-        Map<TopicRange, MessageId> allTopicOffsets =
-                offsetForEachTopic(allTopics, startupMode, specificStartupOffsets);
+        Map<TopicRange, MessageId> allTopicOffsets = offsetForEachTopic(allTopics, startupMode);
 
         boolean usingRestoredState = (startupMode != StartupMode.EXTERNAL_SUBSCRIPTION) || stateSubEqualexternalSub;
 
@@ -521,8 +462,8 @@ public class FlinkTDMQSource<T>
                             .collect(Collectors.toSet());
 
             for (TopicRange goneTopic : goneTopics) {
-                log.warn(goneTopic + " is removed from subscription since " +
-                        "it no longer matches with topics settings.");
+                log.warn(goneTopic + " is removed from subscription since "
+                        + "it no longer matches with topics settings.");
                 ownedTopicStarts.remove(goneTopic);
             }
 
@@ -550,9 +491,9 @@ public class FlinkTDMQSource<T>
         }
     }
 
-    protected PulsarMetadataReader createMetadataReader() throws PulsarClientException {
-        return new PulsarMetadataReader(
-                adminUrl,
+    protected TDMQMetadataReader createMetadataReader() throws PulsarClientException {
+        return new TDMQMetadataReader(
+                serverUrl,
                 clientConfigurationData,
                 getSubscriptionName(),
                 caseInsensitiveParams,
@@ -572,19 +513,6 @@ public class FlinkTDMQSource<T>
         this.failedCommits =
                 this.getRuntimeContext().getMetricGroup().counter(COMMITS_FAILED_METRICS_COUNTER);
 
-        this.offsetCommitCallback = new PulsarCommitCallback() {
-            @Override
-            public void onSuccess() {
-                successfulCommits.inc();
-            }
-
-            @Override
-            public void onException(Throwable cause) {
-                log.warn("source {} failed commit by {}", taskIndex, cause.toString());
-                failedCommits.inc();
-            }
-        };
-
         if (ownedTopicStarts.isEmpty()) {
             ctx.markAsTemporarilyIdle();
         }
@@ -601,7 +529,7 @@ public class FlinkTDMQSource<T>
 
         StreamingRuntimeContext streamingRuntime = (StreamingRuntimeContext) getRuntimeContext();
 
-        this.pulsarFetcher = createFetcher(
+        this.tdmqFetcher = createFetcher(
                 ctx,
                 ownedTopicStarts,
                 watermarkStrategy,
@@ -617,26 +545,26 @@ public class FlinkTDMQSource<T>
         }
 
         if (discoveryIntervalMillis < 0) {
-            pulsarFetcher.runFetchLoop();
+            tdmqFetcher.runFetchLoop();
         } else {
             runWithTopicsDiscovery();
         }
     }
 
-    protected PulsarFetcher<T> createFetcher(
-        SourceContext<T> sourceContext,
-        Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
-        SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
-        ProcessingTimeService processingTimeProvider,
-        long autoWatermarkInterval,
-        ClassLoader userCodeClassLoader,
-        StreamingRuntimeContext streamingRuntime,
-        boolean useMetrics,
-        Set<TopicRange> excludeStartMessageIds) throws Exception {
+    protected TDMQFetcher<T> createFetcher(
+            SourceContext<T> sourceContext,
+            Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
+            SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
+            ProcessingTimeService processingTimeProvider,
+            long autoWatermarkInterval,
+            ClassLoader userCodeClassLoader,
+            StreamingRuntimeContext streamingRuntime,
+            boolean useMetrics,
+            Set<TopicRange> excludeStartMessageIds) throws Exception {
 
         //readerConf.putIfAbsent(PulsarOptions.SUBSCRIPTION_ROLE_OPTION_KEY, getSubscriptionName());
 
-        return new PulsarFetcher<>(
+        return new TDMQFetcher<>(
                 sourceContext,
                 seedTopicsWithInitialOffsets,
                 excludeStartMessageIds,
@@ -666,7 +594,7 @@ public class FlinkTDMQSource<T>
         AtomicReference<Exception> discoveryLoopErrorRef = new AtomicReference<>();
         createAndStartDiscoveryLoop(discoveryLoopErrorRef);
 
-        pulsarFetcher.runFetchLoop();
+        tdmqFetcher.runFetchLoop();
 
         joinDiscoveryLoopThread();
 
@@ -684,14 +612,14 @@ public class FlinkTDMQSource<T>
                             Set<TopicRange> added = metadataReader.discoverTopicChanges();
 
                             if (running && !added.isEmpty()) {
-                                pulsarFetcher.addDiscoveredTopics(added);
+                                tdmqFetcher.addDiscoveredTopics(added);
                             }
 
                             if (running && discoveryIntervalMillis != -1) {
                                 Thread.sleep(discoveryIntervalMillis);
                             }
                         }
-                    } catch (PulsarMetadataReader.ClosedException e) {
+                    } catch (TDMQMetadataReader.ClosedException e) {
                         // break out while and do nothing
                     } catch (InterruptedException e) {
                         // break out while and do nothing
@@ -743,9 +671,9 @@ public class FlinkTDMQSource<T>
             discoveryLoopThread.interrupt();
         }
 
-        if (pulsarFetcher != null) {
+        if (tdmqFetcher != null) {
             try {
-                pulsarFetcher.cancel();
+                tdmqFetcher.cancel();
             } catch (Exception e) {
                 log.error("Failed to cancel the Pulsar Fetcher {}", ExceptionUtils.stringifyException(e));
                 throw new RuntimeException(e);
@@ -879,7 +807,7 @@ public class FlinkTDMQSource<T>
         } else {
             unionOffsetStates.clear();
 
-            PulsarFetcher<T> fetcher = this.pulsarFetcher;
+            TDMQFetcher<T> fetcher = this.tdmqFetcher;
 
             if (fetcher == null) {
                 // the fetcher has not yet been initialized, which means we need to return the
@@ -923,7 +851,7 @@ public class FlinkTDMQSource<T>
             return;
         }
 
-        PulsarFetcher<T> fetcher = this.pulsarFetcher;
+        TDMQFetcher<T> fetcher = this.tdmqFetcher;
 
         if (fetcher == null) {
             log.info("notifyCheckpointComplete() called on uninitialized source");
@@ -956,7 +884,7 @@ public class FlinkTDMQSource<T>
                 log.debug("Source {} has empty checkpoint state", taskIndex);
                 return;
             }
-            fetcher.commitOffsetToPulsar(offset, offsetCommitCallback);
+            fetcher.commitOffsetToState(offset);
         } catch (Exception e) {
             if (running) {
                 throw e;
@@ -971,8 +899,7 @@ public class FlinkTDMQSource<T>
 
     public Map<TopicRange, MessageId> offsetForEachTopic(
             Set<TopicRange> topics,
-            StartupMode mode,
-            Map<TopicRange, MessageId> specificStartupOffsets) {
+            StartupMode mode) {
 
         switch (mode) {
             case LATEST:
@@ -981,33 +908,10 @@ public class FlinkTDMQSource<T>
             case EARLIEST:
                 return topics.stream()
                         .collect(Collectors.toMap(k -> k, k -> MessageId.earliest));
-            case SPECIFIC_OFFSETS:
-                checkArgument(topics.containsAll(specificStartupOffsets.keySet()),
-                        String.format(
-                                "Topics designated in startingOffsets should appear in %s, topics:" +
-                                        "%s, topics in offsets: %s",
-                                StringUtils.join(PulsarOptions.TOPIC_OPTION_KEYS),
-                                StringUtils.join(topics.toArray()),
-                                StringUtils.join(specificStartupOffsets.entrySet().toArray())));
-
-                Map<TopicRange, MessageId> specificOffsets = new HashMap<>();
-                for (TopicRange topic : topics) {
-                    if (specificStartupOffsets.containsKey(topic)) {
-                        specificOffsets.put(topic, specificStartupOffsets.get(topic));
-                    } else {
-                        specificOffsets.put(topic, MessageId.latest);
-                    }
-                }
-                return specificOffsets;
-            case EXTERNAL_SUBSCRIPTION:
-                Map<TopicRange, MessageId> offsetsFromSubs = new HashMap<>();
-                for (TopicRange topic : topics) {
-                    offsetsFromSubs.put(topic, metadataReader.getPositionFromSubscription(topic,
-                            subscriptionPosition));
-                }
-                return offsetsFromSubs;
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown startup mode option: " + mode);
         }
-        return null;
     }
 
     public Map<Long, Map<TopicRange, MessageId>> getPendingOffsetsToCommit() {

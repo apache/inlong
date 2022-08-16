@@ -16,23 +16,8 @@
  *
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.inlong.sort.pulsar.tdmq;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
 import org.apache.flink.api.common.eventtime.WatermarkOutputMultiplexer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -43,8 +28,6 @@ import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.pulsar.internal.ClosableBlockingQueue;
 import org.apache.flink.streaming.connectors.pulsar.internal.ExceptionProxy;
 import org.apache.flink.streaming.connectors.pulsar.internal.PoisonState;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarCommitCallback;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicPartitionStateWithWatermarkGenerator;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicState;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceContextWatermarkOutputAdapter;
@@ -54,9 +37,12 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeCallback;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.flink.util.SerializedValue;
+
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -82,9 +68,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * @param <T> The type of elements deserialized from Pulsar messages, and emitted into
  *           the Flink data stream.
  */
-@Slf4j
 public class TDMQFetcher<T> {
-
+    private static final Logger log = LoggerFactory.getLogger(TDMQFetcher.class);
     private static final int NO_TIMESTAMPS_WATERMARKS = 0;
     private static final int WITH_WATERMARK_GENERATOR = 1;
 
@@ -136,10 +121,11 @@ public class TDMQFetcher<T> {
 
     private final int commitMaxRetries;
 
-    protected final PulsarMetadataReader metadataReader;
+    protected final TDMQMetadataReader metadataReader;
 
     /**
-     * Wrapper around our SourceContext for allowing the {@link org.apache.flink.api.common.eventtime.WatermarkGenerator}
+     * Wrapper around our SourceContext for allowing the
+     * {@link org.apache.flink.api.common.eventtime.WatermarkGenerator}
      * to emit watermarks and mark idleness.
      */
     protected final WatermarkOutput watermarkOutput;
@@ -160,6 +146,7 @@ public class TDMQFetcher<T> {
 
     private boolean useEarliestWhenDataLoss;
 
+    /** topic poison state */
     private PoisonState poisonState;
 
     // ------------------------------------------------------------------------
@@ -190,7 +177,7 @@ public class TDMQFetcher<T> {
             Map<String, Object> readerConf,
             int pollTimeoutMs,
             PulsarDeserializationSchema<T> deserializer,
-            PulsarMetadataReader metadataReader,
+            TDMQMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
             boolean useMetrics) throws Exception {
         this(
@@ -214,22 +201,22 @@ public class TDMQFetcher<T> {
     }
 
     public TDMQFetcher(
-        SourceContext<T> sourceContext,
-        Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
-        Set<TopicRange> excludeStartMessageIds,
-        SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
-        ProcessingTimeService processingTimeProvider,
-        long autoWatermarkInterval,
-        ClassLoader userCodeClassLoader,
-        StreamingRuntimeContext runtimeContext,
-        ClientConfigurationData clientConf,
-        Map<String, Object> readerConf,
-        int pollTimeoutMs,
-        int commitMaxRetries,
-        PulsarDeserializationSchema<T> deserializer,
-        PulsarMetadataReader metadataReader,
-        MetricGroup consumerMetricGroup,
-        boolean useMetrics) throws Exception {
+            SourceContext<T> sourceContext,
+            Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
+            Set<TopicRange> excludeStartMessageIds,
+            SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
+            ProcessingTimeService processingTimeProvider,
+            long autoWatermarkInterval,
+            ClassLoader userCodeClassLoader,
+            StreamingRuntimeContext runtimeContext,
+            ClientConfigurationData clientConf,
+            Map<String, Object> readerConf,
+            int pollTimeoutMs,
+            int commitMaxRetries,
+            PulsarDeserializationSchema<T> deserializer,
+            TDMQMetadataReader metadataReader,
+            MetricGroup consumerMetricGroup,
+            boolean useMetrics) throws Exception {
 
         this.sourceContext = sourceContext;
         this.watermarkOutput = new SourceContextWatermarkOutputAdapter<>(sourceContext);
@@ -271,7 +258,8 @@ public class TDMQFetcher<T> {
         // check that all seed partition states have a defined offset
         for (PulsarTopicState<T> state : subscribedPartitionStates) {
             if (!state.isOffsetDefined()) {
-                throw new IllegalArgumentException("The fetcher was assigned seed partitions with undefined initial offsets.");
+                throw new IllegalArgumentException(
+                        "The fetcher was assigned seed partitions with undefined initial offsets.");
             }
         }
 
@@ -432,63 +420,11 @@ public class TDMQFetcher<T> {
         // single the main thread to exit
         running = false;
 
-        Set<TopicRange> topics = subscribedPartitionStates.stream()
-                .map(PulsarTopicState::getTopicRange).collect(Collectors.toSet());
-
-        try {
-            metadataReader.removeCursor(topics);
-        } catch (PulsarMetadataReader.ClosedException e) {
-            // metadata reader has already close. Do nothing
-        } catch (Exception e) {
-            throw e;
-        }
-
         // make sure the main thread wakes up soon
         unassignedPartitionsQueue.addIfOpen(poisonState);
     }
 
-    public void commitOffsetToPulsar(
-            Map<TopicRange, MessageId> offset,
-            PulsarCommitCallback offsetCommitCallback) throws InterruptedException {
-
-        doCommitOffsetToPulsar(removeEarliestAndLatest(offset), offsetCommitCallback);
-    }
-
-    protected void doCommitOffsetToPulsar(
-            Map<TopicRange, MessageId> offset,
-            PulsarCommitCallback offsetCommitCallback) throws InterruptedException {
-
-        try {
-            int retries = 0;
-            boolean success = false;
-            while (running) {
-                try {
-                    metadataReader.commitOffsetToCursor(offset);
-                    success = true;
-                    break;
-                } catch (Exception e) {
-                    log.warn("Failed to commit cursor to Pulsar.", e);
-                    if (retries >= commitMaxRetries) {
-                        log.error("Failed to commit cursor to Pulsar after {} attempts", retries);
-                        throw e;
-                    }
-                    retries += 1;
-                    Thread.sleep(1000);
-                }
-            }
-            if (success) {
-                offsetCommitCallback.onSuccess();
-            } else {
-                return;
-            }
-        } catch (Exception e) {
-            if (running) {
-                offsetCommitCallback.onException(e);
-            } else {
-                return;
-            }
-        }
-
+    public void commitOffsetToState(Map<TopicRange, MessageId> offset) {
         for (PulsarTopicState state : subscribedPartitionStates) {
             MessageId off = offset.get(state.getTopicRange());
             if (off != null) {
@@ -549,14 +485,14 @@ public class TDMQFetcher<T> {
     public Map<TopicRange, TDMQReaderThread<T>> createAndStartReaderThread(
             List<PulsarTopicState<T>> states,
             ExceptionProxy exceptionProxy) {
-
-        Map<TopicRange, MessageId> startingOffsets = states.stream().collect(Collectors.toMap(PulsarTopicState::getTopicRange, PulsarTopicState::getOffset));
-        metadataReader.setupCursor(startingOffsets, failOnDataLoss);
         Map<TopicRange, TDMQReaderThread<T>> topic2Threads = new HashMap<>();
 
         for (PulsarTopicState state : states) {
             TDMQReaderThread<T> readerT = createReaderThread(exceptionProxy, state);
-            readerT.setName(String.format("Pulsar Reader for %s in task %s", state.getTopicRange(), runtimeContext.getTaskName()));
+            readerT.setName(String.format(
+                    "Pulsar Reader for %s in task %s",
+                    state.getTopicRange(),
+                    runtimeContext.getTaskName()));
             readerT.setDaemon(true);
             readerT.start();
             log.info("Starting Thread {}", readerT.getName());
@@ -666,8 +602,10 @@ public class TDMQFetcher<T> {
             MetricGroup topicPartitionGroup = consumerMetricGroup
                     .addGroup(OFFSETS_BY_TOPIC_METRICS_GROUP, pts.getTopicRange().getTopic());
 
-            topicPartitionGroup.gauge(CURRENT_OFFSETS_METRICS_GAUGE, new OffsetGauge(pts, OffsetGaugeType.CURRENT_OFFSET));
-            topicPartitionGroup.gauge(COMMITTED_OFFSETS_METRICS_GAUGE, new OffsetGauge(pts, OffsetGaugeType.COMMITTED_OFFSET));
+            topicPartitionGroup.gauge(
+                    CURRENT_OFFSETS_METRICS_GAUGE, new OffsetGauge(pts, OffsetGaugeType.CURRENT_OFFSET));
+            topicPartitionGroup.gauge(
+                    COMMITTED_OFFSETS_METRICS_GAUGE, new OffsetGauge(pts, OffsetGaugeType.COMMITTED_OFFSET));
         }
     }
 
@@ -766,7 +704,7 @@ public class TDMQFetcher<T> {
         }
     }
 
-    public PulsarMetadataReader getMetaDataReader() {
+    public TDMQMetadataReader getMetaDataReader() {
         return this.metadataReader;
     }
 }

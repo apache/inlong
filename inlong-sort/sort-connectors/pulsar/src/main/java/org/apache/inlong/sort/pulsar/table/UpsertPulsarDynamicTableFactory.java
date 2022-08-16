@@ -132,7 +132,6 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(ADMIN_URL);
         options.add(SERVICE_URL);
         options.add(TOPIC);
         options.add(KEY_FORMAT);
@@ -147,6 +146,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(ADMIN_URL);
         options.add(KEY_FIELDS_PREFIX);
         options.add(VALUE_FIELDS_INCLUDE);
         options.add(FactoryUtil.SINK_PARALLELISM);

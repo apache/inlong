@@ -303,13 +303,13 @@ public class PulsarDynamicTableFactory implements
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(SERVICE_URL);
-        options.add(ADMIN_URL);
         return options;
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(ADMIN_URL);
         options.add(FactoryUtil.FORMAT);
         options.add(KEY_FORMAT);
         options.add(KEY_FIELDS);

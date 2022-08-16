@@ -16,30 +16,13 @@
  *
  */
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.inlong.sort.pulsar.tdmq;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.ExceptionProxy;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicState;
 import org.apache.flink.streaming.connectors.pulsar.internal.TopicRange;
-import org.apache.flink.streaming.connectors.pulsar.util.MessageIdUtils;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
@@ -49,6 +32,8 @@ import org.apache.pulsar.client.api.ReaderBuilder;
 import org.apache.pulsar.client.impl.BatchMessageIdImpl;
 import org.apache.pulsar.client.impl.MessageIdImpl;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -61,9 +46,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> the record type that read from each Pulsar message.
  */
-@Slf4j
 public class TDMQReaderThread<T> extends Thread {
-
+    private static final Logger log = LoggerFactory.getLogger(TDMQReaderThread.class);
     protected final TDMQFetcher<T> owner;
     protected final PulsarTopicState<T> state;
     protected final ClientConfigurationData clientConf;
@@ -125,7 +109,6 @@ public class TDMQReaderThread<T> extends Thread {
         log.info("Starting to fetch from {} at {}, failOnDataLoss {}", topicRange, startMessageId, failOnDataLoss);
 
         try {
-            handleTooLargeCursor();
             createActualReader();
             log.info("Starting to read {} with reader thread {}", topicRange, getName());
 
@@ -156,39 +139,14 @@ public class TDMQReaderThread<T> extends Thread {
                 .loadConf(readerConf);
         log.info("Create a reader at topic {} starting from message {} (inclusive) : config = {}",
                 topicRange, startMessageId, readerConf);
-        if (!excludeMessageId){
+        if (!excludeMessageId) {
             readerBuilder.startMessageIdInclusive();
         }
         if (!topicRange.isFullRange()) {
-             readerBuilder.keyHashRange(topicRange.getPulsarRange());
+            readerBuilder.keyHashRange(topicRange.getPulsarRange());
         }
 
         reader = readerBuilder.create();
-    }
-
-    protected void handleTooLargeCursor() {
-        if (startMessageId.equals(MessageId.earliest) || startMessageId.equals(MessageId.latest)
-            || ((MessageIdImpl) startMessageId).getEntryId() == -1) {
-            return;
-        }
-
-        MessageId lastMessageId = this.owner.getMetaDataReader().getLastMessageId(topicRange.getTopic());
-        if (MessageIdUtils.prev(startMessageId).compareTo(lastMessageId) <= 0) {
-            return;
-        }
-        // Because the topic has processed all the messages,
-        // this will make the messageId to be read greater than the lastMessageId.
-        // startMessageId is bigger than lastMessageId + 1
-        if (this.failOnDataLoss) {
-            log.error("the start message id is beyond the last commit message id, with topic:{}", this.topicRange);
-            throw new RuntimeException("start message id beyond the last commit");
-        } else if (useEarliestWhenDataLoss) {
-            log.info("reset message to earliest");
-            startMessageId = MessageId.earliest;
-        } else {
-            log.info("reset message to valid offset {}", lastMessageId);
-            startMessageId = lastMessageId;
-        }
     }
 
     protected void emitRecord(Message<T> message) throws IOException {
@@ -255,7 +213,10 @@ public class TDMQReaderThread<T> extends Thread {
             return l.equals(r);
         } else {
             throw new IllegalStateException(
-                    String.format("comparing messageIds of type %s, %s", l.getClass().toString(), r.getClass().toString()));
+                    String.format(
+                            "comparing messageIds of type %s, %s",
+                            l.getClass().toString(),
+                            r.getClass().toString()));
         }
     }
 }
