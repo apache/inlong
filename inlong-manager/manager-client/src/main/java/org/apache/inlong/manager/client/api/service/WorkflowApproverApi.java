@@ -26,6 +26,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.Map;
 
@@ -38,7 +39,7 @@ public interface WorkflowApproverApi {
     Call<Response<ApproverResponse>> get(@Path("id") Integer id);
 
     @GET("workflow/approver/list")
-    Call<Response<PageInfo<ApproverResponse>>> listByCondition(Map<String, Object> map);
+    Call<Response<PageInfo<ApproverResponse>>> listByCondition(@Query("map") Map<String, Object> map);
 
     @POST("workflow/approver/update")
     Call<Response<Integer>> update(@Body ApproverRequest request);
