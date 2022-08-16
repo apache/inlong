@@ -85,4 +85,3 @@ public class HudiExtractNode extends ExtractNode implements Serializable {
         return super.getPartitionFields();
     }
 }
-

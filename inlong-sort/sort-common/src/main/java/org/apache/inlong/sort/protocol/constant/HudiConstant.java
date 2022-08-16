@@ -23,7 +23,7 @@ package org.apache.inlong.sort.protocol.constant;
  */
 public class HudiConstant {
     /**
-     * Iceberg supported catalog type
+     * Hudi supported table type
      */
     public enum TableType {
         /**
@@ -34,7 +34,6 @@ public class HudiConstant {
          * creates a COPY_ON_WRITE table(default).
          */
         COPY_ON_WRITE;
-
 
         /**
          * get TableType from name

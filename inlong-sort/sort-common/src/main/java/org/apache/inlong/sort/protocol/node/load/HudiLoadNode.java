@@ -98,4 +98,3 @@ public class HudiLoadNode extends LoadNode implements Serializable {
         return super.getPartitionFields();
     }
 }
-
