@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
+import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
@@ -42,6 +43,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -85,6 +87,11 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -121,6 +128,7 @@ class ClientFactoryTest {
     private static InlongClusterClient clusterClient;
     private static DataNodeClient dataNodeClient;
     private static UserClient userClient;
+    private static WorkflowClient workflowClient;
 
     @BeforeAll
     static void setup() {
@@ -142,6 +150,7 @@ class ClientFactoryTest {
         clusterClient = clientFactory.getClusterClient();
         dataNodeClient = clientFactory.getDataNodeClient();
         userClient = clientFactory.getUserClient();
+        workflowClient = clientFactory.getWorkflowClient();
     }
 
     @AfterAll
@@ -1117,5 +1126,58 @@ class ClientFactoryTest {
         );
         Boolean isDelete = userClient.delete(1);
         Assertions.assertTrue(isDelete);
+    }
+
+    @Test
+    void testWorkflowStart() {
+        WorkflowResult workflowResult = WorkflowResult.builder()
+                .processInfo(ProcessResponse.builder()
+                        .id(1)
+                        .name(ProcessName.APPLY_GROUP_PROCESS.getDisplayName())
+                        .applicant("test_user").build())
+                .build();
+
+        stubFor(
+                post(urlMatching("/inlong/manager/api/workflow/start.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(workflowResult))
+                                )
+                        )
+        );
+        WorkflowOperationRequest request = new WorkflowOperationRequest();
+        request.setName(ProcessName.APPLY_GROUP_PROCESS);
+        request.setApplicant("test_user");
+        ApplyGroupProcessForm form = new ApplyGroupProcessForm();
+        form.setGroupInfo(new InlongPulsarInfo());
+        request.setForm(form);
+
+        WorkflowResult workflowInfo = workflowClient.start(request);
+        Assertions.assertEquals(workflowInfo.getProcessInfo().getName(), request.getName().getDisplayName());
+        Assertions.assertEquals(workflowInfo.getProcessInfo().getApplicant(), request.getApplicant());
+    }
+
+    @Test
+    void testListProcess() {
+        List<ProcessResponse> responses = Lists.newArrayList(
+                ProcessResponse.builder()
+                        .id(1)
+                        .name("test_process")
+                        .build()
+        );
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/workflow/listProcess.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(new PageInfo<>(responses)))
+                                )
+                        )
+        );
+
+        ProcessRequest request = new ProcessRequest();
+        request.setId(1);
+        PageInfo<ProcessResponse> pageInfo = workflowClient.listProcess(request);
+        Assertions.assertEquals(JsonUtils.toJsonString(pageInfo.getList()),JsonUtils.toJsonString(responses));
     }
 }

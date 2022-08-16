@@ -19,8 +19,14 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -37,8 +43,29 @@ public interface WorkflowApi {
     @POST("workflow/approve/{taskId}")
     Call<Response<WorkflowResult>> startInlongGroup(@Path("taskId") Integer taskId, @Body Map<String, Object> request);
 
-    @GET("workflow/event/list")
-    Call<Response<PageInfo<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
-            @Query("status") Integer status);
+    @POST("workflow/start")
+    Call<Response<WorkflowResult>> start(@Body WorkflowOperationRequest request);
+
+    @POST("workflow/cancel/{taskId}")
+    Call<Response<WorkflowResult>> cancel(@Path("processId") Integer processId, @Body WorkflowOperationRequest request);
+
+    @POST("workflow/continue/{taskId}")
+    Call<Response<WorkflowResult>> continueProcess(@Path("processId") Integer processId,
+            @Body WorkflowOperationRequest request);
+
+    @POST("workflow/reject/{taskId}")
+    Call<Response<WorkflowResult>> reject(@Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
+
+    @POST("workflow/complete/{taskId}")
+    Call<Response<WorkflowResult>> complete(@Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
+
+    @GET("workflow/detail/{id}")
+    Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
+
+    @GET("workflow/listProcess")
+    Call<Response<PageInfo<ProcessResponse>>> listProcess(@Query("query") ProcessRequest query);
+
+    @GetMapping("workflow/listTask")
+    Call<Response<PageInfo<TaskResponse>>> listTask(@Query("query") TaskRequest query);
 
 }
