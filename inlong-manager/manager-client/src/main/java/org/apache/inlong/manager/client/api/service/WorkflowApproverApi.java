@@ -46,5 +46,4 @@ public interface WorkflowApproverApi {
     @POST("workflow/approver/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-
 }
