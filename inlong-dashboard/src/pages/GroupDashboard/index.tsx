@@ -114,7 +114,7 @@ const Comp: React.FC = () => {
         <Card>
           <HighTable
             suffix={
-              <Button type="primary" onClick={() => history.push('/access/create')}>
+              <Button type="primary" onClick={() => history.push('/group/create')}>
                 {t('pages.GroupDashboard.Create')}
               </Button>
             }

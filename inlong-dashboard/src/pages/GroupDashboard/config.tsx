@@ -67,11 +67,11 @@ export const getFilterFormContent = defaultValues =>
   );
 
 export const getColumns = ({ onDelete, openModal }) => {
-  const genCreateUrl = record => `/access/create/${record.inlongGroupId}`;
+  const genCreateUrl = record => `/group/create/${record.inlongGroupId}`;
   const genDetailUrl = record =>
     [0, 100].includes(record.status)
       ? genCreateUrl(record)
-      : `/access/detail/${record.inlongGroupId}`;
+      : `/group/detail/${record.inlongGroupId}`;
 
   return groupTable
     .map(item => {

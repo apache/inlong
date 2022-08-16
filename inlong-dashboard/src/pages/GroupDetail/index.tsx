@@ -46,7 +46,7 @@ const Comp: React.FC = () => {
   const childRef = useRef(null);
   const [mqType, setMqType] = useState();
 
-  const [isCreate] = useState(location.pathname.indexOf('/access/create') === 0);
+  const [isCreate] = useState(location.pathname.indexOf('/group/create') === 0);
 
   useEffect(() => {
     if (!hasOpened(current)) addOpened(current);
@@ -104,7 +104,7 @@ const Comp: React.FC = () => {
         setId(result.inlongGroupId);
       }
       history.push({
-        pathname: `/access/create/${result?.inlongGroupId || id}`,
+        pathname: `/group/create/${result?.inlongGroupId || id}`,
         search: `?step=${current + 1}`,
       });
     } finally {
@@ -118,7 +118,7 @@ const Comp: React.FC = () => {
       method: 'POST',
     });
     message.success(t('pages.GroupDetail.Info.SubmittedSuccessfully'));
-    history.push('/access');
+    history.push('/group');
   };
 
   const Footer = () => (
@@ -154,7 +154,7 @@ const Comp: React.FC = () => {
           {t('pages.GroupDetail.Info.Submit')}
         </Button>
       )}
-      <Button onClick={() => history.push('/access')}>{t('pages.GroupDetail.Info.Back')}</Button>
+      <Button onClick={() => history.push('/group')}>{t('pages.GroupDetail.Info.Back')}</Button>
     </Space>
   );
 

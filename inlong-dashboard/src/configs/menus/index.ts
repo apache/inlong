@@ -28,7 +28,7 @@ export interface MenuItemType {
 
 const menus: MenuItemType[] = [
   {
-    path: '/access',
+    path: '/group',
     name: i18n.t('configs.menus.Groups'),
   },
   {
