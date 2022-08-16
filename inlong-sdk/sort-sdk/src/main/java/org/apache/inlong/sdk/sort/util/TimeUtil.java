@@ -18,7 +18,7 @@
 
 package org.apache.inlong.sdk.sort.util;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +35,8 @@ public class TimeUtil {
     private static final long DEFAULT_START_TIME = -1L;
     private static final long DEFAULT_STOP_TIME = Long.MAX_VALUE;
 
-    public static long parseStartTime(InLongTopic inLongTopic) {
-        return Optional.ofNullable(inLongTopic.getProperties().get(KEY_SDK_START_TIME))
+    public static long parseStartTime(InlongTopic inlongTopic) {
+        return Optional.ofNullable(inlongTopic.getProperties().get(KEY_SDK_START_TIME))
                 .map(s -> {
                     try {
                         LocalDateTime time = LocalDateTime.parse(s.toString(), DATE_FORMAT);
@@ -49,8 +49,8 @@ public class TimeUtil {
                 .orElse(DEFAULT_START_TIME);
     }
 
-    public static long parseStopTime(InLongTopic inLongTopic) {
-        return Optional.ofNullable(inLongTopic.getProperties().get(KEY_SDK_STOP_TIME))
+    public static long parseStopTime(InlongTopic inlongTopic) {
+        return Optional.ofNullable(inlongTopic.getProperties().get(KEY_SDK_STOP_TIME))
                 .map(s -> {
                     try {
                         LocalDateTime time = LocalDateTime.parse(s.toString(), DATE_FORMAT);

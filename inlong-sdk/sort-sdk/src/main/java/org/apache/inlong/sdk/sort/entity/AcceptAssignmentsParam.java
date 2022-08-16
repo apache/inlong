@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.sort.entity;
 
 public class AcceptAssignmentsParam {
 
-    public final InLongTopic inLongTopic;
+    public final InlongTopic inlongTopic;
     public String taskId;
 
     public boolean callListener;
@@ -29,9 +29,9 @@ public class AcceptAssignmentsParam {
     public String bootstrapServers;
 
     public AcceptAssignmentsParam(String taskId, String bootstrapServers,
-            InLongTopic inLongTopic, boolean callListener) {
+            InlongTopic inlongTopic, boolean callListener) {
         this.taskId = taskId;
-        this.inLongTopic = inLongTopic;
+        this.inlongTopic = inlongTopic;
         this.bootstrapServers = bootstrapServers;
         this.callListener = callListener;
     }

@@ -32,7 +32,7 @@ public class SortClientConfig implements Serializable {
 
     private final String sortTaskId;
     private final String sortClusterName;
-    private InLongTopicChangeListener assignmentsListener;
+    private InlongTopicChangeListener assignmentsListener;
     private ReadCallback callback;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
@@ -58,7 +58,7 @@ public class SortClientConfig implements Serializable {
     private int maxEmptyPollSleepMs = 500;
     private int emptyPollTimes = 10;
 
-    public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
+    public SortClientConfig(String sortTaskId, String sortClusterName, InlongTopicChangeListener assignmentsListener,
             ConsumeStrategy consumeStrategy, String localIp) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
@@ -83,13 +83,13 @@ public class SortClientConfig implements Serializable {
         return sortClusterName;
     }
 
-    public InLongTopicChangeListener getAssignmentsListener() {
+    public InlongTopicChangeListener getAssignmentsListener() {
         return (assignmentsListener == null
                 ? EmptyListener.EMPTY_LISTENER
                 : assignmentsListener);
     }
 
-    public void setAssignmentsListener(InLongTopicChangeListener assignmentsListener) {
+    public void setAssignmentsListener(InlongTopicChangeListener assignmentsListener) {
         this.assignmentsListener = assignmentsListener;
     }
 

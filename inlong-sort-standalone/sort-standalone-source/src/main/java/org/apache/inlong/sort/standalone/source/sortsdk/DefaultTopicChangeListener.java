@@ -17,24 +17,24 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.inlong.sdk.sort.api.InLongTopicChangeListener;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.api.InlongTopicChangeListener;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
 import java.util.Set;
 
 /**
- * Default implementation of {@link InLongTopicChangeListener}.
+ * Default implementation of {@link InlongTopicChangeListener}.
  *
  * Do nothing when the topic assignments change.
  *
  */
-public class DefaultTopicChangeListener implements InLongTopicChangeListener {
+public class DefaultTopicChangeListener implements InlongTopicChangeListener {
 
     @Override
     public boolean onAssignmentsChange(
-            Set<InLongTopic> allInLongTopics,
-            Set<InLongTopic> newInLongTopics,
-            Set<InLongTopic> removedInLongTopics) {
+            Set<InlongTopic> allInlongTopics,
+            Set<InlongTopic> newInlongTopics,
+            Set<InlongTopic> removedInlongTopics) {
         return true;
     }
 

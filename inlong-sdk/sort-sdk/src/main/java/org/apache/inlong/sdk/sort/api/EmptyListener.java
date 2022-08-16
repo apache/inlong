@@ -18,15 +18,15 @@
 package org.apache.inlong.sdk.sort.api;
 
 import java.util.Set;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
-public class EmptyListener implements InLongTopicChangeListener {
+public class EmptyListener implements InlongTopicChangeListener {
 
     public static final EmptyListener EMPTY_LISTENER = new EmptyListener();
 
     @Override
-    public boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics, Set<InLongTopic> newInLongTopics,
-            Set<InLongTopic> removedInLongTopics) {
+    public boolean onAssignmentsChange(Set<InlongTopic> allInlongTopics, Set<InlongTopic> newInlongTopics,
+            Set<InlongTopic> removedInlongTopics) {
         return true;
     }
 

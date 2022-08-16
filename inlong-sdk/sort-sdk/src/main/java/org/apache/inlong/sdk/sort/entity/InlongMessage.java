@@ -19,7 +19,7 @@ package org.apache.inlong.sdk.sort.entity;
 
 import java.util.Map;
 
-public class InLongMessage {
+public class InlongMessage {
 
     private String inlongGroupId;
     private String inlongStreamId;
@@ -28,12 +28,12 @@ public class InLongMessage {
     private final Map<String, String> params;
     private final byte[] body;
 
-    public InLongMessage(byte[] body, Map<String, String> params) {
+    public InlongMessage(byte[] body, Map<String, String> params) {
         this.body = body;
         this.params = params;
     }
 
-    public InLongMessage(String inlongGroupId, String inlongStreamId, long msgTime, String sourceIp, byte[] body,
+    public InlongMessage(String inlongGroupId, String inlongStreamId, long msgTime, String sourceIp, byte[] body,
             Map<String, String> params) {
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;

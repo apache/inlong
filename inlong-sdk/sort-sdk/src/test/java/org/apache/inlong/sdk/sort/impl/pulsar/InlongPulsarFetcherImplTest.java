@@ -27,10 +27,10 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.InlongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
@@ -51,10 +51,10 @@ import org.powermock.reflect.Whitebox;
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
-public class InLongPulsarFetcherImplTest {
+public class InlongPulsarFetcherImplTest {
 
     private ClientContext clientContext;
-    private InLongTopic inLongTopic;
+    private InlongTopic inlongTopic;
     private SortClientConfig sortClientConfig;
     private StatManager statManager;
 
@@ -65,14 +65,14 @@ public class InLongPulsarFetcherImplTest {
     public void setUp() throws Exception {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
 
-        inLongTopic = new InLongTopic();
-        inLongTopic.setTopic("testTopic");
-        inLongTopic.setPartitionId(0);
-        inLongTopic.setTopicType("pulsar");
-        inLongTopic.setProperties(new HashMap<>());
+        inlongTopic = new InlongTopic();
+        inlongTopic.setTopic("testTopic");
+        inlongTopic.setPartitionId(0);
+        inlongTopic.setTopicType("pulsar");
+        inlongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
-        inLongTopic.setInLongCluster(cacheZoneCluster);
+        inlongTopic.setInlongCluster(cacheZoneCluster);
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
@@ -82,7 +82,7 @@ public class InLongPulsarFetcherImplTest {
         when(clientContext.getStatManager()).thenReturn(statManager);
         SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
                 cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
+                inlongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
 
@@ -90,46 +90,46 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void stopConsume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        boolean consumeStop = inLongTopicFetcher.isConsumeStop();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        boolean consumeStop = inlongTopicFetcher.isConsumeStop();
         Assert.assertFalse(consumeStop);
-        inLongTopicFetcher.stopConsume(true);
-        consumeStop = inLongTopicFetcher.isConsumeStop();
+        inlongTopicFetcher.stopConsume(true);
+        consumeStop = inlongTopicFetcher.isConsumeStop();
         Assert.assertTrue(consumeStop);
     }
 
     @Test
-    public void getInLongTopic() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        InLongTopic inLongTopic = inLongTopicFetcher.getInLongTopic();
-        Assert.assertEquals(inLongTopic.getInLongCluster(), inLongTopic.getInLongCluster());
+    public void getInlongTopic() {
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        InlongTopic inlongTopic = inlongTopicFetcher.getInlongTopic();
+        Assert.assertEquals(inlongTopic.getInlongCluster(), inlongTopic.getInlongCluster());
     }
 
     @Test
     public void getConsumedDataSize() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        long consumedDataSize = inLongTopicFetcher.getConsumedDataSize();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        long consumedDataSize = inlongTopicFetcher.getConsumedDataSize();
         Assert.assertEquals(0L, consumedDataSize);
     }
 
     @Test
     public void getAckedOffset() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        long ackedOffset = inLongTopicFetcher.getAckedOffset();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        long ackedOffset = inlongTopicFetcher.getAckedOffset();
         Assert.assertEquals(0L, ackedOffset);
     }
 
     @Test
     public void ack() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
         MessageId messageId = PowerMockito.mock(MessageId.class);
         ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
         offsetCache.put("test", messageId);
 
-        Whitebox.setInternalState(inLongTopicFetcher, "offsetCache", offsetCache);
+        Whitebox.setInternalState(inlongTopicFetcher, "offsetCache", offsetCache);
 
         try {
-            inLongTopicFetcher.ack("test");
+            inlongTopicFetcher.ack("test");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,7 +137,7 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void init() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
         PulsarClient pulsarClient = PowerMockito.mock(PulsarClient.class);
         ConsumerBuilder consumerBuilder = PowerMockito.mock(ConsumerBuilder.class);
 
@@ -156,8 +156,8 @@ public class InLongPulsarFetcherImplTest {
             Consumer consumer = PowerMockito.mock(Consumer.class);
             when(consumerBuilder.subscribe()).thenReturn(consumer);
             doNothing().when(consumer).close();
-            boolean init = inLongTopicFetcher.init(pulsarClient);
-            inLongTopicFetcher.close();
+            boolean init = inlongTopicFetcher.init(pulsarClient);
+            inlongTopicFetcher.close();
             Assert.assertTrue(init);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,23 +166,23 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void pause() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.pause();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        inlongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.resume();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        inlongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        boolean close = inLongTopicFetcher.close();
+        InlongTopicFetcher inlongTopicFetcher = new InlongPulsarFetcherImpl(inlongTopic, clientContext);
+        boolean close = inlongTopicFetcher.close();
         Assert.assertTrue(close);
 
-        boolean closed = inLongTopicFetcher.isClosed();
+        boolean closed = inlongTopicFetcher.isClosed();
         Assert.assertTrue(closed);
     }
 }

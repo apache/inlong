@@ -30,8 +30,8 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.util.Utils;
 
 public class MessageDeserializer implements Deserializer {
@@ -52,24 +52,24 @@ public class MessageDeserializer implements Deserializer {
     }
 
     @Override
-    public List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
+    public List<InlongMessage> deserialize(ClientContext context, InlongTopic inlongTopic, Map<String, String> headers,
             byte[] data) throws Exception {
 
         //1. version
         int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "0"));
         switch (version) {
             case MESSAGE_VERSION_NONE: {
-                return decode(context, inLongTopic, data, headers);
+                return decode(context, inlongTopic, data, headers);
             }
             case MESSAGE_VERSION_PB: {
-                return decodePB(context, inLongTopic, data, headers);
+                return decodePB(context, inlongTopic, data, headers);
             }
             default:
                 throw new IllegalArgumentException("Unknown version type:" + version);
         }
     }
 
-    private List<InLongMessage> decode(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
+    private List<InlongMessage> decode(ClientContext context, InlongTopic inlongTopic, byte[] msgBytes,
             Map<String, String> headers) {
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
         String sourceIp = headers.getOrDefault(SOURCE_IP_KEY, "");
@@ -77,10 +77,10 @@ public class MessageDeserializer implements Deserializer {
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
         context.getStatManager()
                 .getStatistics(context.getConfig().getSortTaskId(),
-                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                        inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                 .addDecompressionConsumeSize(msgBytes.length);
         return Collections
-                .singletonList(new InLongMessage(inlongGroupId, inlongStreamId, msgTime, sourceIp, msgBytes, headers));
+                .singletonList(new InlongMessage(inlongGroupId, inlongStreamId, msgTime, sourceIp, msgBytes, headers));
     }
 
     /**
@@ -89,24 +89,24 @@ public class MessageDeserializer implements Deserializer {
      * @param msgBytes byte[]
      * @return {@link MessageObjs}
      */
-    private List<InLongMessage> decodePB(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
+    private List<InlongMessage> decodePB(ClientContext context, InlongTopic inlongTopic, byte[] msgBytes,
             Map<String, String> headers) throws IOException {
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
         switch (compressType) {
             case COMPRESS_TYPE_NONE: {
-                return transformMessageObjs(context, inLongTopic, MessageObjs.parseFrom(msgBytes), inlongGroupId,
+                return transformMessageObjs(context, inlongTopic, MessageObjs.parseFrom(msgBytes), inlongGroupId,
                         inlongStreamId);
             }
             case COMPRESS_TYPE_SNAPPY: {
                 byte[] values = Utils.snappyDecompress(msgBytes, 0, msgBytes.length);
-                return transformMessageObjs(context, inLongTopic, MessageObjs.parseFrom(values), inlongGroupId,
+                return transformMessageObjs(context, inlongTopic, MessageObjs.parseFrom(values), inlongGroupId,
                         inlongStreamId);
             }
             case COMPRESS_TYPE_GZIP: {
                 byte[] values = Utils.gzipDecompress(msgBytes, 0, msgBytes.length);
-                return transformMessageObjs(context, inLongTopic, MessageObjs.parseFrom(values), inlongGroupId,
+                return transformMessageObjs(context, inlongTopic, MessageObjs.parseFrom(values), inlongGroupId,
                         inlongStreamId);
             }
             default:
@@ -120,28 +120,28 @@ public class MessageDeserializer implements Deserializer {
      * @param messageObjs {@link MessageObjs}
      * @return {@link List}
      */
-    private List<InLongMessage> transformMessageObjs(ClientContext context, InLongTopic inLongTopic,
+    private List<InlongMessage> transformMessageObjs(ClientContext context, InlongTopic inlongTopic,
             MessageObjs messageObjs, String inlongGroupId,
             String inlongStreamId) {
         if (null == messageObjs) {
             return null;
         }
-        List<InLongMessage> inLongMessages = new ArrayList<>();
+        List<InlongMessage> inlongMessages = new ArrayList<>();
         for (MessageObj messageObj : messageObjs.getMsgsList()) {
             List<MapFieldEntry> mapFieldEntries = messageObj.getParamsList();
             Map<String, String> headers = new HashMap<>();
             for (MapFieldEntry mapFieldEntry : mapFieldEntries) {
                 headers.put(mapFieldEntry.getKey(), mapFieldEntry.getValue());
             }
-            InLongMessage inLongMessage = new InLongMessage(inlongGroupId, inlongStreamId, messageObj.getMsgTime(),
+            InlongMessage inlongMessage = new InlongMessage(inlongGroupId, inlongStreamId, messageObj.getMsgTime(),
                     messageObj.getSourceIp(),
                     messageObj.getBody().toByteArray(), headers);
-            inLongMessages.add(inLongMessage);
+            inlongMessages.add(inlongMessage);
             context.getStatManager()
                     .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                    .addDecompressionConsumeSize(inLongMessage.getBody().length);
+                            inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
+                    .addDecompressionConsumeSize(inlongMessage.getBody().length);
         }
-        return inLongMessages;
+        return inlongMessages;
     }
 }

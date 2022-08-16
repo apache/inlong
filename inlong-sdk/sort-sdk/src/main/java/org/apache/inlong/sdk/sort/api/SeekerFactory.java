@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.kafka.KafkaSeeker;
 import org.apache.inlong.sdk.sort.impl.pulsar.PulsarSeeker;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -28,15 +28,15 @@ import org.apache.pulsar.client.api.Consumer;
  */
 public class SeekerFactory {
 
-    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InLongTopic inLongTopic) {
+    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InlongTopic inlongTopic) {
         PulsarSeeker seeker = new PulsarSeeker(consumer);
-        seeker.configure(inLongTopic);
+        seeker.configure(inlongTopic);
         return seeker;
     }
 
-    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
+    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InlongTopic inlongTopic) {
         KafkaSeeker seeker = new KafkaSeeker(consumer);
-        seeker.configure(inLongTopic);
+        seeker.configure(inlongTopic);
         return seeker;
     }
 }

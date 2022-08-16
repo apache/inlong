@@ -19,27 +19,27 @@ package org.apache.inlong.sdk.sort.api;
 
 import java.util.Collection;
 import java.util.Set;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
-public abstract class InLongTopicManager implements Cleanable {
+public abstract class InlongTopicManager implements Cleanable {
 
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
 
-    public InLongTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
+    public InlongTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         this.context = context;
         this.queryConsumeConfig = queryConsumeConfig;
     }
 
-    public abstract InLongTopicFetcher addFetcher(InLongTopic inLongTopic);
+    public abstract InlongTopicFetcher addFetcher(InlongTopic inlongTopic);
 
-    public abstract InLongTopicFetcher removeFetcher(InLongTopic inLongTopic, boolean closeFetcher);
+    public abstract InlongTopicFetcher removeFetcher(InlongTopic inlongTopic, boolean closeFetcher);
 
-    public abstract InLongTopicFetcher getFetcher(String fetchKey);
+    public abstract InlongTopicFetcher getFetcher(String fetchKey);
 
-    public abstract Collection<InLongTopicFetcher> getAllFetchers();
+    public abstract Collection<InlongTopicFetcher> getAllFetchers();
 
-    public abstract Set<String> getManagedInLongTopics();
+    public abstract Set<String> getManagedInlongTopics();
 
     public abstract void offlineAllTp();
 

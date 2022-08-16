@@ -22,12 +22,12 @@ package org.apache.inlong.sdk.sort.api;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
 public interface Deserializer extends Serializable {
 
-    List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
+    List<InlongMessage> deserialize(ClientContext context, InlongTopic inlongTopic, Map<String, String> headers,
             byte[] data)
             throws Exception;
 }

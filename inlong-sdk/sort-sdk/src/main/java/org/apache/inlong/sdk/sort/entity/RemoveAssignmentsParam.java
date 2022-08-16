@@ -21,15 +21,15 @@ public class RemoveAssignmentsParam {
 
     public final String taskId;
 
-    public final InLongTopic inLongTopic;
+    public final InlongTopic inlongTopic;
 
     public final boolean callListener;
 
     public long callListenerTimeoutMs = 5000;
 
-    public RemoveAssignmentsParam(String taskId, InLongTopic inLongTopic, boolean callListener) {
+    public RemoveAssignmentsParam(String taskId, InlongTopic inlongTopic, boolean callListener) {
         this.taskId = taskId;
-        this.inLongTopic = inLongTopic;
+        this.inlongTopic = inlongTopic;
         this.callListener = callListener;
     }
 
@@ -37,7 +37,7 @@ public class RemoveAssignmentsParam {
     public String toString() {
         return "RemoveAssignmentsParam ["
                 + "taskId=" + taskId
-                + ", inLongTopic=" + inLongTopic
+                + ", inlongTopic=" + inlongTopic
                 + ", callListener=" + callListener
                 + ", callListenerTimeoutMs=" + callListenerTimeoutMs
                 + "]";

@@ -19,8 +19,8 @@ package org.apache.inlong.sdk.sort.impl.interceptor;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.Interceptor;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class MsgTimeInterceptor implements Interceptor {
     }
 
     @Override
-    public List<InLongMessage> intercept(List<InLongMessage> messages) {
+    public List<InlongMessage> intercept(List<InlongMessage> messages) {
         if (CollectionUtils.isEmpty(messages)) {
             return new ArrayList<>(0);
         }
@@ -51,9 +51,9 @@ public class MsgTimeInterceptor implements Interceptor {
     }
 
     @Override
-    public void configure(InLongTopic inLongTopic) {
-        startTime = TimeUtil.parseStartTime(inLongTopic);
-        stopTime = TimeUtil.parseStopTime(inLongTopic);
+    public void configure(InlongTopic inlongTopic) {
+        startTime = TimeUtil.parseStartTime(inlongTopic);
+        stopTime = TimeUtil.parseStopTime(inlongTopic);
         logger.info("start to config MsgTimeInterceptor, start time is {}, stop time is {}", startTime, stopTime);
     }
 

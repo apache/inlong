@@ -22,11 +22,11 @@ import java.util.List;
 public class MessageRecord {
 
     private final String msgKey;
-    private final List<InLongMessage> msgs;
+    private final List<InlongMessage> msgs;
     private final String offset;
     private final long recTime;
 
-    public MessageRecord(String msgKey, List<InLongMessage> msgs, String offset, long recTime) {
+    public MessageRecord(String msgKey, List<InlongMessage> msgs, String offset, long recTime) {
         this.msgKey = msgKey;
         this.msgs = msgs;
         this.offset = offset;
@@ -37,7 +37,7 @@ public class MessageRecord {
         return msgKey;
     }
 
-    public List<InLongMessage> getMsgs() {
+    public List<InlongMessage> getMsgs() {
         return msgs;
     }
 

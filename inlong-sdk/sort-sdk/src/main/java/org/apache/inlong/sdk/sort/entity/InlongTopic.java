@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.sort.entity;
 import java.util.Map;
 import java.util.Objects;
 
-public class InLongTopic {
+public class InlongTopic {
 
     private String topic;
     private CacheZoneCluster cacheZoneCluster;
@@ -37,11 +37,11 @@ public class InLongTopic {
         this.topic = topic;
     }
 
-    public CacheZoneCluster getInLongCluster() {
+    public CacheZoneCluster getInlongCluster() {
         return cacheZoneCluster;
     }
 
-    public void setInLongCluster(CacheZoneCluster cacheZoneCluster) {
+    public void setInlongCluster(CacheZoneCluster cacheZoneCluster) {
         this.cacheZoneCluster = cacheZoneCluster;
     }
 
@@ -77,7 +77,7 @@ public class InLongTopic {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        InLongTopic that = (InLongTopic) o;
+        InlongTopic that = (InlongTopic) o;
         return partitionId == that.partitionId
                 && Objects.equals(topic, that.topic)
                 && Objects.equals(cacheZoneCluster, that.cacheZoneCluster)
@@ -95,6 +95,6 @@ public class InLongTopic {
 
     @Override
     public String toString() {
-        return "InLongTopic>>>" + topic + "|" + "|" + partitionId + "|" + topicType + "|" + cacheZoneCluster;
+        return "InlongTopic>>>" + topic + "|" + "|" + partitionId + "|" + topicType + "|" + cacheZoneCluster;
     }
 }

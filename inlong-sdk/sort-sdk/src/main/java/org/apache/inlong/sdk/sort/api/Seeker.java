@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
 /**
  * the seeker is used to reset the offset of topic-partition of rollback task
@@ -26,9 +26,9 @@ public interface Seeker {
 
     /**
      * configure seeker if topic properties have changed.
-     * @param inLongTopic InlongTopic info.
+     * @param inlongTopic InlongTopic info.
      */
-    void configure(InLongTopic inLongTopic);
+    void configure(InlongTopic inlongTopic);
 
     /**
      * do seek

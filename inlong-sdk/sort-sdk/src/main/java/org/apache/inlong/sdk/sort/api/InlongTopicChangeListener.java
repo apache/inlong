@@ -18,21 +18,21 @@
 package org.apache.inlong.sdk.sort.api;
 
 import java.util.Set;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 
-public interface InLongTopicChangeListener {
+public interface InlongTopicChangeListener {
 
     /**
-     * InLongTopic changed
+     * InlongTopic changed
      *
-     * @param allInLongTopics Set
-     * @param newInLongTopics Set
-     * @param removedInLongTopics Set
+     * @param allInlongTopics Set
+     * @param newInlongTopics Set
+     * @param removedInlongTopics Set
      * @return true/false
      */
-    boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics,
-            Set<InLongTopic> newInLongTopics,
-            Set<InLongTopic> removedInLongTopics);
+    boolean onAssignmentsChange(Set<InlongTopic> allInlongTopics,
+            Set<InlongTopic> newInlongTopics,
+            Set<InlongTopic> removedInlongTopics);
 
     /**
      * callbak sort to ack

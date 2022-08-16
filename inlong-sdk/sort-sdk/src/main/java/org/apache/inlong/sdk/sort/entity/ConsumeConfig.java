@@ -21,17 +21,17 @@ import java.util.List;
 
 public class ConsumeConfig {
 
-    private List<InLongTopic> topics;
+    private List<InlongTopic> topics;
 
-    public ConsumeConfig(List<InLongTopic> topics) {
+    public ConsumeConfig(List<InlongTopic> topics) {
         this.topics = topics;
     }
 
-    public List<InLongTopic> getTopics() {
+    public List<InlongTopic> getTopics() {
         return topics;
     }
 
-    public void setTopics(List<InLongTopic> topics) {
+    public void setTopics(List<InlongTopic> topics) {
         this.topics = topics;
     }
 }

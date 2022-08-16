@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.sort.impl.pulsar;
 
 import org.apache.inlong.sdk.sort.api.Seeker;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.util.TimeUtil;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -37,9 +37,9 @@ public class PulsarSeeker implements Seeker {
     }
 
     @Override
-    public void configure(InLongTopic inLongTopic) {
-        seekTime = TimeUtil.parseStartTime(inLongTopic);
-        topic = inLongTopic.getTopic();
+    public void configure(InlongTopic inlongTopic) {
+        seekTime = TimeUtil.parseStartTime(inlongTopic);
+        topic = inlongTopic.getTopic();
         logger.info("start to config pulsar seeker, topic is {}, seek time is {}", topic, seekTime);
     }
 

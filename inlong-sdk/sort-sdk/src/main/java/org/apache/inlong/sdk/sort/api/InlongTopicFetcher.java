@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.impl.interceptor.MsgTimeInterceptor;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class InLongTopicFetcher {
+public abstract class InlongTopicFetcher {
 
-    protected InLongTopic inLongTopic;
+    protected InlongTopic inlongTopic;
     protected ClientContext context;
     protected Deserializer deserializer;
     protected volatile Thread fetchThread;
@@ -39,12 +39,12 @@ public abstract class InLongTopicFetcher {
     protected Interceptor interceptor;
     protected Seeker seeker;
 
-    public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
-        this.inLongTopic = inLongTopic;
+    public InlongTopicFetcher(InlongTopic inlongTopic, ClientContext context) {
+        this.inlongTopic = inlongTopic;
         this.context = context;
         this.deserializer = new MessageDeserializer();
         this.interceptor = new MsgTimeInterceptor();
-        this.interceptor.configure(inLongTopic);
+        this.interceptor.configure(inlongTopic);
     }
 
     public abstract boolean init(Object client);
@@ -63,19 +63,19 @@ public abstract class InLongTopicFetcher {
 
     public abstract boolean isConsumeStop();
 
-    public abstract InLongTopic getInLongTopic();
+    public abstract InlongTopic getInlongTopic();
 
     public abstract long getConsumedDataSize();
 
     public abstract long getAckedOffset();
 
-    public boolean updateTopic(InLongTopic topic) {
-        if (Objects.equals(inLongTopic, topic)) {
+    public boolean updateTopic(InlongTopic topic) {
+        if (Objects.equals(inlongTopic, topic)) {
             return false;
         }
-        this.inLongTopic = topic;
-        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
-        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
+        this.inlongTopic = topic;
+        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inlongTopic));
+        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inlongTopic));
         return true;
     }
 }

@@ -30,8 +30,8 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
@@ -48,7 +48,7 @@ public class MessageDeserializerTest {
     private MessageDeserializer messageDeserializer;
     private Map<String, String> headers;
     private ClientContext context;
-    private InLongTopic inLongTopic;
+    private InlongTopic inlongTopic;
     private String testData;
     private MessageObjs messageObjs;
     private SortClientConfig sortClientConfig;
@@ -62,17 +62,17 @@ public class MessageDeserializerTest {
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
         statManager = PowerMockito.mock(StatManager.class);
 
-        inLongTopic = new InLongTopic();
-        inLongTopic.setTopic("testTopic");
+        inlongTopic = new InlongTopic();
+        inlongTopic.setTopic("testTopic");
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
-        inLongTopic.setInLongCluster(cacheZoneCluster);
-        inLongTopic.setProperties(new HashMap<>());
+        inlongTopic.setInlongCluster(cacheZoneCluster);
+        inlongTopic.setProperties(new HashMap<>());
 
         when(context.getConfig()).thenReturn(sortClientConfig);
         when(context.getStatManager()).thenReturn(statManager);
         SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
                 cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
+                inlongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
     }
@@ -104,8 +104,8 @@ public class MessageDeserializerTest {
             // test version == 0
             headers.put("version", "0");
             testData = "test data";
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testData.getBytes());
+            List<InlongMessage> deserialize = messageDeserializer
+                    .deserialize(context, inlongTopic, headers, testData.getBytes());
             Assert.assertEquals(1, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -120,8 +120,8 @@ public class MessageDeserializerTest {
             // non compression
             headers.put("compressType", "0");
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, messageObjs.toByteArray());
+            List<InlongMessage> deserialize = messageDeserializer
+                    .deserialize(context, inlongTopic, headers, messageObjs.toByteArray());
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -138,8 +138,8 @@ public class MessageDeserializerTest {
 
             byte[] testDataByteArray = Utils.compressGZip(messageObjs.toByteArray());
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testDataByteArray);
+            List<InlongMessage> deserialize = messageDeserializer
+                    .deserialize(context, inlongTopic, headers, testDataByteArray);
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -156,8 +156,8 @@ public class MessageDeserializerTest {
 
             byte[] testDataByteArray = Utils.snappyCompress(messageObjs.toByteArray());
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testDataByteArray);
+            List<InlongMessage> deserialize = messageDeserializer
+                    .deserialize(context, inlongTopic, headers, testDataByteArray);
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {

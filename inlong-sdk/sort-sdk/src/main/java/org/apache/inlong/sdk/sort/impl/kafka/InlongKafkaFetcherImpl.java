@@ -22,11 +22,11 @@ package org.apache.inlong.sdk.sort.impl.kafka;
 import com.google.gson.Gson;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.InlongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
 import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -52,17 +52,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
+public class InlongKafkaFetcherImpl extends InlongTopicFetcher {
 
-    private final Logger logger = LoggerFactory.getLogger(InLongKafkaFetcherImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(InlongKafkaFetcherImpl.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap = new ConcurrentHashMap<>();
     private final AtomicLong ackOffsets = new AtomicLong(0);
     private volatile boolean stopConsume = false;
     private String bootstrapServers;
     private KafkaConsumer<byte[], byte[]> consumer;
 
-    public InLongKafkaFetcherImpl(InLongTopic inLongTopic, ClientContext context) {
-        super(inLongTopic, context);
+    public InlongKafkaFetcherImpl(InlongTopic inlongTopic, ClientContext context) {
+        super(inlongTopic, context);
     }
 
     @Override
@@ -71,10 +71,10 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         try {
             createKafkaConsumer(bootstrapServers);
             if (consumer != null) {
-                logger.info("start to subscribe topic:{}", new Gson().toJson(inLongTopic));
-                this.seeker = SeekerFactory.createKafkaSeeker(consumer, inLongTopic);
-                consumer.subscribe(Collections.singletonList(inLongTopic.getTopic()),
-                        new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), seeker,
+                logger.info("start to subscribe topic:{}", new Gson().toJson(inlongTopic));
+                this.seeker = SeekerFactory.createKafkaSeeker(consumer, inlongTopic);
+                consumer.subscribe(Collections.singletonList(inlongTopic.getTopic()),
+                        new AckOffsetOnRebalance(this.inlongTopic.getInlongCluster().getClusterId(), seeker,
                                 commitOffsetMap));
             } else {
                 logger.info("consumer is null");
@@ -82,7 +82,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             }
             this.bootstrapServers = bootstrapServers;
             String threadName = String.format("sort_sdk_fetch_thread_%s_%s_%d",
-                    this.inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic(), this.hashCode());
+                    this.inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic(), this.hashCode());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             logger.info("start to start thread:{}", threadName);
             this.fetchThread.start();
@@ -97,7 +97,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
     public void ack(String msgOffset) throws Exception {
         String[] offset = msgOffset.split(":");
         if (offset.length == 2) {
-            TopicPartition topicPartition = new TopicPartition(inLongTopic.getTopic(), Integer.parseInt(offset[0]));
+            TopicPartition topicPartition = new TopicPartition(inlongTopic.getTopic(), Integer.parseInt(offset[0]));
             OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[1]));
             commitOffsetMap.put(topicPartition, offsetAndMetadata);
         } else {
@@ -128,7 +128,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        logger.info("closed {}", inLongTopic);
+        logger.info("closed {}", inlongTopic);
         return true;
     }
 
@@ -148,8 +148,8 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
     }
 
     @Override
-    public InLongTopic getInLongTopic() {
-        return inLongTopic;
+    public InlongTopic getInlongTopic() {
+        return inlongTopic;
     }
 
     @Override
@@ -223,17 +223,17 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             try {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addCallbackTimes(1);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1);
             } catch (Exception e) {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addCallbackErrorTimes(1);
                 logger.error(e.getMessage(), e);
             }
@@ -275,7 +275,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 } catch (Exception e) {
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                             .addFetchErrorTimes(1);
                     logger.error(e.getMessage(), e);
                 } finally {
@@ -289,7 +289,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         private void fetchFromKafka() throws Exception {
             context.getStatManager()
                     .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                     .addMsgCount(1).addFetchTimes(1);
 
             long startFetchTime = System.currentTimeMillis();
@@ -297,39 +297,39 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                     .poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
             context.getStatManager()
                     .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                     .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
             if (null != records && !records.isEmpty()) {
 
                 List<MessageRecord> msgs = new ArrayList<>();
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
                     String offsetKey = getOffset(msg.partition(), msg.offset());
-                    List<InLongMessage> inLongMessages = deserializer
-                            .deserialize(context, inLongTopic, getMsgHeaders(msg.headers()), msg.value());
-                    inLongMessages = interceptor.intercept(inLongMessages);
-                    if (inLongMessages.isEmpty()) {
+                    List<InlongMessage> inlongMessages = deserializer
+                            .deserialize(context, inlongTopic, getMsgHeaders(msg.headers()), msg.value());
+                    inlongMessages = interceptor.intercept(inlongMessages);
+                    if (inlongMessages.isEmpty()) {
                         ack(offsetKey);
                         continue;
                     }
 
-                    msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
-                            inLongMessages,
+                    msgs.add(new MessageRecord(inlongTopic.getTopicKey(),
+                            inlongMessages,
                             offsetKey, System.currentTimeMillis()));
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                             .addConsumeSize(msg.value().length);
                 }
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addMsgCount(msgs.size());
                 handleAndCallbackMsg(msgs);
                 sleepTime = 0L;
             } else {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addEmptyFetchTimes(1);
                 emptyFetchTimes++;
                 if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {

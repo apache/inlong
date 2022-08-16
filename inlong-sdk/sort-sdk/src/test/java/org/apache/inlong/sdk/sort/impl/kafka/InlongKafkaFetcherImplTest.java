@@ -15,30 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.impl.tube;
+package org.apache.inlong.sdk.sort.impl.kafka;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 
-public class InLongTubeFetcherImplTest {
+@PowerMockIgnore("javax.management.*")
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientContext.class})
+public class InlongKafkaFetcherImplTest {
 
     private ClientContext clientContext;
-    private InLongTopic inLongTopic;
+    private InlongTopic inlongTopic;
     private SortClientConfig sortClientConfig;
     private StatManager statManager;
 
@@ -49,14 +55,14 @@ public class InLongTubeFetcherImplTest {
     public void setUp() throws Exception {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
 
-        inLongTopic = new InLongTopic();
-        inLongTopic.setTopic("testTopic");
-        inLongTopic.setPartitionId(0);
-        inLongTopic.setTopicType("pulsar");
-        inLongTopic.setProperties(new HashMap<>());
+        inlongTopic = new InlongTopic();
+        inlongTopic.setTopic("testTopic");
+        inlongTopic.setPartitionId(0);
+        inlongTopic.setTopicType("pulsar");
+        inlongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
-        inLongTopic.setInLongCluster(cacheZoneCluster);
+        inlongTopic.setInlongCluster(cacheZoneCluster);
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
@@ -66,7 +72,7 @@ public class InLongTubeFetcherImplTest {
         when(clientContext.getStatManager()).thenReturn(statManager);
         SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
                 cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
+                inlongTopic.getTopic(), 0);
         when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
 
@@ -74,23 +80,20 @@ public class InLongTubeFetcherImplTest {
 
     @Test
     public void pause() {
-        InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.pause();
+        InlongKafkaFetcherImpl inlongTopicFetcher = new InlongKafkaFetcherImpl(inlongTopic, clientContext);
+        inlongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.resume();
+        InlongKafkaFetcherImpl inlongTopicFetcher = new InlongKafkaFetcherImpl(inlongTopic, clientContext);
+        inlongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
-        boolean close = inLongTopicFetcher.close();
+        InlongKafkaFetcherImpl inlongTopicFetcher = new InlongKafkaFetcherImpl(inlongTopic, clientContext);
+        boolean close = inlongTopicFetcher.close();
         Assert.assertTrue(close);
-
-        boolean closed = inLongTopicFetcher.isClosed();
-        Assert.assertTrue(closed);
     }
 }
