@@ -367,7 +367,9 @@ public class TubeSink extends AbstractSink implements Configurable {
                     if (StringUtils.isBlank(topic)) {
                         blankTopicDiscardMsgCnt.incrementAndGet();
                         takenMsgCnt.decrementAndGet();
-                        monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                        if (statIntervalSec > 0) {
+                            monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                        }
                         if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                             logger.error("No topic specified, just discard the event, event header is "
                                     + event.getHeaders().toString());
@@ -404,7 +406,9 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (producer == null) {
                 frozenTopicDiscardMsgCnt.incrementAndGet();
                 takenMsgCnt.decrementAndGet();
-                monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                }
                 if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error("Get producer failed for " + topic);
                 }
@@ -414,7 +418,9 @@ public class TubeSink extends AbstractSink implements Configurable {
                     event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
                 dupDiscardMsgCnt.incrementAndGet();
                 takenMsgCnt.decrementAndGet();
-                monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                }
                 logger.info("{} agent package {} existed,just discard.",
                         Thread.currentThread().getName(),
                         event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
@@ -445,11 +451,15 @@ public class TubeSink extends AbstractSink implements Configurable {
                 inflightMsgCnt.decrementAndGet();
                 takenMsgCnt.decrementAndGet();
                 this.addMetric(myEventStat.getEvent(), true, sendTime);
-                monitorIndexExt.incrementAndGet(KEY_SINK_SUCCESS);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_SUCCESS);
+                }
                 this.editStatistic(myEventStat.getEvent(), true);
             } else {
                 this.addMetric(myEventStat.getEvent(), false, 0);
-                monitorIndexExt.incrementAndGet(KEY_SINK_FAILURE);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_FAILURE);
+                }
                 this.editStatistic(myEventStat.getEvent(), false);
                 if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
@@ -468,7 +478,9 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         @Override
         public void onException(final Throwable e) {
-            monitorIndexExt.incrementAndGet(KEY_SINK_EXP);
+            if (statIntervalSec > 0) {
+                monitorIndexExt.incrementAndGet(KEY_SINK_EXP);
+            }
             this.editStatistic(myEventStat.getEvent(), false);
             resendEvent(myEventStat, true);
         }
@@ -549,12 +561,14 @@ public class TubeSink extends AbstractSink implements Configurable {
                         if (event.getHeaders().get(ConfigConstants.TOTAL_LEN) != null) {
                             messageSize = Long.parseLong(event.getHeaders().get(ConfigConstants.TOTAL_LEN));
                         }
-                        if (isSuccess) {
-                            monitorIndex.addAndGet(new String(newBase),
-                                    (int) msgCounterL, 1, messageSize, 0);
-                        } else {
-                            monitorIndex.addAndGet(new String(newBase),
-                                    0, 0, 0, (int) msgCounterL);
+                        if (statIntervalSec > 0) {
+                            if (isSuccess) {
+                                monitorIndex.addAndGet(new String(newBase),
+                                        (int) msgCounterL, 1, messageSize, 0);
+                            } else {
+                                monitorIndex.addAndGet(new String(newBase),
+                                        0, 0, 0, (int) msgCounterL);
+                            }
                         }
                     }
                 }
@@ -608,7 +622,9 @@ public class TubeSink extends AbstractSink implements Configurable {
             }
         } catch (Throwable throwable) {
             takenMsgCnt.decrementAndGet();
-            monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+            if (statIntervalSec > 0) {
+                monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+            }
             if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                 logger.error(getName() + " Discard msg because put events to both of queue and "
                         + "fileChannel fail,current resendQueue.size = "
