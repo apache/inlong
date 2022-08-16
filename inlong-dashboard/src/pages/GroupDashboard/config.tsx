@@ -21,53 +21,50 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
-import { statusList, genStatusTag } from './status';
 import { Button } from 'antd';
+import { groupForm, groupTable } from '@/metas/group';
+import { pickObjectArray } from '@/utils';
 
 export const dashCardList = [
   {
-    desc: i18n.t('pages.AccessDashboard.config.Total'),
+    desc: i18n.t('pages.GroupDashboard.config.Total'),
     dataIndex: 'totalCount',
     icon: <DashTotal />,
   },
   {
-    desc: i18n.t('pages.AccessDashboard.config.WaitAssignCount'),
+    desc: i18n.t('pages.GroupDashboard.config.WaitAssignCount'),
     dataIndex: 'waitAssignCount',
     icon: <DashToBeAssigned />,
   },
   {
-    desc: i18n.t('pages.AccessDashboard.config.WaitApproveCount'),
+    desc: i18n.t('pages.GroupDashboard.config.WaitApproveCount'),
     dataIndex: 'waitApproveCount',
     icon: <DashPending />,
   },
   {
-    desc: i18n.t('pages.AccessDashboard.config.Reject'),
+    desc: i18n.t('pages.GroupDashboard.config.Reject'),
     dataIndex: 'rejectCount',
     icon: <DashRejected />,
   },
 ];
 
-export const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-    initialValue: defaultValues.keyword,
-    props: {
-      allowClear: true,
+export const getFilterFormContent = defaultValues =>
+  [
+    {
+      type: 'inputsearch',
+      name: 'keyword',
+      initialValue: defaultValues.keyword,
+      props: {
+        allowClear: true,
+      },
     },
-  },
-  {
-    type: 'select',
-    label: i18n.t('basic.Status'),
-    name: 'status',
-    initialValue: defaultValues.status,
-    props: {
-      allowClear: true,
-      options: statusList,
-      dropdownMatchSelectWidth: false,
-    },
-  },
-];
+  ].concat(
+    pickObjectArray(['status'], groupForm).map(item => ({
+      ...item,
+      visible: true,
+      initialValue: defaultValues[item.name],
+    })),
+  );
 
 export const getColumns = ({ onDelete, openModal }) => {
   const genCreateUrl = record => `/access/create/${record.inlongGroupId}`;
@@ -76,52 +73,37 @@ export const getColumns = ({ onDelete, openModal }) => {
       ? genCreateUrl(record)
       : `/access/detail/${record.inlongGroupId}`;
 
-  return [
-    {
-      title: i18n.t('pages.AccessDashboard.config.GroupId'),
-      dataIndex: 'inlongGroupId',
-      render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link>,
-    },
-    {
-      title: i18n.t('pages.AccessDashboard.config.MqType'),
-      dataIndex: 'mqType',
-    },
-    {
-      title: i18n.t('pages.AccessDashboard.config.InCharges'),
-      dataIndex: 'inCharges',
-    },
-    {
-      title: i18n.t('basic.CreateTime'),
-      dataIndex: 'createTime',
-    },
-    {
-      title: i18n.t('basic.Status'),
-      dataIndex: 'status',
-      render: text => genStatusTag(text),
-    },
-    {
-      title: i18n.t('basic.Operating'),
-      dataIndex: 'action',
-      render: (text, record) => (
-        <>
-          <Button type="link">
-            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
-          </Button>
-          {[102].includes(record?.status) && (
+  return groupTable
+    .map(item => {
+      if (item.dataIndex === 'inlongGroupId') {
+        return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
+      }
+      return item;
+    })
+    .concat([
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        render: (text, record) => (
+          <>
             <Button type="link">
-              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
             </Button>
-          )}
-          <Button type="link" onClick={() => onDelete(record)}>
-            {i18n.t('basic.Delete')}
-          </Button>
-          {record?.status && (record?.status === 120 || record?.status === 130) && (
-            <Button type="link" onClick={() => openModal(record)}>
-              {i18n.t('pages.AccessDashboard.config.ExecuteLog')}
+            {[102].includes(record?.status) && (
+              <Button type="link">
+                <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              </Button>
+            )}
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
             </Button>
-          )}
-        </>
-      ),
-    },
-  ];
+            {record?.status && (record?.status === 120 || record?.status === 130) && (
+              <Button type="link" onClick={() => openModal(record)}>
+                {i18n.t('pages.GroupDashboard.config.ExecuteLog')}
+              </Button>
+            )}
+          </>
+        ),
+      },
+    ]);
 };

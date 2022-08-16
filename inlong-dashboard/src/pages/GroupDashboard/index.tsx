@@ -61,14 +61,14 @@ const Comp: React.FC = () => {
 
   const onDelete = ({ inlongGroupId }) => {
     Modal.confirm({
-      title: t('pages.AccessDashboard.ConfirmDelete'),
+      title: t('pages.GroupDashboard.ConfirmDelete'),
       onOk: async () => {
         await request({
           url: `/group/delete/${inlongGroupId}`,
           method: 'DELETE',
         });
         await getList();
-        message.success(t('pages.AccessDashboard.SuccessfullyDeleted'));
+        message.success(t('pages.GroupDashboard.SuccessfullyDeleted'));
       },
     });
   };
@@ -115,7 +115,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => history.push('/access/create')}>
-                {t('pages.AccessDashboard.NewAccess')}
+                {t('pages.GroupDashboard.Create')}
               </Button>
             }
             filterForm={{

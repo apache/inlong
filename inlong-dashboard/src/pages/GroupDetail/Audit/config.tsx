@@ -24,15 +24,15 @@ import i18n from '@/i18n';
 
 export const timeStaticsDimList = [
   {
-    label: i18n.t('pages.AccessDetail.Audit.Min'),
+    label: i18n.t('pages.GroupDetail.Audit.Min'),
     value: 'MINUTE',
   },
   {
-    label: i18n.t('pages.AccessDetail.Audit.Hour'),
+    label: i18n.t('pages.GroupDetail.Audit.Hour'),
     value: 'HOUR',
   },
   {
-    label: i18n.t('pages.AccessDetail.Audit.Day'),
+    label: i18n.t('pages.GroupDetail.Audit.Day'),
     value: 'DAY',
   },
 ];
@@ -40,11 +40,11 @@ export const timeStaticsDimList = [
 export const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
   return acc.concat([
     {
-      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Receive')}`,
+      label: `${item} ${i18n.t('pages.GroupDetail.Audit.Receive')}`,
       value: index * 2 + 3,
     },
     {
-      label: `${item} ${i18n.t('pages.AccessDetail.Audit.Send')}`,
+      label: `${item} ${i18n.t('pages.GroupDetail.Audit.Send')}`,
       value: index * 2 + 4,
     },
   ]);
@@ -94,7 +94,7 @@ export const toTableData = (source, sourceDataMap) => {
 export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
   {
     type: 'select',
-    label: i18n.t('pages.AccessDetail.Audit.DataStream'),
+    label: i18n.t('pages.GroupDetail.Audit.DataStream'),
     name: 'inlongStreamId',
     props: {
       dropdownMatchSelectWidth: false,
@@ -123,7 +123,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   },
   {
     type: 'datepicker',
-    label: i18n.t('pages.AccessDetail.Audit.Date'),
+    label: i18n.t('pages.GroupDetail.Audit.Date'),
     name: 'dt',
     initialValue: dayjs(initialValues.dt),
     props: {
@@ -133,7 +133,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   },
   {
     type: 'select',
-    label: i18n.t('pages.AccessDetail.Audit.TimeStaticsDim'),
+    label: i18n.t('pages.GroupDetail.Audit.TimeStaticsDim'),
     name: 'timeStaticsDim',
     initialValue: initialValues.timeStaticsDim,
     props: {
@@ -143,7 +143,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   },
   {
     type: 'select',
-    label: i18n.t('pages.AccessDetail.Audit.AuditIds'),
+    label: i18n.t('pages.GroupDetail.Audit.AuditIds'),
     name: 'auditIds',
     initialValue: initialValues.auditIds,
     props: {
@@ -156,7 +156,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
   {
     type: (
       <Button type="primary" onClick={onSearch}>
-        {i18n.t('pages.AccessDetail.Audit.Search')}
+        {i18n.t('pages.GroupDetail.Audit.Search')}
       </Button>
     ),
   },
@@ -170,7 +170,7 @@ export const getTableColumns = source => {
   }));
   return [
     {
-      title: i18n.t('pages.AccessDetail.Audit.Time'),
+      title: i18n.t('pages.GroupDetail.Audit.Time'),
       dataIndex: 'logTs',
     },
   ].concat(data);

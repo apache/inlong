@@ -64,27 +64,27 @@ const Comp: React.FC = () => {
     () =>
       [
         {
-          label: t('pages.AccessDetail.Business'),
+          label: t('pages.GroupDetail.Info'),
           value: 'groupInfo',
           content: Info,
         },
         {
-          label: t('pages.AccessDetail.DataStreams'),
+          label: t('pages.GroupDetail.Streams'),
           value: 'dataStream',
           content: DataStream,
         },
         {
-          label: t('pages.AccessDetail.DataSources'),
+          label: t('pages.GroupDetail.Sources'),
           value: 'dataSources',
           content: DataSources,
         },
         {
-          label: t('pages.AccessDetail.DataStorages'),
+          label: t('pages.GroupDetail.Sinks'),
           value: 'streamSink',
           content: DataStorage,
         },
         {
-          label: t('pages.AccessDetail.Audit'),
+          label: t('pages.GroupDetail.Audit'),
           value: 'audit',
           content: Audit,
           hidden: isReadonly || isCreate,
@@ -117,7 +117,7 @@ const Comp: React.FC = () => {
       url: `/group/startProcess/${id}`,
       method: 'POST',
     });
-    message.success(t('pages.AccessCreate.SubmittedSuccessfully'));
+    message.success(t('pages.GroupDetail.Info.SubmittedSuccessfully'));
     history.push('/access');
   };
 
@@ -125,7 +125,7 @@ const Comp: React.FC = () => {
     <Space style={{ display: 'flex', justifyContent: 'center' }}>
       {current > 0 && (
         <Button disabled={confirmLoading} onClick={() => setCurrent(current - 1)}>
-          {t('pages.AccessCreate.Previous')}
+          {t('pages.GroupDetail.Info.Previous')}
         </Button>
       )}
       {current !== list.length - 1 && (
@@ -135,7 +135,7 @@ const Comp: React.FC = () => {
           onClick={async () => {
             await onOk(current).catch(err => {
               if (err?.errorFields?.length) {
-                message.error(t('pages.AccessCreate.CheckMsg'));
+                message.error(t('pages.GroupDetail.Info.CheckMsg'));
               } else if (typeof err === 'string') {
                 message.error(err);
               }
@@ -146,15 +146,15 @@ const Comp: React.FC = () => {
             setCurrent(newCurrent);
           }}
         >
-          {t('pages.AccessCreate.NextStep')}
+          {t('pages.GroupDetail.Info.NextStep')}
         </Button>
       )}
       {current === list.length - 1 && (
         <Button type="primary" onClick={onSubmit}>
-          {t('pages.AccessCreate.Submit')}
+          {t('pages.GroupDetail.Info.Submit')}
         </Button>
       )}
-      <Button onClick={() => history.push('/access')}>{t('pages.AccessCreate.Back')}</Button>
+      <Button onClick={() => history.push('/access')}>{t('pages.GroupDetail.Info.Back')}</Button>
     </Space>
   );
 
@@ -165,8 +165,8 @@ const Comp: React.FC = () => {
       breadcrumb={[
         {
           name: isCreate
-            ? t('pages.AccessCreate.NewAccess')
-            : `${t('pages.AccessDetail.BusinessDetail')}${id}`,
+            ? t('pages.GroupDetail.Info.Create')
+            : `${t('pages.GroupDetail.PageTitle')}${id}`,
         },
       ]}
       useDefaultContainer={!isCreate}

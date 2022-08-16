@@ -108,7 +108,6 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
         form={form}
         content={getFormContent({
           editing,
-          initialValues: data,
           isCreate,
           isUpdate,
         })}
