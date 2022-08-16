@@ -20,13 +20,10 @@ package org.apache.inlong.manager.client.api.service;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -63,9 +60,9 @@ public interface WorkflowApi {
     Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
-    Call<Response<PageInfo<ProcessResponse>>> listProcess(@Query("query") ProcessRequest query);
+    Call<Response<PageInfo<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
 
-    @GetMapping("workflow/listTask")
-    Call<Response<PageInfo<TaskResponse>>> listTask(@Query("query") TaskRequest query);
+    @GET("workflow/listTask")
+    Call<Response<PageInfo<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
 
 }
