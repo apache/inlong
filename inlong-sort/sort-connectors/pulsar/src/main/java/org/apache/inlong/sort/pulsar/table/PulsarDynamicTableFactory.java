@@ -362,7 +362,7 @@ public class PulsarDynamicTableFactory implements
             String adminUrl,
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
-        String inLongMetric, String auditHostAndPorts) {
+        String inlongMetric, String auditHostAndPorts) {
         return new PulsarDynamicTableSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -377,6 +377,6 @@ public class PulsarDynamicTableFactory implements
                 properties,
                 startupOptions,
                 false,
-            inLongMetric, auditHostAndPorts);
+            inlongMetric, auditHostAndPorts);
     }
 }

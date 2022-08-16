@@ -55,7 +55,7 @@ import static org.apache.flink.connector.hbase.options.HBaseOptions.getHBaseWrit
 import static org.apache.flink.connector.hbase.options.HBaseOptions.validatePrimaryKey;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.flink.table.factories.FactoryUtil.createTableFactoryHelper;
-import static org.apache.inlong.sort.hbase.options.InLongOptions.INLONG_METRIC;
+import static org.apache.inlong.sort.hbase.options.InlongOptions.INLONG_METRIC;
 
 /** HBase connector factory. */
 public class HBase2DynamicTableFactory
@@ -102,10 +102,10 @@ public class HBase2DynamicTableFactory
         HBaseWriteOptions hBaseWriteOptions = getHBaseWriteOptions(tableOptions);
         String nullStringLiteral = tableOptions.get(NULL_STRING_LITERAL);
         HBaseTableSchema hbaseSchema = HBaseTableSchema.fromTableSchema(tableSchema);
-        String inLongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongMetric = tableOptions.get(INLONG_METRIC);
 
         return new HBaseDynamicTableSink(
-                tableName, hbaseSchema, hbaseConf, hBaseWriteOptions, nullStringLiteral, inLongMetric);
+                tableName, hbaseSchema, hbaseConf, hBaseWriteOptions, nullStringLiteral, inlongMetric);
     }
 
     @Override

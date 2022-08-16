@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
-import org.apache.inlong.sdk.sort.entity.InLongMessage;
+import org.apache.inlong.sdk.sort.entity.InlongMessage;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -100,8 +100,8 @@ public class FetchCallback implements ReadCallback {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
             CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client,
                     CommonPropertiesHolder.getAckPolicy());
-            for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
-                final ProfileEvent profileEvent = new ProfileEvent(inLongMessage, cacheRecord);
+            for (InlongMessage inlongMessage : messageRecord.getMsgs()) {
+                final ProfileEvent profileEvent = new ProfileEvent(inlongMessage, cacheRecord);
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }

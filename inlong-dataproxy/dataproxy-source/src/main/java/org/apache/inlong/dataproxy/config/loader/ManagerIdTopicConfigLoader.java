@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
-import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.InlongIdObject;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -46,7 +46,7 @@ public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
         if (dataProxyCluster == null) {
             return configList;
         }
-        for (InLongIdObject obj : dataProxyCluster.getProxyCluster().getInlongIds()) {
+        for (InlongIdObject obj : dataProxyCluster.getProxyCluster().getInlongIds()) {
             IdTopicConfig config = new IdTopicConfig();
             String id = obj.getInlongId();
             String[] ids = id.split("\\.");

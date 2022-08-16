@@ -32,8 +32,8 @@ import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
-import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
-import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
+import org.apache.inlong.agent.plugin.utils.InlongDatabaseHistory;
+import org.apache.inlong.agent.plugin.utils.InlongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -213,9 +213,9 @@ public class BinlogReader extends AbstractReader {
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         props.setProperty("database.history.file.filename", databaseStoreHistoryName);
         if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
-            props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
-            props.setProperty("database.history", InLongDatabaseHistory.class.getCanonicalName());
+            props.setProperty("offset.storage", InlongFileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty(InlongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty("database.history", InlongDatabaseHistory.class.getCanonicalName());
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
             props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());

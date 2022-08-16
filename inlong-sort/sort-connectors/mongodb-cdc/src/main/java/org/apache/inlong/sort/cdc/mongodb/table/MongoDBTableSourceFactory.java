@@ -227,7 +227,7 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 TableConfigOptions.LOCAL_TIME_ZONE.defaultValue().equals(zoneId)
                         ? ZoneId.systemDefault()
                         : ZoneId.of(zoneId);
-        String inLongMetric = config.get(INLONG_METRIC);
+        String inlongMetric = config.get(INLONG_METRIC);
 
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         checkArgument(physicalSchema.getPrimaryKey().isPresent(), "Primary key must be present");
@@ -251,7 +251,7 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 pollAwaitTimeMillis,
                 heartbeatIntervalMillis,
                 localTimeZone,
-                inLongMetric);
+                inlongMetric);
     }
 
     private void checkPrimaryKey(UniqueConstraint pk, String message) {

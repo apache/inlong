@@ -97,7 +97,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
     @Override
     public byte[] serialize(Row row) {
         try {
-            MysqlBinLogData mysqlBinLogData = getMysqlBinLongData(row);
+            MysqlBinLogData mysqlBinLogData = getMysqlBinLogData(row);
 
             Object[] arrayData = new Object[1];
             if (isMigrateAll) {
@@ -174,7 +174,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
                 DataTypeUtils.appendRowFields(root, metadataFields));
     }
 
-    private MysqlBinLogData getMysqlBinLongData(Row consumedRow) {
+    private MysqlBinLogData getMysqlBinLogData(Row consumedRow) {
         int consumedRowArity = consumedRow.getArity();
         Set<Integer> metadataIndices = fieldIndexToMetadata.keySet();
 

@@ -20,7 +20,7 @@ package org.apache.inlong.agent.pojo;
 import java.util.Map;
 
 /**
- * The state that the InLong Debezium Consumer holds for each instance.
+ * The state that the Inlong Debezium Consumer holds for each instance.
  *
  * <p>This class describes the most basic state that Debezium used for recovering based on Kafka
  * Connect mechanism. It includes a sourcePartition and sourceOffset.

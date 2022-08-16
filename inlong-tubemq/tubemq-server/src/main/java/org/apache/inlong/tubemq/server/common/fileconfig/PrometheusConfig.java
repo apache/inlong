@@ -27,7 +27,7 @@ public class PrometheusConfig {
     // metric domains
     private String promMetricDomains = "TubeMQ";
     // Cluster name
-    private String promClusterName = "InLong";
+    private String promClusterName = "Inlong";
 
     public PrometheusConfig() {
 

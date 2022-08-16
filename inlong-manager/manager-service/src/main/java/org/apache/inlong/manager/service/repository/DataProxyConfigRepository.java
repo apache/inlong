@@ -28,7 +28,7 @@ import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.IRepository;
-import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.InlongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -201,11 +201,11 @@ public class DataProxyConfigRepository implements IRepository {
             return;
         }
         Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = this.reloadCacheCluster();
-        Map<String, List<InLongIdObject>> inlongIdMap = this.reloadInlongId();
+        Map<String, List<InlongIdObject>> inlongIdMap = this.reloadInlongId();
         // mapping inlongIdMap
         for (Entry<String, ProxyClusterObject> entry : proxyClusterMap.entrySet()) {
             String clusterTag = entry.getValue().getSetName();
-            List<InLongIdObject> inlongIds = inlongIdMap.get(clusterTag);
+            List<InlongIdObject> inlongIds = inlongIdMap.get(clusterTag);
             if (inlongIds != null) {
                 entry.getValue().setInlongIds(inlongIds);
             }
@@ -254,12 +254,12 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * reloadInlongId
      */
-    private Map<String, List<InLongIdObject>> reloadInlongId() {
+    private Map<String, List<InlongIdObject>> reloadInlongId() {
         // parse group
         Map<String, InlongGroupId> groupIdMap = new HashMap<>();
         clusterSetMapper.selectInlongGroupId().forEach(value -> groupIdMap.put(value.getInlongGroupId(), value));
         // parse stream
-        Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
+        Map<String, List<InlongIdObject>> inlongIdMap = new HashMap<>();
         for (InlongStreamId streamIdObj : clusterSetMapper.selectInlongStreamId()) {
             String groupId = streamIdObj.getInlongGroupId();
             InlongGroupId groupIdObj = groupIdMap.get(groupId);
@@ -296,7 +296,7 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void parseMasterTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
             Map<String, String> groupParams, Map<String, String> streamParams,
-            Map<String, List<InLongIdObject>> inlongIdMap) {
+            Map<String, List<InlongIdObject>> inlongIdMap) {
         // choose topic
         String groupTopic = groupIdObj.getTopic();
         String streamTopic = streamIdObj.getTopic();
@@ -317,7 +317,7 @@ public class DataProxyConfigRepository implements IRepository {
             }
         }
         // concat id
-        InLongIdObject obj = new InLongIdObject();
+        InlongIdObject obj = new InlongIdObject();
         String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
         obj.setInlongId(inlongId);
         obj.setTopic(finalTopic);
@@ -333,7 +333,7 @@ public class DataProxyConfigRepository implements IRepository {
      */
     private void parseBackupTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
             Map<String, String> groupParams, Map<String, String> streamParams,
-            Map<String, List<InLongIdObject>> inlongIdMap) {
+            Map<String, List<InlongIdObject>> inlongIdMap) {
         Map<String, String> params = new HashMap<>();
         params.putAll(groupParams);
         params.putAll(streamParams);
@@ -362,7 +362,7 @@ public class DataProxyConfigRepository implements IRepository {
             }
         }
         // concat id
-        InLongIdObject obj = new InLongIdObject();
+        InlongIdObject obj = new InlongIdObject();
         String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
         obj.setInlongId(inlongId);
         obj.setTopic(finalTopic);

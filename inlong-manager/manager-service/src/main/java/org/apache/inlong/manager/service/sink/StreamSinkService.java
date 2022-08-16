@@ -125,8 +125,8 @@ public interface StreamSinkService {
     /**
      * Logically delete stream sink with the given conditions.
      *
-     * @param groupId InLong group id to which the data source belongs.
-     * @param streamId InLong stream id to which the data source belongs.
+     * @param groupId Inlong group id to which the data source belongs.
+     * @param streamId Inlong stream id to which the data source belongs.
      * @param operator Operator's name.
      * @return Whether succeed.
      */
@@ -135,8 +135,8 @@ public interface StreamSinkService {
     /**
      * Physically delete stream sink with the given conditions.
      *
-     * @param groupId InLong group id.
-     * @param streamId InLong stream id.
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
      * @param operator Operator's name.
      * @return Whether succeed.
      */

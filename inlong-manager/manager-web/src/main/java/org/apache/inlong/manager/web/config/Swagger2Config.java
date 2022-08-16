@@ -53,8 +53,8 @@ public class Swagger2Config {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Apache InLong Manager API Doc")
-                .description("Apache InLong Manager API Doc")
+                .title("Apache Inlong Manager API Doc")
+                .description("Apache Inlong Manager API Doc")
                 .version("2.0")
                 .build();
     }

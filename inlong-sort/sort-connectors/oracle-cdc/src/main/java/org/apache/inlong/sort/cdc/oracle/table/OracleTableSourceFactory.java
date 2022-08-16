@@ -115,7 +115,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        String inLongMetric = config.get(INLONG_METRIC);
+        String inlongMetric = config.get(INLONG_METRIC);
 
         return new OracleTableSource(
                 physicalSchema,
@@ -128,7 +128,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-                inLongMetric);
+                inlongMetric);
     }
 
     @Override

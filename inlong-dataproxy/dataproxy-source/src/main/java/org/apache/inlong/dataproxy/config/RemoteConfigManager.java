@@ -34,7 +34,7 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.IRepository;
-import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
+import org.apache.inlong.common.pojo.dataproxy.InlongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyChannel;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxySink;
@@ -86,7 +86,7 @@ public class RemoteConfigManager implements IRepository {
     // flume properties
     private Map<String, String> flumeProperties;
     // inlong id map
-    private Map<String, InLongIdObject> inlongIdMap;
+    private Map<String, InlongIdObject> inlongIdMap;
 
     private RemoteConfigManager() {
     }
@@ -274,10 +274,10 @@ public class RemoteConfigManager implements IRepository {
      * parseInlongIds
      */
     private void parseInlongIds() {
-        Map<String, InLongIdObject> newConfig = new HashMap<>();
+        Map<String, InlongIdObject> newConfig = new HashMap<>();
         DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         ProxyClusterObject proxyClusterObject = currentClusterConfig.getProxyCluster();
-        for (InLongIdObject obj : proxyClusterObject.getInlongIds()) {
+        for (InlongIdObject obj : proxyClusterObject.getInlongIds()) {
             String inlongId = obj.getInlongId();
             newConfig.put(inlongId, obj);
         }
@@ -466,7 +466,7 @@ public class RemoteConfigManager implements IRepository {
     /**
      * getInlongIdMap
      */
-    public Map<String, InLongIdObject> getInlongIdMap() {
+    public Map<String, InlongIdObject> getInlongIdMap() {
         return inlongIdMap;
     }
 

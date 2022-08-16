@@ -115,7 +115,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
      */
     private final Duration maxIdleTime;
     /**
-     * The InLong inner format.
+     * The Inlong inner format.
      */
     private final boolean innerFormat;
     /**

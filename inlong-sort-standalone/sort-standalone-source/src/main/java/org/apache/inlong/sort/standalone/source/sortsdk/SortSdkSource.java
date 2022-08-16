@@ -50,7 +50,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Default Source implementation of InLong.
+ * Default Source implementation of Inlong.
  *
  * <p>
  * SortSdkSource acquired msg from different upstream data store by register {@link SortClient} for each sort task. The
@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * <p>
- * The Default Manager of InLong will schedule the partition and topic automatically.
+ * The Default Manager of Inlong will schedule the partition and topic automatically.
  * </p>
  *
  * <p>

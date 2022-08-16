@@ -58,8 +58,8 @@ public class TcpClientExample {
          */
         String configBasePath = "/data/inlong/config";
 
-        String inLongManagerAddr = "127.0.0.1";
-        String inLongManagerPort = "8000";
+        String inlongManagerAddr = "127.0.0.1";
+        String inlongManagerPort = "8000";
 
         /*
          * It is recommended to use type 7. For others, please refer to the official related documents
@@ -69,20 +69,20 @@ public class TcpClientExample {
 
         TcpClientExample tcpClientExample = new TcpClientExample();
         DefaultMessageSender sender = tcpClientExample
-                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
+                .getMessageSender(localIP, inlongManagerAddr, inlongManagerPort, netTag,
                         dataProxyGroup, false, false, configBasePath, msgType);
         tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
                 messageBody, System.currentTimeMillis());
     }
 
-    public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
+    public DefaultMessageSender getMessageSender(String localIP, String inlongManagerAddr, String inlongManagerPort,
             String netTag, String dataProxyGroup, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
-            dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag, "test", "123456");
+            dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inlongManagerAddr,
+                    Integer.valueOf(inlongManagerPort), dataProxyGroup, netTag, "test", "123456");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }

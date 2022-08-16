@@ -39,7 +39,7 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
     private final Configuration hbaseConf;
     private final HBaseWriteOptions writeOptions;
     private final String nullStringLiteral;
-    private final String inLongMetric;
+    private final String inlongMetric;
 
     public HBaseDynamicTableSink(
             String tableName,
@@ -47,13 +47,13 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
             Configuration hbaseConf,
             HBaseWriteOptions writeOptions,
             String nullStringLiteral,
-            String inLongMetric) {
+            String inlongMetric) {
         this.tableName = tableName;
         this.hbaseTableSchema = hbaseTableSchema;
         this.hbaseConf = hbaseConf;
         this.writeOptions = writeOptions;
         this.nullStringLiteral = nullStringLiteral;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
                         writeOptions.getBufferFlushMaxSizeInBytes(),
                         writeOptions.getBufferFlushMaxRows(),
                         writeOptions.getBufferFlushIntervalMillis(),
-                        inLongMetric);
+                        inlongMetric);
         return SinkFunctionProvider.of(sinkFunction, writeOptions.getParallelism());
     }
 
@@ -85,7 +85,7 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
     @Override
     public DynamicTableSink copy() {
         return new HBaseDynamicTableSink(
-                tableName, hbaseTableSchema, hbaseConf, writeOptions, nullStringLiteral, inLongMetric);
+                tableName, hbaseTableSchema, hbaseConf, writeOptions, nullStringLiteral, inlongMetric);
     }
 
     @Override

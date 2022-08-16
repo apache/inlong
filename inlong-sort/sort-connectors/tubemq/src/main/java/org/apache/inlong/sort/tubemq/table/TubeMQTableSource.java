@@ -108,7 +108,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final boolean ignoreErrors;
     /**
-     * The InLong inner format.
+     * The Inlong inner format.
      */
     private final boolean innerFormat;
     /**

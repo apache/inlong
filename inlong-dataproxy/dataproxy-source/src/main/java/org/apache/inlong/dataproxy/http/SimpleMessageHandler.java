@@ -27,7 +27,7 @@ import org.apache.inlong.common.monitor.CounterGroupExt;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.monitor.StatConstants;
-import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.msg.InlongMsg;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -118,14 +118,14 @@ public class SimpleMessageHandler implements MessageHandler {
             msgCount = "1";
         }
 
-        InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
+        InlongMsg inlongMsg = InlongMsg.newInlongMsg(true);
         String charset = (String) context.get(AttributeConstants.CHARSET);
         if (charset == null || "".equals(charset)) {
             charset = "UTF-8";
         }
         String body = (String) context.get(AttributeConstants.BODY);
         try {
-            inLongMsg.addMsg(newAttrBuffer.toString(), body.getBytes(charset));
+            inlongMsg.addMsg(newAttrBuffer.toString(), body.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
             throw new MessageProcessException(e);
         }
@@ -137,9 +137,9 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);
-        byte[] data = inLongMsg.buildArray();
+        byte[] data = inlongMsg.buildArray();
         headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
-        String pkgTime = DATE_FORMATTER.get().format(inLongMsg.getCreatetime());
+        String pkgTime = DATE_FORMATTER.get().format(inlongMsg.getCreatetime());
         headers.put(ConfigConstants.PKG_TIME_KEY, pkgTime);
         Event event = EventBuilder.withBody(data, headers);
 
@@ -167,7 +167,7 @@ public class SimpleMessageHandler implements MessageHandler {
         if (isNewMetricOn) {
             monitorIndex.addAndGet(new String(newBase), Integer.parseInt(msgCount), 1, data.length, 0);
         }
-        inLongMsg.reset();
+        inlongMsg.reset();
 
         long beginTime = System.currentTimeMillis();
         try {

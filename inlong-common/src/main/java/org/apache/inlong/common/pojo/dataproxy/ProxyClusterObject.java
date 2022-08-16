@@ -29,7 +29,7 @@ public class ProxyClusterObject {
     private String setName;
     private String zone;
     private List<ProxyChannel> channels = new ArrayList<>();
-    private List<InLongIdObject> inlongIds = new ArrayList<>();
+    private List<InlongIdObject> inlongIds = new ArrayList<>();
     private List<ProxySource> sources = new ArrayList<>();
     private List<ProxySink> sinks = new ArrayList<>();
 
@@ -110,7 +110,7 @@ public class ProxyClusterObject {
      *
      * @return the inlongIds
      */
-    public List<InLongIdObject> getInlongIds() {
+    public List<InlongIdObject> getInlongIds() {
         return inlongIds;
     }
 
@@ -119,7 +119,7 @@ public class ProxyClusterObject {
      *
      * @param inlongIds the inlongIds to set
      */
-    public void setInlongIds(List<InLongIdObject> inlongIds) {
+    public void setInlongIds(List<InlongIdObject> inlongIds) {
         this.inlongIds = inlongIds;
     }
 

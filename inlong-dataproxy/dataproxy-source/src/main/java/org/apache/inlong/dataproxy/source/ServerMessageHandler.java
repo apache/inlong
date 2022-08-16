@@ -47,7 +47,7 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
-import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.msg.InlongMsg;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -394,33 +394,33 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
             String strRemoteIP, MsgType msgType) throws MessageIDException {
 
-        int inLongMsgVer = 1;
+        int inlongMsgVer = 1;
         if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
-            inLongMsgVer = 3;
+            inlongMsgVer = 3;
         } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-            inLongMsgVer = 4;
+            inlongMsgVer = 4;
         }
 
         for (Map.Entry<String, HashMap<String, List<ProxyMessage>>> topicEntry : messageMap.entrySet()) {
             for (Map.Entry<String, List<ProxyMessage>> streamIdEntry : topicEntry.getValue().entrySet()) {
 
-                InLongMsg inLongMsg = InLongMsg.newInLongMsg(this.isCompressed, inLongMsgVer);
+                InlongMsg inlongMsg = InlongMsg.newInlongMsg(this.isCompressed, inlongMsgVer);
                 Map<String, String> headers = new HashMap<String, String>();
                 for (ProxyMessage message : streamIdEntry.getValue()) {
                     if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType) || MsgType.MSG_MULTI_BODY.equals(msgType)) {
                         message.getAttributeMap().put(AttributeConstants.MESSAGE_COUNT, String.valueOf(1));
-                        inLongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
+                        inlongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
                     } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-                        inLongMsg.addMsg(message.getData());
+                        inlongMsg.addMsg(message.getData());
                     } else {
-                        inLongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
+                        inlongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
                     }
                 }
 
-                long pkgTimeInMillis = inLongMsg.getCreatetime();
+                long pkgTimeInMillis = inlongMsg.getCreatetime();
                 String pkgTimeStr = dateFormator.get().format(pkgTimeInMillis);
 
-                if (inLongMsgVer == 4) {
+                if (inlongMsgVer == 4) {
                     if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
                         pkgTimeStr = commonAttrMap.get(ConfigConstants.PKG_TIME_KEY);
                     } else {
@@ -458,7 +458,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 String proxyMetricMsgCnt = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);
                 headers.put(ConfigConstants.MSG_COUNTER_KEY, proxyMetricMsgCnt);
 
-                byte[] data = inLongMsg.buildArray();
+                byte[] data = inlongMsg.buildArray();
                 headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
 
                 headers.put(AttributeConstants.UNIQ_ID,

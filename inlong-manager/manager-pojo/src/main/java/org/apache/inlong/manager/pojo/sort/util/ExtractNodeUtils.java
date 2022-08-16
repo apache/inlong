@@ -53,7 +53,7 @@ import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
-import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
+import org.apache.inlong.sort.protocol.node.format.InlongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 
 import java.util.List;
@@ -251,7 +251,7 @@ public class ExtractNodeUtils {
         }
         if (pulsarSource.isInlongComponent()) {
             Format innerFormat = format;
-            format = new InLongMsgFormat(innerFormat, false);
+            format = new InlongMsgFormat(innerFormat, false);
         }
         PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();

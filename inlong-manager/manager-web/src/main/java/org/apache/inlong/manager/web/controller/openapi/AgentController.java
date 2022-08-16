@@ -51,7 +51,7 @@ public class AgentController {
      */
     @PostMapping("/agent/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
-    public Response<List<String>> getInLongManagerIp() {
+    public Response<List<String>> getInlongManagerIp() {
         return Response.success(clusterService.listNodeIpByType("inlong-openapi"));
     }
 

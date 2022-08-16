@@ -26,7 +26,7 @@ import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,17 +60,17 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
             ObjectMapper objectMapper = new ObjectMapper();
             CacheZoneConfig cacheZoneConfig = objectMapper.readValue(confString, CacheZoneConfig.class);
             //
-            Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
+            Map<String, List<InlongTopic>> newGroupTopicsMap = new HashMap<>();
             for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {
                 CacheZone cacheZone = entry.getValue();
 
-                List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
+                List<InlongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
                         k -> new ArrayList<>());
                 CacheZoneCluster cacheZoneCluster = new CacheZoneCluster(cacheZone.getZoneName(),
                         cacheZone.getServiceUrl(), cacheZone.getAuthentication());
                 for (Topic topicInfo : cacheZone.getTopics()) {
-                    InLongTopic topic = new InLongTopic();
-                    topic.setInLongCluster(cacheZoneCluster);
+                    InlongTopic topic = new InlongTopic();
+                    topic.setInlongCluster(cacheZoneCluster);
                     topic.setTopic(topicInfo.getTopic());
                     topic.setTopicType(cacheZone.getZoneType());
                     topics.add(topic);

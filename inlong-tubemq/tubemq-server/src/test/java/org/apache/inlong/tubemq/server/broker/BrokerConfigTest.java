@@ -72,6 +72,6 @@ public class BrokerConfigTest {
         final PrometheusConfig promConfig =  brokerConfig.getPrometheusConfig();
         Assert.assertFalse(promConfig.isPromEnable());
         Assert.assertEquals(promConfig.getPromHttpPort(), 9081);
-        Assert.assertEquals(promConfig.getPromClusterName(), "InLong");
+        Assert.assertEquals(promConfig.getPromClusterName(), "Inlong");
     }
 }

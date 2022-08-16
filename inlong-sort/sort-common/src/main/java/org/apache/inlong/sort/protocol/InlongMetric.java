@@ -40,7 +40,7 @@ public interface InlongMetric {
     String METRIC_VALUE_FORMAT = "%s&%s&%s";
 
     /**
-     * The key of InLong audit, the value should be ip:port&ip:port
+     * The key of Inlong audit, the value should be ip:port&ip:port
      */
     String AUDIT_KEY = "inlong.audit";
 

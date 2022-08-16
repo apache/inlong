@@ -142,14 +142,14 @@ public interface InlongGroup {
     InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception;
 
     /**
-     * Get InLong group count info by user.
+     * Get Inlong group count info by user.
      *
      * @return {@link InlongGroupCountResponse}
      */
     InlongGroupCountResponse countGroupByUser() throws Exception;
 
     /**
-     * Get InLong group topic info by topic id.
+     * Get Inlong group topic info by topic id.
      *
      * @param id topic id
      * @return {@link InlongGroupTopicInfo}

@@ -52,7 +52,7 @@ public class OracleSource {
         private Properties dbzProperties;
         private StartupOptions startupOptions = StartupOptions.initial();
         private DebeziumDeserializationSchema<T> deserializer;
-        private String inLongMetric;
+        private String inlongMetric;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -129,8 +129,8 @@ public class OracleSource {
             return this;
         }
 
-        public Builder<T> inLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+        public Builder<T> inlongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
             return this;
         }
 
@@ -177,7 +177,7 @@ public class OracleSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new OracleValidator(props), inLongMetric);
+                    deserializer, props, specificOffset, new OracleValidator(props), inlongMetric);
         }
     }
 }
