@@ -75,6 +75,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private final long bufferFlushIntervalMillis;
     private final HBaseMutationConverter<T> mutationConverter;
     private final String inlongMetric;
+    private final String inlongAudit;
     /**
      * This is set from inside the {@link BufferedMutator.ExceptionListener} if a {@link Throwable}
      * was thrown.
@@ -103,7 +104,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             long bufferFlushMaxSizeInBytes,
             long bufferFlushMaxMutations,
             long bufferFlushIntervalMillis,
-            String inlongMetric) {
+            String inlongMetric,
+            String inlongAudit) {
         this.hTableName = hTableName;
         // Configuration is not serializable
         this.serializedConfig = HBaseConfigurationUtil.serializeConfiguration(conf);
@@ -112,6 +114,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         this.bufferFlushMaxMutations = bufferFlushMaxMutations;
         this.bufferFlushIntervalMillis = bufferFlushIntervalMillis;
         this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -125,7 +128,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 String groupId = inlongMetricArray[0];
                 String streamId = inlongMetricArray[1];
                 String nodeId = inlongMetricArray[2];
-                sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
+                sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup(),
+                        inlongAudit);
                 sinkMetricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
@@ -159,13 +163,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                                     }
                                     try {
                                         flush();
-                                        if (sinkMetricData.getNumRecordsOut() != null) {
-                                            sinkMetricData.getNumRecordsOut().inc(rowSize);
-                                        }
-                                        if (sinkMetricData.getNumBytesOut() != null) {
-                                            sinkMetricData.getNumBytesOut()
-                                                    .inc(dataSize);
-                                        }
+                                        sinkMetricData.invoke(rowSize, dataSize);
                                         resetStateAfterFlush();
                                     } catch (Exception e) {
                                         if (sinkMetricData.getDirtyRecords() != null) {
@@ -238,13 +236,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 && numPendingRequests.incrementAndGet() >= bufferFlushMaxMutations) {
             try {
                 flush();
-                if (sinkMetricData.getNumRecordsOut() != null) {
-                    sinkMetricData.getNumRecordsOut().inc(rowSize);
-                }
-                if (sinkMetricData.getNumBytesOut() != null) {
-                    sinkMetricData.getNumBytesOut()
-                            .inc(dataSize);
-                }
+                sinkMetricData.invoke(rowSize, dataSize);
                 resetStateAfterFlush();
             } catch (Exception e) {
                 if (sinkMetricData.getDirtyRecords() != null) {

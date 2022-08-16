@@ -141,6 +141,12 @@
                             <relocations>
                                 <!-- Force relocation of all HBase dependencies. -->
                                 <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>
+                                        org.apache.inlong.sort.hbase.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.apache.zookeeper</pattern>
                                     <shadedPattern>org.apache.flink.hbase.shaded.org.apache.zookeeper</shadedPattern>
                                 </relocation>

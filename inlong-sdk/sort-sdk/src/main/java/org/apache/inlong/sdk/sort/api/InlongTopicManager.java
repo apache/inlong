@@ -41,7 +41,7 @@ public abstract class InlongTopicManager implements Cleanable {
 
     public abstract Set<String> getManagedInlongTopics();
 
-    public abstract void offlineAllTp();
+    public abstract void offlineAllTopicsAndPartitions();
 
     public abstract void close();
 

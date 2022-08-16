@@ -31,6 +31,7 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 import org.apache.inlong.sort.hbase.sink.HBaseDynamicTableSink;
 
 import java.util.HashSet;
@@ -55,7 +56,8 @@ import static org.apache.flink.connector.hbase.options.HBaseOptions.getHBaseWrit
 import static org.apache.flink.connector.hbase.options.HBaseOptions.validatePrimaryKey;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.flink.table.factories.FactoryUtil.createTableFactoryHelper;
-import static org.apache.inlong.sort.hbase.options.InlongOptions.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /** HBase connector factory. */
 public class HBase2DynamicTableFactory
@@ -103,9 +105,11 @@ public class HBase2DynamicTableFactory
         String nullStringLiteral = tableOptions.get(NULL_STRING_LITERAL);
         HBaseTableSchema hbaseSchema = HBaseTableSchema.fromTableSchema(tableSchema);
         String inlongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongAudit = tableOptions.get(INLONG_AUDIT);
+        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
 
         return new HBaseDynamicTableSink(
-                tableName, hbaseSchema, hbaseConf, hBaseWriteOptions, nullStringLiteral, inlongMetric);
+                tableName, hbaseSchema, hbaseConf, hBaseWriteOptions, nullStringLiteral, inlongMetric, inlongAudit);
     }
 
     @Override
@@ -135,6 +139,7 @@ public class HBase2DynamicTableFactory
         set.add(LOOKUP_CACHE_TTL);
         set.add(LOOKUP_MAX_RETRIES);
         set.add(INLONG_METRIC);
+        set.add(INLONG_AUDIT);
         return set;
     }
 }

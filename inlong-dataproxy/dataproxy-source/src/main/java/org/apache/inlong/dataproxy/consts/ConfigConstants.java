@@ -60,6 +60,8 @@ public class ConfigConstants {
 
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
+    public static final String MAX_MONITOR_CNT = "max-monitor-cnt";
+
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";
 
     public static final String PACKAGE_TIMEOUT_SEC = "package-timeout-sec";

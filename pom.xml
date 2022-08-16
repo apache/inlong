@@ -212,6 +212,7 @@
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
+        <flink.connector.redis>1.1.0</flink.connector.redis>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
@@ -313,6 +314,12 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mongodb-cdc</artifactId>
                 <version>${flink.connector.mongodb.cdc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.bahir</groupId>
+                <artifactId>flink-connector-redis_${flink.scala.binary.version}</artifactId>
+                <version>${flink.connector.redis}</version>
             </dependency>
 
             <!-- hive -->
