@@ -212,7 +212,7 @@ public class AgentServiceImpl implements AgentService {
         final String agentClusterName = taskRequest.getClusterName();
         final String uuid = taskRequest.getUuid();
         LOGGER.debug("file task query = {}", taskRequest);
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectTaskByAgentIpOrCluster(needAddStatusList,
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
         List<DataConfig> fileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
