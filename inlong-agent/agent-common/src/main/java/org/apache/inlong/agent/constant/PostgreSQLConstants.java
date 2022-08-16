@@ -21,6 +21,7 @@ package org.apache.inlong.agent.constant;
  * Constants of job fetcher PostgreSQL snapshot mode
  */
 public class PostgreSQLConstants {
+
     public static final String INITIAL = "initial";
 
     public static final String EARLIEST_OFFSET = "never";

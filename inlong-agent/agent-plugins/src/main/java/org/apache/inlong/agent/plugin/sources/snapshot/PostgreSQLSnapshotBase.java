@@ -20,13 +20,13 @@ package org.apache.inlong.agent.plugin.sources.snapshot;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.FileOutputStream;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
-
+import java.nio.file.Files;
 import java.util.Base64;
 
 /**
@@ -58,7 +58,7 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
     }
 
     /**
-     * load postgres offset from local file
+     * Load postgres offset from local file
      */
     private void load() {
         try {
@@ -87,19 +87,19 @@ public class PostgreSQLSnapshotBase implements SnapshotBase {
             inputStream.close();
             outputStream.close();
         } catch (Throwable ex) {
-            LOGGER.error("load postgreSQL WAL log error", ex);
+            LOGGER.error("load PostgreSQL WAL log error", ex);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
         }
     }
 
     /**
-     * save binlog offset to local file
+     * Save PostgreSQL offset to local file
      */
     public void save(String snapshot) {
         byte[] bytes = decoder.decode(snapshot);
         if (bytes.length != 0) {
             offset = bytes;
-            try (OutputStream output = new FileOutputStream(file)) {
+            try (OutputStream output = Files.newOutputStream(file.toPath())) {
                 output.write(bytes);
             } catch (Throwable e) {
                 LOGGER.error("save offset to file error", e);

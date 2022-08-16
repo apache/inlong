@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * test postgres snapshot
+ * Test for PostgreSQL snapshot
  */
 public class PostgreSQLOffsetManagerTest {
 

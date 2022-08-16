@@ -32,12 +32,12 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 /**
- * test postgres reader
+ * Test for PostgreSQL reader
  */
 public class PostgreSQLReaderTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReaderTest.class);
-    private static Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     @Test
     public void testDebeziumFormat() {
@@ -45,9 +45,8 @@ public class PostgreSQLReaderTest {
                 + "    \"before\": null,\n"
                 + "    \"after\": {\n"
                 + "      \"id\": 1004,\n"
-                + "      \"first_name\": \"Anne\",\n"
-                + "      \"last_name\": \"Kretchmar\",\n"
-                + "      \"email\": \"annek@noanswer.org\"\n"
+                + "      \"first_name\": \"name1\",\n"
+                + "      \"last_name\": \"name2\"\n"
                 + "    },\n"
                 + "    \"source\": {\n"
                 + "      \"version\": \"12\",\n"
@@ -64,8 +63,7 @@ public class PostgreSQLReaderTest {
                 + "    \"op\": \"r\",\n"
                 + "    \"ts_ms\": 1486500577691\n"
                 + "  }";
-        DebeziumFormat debeziumFormat = GSON
-                .fromJson(debeziumJson, DebeziumFormat.class);
+        DebeziumFormat debeziumFormat = GSON.fromJson(debeziumJson, DebeziumFormat.class);
         Assert.assertEquals("customers", debeziumFormat.getSource().getTable());
         Assert.assertEquals("true", debeziumFormat.getSource().getSnapshot());
     }
@@ -75,7 +73,7 @@ public class PostgreSQLReaderTest {
      * and it may cause failure in compile
      * thus we annotate it.
      */
-//    @Test
+    // @Test
     public void postgresLoadTest() {
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PostgreSQLReader.JOB_POSTGRESQL_USER, "postgres");
@@ -95,7 +93,8 @@ public class PostgreSQLReaderTest {
         while (true) {
             Message message = postgreSQLReader.read();
             if (message != null) {
-                LOGGER.info("read message is {}",message.toString());
+                LOGGER.info("read message is {}", message.toString());
+                break;
             }
         }
     }

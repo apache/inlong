@@ -40,6 +40,7 @@ import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -53,10 +54,9 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
- * read PostgreSql data
+ * Read postgreSQL data
  */
 public class PostgreSQLReader extends AbstractReader {
-
 
     public static final String COMPONENT_NAME = "PostgreSQLReader";
     public static final String JOB_POSTGRESQL_USER = "job.postgreSQLJob.user";
@@ -75,6 +75,8 @@ public class PostgreSQLReader extends AbstractReader {
     public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSQLjob.pluginname";
     private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
+    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
+    protected AgentMetricItem readerMetric;
     private String userName;
     private String password;
     private String hostName;
@@ -92,17 +94,13 @@ public class PostgreSQLReader extends AbstractReader {
     private PostgreSQLSnapshotBase postgreSQLSnapshot;
     private boolean finished = false;
     private ExecutorService executor;
-    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-
     /**
      * pair.left : table name
      * pair.right : actual data
      */
     private LinkedBlockingQueue<Pair<String, String>> postgreSQLMessageQueue;
-
     private JobProfile jobProfile;
     private boolean destroyed = false;
-    protected AgentMetricItem readerMetric;
 
     public PostgreSQLReader() {
     }
@@ -111,13 +109,13 @@ public class PostgreSQLReader extends AbstractReader {
     public Message read() {
         if (!postgreSQLMessageQueue.isEmpty()) {
             readerMetric.pluginReadCount.incrementAndGet();
-            return getpostgreSQLMessage();
+            return getPostgreSQLMessage();
         } else {
             return null;
         }
     }
 
-    private DefaultMessage getpostgreSQLMessage() {
+    private DefaultMessage getPostgreSQLMessage() {
         Pair<String, String> message = postgreSQLMessageQueue.poll();
         Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
         header.put(PROXY_KEY_DATA, message.getKey());
@@ -128,7 +126,7 @@ public class PostgreSQLReader extends AbstractReader {
     public void init(JobProfile jobConf) {
         super.init(jobConf);
         jobProfile = jobConf;
-        LOGGER.info("init postgreSQL reader with jobConf {}", jobConf.toJsonStr());
+        LOGGER.info("init PostgreSQL reader with jobConf {}", jobConf.toJsonStr());
         userName = jobConf.get(JOB_POSTGRESQL_USER);
         password = jobConf.get(JOB_DATABASE_PASSWORD);
         hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
@@ -136,12 +134,12 @@ public class PostgreSQLReader extends AbstractReader {
         dbName = jobConf.get(JOB_DATABASE_DBNAME);
         serverName = jobConf.get(JOB_DATABASE_SERVER_NAME);
         pluginName = jobConf.get(JOB_DATABASE_PLUGIN_NAME, "pgoutput");
+        instanceId = jobConf.getInstanceId();
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
-                tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
+                tryToInitAndGetHistoryPath()) + "/offset.dat" + instanceId;
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         postgreSQLMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
-        instanceId = jobConf.getInstanceId();
         finished = false;
 
         offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
@@ -153,11 +151,11 @@ public class PostgreSQLReader extends AbstractReader {
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
-                io.debezium.engine.format.Json.class)
+                        io.debezium.engine.format.Json.class)
                 .using(props)
                 .notifying((records, committer) -> {
                     try {
-                        for (ChangeEvent<String, String> record:records) {
+                        for (ChangeEvent<String, String> record : records) {
                             DebeziumFormat debeziumFormat = GSON
                                     .fromJson(record.value(), DebeziumFormat.class);
                             postgreSQLMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
@@ -174,17 +172,14 @@ public class PostgreSQLReader extends AbstractReader {
                 })
                 .using((success, message, error) -> {
                     if (!success) {
-                        LOGGER.error("postgreSQLlog job with jobConf {} has error {}",
-                                jobConf.getInstanceId(), message, error);
+                        LOGGER.error("PostgreSQL job with jobConf {} has error {}", instanceId, message, error);
                     }
                 }).build();
 
         executor = Executors.newSingleThreadExecutor();
         executor.execute(engine);
 
-        LOGGER.info("get initial snapshot of job {}, snapshot {}",
-                jobConf.getInstanceId(), getSnapshot());
-
+        LOGGER.info("get initial snapshot of job {}, snapshot {}", instanceId, getSnapshot());
     }
 
     private String tryToInitAndGetHistoryPath() {
@@ -228,17 +223,17 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
         props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
 
-        LOGGER.info("postgreSQLlog job {} start with props {}", jobProfile.getInstanceId(), props);
+        LOGGER.info("PostgreSQL job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
     }
 
     private String serializeOffset() {
         Map<String, Object> sourceOffset = new HashMap<>();
         Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
-                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + "shouldn't be null");
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
         sourceOffset.put("file", specificOffsetFile);
         Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
-                            JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + "shouldn't be null");
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
         sourceOffset.put("pos", specificOffsetPos);
         DebeziumOffset specificOffset = new DebeziumOffset();
         specificOffset.setSourceOffset(sourceOffset);
