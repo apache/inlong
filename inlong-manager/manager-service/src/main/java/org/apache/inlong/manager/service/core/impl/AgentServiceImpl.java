@@ -251,7 +251,6 @@ public class AgentServiceImpl implements AgentService {
                 // If not, clone a sub task for the new agent
                 StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
                 FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
-                childFileSourceDTO.setIp(agentIp);
                 fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
                 fileEntity.setAgentIp(agentIp);
                 fileEntity.setUuid(uuid);
