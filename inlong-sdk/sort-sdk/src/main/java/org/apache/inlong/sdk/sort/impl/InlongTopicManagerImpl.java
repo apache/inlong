@@ -173,7 +173,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
      * offline all inlong topic
      */
     @Override
-    public void offlineAllTp() {
+    public void offlineAllTopicsAndPartitions() {
         String subscribeId = context.getConfig().getSortTaskId();
         try {
             logger.info("start offline {}", subscribeId);

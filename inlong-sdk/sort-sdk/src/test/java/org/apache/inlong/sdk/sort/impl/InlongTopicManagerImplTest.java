@@ -138,7 +138,7 @@ public class InlongTopicManagerImplTest {
 
     @Test
     public void testOfflineAllTp() {
-        inLongTopicManager.offlineAllTp();
+        inLongTopicManager.offlineAllTopicsAndPartitions();
     }
 
     @Test

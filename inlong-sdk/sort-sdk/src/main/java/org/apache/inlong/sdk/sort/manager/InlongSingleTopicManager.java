@@ -113,8 +113,7 @@ public class InlongSingleTopicManager extends InlongTopicManager {
                     LOGGER.info("addFetcher create same fetcher {}", inLongTopic);
                 } else {
                     result = inLongTopicFetcher;
-                    if (result != null
-                            && !initFetcher(result, inLongTopic)) {
+                    if (result != null && !initFetcher(result, inLongTopic)) {
                         LOGGER.info("addFetcher init fail {}", inLongTopic.getTopicKey());
                         result.close();
                         result = null;
@@ -177,7 +176,7 @@ public class InlongSingleTopicManager extends InlongTopicManager {
      * offline all inlong topic
      */
     @Override
-    public void offlineAllTp() {
+    public void offlineAllTopicsAndPartitions() {
         String subscribeId = context.getConfig().getSortTaskId();
         try {
             LOGGER.info("start offline {}", subscribeId);
