@@ -65,13 +65,13 @@ public class BrokerPromMetricService extends Collector {
 
     @Override
     public List<MetricFamilySamples> collect() {
-        if (!started) {
-            return null;
-        }
         final List<MetricFamilySamples> mfs = new ArrayList<>();
-        StringBuilder strBuff = new StringBuilder(512);
+        if (!started) {
+            return mfs;
+        }
         // service status metric data
         Map<String, Long> statsMap = new LinkedHashMap<>();
+        StringBuilder strBuff = new StringBuilder(512);
         CounterMetricFamily srvStatusCounter =
                 new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
                         .append("&group=serviceStatus").toString(),
