@@ -44,10 +44,7 @@ import java.util.Map;
 @ApiModel(value = "File source info")
 @JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
-
-    @ApiModelProperty("Agent Cluster tag")
-    private String clusterTag;
-
+    
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 

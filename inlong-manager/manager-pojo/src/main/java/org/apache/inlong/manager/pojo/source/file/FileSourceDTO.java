@@ -42,9 +42,6 @@ public class FileSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Agent IP address")
-    private String ip;
-
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
@@ -84,7 +81,6 @@ public class FileSourceDTO {
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
-                .ip(fileSourceRequest.getAgentIp())
                 .pattern(fileSourceRequest.getPattern())
                 .lineEndPattern(fileSourceRequest.getLineEndPattern())
                 .contentCollectType(fileSourceRequest.getContentCollectType())

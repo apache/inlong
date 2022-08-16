@@ -36,7 +36,6 @@ public class StreamSourceEntity implements Serializable {
     private String sourceName;
     private String agentIp;
     private String uuid;
-    private String subTaskAgentIps;
 
     private String dataNodeName;
     private String inlongClusterName;
