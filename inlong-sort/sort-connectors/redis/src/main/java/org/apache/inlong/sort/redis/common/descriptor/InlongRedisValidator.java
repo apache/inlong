@@ -20,7 +20,7 @@ package org.apache.inlong.sort.redis.common.descriptor;
 import org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator;
 
 /**
- * InLong redis validator expand from {@link RedisValidator}
+ * Inlong redis validator expand from {@link RedisValidator}
  */
 public class InlongRedisValidator extends RedisValidator {
 

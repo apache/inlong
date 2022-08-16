@@ -29,15 +29,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.InlongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.impl.kafka.InLongKafkaFetcherImpl;
-import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
-import org.apache.inlong.sdk.sort.impl.tube.InLongTubeFetcherImpl;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
+import org.apache.inlong.sdk.sort.impl.kafka.InlongKafkaFetcherImpl;
+import org.apache.inlong.sdk.sort.impl.pulsar.InlongPulsarFetcherImpl;
+import org.apache.inlong.sdk.sort.impl.tube.InlongTubeFetcherImpl;
 import org.apache.inlong.sdk.sort.impl.tube.TubeConsumerCreater;
 import org.apache.inlong.sdk.sort.util.PeriodicTask;
 import org.apache.inlong.sdk.sort.util.StringUtil;
@@ -58,7 +58,7 @@ public class InlongSingleTopicManager extends InlongTopicManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongSingleTopicManager.class);
 
-    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, InlongTopicFetcher> fetchers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TubeConsumerCreater> tubeFactories = new ConcurrentHashMap<>();
 
@@ -79,42 +79,42 @@ public class InlongSingleTopicManager extends InlongTopicManager {
         toBeSelectFetchers = new ArrayList<>(c);
     }
 
-    private boolean initFetcher(InLongTopicFetcher fetcher, InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("create fetcher topic is pulsar {}", inLongTopic);
-            return fetcher.init(pulsarClients.get(inLongTopic.getInLongCluster().getClusterId()));
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("create fetcher topic is kafka {}", inLongTopic);
-            return fetcher.init(inLongTopic.getInLongCluster().getBootstraps());
-        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("create fetcher topic is tube {}", inLongTopic);
-            return fetcher.init(tubeFactories.get(inLongTopic.getInLongCluster().getClusterId()));
+    private boolean initFetcher(InlongTopicFetcher fetcher, InlongTopic inlongTopic) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("create fetcher topic is pulsar {}", inlongTopic);
+            return fetcher.init(pulsarClients.get(inlongTopic.getInlongCluster().getClusterId()));
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("create fetcher topic is kafka {}", inlongTopic);
+            return fetcher.init(inlongTopic.getInlongCluster().getBootstraps());
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("create fetcher topic is tube {}", inlongTopic);
+            return fetcher.init(tubeFactories.get(inlongTopic.getInlongCluster().getClusterId()));
         } else {
-            LOGGER.error("create fetcher topic type not support " + inLongTopic.getTopicType());
+            LOGGER.error("create fetcher topic type not support " + inlongTopic.getTopicType());
             return false;
         }
     }
 
     @Override
-    public InLongTopicFetcher addFetcher(InLongTopic inLongTopic) {
+    public InlongTopicFetcher addFetcher(InlongTopic inlongTopic) {
 
         try {
-            InLongTopicFetcher result = fetchers.get(inLongTopic.getTopicKey());
+            InlongTopicFetcher result = fetchers.get(inlongTopic.getTopicKey());
             if (result == null) {
                 // create fetcher (pulsar,tube,kafka)
-                InLongTopicFetcher inLongTopicFetcher = createInLongTopicFetcher(inLongTopic);
-                InLongTopicFetcher preValue = fetchers.putIfAbsent(inLongTopic.getTopicKey(), inLongTopicFetcher);
-                LOGGER.info("addFetcher :{}", inLongTopic.getTopicKey());
+                InlongTopicFetcher inlongTopicFetcher = createInlongTopicFetcher(inlongTopic);
+                InlongTopicFetcher preValue = fetchers.putIfAbsent(inlongTopic.getTopicKey(), inlongTopicFetcher);
+                LOGGER.info("addFetcher :{}", inlongTopic.getTopicKey());
                 if (preValue != null) {
                     result = preValue;
-                    if (inLongTopicFetcher != null) {
-                        inLongTopicFetcher.close();
+                    if (inlongTopicFetcher != null) {
+                        inlongTopicFetcher.close();
                     }
-                    LOGGER.info("addFetcher create same fetcher {}", inLongTopic);
+                    LOGGER.info("addFetcher create same fetcher {}", inlongTopic);
                 } else {
-                    result = inLongTopicFetcher;
-                    if (result != null && !initFetcher(result, inLongTopic)) {
-                        LOGGER.info("addFetcher init fail {}", inLongTopic.getTopicKey());
+                    result = inlongTopicFetcher;
+                    if (result != null && !initFetcher(result, inlongTopic)) {
+                        LOGGER.info("addFetcher init fail {}", inlongTopic.getTopicKey());
                         result.close();
                         result = null;
                     }
@@ -129,28 +129,28 @@ public class InlongSingleTopicManager extends InlongTopicManager {
     /**
      * create fetcher (pulsar,tube,kafka)
      *
-     * @param inLongTopic {@link InLongTopic}
-     * @return {@link InLongTopicFetcher}
+     * @param inlongTopic {@link InlongTopic}
+     * @return {@link InlongTopicFetcher}
      */
-    private InLongTopicFetcher createInLongTopicFetcher(InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is pulsar {}", inLongTopic);
-            return new InLongPulsarFetcherImpl(inLongTopic, context);
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is kafka {}", inLongTopic);
-            return new InLongKafkaFetcherImpl(inLongTopic, context);
-        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is tube {}", inLongTopic);
-            return new InLongTubeFetcherImpl(inLongTopic, context);
+    private InlongTopicFetcher createInlongTopicFetcher(InlongTopic inlongTopic) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is pulsar {}", inlongTopic);
+            return new InlongPulsarFetcherImpl(inlongTopic, context);
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is kafka {}", inlongTopic);
+            return new InlongKafkaFetcherImpl(inlongTopic, context);
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is tube {}", inlongTopic);
+            return new InlongTubeFetcherImpl(inlongTopic, context);
         } else {
-            LOGGER.error("topic type not support " + inLongTopic.getTopicType());
+            LOGGER.error("topic type not support " + inlongTopic.getTopicType());
             return null;
         }
     }
 
     @Override
-    public InLongTopicFetcher removeFetcher(InLongTopic inLongTopic, boolean closeFetcher) {
-        InLongTopicFetcher result = fetchers.remove(inLongTopic.getTopicKey());
+    public InlongTopicFetcher removeFetcher(InlongTopic inlongTopic, boolean closeFetcher) {
+        InlongTopicFetcher result = fetchers.remove(inlongTopic.getTopicKey());
         if (result != null && closeFetcher) {
             result.close();
         }
@@ -158,17 +158,17 @@ public class InlongSingleTopicManager extends InlongTopicManager {
     }
 
     @Override
-    public InLongTopicFetcher getFetcher(String fetchKey) {
+    public InlongTopicFetcher getFetcher(String fetchKey) {
         return fetchers.get(fetchKey);
     }
 
     @Override
-    public Set<String> getManagedInLongTopics() {
+    public Set<String> getManagedInlongTopics() {
         return new HashSet<>(fetchers.keySet());
     }
 
     @Override
-    public Collection<InLongTopicFetcher> getAllFetchers() {
+    public Collection<InlongTopicFetcher> getAllFetchers() {
         return fetchers.values();
     }
 
@@ -221,14 +221,14 @@ public class InlongSingleTopicManager extends InlongTopicManager {
     }
 
     private void closeFetcher() {
-        Set<Entry<String, InLongTopicFetcher>> entries = fetchers.entrySet();
-        for (Entry<String, InLongTopicFetcher> entry : entries) {
+        Set<Entry<String, InlongTopicFetcher>> entries = fetchers.entrySet();
+        for (Entry<String, InlongTopicFetcher> entry : entries) {
             String fetchKey = entry.getKey();
-            InLongTopicFetcher inLongTopicFetcher = entry.getValue();
+            InlongTopicFetcher inlongTopicFetcher = entry.getValue();
             boolean succ = false;
-            if (inLongTopicFetcher != null) {
+            if (inlongTopicFetcher != null) {
                 try {
-                    succ = inLongTopicFetcher.close();
+                    succ = inlongTopicFetcher.close();
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
@@ -267,39 +267,39 @@ public class InlongSingleTopicManager extends InlongTopicManager {
         tubeFactories.clear();
     }
 
-    private List<String> getNewTopics(List<InLongTopic> newSubscribedInLongTopics) {
-        if (newSubscribedInLongTopics != null && newSubscribedInLongTopics.size() > 0) {
+    private List<String> getNewTopics(List<InlongTopic> newSubscribedInlongTopics) {
+        if (newSubscribedInlongTopics != null && newSubscribedInlongTopics.size() > 0) {
             List<String> newTopics = new ArrayList<>();
-            for (InLongTopic inLongTopic : newSubscribedInLongTopics) {
-                newTopics.add(inLongTopic.getTopicKey());
+            for (InlongTopic inlongTopic : newSubscribedInlongTopics) {
+                newTopics.add(inlongTopic.getTopicKey());
             }
             return newTopics;
         }
         return null;
     }
 
-    private void handleCurrentConsumeConfig(List<InLongTopic> currentConsumeConfig) {
+    private void handleCurrentConsumeConfig(List<InlongTopic> currentConsumeConfig) {
         if (null == currentConsumeConfig) {
-            LOGGER.warn("List<InLongTopic> currentConsumeConfig is null");
+            LOGGER.warn("List<InlongTopic> currentConsumeConfig is null");
             return;
         }
 
-        List<InLongTopic> newConsumeConfig = new ArrayList<>(currentConsumeConfig);
+        List<InlongTopic> newConsumeConfig = new ArrayList<>(currentConsumeConfig);
         LOGGER.debug("newConsumeConfig List:{}", Arrays.toString(newConsumeConfig.toArray()));
         List<String> newTopics = getNewTopics(newConsumeConfig);
         LOGGER.debug("newTopics :{}", Arrays.toString(newTopics.toArray()));
 
-        List<String> oldInLongTopics = new ArrayList<>(fetchers.keySet());
-        LOGGER.debug("oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
+        List<String> oldInlongTopics = new ArrayList<>(fetchers.keySet());
+        LOGGER.debug("oldInlongTopics :{}", Arrays.toString(oldInlongTopics.toArray()));
         //get need be offlined topics
-        oldInLongTopics.removeAll(newTopics);
-        LOGGER.debug("removed oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
+        oldInlongTopics.removeAll(newTopics);
+        LOGGER.debug("removed oldInlongTopics :{}", Arrays.toString(oldInlongTopics.toArray()));
 
         //get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
         LOGGER.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
         //offline need be offlined topics
-        offlineRmovedTopic(oldInLongTopics);
+        offlineRmovedTopic(oldInlongTopics);
         //online new topics
         onlineNewTopic(newConsumeConfig, newTopics);
     }
@@ -307,26 +307,26 @@ public class InlongSingleTopicManager extends InlongTopicManager {
     /**
      * offline inlong topic which not belong the sortTaskId
      *
-     * @param oldInLongTopics {@link List}
+     * @param oldInlongTopics {@link List}
      */
-    private void offlineRmovedTopic(List<String> oldInLongTopics) {
-        for (String fetchKey : oldInLongTopics) {
+    private void offlineRmovedTopic(List<String> oldInlongTopics) {
+        for (String fetchKey : oldInlongTopics) {
             LOGGER.info("offlineRmovedTopic {}", fetchKey);
-            InLongTopic inLongTopic = fetchers.get(fetchKey).getInLongTopic();
-            InLongTopicFetcher inLongTopicFetcher = fetchers.getOrDefault(fetchKey, null);
-            if (inLongTopicFetcher != null) {
-                inLongTopicFetcher.close();
+            InlongTopic inlongTopic = fetchers.get(fetchKey).getInlongTopic();
+            InlongTopicFetcher inlongTopicFetcher = fetchers.getOrDefault(fetchKey, null);
+            if (inlongTopicFetcher != null) {
+                inlongTopicFetcher.close();
             }
             fetchers.remove(fetchKey);
-            if (context != null && context.getStatManager() != null && inLongTopic != null) {
+            if (context != null && context.getStatManager() != null && inlongTopic != null) {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(),
-                                inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(),
+                                inlongTopic.getTopic())
                         .addTopicOfflineTimes(1);
             } else {
-                LOGGER.error("context == null or context.getStatManager() == null or inLongTopic == null :{}",
-                        inLongTopic);
+                LOGGER.error("context == null or context.getStatManager() == null or inlongTopic == null :{}",
+                        inlongTopic);
             }
         }
     }
@@ -334,121 +334,121 @@ public class InlongSingleTopicManager extends InlongTopicManager {
     /**
      * online new inlong topic
      *
-     * @param newSubscribedInLongTopics List
+     * @param newSubscribedInlongTopics List
      * @param reallyNewTopic List
      */
-    private void onlineNewTopic(List<InLongTopic> newSubscribedInLongTopics, List<String> reallyNewTopic) {
-        for (InLongTopic inLongTopic : newSubscribedInLongTopics) {
-            if (!reallyNewTopic.contains(inLongTopic.getTopicKey())) {
-                LOGGER.debug("!reallyNewTopic.contains(inLongTopic.getTopicKey())");
+    private void onlineNewTopic(List<InlongTopic> newSubscribedInlongTopics, List<String> reallyNewTopic) {
+        for (InlongTopic inlongTopic : newSubscribedInlongTopics) {
+            if (!reallyNewTopic.contains(inlongTopic.getTopicKey())) {
+                LOGGER.debug("!reallyNewTopic.contains(inlongTopic.getTopicKey())");
                 continue;
             }
-            onlineTopic(inLongTopic);
+            onlineTopic(inlongTopic);
         }
     }
 
-    private void onlineTopic(InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is pulsar:{}", inLongTopic);
-            onlinePulsarTopic(inLongTopic);
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is kafka:{}", inLongTopic);
-            onlineKafkaTopic(inLongTopic);
-        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
-            LOGGER.info("the topic is tube:{}", inLongTopic);
-            onlineTubeTopic(inLongTopic);
+    private void onlineTopic(InlongTopic inlongTopic) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is pulsar:{}", inlongTopic);
+            onlinePulsarTopic(inlongTopic);
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is kafka:{}", inlongTopic);
+            onlineKafkaTopic(inlongTopic);
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inlongTopic.getTopicType())) {
+            LOGGER.info("the topic is tube:{}", inlongTopic);
+            onlineTubeTopic(inlongTopic);
         } else {
-            LOGGER.error("topic type:{} not support", inLongTopic.getTopicType());
+            LOGGER.error("topic type:{} not support", inlongTopic.getTopicType());
         }
     }
 
-    private void onlinePulsarTopic(InLongTopic inLongTopic) {
-        if (!checkAndCreateNewPulsarClient(inLongTopic)) {
-            LOGGER.error("checkAndCreateNewPulsarClient error:{}", inLongTopic);
+    private void onlinePulsarTopic(InlongTopic inlongTopic) {
+        if (!checkAndCreateNewPulsarClient(inlongTopic)) {
+            LOGGER.error("checkAndCreateNewPulsarClient error:{}", inlongTopic);
             return;
         }
-        createNewFetcher(inLongTopic);
+        createNewFetcher(inlongTopic);
     }
 
-    private boolean checkAndCreateNewPulsarClient(InLongTopic inLongTopic) {
-        if (!pulsarClients.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
-            if (inLongTopic.getInLongCluster().getBootstraps() != null) {
+    private boolean checkAndCreateNewPulsarClient(InlongTopic inlongTopic) {
+        if (!pulsarClients.containsKey(inlongTopic.getInlongCluster().getClusterId())) {
+            if (inlongTopic.getInlongCluster().getBootstraps() != null) {
                 try {
                     PulsarClient pulsarClient = PulsarClient.builder()
-                            .serviceUrl(inLongTopic.getInLongCluster().getBootstraps())
-                            .authentication(AuthenticationFactory.token(inLongTopic.getInLongCluster().getToken()))
+                            .serviceUrl(inlongTopic.getInlongCluster().getBootstraps())
+                            .authentication(AuthenticationFactory.token(inlongTopic.getInlongCluster().getToken()))
                             .build();
-                    pulsarClients.put(inLongTopic.getInLongCluster().getClusterId(), pulsarClient);
+                    pulsarClients.put(inlongTopic.getInlongCluster().getClusterId(), pulsarClient);
                     LOGGER.debug("create pulsar client succ {}",
-                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
-                                    inLongTopic.getInLongCluster().getBootstraps(),
-                                    inLongTopic.getInLongCluster().getToken()});
+                            new String[]{inlongTopic.getInlongCluster().getClusterId(),
+                                    inlongTopic.getInlongCluster().getBootstraps(),
+                                    inlongTopic.getInlongCluster().getToken()});
                 } catch (Exception e) {
-                    LOGGER.error("create pulsar client error {}", inLongTopic);
+                    LOGGER.error("create pulsar client error {}", inlongTopic);
                     LOGGER.error(e.getMessage(), e);
                     return false;
                 }
             } else {
-                LOGGER.error("bootstrap is null {}", inLongTopic.getInLongCluster());
+                LOGGER.error("bootstrap is null {}", inlongTopic.getInlongCluster());
                 return false;
             }
         }
-        LOGGER.info("create pulsar client true {}", inLongTopic);
+        LOGGER.info("create pulsar client true {}", inlongTopic);
         return true;
     }
 
-    private boolean checkAndCreateNewTubeSessionFactory(InLongTopic inLongTopic) {
-        if (!tubeFactories.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
-            if (inLongTopic.getInLongCluster().getBootstraps() != null) {
+    private boolean checkAndCreateNewTubeSessionFactory(InlongTopic inlongTopic) {
+        if (!tubeFactories.containsKey(inlongTopic.getInlongCluster().getClusterId())) {
+            if (inlongTopic.getInlongCluster().getBootstraps() != null) {
                 try {
                     //create MessageSessionFactory
-                    TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
+                    TubeClientConfig tubeConfig = new TubeClientConfig(inlongTopic.getInlongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
                     TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
                             tubeConfig);
-                    tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreater);
+                    tubeFactories.put(inlongTopic.getInlongCluster().getClusterId(), tubeConsumerCreater);
                     LOGGER.debug("create tube client succ {} {} {}",
-                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
-                                    inLongTopic.getInLongCluster().getBootstraps(),
-                                    inLongTopic.getInLongCluster().getToken()});
+                            new String[]{inlongTopic.getInlongCluster().getClusterId(),
+                                    inlongTopic.getInlongCluster().getBootstraps(),
+                                    inlongTopic.getInlongCluster().getToken()});
                 } catch (Exception e) {
-                    LOGGER.error("create tube client error {}", inLongTopic);
+                    LOGGER.error("create tube client error {}", inlongTopic);
                     LOGGER.error(e.getMessage(), e);
                     return false;
                 }
             } else {
-                LOGGER.info("bootstrap is null {}", inLongTopic.getInLongCluster());
+                LOGGER.info("bootstrap is null {}", inlongTopic.getInlongCluster());
                 return false;
             }
         }
-        LOGGER.info("create pulsar client true {}", inLongTopic);
+        LOGGER.info("create pulsar client true {}", inlongTopic);
         return true;
     }
 
-    private void onlineKafkaTopic(InLongTopic inLongTopic) {
-        createNewFetcher(inLongTopic);
+    private void onlineKafkaTopic(InlongTopic inlongTopic) {
+        createNewFetcher(inlongTopic);
     }
 
-    private void onlineTubeTopic(InLongTopic inLongTopic) {
-        if (!checkAndCreateNewTubeSessionFactory(inLongTopic)) {
-            LOGGER.error("checkAndCreateNewPulsarClient error:{}", inLongTopic);
+    private void onlineTubeTopic(InlongTopic inlongTopic) {
+        if (!checkAndCreateNewTubeSessionFactory(inlongTopic)) {
+            LOGGER.error("checkAndCreateNewPulsarClient error:{}", inlongTopic);
             return;
         }
-        createNewFetcher(inLongTopic);
+        createNewFetcher(inlongTopic);
     }
 
-    private void createNewFetcher(InLongTopic inLongTopic) {
-        if (!fetchers.containsKey(inLongTopic.getTopicKey())) {
-            LOGGER.info("begin add Fetcher:{}", inLongTopic.getTopicKey());
+    private void createNewFetcher(InlongTopic inlongTopic) {
+        if (!fetchers.containsKey(inlongTopic.getTopicKey())) {
+            LOGGER.info("begin add Fetcher:{}", inlongTopic.getTopicKey());
             if (context != null && context.getStatManager() != null) {
                 context.getStatManager()
                         .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                inlongTopic.getInlongCluster().getClusterId(), inlongTopic.getTopic())
                         .addTopicOnlineTimes(1);
-                InLongTopicFetcher fetcher = addFetcher(inLongTopic);
+                InlongTopicFetcher fetcher = addFetcher(inlongTopic);
                 if (fetcher == null) {
-                    fetchers.remove(inLongTopic.getTopicKey());
-                    LOGGER.error("add fetcher error:{}", inLongTopic.getTopicKey());
+                    fetchers.remove(inlongTopic.getTopicKey());
+                    LOGGER.error("add fetcher error:{}", inlongTopic.getTopicKey());
                 }
             } else {
                 LOGGER.error("context == null or context.getStatManager() == null");
@@ -464,7 +464,7 @@ public class InlongSingleTopicManager extends InlongTopicManager {
 
         @Override
         protected void doWork() {
-            logger.debug("InLongTopicManagerImpl doWork");
+            logger.debug("InlongTopicManagerImpl doWork");
             if (stopAssign) {
                 logger.warn("assign is stoped");
                 return;

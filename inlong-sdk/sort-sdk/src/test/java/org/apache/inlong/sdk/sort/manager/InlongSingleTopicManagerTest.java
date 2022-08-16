@@ -19,12 +19,12 @@
 package org.apache.inlong.sdk.sort.manager;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.InlongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.entity.InlongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.impl.InlongTopicManagerImpl;
 import org.apache.inlong.sdk.sort.impl.QueryConsumeConfigImpl;
@@ -47,22 +47,22 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PrepareForTest({ClientContext.class})
 public class InlongSingleTopicManagerTest {
 
-    private InLongTopic inLongTopic;
+    private InlongTopic inlongTopic;
     private ClientContext clientContext;
     private QueryConsumeConfig queryConsumeConfig;
-    private InlongTopicManager inLongTopicManager;
+    private InlongTopicManager inlongTopicManager;
 
     {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
 
-        inLongTopic = new InLongTopic();
-        inLongTopic.setTopic("testTopic");
-        inLongTopic.setPartitionId(0);
-        inLongTopic.setTopicType("pulsar");
-        inLongTopic.setProperties(new HashMap<>());
+        inlongTopic = new InlongTopic();
+        inlongTopic.setTopic("testTopic");
+        inlongTopic.setPartitionId(0);
+        inlongTopic.setTopicType("pulsar");
+        inlongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
-        inLongTopic.setInLongCluster(cacheZoneCluster);
+        inlongTopic.setInlongCluster(cacheZoneCluster);
 
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
@@ -71,90 +71,90 @@ public class InlongSingleTopicManagerTest {
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
         when(sortClientConfig.getUpdateMetaDataIntervalSec()).thenReturn(60);
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
-        inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
+        inlongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
     }
 
     @Test
     public void testAddFetcher() {
-        InlongTopicManager inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InlongTopicManager inlongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
 
-        InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
-        Assert.assertNull(inLongTopicFetcher);
+        InlongTopicFetcher inlongTopicFetcher = inlongTopicManager.addFetcher(inlongTopic);
+        Assert.assertNull(inlongTopicFetcher);
     }
 
     @Test
     public void testRemoveFetcher() {
 
-        InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.removeFetcher(inLongTopic, true);
-        Assert.assertNull(inLongTopicFetcher);
+        InlongTopicFetcher inlongTopicFetcher = inlongTopicManager.removeFetcher(inlongTopic, true);
+        Assert.assertNull(inlongTopicFetcher);
 
-        ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
-        InLongTopicFetcher inLongTopicFetcherRmMock = PowerMockito.mock(InLongTopicFetcher.class);
-        fetchers.put(inLongTopic.getTopicKey(), inLongTopicFetcherRmMock);
+        ConcurrentHashMap<String, InlongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+        InlongTopicFetcher inlongTopicFetcherRmMock = PowerMockito.mock(InlongTopicFetcher.class);
+        fetchers.put(inlongTopic.getTopicKey(), inlongTopicFetcherRmMock);
 
-        Whitebox.setInternalState(inLongTopicManager, "fetchers", fetchers);
+        Whitebox.setInternalState(inlongTopicManager, "fetchers", fetchers);
 
-        inLongTopicFetcher = inLongTopicManager.removeFetcher(inLongTopic, true);
-        Assert.assertNotNull(inLongTopicFetcher);
+        inlongTopicFetcher = inlongTopicManager.removeFetcher(inlongTopic, true);
+        Assert.assertNotNull(inlongTopicFetcher);
 
     }
 
     @Test
     public void testGetFetcher() {
-        InLongTopicFetcher fetcher = inLongTopicManager.getFetcher(inLongTopic.getTopicKey());
+        InlongTopicFetcher fetcher = inlongTopicManager.getFetcher(inlongTopic.getTopicKey());
         Assert.assertNull(fetcher);
-        ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
-        InLongTopicFetcher inLongTopicFetcherRmMock = PowerMockito.mock(InLongTopicFetcher.class);
-        fetchers.put(inLongTopic.getTopicKey(), inLongTopicFetcherRmMock);
+        ConcurrentHashMap<String, InlongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+        InlongTopicFetcher inlongTopicFetcherRmMock = PowerMockito.mock(InlongTopicFetcher.class);
+        fetchers.put(inlongTopic.getTopicKey(), inlongTopicFetcherRmMock);
 
-        Whitebox.setInternalState(inLongTopicManager, "fetchers", fetchers);
+        Whitebox.setInternalState(inlongTopicManager, "fetchers", fetchers);
 
-        fetcher = inLongTopicManager.getFetcher(inLongTopic.getTopicKey());
+        fetcher = inlongTopicManager.getFetcher(inlongTopic.getTopicKey());
         Assert.assertNotNull(fetcher);
 
     }
 
     @Test
-    public void testGetManagedInLongTopics() {
-        Set<String> managedInLongTopics = inLongTopicManager.getManagedInLongTopics();
-        Assert.assertEquals(0, managedInLongTopics.size());
+    public void testGetManagedInlongTopics() {
+        Set<String> managedInlongTopics = inlongTopicManager.getManagedInlongTopics();
+        Assert.assertEquals(0, managedInlongTopics.size());
 
-        ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
-        InLongTopicFetcher inLongTopicFetcherRmMock = PowerMockito.mock(InLongTopicFetcher.class);
-        fetchers.put(inLongTopic.getTopicKey(), inLongTopicFetcherRmMock);
-        Whitebox.setInternalState(inLongTopicManager, "fetchers", fetchers);
-        managedInLongTopics = inLongTopicManager.getManagedInLongTopics();
-        Assert.assertEquals(1, managedInLongTopics.size());
+        ConcurrentHashMap<String, InlongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+        InlongTopicFetcher inlongTopicFetcherRmMock = PowerMockito.mock(InlongTopicFetcher.class);
+        fetchers.put(inlongTopic.getTopicKey(), inlongTopicFetcherRmMock);
+        Whitebox.setInternalState(inlongTopicManager, "fetchers", fetchers);
+        managedInlongTopics = inlongTopicManager.getManagedInlongTopics();
+        Assert.assertEquals(1, managedInlongTopics.size());
 
     }
 
     @Test
     public void testGetAllFetchers() {
-        Collection<InLongTopicFetcher> allFetchers = inLongTopicManager.getAllFetchers();
+        Collection<InlongTopicFetcher> allFetchers = inlongTopicManager.getAllFetchers();
         Assert.assertEquals(0, allFetchers.size());
 
-        ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
-        InLongTopicFetcher inLongTopicFetcherRmMock = PowerMockito.mock(InLongTopicFetcher.class);
-        fetchers.put(inLongTopic.getTopicKey(), inLongTopicFetcherRmMock);
-        Whitebox.setInternalState(inLongTopicManager, "fetchers", fetchers);
-        allFetchers = inLongTopicManager.getAllFetchers();
+        ConcurrentHashMap<String, InlongTopicFetcher> fetchers = new ConcurrentHashMap<>();
+        InlongTopicFetcher inlongTopicFetcherRmMock = PowerMockito.mock(InlongTopicFetcher.class);
+        fetchers.put(inlongTopic.getTopicKey(), inlongTopicFetcherRmMock);
+        Whitebox.setInternalState(inlongTopicManager, "fetchers", fetchers);
+        allFetchers = inlongTopicManager.getAllFetchers();
         Assert.assertEquals(1, allFetchers.size());
     }
 
     @Test
     public void offlineAllTopicsAndPartitions() {
-        inLongTopicManager.offlineAllTopicsAndPartitions();
+        inlongTopicManager.offlineAllTopicsAndPartitions();
     }
 
     @Test
     public void testClean() {
-        boolean clean = inLongTopicManager.clean();
+        boolean clean = inlongTopicManager.clean();
         Assert.assertTrue(clean);
     }
 
     @Test
     public void testClose() {
-        inLongTopicManager.close();
+        inlongTopicManager.close();
     }
 
 }

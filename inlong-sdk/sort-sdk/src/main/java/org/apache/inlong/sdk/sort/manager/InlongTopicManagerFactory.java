@@ -29,7 +29,7 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicManagerType;
  */
 public class InlongTopicManagerFactory {
 
-    public static InlongTopicManager createInLongTopicManager(
+    public static InlongTopicManager createInlongTopicManager(
             TopicManagerType type,
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
