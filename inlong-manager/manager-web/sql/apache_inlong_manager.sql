@@ -419,7 +419,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `create_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    KEY `group_stream_index` (`inlong_group_id`, `inlong_stream_id`, `is_deleted`),
+    UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
     KEY `source_status_index` (`status`, `is_deleted`),
     KEY `source_agent_ip_index` (`agent_ip`, `is_deleted`)
 ) ENGINE = InnoDB
