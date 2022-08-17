@@ -28,7 +28,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.FunctionFormatInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
 import javax.annotation.Nullable;
@@ -83,10 +82,10 @@ public class FieldInfo implements FunctionParam, Serializable {
     @Override
     public String format() {
         String formatName = name.trim();
-        if (!formatName.startsWith("`") && !(formatInfo instanceof FunctionFormatInfo)) {
+        if (!formatName.startsWith("`")) {
             formatName = String.format("`%s", formatName);
         }
-        if (!formatName.endsWith("`") && !(formatInfo instanceof FunctionFormatInfo)) {
+        if (!formatName.endsWith("`")) {
             formatName = String.format("%s`", formatName);
         }
         if (StringUtils.isNotBlank(tableNameAlias)) {
