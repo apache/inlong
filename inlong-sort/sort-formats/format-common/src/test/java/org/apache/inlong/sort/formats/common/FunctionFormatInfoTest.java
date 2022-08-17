@@ -36,8 +36,8 @@ public class FunctionFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testFunctionFormat() {
-        FieldInfo stringFiled = new FieldInfo("123", new StringFormatInfo());
-        assertEquals("`123`", stringFiled.format());
+        FieldInfo stringFiled = new FieldInfo("name", new StringFormatInfo());
+        assertEquals("`name`", stringFiled.format());
 
         FieldInfo functionFiled = new FieldInfo("ABS(`num`)", new FunctionFormatInfo());
         assertEquals("ABS(`num`)", functionFiled.format());
