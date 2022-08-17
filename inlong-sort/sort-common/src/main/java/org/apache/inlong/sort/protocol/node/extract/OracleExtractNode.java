@@ -46,7 +46,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oracleExtract")
 @Data
-public class OracleExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
+public class OracleExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Nullable

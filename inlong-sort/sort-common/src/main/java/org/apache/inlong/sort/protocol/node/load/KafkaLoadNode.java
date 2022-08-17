@@ -55,7 +55,7 @@ import java.util.Set;
 @JsonTypeName("kafkaLoad")
 @Data
 @NoArgsConstructor
-public class KafkaLoadNode extends LoadNode implements Metadata, Serializable, InlongMetric {
+public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
 
 
     private static final long serialVersionUID = -558158965060708408L;

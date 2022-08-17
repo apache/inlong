@@ -42,7 +42,7 @@ import java.util.Map;
 @JsonTypeName("sqlServerLoad")
 @Data
 @NoArgsConstructor
-public class SqlServerLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class SqlServerLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = 3083735489161823965L;
 

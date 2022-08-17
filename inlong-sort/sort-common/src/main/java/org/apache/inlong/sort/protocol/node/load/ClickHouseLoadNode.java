@@ -47,7 +47,7 @@ import java.util.Map;
 @JsonTypeName("clickHouseLoad")
 @Data
 @NoArgsConstructor
-public class ClickHouseLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class ClickHouseLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -1L;
 

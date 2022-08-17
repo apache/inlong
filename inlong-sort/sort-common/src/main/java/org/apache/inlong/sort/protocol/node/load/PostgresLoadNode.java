@@ -44,7 +44,7 @@ import java.util.Map;
 @JsonTypeName("postgresLoad")
 @Data
 @NoArgsConstructor
-public class PostgresLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class PostgresLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = 1L;
 

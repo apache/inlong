@@ -44,7 +44,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class IcebergLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -1L;
 

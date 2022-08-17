@@ -49,7 +49,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("MongoExtract")
 @Data
-public class MongoExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
+public class MongoExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
 

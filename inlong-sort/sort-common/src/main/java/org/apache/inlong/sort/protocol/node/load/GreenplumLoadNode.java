@@ -44,7 +44,7 @@ import java.util.Map;
 @JsonTypeName("greenplumLoad")
 @Data
 @NoArgsConstructor
-public class GreenplumLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class GreenplumLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = 1L;
 

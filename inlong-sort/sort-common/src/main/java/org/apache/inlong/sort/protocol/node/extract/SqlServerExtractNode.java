@@ -44,7 +44,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("sqlserverExtract")
 @Data
-public class SqlServerExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
+public class SqlServerExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
 
     private static final long serialVersionUID = 5096171152872086083L;
 

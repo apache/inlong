@@ -42,7 +42,7 @@ import java.util.Map;
 @JsonTypeName("mysqlLoad")
 @Data
 @NoArgsConstructor
-public class MySqlLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class MySqlLoadNode extends LoadNode implements InlongMetric, Serializable {
     /**
      * jdbc:mysql://host:port/database
      */

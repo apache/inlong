@@ -42,7 +42,7 @@ import java.util.Map;
 @JsonTypeName("oracleLoad")
 @Data
 @NoArgsConstructor
-public class OracleLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class OracleLoadNode extends LoadNode implements InlongMetric, Serializable {
     /**
      * jdbc:oracle://host:port/database
      */

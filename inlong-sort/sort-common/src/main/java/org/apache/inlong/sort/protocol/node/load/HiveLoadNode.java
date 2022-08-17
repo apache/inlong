@@ -45,7 +45,7 @@ import java.util.Map;
 @JsonTypeName("hiveLoad")
 @Data
 @NoArgsConstructor
-public class HiveLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -4547768154621816459L;
 

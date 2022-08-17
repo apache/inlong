@@ -49,7 +49,7 @@ import java.util.Map;
 @JsonTypeName("tdsqlPostgresLoad")
 @Data
 @NoArgsConstructor
-public class TDSQLPostgresLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class TDSQLPostgresLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -44,7 +44,7 @@ import java.util.Map;
 @JsonTypeName("elasticsearchLoadNode")
 @Data
 @NoArgsConstructor
-public class ElasticsearchLoadNode extends LoadNode implements Serializable, InlongMetric {
+public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -1L;
 
