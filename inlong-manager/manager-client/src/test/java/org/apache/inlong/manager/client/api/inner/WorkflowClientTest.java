@@ -69,8 +69,8 @@ public class WorkflowClientTest extends ClientFactoryTest {
         request.setForm(form);
 
         WorkflowResult workflowInfo = workflowClient.start(request);
-        Assertions.assertEquals(workflowInfo.getProcessInfo().getName(), request.getName().getDisplayName());
-        Assertions.assertEquals(workflowInfo.getProcessInfo().getApplicant(), request.getApplicant());
+        Assertions.assertEquals(request.getName().getDisplayName(), workflowInfo.getProcessInfo().getName());
+        Assertions.assertEquals(request.getApplicant(), workflowInfo.getProcessInfo().getApplicant());
     }
 
     @Test
