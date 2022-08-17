@@ -29,6 +29,8 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import java.util.Map;
+
 public interface UserApi {
 
     @POST("user/currentUser")
@@ -41,7 +43,7 @@ public interface UserApi {
     Call<Response<UserInfo>> getById(@Path("id") Integer id);
 
     @GET("user/listAll")
-    Call<Response<PageInfo<UserInfo>>> list(UserRequest request);
+    Call<Response<PageInfo<UserInfo>>> list(@Query("request") Map<String, Object> request);
 
     @POST("user/update")
     Call<Response<Integer>> update(@Body UserRequest userInfo);
