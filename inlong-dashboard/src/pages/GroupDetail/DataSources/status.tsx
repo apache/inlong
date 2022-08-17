@@ -31,78 +31,78 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.Disable'),
+    label: i18n.t('pages.GroupDetail.Sources.status.Disable'),
     value: 99,
     type: 'warning',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.Normal'),
+    label: i18n.t('pages.GroupDetail.Sources.status.Normal'),
     value: 101,
     type: 'success',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.Failure'),
+    label: i18n.t('pages.GroupDetail.Sources.status.Failure'),
     value: 102,
     type: 'error',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.Frozen'),
+    label: i18n.t('pages.GroupDetail.Sources.status.Frozen'),
     value: 104,
     type: 'warning',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.New'),
+    label: i18n.t('pages.GroupDetail.Sources.status.New'),
     value: 110,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.TobeAdd'),
+    label: i18n.t('pages.GroupDetail.Sources.status.TobeAdd'),
     value: 200,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.TobeDelete'),
+    label: i18n.t('pages.GroupDetail.Sources.status.TobeDelete'),
     value: 201,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.TobeRetry'),
+    label: i18n.t('pages.GroupDetail.Sources.status.TobeRetry'),
     value: 202,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.TobeFrozen'),
+    label: i18n.t('pages.GroupDetail.Sources.status.TobeFrozen'),
     value: 204,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.TobeActive'),
+    label: i18n.t('pages.GroupDetail.Sources.status.TobeActive'),
     value: 205,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.BeenAdd'),
+    label: i18n.t('pages.GroupDetail.Sources.status.BeenAdd'),
     value: 300,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.BeenDelete'),
+    label: i18n.t('pages.GroupDetail.Sources.status.BeenDelete'),
     value: 301,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.BeenRetry'),
+    label: i18n.t('pages.GroupDetail.Sources.status.BeenRetry'),
     value: 302,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.BeenFrozen'),
+    label: i18n.t('pages.GroupDetail.Sources.status.BeenFrozen'),
     value: 304,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataSources.status.BeenActive'),
+    label: i18n.t('pages.GroupDetail.Sources.status.BeenActive'),
     value: 305,
     type: 'default',
   },

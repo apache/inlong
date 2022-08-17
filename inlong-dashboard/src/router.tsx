@@ -161,7 +161,7 @@ const App = () => {
         <Layout>
           <Suspense fallback={<PageLoading />}>
             <Switch>
-              <Route exact path="/" render={() => <Redirect to="/access" />} />
+              <Route exact path="/" render={() => <Redirect to="/group" />} />
               {renderRoutes(routes)}
             </Switch>
           </Suspense>

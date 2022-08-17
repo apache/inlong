@@ -23,9 +23,10 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import getGroupFields from '@/metas/group';
+import { groupForm } from '@/metas/group';
 import getStreamFields from '@/metas/stream';
 import request from '@/utils/request';
+import { pickObjectArray } from '@/utils';
 import { dataToValues, valuesToData } from './helper';
 
 export interface Props extends ModalProps {
@@ -40,9 +41,7 @@ export const genFormContent = (isCreate, mqType) => {
     ...getStreamFields([
       {
         type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
-          </Divider>
+          <Divider orientation="left">{i18n.t('pages.GroupDetail.Stream.config.Basic')}</Divider>
         ),
       },
       'inlongStreamId',
@@ -50,9 +49,7 @@ export const genFormContent = (isCreate, mqType) => {
       'description',
       {
         type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-          </Divider>
+          <Divider orientation="left">{i18n.t('pages.GroupDetail.Stream.config.DataInfo')}</Divider>
         ),
       },
       'dataType',
@@ -61,17 +58,17 @@ export const genFormContent = (isCreate, mqType) => {
       'rowTypeFields',
       {
         type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-          </Divider>
+          <Divider orientation="left">{i18n.t('pages.GroupDetail.Stream.config.Scale')}</Divider>
         ),
         visible: mqType === 'PULSAR',
       },
     ]),
-    ...getGroupFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(item => ({
-      ...item,
-      visible: mqType === 'PULSAR',
-    })),
+    ...pickObjectArray(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength'], groupForm).map(
+      item => ({
+        ...item,
+        visible: mqType === 'PULSAR',
+      }),
+    ),
   ].map(item => {
     const obj = { ...item };
 
@@ -129,7 +126,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
   return (
     <Modal
       {...modalProps}
-      title={i18n.t('pages.AccessDetail.DataStream.StreamItemModal.DataFlowConfiguration')}
+      title={i18n.t('pages.GroupDetail.Stream.StreamItemModal.DataFlowConfiguration')}
       width={1000}
       onOk={onOk}
     >

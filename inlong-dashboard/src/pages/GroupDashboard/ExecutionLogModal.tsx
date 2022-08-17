@@ -67,7 +67,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   const reRun = useCallback(
     ({ taskId }) => {
       Modal.confirm({
-        title: t('pages.AccessDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
+        title: t('pages.GroupDashboard.ExecutionLogModal.ConfirmThatItIsRe-executed'),
         onOk: async () => {
           await request({
             url: `/workflow/complete/` + taskId,
@@ -77,7 +77,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
             },
           });
           await getData(inlongGroupId);
-          message.success(t('pages.AccessDashboard.ExecutionLogModal.Re-executingSuccess'));
+          message.success(t('pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess'));
         },
       });
     },
@@ -103,11 +103,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
 
   const columns = [
     {
-      title: t('pages.AccessDashboard.ExecutionLogModal.TaskType'),
+      title: t('pages.GroupDashboard.ExecutionLogModal.TaskType'),
       dataIndex: 'taskDisplayName',
     },
     {
-      title: t('pages.AccessDashboard.ExecutionLogModal.RunResults'),
+      title: t('pages.GroupDashboard.ExecutionLogModal.RunResults'),
       dataIndex: 'status',
       render: (text, record) => (
         <>
@@ -115,19 +115,19 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
             {record.status === 'COMPLETED' ? (
               <StatusTag
                 type={'success'}
-                title={t('pages.AccessDashboard.ExecutionLogModal.Success')}
+                title={t('pages.GroupDashboard.ExecutionLogModal.Success')}
               />
             ) : record.status === 'FAILED' ? (
-              <StatusTag type={'error'} title={t('pages.AccessDashboard.ExecutionLogModal.Fail')} />
+              <StatusTag type={'error'} title={t('pages.GroupDashboard.ExecutionLogModal.Fail')} />
             ) : record.status === 'SKIPPED' ? (
               <StatusTag
                 type={'primary'}
-                title={t('pages.AccessDashboard.ExecutionLogModal.Skip')}
+                title={t('pages.GroupDashboard.ExecutionLogModal.Skip')}
               />
             ) : (
               <StatusTag
                 type={'warning'}
-                title={t('pages.AccessDashboard.ExecutionLogModal.Processing')}
+                title={t('pages.GroupDashboard.ExecutionLogModal.Processing')}
               />
             )}
           </div>
@@ -135,7 +135,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       ),
     },
     {
-      title: t('pages.AccessDashboard.ExecutionLogModal.ExecuteLog'),
+      title: t('pages.GroupDashboard.ExecutionLogModal.ExecuteLog'),
       dataIndex: 'listenerExecuteLogs',
       width: 400,
       render: text =>
@@ -157,7 +157,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         ) : null,
     },
     {
-      title: t('pages.AccessDashboard.ExecutionLogModal.EndTime'),
+      title: t('pages.GroupDashboard.ExecutionLogModal.EndTime'),
       dataIndex: 'endTime',
       render: (text, record) => record.endTime && timestampFormat(record.endTime),
     },
@@ -168,7 +168,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
         <>
           {record?.status && record.status === 'FAILED' && (
             <Button type="link" onClick={() => reRun(record)}>
-              {t('pages.AccessDashboard.ExecutionLogModal.CarriedOut')}
+              {t('pages.GroupDashboard.ExecutionLogModal.CarriedOut')}
             </Button>
           )}
         </>
@@ -178,7 +178,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   return (
     <Modal
       {...modalProps}
-      title={t('pages.AccessDashboard.ExecutionLogModal.ExecuteLog')}
+      title={t('pages.GroupDashboard.ExecutionLogModal.ExecuteLog')}
       width={1024}
       footer={null}
     >
