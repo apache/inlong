@@ -54,4 +54,8 @@ public class HiveDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("User and group information for writing data to HDFS")
     private String hdfsUgi;
 
+    public HiveDataNodeRequest() {
+        this.setType(DataNodeType.HIVE);
+    }
+
 }
