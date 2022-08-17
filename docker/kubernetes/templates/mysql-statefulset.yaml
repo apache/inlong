@@ -72,6 +72,8 @@ spec:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
+            - name: TZ
+              value: {{ .Values.timezone }}
           ports:
             - name: {{ .Values.mysql.component }}-port
               containerPort: 3306
