@@ -50,7 +50,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
-    public static final String DEFAULT_LOCAL_PORT = "46801";
+    public static final String DEFAULT_REPORT_PORT = "46801";
     public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
     public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
 
@@ -116,10 +116,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         Map<String, String> commonProperties = configManager.getCommonProperties();
-        String localIp = commonProperties.get(ConfigConstants.PROXY_LOCAL_IP);
-        String localPort = commonProperties.getOrDefault(ConfigConstants.PROXY_LOCAL_PORT, DEFAULT_LOCAL_PORT);
-        heartbeatMsg.setIp(localIp);
-        heartbeatMsg.setPort(Integer.parseInt(localPort));
+        String reportIp = commonProperties.get(ConfigConstants.PROXY_REPORT_IP);
+        String reportPort = commonProperties.getOrDefault(ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT);
+        heartbeatMsg.setIp(reportIp);
+        heartbeatMsg.setPort(Integer.parseInt(reportPort));
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         String clusterTag = commonProperties.getOrDefault(ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG);
