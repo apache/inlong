@@ -139,7 +139,8 @@ public class MongoDBSource {
         private String errorsTolerance;
         private Integer heartbeatIntervalMillis;
         private DebeziumDeserializationSchema<T> deserializer;
-        private String inLongMetric;
+        private String inlongMetric;
+        private String inlongAudit;
 
         /** The comma-separated list of hostname and port pairs of mongodb servers. */
         public Builder<T> hosts(String hosts) {
@@ -317,8 +318,13 @@ public class MongoDBSource {
             return this;
         }
 
-        public Builder<T> inLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+        public Builder<T> inlongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
+            return this;
+        }
+
+        public Builder<T> inlongAudit(String inlongAudit) {
+            this.inlongAudit = inlongAudit;
             return this;
         }
 
@@ -441,7 +447,7 @@ public class MongoDBSource {
                     Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(), HEARTBEAT_TOPIC_NAME_DEFAULT);
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator(), inLongMetric);
+                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric, inlongAudit);
         }
     }
 }
