@@ -22,13 +22,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.service.core.DataNodeService;
+import org.apache.inlong.manager.service.node.DataNodeService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -65,13 +65,13 @@ public class DataNodeController {
     @GetMapping(value = "/node/get/{id}")
     @ApiOperation(value = "Get node by id")
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
-    public Response<DataNodeResponse> get(@PathVariable Integer id) {
+    public Response<DataNodeInfo> get(@PathVariable Integer id) {
         return Response.success(dataNodeService.get(id));
     }
 
     @PostMapping(value = "/node/list")
     @ApiOperation(value = "List data node")
-    public Response<PageInfo<DataNodeResponse>> list(@RequestBody DataNodePageRequest request) {
+    public Response<PageInfo<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
         return Response.success(dataNodeService.list(request));
     }
 

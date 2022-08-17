@@ -62,8 +62,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -965,9 +965,8 @@ class ClientFactoryTest {
                                         Response.success(1))
                                 ))
         );
-        DataNodeRequest request = new DataNodeRequest();
-        request.setName("test_node");
-        request.setType(DataNodeType.HIVE);
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
         Integer nodeId = dataNodeClient.save(request);
         Assertions.assertEquals(1, nodeId);
     }
@@ -1007,9 +1006,8 @@ class ClientFactoryTest {
                         )
         );
 
-        DataNodeRequest request = new DataNodeRequest();
-        request.setName("test_node");
-        request.setToken(DataNodeType.HIVE);
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
         PageInfo<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
         Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
     }
@@ -1025,10 +1023,9 @@ class ClientFactoryTest {
                         )
         );
 
-        DataNodeRequest request = new DataNodeRequest();
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setId(1);
-        request.setName("test_node");
-        request.setType(DataNodeType.HIVE);
+        request.setName("test_hive_node");
         Boolean isUpdate = dataNodeClient.update(request);
         Assertions.assertTrue(isUpdate);
     }

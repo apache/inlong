@@ -17,43 +17,39 @@
 
 package org.apache.inlong.manager.pojo.node;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
- * Data node request
+ * Data node info
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Data node  request")
+@ApiModel("Data node info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public abstract class DataNodeRequest {
+public abstract class DataNodeInfo {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank(message = "node name cannot be blank")
     @ApiModelProperty(value = "Data node name")
     private String name;
 
-    @NotBlank(message = "node type cannot be blank")
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
     @ApiModelProperty(value = "Data node URL")
     private String url;
 
-    @ApiModelProperty(value = "Data node username")
+    @ApiModelProperty("Data node username")
     private String username;
 
     @ApiModelProperty(value = "Data node token if needed")
@@ -65,11 +61,23 @@ public abstract class DataNodeRequest {
     @ApiModelProperty(value = "Description of the data node")
     private String description;
 
-    @NotBlank(message = "inCharges cannot be blank")
-    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    public abstract DataNodeRequest genRequest();
 }
