@@ -120,6 +120,8 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: TZ
+              value: {{ .Values.timezone }}
           {{- if .Values.tubemqBroker.probe.readiness.enabled }}
           readinessProbe:
             exec:
