@@ -111,6 +111,9 @@ class ClientFactoryTest {
 
     private static final int SERVICE_PORT = 8085;
     private static WireMockServer wireMockServer;
+
+    static ClientFactory clientFactory;
+
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
     private static StreamSourceClient sourceClient;
@@ -129,7 +132,8 @@ class ClientFactoryTest {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+        clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+
         groupClient = clientFactory.getGroupClient();
         streamClient = clientFactory.getStreamClient();
         sourceClient = clientFactory.getSourceClient();
