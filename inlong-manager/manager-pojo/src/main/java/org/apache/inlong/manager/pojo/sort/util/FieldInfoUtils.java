@@ -38,6 +38,7 @@ import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.FunctionFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -250,6 +251,9 @@ public class FieldInfoUtils {
                 break;
             case STRUCT:
                 formatInfo = createRowFormatInfo(format);
+                break;
+            case FUNCTION:
+                formatInfo = new FunctionFormatInfo();
                 break;
             default: // default is string
                 formatInfo = new StringFormatInfo();

@@ -45,7 +45,8 @@ import java.io.Serializable;
         @JsonSubTypes.Type(name = "row", value = RowTypeInfo.class),
         @JsonSubTypes.Type(name = "binary", value = BinaryTypeInfo.class),
         @JsonSubTypes.Type(name = "null", value = NullTypeInfo.class),
-        @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampTypeInfo.class)
+        @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampTypeInfo.class),
+        @JsonSubTypes.Type(name = "function", value = FunctionTypeInfo.class),
 })
 public interface TypeInfo extends Serializable {
 
