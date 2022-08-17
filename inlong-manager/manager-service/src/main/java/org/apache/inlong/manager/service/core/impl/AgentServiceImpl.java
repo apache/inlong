@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
@@ -211,7 +212,6 @@ public class AgentServiceImpl implements AgentService {
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
         final String uuid = taskRequest.getUuid();
-        LOGGER.debug("file task query = {}", taskRequest);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
         List<DataConfig> fileTasks = Lists.newArrayList();
@@ -249,11 +249,13 @@ public class AgentServiceImpl implements AgentService {
                 }
 
                 // If not, clone a sub task for the new agent
+                // Note that a new source name with random suffix is generated to adhere to the unique constraint
                 StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
                 FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
                 fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
                 fileEntity.setAgentIp(agentIp);
                 fileEntity.setUuid(uuid);
+                fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
                 int op = getOp(fileEntity.getStatus());
                 int nextStatus = getNextStatus(fileEntity.getStatus());
                 fileEntity.setStatus(nextStatus);
