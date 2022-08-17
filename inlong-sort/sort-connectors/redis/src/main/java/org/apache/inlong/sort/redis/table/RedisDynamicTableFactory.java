@@ -89,7 +89,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
 
     private RedisLookupOptions getJdbcLookupOptions(ReadableConfig readableConfig) {
         return new RedisLookupOptions(readableConfig.get(LOOKUP_CACHE_MAX_ROWS),
-                readableConfig.get(LOOKUP_CACHE_TTL).toMillis(),
+                readableConfig.get(LOOKUP_CACHE_TTL),
                 readableConfig.get(LOOKUP_MAX_RETRIES), readableConfig.get(LOOKUP_ASYNC));
     }
 
