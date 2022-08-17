@@ -20,38 +20,18 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import getConsumptionFields from '@/metas/consumption';
+import { consumptionForm } from '@/metas/consumption';
 
-const getContent = initialValues => {
-  return getConsumptionFields(
-    [
-      'consumerGroup',
-      'inCharges',
-      'masterUrl',
-      'inlongGroupId',
-      'mqExtInfo.isDlq',
-      'mqExtInfo.deadLetterTopic',
-      'mqExtInfo.isRlq',
-      'mqExtInfo.retryLetterTopic',
-      {
-        type: 'text',
-        label: 'Topic',
-        name: 'topic',
-        initialValue: initialValues.topic,
-      },
-    ],
-    initialValues,
-  ).map(item => {
+const getContent = () => {
+  return consumptionForm.map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;
     }
     delete obj.extra;
     delete obj.rules;
-    if (typeof obj.type === 'string' || obj.name === 'inlongGroupId') {
+    if (typeof obj.type === 'string' || obj.name === 'inlongGroupId' || obj.name === 'inCharges') {
       obj.type = 'text';
-    } else if (obj.name === 'inCharges') {
-      obj.type = <span>{initialValues.inCharges}</span>;
     }
 
     return obj;
@@ -74,7 +54,7 @@ export const getFormContent = (
         </Divider>
       ),
     },
-    ...(getContent(formData.consumptionInfo) || []),
+    ...(getContent() || []),
   ];
 
   const extraForm =

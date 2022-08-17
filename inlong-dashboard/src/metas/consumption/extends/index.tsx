@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import FormGenerator, { useForm } from './FormGenerator';
-import type { FormGeneratorProps, FormItemProps } from './FormGenerator';
+import type { FieldItemType } from '@/metas/common';
 
-export { useForm };
-export type { FormGeneratorProps, FormItemProps };
-export default FormGenerator;
+export const consumptionExtends: FieldItemType[] = [
+  // You can extended consumption fields here...
+];
