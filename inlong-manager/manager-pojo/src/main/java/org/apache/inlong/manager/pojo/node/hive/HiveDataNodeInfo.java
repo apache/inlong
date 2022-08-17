@@ -28,13 +28,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
 /**
- * Data node info for hive
+ * Hive data node info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = DataNodeType.HIVE)
-@ApiModel("Data node info for hive")
+@ApiModel("Hive data node info")
 public class HiveDataNodeInfo extends DataNodeInfo {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
@@ -45,6 +45,15 @@ public class HiveDataNodeInfo extends DataNodeInfo {
 
     @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
+
+    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
+    private String hdfsPath;
+
+    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    private String warehouse;
+
+    @ApiModelProperty("User and group information for writing data to HDFS")
+    private String hdfsUgi;
 
     public HiveDataNodeInfo() {
         this.setType(DataNodeType.HIVE);

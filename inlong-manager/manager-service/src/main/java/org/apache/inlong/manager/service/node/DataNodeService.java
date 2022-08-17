@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;

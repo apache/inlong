@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 /**
- * hive data node info
+ * Hive data node info
  */
 @Data
 @Builder
@@ -55,6 +55,15 @@ public class HiveDataNodeDTO {
     @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
+    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
+    private String hdfsPath;
+
+    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    private String warehouse;
+
+    @ApiModelProperty("User and group information for writing data to HDFS")
+    private String hdfsUgi;
+
     /**
      * Get the dto instance from the request
      */
@@ -63,6 +72,9 @@ public class HiveDataNodeDTO {
                 .jdbcUrl(request.getJdbcUrl())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
+                .hdfsPath(request.getHdfsPath())
+                .warehouse(request.getWarehouse())
+                .hdfsUgi(request.getHdfsUgi())
                 .build();
     }
 
@@ -74,7 +86,7 @@ public class HiveDataNodeDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for hive data node, err msg={}", e.getMessage());
+            LOGGER.error("Failed to extract additional parameters for hive data node: ", e);
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }
     }

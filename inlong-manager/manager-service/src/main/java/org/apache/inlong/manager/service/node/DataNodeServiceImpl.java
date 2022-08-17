@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -30,9 +30,6 @@ import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.service.core.DataNodeService;
-import org.apache.inlong.manager.service.node.DataNodeOperator;
-import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.resource.sink.hive.HiveJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +51,6 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     @Autowired
     private DataNodeEntityMapper dataNodeMapper;
-
     @Autowired
     private DataNodeOperatorFactory operatorFactory;
 
@@ -70,7 +66,7 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
-        // According to the data type, save sink information
+        // according to the data type, save sink information
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
         int id = dataNodeOperator.saveOpt(request, operator);
         LOGGER.debug("success to save data node={}", request);
@@ -84,10 +80,10 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException("data node not found");
         }
+
         String dataNodeType = entity.getType();
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
         DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
-
         LOGGER.debug("success to get data node info by id={}", id);
         return dataNodeInfo;
     }
@@ -111,9 +107,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     public Boolean update(DataNodeRequest request, String operator) {
         String name = request.getName();
         String type = request.getType();
-
-        Integer id = request.getId();
         DataNodeEntity exist = dataNodeMapper.selectByNameAndType(name, type);
+        Integer id = request.getId();
         if (exist != null && !Objects.equals(id, exist.getId())) {
             String errMsg = String.format("data node already exist for name=%s type=%s", name, type);
             LOGGER.error(errMsg);

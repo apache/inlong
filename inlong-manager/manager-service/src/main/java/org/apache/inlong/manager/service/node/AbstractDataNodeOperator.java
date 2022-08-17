@@ -46,7 +46,6 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
         // set the ext params
         this.setTargetEntity(request, entity);
-
         entity.setCreator(operator);
         entity.setModifier(operator);
         dataNodeEntityMapper.insert(entity);

@@ -112,19 +112,28 @@ public class HttpUtils {
         return response.getBody();
     }
 
-    public static <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
-            ParameterizedTypeReference<T> typeReference) {
-        return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
-    }
-
-    public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params, HttpHeaders header,
-            ParameterizedTypeReference<T> typeReference) {
+    /**
+     * Send GET request to the specified URL.
+     */
+    public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
+            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
     }
 
+    /**
+     * Send PUT request to the specified URL.
+     */
     public static <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.PUT, params, header, typeReference);
+    }
+
+    /**
+     * Send POST request to the specified URL.
+     */
+    public static <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+            ParameterizedTypeReference<T> typeReference) {
+        return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
     }
 
     private static String buildUrlWithQueryParam(String url, Map<String, Object> params) {

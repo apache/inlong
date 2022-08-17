@@ -43,26 +43,26 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Data node name")
     private String name;
 
-    @ApiModelProperty(value = "Data node type, including HIVE, etc.")
+    @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Data node url")
+    @ApiModelProperty(value = "Data node URL")
     private String url;
 
-    @ApiModelProperty("Node username")
+    @ApiModelProperty("Data node username")
     private String username;
 
-    @ApiModelProperty(value = "Node token if needed")
+    @ApiModelProperty(value = "Data node token if needed")
     private String token;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @ApiModelProperty(value = "Name of in charges, separated by commas")
-    private String inCharges;
-
     @ApiModelProperty(value = "Description of the data node")
     private String description;
+
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
+    private String inCharges;
 
     @ApiModelProperty(value = "Name of in creator")
     private String creator;

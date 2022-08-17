@@ -66,7 +66,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             CommonBeanUtils.copyProperties(dto, hiveDataNodeInfo);
         }
 
-        LOGGER.debug("success to get data node info from entity");
+        LOGGER.debug("success to get hive data node from entity");
         return hiveDataNodeInfo;
     }
 
@@ -79,9 +79,9 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.debug("success to set entity for hive data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for hive data node, err msg={}", e.getMessage());
+            LOGGER.error("failed to set entity for hive data node: ", e);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
-}
 
+}

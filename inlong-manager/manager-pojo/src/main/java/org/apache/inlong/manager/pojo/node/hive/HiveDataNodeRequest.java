@@ -27,13 +27,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
- * Data node request for hive
+ * Hive data node request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = DataNodeType.HIVE)
-@ApiModel("Data node request for hive")
+@ApiModel("Hive data node request")
 public class HiveDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
@@ -44,5 +44,14 @@ public class HiveDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
+
+    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
+    private String hdfsPath;
+
+    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    private String warehouse;
+
+    @ApiModelProperty("User and group information for writing data to HDFS")
+    private String hdfsUgi;
 
 }
