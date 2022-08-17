@@ -43,6 +43,7 @@ import java.util.List;
  */
 @Service
 public class HudiSinkOperator extends AbstractSinkOperator {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HudiSinkOperator.class);
 
     @Autowired

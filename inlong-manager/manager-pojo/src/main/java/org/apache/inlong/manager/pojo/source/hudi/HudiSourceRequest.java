@@ -34,7 +34,7 @@ import org.apache.inlong.manager.pojo.source.SourceRequest;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Hudi source request")
 @JsonTypeDefine(value = SourceType.HUDI)
-public class HudiSourceRequest extends SourceRequest{
+public class HudiSourceRequest extends SourceRequest {
 
     @ApiModelProperty("path of hudi table")
     private String path;

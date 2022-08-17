@@ -52,7 +52,6 @@ public class HudiSource extends StreamSource {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
-
     public HudiSource() {
         this.setSourceType(SourceType.HUDI);
     }

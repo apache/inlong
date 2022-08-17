@@ -39,7 +39,8 @@ import java.util.List;
  * Hudi source operator
  */
 @Service
-public class HudiSourceOperator extends AbstractSourceOperator{
+public class HudiSourceOperator extends AbstractSourceOperator {
+
     @Autowired
     private ObjectMapper objectMapper;
 

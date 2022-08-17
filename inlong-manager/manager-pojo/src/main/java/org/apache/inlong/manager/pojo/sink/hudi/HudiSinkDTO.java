@@ -85,16 +85,16 @@ public class HudiSinkDTO {
     /**
      * Get Hudi table info
      *
-     * @param HudiSink Hudi sink dto,{@link HudiSinkDTO}
+     * @param hudiSink Hudi sink dto,{@link HudiSinkDTO}
      * @param columnList Hudi column info list,{@link HudiColumnInfo}
      * @return {@link HudiTableInfo}
      */
-    public static HudiTableInfo getTableInfo(HudiSinkDTO HudiSink,
+    public static HudiTableInfo getTableInfo(HudiSinkDTO hudiSink,
                                                   List<HudiColumnInfo> columnList) {
         HudiTableInfo tableInfo = new HudiTableInfo();
-        tableInfo.setTableName(HudiSink.getTableName());
-        tableInfo.setPath(HudiSink.getPath());
-        tableInfo.setPrimaryKey(HudiSink.getPrimaryKey());
+        tableInfo.setTableName(hudiSink.getTableName());
+        tableInfo.setPath(hudiSink.getPath());
+        tableInfo.setPrimaryKey(hudiSink.getPrimaryKey());
         tableInfo.setColumns(columnList);
         return tableInfo;
     }
