@@ -98,7 +98,7 @@ public class HttpUtils {
     /**
      * Send an HTTP request
      */
-    public <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
+    public static <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
             HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
         if (log.isDebugEnabled()) {
             log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
@@ -112,22 +112,22 @@ public class HttpUtils {
         return response.getBody();
     }
 
-    public <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+    public static <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
     }
 
-    public <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params, HttpHeaders header,
+    public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
     }
 
-    public <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+    public static <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.PUT, params, header, typeReference);
     }
 
-    private String buildUrlWithQueryParam(String url, Map<String, Object> params) {
+    private static String buildUrlWithQueryParam(String url, Map<String, Object> params) {
         if (params == null) {
             return url;
         }
