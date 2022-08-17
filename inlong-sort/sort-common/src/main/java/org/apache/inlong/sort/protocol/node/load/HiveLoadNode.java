@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -44,7 +45,7 @@ import java.util.Map;
 @JsonTypeName("hiveLoad")
 @Data
 @NoArgsConstructor
-public class HiveLoadNode extends LoadNode implements Serializable {
+public class HiveLoadNode extends LoadNode implements Serializable, InlongMetric {
 
     private static final long serialVersionUID = -4547768154621816459L;
 

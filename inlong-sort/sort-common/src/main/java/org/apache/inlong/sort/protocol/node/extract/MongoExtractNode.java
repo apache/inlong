@@ -29,6 +29,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -48,7 +49,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("MongoExtract")
 @Data
-public class MongoExtractNode extends ExtractNode implements Metadata, Serializable {
+public class MongoExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
 
     private static final long serialVersionUID = 1L;
 
@@ -111,7 +112,7 @@ public class MongoExtractNode extends ExtractNode implements Metadata, Serializa
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "mongodb-cdc");
+        options.put("connector", "mongodb-cdc-inlong");
         options.put("hosts", hosts);
         options.put("username", username);
         options.put("password", password);

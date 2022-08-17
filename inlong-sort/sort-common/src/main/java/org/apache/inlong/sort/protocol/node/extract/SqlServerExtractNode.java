@@ -25,6 +25,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -43,7 +44,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("sqlserverExtract")
 @Data
-public class SqlServerExtractNode extends ExtractNode implements Metadata, Serializable {
+public class SqlServerExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
 
     private static final long serialVersionUID = 5096171152872086083L;
 
@@ -111,7 +112,7 @@ public class SqlServerExtractNode extends ExtractNode implements Metadata, Seria
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> map = super.tableOptions();
-        map.put("connector", "sqlserver-cdc");
+        map.put("connector", "sqlserver-cdc-inlong");
         map.put("hostname", hostname);
         map.put("port", port.toString());
         map.put("username", username);

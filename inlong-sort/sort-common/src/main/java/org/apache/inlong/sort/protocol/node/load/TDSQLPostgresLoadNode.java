@@ -26,6 +26,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.PostgresConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -48,7 +49,7 @@ import java.util.Map;
 @JsonTypeName("tdsqlPostgresLoad")
 @Data
 @NoArgsConstructor
-public class TDSQLPostgresLoadNode extends LoadNode implements Serializable {
+public class TDSQLPostgresLoadNode extends LoadNode implements Serializable, InlongMetric {
 
     private static final long serialVersionUID = 1L;
 

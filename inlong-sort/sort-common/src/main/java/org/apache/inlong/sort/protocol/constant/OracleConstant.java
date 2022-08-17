@@ -32,7 +32,7 @@ public class OracleConstant {
     /**
      * Specify what flink connector to use for extract data from Oracle database, here should be 'oracle-cdc'
      */
-    public static final String ORACLE_CDC = "oracle-cdc";
+    public static final String ORACLE_CDC = "oracle-cdc-inlong";
     /**
      * Database name of the Oracle server to monitor
      */

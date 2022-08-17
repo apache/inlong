@@ -26,6 +26,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -45,7 +46,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oracleExtract")
 @Data
-public class OracleExtractNode extends ExtractNode implements Metadata, Serializable {
+public class OracleExtractNode extends ExtractNode implements Metadata, Serializable, InlongMetric {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Nullable
