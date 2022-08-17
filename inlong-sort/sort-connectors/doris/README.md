@@ -1,10 +1,10 @@
 # Overview
 The sort-connector-doris connector comes from doris-flink-connector officially provided by apache doris.
 The flink-doris-connector-1.13_2.12 version is currently introduced. If you need to use scala 2.11, you need to 
-download the flink-doris-connector source code of the apache doris community and create a new branch from 
+download the flink-doris-connector source code of the apache doris community and checkout a new branch from 
 tag 1.13_2.11-1.0.3.
 
-# checkout and new branch
+# Checkout a new branch
 checkout new branch: `git checkout -b 1.13_2.11-1.0.3`
 
 # Install thrift 0.13.0
@@ -38,10 +38,11 @@ lzo-devel zlib-devel gcc gcc-c++`
 
 Check the version after installation is complete：thrift --version
 
-# package flink-doris-connector
-`mvn clean package -Dscala.version=2.11 -Dflink.version=1.13.5 -Dflink.minor.version=1.13 
+# Package flink-doris-connector
+```
+mvn clean package -Dscala.version=2.11 -Dflink.version=1.13.5 -Dflink.minor.version=1.13 
 -Denv.THRIFT_BIN=/path/to/thrift
-`
+```
 
 # Remark
 For more information on using sort-connector-doris, 
