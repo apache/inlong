@@ -122,6 +122,11 @@ public class HttpUtils {
         return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
     }
 
+    public <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+            ParameterizedTypeReference<T> typeReference) {
+        return request(restTemplate, url, HttpMethod.PUT, params, header, typeReference);
+    }
+
     private String buildUrlWithQueryParam(String url, Map<String, Object> params) {
         if (params == null) {
             return url;
