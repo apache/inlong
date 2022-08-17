@@ -151,6 +151,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
 
     protected String auditHostAndPorts;
 
+    protected boolean isTDMQPulsar;
+
     public PulsarDynamicTableSource(
             DataType physicalDataType,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat,
@@ -166,7 +168,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean isTDMQPulsar) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -195,6 +198,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.isTDMQPulsar = isTDMQPulsar;
     }
 
     private void setTopicInfo(Properties properties, List<String> topics, String topicPattern) {
@@ -234,7 +238,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 valueDeserialization,
                 producedTypeInfo);
         final ClientConfigurationData clientConfigurationData = PulsarClientUtils.newClientConf(serviceUrl, properties);
-        if (adminUrl != null) {
+        if (!isTDMQPulsar) {
             FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
                     adminUrl,
                     clientConfigurationData,
@@ -285,7 +289,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                     break;
                 default:
                     throw new IllegalArgumentException(
-                            "Unknown startup mode option for tdmq: " + startupOptions.startupMode);
+                            "Unknown startup mode option for tdmq pulsar: " + startupOptions.startupMode);
             }
             return SourceFunctionProvider.of(source, false);
         }
@@ -344,7 +348,10 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 adminUrl,
                 properties,
                 startupOptions,
-                false, inlongMetric, auditHostAndPorts);
+                false,
+                inlongMetric,
+                auditHostAndPorts,
+                isTDMQPulsar);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;

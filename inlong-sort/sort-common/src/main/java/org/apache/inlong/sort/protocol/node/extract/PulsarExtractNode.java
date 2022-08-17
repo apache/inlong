@@ -77,6 +77,7 @@ public class PulsarExtractNode extends ExtractNode {
         this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
         this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
                 "pulsar scanStartupMode is null.");
+        this.adminUrl = adminUrl;
         this.primaryKey = primaryKey;
     }
 
