@@ -64,7 +64,7 @@ public class DorisExtractToMySqlLoadTest extends AbstractTestBase {
                 "000000", "test.test1");
     }
 
-    private Node buildMysqlLoadNode() {
+    private Node buildMySqlLoadNode() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("dt", new StringFormatInfo()),
                 new FieldInfo("id", new IntFormatInfo()),
@@ -125,7 +125,7 @@ public class DorisExtractToMySqlLoadTest extends AbstractTestBase {
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildDorisExtractNode();
-        Node outputNode = buildMysqlLoadNode();
+        Node outputNode = buildMySqlLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
