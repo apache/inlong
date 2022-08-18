@@ -193,8 +193,7 @@ public class DefaultMessageSender implements MessageSender {
                 idGenerator.getNextId()), msgUUID, timeout, timeUnit);
     }
 
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -223,8 +222,7 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
 
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
@@ -257,8 +255,7 @@ public class DefaultMessageSender implements MessageSender {
 
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -285,8 +282,7 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
                 || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
@@ -317,8 +313,7 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     @Deprecated
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
         sender.asyncSendMessage(new EncodeObject(body, attributes, idGenerator.getNextId()),
                 callback, msgUUID, timeout, timeUnit);
     }
@@ -356,10 +351,7 @@ public class DefaultMessageSender implements MessageSender {
 
     }
 
-    public void asyncSendMessage(SendMessageCallback callback,
-            byte[] body, String groupId, String streamId, long dt, String msgUUID,
-            long timeout, TimeUnit timeUnit,
-            Map<String, String> extraAttrMap) throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());

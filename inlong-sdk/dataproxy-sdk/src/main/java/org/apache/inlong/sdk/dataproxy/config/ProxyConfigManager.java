@@ -52,6 +52,8 @@ import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.utils.HashRing;
+import org.apache.inlong.sdk.dataproxy.utils.LoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +103,8 @@ public class ProxyConfigManager extends Thread {
     private boolean bShutDown = false;
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
+    private final HashRing hashRing = HashRing.getInstance();
+    private LoadBalance loadBalance = LoadBalance.CONSISTENCY_HASH;
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
@@ -114,6 +118,10 @@ public class ProxyConfigManager extends Thread {
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;
+    }
+
+    public HashRing getHashRing() {
+        return this.hashRing;
     }
 
     public void shutDown() {
@@ -297,6 +305,7 @@ public class ProxyConfigManager extends Thread {
             }
         }
         compareProxyList(proxyEntry);
+
     }
 
     /**
@@ -340,6 +349,7 @@ public class ProxyConfigManager extends Thread {
                     newProxyInfoList.clear();
                     LOGGER.info("proxy IP list doesn't change, load {}", proxyEntry.getLoad());
                 }
+                updateHashRing(proxyInfoList);
             } else {
                 LOGGER.error("proxyEntry's size is zero");
             }
@@ -818,5 +828,10 @@ public class ProxyConfigManager extends Thread {
             LOGGER.error("Get local managerIpList occur exception,", t);
         }
         return localManagerIps;
+    }
+
+    public void updateHashRing(List<HostInfo> newHosts) {
+        this.hashRing.updateNode(newHosts);
+        LOGGER.info("update hash ring {}", hashRing.getVirtualNode2RealNode());
     }
 }

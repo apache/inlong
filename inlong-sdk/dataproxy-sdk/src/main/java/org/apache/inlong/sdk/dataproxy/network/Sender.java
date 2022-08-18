@@ -30,17 +30,18 @@ import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
+import org.apache.inlong.sdk.dataproxy.utils.LoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -228,12 +229,31 @@ public class Sender {
      * @param timeUnit
      * @return
      */
+//    @Deprecated
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
             long timeout, TimeUnit timeUnit) {
+        return syncSendMessage(encodeObject, msgUUID, timeout,
+                timeUnit, LoadBalance.CONSISTENCY_HASH);
+    }
+
+    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
+                                      long timeout, TimeUnit timeUnit,
+                                      LoadBalance loadBalance) {
         metricWorker.recordNumByKey(encodeObject.getMessageId(),
                 encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
-        NettyClient client = clientMgr.getClientByRoundRobin();
+        NettyClient client = null;
+        switch (loadBalance) {
+            case RANDOM:
+                client = clientMgr.getClientByRandom();
+                break;
+            case CONSISTENCY_HASH:
+                client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
+                break;
+            case ROUND_ROBIN:
+            default:
+                client = clientMgr.getClientByRoundRobin();
+        }
         SendResult message = null;
         try {
             message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
@@ -513,15 +533,33 @@ public class Sender {
     /**
      * Following methods used by asynchronously message sending.
      */
-    public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
+    public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback,
+                                 String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
+        asyncSendMessage(encodeObject, callback, msgUUID, timeout,
+                timeUnit, LoadBalance.CONSISTENCY_HASH);
+    }
+
+    public void asyncSendMessage(EncodeObject encodeObject,
+                                 SendMessageCallback callback, String msgUUID,
+                                 long timeout, TimeUnit timeUnit, LoadBalance loadBalance) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
 
         // send message package time
 
-        NettyClient client = clientMgr.getClientByRoundRobin();
+        NettyClient client = null;
+        switch (loadBalance) {
+            case RANDOM:
+                client = clientMgr.getClientByRandom();
+                break;
+            case CONSISTENCY_HASH:
+                client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
+                break;
+            case ROUND_ROBIN:
+            default:
+                client = clientMgr.getClientByRoundRobin();
+        }
         if (client == null) {
             throw new ProxysdkException(SendResult.NO_CONNECTION.toString());
         }
@@ -620,7 +658,8 @@ public class Sender {
                         continue;
                     }
                     if (isFile) {
-                        ((FileCallback) queueObject.getCallback()).onMessageAck(SendResult.CONNECTION_BREAK.toString());
+                        ((FileCallback) queueObject.getCallback())
+                                .onMessageAck(SendResult.CONNECTION_BREAK.toString());
                         currentBufferSize.addAndGet(-queueObject.getSize());
                     } else {
                         queueObject.getCallback().onMessageAck(SendResult.CONNECTION_BREAK);
