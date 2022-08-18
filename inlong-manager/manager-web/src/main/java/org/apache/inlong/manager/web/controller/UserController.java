@@ -73,7 +73,7 @@ public class UserController {
 
     @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
-    public Response<PageInfo<UserInfo>> list(@Validated @RequestBody UserRequest request) {
+    public Response<PageInfo<UserInfo>> list(@RequestBody UserRequest request) {
         return Response.success(userService.list(request));
     }
 
