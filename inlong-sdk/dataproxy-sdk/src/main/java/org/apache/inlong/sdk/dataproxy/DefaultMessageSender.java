@@ -277,14 +277,14 @@ public class DefaultMessageSender implements MessageSender {
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompress) {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId +
-                        "&streamId=" + streamId
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId
+                                + "&streamId=" + streamId
                         + "&dt=" + dt + "&cp=snappy" + "&cnt=" + bodyList.size(),
                         idGenerator.getNextId(), this.getMsgtype(), true, groupId),
                         msgUUID, timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId +
-                        "&streamId=" + streamId
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId
+                                + "&streamId=" + streamId
                         + "&dt=" + dt + "&cnt=" + bodyList.size(),
                         idGenerator.getNextId(), this.getMsgtype(), false, groupId),
                         msgUUID, timeout, timeUnit);
