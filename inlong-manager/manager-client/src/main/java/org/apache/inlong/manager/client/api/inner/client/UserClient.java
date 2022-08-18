@@ -17,18 +17,14 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.UserApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
-
-import java.util.Map;
 
 /**
  * Client for {@link UserApi}.
@@ -90,10 +86,7 @@ public class UserClient {
     public PageInfo<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
 
-        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
-                new TypeReference<Map<String, Object>>() {
-                });
-        Response<PageInfo<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(requestMap));
+        Response<PageInfo<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
