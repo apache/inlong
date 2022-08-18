@@ -26,8 +26,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Topic fetcher that only consumer one topic.
+ * The advantage of single topic fetcher is that it provide much flexible configuration ability to customize the
+ * components such as {@link Deserializer} and {@link Interceptor} for this very topic.
+ */
 public abstract class SingleTopicFetcher implements TopicFetcher {
-    protected InLongTopic inLongTopic;
+    protected InLongTopic topic;
     protected ClientContext context;
     protected Deserializer deserializer;
     protected volatile Thread fetchThread;
@@ -41,33 +46,31 @@ public abstract class SingleTopicFetcher implements TopicFetcher {
     protected Seeker seeker;
 
     public SingleTopicFetcher(
-            InLongTopic inLongTopic,
+            InLongTopic topic,
             ClientContext context,
             Interceptor interceptor,
             Deserializer deserializer) {
-        this.inLongTopic = inLongTopic;
+        this.topic = topic;
         this.context = context;
         this.deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
         this.interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
     }
 
     @Override
-    public boolean updateTopic(InLongTopic topic) {
-        if (Objects.equals(inLongTopic, topic)) {
-            return false;
-        }
-        this.inLongTopic = topic;
-        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
-        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
-        return true;
-    }
-
-    @Deprecated
-    @Override
     public boolean updateTopics(List<InLongTopic> topics) {
         if (topics.size() != 1) {
             return false;
         }
-        return this.updateTopic(topics.get(0));
+        return this.updateSingleTopic(topics.get(0));
+    }
+
+    private boolean updateSingleTopic(InLongTopic topic) {
+        if (Objects.equals(this.topic, topic)) {
+            return false;
+        }
+        this.topic = topic;
+        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(this.topic));
+        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(this.topic));
+        return true;
     }
 }

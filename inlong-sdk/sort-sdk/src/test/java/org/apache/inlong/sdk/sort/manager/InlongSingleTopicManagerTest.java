@@ -80,14 +80,14 @@ public class InlongSingleTopicManagerTest {
         TopicManager inLongTopicManager = InlongTopicManagerFactory
                 .createSingleTopicManager(clientContext, queryConsumeConfig);
 
-        TopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
+        TopicFetcher inLongTopicFetcher = inLongTopicManager.addTopic(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
     }
 
     @Test
     public void testRemoveFetcher() {
 
-        TopicFetcher topicFetcher = topicManager.removeFetcher(inLongTopic, true);
+        TopicFetcher topicFetcher = topicManager.removeTopic(inLongTopic, true);
         Assert.assertNull(topicFetcher);
 
         ConcurrentHashMap<String, TopicFetcher> fetchers = new ConcurrentHashMap<>();
@@ -96,7 +96,7 @@ public class InlongSingleTopicManagerTest {
 
         Whitebox.setInternalState(topicManager, "fetchers", fetchers);
 
-        topicFetcher = topicManager.removeFetcher(inLongTopic, true);
+        topicFetcher = topicManager.removeTopic(inLongTopic, true);
         Assert.assertNotNull(topicFetcher);
 
     }

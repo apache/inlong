@@ -25,12 +25,15 @@ import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
 import java.util.Optional;
 
+/**
+ * Builder of tube single topic fetcher.
+ */
 public class TubeSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
-    private TubeConsumerCreater tubeConsumerCreater;
+    private TubeConsumerCreator tubeConsumerCreator;
 
-    public TubeSingleTopicFetcherBuilder tubeConsumerCreater(TubeConsumerCreater tubeConsumerCreater) {
-        this.tubeConsumerCreater = tubeConsumerCreater;
+    public TubeSingleTopicFetcherBuilder tubeConsumerCreater(TubeConsumerCreator tubeConsumerCreator) {
+        this.tubeConsumerCreator = tubeConsumerCreator;
         return this;
     }
 
@@ -40,13 +43,13 @@ public class TubeSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
                 .orElseThrow(() -> new IllegalStateException("subscribe tube single topic, but never assign topic"));
         Optional.ofNullable(context)
                 .orElseThrow(() -> new IllegalStateException("context is null"));
-        Optional.ofNullable(tubeConsumerCreater)
+        Optional.ofNullable(tubeConsumerCreator)
                 .orElseThrow(() -> new IllegalStateException("tube consumer creator is null"));
         interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
         TubeSingleTopicFetcher fetcher =
-                new TubeSingleTopicFetcher(topic, context, interceptor, deserializer, tubeConsumerCreater);
+                new TubeSingleTopicFetcher(topic, context, interceptor, deserializer, tubeConsumerCreator);
         if (!fetcher.init()) {
             throw new IllegalStateException("init tube single topic fetcher failed");
         }

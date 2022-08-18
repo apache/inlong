@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
-    private final Logger logger = LoggerFactory.getLogger(AckOffsetOnRebalance.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AckOffsetOnRebalance.class);
     private final String clusterId;
     private final Seeker seeker;
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
@@ -44,17 +44,17 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-        logger.debug("*- in re-balance:onPartitionsRevoked");
+        LOGGER.debug("*- in re-balance:onPartitionsRevoked");
         collection.forEach((v) -> {
-            logger.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
+            LOGGER.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
         });
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
-        logger.debug("*- in re-balance:onPartitionsAssigned  ");
+        LOGGER.debug("*- in re-balance:onPartitionsAssigned  ");
         collection.forEach((v) -> {
-            logger.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
+            LOGGER.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
         });
         seeker.seek();
     }

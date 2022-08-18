@@ -23,6 +23,9 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * A manager to maintain different type of fetchers
+ */
 public abstract class TopicManager implements Cleanable {
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
@@ -32,17 +35,47 @@ public abstract class TopicManager implements Cleanable {
         this.queryConsumeConfig = queryConsumeConfig;
     }
 
-    public abstract TopicFetcher addFetcher(InLongTopic inLongTopic);
+    /**
+     * Add topic and return the fetcher that maintain this topic.
+     * @param topic Topic to be consumed.
+     * @return The fetcher that maintain this topic.
+     */
+    public abstract TopicFetcher addTopic(InLongTopic topic);
 
-    public abstract TopicFetcher removeFetcher(InLongTopic inLongTopic, boolean closeFetcher);
+    /**
+     * Remove topic and return the fetcher that has maintained this topic.
+     * @param topic Topic to be removed.
+     * @param closeFetcher Should close this fetcher or not.
+     * @return The fetcher that has maintained this topic.
+     */
+    public abstract TopicFetcher removeTopic(InLongTopic topic, boolean closeFetcher);
 
+    /**
+     * Get the specified fetcher by the given fetch key.
+     * @param fetchKey Unique fetch key.
+     * @return Related fetcher.
+     */
     public abstract TopicFetcher getFetcher(String fetchKey);
 
+    /**
+     * Get all fetchers.
+     * @return All fetchers.
+     */
     public abstract Collection<TopicFetcher> getAllFetchers();
 
+    /**
+     * Get all topics that under this manager.
+     * @return All topics.
+     */
     public abstract Set<String> getManagedInLongTopics();
 
+    /**
+     * Offline all topics and their partitions if they exist.
+     */
     public abstract void offlineAllTopicsAndPartitions();
 
+    /**
+     * Close manager.
+     */
     public abstract void close();
 }

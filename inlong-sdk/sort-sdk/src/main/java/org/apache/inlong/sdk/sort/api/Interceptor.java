@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.api.Configurable;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 
 import java.util.List;

@@ -33,8 +33,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Kafka seeker.
+ * Only seek those topics and partitions assigned by server.
+ * The whole process can be divided into three steps:
+ * 1. Find all topics and partitions of this consumer;
+ * 2. Calculate the offsets of the excepted seek time of each topic and partition respectively;
+ * 3. Reset these topics and partitions to the corresponding offset
+ */
 public class KafkaSeeker implements Seeker {
-    private final Logger logger = LoggerFactory.getLogger(KafkaSeeker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSeeker.class);
     private long seekTime = -1;
     private String topic;
     private KafkaConsumer<byte[], byte[]> consumer;
@@ -47,7 +55,7 @@ public class KafkaSeeker implements Seeker {
     public void configure(InLongTopic inLongTopic) {
         seekTime = TimeUtil.parseStartTime(inLongTopic);
         topic = inLongTopic.getTopic();
-        logger.info("start to config kafka seeker, topic is {}, seek time is {}", topic, seekTime);
+        LOGGER.info("start to config kafka seeker, topic is {}, seek time is {}", topic, seekTime);
     }
 
     @Override
@@ -55,11 +63,11 @@ public class KafkaSeeker implements Seeker {
         if (seekTime < 0) {
             return;
         }
-        logger.info("start to seek kafka topic {}, seek time is {}", topic, seekTime);
+        LOGGER.info("start to seek kafka topic {}, seek time is {}", topic, seekTime);
         try {
             Set<TopicPartition> assignedTopicPartitions = consumer.assignment();
             if (assignedTopicPartitions.isEmpty()) {
-                logger.error("haven't assigned any topic partitions, do nothing");
+                LOGGER.error("haven't assigned any topic partitions, do nothing");
                 return;
             }
             Map<TopicPartition, Long> timestampsToSearch = assignedTopicPartitions.stream()
@@ -68,13 +76,13 @@ public class KafkaSeeker implements Seeker {
             List<TopicPartition> endOffsetsTopicPartitions = new ArrayList<>();
             offsetMap.forEach((tp, offsetAndTimestamp) ->
                     resetOffset(tp, offsetAndTimestamp, endOffsetsTopicPartitions));
-            logger.info("topic partition {} should be seek to end", endOffsetsTopicPartitions);
+            LOGGER.info("topic partition {} should be seek to end", endOffsetsTopicPartitions);
             if (!endOffsetsTopicPartitions.isEmpty()) {
                 consumer.seekToEnd(endOffsetsTopicPartitions);
             }
-            logger.info("finish to seek kafka topic {}", topic);
+            LOGGER.info("finish to seek kafka topic {}", topic);
         } catch (Throwable t) {
-            logger.error("failed to seek kafka topic, ex is {}", t.getMessage(), t);
+            LOGGER.error("failed to seek kafka topic, ex is {}", t.getMessage(), t);
         }
     }
 
@@ -84,18 +92,18 @@ public class KafkaSeeker implements Seeker {
             List<TopicPartition> endOffsetsTopicPartitions) {
         // if offsetAndTimestamp = null, means the time you seek is later than the last offset
         if (offsetAndTimestamp == null) {
-            logger.info("tp {} has null offsetAndTimestamp, reset to end", tp);
+            LOGGER.info("tp {} has null offsetAndTimestamp, reset to end", tp);
             endOffsetsTopicPartitions.add(tp);
         }
         long expected = offsetAndTimestamp.offset();
         long last = consumer.position(tp);
-        logger.info("for tp {}, expected offset is {}, last offset is {}", tp, expected, last);
+        LOGGER.info("for tp {}, expected offset is {}, last offset is {}", tp, expected, last);
         // only reset if last consume offset earlier than the expected one
         if (last < expected) {
-            logger.info("do seek for tp {}", tp);
+            LOGGER.info("do seek for tp {}", tp);
             consumer.seek(tp, offsetAndTimestamp.offset());
             long afterSeek = consumer.position(tp);
-            logger.info("after seek, the offset for tp {} is {}", tp, afterSeek);
+            LOGGER.info("after seek, the offset for tp {} is {}", tp, afterSeek);
         }
 
     }

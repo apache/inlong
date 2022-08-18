@@ -37,7 +37,7 @@ import org.apache.inlong.sdk.sort.api.SysConstants;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreater;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -61,13 +61,13 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public boolean init(Object object) {
-        TubeConsumerCreater tubeConsumerCreater = (TubeConsumerCreater) object;
-        TubeClientConfig tubeClientConfig = tubeConsumerCreater.getTubeClientConfig();
+        TubeConsumerCreator tubeConsumerCreator = (TubeConsumerCreator) object;
+        TubeClientConfig tubeClientConfig = tubeConsumerCreator.getTubeClientConfig();
         try {
             ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
                     context.getConfig().getSortTaskId());
 
-            messageConsumer = tubeConsumerCreater.getMessageSessionFactory().createPullConsumer(consumerConfig);
+            messageConsumer = tubeConsumerCreator.getMessageSessionFactory().createPullConsumer(consumerConfig);
             if (messageConsumer != null) {
                 TreeSet<String> filters = null;
                 if (inLongTopic.getProperties() != null && inLongTopic.getProperties().containsKey(

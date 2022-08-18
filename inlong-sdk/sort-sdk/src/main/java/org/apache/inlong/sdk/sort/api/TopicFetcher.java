@@ -22,32 +22,68 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.util.List;
 
+/**
+ * Interface of all type of topic fetchers.
+ */
 public interface TopicFetcher {
 
+    /**
+     * Init topic fetcher.
+     * @return The result of init.
+     */
     boolean init();
 
+    /**
+     * Ack message by the given msgOffset.
+     * @param msgOffset Offset of message.
+     * @throws Exception
+     */
     void ack(String msgOffset) throws Exception;
 
+    /**
+     * Pause the consuming
+     */
     void pause();
 
+    /**
+     * Resume the consuming
+     */
     void resume();
 
+    /**
+     * Close the consuming
+     * @return Result of close
+     */
     boolean close();
 
+    /**
+     * Get if the fetcher is closed or not.
+     * @return Closed or not.
+     */
     boolean isClosed();
 
+    /**
+     * Set stop consume flag.
+     * @param stopConsume Stop consume flag.
+     */
     void stopConsume(boolean stopConsume);
 
+    /**
+     * Get stop consume flag.
+     * @return stop consume flag.
+     */
     boolean isConsumeStop();
 
-    InLongTopic getInLongTopic();
+    /**
+     * Get the topics maintain by current fetcher.
+     * @return topic list.
+     */
+    List<InLongTopic> getTopics();
 
-    long getConsumedDataSize();
-
-    long getAckedOffset();
-
-    boolean updateTopic(InLongTopic topic);
-
+    /**
+     * Update list of topics to fetcher.
+     * @param topics Topics to be updated.
+     * @return The result of update.
+     */
     boolean updateTopics(List<InLongTopic> topics);
-
 }

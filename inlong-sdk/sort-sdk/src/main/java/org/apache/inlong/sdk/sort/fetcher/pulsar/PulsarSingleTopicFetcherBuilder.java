@@ -26,6 +26,9 @@ import org.apache.pulsar.client.api.PulsarClient;
 
 import java.util.Optional;
 
+/**
+ * Builder of pulsar single topic fetcher.
+ */
 public class PulsarSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
     PulsarClient pulsarClient;

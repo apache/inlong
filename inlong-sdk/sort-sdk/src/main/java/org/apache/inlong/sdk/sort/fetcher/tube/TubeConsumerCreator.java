@@ -21,7 +21,10 @@ package org.apache.inlong.sdk.sort.fetcher.tube;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 
-public class TubeConsumerCreater {
+/**
+ * Tube consumer creator.
+ */
+public class TubeConsumerCreator {
 
     private final MessageSessionFactory messageSessionFactory;
     private final TubeClientConfig consumerConfig;
@@ -32,8 +35,8 @@ public class TubeConsumerCreater {
      * @param messageSessionFactory {@link MessageSessionFactory}
      * @param consumerConfig {@link TubeClientConfig}
      */
-    public TubeConsumerCreater(MessageSessionFactory messageSessionFactory,
-            TubeClientConfig consumerConfig) {
+    public TubeConsumerCreator(MessageSessionFactory messageSessionFactory,
+                               TubeClientConfig consumerConfig) {
         this.messageSessionFactory = messageSessionFactory;
         this.consumerConfig = consumerConfig;
     }

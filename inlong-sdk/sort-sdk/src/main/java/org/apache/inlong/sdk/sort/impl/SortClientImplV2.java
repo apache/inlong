@@ -31,6 +31,9 @@ import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * New version of sort client.
+ */
 public class SortClientImplV2 extends SortClient {
 
     private final String logPrefix = "[" + SortClientImpl.class.getSimpleName() + "] ";

@@ -22,7 +22,15 @@ import org.apache.inlong.sdk.sort.fetcher.kafka.KafkaSingleTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSingleTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.fetcher.tube.TubeSingleTopicFetcherBuilder;
 
+/**
+ * Interface of topic fetcher builder.
+ */
 public interface TopicFetcherBuilder {
+
+    /**
+     * Subscribe topics and build the {@link TopicFetcher}
+     * @return The prepared topic fetcher
+     */
     TopicFetcher subscribe();
 
     static KafkaSingleTopicFetcherBuilder kafkaSingleTopic() {

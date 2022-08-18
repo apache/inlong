@@ -13,14 +13,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
+/**
+ * Interface that enable components the ability to be configured by {@link InLongTopic}
+ */
 public interface Configurable {
 
+    /**
+     * Configure by topic
+     * @param topic Topic info.
+     */
     void configure(InLongTopic topic);
 }

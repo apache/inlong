@@ -25,6 +25,9 @@ import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
 import java.util.Optional;
 
+/**
+ * Builder of kafka single topic fetcher.
+ */
 public class KafkaSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
     private String bootstrapServers;
