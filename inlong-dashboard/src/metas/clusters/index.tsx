@@ -19,7 +19,7 @@
 
 import React from 'react';
 import i18n from '@/i18n';
-import StaffSelect from '@/components/StaffSelect';
+import UserSelect from '@/components/UserSelect';
 import type { ClsConfigItemType, ClsTableItemType } from './common/types';
 import { DataProxy } from './DataProxy';
 import { Pulsar } from './Pulsar';
@@ -92,7 +92,7 @@ export const Clusters: ClusterItemType[] = [
       _inTable: true,
     },
     {
-      type: <StaffSelect mode="multiple" />,
+      type: <UserSelect mode="multiple" />,
       label: i18n.t('pages.Clusters.InCharges'),
       name: 'inCharges',
       rules: [{ required: true }],

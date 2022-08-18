@@ -25,6 +25,7 @@ import { Select, Space, Input } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
 import debounce from 'lodash/debounce';
+import i18n from '@/i18n';
 
 // example options: {
 //   requestService: '/group/listAll',
@@ -44,11 +45,12 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
         requestService: unknown;
         requestParams?: unknown;
         requestAuto?: boolean;
-        requestTrigger?: 'onOpen' | 'onSearch'[];
+        requestTrigger?: ('onOpen' | 'onSearch')[];
       };
   asyncValueLabel?: string;
   useInput?: boolean;
   useInputProps?: Record<string, unknown>;
+  addonAfter?: React.ReactNode;
 }
 
 const HighSelect: React.FC<HighSelectProps> = ({
@@ -56,6 +58,7 @@ const HighSelect: React.FC<HighSelectProps> = ({
   asyncValueLabel,
   useInput = false,
   useInputProps,
+  addonAfter,
   ...rest
 }) => {
   const [diyWatcher, setDiyWatcher] = useState(true);
@@ -76,7 +79,7 @@ const HighSelect: React.FC<HighSelectProps> = ({
 
     return useInput
       ? output.concat({
-          label: 'DIY',
+          label: i18n.t('components.HighSelect.Customize'),
           value: '__DIYState',
         })
       : output;
@@ -161,12 +164,13 @@ const HighSelect: React.FC<HighSelectProps> = ({
     />
   );
 
-  return useInput ? (
+  return useInput || addonAfter ? (
     <Space>
       {SelectComponent}
       {useInput && diyState && (
         <Input {...useInputProps} value={rest.value} onChange={onInputChange} />
       )}
+      {addonAfter}
     </Space>
   ) : (
     SelectComponent
