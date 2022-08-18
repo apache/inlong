@@ -517,7 +517,7 @@ public class LoadNodeUtils {
                         } else {
                             inputField = new ConstantParam(constantField.getFieldValue());
                         }
-                    } else if (FieldType.FUNCTION.name().equalsIgnoreCase(field.getSourceFieldType())){
+                    } else if (FieldType.FUNCTION.name().equalsIgnoreCase(field.getSourceFieldType())) {
                         inputField = new CustomFunction(field.getSourceFieldName());
                     } else {
                         inputField = new FieldInfo(field.getSourceFieldName(), field.getOriginNodeName(),
