@@ -25,6 +25,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
@@ -39,7 +40,7 @@ import java.util.Map;
 @JsonTypeName("fileSystemLoad")
 @Data
 @NoArgsConstructor
-public class FileSystemLoadNode extends LoadNode implements Serializable {
+public class FileSystemLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -4836034838166667371L;
 
@@ -90,7 +91,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> map = super.tableOptions();
-        map.put("connector", "filesystem");
+        map.put("connector", "filesystem-inlong");
         map.put("path", path);
         map.put("format", format);
         if (null != partitionFields) {
