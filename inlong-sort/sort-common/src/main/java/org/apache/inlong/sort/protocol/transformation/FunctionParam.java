@@ -100,7 +100,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
         @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
         @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
-        @JsonSubTypes.Type(value = CustomFunction.class, name = "custom")
+        @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction")
 })
 public interface FunctionParam {
 

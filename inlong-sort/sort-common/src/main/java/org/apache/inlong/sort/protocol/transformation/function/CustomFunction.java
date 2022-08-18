@@ -31,21 +31,21 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 /**
  * CustomFunction class uses the content of field as a script
  */
-@JsonTypeName("custom")
+@JsonTypeName("customFunction")
 @EqualsAndHashCode(callSuper = false)
 @Data
 public class CustomFunction implements Function {
 
-    private final String script;
+    private final String content;
 
     @JsonCreator
-    public CustomFunction(@JsonProperty("script") String script) {
-        this.script = script;
+    public CustomFunction(@JsonProperty("content") String content) {
+        this.content = content;
     }
 
     @Override
     public List<FunctionParam> getParams() {
-        return Collections.singletonList(new StringConstantParam(script));
+        return Collections.singletonList(new StringConstantParam(content));
     }
 
     /**
@@ -55,16 +55,16 @@ public class CustomFunction implements Function {
      */
     @Override
     public String getName() {
-        return "CUSTOM";
+        return "CUSTOMFUNCTION";
     }
 
     /**
-     * Format used for script
+     * Format used for content
      *
-     * @return The format value in script
+     * @return The format value in content
      */
     @Override
     public String format() {
-        return script;
+        return content;
     }
 }
