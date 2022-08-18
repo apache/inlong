@@ -62,7 +62,7 @@ public class CreateCommand extends AbstractCommand {
         void run() {
             try {
                 String content;
-                if (input!=null) {
+                if (input != null) {
                     content = input;
                 } else {
                     content = ClientUtils.readFile(file);

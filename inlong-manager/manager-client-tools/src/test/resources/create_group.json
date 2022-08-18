@@ -13,11 +13,7 @@
     "retentionTimeUnit": "hours",
     "retentionSize": -1,
     "retentionSizeUnit": "MB",
-    "inlongClusterTag": "default_cluster",
-    "sortConf": {
-      "sortType": "flink",
-      "serviceUrl": "127.0.0.1"
-    }
+    "inlongClusterTag": "default_cluster"
   },
   "streamInfo": {
     "dataType": "CSV",
@@ -41,21 +37,23 @@
   "streamSource": {
     "inlongStreamId": "test_stream",
     "sourceName": "source_name",
-    "hostname": "127.0.0.1",
-    "port": 3306,
-    "user": "root",
-    "password": "123456",
-    "historyFilename": "/data/inlong-agent/.history",
-    "serverTimezone": "UTC",
-    "intervalMs": 1000,
-    "allMigration": false,
-    "databaseWhiteList": "etl",
-    "tableWhiteList": "person",
     "inlongGroupId": "test_group",
-    "sourceType": "BINLOG",
-    "specificOffsetFile": "mysql-bin.000001",
-    "specificOffsetPos": 6972,
-    "snapshotMode": "schema_only_recovery"
+    "sourceType": "FILE",
+    "agentIp": "123.456.789",
+    "uuid": "123.456.789",
+    "clusterId":"123",
+    "inlongClusterName":"hi",
+    "dataNodeName":"hi2",
+    "serializationType":"csv",
+    "snapshot":"hi3",
+    "version":"4",
+    "status":"5",
+    "previousStatus":"6",
+    "creator":"me",
+    "modifier":"none",
+    "createTime":"2000-07-08 12:05:12",
+    "modifyTime":"2000-07-08 12:05:12",
+    "properties": {}
   },
   "streamSink": {
     "inlongStreamId": "test_stream",
