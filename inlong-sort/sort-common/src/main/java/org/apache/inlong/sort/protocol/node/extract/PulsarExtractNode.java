@@ -44,6 +44,7 @@ public class PulsarExtractNode extends ExtractNode {
     @Nonnull
     @JsonProperty("topic")
     private String topic;
+    @Nonnull
     @JsonProperty("adminUrl")
     private String adminUrl;
     @Nonnull
@@ -66,13 +67,14 @@ public class PulsarExtractNode extends ExtractNode {
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("topic") String topic,
-            @JsonProperty("adminUrl") String adminUrl,
+            @Nonnull @JsonProperty("adminUrl") String adminUrl,
             @Nonnull @JsonProperty("serviceUrl") String serviceUrl,
             @Nonnull @JsonProperty("format") Format format,
             @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
             @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
+        this.adminUrl = Preconditions.checkNotNull(adminUrl, "pulsar adminUrl is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
         this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
         this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
@@ -95,11 +97,9 @@ public class PulsarExtractNode extends ExtractNode {
             options.put("connector", "upsert-pulsar-inlong");
             options.putAll(format.generateOptions(true));
         }
-        if (adminUrl != null) {
-            options.put("admin-url", adminUrl);
-        }
         options.put("generic", "true");
         options.put("service-url", serviceUrl);
+        options.put("admin-url", adminUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);
 
