@@ -13,6 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.sdk.sort.api;
@@ -21,12 +22,11 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Deprecated
-public abstract class InLongTopicFetcher {
-
+public abstract class SingleTopicFetcher implements TopicFetcher {
     protected InLongTopic inLongTopic;
     protected ClientContext context;
     protected Deserializer deserializer;
@@ -40,36 +40,18 @@ public abstract class InLongTopicFetcher {
     protected Interceptor interceptor;
     protected Seeker seeker;
 
-    public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
+    public SingleTopicFetcher(
+            InLongTopic inLongTopic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer) {
         this.inLongTopic = inLongTopic;
         this.context = context;
-        this.deserializer = new MessageDeserializer();
-        this.interceptor = new MsgTimeInterceptor();
-        this.interceptor.configure(inLongTopic);
+        this.deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
+        this.interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
     }
 
-    public abstract boolean init(Object client);
-
-    public abstract void ack(String msgOffset) throws Exception;
-
-    public abstract void pause();
-
-    public abstract void resume();
-
-    public abstract boolean close();
-
-    public abstract boolean isClosed();
-
-    public abstract void stopConsume(boolean stopConsume);
-
-    public abstract boolean isConsumeStop();
-
-    public abstract InLongTopic getInLongTopic();
-
-    public abstract long getConsumedDataSize();
-
-    public abstract long getAckedOffset();
-
+    @Override
     public boolean updateTopic(InLongTopic topic) {
         if (Objects.equals(inLongTopic, topic)) {
             return false;
@@ -78,5 +60,14 @@ public abstract class InLongTopicFetcher {
         Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
         Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
         return true;
+    }
+
+    @Deprecated
+    @Override
+    public boolean updateTopics(List<InLongTopic> topics) {
+        if (topics.size() != 1) {
+            return false;
+        }
+        return this.updateTopic(topics.get(0));
     }
 }

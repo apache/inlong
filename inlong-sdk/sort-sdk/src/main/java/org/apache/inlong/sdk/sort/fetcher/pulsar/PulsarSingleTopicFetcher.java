@@ -13,26 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.pulsar;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
+import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
@@ -46,17 +41,29 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
-public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-    private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
+public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
+    private final Logger logger = LoggerFactory.getLogger(PulsarSingleTopicFetcher.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
     private Consumer<byte[]> consumer;
+    private PulsarClient pulsarClient;
 
-    public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
-                                   ClientContext context) {
-        super(inLongTopic, context);
+    public PulsarSingleTopicFetcher(
+            InLongTopic inLongTopic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer,
+            PulsarClient pulsarClient) {
+        super(inLongTopic, context, interceptor, deserializer);
+        this.pulsarClient = pulsarClient;
     }
 
     @Override
@@ -139,13 +146,13 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
      * @return boolean
      */
     @Override
-    public boolean init(Object object) {
-        PulsarClient pulsarClient = (PulsarClient) object;
+    public boolean init() {
         return createConsumer(pulsarClient);
     }
 
     private boolean createConsumer(PulsarClient client) {
         if (null == client) {
+            logger.error("pulsar client is null");
             return false;
         }
         try {
@@ -169,7 +176,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
             this.seeker = SeekerFactory.createPulsarSeeker(consumer, inLongTopic);
             String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
-            this.fetchThread = new Thread(new Fetcher(), threadName);
+            this.fetchThread = new Thread(new PulsarSingleTopicFetcher.Fetcher(), threadName);
             this.fetchThread.start();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

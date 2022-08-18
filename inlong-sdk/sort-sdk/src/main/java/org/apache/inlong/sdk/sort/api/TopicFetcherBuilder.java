@@ -13,30 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.fetcher.kafka.KafkaSeeker;
-import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSeeker;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.pulsar.client.api.Consumer;
+import org.apache.inlong.sdk.sort.fetcher.kafka.KafkaSingleTopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSingleTopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeSingleTopicFetcherBuilder;
 
-/**
- * Factory that create configured seeker
- */
-public class SeekerFactory {
+public interface TopicFetcherBuilder {
+    TopicFetcher subscribe();
 
-    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InLongTopic inLongTopic) {
-        PulsarSeeker seeker = new PulsarSeeker(consumer);
-        seeker.configure(inLongTopic);
-        return seeker;
+    static KafkaSingleTopicFetcherBuilder kafkaSingleTopic() {
+        return new KafkaSingleTopicFetcherBuilder();
     }
 
-    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
-        KafkaSeeker seeker = new KafkaSeeker(consumer);
-        seeker.configure(inLongTopic);
-        return seeker;
+    static PulsarSingleTopicFetcherBuilder pulsarSingleTopic() {
+        return new PulsarSingleTopicFetcherBuilder();
+    }
+
+    static TubeSingleTopicFetcherBuilder tubeSingleTopic() {
+        return new TubeSingleTopicFetcherBuilder();
     }
 }

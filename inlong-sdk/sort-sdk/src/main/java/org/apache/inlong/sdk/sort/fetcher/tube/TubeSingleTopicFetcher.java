@@ -1,43 +1,33 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.tube;
+package org.apache.inlong.sdk.sort.fetcher.tube;
 
 import com.google.common.base.Splitter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SysConstants;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreater;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -48,20 +38,34 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
-public class InLongTubeFetcherImpl extends InLongTopicFetcher {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
-    private static final Logger LOG = LoggerFactory.getLogger(InLongTubeFetcherImpl.class);
+public class TubeSingleTopicFetcher extends SingleTopicFetcher {
+    private static final Logger LOG = LoggerFactory.getLogger(TubeSingleTopicFetcher.class);
     private PullMessageConsumer messageConsumer;
     private volatile Thread fetchThread;
+    private TubeConsumerCreater tubeConsumerCreater;
 
-    public InLongTubeFetcherImpl(InLongTopic inLongTopic, ClientContext context) {
-        super(inLongTopic, context);
+    public TubeSingleTopicFetcher(
+            InLongTopic inLongTopic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer,
+            TubeConsumerCreater tubeConsumerCreater) {
+        super(inLongTopic, context, interceptor, deserializer);
+        this.tubeConsumerCreater = tubeConsumerCreater;
     }
 
     @Override
-    public boolean init(Object object) {
-        TubeConsumerCreater tubeConsumerCreater = (TubeConsumerCreater) object;
+    public boolean init() {
         TubeClientConfig tubeClientConfig = tubeConsumerCreater.getTubeClientConfig();
         try {
             ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
@@ -80,7 +84,7 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                 messageConsumer.completeSubscribe();
 
                 String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
-                this.fetchThread = new Thread(new Fetcher(), threadName);
+                this.fetchThread = new Thread(new TubeSingleTopicFetcher.Fetcher(), threadName);
                 this.fetchThread.start();
             } else {
                 return false;

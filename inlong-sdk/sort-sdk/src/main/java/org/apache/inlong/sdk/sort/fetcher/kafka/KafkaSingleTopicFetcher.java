@@ -1,34 +1,33 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.kafka;
+package org.apache.inlong.sdk.sort.fetcher.kafka;
 
 import com.google.gson.Gson;
-
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
-import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
+import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
+import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.fetcher.kafka.AckOffsetOnRebalance;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -53,23 +52,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Deprecated
-public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
-
-    private final Logger logger = LoggerFactory.getLogger(InLongKafkaFetcherImpl.class);
+public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
+    private final Logger logger = LoggerFactory.getLogger(KafkaSingleTopicFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap = new ConcurrentHashMap<>();
     private final AtomicLong ackOffsets = new AtomicLong(0);
     private volatile boolean stopConsume = false;
     private String bootstrapServers;
     private KafkaConsumer<byte[], byte[]> consumer;
 
-    public InLongKafkaFetcherImpl(InLongTopic inLongTopic, ClientContext context) {
-        super(inLongTopic, context);
+    public KafkaSingleTopicFetcher(
+            InLongTopic inLongTopic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer,
+            String bootstrapServers) {
+        super(inLongTopic, context, interceptor, deserializer);
+        this.bootstrapServers = bootstrapServers;
     }
 
     @Override
-    public boolean init(Object object) {
-        String bootstrapServers = (String) object;
+    public boolean init() {
         try {
             createKafkaConsumer(bootstrapServers);
             if (consumer != null) {
@@ -82,10 +84,9 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 logger.info("consumer is null");
                 return false;
             }
-            this.bootstrapServers = bootstrapServers;
             String threadName = String.format("sort_sdk_fetch_thread_%s_%s_%d",
                     this.inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic(), this.hashCode());
-            this.fetchThread = new Thread(new Fetcher(), threadName);
+            this.fetchThread = new Thread(new KafkaSingleTopicFetcher.Fetcher(), threadName);
             logger.info("start to start thread:{}", threadName);
             this.fetchThread.start();
         } catch (Exception e) {
@@ -175,12 +176,12 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         properties.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG,
                 context.getConfig().getKafkaSocketRecvBufferSize());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
-        if (offsetResetStrategy == ConsumeStrategy.lastest
-                || offsetResetStrategy == ConsumeStrategy.lastest_absolutely) {
+        SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+        if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest
+                || offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        } else if (offsetResetStrategy == ConsumeStrategy.earliest
-                || offsetResetStrategy == ConsumeStrategy.earliest_absolutely) {
+        } else if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
+                || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         } else {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");

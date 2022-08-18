@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Set;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
+@Deprecated
 public abstract class InlongTopicManager implements Cleanable {
 
     protected ClientContext context;
