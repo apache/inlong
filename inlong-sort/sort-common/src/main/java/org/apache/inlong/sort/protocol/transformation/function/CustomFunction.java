@@ -68,5 +68,4 @@ public class CustomFunction implements Function {
     public String format() {
         return content;
     }
-
 }
