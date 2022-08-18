@@ -210,13 +210,13 @@ public class DefaultMessageSender implements MessageSender {
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompressEnd) {
-                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId +
-                                "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
+                                + "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
                         idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID,
                         timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId +
-                                "&streamId=" + streamId + "&dt=" + dt,
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
+                                + "&streamId=" + streamId + "&dt=" + dt,
                         idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID,
                         timeout, timeUnit);
             }
