@@ -163,10 +163,12 @@
         from stream_source
         <where>
             is_deleted = 0
-            and status in
-            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
@@ -176,14 +178,18 @@
         from stream_source
         <where>
             is_deleted = 0
-            and status in
-            <foreach item="item" index="index" collection="list" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-            and source_type in
-            <foreach item="item" index="index" collection="sourceType" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sourceTypeList != null and sourceTypeList.size()>0">
+                and source_type in
+                <foreach item="item" index="index" collection="sourceTypeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
@@ -193,14 +199,18 @@
         from stream_source
         <where>
             is_deleted = 0
-            and status in
-            <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-            and source_type in
-            <foreach item="item" index="index" collection="sourceTypeList" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sourceTypeList != null and sourceTypeList.size()>0">
+                and source_type in
+                <foreach item="item" index="index" collection="sourceTypeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             and (agent_ip = #{agentIp, jdbcType=VARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
             limit #{limit, jdbcType=INTEGER}
         </where>
@@ -210,11 +220,13 @@
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
-            and status in
-            <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            agent_ip = #{agentIp, jdbcType=VARCHAR}
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             <if test="uuid != null and uuid != ''">
                 and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
@@ -225,11 +237,13 @@
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
-            inlong_group_id in
-            <foreach item="item" index="index" collection="groupIds" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-            and is_deleted = 0
+            is_deleted = 0
+            <if test="groupIdList != null and groupIdList.size()>0">
+                and inlong_group_id in
+                <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </select>
     <select id="selectSourceType" resultType="java.lang.String">
