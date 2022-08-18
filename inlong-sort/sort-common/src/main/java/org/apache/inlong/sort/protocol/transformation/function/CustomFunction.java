@@ -55,8 +55,8 @@ public class CustomFunction implements Function {
      */
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("custom function is used to pass the function script that the user "
-                + "has organized, using content as the real function content, so there is no specific function name");
+        throw new UnsupportedOperationException("Custom function is used to pass the function script that the user "
+                + "has organized, using content as the real function content, so there is no specific function name.");
     }
 
     /**
