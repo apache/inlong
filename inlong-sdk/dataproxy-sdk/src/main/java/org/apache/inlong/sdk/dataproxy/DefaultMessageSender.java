@@ -193,7 +193,8 @@ public class DefaultMessageSender implements MessageSender {
                 idGenerator.getNextId()), msgUUID, timeout, timeUnit);
     }
 
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit) {
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
+                                  long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -209,20 +210,23 @@ public class DefaultMessageSender implements MessageSender {
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompressEnd) {
-                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
-                        + "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
-                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId +
+                                "&streamId=" + streamId + "&dt=" + dt + "&cp=snappy",
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID,
+                        timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId
-                        + "&streamId=" + streamId + "&dt=" + dt,
-                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
+                return sender.syncSendMessage(new EncodeObject(body, "groupId=" + groupId +
+                                "&streamId=" + streamId + "&dt=" + dt,
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID,
+                        timeout, timeUnit);
             }
         }
 
         return null;
     }
 
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
+                                  long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
 
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
@@ -245,17 +249,20 @@ public class DefaultMessageSender implements MessageSender {
             if (isCompressEnd) {
                 attrs.append("&cp=snappy");
                 return sender.syncSendMessage(new EncodeObject(body, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId),
+                        msgUUID, timeout, timeUnit);
             } else {
                 return sender.syncSendMessage(new EncodeObject(body, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID,
+                        timeout, timeUnit);
             }
         }
         return null;
 
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit) {
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
+                                  long timeout, TimeUnit timeUnit) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)) {
             return SendResult.INVALID_ATTRIBUTES;
@@ -270,19 +277,24 @@ public class DefaultMessageSender implements MessageSender {
             return sender.syncSendMessage(encodeObject, msgUUID, timeout, timeUnit);
         } else if (msgtype == 3 || msgtype == 5) {
             if (isCompress) {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId + "&streamId=" + streamId
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId +
+                        "&streamId=" + streamId
                         + "&dt=" + dt + "&cp=snappy" + "&cnt=" + bodyList.size(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId),
+                        msgUUID, timeout, timeUnit);
             } else {
-                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId + "&streamId=" + streamId
+                return sender.syncSendMessage(new EncodeObject(bodyList, "groupId=" + groupId +
+                        "&streamId=" + streamId
                         + "&dt=" + dt + "&cnt=" + bodyList.size(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId),
+                        msgUUID, timeout, timeUnit);
             }
         }
         return null;
     }
 
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
+    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt,
+                                  String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(bodyList) || !ProxyUtils.isDtValid(dt)
                 || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
@@ -303,17 +315,20 @@ public class DefaultMessageSender implements MessageSender {
             if (isCompress) {
                 attrs.append("&cp=snappy");
                 return sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), true, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), true, groupId),
+                        msgUUID, timeout, timeUnit);
             } else {
                 return sender.syncSendMessage(new EncodeObject(bodyList, attrs.toString(),
-                        idGenerator.getNextId(), this.getMsgtype(), false, groupId), msgUUID, timeout, timeUnit);
+                        idGenerator.getNextId(), this.getMsgtype(), false, groupId),
+                        msgUUID, timeout, timeUnit);
             }
         }
         return null;
     }
 
     @Deprecated
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String attributes,
+                                 String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
         sender.asyncSendMessage(new EncodeObject(body, attributes, idGenerator.getNextId()),
                 callback, msgUUID, timeout, timeUnit);
     }
@@ -351,7 +366,9 @@ public class DefaultMessageSender implements MessageSender {
 
     }
 
-    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId, long dt, String msgUUID, long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap) throws ProxysdkException {
+    public void asyncSendMessage(SendMessageCallback callback, byte[] body, String groupId, String streamId,
+                                 long dt, String msgUUID, long timeout, TimeUnit timeUnit,
+                                 Map<String, String> extraAttrMap) throws ProxysdkException {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt) || !ProxyUtils.isAttrKeysValid(extraAttrMap)) {
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
@@ -532,13 +549,15 @@ public class DefaultMessageSender implements MessageSender {
     public void asyncsendMessageProxy(FileCallback callback, byte[] body, String groupId, String streamId,
             long dt, int sid, String ip, String msgUUID,
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, groupId, streamId, dt, sid, ip, msgUUID, timeout, timeUnit, "minute");
+        asyncSendMetric(callback, body, groupId, streamId, dt, sid, ip, msgUUID, timeout,
+                timeUnit, "minute");
     }
 
     public void asyncsendMessageFile(FileCallback callback, byte[] body, String groupId,
             String streamId, long dt, int sid, String msgUUID,
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMetric(callback, body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit, "file");
+        asyncSendMetric(callback, body, groupId, streamId, dt, sid, "", msgUUID, timeout, timeUnit,
+                "file");
     }
 
     public String sendMessageData(List<byte[]> bodyList, String groupId,
@@ -563,7 +582,8 @@ public class DefaultMessageSender implements MessageSender {
         return null;
     }
 
-    private String sendMetric(byte[] body, String groupId, String streamId, long dt, int sid, String ip, String msgUUID,
+    private String sendMetric(byte[] body, String groupId, String streamId, long dt, int sid, String ip,
+                              String msgUUID,
             long timeout, TimeUnit timeUnit, String messageKey) {
         dt = ProxyUtils.covertZeroDt(dt);
         if (!ProxyUtils.isBodyValid(body) || !ProxyUtils.isDtValid(dt)) {
