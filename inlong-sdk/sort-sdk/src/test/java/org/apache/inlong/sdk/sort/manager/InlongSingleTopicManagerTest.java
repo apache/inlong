@@ -19,8 +19,6 @@
 package org.apache.inlong.sdk.sort.manager;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
@@ -29,7 +27,6 @@ import org.apache.inlong.sdk.sort.api.TopicManager;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
-import org.apache.inlong.sdk.sort.impl.InlongTopicManagerImpl;
 import org.apache.inlong.sdk.sort.impl.QueryConsumeConfigImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -80,9 +77,10 @@ public class InlongSingleTopicManagerTest {
 
     @Test
     public void testAddFetcher() {
-        InlongTopicManager inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
+        TopicManager inLongTopicManager = InlongTopicManagerFactory
+                .createSingleTopicManager(clientContext, queryConsumeConfig);
 
-        InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
+        TopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
     }
 
