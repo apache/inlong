@@ -102,6 +102,7 @@ public class JobWrapper extends AbstractStateWrapper {
      */
     private void submitAllTasks() {
         List<Task> tasks = job.createTasks();
+        LOGGER.info("Job name is {} and task size  {}", job.getName(), tasks.size());
         tasks.forEach(task -> {
             allTasks.add(task);
             taskManager.submitTask(task);
