@@ -43,10 +43,10 @@ public interface WorkflowApi {
     @POST("workflow/start")
     Call<Response<WorkflowResult>> start(@Body WorkflowOperationRequest request);
 
-    @POST("workflow/cancel/{taskId}")
+    @POST("workflow/cancel/{processId}")
     Call<Response<WorkflowResult>> cancel(@Path("processId") Integer processId, @Body WorkflowOperationRequest request);
 
-    @POST("workflow/continue/{taskId}")
+    @POST("workflow/continue/{processId}")
     Call<Response<WorkflowResult>> continueProcess(@Path("processId") Integer processId,
             @Body WorkflowOperationRequest request);
 
@@ -56,7 +56,7 @@ public interface WorkflowApi {
     @POST("workflow/complete/{taskId}")
     Call<Response<WorkflowResult>> complete(@Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
 
-    @GET("workflow/detail/{id}")
+    @GET("workflow/detail/{processId}")
     Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
