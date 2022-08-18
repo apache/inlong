@@ -29,7 +29,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
 /**
- * CustomFunction class uses the content of field as a script
+ * CustomFunction class uses the content of field as a function
  */
 @JsonTypeName("customFunction")
 @EqualsAndHashCode(callSuper = false)
