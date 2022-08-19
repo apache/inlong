@@ -55,7 +55,7 @@ public class CreateCommand extends AbstractCommand {
         private File file;
 
         //TODO:add gdbc connector and others
-        @Parameter(names = {"-s"})
+        @Parameter(names = {"-s"}, description = "optional log string to create file")
         private String input;
 
         @Override

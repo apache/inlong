@@ -48,7 +48,7 @@ public class LogCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"--query"})
+        @Parameter(names = {"--query"}, description = "condition filters")
         private String input;
 
         @Override

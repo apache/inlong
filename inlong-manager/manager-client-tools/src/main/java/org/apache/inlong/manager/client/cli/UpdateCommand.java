@@ -45,18 +45,18 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"--group", "-g"}, required = true)
-        private String groupId;
+        @Parameter(names = {"--group", "-g"}, required = true, description = "task id")
+        private String inlongGroupId;
 
-        @Parameter(names = {"-c",
-                "--config"}, converter = FileConverter.class, required = true, description = "json file")
+        @Parameter(names = {"-c", "--config"}
+                , required = true, description = "json file")
         private File file;
 
         @Override
         void run() {
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
-                InlongGroup group = inlongClient.getGroup(groupId);
+                InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 String fileContent = ClientUtils.readFile(file);
                 if (StringUtils.isBlank(fileContent)) {
                     System.out.println("Update group failed: file was empty!");

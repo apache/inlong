@@ -23,11 +23,13 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
+import java.util.List;
+
 @Parameters(commandDescription = "Delete resource by json file")
 public class DeleteCommand extends AbstractCommand {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public DeleteCommand() {
         super("delete");
@@ -38,10 +40,10 @@ public class DeleteCommand extends AbstractCommand {
     private static class DeleteGroup extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"--group", "-g"}, required = true, description = "group id")
-        private String groupId;
+        private String inlongGroupId;
 
         @Override
         void run() {
@@ -49,7 +51,7 @@ public class DeleteCommand extends AbstractCommand {
             //TODO: handle and/or classify the exceptions
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
-                InlongGroup group = inlongClient.getGroup(groupId);
+                InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 group.delete();
                 System.out.println("delete group success");
             } catch (Exception e) {
