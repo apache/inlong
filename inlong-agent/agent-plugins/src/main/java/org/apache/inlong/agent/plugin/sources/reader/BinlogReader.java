@@ -127,6 +127,7 @@ public class BinlogReader extends AbstractReader {
 
     @Override
     public void init(JobProfile jobConf) {
+        super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init binlog reader with jobConf {}", jobConf.toJsonStr());
         userName = jobConf.get(JOB_DATABASE_USER);

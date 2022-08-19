@@ -65,6 +65,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
     private final String slotName;
     private final Properties dbzProperties;
     private final String inlongMetric;
+    private final String inlongAudit;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -88,7 +89,8 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
             String pluginName,
             String slotName,
             Properties dbzProperties,
-            String inlongMetric) {
+            String inlongMetric,
+            String inlongAudit) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -103,6 +105,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
         this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -143,6 +146,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         .debeziumProperties(dbzProperties)
                         .deserializer(deserializer)
                         .inlongMetric(inlongMetric)
+                        .inlongAudit(inlongAudit)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
@@ -178,7 +182,8 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         pluginName,
                         slotName,
                         dbzProperties,
-                        inlongMetric);
+                        inlongMetric,
+                        inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -206,7 +211,8 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                 && Objects.equals(dbzProperties, that.dbzProperties)
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
-                && Objects.equals(inlongMetric, that.inlongMetric);
+                && Objects.equals(inlongMetric, that.inlongMetric)
+                && Objects.equals(inlongAudit, that.inlongAudit);
     }
 
     @Override
@@ -225,7 +231,8 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                 dbzProperties,
                 producedDataType,
                 metadataKeys,
-                inlongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override

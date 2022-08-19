@@ -125,7 +125,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       dataIndex: 'inlongStreamId',
     },
     {
-      title: t('pages.AccessDetail.DataStream.Name'),
+      title: t('pages.GroupDetail.Stream.Name'),
       dataIndex: 'name',
     },
     {
@@ -170,7 +170,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={onCreate}>
-              {t('pages.AccessDetail.DataStream.CreateDataStream')}
+              {t('pages.GroupDetail.Stream.CreateDataStream')}
             </Button>
           )
         }

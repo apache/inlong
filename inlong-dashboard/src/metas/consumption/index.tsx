@@ -18,207 +18,255 @@
  */
 
 import React from 'react';
-import { FormItemProps } from '@/components/FormGenerator';
-import { pickObjectArray } from '@/utils';
-import StaffSelect from '@/components/StaffSelect';
+import UserSelect from '@/components/UserSelect';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
 import i18n from '@/i18n';
+import { timestampFormat } from '@/utils';
+import {
+  statusList,
+  lastConsumerStatusList,
+  genStatusTag,
+  genLastConsumerStatusTag,
+} from './status';
+import { consumptionExtends } from './extends';
 
-export default (
-  names: (string | FormItemProps)[],
-  currentValues: Record<string, any> = {},
-): FormItemProps[] => {
-  const fields: FormItemProps[] = [
-    {
-      type: 'input',
-      label: i18n.t('meta.Consumption.ConsumerGroupName'),
-      name: 'consumerGroup',
-      initialValue: currentValues.consumerGroup,
-      extra: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
-      rules: [
-        { required: true },
-        {
-          pattern: /^[0-9a-z_\d]+$/,
-          message: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
-        },
-      ],
-    },
-    {
-      type: <StaffSelect mode="multiple" currentUserClosable={false} />,
-      label: i18n.t('meta.Consumption.Owner'),
-      name: 'inCharges',
-      initialValue: currentValues.inCharges,
-      extra: i18n.t('meta.Consumption.OwnersExtra'),
-      rules: [
-        {
-          required: true,
-        },
-      ],
-    },
-    {
-      type: 'select',
-      label: i18n.t('meta.Consumption.ConsumerTargetBusinessID'),
-      name: 'inlongGroupId',
-      extraNames: ['mqType'],
-      initialValue: currentValues.inlongGroupId,
-      rules: [{ required: true }],
-      props: {
-        showSearch: true,
-        filterOption: false,
-        options: {
-          requestTrigger: ['onOpen', 'onSearch'],
-          requestService: keyword => ({
-            url: '/group/list',
-            method: 'POST',
-            data: {
-              keyword,
-              pageNum: 1,
-              pageSize: 20,
-              status: 130,
-            },
-          }),
-          requestParams: {
-            formatResult: result =>
-              result?.list?.map(item => ({
-                ...item,
-                label: `${item.inlongGroupId} (${item.mqType})`,
-                value: item.inlongGroupId,
-              })),
+const consumptionDefault: FieldItemType[] = [
+  {
+    type: 'input',
+    label: i18n.t('meta.Consumption.ConsumerGroupName'),
+    name: 'consumerGroup',
+    extra: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
+    rules: [
+      { required: true },
+      {
+        pattern: /^[0-9a-z_\d]+$/,
+        message: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
+      },
+    ],
+    _renderTable: true,
+  },
+  {
+    type: <UserSelect mode="multiple" currentUserClosable={false} />,
+    label: i18n.t('meta.Consumption.Owner'),
+    name: 'inCharges',
+    extra: i18n.t('meta.Consumption.OwnersExtra'),
+    rules: [
+      {
+        required: true,
+      },
+    ],
+    _renderTable: true,
+  },
+  {
+    type: 'select',
+    label: i18n.t('meta.Consumption.ConsumerTargetBusinessID'),
+    name: 'inlongGroupId',
+    extraNames: ['mqType'],
+    rules: [{ required: true }],
+    props: {
+      showSearch: true,
+      filterOption: false,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/group/list',
+          method: 'POST',
+          data: {
+            keyword,
+            pageNum: 1,
+            pageSize: 20,
+            status: 130,
           },
-        },
-        onChange: (value, option) => ({
-          topic: undefined,
-          mqType: option.mqType,
         }),
-      },
-    },
-    {
-      type: 'select',
-      label: 'Topic',
-      name: 'topic',
-      initialValue: currentValues.topic,
-      rules: [{ required: true }],
-      props: {
-        mode: currentValues.mqType === 'PULSAR' ? 'multiple' : '',
-        options: {
-          requestService: `/group/getTopic/${currentValues.inlongGroupId}`,
-          requestParams: {
-            formatResult: result =>
-              result.mqType === 'TUBEMQ'
-                ? [
-                    {
-                      label: result.mqResource,
-                      value: result.mqResource,
-                    },
-                  ]
-                : result.streamTopics?.map(item => ({
-                    ...item,
-                    label: item.mqResource,
-                    value: item.mqResource,
-                  })) || [],
-          },
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: `${item.inlongGroupId} (${item.mqType})`,
+              value: item.inlongGroupId,
+            })),
         },
       },
-      visible: values => !!values.inlongGroupId,
+      onChange: (value, option) => ({
+        topic: undefined,
+        mqType: option.mqType,
+      }),
     },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Consumption.filterEnabled'),
-      name: 'filterEnabled',
-      initialValue: currentValues.filterEnabled ?? 0,
-      props: {
-        options: [
-          {
-            label: i18n.t('meta.Consumption.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('meta.Consumption.No'),
-            value: 0,
-          },
-        ],
+    _renderTable: true,
+  },
+  {
+    type: 'select',
+    label: 'Topic',
+    name: 'topic',
+    rules: [{ required: true }],
+    props: values => ({
+      mode: values.mqType === 'PULSAR' ? 'multiple' : '',
+      options: {
+        requestService: `/group/getTopic/${values.inlongGroupId}`,
+        requestParams: {
+          formatResult: result =>
+            result.mqType === 'TUBEMQ'
+              ? [
+                  {
+                    label: result.mqResource,
+                    value: result.mqResource,
+                  },
+                ]
+              : result.streamTopics?.map(item => ({
+                  ...item,
+                  label: item.mqResource,
+                  value: item.mqResource,
+                })) || [],
+        },
       },
-      rules: [{ required: true }],
-      visible: values => !!values.mqType && values.mqType !== 'PULSAR',
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Consumption.ConsumerDataStreamID'),
-      name: 'inlongStreamId',
-      initialValue: currentValues.inlongStreamId,
-      extra: i18n.t('meta.Consumption.DataStreamIDsHelp'),
-      rules: [{ required: true }],
-      style:
-        currentValues.mqType === 'PULSAR'
-          ? {
-              display: 'none',
-            }
-          : {},
-      visible: values => values.mqType === 'PULSAR' || values.filterEnabled,
-    },
-    {
-      type: 'text',
-      label: i18n.t('meta.Consumption.MasterAddress'),
-      name: 'masterUrl',
-      initialValue: currentValues.masterUrl,
-    },
-    {
-      type: 'radio',
-      label: 'isDlq',
-      name: 'mqExtInfo.isDlq',
-      initialValue: currentValues.mqExtInfo?.isDlq ?? 0,
-      rules: [{ required: true }],
-      props: {
-        options: [
-          {
-            label: i18n.t('meta.Consumption.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('meta.Consumption.No'),
-            value: 0,
-          },
-        ],
+      onChange: (value, option) => {
+        if (typeof value !== 'string') {
+          return {
+            inlongStreamId: option.map(item => item.streamTopics).join(','),
+          };
+        }
       },
-      visible: values => values.mqType === 'PULSAR',
+    }),
+    visible: values => !!values.inlongGroupId,
+    _renderTable: true,
+  },
+  {
+    type: 'text',
+    label: 'MQ Type',
+    name: 'mqType',
+    visible: false,
+    _renderTable: true,
+  },
+  {
+    type: 'select',
+    label: i18n.t('basic.Status'),
+    name: 'status',
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
     },
-    {
-      type: 'input',
-      label: 'deadLetterTopic',
-      name: 'mqExtInfo.deadLetterTopic',
-      initialValue: currentValues.mqExtInfo?.deadLetterTopic,
-      rules: [{ required: true }],
-      visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+    visible: false,
+    _renderTable: {
+      render: text => genStatusTag(text),
     },
-    {
-      type: 'radio',
-      label: 'isRlq',
-      name: 'mqExtInfo.isRlq',
-      initialValue: currentValues.mqExtInfo?.isRlq ?? 0,
-      rules: [{ required: true }],
-      props: {
-        options: [
-          {
-            label: i18n.t('meta.Consumption.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('meta.Consumption.No'),
-            value: 0,
-          },
-        ],
-      },
-      visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+  },
+  {
+    type: 'input',
+    label: i18n.t('pages.ConsumeDashboard.config.RecentConsumptionTime'),
+    name: 'lastConsumptionTime',
+    visible: false,
+    _renderTable: {
+      render: text => text && timestampFormat(text),
     },
-    {
-      type: 'input',
-      label: 'retryLetterTopic',
-      name: 'mqExtInfo.retryLetterTopic',
-      initialValue: currentValues.mqExtInfo?.retryLetterTopic,
-      rules: [{ required: true }],
-      visible: values =>
-        values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.mqType === 'PULSAR',
+  },
+  {
+    type: 'select',
+    label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
+    name: 'lastConsumptionStatus',
+    props: {
+      allowClear: true,
+      dropdownMatchSelectWidth: false,
+      options: lastConsumerStatusList,
     },
-  ] as FormItemProps[];
+    visible: false,
+    _renderTable: {
+      render: text => text && genLastConsumerStatusTag(text),
+    },
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Consumption.filterEnabled'),
+    name: 'filterEnabled',
+    initialValue: 0,
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Consumption.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('meta.Consumption.No'),
+          value: 0,
+        },
+      ],
+    },
+    rules: [{ required: true }],
+    visible: values => !!values.mqType && values.mqType !== 'PULSAR',
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Consumption.ConsumerDataStreamID'),
+    name: 'inlongStreamId',
+    extra: i18n.t('meta.Consumption.DataStreamIDsHelp'),
+    rules: [{ required: true }],
+    visible: values => values.mqType === 'PULSAR' || values.filterEnabled,
+  },
+  {
+    type: 'text',
+    label: i18n.t('meta.Consumption.MasterAddress'),
+    name: 'masterUrl',
+  },
+  {
+    type: 'radio',
+    label: 'isDlq',
+    name: 'mqExtInfo.isDlq',
+    initialValue: 0,
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Consumption.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('meta.Consumption.No'),
+          value: 0,
+        },
+      ],
+    },
+    visible: values => values.mqType === 'PULSAR',
+  },
+  {
+    type: 'input',
+    label: 'deadLetterTopic',
+    name: 'mqExtInfo.deadLetterTopic',
+    rules: [{ required: true }],
+    visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+  },
+  {
+    type: 'radio',
+    label: 'isRlq',
+    name: 'mqExtInfo.isRlq',
+    initialValue: 0,
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Consumption.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('meta.Consumption.No'),
+          value: 0,
+        },
+      ],
+    },
+    visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+  },
+  {
+    type: 'input',
+    label: 'retryLetterTopic',
+    name: 'mqExtInfo.retryLetterTopic',
+    rules: [{ required: true }],
+    visible: values =>
+      values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.mqType === 'PULSAR',
+  },
+];
 
-  return pickObjectArray(names, fields);
-};
+export const consumption = genFields(consumptionDefault, consumptionExtends);
+
+export const consumptionForm = genForm(consumption);
+
+export const consumptionTable = genTable(consumption);

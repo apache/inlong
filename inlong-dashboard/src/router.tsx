@@ -105,10 +105,14 @@ const App = () => {
     if (!localesConfig[locale]) return;
 
     const { antdPath, dayjsPath } = localesConfig[locale];
-    const [messages, antdMessages] = await Promise.all([
+    const [messagesDefault, messagesExtends, antdMessages] = await Promise.all([
       import(
-        /* webpackChunkName: 'project-locales-[request]' */
+        /* webpackChunkName: 'default-locales-[request]' */
         `@/locales/${locale}.json`
+      ),
+      import(
+        /* webpackChunkName: 'extends-locales-[request]' */
+        `@/locales/extends/${locale}.json`
       ),
       import(
         /* webpackInclude: /(zh_CN|en_US)\.js$/ */
@@ -122,7 +126,10 @@ const App = () => {
       ),
     ]);
     i18n.changeLanguage(locale);
-    i18n.addResourceBundle(locale, 'translation', messages.default);
+    i18n.addResourceBundle(locale, 'translation', {
+      ...messagesDefault.default,
+      ...messagesExtends.default,
+    });
     dayjs.locale(dayjsPath);
     setAntdMessages(antdMessages.default);
   }, []);
@@ -161,7 +168,7 @@ const App = () => {
         <Layout>
           <Suspense fallback={<PageLoading />}>
             <Switch>
-              <Route exact path="/" render={() => <Redirect to="/access" />} />
+              <Route exact path="/" render={() => <Redirect to="/group" />} />
               {renderRoutes(routes)}
             </Switch>
           </Suspense>

@@ -18,10 +18,8 @@
  */
 
 import FormGenerator, { useForm } from './FormGenerator';
-import type { FormGeneratorProps } from './FormGenerator';
-import FormItemContent from './FormItemContent';
-import { FormItemProps } from './FormItemContent';
+import type { FormGeneratorProps, FormItemProps } from './FormGenerator';
 
-export { useForm, FormItemContent };
+export { useForm };
 export type { FormGeneratorProps, FormItemProps };
 export default FormGenerator;

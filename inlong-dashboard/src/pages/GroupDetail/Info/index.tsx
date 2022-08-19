@@ -47,7 +47,6 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
     formatResult: data => ({
       ...data,
       inCharges: data.inCharges.split(','),
-      followers: data.inCharges.split(','),
     }),
     onSuccess: data => form.setFieldsValue(data),
   });
@@ -59,7 +58,6 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
       ...values,
       version: data?.version,
       inCharges: values.inCharges?.join(','),
-      followers: values.followers?.join(','),
     };
 
     if (isUpdate) {
@@ -108,7 +106,6 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
         form={form}
         content={getFormContent({
           editing,
-          initialValues: data,
           isCreate,
           isUpdate,
         })}

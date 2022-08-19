@@ -63,17 +63,17 @@ public class MetricListenerRunnable implements Runnable {
      */
     @Override
     public void run() {
-        LOG.info("begin to snapshot metric:{}", domain);
+        LOG.debug("begin to snapshot metric:{}", domain);
         try {
             List<MetricItemValue> itemValues = this.getItemValues();
-            LOG.info("snapshot metric:{},size:{}", domain, itemValues.size());
+            LOG.debug("snapshot metric:{},size:{}", domain, itemValues.size());
             this.listenerList.forEach((item) -> {
                 item.snapshot(domain, itemValues);
             });
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
-        LOG.info("end to snapshot metric:{}", domain);
+        LOG.debug("end to snapshot metric:{}", domain);
     }
 
     /**
@@ -98,7 +98,7 @@ public class MetricListenerRunnable implements Runnable {
         ObjectName objName = new ObjectName(beanName.toString());
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
-        LOG.info("getItemValues for domain:{},queryMBeans:{}", domain, mbeans);
+        LOG.debug("getItemValues for domain:{},queryMBeans:{}", domain, mbeans);
         List<MetricItemValue> itemValues = new ArrayList<>();
         for (ObjectInstance mbean : mbeans) {
             String className = mbean.getClassName();
@@ -112,7 +112,7 @@ public class MetricListenerRunnable implements Runnable {
                 Map<String, MetricValue> metrics = (Map<String, MetricValue>) mbs
                         .invoke(metricObjectName, MetricItemMBean.METHOD_SNAPSHOT, null, null);
                 MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
-                LOG.info("MetricItemMBean get itemValue:{}", itemValue);
+                LOG.debug("MetricItemMBean get itemValue:{}", itemValue);
                 itemValues.add(itemValue);
             } else if (ClassUtils.isAssignable(clazz, MetricItemSetMBean.class)) {
                 ObjectName metricObjectName = mbean.getObjectName();
@@ -129,7 +129,7 @@ public class MetricListenerRunnable implements Runnable {
                         Map<String, String> dimensions = item.getDimensions();
                         Map<String, MetricValue> metrics = item.snapshot();
                         MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
-                        LOG.info("MetricItemSetMBean get itemValue:{}", itemValue);
+                        LOG.debug("MetricItemSetMBean get itemValue:{}", itemValue);
                         itemValues.add(itemValue);
                     }
                 }

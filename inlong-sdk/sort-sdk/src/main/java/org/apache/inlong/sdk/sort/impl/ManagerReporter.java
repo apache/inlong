@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.ReportApi;
 import org.apache.inlong.sdk.sort.entity.ConsumeState;
@@ -40,7 +40,7 @@ public class ManagerReporter extends PeriodicTask {
 
     private final ConcurrentHashMap<Integer, Long> reportApiRunTimeMs = new ConcurrentHashMap<>();
     private final ClientContext context;
-    private final InLongTopicManager inLongTopicManager;
+    private final InlongTopicManager inLongTopicManager;
     private final ManagerReportHandler reportHandler;
     private Map<Integer, Long> reportApiInterval = new HashMap<>();
 
@@ -54,7 +54,7 @@ public class ManagerReporter extends PeriodicTask {
      * @param timeUnit TimeUnit
      */
     public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler,
-            InLongTopicManager inLongTopicManager,
+            InlongTopicManager inLongTopicManager,
             long runInterval, TimeUnit timeUnit) {
         super(runInterval, timeUnit, context.getConfig());
         this.context = context;

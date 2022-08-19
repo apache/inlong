@@ -48,6 +48,7 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoin;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +191,7 @@ public class FlinkSqlParser implements Parser {
                             streamInfo.getStreamId(), node.getId()));
             if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
                 properties.put(InlongMetric.AUDIT_KEY,
-                    groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
             }
         });
     }
@@ -423,20 +424,11 @@ public class FlinkSqlParser implements Parser {
         sb.append(" FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ")
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
         // Parse condition map of join and format condition to sql, such as on 1 = 1...
-        String relationFormat = relation.format();
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
-        for (int i = 1; i < relation.getInputs().size(); i++) {
-            String inputId = relation.getInputs().get(i);
-            sb.append("\n      ").append(relationFormat).append(" ")
-                    .append(nodeMap.get(inputId).genTableName()).append(" ")
-                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
-            List<FilterFunction> conditions = conditionMap.get(inputId);
-            Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
-            for (FilterFunction filter : conditions) {
-                // Fill out the table name alias for param
-                fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
-                sb.append(" ").append(filter.format());
-            }
+        if (relation instanceof TemporalJoin) {
+            parseTemporalJoin((TemporalJoin) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        } else {
+            parseRegularJoin(relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         }
         if (filters != null && !filters.isEmpty()) {
             // Fill out the table name alias for param
@@ -449,6 +441,45 @@ public class FlinkSqlParser implements Parser {
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
         return sb.toString();
+    }
+
+    private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append("\n      ").append(relation.format()).append(" ")
+                    .append(nodeMap.get(inputId).genTableName()).append(" ")
+                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
+        }
+    }
+
+    private void parseTemporalJoin(TemporalJoin relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+        if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
+            relation.getSystemTime().setNodeId(relation.getInputs().get(0));
+        }
+        relation.getSystemTime().setTableNameAlias(tableNameAliasMap.get(relation.getSystemTime().getNodeId()));
+        String systemTimeFormat = String.format("FOR SYSTEM_TIME AS OF %s ", relation.getSystemTime().format());
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append("\n      ").append(relation.format()).append(" ")
+                    .append(nodeMap.get(inputId).genTableName()).append(" ");
+            sb.append(systemTimeFormat);
+            sb.append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
+        }
+    }
+
+    private void parseJoinConditions(String inputId, Map<String, List<FilterFunction>> conditionMap,
+            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+        List<FilterFunction> conditions = conditionMap.get(inputId);
+        Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
+        for (FilterFunction filter : conditions) {
+            // Fill out the table name alias for param
+            fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
+            sb.append(" ").append(filter.format());
+        }
     }
 
     /**

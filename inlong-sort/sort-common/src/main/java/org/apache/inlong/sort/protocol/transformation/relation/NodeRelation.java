@@ -40,6 +40,8 @@ import java.util.List;
         @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
         @JsonSubTypes.Type(value = LeftOuterJoinNodeRelation.class, name = "leftOuterJoin"),
         @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin"),
+        @JsonSubTypes.Type(value = InnerTemporalJoin.class, name = "innerTemporalJoin"),
+        @JsonSubTypes.Type(value = LeftOuterTemporalJoin.class, name = "leftOuterTemporalJoin"),
         @JsonSubTypes.Type(value = UnionNodeRelation.class, name = "union"),
         @JsonSubTypes.Type(value = NodeRelation.class, name = "baseRelation")
 })
@@ -62,7 +64,7 @@ public class NodeRelation implements Serializable {
      */
     @JsonCreator
     public NodeRelation(@JsonProperty("inputs") List<String> inputs,
-                        @JsonProperty("outputs") List<String> outputs) {
+            @JsonProperty("outputs") List<String> outputs) {
         this.inputs = Preconditions.checkNotNull(inputs, "inputs is null");
         Preconditions.checkState(!inputs.isEmpty(), "inputs is empty");
         this.outputs = Preconditions.checkNotNull(outputs, "outputs is null");

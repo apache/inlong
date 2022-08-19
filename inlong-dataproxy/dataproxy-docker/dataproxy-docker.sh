@@ -23,7 +23,8 @@ cd "${file_path}/"
 common_conf_file=./conf/common.properties
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
 sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"
-sed -i "s/proxy.local.ip=.*$/proxy.local.ip=${local_ip}/g" "${common_conf_file}"
+sed -i "s/proxy.report.ip=.*$/proxy.report.ip=${local_ip}/g" "${common_conf_file}"
+sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${common_conf_file}"
 
 # start
 if [ "${MQ_TYPE}" = "pulsar" ]; then

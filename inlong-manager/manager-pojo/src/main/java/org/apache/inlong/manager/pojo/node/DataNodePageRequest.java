@@ -31,10 +31,10 @@ import org.apache.inlong.manager.pojo.common.PageRequest;
 @ApiModel("Data node paging query request")
 public class DataNodePageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Node type, including MYSQL, HIVE, KAFKA, ES, etc.")
+    @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Node name")
+    @ApiModelProperty(value = "Data node name")
     private String name;
 
     @ApiModelProperty(value = "Keywords, name, url, etc.")

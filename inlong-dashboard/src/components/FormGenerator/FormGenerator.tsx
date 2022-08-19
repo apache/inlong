@@ -21,7 +21,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import merge from 'lodash/merge';
 import { trim } from '@/utils';
 import Form, { FormProps } from 'antd/lib/form';
-import FormItemContent, { FormItemProps } from './FormItemContent';
+import FormItemContent, { FormItemProps as ItemType } from './FormItemContent';
+
+export interface FormItemProps extends Omit<ItemType, 'props'> {
+  props?: ItemType['props'] | ((values: Record<string, any>) => ItemType['props']);
+}
 
 // Generator properties
 export interface FormGeneratorProps extends FormProps {
@@ -70,12 +74,13 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
   const combineContentWithProps = useCallback(
     (initialContent: Record<string, any>[], props: FormGeneratorProps) => {
       return initialContent.map((v: any) => {
-        const { type, props: initialProps = {} } = v;
+        const initialProps =
+          typeof v.props === 'function' ? v.props(realTimeValues) : v.props || {};
         const namePath = Array.isArray(v.name) ? v.name : v.name && v.name.split('.');
         const name = namePath && namePath.length > 1 ? namePath : v.name;
         // props hold
         const holdProps = {} as any;
-        if (type === 'inputsearch') {
+        if (v.type === 'inputsearch') {
           // Hold onSearch to trigger onFilter
           holdProps.onSearch = (value, event) => {
             initialProps.onSearch && initialProps.onSearch(value, event);
@@ -85,7 +90,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
                 [name]: value,
               });
           };
-        } else if (type === 'input') {
+        } else if (v.type === 'input') {
           // Hold onPressEnter to trigger onFilter
           holdProps.onPressEnter = event => {
             initialProps.onPressEnter && initialProps.onPressEnter(event);

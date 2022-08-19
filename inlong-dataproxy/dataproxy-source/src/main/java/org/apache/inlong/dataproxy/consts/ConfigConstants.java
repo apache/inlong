@@ -60,6 +60,8 @@ public class ConfigConstants {
 
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
+    public static final String MAX_MONITOR_CNT = "max-monitor-cnt";
+
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";
 
     public static final String PACKAGE_TIMEOUT_SEC = "package-timeout-sec";
@@ -92,7 +94,9 @@ public class ConfigConstants {
     public static final String CLUSTER_ID_KEY = "clusterId";
     public static final String MANAGER_HOST = "manager.hosts";
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
-    public static final String PROXY_LOCAL_IP = "proxy.local.ip";
+    public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_REPORT_IP = "proxy.report.ip";
+    public static final String PROXY_REPORT_PORT = "proxy.report.port";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";

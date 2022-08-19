@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState, useMemo, useImperativeHandle, forwardRef } from 'react';
+import React, { useMemo, useImperativeHandle, forwardRef } from 'react';
 import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useBoolean } from '@/hooks';
@@ -38,8 +38,6 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     return !!id;
   }, [id]);
 
-  const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
-
   const { data, run: getDetail } = useRequest(
     {
       url: `/consumption/get/${id}`,
@@ -53,7 +51,6 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
       }),
       onSuccess: data => {
         form.setFieldsValue(data);
-        setChangedValues(data);
       },
     },
   );
@@ -102,12 +99,10 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
         form={form}
         content={getFormContent({
           editing,
-          initialValues: changedValues,
           isCreate,
         })}
         allValues={data}
         useMaxWidth={800}
-        onValuesChange={(c, v) => setChangedValues(prev => ({ ...prev, ...v }))}
       />
 
       {!isCreate && !readonly && (

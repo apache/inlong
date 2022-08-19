@@ -32,7 +32,7 @@ const routes: RouteProps[] = [
     exact: true,
   },
   {
-    path: '/access',
+    path: '/group',
     component: () => import('@/pages/GroupDashboard'),
     exact: true,
     childRoutes: [
