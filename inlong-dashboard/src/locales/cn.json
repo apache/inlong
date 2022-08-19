@@ -274,6 +274,7 @@
   "components.Layout.NavWidget.NewPassword": "新密码",
   "components.Layout.NavWidget.ConfirmPassword": "确认密码",
   "components.Layout.NavWidget.Remind": "密码不一致，请重新输入",
+  "components.HighSelect.Customize": "自定义",
   "components.StaffSelect.Placeholder": "请输入关键字搜索",
   "configs.pagination.Total": "共{{total}}项",
   "pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess": "重新执行成功",

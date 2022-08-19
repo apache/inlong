@@ -274,6 +274,7 @@
   "components.Layout.NavWidget.NewPassword": "New password",
   "components.Layout.NavWidget.ConfirmPassword": "Confirm password",
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
+  "components.HighSelect.Customize": "Customize",
   "components.StaffSelect.Placeholder": "Please enter a keyword search",
   "configs.pagination.Total": "Total {{total}} items",
   "pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess": "Re-executing success",

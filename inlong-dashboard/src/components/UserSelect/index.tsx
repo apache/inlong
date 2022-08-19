@@ -19,13 +19,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Select, Spin, Tag } from 'antd';
-import type { SelectProps, OptionProps } from 'antd/es/select';
+import type { SelectProps, DefaultOptionType } from 'antd/es/select';
 import { useTranslation } from 'react-i18next';
 import { State } from '@/models';
 import { useRequest, useSelector } from '@/hooks';
 import debounce from 'lodash/debounce';
 
-export interface StaffSelectProps extends SelectProps<any> {
+export interface UserSelectProps extends SelectProps<any> {
   onChange?: (value: string | string[]) => void;
   // Whether to delete the currently logged in user
   currentUserClosable?: boolean;
@@ -42,7 +42,7 @@ function getCache() {
   }
 }
 
-function setCache(data: OptionProps[]) {
+function setCache(data: DefaultOptionType[]) {
   const oldData = getCache();
   const oldDataMap = oldData.reduce(
     (acc, cur) => ({
@@ -64,7 +64,7 @@ function setCache(data: OptionProps[]) {
   window.localStorage.setItem(cacheKey, JSON.stringify(newData));
 }
 
-const StaffSelect: React.FC<StaffSelectProps> = ({
+const UserSelect: React.FC<UserSelectProps> = ({
   value,
   onChange,
   currentUserClosable = true,
@@ -83,7 +83,10 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
     // eslint-disable-next-line
   }, [value]);
 
-  const onValueChange = (newValue: string | string[], option: OptionProps | OptionProps[]) => {
+  const onValueChange = (
+    newValue: string | string[],
+    option: DefaultOptionType | DefaultOptionType[],
+  ) => {
     if (!currentUserClosable) {
       if (typeof newValue === 'string') {
         newValue = userName;
@@ -134,7 +137,7 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
 
   return (
     <Select
-      placeholder={t('components.StaffSelect.Placeholder')}
+      placeholder={t('components.UserSelect.Placeholder')}
       showSearch
       allowClear
       {...rest}
@@ -159,4 +162,4 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
   );
 };
 
-export default StaffSelect;
+export default UserSelect;
