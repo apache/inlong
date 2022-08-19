@@ -56,6 +56,12 @@ import java.util.Map;
 @Service
 public class PulsarSourceOperator extends AbstractSourceOperator {
 
+    private static final String AUTH_CLASSNAME_KEY = "properties.auth-plugin-classname";
+    private static final String AUTH_CLASSNAME_VALUE = "org.apache.pulsar.client.impl.auth.AuthenticationToken";
+    private static final String AUTH_PARAMS_KEY = "properties.auth-params";
+    // the %s must be replaced by the actual value
+    private static final String AUTH_PARAMS_VALUE = "token:%s";
+
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -120,6 +126,13 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
+
+            // set the token info
+            if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
+                Map<String, Object> properties = pulsarSource.getProperties();
+                properties.putIfAbsent(AUTH_CLASSNAME_KEY, AUTH_CLASSNAME_VALUE);
+                properties.putIfAbsent(AUTH_PARAMS_KEY, String.format(AUTH_PARAMS_VALUE, pulsarCluster.getToken()));
+            }
 
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
