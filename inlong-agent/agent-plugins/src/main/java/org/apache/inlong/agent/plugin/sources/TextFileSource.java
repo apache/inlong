@@ -56,7 +56,7 @@ public class TextFileSource extends AbstractSource {
         Collection<File> allFiles = PluginUtils.findSuitFiles(jobConf);
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
-        LOGGER.info("File splits size: {}", allFiles.size());
+        LOGGER.info("file splits size: {}", allFiles.size());
         for (File file : allFiles) {
             int startPosition = getStartPosition(jobConf, file);
             LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", startPosition,

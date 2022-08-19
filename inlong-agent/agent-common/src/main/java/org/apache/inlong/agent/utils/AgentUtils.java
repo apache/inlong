@@ -291,7 +291,7 @@ public class AgentUtils {
                 }
             }
         }
-        LOGGER.info("Path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
+        LOGGER.info("path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
         return true;
     }
 
