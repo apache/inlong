@@ -15,31 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.workflow;
+package org.apache.inlong.manager.client.api.service;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
-import java.util.List;
+public interface WorkflowEventApi {
 
-/**
- * Workflow result info
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Workflow result info")
-public class WorkflowResult {
-
-    @ApiModelProperty(value = "Process info")
-    private ProcessResponse processInfo;
-
-    @ApiModelProperty(value = "Newly generated tasks")
-    private List<TaskResponse> newTasks;
-
+    @GET("workflow/event/list")
+    Call<Response<PageInfo<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
+            @Query("status") Integer status);
 }
