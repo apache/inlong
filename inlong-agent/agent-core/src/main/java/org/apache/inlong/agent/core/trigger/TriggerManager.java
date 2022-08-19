@@ -117,12 +117,12 @@ public class TriggerManager extends AbstractDaemon {
 
     /**
      * Preprocessing before adding trigger, default value FULL
-     * 
+     *
      * FULL: All directory by regex
-     * INCREMENT: Directory entry created 
+     * INCREMENT: Directory entry created
      */
     public void preprocessTrigger(TriggerProfile profile) {
-        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, "FULL");
+        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
         if (FileCollectType.INCREMENT.equals(syncType)) {
             return;
         }
