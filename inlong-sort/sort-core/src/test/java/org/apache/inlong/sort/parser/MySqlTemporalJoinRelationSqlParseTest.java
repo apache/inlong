@@ -40,7 +40,6 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
-import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -154,7 +153,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
     /**
      * Test inner temporal join with event time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -187,7 +186,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
     /**
      * Test left temporal join with event time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -220,7 +219,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
     /**
      * Test inner temporal join with process time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -253,7 +252,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
     /**
      * Test left temporal join with process time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
