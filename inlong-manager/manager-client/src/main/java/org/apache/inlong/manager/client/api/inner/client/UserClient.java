@@ -57,6 +57,7 @@ public class UserClient {
     public Integer register(UserRequest userInfo) {
         Preconditions.checkNotEmpty(userInfo.getName(), "username cannot be empty");
         Preconditions.checkNotEmpty(userInfo.getPassword(), "password cannot be empty");
+
         Response<Integer> response = ClientUtils.executeHttpCall(userApi.register(userInfo));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -70,6 +71,7 @@ public class UserClient {
      */
     public UserInfo getById(Integer id) {
         Preconditions.checkNotNull(id, "user id cannot be null");
+
         Response<UserInfo> response = ClientUtils.executeHttpCall(userApi.getById(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -83,6 +85,7 @@ public class UserClient {
      */
     public PageInfo<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
+
         Response<PageInfo<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -97,6 +100,7 @@ public class UserClient {
     public Integer update(UserRequest userInfo) {
         Preconditions.checkNotNull(userInfo, "userinfo cannot be null");
         Preconditions.checkNotNull(userInfo.getId(), "user id cannot be null");
+
         Response<Integer> response = ClientUtils.executeHttpCall(userApi.update(userInfo));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -110,6 +114,7 @@ public class UserClient {
      */
     public Boolean delete(Integer id) {
         Preconditions.checkNotNull(id, "user id cannot be null");
+
         Response<Boolean> response = ClientUtils.executeHttpCall(userApi.delete(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

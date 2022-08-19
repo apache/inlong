@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
@@ -209,21 +210,21 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         final String agentIp = taskRequest.getAgentIp();
-        final String agentClusterTag = taskRequest.getClusterTag();
+        final String agentClusterName = taskRequest.getClusterName();
         final String uuid = taskRequest.getUuid();
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE), TASK_FETCH_SIZE * 10);
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
+                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
         List<DataConfig> fileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
             FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
-            final String ip = fileSourceDTO.getIp();
-            final String clusterTag = fileSourceDTO.getClusterTag();
-            // ClusterTag is blank
-            if (StringUtils.isNotBlank(ip) && StringUtils.isBlank(clusterTag)) {
-                if (ip.equals(agentIp)) {
+            final String destIp = sourceEntity.getAgentIp();
+            final String destClusterName = sourceEntity.getInlongClusterName();
+
+            // Cluster name is blank
+            if (StringUtils.isNotBlank(destIp) && StringUtils.isBlank(destClusterName)) {
+                if (destIp.equals(agentIp)) {
                     int op = getOp(sourceEntity.getStatus());
                     int nextStatus = getNextStatus(sourceEntity.getStatus());
-                    sourceEntity.setAgentIp(agentIp);
                     sourceEntity.setUuid(uuid);
                     sourceEntity.setStatus(nextStatus);
                     if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
@@ -233,32 +234,37 @@ public class AgentServiceImpl implements AgentService {
                 }
                 continue;
             }
-            // ClusterTag is not blank
-            if (StringUtils.isNotBlank(clusterTag) && clusterTag.equals(agentClusterTag)) {
-                String clusterIps = sourceEntity.getAgentIp() == null ? "" : sourceEntity.getAgentIp();
-                if (clusterIps.contains(agentIp)) {
-                    LOGGER.debug("Task={} has already be fetch by agentIP={}", sourceEntity.getExtParams(), agentIp);
-                    continue;
+
+            // Cluster name is not blank, split task if necessary
+            // The agent ip field of the entity holds the ip list of the agents that has already been issued
+            if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)) {
+
+                // Is the task already fetched by this agent ?
+                if (StringUtils.isNotBlank(sourceEntity.getAgentIp())) {
+                    if (Arrays.asList(sourceEntity.getAgentIp().split(InlongConstants.COMMA)).contains(agentIp)) {
+                        LOGGER.debug("Task={} has already been fetched by agentIP={}", sourceEntity.getExtParams(),
+                                agentIp);
+                        continue;
+                    }
                 }
-                clusterIps += InlongConstants.COMMA + agentIp;
-                sourceEntity.setAgentIp(clusterIps);
-                // Update until success
-                while (sourceMapper.updateByPrimaryKeySelective(sourceEntity) != 1) {
-                    sourceEntity = sourceMapper.selectById(sourceEntity.getId());
-                    sourceEntity.setAgentIp(clusterIps);
-                }
+
+                // If not, clone a sub task for the new agent
+                // Note that a new source name with random suffix is generated to adhere to the unique constraint
                 StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
                 FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
-                childFileSourceDTO.setIp(agentIp);
                 fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
                 fileEntity.setAgentIp(agentIp);
                 fileEntity.setUuid(uuid);
+                fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
                 int op = getOp(fileEntity.getStatus());
                 int nextStatus = getNextStatus(fileEntity.getStatus());
                 fileEntity.setStatus(nextStatus);
                 if (sourceMapper.insert(fileEntity) > 0) {
                     fileTasks.add(getDataConfig(fileEntity, op));
                 }
+
+                // Append new agent ip
+                sourceMapper.appendAgentIp(sourceEntity.getId(), agentIp);
             }
             if (fileTasks.size() >= TASK_FETCH_SIZE) {
                 break;

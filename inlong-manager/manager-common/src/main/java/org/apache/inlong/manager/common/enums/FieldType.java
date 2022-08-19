@@ -48,7 +48,8 @@ public enum FieldType {
     LOCAL_ZONE_TIMESTAMP,
     ARRAY,
     MAP,
-    STRUCT;
+    STRUCT,
+    FUNCTION;
 
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");

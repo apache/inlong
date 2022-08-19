@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
+import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
@@ -121,6 +122,7 @@ class ClientFactoryTest {
     private static InlongClusterClient clusterClient;
     private static DataNodeClient dataNodeClient;
     private static UserClient userClient;
+    private static WorkflowClient workflowClient;
 
     @BeforeAll
     static void setup() {
@@ -142,6 +144,7 @@ class ClientFactoryTest {
         clusterClient = clientFactory.getClusterClient();
         dataNodeClient = clientFactory.getDataNodeClient();
         userClient = clientFactory.getUserClient();
+        workflowClient = clientFactory.getWorkflowClient();
     }
 
     @AfterAll
@@ -238,7 +241,6 @@ class ClientFactoryTest {
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.MYSQL_BINLOG)
-                                                .clusterId(1)
                                                 .status(1)
                                                 .user("root")
                                                 .password("pwd")
@@ -279,7 +281,7 @@ class ClientFactoryTest {
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.FILE)
                                                 .status(1)
-                                                .ip("127.0.0.1")
+                                                .agentIp("127.0.0.1")
                                                 .pattern("pattern")
                                                 .build()
                                 )
@@ -367,7 +369,7 @@ class ClientFactoryTest {
                         .inlongGroupId("1")
                         .inlongStreamId("2")
                         .version(1)
-                        .ip("127.0.0.1")
+                        .agentIp("127.0.0.1")
                         .pattern("pattern")
                         .timeOffset("timeOffset")
                         .build(),
@@ -1118,4 +1120,5 @@ class ClientFactoryTest {
         Boolean isDelete = userClient.delete(1);
         Assertions.assertTrue(isDelete);
     }
+
 }

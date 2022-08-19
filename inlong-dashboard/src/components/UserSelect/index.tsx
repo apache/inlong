@@ -110,7 +110,8 @@ const UserSelect: React.FC<UserSelectProps> = ({
   const { data: staffList, loading, run: getStaffList } = useRequest(
     (username = '') => ({
       url: '/user/listAll',
-      params: {
+      method: 'POST',
+      data: {
         username,
       },
     }),

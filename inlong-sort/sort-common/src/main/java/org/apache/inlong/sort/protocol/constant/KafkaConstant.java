@@ -33,7 +33,7 @@ public class KafkaConstant {
 
     public static final String SCAN_STARTUP_MODE = "scan.startup.mode";
 
-    public static final String KAFKA = "kafka";
+    public static final String KAFKA = "kafka-inlong";
 
     public static final String SCAN_STARTUP_SPECIFIC_OFFSETS = "scan.startup.specific-offsets";
 
@@ -43,6 +43,6 @@ public class KafkaConstant {
      * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
      *         Upsert Kafka</a>
      */
-    public static final String UPSERT_KAFKA = "upsert-kafka";
+    public static final String UPSERT_KAFKA = "upsert-kafka-inlong";
 
 }

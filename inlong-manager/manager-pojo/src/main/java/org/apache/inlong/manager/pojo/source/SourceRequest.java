@@ -69,10 +69,6 @@ public class SourceRequest {
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @Deprecated
-    @ApiModelProperty("Id of the cluster that collected this source")
-    private Integer clusterId;
-
     @ApiModelProperty("Inlong cluster name")
     private String inlongClusterName;
 
