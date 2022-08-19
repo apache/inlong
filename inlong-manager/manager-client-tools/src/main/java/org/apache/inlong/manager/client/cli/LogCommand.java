@@ -46,7 +46,7 @@ public class LogCommand extends AbstractCommand {
     private static class CreateGroup extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"--query"}, description = "condition filters")
         private String input;
