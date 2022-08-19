@@ -48,7 +48,7 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoin;
+import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -425,8 +425,8 @@ public class FlinkSqlParser implements Parser {
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
         // Parse condition map of join and format condition to sql, such as on 1 = 1...
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
-        if (relation instanceof TemporalJoin) {
-            parseTemporalJoin((TemporalJoin) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        if (relation instanceof TemporalJoinRelation) {
+            parseTemporalJoin((TemporalJoinRelation) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         } else {
             parseRegularJoin(relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         }
@@ -454,7 +454,7 @@ public class FlinkSqlParser implements Parser {
         }
     }
 
-    private void parseTemporalJoin(TemporalJoin relation, Map<String, Node> nodeMap,
+    private void parseTemporalJoin(TemporalJoinRelation relation, Map<String, Node> nodeMap,
             Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
         if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
             relation.getSystemTime().setNodeId(relation.getInputs().get(0));

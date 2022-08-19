@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -31,16 +33,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Left temporal join
+ * Temporal join relation base class
  */
-@JsonTypeName("leftOuterTemporalJoin")
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = InnerTemporalJoinRelationRelation.class, name = "innerTemporalJoin"),
+        @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelationRelation.class, name = "leftOuterTemporalJoin")
+})
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class LeftOuterTemporalJoin extends TemporalJoin {
+public abstract class TemporalJoinRelation extends JoinRelation {
+
+    @JsonProperty("systemTime")
+    private FieldInfo systemTime;
 
     /**
-     * LeftOuterTemporalJoin Constructor
+     * Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
@@ -50,16 +62,12 @@ public class LeftOuterTemporalJoin extends TemporalJoin {
      * @param systemTime The system time for temporal join
      */
     @JsonCreator
-    public LeftOuterTemporalJoin(
+    public TemporalJoinRelation(
             @JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap,
             @Nullable @JsonProperty("systemTime") FieldInfo systemTime) {
-        super(inputs, outputs, joinConditionMap, systemTime);
-    }
-
-    @Override
-    public String format() {
-        return "LEFT OUTER JOIN";
+        super(inputs, outputs, joinConditionMap);
+        this.systemTime = Preconditions.checkNotNull(systemTime, "systemTime is null");
     }
 }

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -31,15 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Temporal join base class
+ * Inner temporal join relation
  */
+@JsonTypeName("innerTemporalJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public abstract class TemporalJoin extends JoinRelation {
-
-    @JsonProperty("systemTime")
-    private FieldInfo systemTime;
+public class InnerTemporalJoinRelationRelation extends TemporalJoinRelation {
 
     /**
      * Constructor
@@ -52,12 +50,16 @@ public abstract class TemporalJoin extends JoinRelation {
      * @param systemTime The system time for temporal join
      */
     @JsonCreator
-    public TemporalJoin(
+    public InnerTemporalJoinRelationRelation(
             @JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap,
-            @Nullable @JsonProperty("systemTime") FieldInfo systemTime) {
-        super(inputs, outputs, joinConditionMap);
-        this.systemTime = Preconditions.checkNotNull(systemTime, "systemTime is null");
+            @Nullable @JsonProperty("systemTimeMap") FieldInfo systemTime) {
+        super(inputs, outputs, joinConditionMap, systemTime);
+    }
+
+    @Override
+    public String format() {
+        return "INNER JOIN";
     }
 }

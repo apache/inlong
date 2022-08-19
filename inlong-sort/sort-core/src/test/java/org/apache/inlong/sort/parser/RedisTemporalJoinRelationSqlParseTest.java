@@ -44,9 +44,9 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
-import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoin;
-import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoin;
-import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoin;
+import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelationRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelationRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
 /**
  * Test for {@link RedisExtractNode} and temporal join {@link FlinkSqlParser}
  */
-public class RedisTemporalJoinSqlParseTest extends AbstractTestBase {
+public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMySQLExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new StringFormatInfo()),
@@ -127,7 +127,7 @@ public class RedisTemporalJoinSqlParseTest extends AbstractTestBase {
      * @param outputs load node
      * @return node relation
      */
-    private TemporalJoin buildNodeRelation(List<Node> inputs, List<Node> outputs, boolean left) {
+    private TemporalJoinRelation buildNodeRelation(List<Node> inputs, List<Node> outputs, boolean left) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         Map<String, List<FilterFunction>> conditionMap = new TreeMap<>();
@@ -144,9 +144,10 @@ public class RedisTemporalJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("id", "1", new LongFormatInfo()),
                 EqualOperator.getInstance(), new FieldInfo("k", "5", new StringFormatInfo()))));
         if (left) {
-            return new LeftOuterTemporalJoin(inputIds, outputIds, conditionMap, new FieldInfo("proc_time"));
+            return new LeftOuterTemporalJoinRelationRelation(inputIds, outputIds, conditionMap,
+                    new FieldInfo("proc_time"));
         }
-        return new InnerTemporalJoin(inputIds, outputIds, conditionMap, new FieldInfo("proc_time"));
+        return new InnerTemporalJoinRelationRelation(inputIds, outputIds, conditionMap, new FieldInfo("proc_time"));
     }
 
     /**

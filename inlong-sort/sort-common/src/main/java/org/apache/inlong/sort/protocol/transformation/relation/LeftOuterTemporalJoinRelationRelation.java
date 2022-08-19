@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Inner temporal join
+ * Left temporal join
  */
-@JsonTypeName("innerTemporalJoin")
+@JsonTypeName("leftOuterTemporalJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class InnerTemporalJoin extends TemporalJoin {
+public class LeftOuterTemporalJoinRelationRelation extends TemporalJoinRelation {
 
     /**
      * LeftOuterTemporalJoin Constructor
@@ -50,16 +50,16 @@ public class InnerTemporalJoin extends TemporalJoin {
      * @param systemTime The system time for temporal join
      */
     @JsonCreator
-    public InnerTemporalJoin(
+    public LeftOuterTemporalJoinRelationRelation(
             @JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap,
-            @Nullable @JsonProperty("systemTimeMap") FieldInfo systemTime) {
+            @Nullable @JsonProperty("systemTime") FieldInfo systemTime) {
         super(inputs, outputs, joinConditionMap, systemTime);
     }
 
     @Override
     public String format() {
-        return "INNER JOIN";
+        return "LEFT OUTER JOIN";
     }
 }
