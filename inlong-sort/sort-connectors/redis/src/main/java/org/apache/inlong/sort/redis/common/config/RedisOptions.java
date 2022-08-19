@@ -21,8 +21,6 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
 
-import java.time.Duration;
-
 /**
  * Redis options
  */
@@ -180,10 +178,10 @@ public class RedisOptions {
     /**
      * Lookup cache ttl
      */
-    public static final ConfigOption<Duration> LOOKUP_CACHE_TTL =
+    public static final ConfigOption<Long> LOOKUP_CACHE_TTL =
             ConfigOptions.key("lookup.cache.ttl")
-                    .durationType()
-                    .defaultValue(Duration.ofSeconds(10))
+                    .longType()
+                    .defaultValue(10000L)
                     .withDescription("The cache time to live.");
     /**
      * Lookup max retries

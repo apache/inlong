@@ -33,6 +33,7 @@ import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -56,7 +57,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
         @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
         @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
-        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract")
+        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
+        @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract")
 })
 @Data
 @NoArgsConstructor
@@ -80,10 +82,10 @@ public abstract class ExtractNode implements Node {
 
     @JsonCreator
     public ExtractNode(@JsonProperty("id") String id,
-                       @JsonProperty("name") String name,
-                       @JsonProperty("fields") List<FieldInfo> fields,
-                       @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
-                       @Nullable @JsonProperty("properties") Map<String, String> properties) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
+            @Nullable @JsonProperty("properties") Map<String, String> properties) {
         this.id = Preconditions.checkNotNull(id, "id is null");
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");
