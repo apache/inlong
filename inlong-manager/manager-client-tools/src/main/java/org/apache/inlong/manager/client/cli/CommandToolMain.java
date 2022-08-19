@@ -27,8 +27,7 @@ import java.util.Arrays;
  * Command tool main.
  */
 public class CommandToolMain {
-
-    private static volatile InlongClient mockClient;
+    
     private final JCommander jcommander;
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
