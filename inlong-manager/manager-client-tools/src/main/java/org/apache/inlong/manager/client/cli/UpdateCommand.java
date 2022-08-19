@@ -26,12 +26,13 @@ import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
 import java.io.File;
+import java.util.List;
 
 @Parameters(commandDescription = "Update resource by json file")
 public class UpdateCommand extends AbstractCommand {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public UpdateCommand() {
         super("update");
@@ -42,7 +43,7 @@ public class UpdateCommand extends AbstractCommand {
     private static class UpdateGroup extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
         private String inlongGroupId;
