@@ -95,6 +95,7 @@ public class ConfigConstants {
     public static final String MANAGER_HOST = "manager.hosts";
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
     public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
     public static final String PROXY_REPORT_IP = "proxy.report.ip";
     public static final String PROXY_REPORT_PORT = "proxy.report.port";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
