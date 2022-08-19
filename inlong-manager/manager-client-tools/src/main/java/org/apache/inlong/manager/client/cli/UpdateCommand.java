@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -48,8 +47,8 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
         private String inlongGroupId;
 
-        @Parameter(names = {"-c", "--config"}
-                , required = true, description = "json file")
+        @Parameter(names = {"-c", "--config"},
+                required = true, description = "json file")
         private File file;
 
         @Override
