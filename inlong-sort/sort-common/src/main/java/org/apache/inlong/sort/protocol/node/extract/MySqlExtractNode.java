@@ -28,6 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -46,7 +47,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
 @Data
-public class MySqlExtractNode extends ExtractNode implements Metadata, Serializable {
+public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMetric, Serializable {
 
     private static final long serialVersionUID = -5521981462461235277L;
 

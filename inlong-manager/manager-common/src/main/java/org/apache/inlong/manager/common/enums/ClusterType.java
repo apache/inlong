@@ -22,8 +22,8 @@ package org.apache.inlong.manager.common.enums;
  */
 public class ClusterType {
 
+    public static final String AGENT = "AGENT";
     public static final String TUBEMQ = "TUBEMQ";
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
-
 }

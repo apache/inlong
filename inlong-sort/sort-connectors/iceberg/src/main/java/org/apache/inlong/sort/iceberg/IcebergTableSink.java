@@ -30,14 +30,16 @@ import org.apache.flink.table.connector.sink.abilities.SupportsPartitioning;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
-import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.apache.inlong.sort.iceberg.sink.FlinkSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
@@ -78,6 +80,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .tableSchema(tableSchema)
                 .equalityFieldColumns(equalityColumns)
                 .overwrite(overwrite)
+                .metric(catalogTable.getOptions().getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()),
+                        catalogTable.getOptions().getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
                 .append();
     }
 

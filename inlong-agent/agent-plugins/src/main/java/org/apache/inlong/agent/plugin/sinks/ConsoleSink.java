@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.sinks;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 
 import java.nio.charset.StandardCharsets;
 
@@ -28,8 +27,6 @@ import java.nio.charset.StandardCharsets;
  * message write to console
  */
 public class ConsoleSink extends AbstractSink {
-
-    private static final String CONSOLE_SINK_TAG_NAME = "AgentConsoleSinkMetric";
 
     public ConsoleSink() {
 
@@ -40,10 +37,10 @@ public class ConsoleSink extends AbstractSink {
         if (message != null) {
             System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
             // increment the count of successful sinks
-            GlobalMetrics.incSinkSuccessCount(metricTagName);
+            sinkMetric.sinkSuccessCount.incrementAndGet();
         } else {
             // increment the count of failed sinks
-            GlobalMetrics.incSinkFailCount(metricTagName);
+            sinkMetric.sinkFailCount.incrementAndGet();
         }
     }
 
@@ -60,7 +57,6 @@ public class ConsoleSink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        metricTagName = CONSOLE_SINK_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
     }
 
     @Override

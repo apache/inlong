@@ -17,37 +17,42 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { useHistory, useSelector, useDispatch, useRequest } from '@/hooks';
+import { useSelector, useRequest } from '@/hooks';
 import { State } from '@/models';
 import { useTranslation } from 'react-i18next';
 // import { FileTextOutlined } from '@/components/Icons';
 import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
+import PasswordModal from './PasswordModal';
+import KeyModal from './KeyModal';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
   const userName = useSelector<State, State['userName']>(state => state.userName);
-  const history = useHistory();
-  const dispatch = useDispatch();
+
+  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+    visible: false,
+  });
+
+  const [keyModal, setKeyModal] = useState<Record<string, unknown>>({
+    visible: false,
+  });
 
   const { run: runLogout } = useRequest('/anno/logout', {
     manual: true,
-    onSuccess: () => {
-      localStorage.removeItem('userName');
-      history.push('/login');
-      dispatch({
-        type: 'setUser',
-        payload: {
-          userName: null,
-        },
-      });
-    },
+    onSuccess: () => (window.location.href = '/'),
   });
 
   const menu = (
     <Menu>
+      <Menu.Item onClick={() => setKeyModal({ visible: true })}>
+        {t('components.Layout.NavWidget.PersonalKey')}
+      </Menu.Item>
+      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
+        {t('components.Layout.NavWidget.EditPassword')}
+      </Menu.Item>
       <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
     </Menu>
   );
@@ -65,6 +70,23 @@ const Comp: React.FC = () => {
       <Dropdown overlay={menu} placement="bottomLeft">
         <span>{userName}</span>
       </Dropdown>
+      <PasswordModal
+        {...createModal}
+        visible={createModal.visible as boolean}
+        onCancel={() => setCreateModal({ visible: false })}
+        onOk={async () => {
+          runLogout();
+          setCreateModal({ visible: false });
+        }}
+      />
+      <KeyModal
+        {...keyModal}
+        visible={keyModal.visible as boolean}
+        onCancel={() => setKeyModal({ visible: false })}
+        onOk={async () => {
+          setKeyModal({ visible: false });
+        }}
+      />
     </div>
   );
 };

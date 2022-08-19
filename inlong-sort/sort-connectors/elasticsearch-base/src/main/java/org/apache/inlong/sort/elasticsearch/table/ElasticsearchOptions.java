@@ -22,7 +22,7 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.description.Description;
-import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkBase;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,15 +33,6 @@ import static org.apache.flink.configuration.description.TextElement.text;
  * Options for {@link org.apache.flink.table.factories.DynamicTableSinkFactory} for Elasticsearch.
  */
 public class ElasticsearchOptions {
-    /**
-     * Backoff strategy. Extends {@link ElasticsearchSinkBase.FlushBackoffType} with {@code
-     * DISABLED} option.
-     */
-    public enum BackOffType {
-        DISABLED,
-        CONSTANT,
-        EXPONENTIAL
-    }
 
     public static final ConfigOption<List<String>> HOSTS_OPTION =
             ConfigOptions.key("hosts")
@@ -75,13 +66,11 @@ public class ElasticsearchOptions {
                     .defaultValue("_")
                     .withDescription(
                             "Delimiter for composite keys e.g., \"$\" would result in IDs \"KEY1$KEY2$KEY3\".");
-
     public static final ConfigOption<String> ROUTING_FIELD_NAME =
             ConfigOptions.key("routing.field-name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Elasticsearch routing filed.");
-
     public static final ConfigOption<String> FAILURE_HANDLER_OPTION =
             ConfigOptions.key("failure-handler")
                     .stringType()
@@ -158,5 +147,15 @@ public class ElasticsearchOptions {
 
     private ElasticsearchOptions() {
 
+    }
+
+    /**
+     * Backoff strategy. Extends {@link ElasticsearchSinkBase.FlushBackoffType} with {@code
+     * DISABLED} option.
+     */
+    public enum BackOffType {
+        DISABLED,
+        CONSTANT,
+        EXPONENTIAL
     }
 }

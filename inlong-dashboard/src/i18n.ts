@@ -26,23 +26,27 @@ const resources = {
   en: {
     translation: {
       'configs.menus.ApprovalManagement': 'Approval',
-      'configs.menus.DataAccess': 'Data Group',
+      'configs.menus.Groups': 'Data Group',
       'configs.menus.DataConsumption': 'Data Consumption',
       'configs.menus.Datasources': 'Data Sources',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
+      'configs.menus.UserManagement': 'User',
+      'configs.menus.ResponsibleManagement': 'ApprovalManagement',
     },
   },
   cn: {
     translation: {
       'configs.menus.ApprovalManagement': '审批管理',
-      'configs.menus.DataAccess': '数据分组',
+      'configs.menus.Groups': '数据分组',
       'configs.menus.DataConsumption': '数据消费',
       'configs.menus.Datasources': '数据源服务器',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
+      'configs.menus.UserManagement': '用户管理',
+      'configs.menus.ResponsibleManagement': '审批责任人管理',
     },
   },
 };
@@ -64,9 +68,7 @@ i18n
     },
 
     react: {
-      wait: true,
       useSuspense: false,
-      bindI18n: 'languageChanged loaded',
     },
   });
 

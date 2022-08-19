@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * File source info
  */
@@ -41,10 +44,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @ApiModel(value = "File source info")
 @JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
-
-    @ApiModelProperty("Agent IP address")
-    private String ip;
-
+    
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
@@ -54,6 +54,27 @@ public class FileSource extends StreamSource {
             + "'1d' means from one day after, '-1d' means from one minute before, "
             + "Null or blank means from current timestamp")
     private String timeOffset;
+
+    @ApiModelProperty("Line end regex pattern, for example: &end&")
+    private String lineEndPattern;
+
+    @ApiModelProperty("Type of file content, for example: FULL, INCREMENT")
+    private String contentCollectType;
+
+    @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
+    private String envList;
+
+    @ApiModelProperty("Metadata of data, for example: "
+            + "[{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on")
+    private List<Map<String, String>> metaFields;
+
+    @ApiModelProperty(" Type of data result for column separator"
+            + "         CSV format, set this parameter to a custom separator: , | : "
+            + "         Json format, set this parameter to json ")
+    private String dataContentStyle;
+
+    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
+    private Map<String, String> filterMetaByLabels;
 
     public FileSource() {
         this.setSourceType(SourceType.FILE);

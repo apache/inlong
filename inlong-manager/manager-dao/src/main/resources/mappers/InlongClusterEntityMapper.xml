@@ -59,6 +59,28 @@
                 #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
+    <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        insert into inlong_cluster (id, name, type,
+                                    url, cluster_tags, ext_tag,
+                                    token, ext_params, heartbeat,
+                                    in_charges, status,
+                                    creator, modifier)
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+                #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
+                #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+        ON DUPLICATE KEY UPDATE cluster_tags = VALUES(cluster_tags),
+                                ext_tag      = VALUES(ext_tag),
+                                token        = VALUES(token),
+                                ext_params   = VALUES(ext_params),
+                                heartbeat    = VALUES(heartbeat),
+                                in_charges   = VALUES(in_charges),
+                                status       = VALUES(status),
+                                modifier     = VALUES(modifier)
+    </insert>
+
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -72,7 +94,7 @@
         <where>
             is_deleted = 0
             <if test="type != null and type != ''">
-                and `type` = #{type, jdbcType=VARCHAR}
+                and type = #{type, jdbcType=VARCHAR}
             </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
@@ -97,7 +119,7 @@
             <if test="type != null and type != ''">
                 and `type` = #{type, jdbcType=VARCHAR}
             </if>
-            <if test="typeList != null and typeList.size()>0">
+            <if test="typeList != null and typeList.size() > 0">
                 and `type` in
                 <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
                     #{item}
@@ -105,6 +127,12 @@
             </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
+            </if>
+            <if test="clusterTagList != null and clusterTagList.size() > 0">
+                and
+                <foreach item="item" index="index" collection="clusterTagList" open="(" close=")" separator="or">
+                    find_in_set(#{item}, cluster_tags)
+                </foreach>
             </if>
             <if test="extTag != null and extTag != ''">
                 and ext_tag = #{extTag, jdbcType=VARCHAR}

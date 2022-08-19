@@ -15,3 +15,4 @@
 
 org.apache.inlong.sort.formats.inlongmsg.InLongMsgFormatFactory
 org.apache.inlong.sort.pulsar.table.PulsarDynamicTableFactory
+org.apache.inlong.sort.pulsar.table.UpsertPulsarDynamicTableFactory

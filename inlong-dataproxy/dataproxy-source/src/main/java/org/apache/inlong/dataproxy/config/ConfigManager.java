@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
+
 /**
  * Config manager class.
  */
@@ -240,7 +242,7 @@ public class ConfigManager {
         }
 
         private long getSleepTime() {
-            String sleepTimeInMsStr = configManager.getCommonProperties().get("configCheckInterval");
+            String sleepTimeInMsStr = configManager.getCommonProperties().get(CONFIG_CHECK_INTERVAL);
             long sleepTimeInMs = 10000;
             try {
                 if (sleepTimeInMsStr != null) {
@@ -265,7 +267,7 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String host, String clusterName) {
+        private boolean checkWithManager(String host, String clusterName, String clusterTag) {
             if (StringUtils.isEmpty(clusterName)) {
                 LOG.error("proxyClusterName is null");
                 return false;
@@ -281,6 +283,7 @@ public class ConfigManager {
                 // request body
                 DataProxyConfigRequest request = new DataProxyConfigRequest();
                 request.setClusterName(clusterName);
+                request.setClusterTag(clusterTag);
                 httpPost.setEntity(HttpUtils.getEntity(request));
 
                 // request with post
@@ -351,14 +354,15 @@ public class ConfigManager {
 
         private void checkRemoteConfig() {
             try {
-                String managerHosts = configManager.getCommonProperties().get("manager.hosts");
-                String proxyClusterName = configManager.getCommonProperties().get("proxy.cluster.name");
+                String managerHosts = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
+                String proxyClusterName = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_NAME);
+                String proxyClusterTag = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_TAG);
                 if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
                     return;
                 }
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
-                    if (checkWithManager(host, proxyClusterName)) {
+                    if (checkWithManager(host, proxyClusterName, proxyClusterTag)) {
                         break;
                     }
                 }

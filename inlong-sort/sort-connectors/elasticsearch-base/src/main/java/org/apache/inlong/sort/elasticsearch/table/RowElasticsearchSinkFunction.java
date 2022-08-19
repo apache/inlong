@@ -20,12 +20,14 @@ package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
-
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -35,8 +37,12 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Function;
+
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
 public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
@@ -49,8 +55,19 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private final XContentType contentType;
     private final RequestFactory requestFactory;
     private final Function<RowData, String> createKey;
+    private final String inLongMetric;
+    private final String auditHostAndPorts;
 
     private final Function<RowData, String> createRouting;
+
+    private transient  RuntimeContext runtimeContext;
+
+    private SinkMetricData sinkMetricData;
+    private Long dataSize = 0L;
+    private Long rowSize = 0L;
+    private String groupId;
+    private String streamId;
+    private transient AuditImp auditImp;
 
     public RowElasticsearchSinkFunction(
             IndexGenerator indexGenerator,
@@ -59,7 +76,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             XContentType contentType,
             RequestFactory requestFactory,
             Function<RowData, String> createKey,
-            @Nullable Function<RowData, String> createRouting) {
+            @Nullable Function<RowData, String> createRouting,
+            String inLongMetric,
+            String auditHostAndPorts) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
         this.serializationSchema = Preconditions.checkNotNull(serializationSchema);
@@ -67,11 +86,51 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.requestFactory = Preconditions.checkNotNull(requestFactory);
         this.createKey = Preconditions.checkNotNull(createKey);
         this.createRouting = createRouting;
+        this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
-    public void open() {
+    public void open(RuntimeContext ctx) {
         indexGenerator.open();
+        this.runtimeContext = ctx;
+        if (inLongMetric != null && !inLongMetric.isEmpty()) {
+            String[] inLongMetricArray = inLongMetric.split("&");
+            groupId = inLongMetricArray[0];
+            streamId = inLongMetricArray[1];
+            String nodeId = inLongMetricArray[2];
+            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
+            sinkMetricData.registerMetricsForDirtyBytes();
+            sinkMetricData.registerMetricsForDirtyRecords();
+            sinkMetricData.registerMetricsForNumBytesOut();
+            sinkMetricData.registerMetricsForNumRecordsOut();
+            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
+            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
+        }
+
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
+        }
+    }
+
+    private void outputMetricForAudit(long size) {
+        if (auditImp != null) {
+            auditImp.add(
+                    Constants.AUDIT_SORT_OUTPUT,
+                    groupId,
+                    streamId,
+                    System.currentTimeMillis(),
+                    1,
+                    size);
+        }
+    }
+
+    private void sendMetrics(byte[] document) {
+        if (sinkMetricData.getNumBytesOut() != null) {
+            sinkMetricData.getNumBytesOut().inc(document.length);
+        }
+        outputMetricForAudit(document.length);
     }
 
     @Override
@@ -93,6 +152,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void processUpsert(RowData row, RequestIndexer indexer) {
         final byte[] document = serializationSchema.serialize(row);
         final String key = createKey.apply(row);
+        sendMetrics(document);
         if (key != null) {
             final UpdateRequest updateRequest =
                     requestFactory.createUpdateRequest(
@@ -109,6 +169,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     }
 
     private void processDelete(RowData row, RequestIndexer indexer) {
+        // the serialization is just for metrics
+        final byte[] document = serializationSchema.serialize(row);
+        sendMetrics(document);
         final String key = createKey.apply(row);
         final DeleteRequest deleteRequest =
                 requestFactory.createDeleteRequest(indexGenerator.generate(row), docType, key);
@@ -137,7 +200,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 && Objects.equals(serializationSchema, that.serializationSchema)
                 && contentType == that.contentType
                 && Objects.equals(requestFactory, that.requestFactory)
-                && Objects.equals(createKey, that.createKey);
+                && Objects.equals(createKey, that.createKey)
+                && Objects.equals(inLongMetric, that.inLongMetric);
     }
 
     @Override
@@ -148,6 +212,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 serializationSchema,
                 contentType,
                 requestFactory,
-                createKey);
+                createKey,
+                inLongMetric);
     }
 }

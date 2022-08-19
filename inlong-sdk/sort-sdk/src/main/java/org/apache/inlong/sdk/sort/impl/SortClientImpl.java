@@ -20,13 +20,14 @@ package org.apache.inlong.sdk.sort.impl;
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InLongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
+import org.apache.inlong.sdk.sort.manager.InlongTopicManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class SortClientImpl extends SortClient {
 
     private final ClientContext context;
 
-    private final InLongTopicManager inLongTopicManager;
+    private final InlongTopicManager inLongTopicManager;
 
     /**
      * SortClient Constructor
@@ -50,8 +51,9 @@ public class SortClientImpl extends SortClient {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            this.inLongTopicManager = new InLongTopicManagerImpl(context,
-                    new QueryConsumeConfigImpl(context));
+            this.inLongTopicManager = InlongTopicManagerFactory
+                    .createInLongTopicManager(sortClientConfig.getTopicManagerType(),
+                            context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             this.close();
             throw e;
@@ -71,7 +73,9 @@ public class SortClientImpl extends SortClient {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
-            this.inLongTopicManager = new InLongTopicManagerImpl(context, queryConsumeConfig);
+            this.inLongTopicManager = InlongTopicManagerFactory
+                    .createInLongTopicManager(sortClientConfig.getTopicManagerType(),
+                            context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             e.printStackTrace();
             this.close();

@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,4 +86,21 @@ public class GreenplumSinkDTO {
         }
     }
 
+    /**
+     * Get Greenplum table info
+     *
+     * @param greenplumSink Greenplum sink dto,{@link GreenplumSinkDTO}
+     * @param columnList Greenplum column info list,{@link GreenplumColumnInfo}
+     * @return {@link GreenplumTableInfo}
+     */
+    public static GreenplumTableInfo getTableInfo(GreenplumSinkDTO greenplumSink,
+            List<GreenplumColumnInfo> columnList) {
+        GreenplumTableInfo tableInfo = new GreenplumTableInfo();
+        tableInfo.setTableName(greenplumSink.getTableName());
+        tableInfo.setPrimaryKey(greenplumSink.getPrimaryKey());
+        tableInfo.setUserName(greenplumSink.getUsername());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
+    }
 }
+

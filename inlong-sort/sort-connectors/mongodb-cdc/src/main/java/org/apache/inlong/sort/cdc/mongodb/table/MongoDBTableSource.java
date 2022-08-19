@@ -76,7 +76,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
     private final Integer heartbeatIntervalMillis;
     private final ZoneId localTimeZone;
 
-    private final String inLongMetric;
+    private final String inlongMetric;
+    private final String inlongAudit;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -106,7 +107,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
             @Nullable Integer pollAwaitTimeMillis,
             @Nullable Integer heartbeatIntervalMillis,
             ZoneId localTimeZone,
-            String inLongMetric) {
+            String inlongMetric,
+            String inlongAudit) {
         this.physicalSchema = physicalSchema;
         this.hosts = checkNotNull(hosts);
         this.username = username;
@@ -126,7 +128,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         this.localTimeZone = localTimeZone;
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -184,8 +187,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         Optional.ofNullable(pollMaxBatchSize).ifPresent(builder::pollMaxBatchSize);
         Optional.ofNullable(pollAwaitTimeMillis).ifPresent(builder::pollAwaitTimeMillis);
         Optional.ofNullable(heartbeatIntervalMillis).ifPresent(builder::heartbeatIntervalMillis);
-        Optional.ofNullable(inLongMetric).ifPresent(builder::inLongMetric);
-
+        Optional.ofNullable(inlongMetric).ifPresent(builder::inlongMetric);
+        Optional.ofNullable(inlongAudit).ifPresent(builder::inlongAudit);
         DebeziumSourceFunction<RowData> sourceFunction = builder.build();
 
         return SourceFunctionProvider.of(sourceFunction, false);
@@ -243,7 +246,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                         pollAwaitTimeMillis,
                         heartbeatIntervalMillis,
                         localTimeZone,
-                        inLongMetric);
+                        inlongMetric,
+                        inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -277,7 +281,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 && Objects.equals(localTimeZone, that.localTimeZone)
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
-                && Objects.equals(inLongMetric, that.inLongMetric);
+                && Objects.equals(inlongMetric, that.inlongMetric)
+                && Objects.equals(inlongAudit, that.inlongAudit);
     }
 
     @Override
@@ -302,7 +307,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 localTimeZone,
                 producedDataType,
                 metadataKeys,
-                inLongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override

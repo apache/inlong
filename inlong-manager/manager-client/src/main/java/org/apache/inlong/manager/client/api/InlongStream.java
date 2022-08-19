@@ -62,7 +62,7 @@ public interface InlongStream {
     StreamSink getSinkInfoByName(String sinkName);
 
     /**
-     * Return data transform node defined in stream(split,string replace etc)
+     * Return data transform node defined in stream(split, string replace etc.)
      * key is transform name which must be unique within one stream scope.
      */
     Map<String, StreamTransform> getTransforms();
@@ -121,5 +121,7 @@ public interface InlongStream {
      * Update stream definition in manager service, which must be invoked after add/delete/update source/sink/transform.
      */
     InlongStream update();
+
+    StreamSource getSourceById(int sourceId);
 
 }

@@ -91,8 +91,8 @@ class SendBuffer : noncopyable
     void setLen(const uint32_t len) { len_ = len; }
     std::string inlong_group_id() { return inlong_group_id_; }
     std::string inlong_stream_id() { return inlong_stream_id_; }
-    void setBid(const std::string& inlong_group_id) { inlong_group_id_ = inlong_group_id; }
-    void setTid(const std::string& inlong_stream_id) { inlong_stream_id_ = inlong_stream_id; }
+    void setGroupid(const std::string& inlong_group_id) { inlong_group_id_ = inlong_group_id; }
+    void setStreamid(const std::string& inlong_stream_id) { inlong_stream_id_ = inlong_stream_id; }
     uint64_t firstSendTime() const { return first_send_time_; }
     void setFirstSendTime(const uint64_t& first_send_time) { first_send_time_ = first_send_time; }
     uint64_t latestSendTime() const { return latest_send_time_; }

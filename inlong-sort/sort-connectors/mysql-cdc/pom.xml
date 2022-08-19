@@ -44,6 +44,16 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-json</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -65,6 +75,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>io.debezium:debezium-api</include>
                                     <include>io.debezium:debezium-embedded</include>
                                     <include>io.debezium:debezium-core</include>
@@ -106,6 +117,12 @@
                                 </filter>
                             </filters>
                             <relocations>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>
+                                        org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
+                                </relocation>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>

@@ -24,7 +24,11 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.ListenerExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
@@ -32,17 +36,14 @@ import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
-import org.apache.inlong.manager.service.workflow.WorkflowExecuteLog.ListenerExecutorLog;
-import org.apache.inlong.manager.service.workflow.WorkflowExecuteLog.TaskExecutorLog;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.core.ProcessService;
@@ -50,8 +51,7 @@ import org.apache.inlong.manager.workflow.core.TaskService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
-import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,43 +86,43 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Override
     public WorkflowResult start(ProcessName process, String operator, ProcessForm form) {
         WorkflowContext context = processService.start(process.name(), operator, form);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult continueProcess(Integer processId, String operator, String remark) {
         WorkflowContext context = processService.continueProcess(processId, operator, remark);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult cancel(Integer processId, String operator, String remark) {
         WorkflowContext context = processService.cancel(processId, operator, remark);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult approve(Integer taskId, String remark, TaskForm form, String operator) {
         WorkflowContext context = taskService.approve(taskId, remark, form, operator);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult reject(Integer taskId, String remark, String operator) {
         WorkflowContext context = taskService.reject(taskId, remark, operator);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult transfer(Integer taskId, String remark, List<String> to, String operator) {
         WorkflowContext context = taskService.transfer(taskId, remark, to, operator);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
     public WorkflowResult complete(Integer taskId, String remark, String operator) {
         WorkflowContext context = taskService.complete(taskId, remark, operator);
-        return WorkflowBeanUtils.result(context);
+        return WorkflowUtils.getResult(context);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowProcessEntity> result = (Page<WorkflowProcessEntity>) queryService.listProcessEntity(query);
         PageInfo<ProcessResponse> pageInfo = result.toPageInfo(entity -> {
-            ProcessResponse response = WorkflowBeanUtils.fromProcessEntity(entity);
+            ProcessResponse response = WorkflowUtils.getProcessResponse(entity);
             if (query.getIncludeShowInList()) {
                 response.setShowInList(getShowInList(entity));
             }
@@ -159,7 +159,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     public PageInfo<TaskResponse> listTask(TaskRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowTaskEntity> result = (Page<WorkflowTaskEntity>) queryService.listTaskEntity(query);
-        PageInfo<TaskResponse> pageInfo = result.toPageInfo(WorkflowBeanUtils::fromTaskEntity);
+        PageInfo<TaskResponse> pageInfo = result.toPageInfo(WorkflowUtils::getTaskResponse);
         addShowInListForEachTask(pageInfo.getList());
         pageInfo.setTotal(result.getTotal());
 
@@ -209,23 +209,23 @@ public class WorkflowServiceImpl implements WorkflowService {
             TaskRequest taskQuery = new TaskRequest();
             taskQuery.setProcessId(executeLog.getProcessId());
             taskQuery.setType(taskQuery.getType());
-            List<TaskExecutorLog> executorLogs = queryService.listTaskEntity(taskQuery)
+            List<TaskExecuteLog> taskExecuteLogs = queryService.listTaskEntity(taskQuery)
                     .stream()
-                    .map(TaskExecutorLog::buildFromTaskInst)
+                    .map(WorkflowUtils::getTaskExecuteLog)
                     .collect(Collectors.toList());
 
-            // Set the execution log of the task's listener
-            for (TaskExecutorLog taskExecutorLog : executorLogs) {
+            // Set the listener execution logs
+            for (TaskExecuteLog taskLog : taskExecuteLogs) {
                 EventLogRequest eventLogQuery = new EventLogRequest();
-                eventLogQuery.setTaskId(taskExecutorLog.getTaskId());
-                List<ListenerExecutorLog> logs = queryService.listEventLog(eventLogQuery)
+                eventLogQuery.setTaskId(taskLog.getTaskId());
+                List<ListenerExecuteLog> logs = queryService.listEventLog(eventLogQuery)
                         .stream()
-                        .map(ListenerExecutorLog::fromEventLog)
+                        .map(WorkflowUtils::getListenerExecuteLog)
                         .collect(Collectors.toList());
-                taskExecutorLog.setListenerExecutorLogs(logs);
+                taskLog.setListenerExecuteLogs(logs);
             }
 
-            executeLog.setTaskExecutorLogs(executorLogs);
+            executeLog.setTaskExecuteLogs(taskExecuteLogs);
         }
 
         LOGGER.info("success to page list task execute logs for " + query);
@@ -247,12 +247,11 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         try {
-            ProcessForm processForm = WorkflowFormParserUtils.parseProcessForm(objectMapper,
-                    processEntity.getFormData(), process);
-            assert processForm != null;
-            return processForm.showInList();
+            ProcessForm form = WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process);
+            assert form != null;
+            return form.showInList();
         } catch (Exception e) {
-            LOGGER.error("get showIn list err", e);
+            LOGGER.error("get show list err: ", e);
         }
         return null;
     }

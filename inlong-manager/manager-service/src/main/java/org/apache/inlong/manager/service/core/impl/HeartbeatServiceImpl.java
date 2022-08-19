@@ -21,20 +21,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.heartbeat.GroupHeartbeat;
+import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeat;
-import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeat;
-import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
-import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeat;
-import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
@@ -43,9 +37,14 @@ import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
+import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
+import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,11 +54,13 @@ import java.util.List;
  * Heartbeat service layer implementation
  */
 @Service
+@Slf4j
 public class HeartbeatServiceImpl implements HeartbeatService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatServiceImpl.class);
     private static final Gson GSON = new Gson();
 
+    @Autowired
+    private HeartbeatManager heartbeatManager;
     @Autowired
     private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
     @Autowired
@@ -69,23 +70,25 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public Boolean reportHeartbeat(HeartbeatReportRequest request) {
-        if (request == null || StringUtils.isBlank(request.getComponent())) {
-            LOGGER.warn("request is null or component null, just return");
+        if (request == null || StringUtils.isBlank(request.getComponentType())) {
+            log.warn("request is null or component null, just return");
             return false;
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("received heartbeat: " + request);
+        if (log.isDebugEnabled()) {
+            log.debug("received heartbeat: " + request);
         }
-
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(request.getComponent());
+        heartbeatManager.reportHeartbeat(request);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(request.getComponentType());
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 return updateHeartbeatOpt(request);
             default:
-                throw new BusinessException("Unsupported component type for " + request.getComponent());
+                log.error("Unsupported componentType={} for Inlong", componentType);
+                return false;
         }
     }
 
@@ -96,12 +99,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 ComponentHeartbeatEntity res = componentHeartbeatMapper.selectByKey(component, request.getInstance());
                 return CommonBeanUtils.copyProperties(res, ComponentHeartbeatResponse::new);
             default:
@@ -117,12 +121,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 GroupHeartbeatEntity result = groupHeartbeatMapper.selectByKey(component, request.getInstance(),
                         request.getInlongGroupId());
                 return CommonBeanUtils.copyProperties(result, GroupHeartbeatResponse::new);
@@ -140,12 +145,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 StreamHeartbeatEntity result = streamHeartbeatMapper.selectByKey(component, request.getInstance(),
                         request.getInlongGroupId(), request.getInlongStreamId());
                 return CommonBeanUtils.copyProperties(result, StreamHeartbeatResponse::new);
@@ -160,12 +166,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 return listComponentHeartbeatOpt(request);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -178,12 +185,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 return listGroupHeartbeatOpt(request);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -197,12 +205,13 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
         Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        ComponentTypeEnum componentType = ComponentTypeEnum.valueOf(component);
+        ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
             case Sort:
             case DataProxy:
             case Agent:
             case Cache:
+            case SDK:
                 return listStreamHeartbeatOpt(request);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -213,35 +222,30 @@ public class HeartbeatServiceImpl implements HeartbeatService {
      * Default implementation for updating heartbeat
      */
     private Boolean updateHeartbeatOpt(HeartbeatReportRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("heartbeat request json = {}", GSON.toJson(request));
+        if (log.isDebugEnabled()) {
+            log.debug("heartbeat request json = {}", GSON.toJson(request));
         }
-        String component = request.getComponent();
-        String instance = request.getInstance();
+        String component = request.getComponentType();
+        String instanceIp = request.getIp();
         Long reportTime = request.getReportTime();
 
         // Add component heartbeats
-        ComponentHeartbeat componentHeartbeat = request.getComponentHeartbeat();
-        if (componentHeartbeat != null) {
-            ComponentHeartbeatEntity entity = new ComponentHeartbeatEntity();
-            entity.setComponent(component);
-            entity.setInstance(instance);
-            entity.setReportTime(reportTime);
-            entity.setStatusHeartbeat(componentHeartbeat.getStatusHeartbeat());
-            entity.setMetricHeartbeat(componentHeartbeat.getMetricHeartbeat());
-            componentHeartbeatMapper.insertOrUpdateByKey(entity);
-        }
+        ComponentHeartbeatEntity entity = new ComponentHeartbeatEntity();
+        entity.setComponent(component);
+        entity.setInstance(instanceIp);
+        entity.setReportTime(reportTime);
+        componentHeartbeatMapper.insertOrUpdateByKey(entity);
 
         // Add group heartbeats
         List<GroupHeartbeat> groupHeartbeats = request.getGroupHeartbeats();
         if (CollectionUtils.isNotEmpty(groupHeartbeats)) {
-            groupHeartbeatMapper.insertOrUpdateAll(component, instance, reportTime, groupHeartbeats);
+            groupHeartbeatMapper.insertOrUpdateAll(component, instanceIp, reportTime, groupHeartbeats);
         }
 
         // Add stream heartbeats
         List<StreamHeartbeat> streamHeartbeats = request.getStreamHeartbeats();
         if (CollectionUtils.isNotEmpty(streamHeartbeats)) {
-            streamHeartbeatMapper.insertOrUpdateAll(component, instance, reportTime, streamHeartbeats);
+            streamHeartbeatMapper.insertOrUpdateAll(component, instanceIp, reportTime, streamHeartbeats);
         }
 
         return true;

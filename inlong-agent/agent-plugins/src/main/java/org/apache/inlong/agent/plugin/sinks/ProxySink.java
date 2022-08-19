@@ -27,7 +27,6 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
@@ -60,7 +59,6 @@ import static org.apache.inlong.agent.constant.JobConstants.PROXY_PACKAGE_MAX_TI
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
-    private static final String PROXY_SINK_TAG_NAME = "AgentProxySinkMetric";
     private static AtomicLong index = new AtomicLong(0);
     private final ExecutorService executorService = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
@@ -112,10 +110,10 @@ public class ProxySink extends AbstractSink {
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
                             inlongGroupId, inlongStreamId, System.currentTimeMillis());
                     // increment the count of successful sinks
-                    GlobalMetrics.incSinkSuccessCount(metricTagName);
+                    sinkMetric.sinkSuccessCount.incrementAndGet();
                 } else {
                     // increment the count of failed sinks
-                    GlobalMetrics.incSinkFailCount(metricTagName);
+                    sinkMetric.sinkFailCount.incrementAndGet();
                 }
             }
         } catch (Exception e) {
@@ -182,7 +180,6 @@ public class ProxySink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        metricTagName = PROXY_SINK_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         syncSend = jobConf.getBoolean(PROXY_SEND_SYNC, false);
         maxBatchSize = jobConf.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         maxQueueNumber = jobConf.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,

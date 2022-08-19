@@ -51,7 +51,7 @@ CONFIG_DIR=${BASE_DIR}"/conf/"
 JAR_LIBS=${BASE_DIR}"/lib/*"
 CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}
 
-JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
+JMX_ENABLED=$(grep -c "agent.domainListeners=org.apache.inlong.agent.metrics.AgentJmxMetricListener" $BASE_DIR/conf/agent.properties)
 if [[ $JMX_ENABLED == 1 ]]; then
   export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 else

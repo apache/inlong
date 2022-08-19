@@ -44,7 +44,12 @@ public enum FieldType {
     FLOAT32,
     FLOAT64,
     DATETIME,
-    TIMESTAMP;
+    TIMESTAMP,
+    LOCAL_ZONE_TIMESTAMP,
+    ARRAY,
+    MAP,
+    STRUCT,
+    FUNCTION;
 
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");

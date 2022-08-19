@@ -167,14 +167,16 @@ public class AgentConstants {
     public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
+    public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
+
+    public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
+    public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
+    public static final String AGENT_CLUSTER_IN_CHARGES = "agent.cluster.inCharges";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
 
     public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
     public static final Boolean DEFAULT_AGENT_LOCAL_UUID_OPEN = false;
-
-    public static final String PROMETHEUS_ENABLE = "agent.prometheus.enable";
-    public static final boolean DEFAULT_PROMETHEUS_ENABLE = false;
 
     public static final String PROMETHEUS_EXPORTER_PORT = "agent.prometheus.exporter.port";
     public static final int DEFAULT_PROMETHEUS_EXPORTER_PORT = 8080;
@@ -194,4 +196,7 @@ public class AgentConstants {
     public static final String AGENT_ENABLE_OOM_EXIT = "agent.enable.oom.exit";
     public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
 
+    public static final String AGENT_METRIC_LISTENER_CLASS = "agent.domainListeners";
+    public static final String AGENT_METRIC_LISTENER_CLASS_DEFAULT =
+            "org.apache.inlong.agent.metrics.AgentPrometheusMetricListener";
 }

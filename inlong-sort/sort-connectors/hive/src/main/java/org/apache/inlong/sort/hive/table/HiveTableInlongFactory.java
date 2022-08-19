@@ -48,6 +48,8 @@ import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOp
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
 import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_ENABLE;
 import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_PARTITION_INCLUDE;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.hive.HiveOptions.HIVE_DATABASE;
 
 /**
@@ -84,6 +86,8 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         options.add(PROPERTY_VERSION);
         options.add(HIVE_CONF_DIR);
         options.add(HADOOP_CONF_DIR);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 
@@ -95,15 +99,22 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         if (isHiveTable) {
             updateHiveConf(options);
             //  new HiveValidator().validate(properties);
-            Integer configuredParallelism =
-                    Configuration.fromMap(context.getCatalogTable().getOptions())
-                            .get(FileSystemOptions.SINK_PARALLELISM);
+                        Integer configuredParallelism =
+                                Configuration.fromMap(context.getCatalogTable().getOptions())
+                                        .get(FileSystemOptions.SINK_PARALLELISM);
+            final String inLongMetric = context.getCatalogTable().getOptions()
+                    .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
+            final String auditHostAndPorts = context.getCatalogTable().getOptions()
+                    .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
+
             return new HiveTableSink(
                     context.getConfiguration(),
                     new JobConf(hiveConf),
                     context.getObjectIdentifier(),
                     context.getCatalogTable(),
-                    configuredParallelism);
+                    configuredParallelism,
+                    inLongMetric,
+                    auditHostAndPorts);
         } else {
             return FactoryUtil.createTableSink(
                     null, // we already in the factory of catalog

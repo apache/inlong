@@ -34,6 +34,8 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
@@ -45,8 +47,6 @@ import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public class InlongGroupImpl implements InlongGroup {
 
         InlongGroupInfo newGroupInfo = groupClient.getGroupIfExists(groupInfo.getInlongGroupId());
         if (newGroupInfo != null) {
-            this.groupContext.setGroupInfo(groupInfo);
+            this.groupContext.setGroupInfo(newGroupInfo);
         } else {
             BaseSortConf sortConf = groupInfo.getSortConf();
             InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
@@ -148,11 +148,13 @@ public class InlongGroupImpl implements InlongGroup {
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
+        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
                 "inlong group is in init status, should not be updated");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
+        groupInfo.setVersion(existGroupInfo.getVersion());
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
@@ -167,13 +169,15 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
 
         final String groupId = this.groupInfo.getInlongGroupId();
-        InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
 
-        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
+        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
+        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
                 "inlong group is in init status, should not be updated");
 
-        groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+        groupInfo.setVersion(existGroupInfo.getVersion());
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
@@ -235,6 +239,11 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext delete(boolean async) throws Exception {
         InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupContext.getGroupId());
+        GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
+        if (status == GroupStatus.FINISH) {
+            groupClient.deleteInlongGroup(groupInfo.getInlongGroupId());
+            return generateSnapshot();
+        }
         boolean isDeleted = groupClient.deleteInlongGroup(groupInfo.getInlongGroupId(), async);
         if (isDeleted) {
             groupInfo.setStatus(GroupStatus.DELETED.getCode());
@@ -270,6 +279,12 @@ public class InlongGroupImpl implements InlongGroup {
     private InlongGroupContext generateSnapshot() {
         // fetch current group
         InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupContext.getGroupId());
+        // if current group is not exists, set deleted status
+        if (groupInfo == null) {
+            groupInfo = groupContext.getGroupInfo();
+            groupInfo.setStatus(GroupStatus.DELETED.getCode());
+            return new InlongGroupContext(groupContext);
+        }
         groupContext.setGroupInfo(groupInfo);
         String inlongGroupId = groupInfo.getInlongGroupId();
         // fetch stream in group

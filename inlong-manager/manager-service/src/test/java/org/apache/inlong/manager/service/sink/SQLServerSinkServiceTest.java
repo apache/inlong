@@ -17,17 +17,25 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerColumnInfo;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.resource.sink.sqlserver.SQLServerJdbcUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.Connection;
+import java.util.List;
 
 /**
  * SQLServer sink service test
@@ -95,6 +103,67 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(result);
 
         deleteSink(sinkId);
+    }
+
+    /**
+     * Just using in local test.
+     */
+    @Disabled
+    public void testDbResource() {
+        final String url = "jdbc:sqlserver://127.0.0.1:1434;databaseName=inlong;";
+        final String username = "sa";
+        final String password = "123456";
+        final String tableName = "test01";
+        final String schemaName = "dbo";
+
+        try (Connection connection = SQLServerJdbcUtils.getConnection(url, username, password);) {
+            SQLServerTableInfo tableInfo = bulidTableInfo(schemaName, tableName);
+            SQLServerJdbcUtils.createSchema(connection, schemaName);
+            SQLServerJdbcUtils.createTable(connection, tableInfo);
+            List<SQLServerColumnInfo> addColumns = buildAddColumns();
+            SQLServerJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
+            List<SQLServerColumnInfo> columns = SQLServerJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+        } catch (Exception e) {
+            // print to local console
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Build add SQLServer column info.
+     *
+     * @return {@link List}
+     */
+    private final List<SQLServerColumnInfo> buildAddColumns() {
+        List<SQLServerColumnInfo> addCloums = Lists.newArrayList(
+                new SQLServerColumnInfo("test1", "varchar(40)", "test1"),
+                new SQLServerColumnInfo("test2", "varchar(40)", "test2")
+        );
+        return addCloums;
+    }
+
+    /**
+     * Build test SQLServer table info.
+     *
+     * @param schemaName SqlServer schema name
+     * @param tableName SqlServer table name
+     * @return {@link SQLServerTableInfo}
+     */
+    private final SQLServerTableInfo bulidTableInfo(final String schemaName, final String tableName) {
+        SQLServerTableInfo tableInfo = new SQLServerTableInfo();
+        tableInfo.setTableName(tableName);
+        tableInfo.setComment("test01 ");
+        tableInfo.setPrimaryKey("id");
+        tableInfo.setSchemaName(schemaName);
+
+        List<SQLServerColumnInfo> columnInfos = Lists.newArrayList(
+                new SQLServerColumnInfo("id", "int", "id"),
+                new SQLServerColumnInfo("cell", "varchar(20)", "cell"),
+                new SQLServerColumnInfo("name", "varchar(40)", "name")
+        );
+        tableInfo.setColumns(columnInfos);
+        return tableInfo;
     }
 
 }

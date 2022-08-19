@@ -25,6 +25,7 @@ import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
 import org.apache.commons.collections.map.LinkedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.state.CheckpointListener;
@@ -43,8 +44,12 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
+import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeConsumer;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeFetcher;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
@@ -54,6 +59,7 @@ import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
 import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
 import org.apache.inlong.sort.cdc.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
+import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +67,9 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -70,6 +78,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
@@ -146,7 +155,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable DebeziumOffset specificOffset;
+    private final @Nullable
+    DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -214,17 +224,27 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient Handover handover;
 
+    private String inlongMetric;
+
+    private String inlongAudit;
+
+    private SourceMetricData sourceMetricData;
+
     // ---------------------------------------------------------------------------------------
 
     public DebeziumSourceFunction(
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator) {
+            Validator validator,
+            String inlongMetric,
+            String inlongAudit) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
+        this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -381,6 +401,39 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
+        // initialize metrics
+        // make RuntimeContext#getMetricGroup compatible between Flink 1.13 and Flink 1.14
+        final Method getMetricGroupMethod =
+                getRuntimeContext().getClass().getMethod("getMetricGroup");
+        getMetricGroupMethod.setAccessible(true);
+        final MetricGroup metricGroup =
+                (MetricGroup) getMetricGroupMethod.invoke(getRuntimeContext());
+
+        metricGroup.gauge(
+                "currentFetchEventTimeLag",
+                (Gauge<Long>) () -> debeziumChangeFetcher.getFetchDelay());
+        metricGroup.gauge(
+                "currentEmitEventTimeLag",
+                (Gauge<Long>) () -> debeziumChangeFetcher.getEmitDelay());
+        metricGroup.gauge(
+                "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
+        if (StringUtils.isNotEmpty(this.inlongMetric)) {
+            String[] inlongMetricArray = inlongMetric.split(Constants.DELIMITER);
+            String groupId = inlongMetricArray[0];
+            String streamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
+            AuditImp auditImp = null;
+            if (inlongAudit != null) {
+                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
+                auditImp = AuditImp.getInstance();
+            }
+            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
+            sourceMetricData.registerMetricsForNumRecordsIn();
+            sourceMetricData.registerMetricsForNumBytesIn();
+            sourceMetricData.registerMetricsForNumBytesInPerSecond();
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
+        }
+
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
         if (restoredOffsetState != null) {
@@ -415,7 +468,21 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.debeziumChangeFetcher =
                 new DebeziumChangeFetcher<>(
                         sourceContext,
-                        deserializer,
+                        new DebeziumDeserializationSchema<T>() {
+                            @Override
+                            public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
+                                if (sourceMetricData != null) {
+                                    sourceMetricData.outputMetrics(1L,
+                                            record.value().toString().getBytes(StandardCharsets.UTF_8).length);
+                                }
+                                deserializer.deserialize(record, out);
+                            }
+
+                            @Override
+                            public TypeInformation<T> getProducedType() {
+                                return deserializer.getProducedType();
+                            }
+                        },
                         restoredOffsetState == null, // DB snapshot phase if restore state is null
                         dbzHeartbeatPrefix,
                         handover);
@@ -440,23 +507,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         // run the engine asynchronously
         executor.execute(engine);
         debeziumStarted = true;
-
-        // initialize metrics
-        // make RuntimeContext#getMetricGroup compatible between Flink 1.13 and Flink 1.14
-        final Method getMetricGroupMethod =
-                getRuntimeContext().getClass().getMethod("getMetricGroup");
-        getMetricGroupMethod.setAccessible(true);
-        final MetricGroup metricGroup =
-                (MetricGroup) getMetricGroupMethod.invoke(getRuntimeContext());
-
-        metricGroup.gauge(
-                "currentFetchEventTimeLag",
-                (Gauge<Long>) () -> debeziumChangeFetcher.getFetchDelay());
-        metricGroup.gauge(
-                "currentEmitEventTimeLag",
-                (Gauge<Long>) () -> debeziumChangeFetcher.getEmitDelay());
-        metricGroup.gauge(
-                "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
 
         // start the real debezium consumer
         debeziumChangeFetcher.runFetchLoop();

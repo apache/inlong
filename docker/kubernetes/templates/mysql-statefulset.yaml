@@ -72,6 +72,8 @@ spec:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
+            - name: TZ
+              value: {{ .Values.timezone }}
           ports:
             - name: {{ .Values.mysql.component }}-port
               containerPort: 3306
@@ -80,6 +82,9 @@ spec:
               mountPath: /var/lib/mysql
             - name: sql
               mountPath: /docker-entrypoint-initdb.d
+            - name: config
+              mountPath: /etc/mysql/conf.d/custom.cnf
+              subPath: custom.cnf
       volumes:
         - name: data
           {{- if .Values.mysql.volumes.persistence }}
@@ -95,6 +100,13 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
+            items:
+            - key: custom.cnf
+              path: custom.cnf
+            defaultMode: 420
       restartPolicy: Always
 {{- end }}
 {{- end }}

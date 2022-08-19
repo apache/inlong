@@ -17,15 +17,19 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
-import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
@@ -52,7 +56,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowApproverServiceImpl.class);
 
     @Autowired
-    private WorkflowApproverEntityMapper workflowApproverMapper;
+    private WorkflowApproverEntityMapper approverMapper;
     @Autowired
     private ProcessDefinitionService processDefinitionService;
 
@@ -65,25 +69,40 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         Preconditions.checkNotNull(task, "task not exit with name: " + request.getTaskName());
         Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
 
-        List<WorkflowApproverEntity> exist = workflowApproverMapper.selectByQuery(request);
+        ApproverPageRequest pageRequest = ApproverPageRequest.builder()
+                .processName(request.getProcessName())
+                .taskName(request.getTaskName())
+                .build();
+        List<WorkflowApproverEntity> exist = approverMapper.selectByCondition(pageRequest);
         Preconditions.checkEmpty(exist, "workflow approver already exits");
 
         WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(request, WorkflowApproverEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        workflowApproverMapper.insert(entity);
+        approverMapper.insert(entity);
 
         LOGGER.info("success to save approver: {} by user: {}", request, operator);
         return entity.getId();
     }
 
     @Override
+    public ApproverResponse get(Integer id) {
+        Preconditions.checkNotNull(id, "approver id cannot be null");
+        WorkflowApproverEntity approverEntity = approverMapper.selectById(id);
+        if (approverEntity == null) {
+            LOGGER.error("workflow approver not found by id={}", id);
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_APPROVER_NOT_FOUND);
+        }
+        return CommonBeanUtils.copyProperties(approverEntity, ApproverResponse::new);
+    }
+
+    @Override
     public List<String> getApprovers(String processName, String taskName) {
-        ApproverRequest approverRequest = ApproverRequest.builder()
+        ApproverPageRequest pageRequest = ApproverPageRequest.builder()
                 .processName(processName)
                 .taskName(taskName)
                 .build();
-        List<WorkflowApproverEntity> approverEntities = workflowApproverMapper.selectByQuery(approverRequest);
+        List<WorkflowApproverEntity> approverEntities = approverMapper.selectByCondition(pageRequest);
         Set<String> resultSet = new HashSet<>();
         approverEntities.forEach(entity ->
                 resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
@@ -92,9 +111,15 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     }
 
     @Override
-    public List<ApproverResponse> listByCondition(ApproverRequest request) {
-        List<WorkflowApproverEntity> entityList = workflowApproverMapper.selectByQuery(request);
-        return CommonBeanUtils.copyListProperties(entityList, ApproverResponse::new);
+    public PageInfo<ApproverResponse> listByCondition(ApproverPageRequest request) {
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+
+        Page<WorkflowApproverEntity> page = (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
+        List<ApproverResponse> resultList = CommonBeanUtils.copyListProperties(page,
+                ApproverResponse::new);
+        PageInfo<ApproverResponse> pageInfo = new PageInfo<>(resultList);
+        pageInfo.setTotal(page.getTotal());
+        return pageInfo;
     }
 
     @Override
@@ -103,7 +128,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "approver id cannot be null");
 
-        WorkflowApproverEntity entity = workflowApproverMapper.selectById(id);
+        WorkflowApproverEntity entity = approverMapper.selectById(id);
         Preconditions.checkNotNull(entity, "not exist with id:" + id);
         String errMsg = String.format("approver has already updated with id=%s, process=%s, task=%s, curVersion=%s",
                 id, request.getProcessName(), request.getTaskName(), request.getVersion());
@@ -113,7 +138,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         }
         entity.setModifier(operator);
         entity.setApprovers(request.getApprovers());
-        workflowApproverMapper.updateById(entity);
+        approverMapper.updateById(entity);
 
         LOGGER.info("success to update workflow approver for request: {} by user: {}", request, operator);
         return id;
@@ -121,9 +146,9 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public void delete(Integer id, String operator) {
-        WorkflowApproverEntity entity = workflowApproverMapper.selectById(id);
+        WorkflowApproverEntity entity = approverMapper.selectById(id);
         Preconditions.checkNotNull(entity, "not exist with id:" + id);
-        int success = this.workflowApproverMapper.deleteByPrimaryKey(id, operator);
+        int success = this.approverMapper.deleteByPrimaryKey(id, operator);
         Preconditions.checkTrue(success == 1, "delete failed");
     }
 

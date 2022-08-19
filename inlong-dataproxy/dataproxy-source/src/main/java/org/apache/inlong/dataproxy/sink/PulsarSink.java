@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -191,7 +192,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
     @Override
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
-        maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
+        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();

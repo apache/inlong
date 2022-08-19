@@ -20,17 +20,23 @@ package org.apache.inlong.agent.plugin.channel;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.message.ProxyMessage;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 
 /**
  * memory channel
@@ -39,9 +45,10 @@ public class MemoryChannel implements Channel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
-    private static final String MEMORY_CHANNEL_TAG_NAME = "AgentMemoryPlugin";
-    private static AtomicLong metricsIndex = new AtomicLong(0);
     private LinkedBlockingQueue<Message> queue;
+    //metric
+    private AgentMetricItemSet metricItemSet;
+    private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
 
     public MemoryChannel() {
     }
@@ -54,12 +61,13 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incReadNum(groupId);
+                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                metricItem.pluginReadCount.incrementAndGet();
                 queue.put(message);
-                GlobalMetrics.incReadSuccessNum(groupId);
+                metricItem.pluginReadSuccessCount.incrementAndGet();
             }
         } catch (InterruptedException ex) {
-            GlobalMetrics.incReadFailedNum(groupId);
+            getMetricItem(KEY_INLONG_GROUP_ID, groupId).pluginReadFailCount.incrementAndGet();
             Thread.currentThread().interrupt();
         }
     }
@@ -72,17 +80,19 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incReadNum(groupId);
+                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                metricItem.pluginReadCount.incrementAndGet();
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
-                    GlobalMetrics.incReadSuccessNum(groupId);
+                    metricItem.pluginReadSuccessCount.incrementAndGet();
                 } else {
-                    GlobalMetrics.incReadFailedNum(groupId);
+                    metricItem.pluginReadFailCount.incrementAndGet();
                 }
                 return result;
             }
         } catch (InterruptedException ex) {
-            GlobalMetrics.incReadFailedNum(groupId);
+            AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+            metricItem.pluginReadFailCount.incrementAndGet();
             Thread.currentThread().interrupt();
         }
         return false;
@@ -97,11 +107,13 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incSendSuccessNum(groupId);
+                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                metricItem.pluginSendSuccessCount.incrementAndGet();
             }
             return message;
         } catch (InterruptedException ex) {
-            GlobalMetrics.incSendFailedNum(groupId);
+            AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+            metricItem.pluginSendFailCount.incrementAndGet();
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ex);
         }
@@ -112,6 +124,10 @@ public class MemoryChannel implements Channel {
         queue = new LinkedBlockingQueue<>(
                 jobConf.getInt(AgentConstants.CHANNEL_MEMORY_CAPACITY,
                         AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
+        String metricName = String.join("-", this.getClass().getSimpleName(),
+                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        this.metricItemSet = new AgentMetricItemSet(metricName);
+        MetricRegister.register(metricItemSet);
     }
 
     @Override
@@ -120,6 +136,12 @@ public class MemoryChannel implements Channel {
             queue.clear();
         }
         LOGGER.info("destroy channel, show memory channel metric:");
-        GlobalMetrics.showMemoryChannelStatics();
+    }
+
+    private AgentMetricItem getMetricItem(String otherKey, String value) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
+        dimensions.put(otherKey, value);
+        return this.metricItemSet.findMetricItem(dimensions);
     }
 }

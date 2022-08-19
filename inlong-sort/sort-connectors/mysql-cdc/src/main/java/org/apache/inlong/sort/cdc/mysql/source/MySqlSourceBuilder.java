@@ -257,6 +257,11 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
+    public MySqlSourceBuilder<T> inlongAudit(String inlongAudit) {
+        this.configFactory.inlongAudit(inlongAudit);
+        return this;
+    }
+
     /**
      * Build the {@link MySqlSource}.
      *

@@ -25,8 +25,8 @@ import org.apache.inlong.audit.util.AuditConfig;
 import java.util.HashSet;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
 
 /**
@@ -67,6 +67,16 @@ public class AuditUtils {
             AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
             AuditImp.getInstance().setAuditConfig(auditConfig);
         }
+    }
+
+    /**
+     * add audit metric
+     */
+    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count) {
+        if (!IS_AUDIT) {
+            return;
+        }
+        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, 0);
     }
 
     /**

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -45,7 +47,6 @@ import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import java.util.Map;
 /**
  * Default inlong stream builder.
  */
+@Slf4j
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private final InlongStreamImpl inlongStream;
@@ -156,8 +158,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         dataStreamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
-        Boolean isExist = streamClient.isStreamExists(dataStreamInfo);
-        if (isExist) {
+        InlongStreamInfo existStreamInfo = streamClient.getStreamIfExists(dataStreamInfo);
+        if (existStreamInfo != null) {
+            dataStreamInfo.setVersion(existStreamInfo.getVersion());
             Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(dataStreamInfo);
             if (!updateMsg.getKey()) {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
@@ -182,16 +185,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);
             final String transformName = transform.getTransformName();
             final int id = transformResponse.getId();
-            if (transformRequests.get(transformName) == null) {
-                TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(transform,
-                        streamInfo);
-                boolean isDelete = transformClient.deleteTransform(transformRequest);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete transform=%s failed", transformRequest));
-                }
-            } else {
+            if (transformRequests.get(transformName) != null) {
                 TransformRequest transformRequest = transformRequests.get(transformName);
                 transformRequest.setId(id);
+                transformRequest.setVersion(transformResponse.getVersion());
                 Pair<Boolean, String> updateState = transformClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
@@ -199,6 +196,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 }
                 transformRequest.setId(transformResponse.getId());
                 updateTransformNames.add(transformName);
+            } else {
+                log.warn("Unknown transform {} from server", transformName);
             }
         }
         for (Map.Entry<String, TransformRequest> requestEntry : transformRequests.entrySet()) {
@@ -222,14 +221,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             for (StreamSource source : streamSources) {
                 final String sourceName = source.getSourceName();
                 final int id = source.getId();
-                if (sourceRequests.get(sourceName) == null) {
-                    boolean isDelete = sourceClient.deleteSource(id);
-                    if (!isDelete) {
-                        throw new RuntimeException(String.format("Delete source failed by id=%s", id));
-                    }
-                } else {
+                if (sourceRequests.get(sourceName) != null) {
                     SourceRequest sourceRequest = sourceRequests.get(sourceName);
                     sourceRequest.setId(id);
+                    sourceRequest.setVersion(source.getVersion());
                     Pair<Boolean, String> updateState = sourceClient.updateSource(sourceRequest);
                     if (!updateState.getKey()) {
                         throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
@@ -237,6 +232,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                     }
                     updateSourceNames.add(sourceName);
                     sourceRequest.setId(source.getId());
+                } else {
+                    log.warn("Unknown source {} from server", sourceName);
                 }
             }
         }
@@ -260,14 +257,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         for (StreamSink sink : streamSinks) {
             final String sinkName = sink.getSinkName();
             final int id = sink.getId();
-            if (sinkRequests.get(sinkName) == null) {
-                boolean isDelete = sinkClient.deleteSink(id);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
-                }
-            } else {
+            if (sinkRequests.get(sinkName) != null) {
                 SinkRequest sinkRequest = sinkRequests.get(sinkName);
                 sinkRequest.setId(id);
+                sinkRequest.setVersion(sink.getVersion());
                 Pair<Boolean, String> updateState = sinkClient.updateSink(sinkRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update sink=%s failed with err=%s", sinkRequest,
@@ -275,6 +268,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 }
                 updateSinkNames.add(sinkName);
                 sinkRequest.setId(sink.getId());
+            } else {
+                log.warn("Unknown sink {} from server", sinkName);
             }
         }
         for (Map.Entry<String, SinkRequest> requestEntry : sinkRequests.entrySet()) {

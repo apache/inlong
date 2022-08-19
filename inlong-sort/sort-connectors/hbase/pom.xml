@@ -97,6 +97,7 @@
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
                                 <includes>
+                                    <include>org.apache.inlong:*</include>
                                     <include>
                                         org.apache.flink:flink-connector-hbase-base_${scala.binary.version}
                                     </include>
@@ -139,6 +140,12 @@
                             </filters>
                             <relocations>
                                 <!-- Force relocation of all HBase dependencies. -->
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>
+                                        org.apache.inlong.sort.hbase.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
+                                </relocation>
                                 <relocation>
                                     <pattern>org.apache.zookeeper</pattern>
                                     <shadedPattern>org.apache.flink.hbase.shaded.org.apache.zookeeper</shadedPattern>

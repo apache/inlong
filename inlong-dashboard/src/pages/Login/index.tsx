@@ -17,82 +17,67 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
-import { Input, Button } from 'antd';
-import { useDispatch, useHistory, useRequest } from '@/hooks';
+import React from 'react';
+import { Button } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { config } from '@/configs/default';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
+import request from '@/utils/request';
 import styles from './index.module.less';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
   const [form] = useForm();
-  const dispatch = useDispatch();
-  const history = useHistory();
 
-  const config = [
+  const formConfig = [
     {
-      type: <Input placeholder={t('pages.Login.PleaseEnterUserName')} />,
+      type: 'input',
       name: 'username',
-      rules: [{ required: true, message: t('pages.Login.UsernameCanNotBeEmpty') }],
+      props: {
+        placeholder: t('pages.Login.PleaseEnterUserName'),
+        size: 'large',
+        prefix: <UserOutlined />,
+      },
+      rules: [{ required: true, message: t('pages.Login.PleaseEnterUserName') }],
     },
     {
-      type: <Input.Password placeholder={t('pages.Login.PleaseEnterYourPassword')} />,
+      type: 'password',
       name: 'password',
+      props: {
+        placeholder: t('pages.Login.PleaseEnterYourPassword'),
+        size: 'large',
+        prefix: <LockOutlined />,
+      },
       rules: [
-        { required: true, message: t('pages.Login.PasswordCanNotBeBlank') },
+        { required: true, message: t('pages.Login.PleaseEnterYourPassword') },
         { pattern: /^[0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
       ],
     },
   ];
-  const [changedValues, setChangedValues] = useState<Record<string, unknown>>({});
-  const { run: runLogin } = useRequest(
-    {
-      url: `/anno/login`,
-      data: {
-        ...changedValues,
-      },
-      method: 'post',
-    },
-    {
-      manual: true,
-      onSuccess: data => {
-        dispatch({
-          type: 'setUser',
-          payload: {
-            userName: data ? changedValues.username : null,
-          },
-        });
-        localStorage.setItem('userName', changedValues.username + '');
-        history.push('/');
-      },
-    },
-  );
+
   const login = async () => {
-    await form.validateFields();
-    runLogin();
+    const data = await form.validateFields();
+    await request({
+      url: '/anno/login',
+      method: 'POST',
+      data,
+    });
+    window.location.href = '/';
   };
+
   const onEnter = e => {
     if (e.keyCode === 13) login();
   };
 
   return (
-    <div className={styles.wrap} onKeyUp={onEnter}>
-      <div className={styles['form-wrap']}>
-        <img className={styles.logo} src={require('../../components/Icons/logo.svg')} alt="" />
-        <div>
-          <FormGenerator
-            form={form}
-            content={config}
-            onValuesChange={(c, v) => setChangedValues(v)}
-          />
-        </div>
-        <div className={styles['button-wrap']}>
-          <span className={styles['button-desc']}>{t('pages.Login.Reset')}</span>
-          <Button type="primary" onClick={login}>
-            {t('pages.Login.LogIn')}
-          </Button>
-        </div>
+    <div className={styles.containerBg} onKeyUp={onEnter}>
+      <div className={styles.container}>
+        <img src={config.logo} style={{ width: '100%' }} alt={config.title} />
+        <FormGenerator form={form} content={formConfig} />
+        <Button type="primary" onClick={login} style={{ width: '100%' }} size="large">
+          {t('pages.Login.LogIn')}
+        </Button>
       </div>
     </div>
   );

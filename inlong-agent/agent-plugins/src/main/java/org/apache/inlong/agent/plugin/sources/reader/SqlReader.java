@@ -24,7 +24,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -118,14 +117,14 @@ public class SqlReader extends AbstractReader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GlobalMetrics.incReadNum(metricTagName);
+                readerMetric.pluginReadCount.incrementAndGet();
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            GlobalMetrics.incReadFailedNum(metricTagName);
+            readerMetric.pluginReadFailCount.incrementAndGet();
             throw new RuntimeException(ex);
         }
         return null;
@@ -191,7 +190,6 @@ public class SqlReader extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        metricTagName = SQL_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);

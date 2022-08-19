@@ -22,7 +22,12 @@ package org.apache.inlong.manager.common.consts;
  */
 public class InlongConstants {
 
+    /**
+     * Group config
+     */
     public static final String COMMA = ",";
+
+    public static final String ADMIN_USER = "admin";
 
     public static final Integer AFFECTED_ONE_ROW = 1;
 
@@ -44,6 +49,8 @@ public class InlongConstants {
     public static final Integer UN_SYNC_SEND = 0;
     public static final Integer SYNC_SEND = 1;
 
+    public static final String BATCH_TASK = "batch.task";
+
     /**
      * Pulsar config
      */
@@ -54,6 +61,10 @@ public class InlongConstants {
     public static final String DEFAULT_PULSAR_TENANT = "public";
 
     public static final String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
+
+    public static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
+
+    public static final String PULSAR_QUEUE_TYPE_PARALLEL = "PARALLEL";
 
     /**
      * Format of the Pulsar topic: "persistent://tenant/namespace/topic

@@ -35,7 +35,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>connector-base</module>
+        <module>base</module>
         <module>hive</module>
         <module>mysql-cdc</module>
         <module>kafka</module>
@@ -52,6 +52,7 @@
         <module>elasticsearch-base</module>
         <module>elasticsearch-6</module>
         <module>elasticsearch-7</module>
+        <module>redis</module>
         <module>tubemq</module>
     </modules>
 

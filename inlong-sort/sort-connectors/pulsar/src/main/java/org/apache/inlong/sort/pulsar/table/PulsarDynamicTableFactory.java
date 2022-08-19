@@ -23,7 +23,6 @@ import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.CatalogTable;
@@ -78,6 +77,8 @@ import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOpti
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.pulsar.table.Constants.INLONG_METRIC;
 
 /**
  * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9
@@ -272,6 +273,11 @@ public class PulsarDynamicTableFactory implements
 
         String adminUrl = tableOptions.get(ADMIN_URL);
         String serviceUrl = tableOptions.get(SERVICE_URL);
+
+        String inlongMetric = tableOptions.get(INLONG_METRIC);
+
+        String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+
         return createPulsarTableSource(
                 physicalDataType,
                 keyDecodingFormat.orElse(null),
@@ -284,7 +290,8 @@ public class PulsarDynamicTableFactory implements
                 serviceUrl,
                 adminUrl,
                 properties,
-                startupOptions);
+                startupOptions,
+            inlongMetric, auditHostAndPorts);
     }
 
     @Override
@@ -322,6 +329,9 @@ public class PulsarDynamicTableFactory implements
         options.add(SINK_MESSAGE_ROUTER);
         options.add(SINK_PARALLELISM);
         options.add(PROPERTIES);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
+
         return options;
     }
 
@@ -351,7 +361,8 @@ public class PulsarDynamicTableFactory implements
             String serviceUrl,
             String adminUrl,
             Properties properties,
-            PulsarTableOptions.StartupOptions startupOptions) {
+            PulsarTableOptions.StartupOptions startupOptions,
+        String inLongMetric, String auditHostAndPorts) {
         return new PulsarDynamicTableSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -365,6 +376,7 @@ public class PulsarDynamicTableFactory implements
                 adminUrl,
                 properties,
                 startupOptions,
-                false);
+                false,
+            inLongMetric, auditHostAndPorts);
     }
 }

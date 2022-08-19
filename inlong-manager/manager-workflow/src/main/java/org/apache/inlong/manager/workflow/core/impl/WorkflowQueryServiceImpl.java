@@ -24,8 +24,17 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
+import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.pojo.common.CountInfo;
-import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ElementInfo;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
@@ -38,15 +47,6 @@ import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
-import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
-import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
-import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
-import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
@@ -56,7 +56,7 @@ import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
+import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -168,9 +168,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
             taskEntity = this.getTaskEntity(taskId);
             List<String> taskApprovers = Arrays.asList(taskEntity.getApprovers().split(InlongConstants.COMMA));
             if (!taskApprovers.contains(operator)) {
-                ApproverRequest query = new ApproverRequest();
-                query.setProcessName(processEntity.getName());
-                List<WorkflowApproverEntity> approverList = approverMapper.selectByQuery(query);
+                ApproverPageRequest query = ApproverPageRequest.builder().processName(processEntity.getName()).build();
+                List<WorkflowApproverEntity> approverList = approverMapper.selectByCondition(query);
                 boolean match = approverList.stream().anyMatch(entity ->
                         Preconditions.inSeparatedString(operator, entity.getApprovers(), InlongConstants.COMMA));
                 if (!match) {
@@ -182,7 +181,7 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         WorkflowProcess process = definitionRepository.get(processEntity.getName());
         TaskResponse currentTask = null;
         if (taskEntity != null) {
-            currentTask = WorkflowBeanUtils.fromTaskEntity(taskEntity);
+            currentTask = WorkflowUtils.getTaskResponse(taskEntity);
             if (process != null && TaskStatus.PENDING.equals(currentTask.getStatus())) {
                 WorkflowTask task = process.getTaskByName(currentTask.getName());
                 currentTask.setFormData(this.getEmptyTaskForm(task));
@@ -214,12 +213,12 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
 
     private ProcessDetailResponse getProcessDetail(Integer processId, WorkflowProcessEntity processEntity) {
         List<WorkflowTaskEntity> taskList = this.listApproveHistory(processId);
-        List<TaskResponse> history = taskList.stream().map(WorkflowBeanUtils::fromTaskEntity)
+        List<TaskResponse> history = taskList.stream().map(WorkflowUtils::getTaskResponse)
                 .collect(Collectors.toList());
 
         ProcessInfo workflowDTO = this.getBriefFromProcessEntity(processEntity);
         ProcessDetailResponse processDetail = new ProcessDetailResponse();
-        processDetail.setProcessInfo(WorkflowBeanUtils.fromProcessEntity(processEntity));
+        processDetail.setProcessInfo(WorkflowUtils.getProcessResponse(processEntity));
         processDetail.setTaskHistory(history);
         processDetail.setWorkflow(workflowDTO);
         return processDetail;
@@ -237,7 +236,7 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         elementInfo.setName(startEvent.getName());
         elementInfo.setDisplayName(startEvent.getDisplayName());
 
-        WorkflowContext context = WorkflowBeanUtils.buildContext(objectMapper, process, processEntity);
+        WorkflowContext context = WorkflowUtils.buildContext(objectMapper, process, processEntity);
         addNext(startEvent, elementInfo, context, nameStatusMap);
 
         ProcessInfo processInfo = new ProcessInfo();

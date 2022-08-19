@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.sort.impl.tube;
 
 import com.google.common.base.Splitter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,7 +70,9 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                 TreeSet<String> filters = null;
                 if (inLongTopic.getProperties() != null && inLongTopic.getProperties().containsKey(
                         SysConstants.TUBE_TOPIC_FILTER_KEY)) {
-                    filters = (TreeSet<String>) inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                    String filterStr = inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                    String[] filterArray = filterStr.split(" ");
+                    filters = new TreeSet<>(Arrays.asList(filterArray));
                 }
                 messageConsumer.subscribe(inLongTopic.getTopic(), filters);
                 messageConsumer.completeSubscribe();
@@ -270,6 +273,10 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, inLongTopic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
+                            deserialize = interceptor.intercept(deserialize);
+                            if (deserialize.isEmpty()) {
+                                continue;
+                            }
                             msgs.addAll(deserialize);
                             context.getStatManager()
                                     .getStatistics(context.getConfig().getSortTaskId(),

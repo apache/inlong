@@ -50,13 +50,18 @@
         from workflow_approver
         where id = #{id, jdbcType=INTEGER} and is_deleted=0
     </select>
-    <select id="selectByQuery" resultMap="BaseResultMap"
-            parameterType="org.apache.inlong.manager.pojo.workflow.ApproverRequest">
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.pojo.workflow.ApproverPageRequest">
         select
         <include refid="Base_Column_List"/>
         from workflow_approver
         <where>
             is_deleted = 0
+            <if test="currentUser != null and currentUser != '' and isAdminRole == false">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, approvers)
+                )
+            </if>
             <if test="processName != null and processName!=''">
                 and process_name = #{processName, jdbcType=VARCHAR}
             </if>
@@ -66,6 +71,9 @@
             <if test="approver != null and approver!=''">
                 and find_in_set(#{approver, jdbcType=VARCHAR}, approvers)
             </if>
+            <if test="keyword != null and keyword != ''">
+                and (process_name like CONCAT('%', #{keyword}, '%') or task_name like CONCAT('%', #{keyword}, '%'))
+            </if>
         </where>
     </select>
 
@@ -73,8 +81,6 @@
         update workflow_approver
         set process_name = #{processName, jdbcType=VARCHAR},
             task_name    = #{taskName, jdbcType=VARCHAR},
-            filter_key   = #{filterKey, jdbcType=VARCHAR},
-            filter_value = #{filterValue, jdbcType=VARCHAR},
             approvers    = #{approvers, jdbcType=VARCHAR},
             creator      = #{creator, jdbcType=VARCHAR},
             modifier     = #{modifier, jdbcType=VARCHAR},

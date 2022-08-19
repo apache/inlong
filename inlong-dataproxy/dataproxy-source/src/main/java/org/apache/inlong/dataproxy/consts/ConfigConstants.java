@@ -60,6 +60,8 @@ public class ConfigConstants {
 
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
+    public static final String MAX_MONITOR_CNT = "max-monitor-cnt";
+
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";
 
     public static final String PACKAGE_TIMEOUT_SEC = "package-timeout-sec";
@@ -90,6 +92,12 @@ public class ConfigConstants {
     public static final String L5_ID_KEY = "l5id";
     public static final String SET_KEY = "set";
     public static final String CLUSTER_ID_KEY = "clusterId";
+    public static final String MANAGER_HOST = "manager.hosts";
+    public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
+    public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_REPORT_IP = "proxy.report.ip";
+    public static final String PROXY_REPORT_PORT = "proxy.report.port";
+    public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";
     public static final String DECODER_TOPICKEY = "topic_key";
@@ -121,6 +129,7 @@ public class ConfigConstants {
     public static final String MANAGER_PATH = "/inlong/manager/openapi";
     public static final String MANAGER_GET_CONFIG_PATH = "/dataproxy/getConfig";
     public static final String MANAGER_GET_ALL_CONFIG_PATH = "/dataproxy/getAllConfig";
+    public static final String MANAGER_HEARTBEAT_REPORT = "/heartbeat/report";
 
     public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
     public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";

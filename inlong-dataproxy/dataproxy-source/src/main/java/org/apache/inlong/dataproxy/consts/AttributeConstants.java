@@ -24,6 +24,7 @@ public class AttributeConstants {
 
     public static final String SEPARATOR = "&";
     public static final String KEY_VALUE_SEPARATOR = "=";
+    public static final String SEP_HASHTAG = "#";
 
     public static final String BODY = "body";
     public static final String CHARSET = "UTF-8";

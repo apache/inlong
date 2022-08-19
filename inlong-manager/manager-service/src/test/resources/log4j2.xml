@@ -20,9 +20,9 @@
 <configuration status="WARN" monitorInterval="30">
     <Properties>
         <property name="basePath">logs</property>
-        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p [%20.20t] %-30.30C{1.}:%L - %m%n</property>
+        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p [%5.30t] %-30.30C{1.}:%L - %m%n</property>
         <property name="output_log_level">DEBUG</property>
-        <property name="all_fileName">${basePath}/manager-ut.log</property>
+        <property name="all_fileName">${basePath}/manager-service-ut.log</property>
         <property name="console_print_level">DEBUG</property>
     </Properties>
 

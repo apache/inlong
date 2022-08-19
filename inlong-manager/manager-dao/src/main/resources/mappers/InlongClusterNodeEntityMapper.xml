@@ -53,6 +53,19 @@
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
+    <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
+        insert into inlong_cluster_node (id, parent_id, type,
+                                         ip, port, ext_params,
+                                         status, creator, modifier)
+        values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
+                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR},
+                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+        ON DUPLICATE KEY UPDATE ext_params = VALUES(ext_params),
+                                status     = VALUES(status),
+                                modifier   = VALUES(modifier)
+    </insert>
+
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

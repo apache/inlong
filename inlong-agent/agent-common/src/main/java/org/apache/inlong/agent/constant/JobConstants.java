@@ -28,6 +28,8 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_IP = "job.ip";
     public static final String JOB_RETRY = "job.retry";
     public static final String JOB_UUID = "job.uuid";
+    public static final String JOB_GROUP_ID = "job.groupId";
+    public static final String JOB_STREAM_ID = "job.streamId";
 
     public static final String JOB_SOURCE_CLASS = "job.source";
     public static final String JOB_SOURCE_TYPE = "job.sourceType";
@@ -49,6 +51,12 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
     public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
+    public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.endPattern";
+    public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileJob.contentCollectType";
+    public static final String JOB_FILE_META_ENV_LIST = "job.fileJob.envList";
+    public static final String JOB_FILE_META_FILTER_BY_LABELS = "job.fileJob.filterMetaByLabels";
+    public static final String JOB_FILE_PROPERTIES = "job.fileJob.properties";
+    public static final String JOB_FILE_DATA_SOURCE_COLUMN_SEPARATOR = "job.fileJob.dataSeparator";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";

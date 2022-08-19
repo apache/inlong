@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.function.EncryptFunction;
+import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFunction;
 import org.apache.inlong.sort.parser.Parser;
@@ -29,6 +31,7 @@ import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.StreamInfo;
@@ -45,6 +48,7 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoin;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +109,8 @@ public class FlinkSqlParser implements Parser {
     private void registerUDF() {
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
+        tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
+        tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
     }
 
     /**
@@ -142,6 +148,8 @@ public class FlinkSqlParser implements Parser {
         Preconditions.checkNotNull(streamInfo.getRelations(), "relations is null");
         Preconditions.checkState(!streamInfo.getRelations().isEmpty(), "relations is empty");
         log.info("start parse stream, streamId:{}", streamInfo.getStreamId());
+        // Inject the `inlong.metric` for ExtractNode or LoadNode
+        injectInlongMetric(streamInfo);
         Map<String, Node> nodeMap = new HashMap<>(streamInfo.getNodes().size());
         streamInfo.getNodes().forEach(s -> {
             Preconditions.checkNotNull(s.getId(), "node id is null");
@@ -157,6 +165,35 @@ public class FlinkSqlParser implements Parser {
             parseNodeRelation(r, nodeMap, relationMap);
         });
         log.info("parse stream success, streamId:{}", streamInfo.getStreamId());
+    }
+
+    /**
+     * Inject the `inlong.metric` for ExtractNode or LoadNode
+     *
+     * @param streamInfo The encapsulation of nodes and node relations
+     */
+    private void injectInlongMetric(StreamInfo streamInfo) {
+        streamInfo.getNodes().stream().filter(node -> node instanceof InlongMetric).forEach(node -> {
+            Map<String, String> properties = node.getProperties();
+            if (properties == null) {
+                properties = new LinkedHashMap<>();
+                if (node instanceof LoadNode) {
+                    ((LoadNode) node).setProperties(properties);
+                } else if (node instanceof ExtractNode) {
+                    ((ExtractNode) node).setProperties(properties);
+                } else {
+                    throw new UnsupportedOperationException(String.format("Unsupported inlong metric for: %s",
+                            node.getClass().getSimpleName()));
+                }
+            }
+            properties.put(InlongMetric.METRIC_KEY,
+                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
+                            streamInfo.getStreamId(), node.getId()));
+            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
+                properties.put(InlongMetric.AUDIT_KEY,
+                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+            }
+        });
     }
 
     /**
@@ -387,20 +424,11 @@ public class FlinkSqlParser implements Parser {
         sb.append(" FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ")
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
         // Parse condition map of join and format condition to sql, such as on 1 = 1...
-        String relationFormat = relation.format();
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
-        for (int i = 1; i < relation.getInputs().size(); i++) {
-            String inputId = relation.getInputs().get(i);
-            sb.append("\n      ").append(relationFormat).append(" ")
-                    .append(nodeMap.get(inputId).genTableName()).append(" ")
-                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
-            List<FilterFunction> conditions = conditionMap.get(inputId);
-            Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
-            for (FilterFunction filter : conditions) {
-                // Fill out the table name alias for param
-                fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
-                sb.append(" ").append(filter.format());
-            }
+        if (relation instanceof TemporalJoin) {
+            parseTemporalJoin((TemporalJoin) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        } else {
+            parseRegularJoin(relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         }
         if (filters != null && !filters.isEmpty()) {
             // Fill out the table name alias for param
@@ -413,6 +441,45 @@ public class FlinkSqlParser implements Parser {
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
         return sb.toString();
+    }
+
+    private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append("\n      ").append(relation.format()).append(" ")
+                    .append(nodeMap.get(inputId).genTableName()).append(" ")
+                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
+        }
+    }
+
+    private void parseTemporalJoin(TemporalJoin relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+        if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
+            relation.getSystemTime().setNodeId(relation.getInputs().get(0));
+        }
+        relation.getSystemTime().setTableNameAlias(tableNameAliasMap.get(relation.getSystemTime().getNodeId()));
+        String systemTimeFormat = String.format("FOR SYSTEM_TIME AS OF %s ", relation.getSystemTime().format());
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append("\n      ").append(relation.format()).append(" ")
+                    .append(nodeMap.get(inputId).genTableName()).append(" ");
+            sb.append(systemTimeFormat);
+            sb.append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
+        }
+    }
+
+    private void parseJoinConditions(String inputId, Map<String, List<FilterFunction>> conditionMap,
+            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+        List<FilterFunction> conditions = conditionMap.get(inputId);
+        Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
+        for (FilterFunction filter : conditions) {
+            // Fill out the table name alias for param
+            fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
+            sb.append(" ").append(filter.format());
+        }
     }
 
     /**
@@ -783,7 +850,7 @@ public class FlinkSqlParser implements Parser {
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
                 Metadata metadataNode = (Metadata) node;
                 if (!metadataNode.supportedMetaFields().contains(metaFieldInfo.getMetaField())) {
-                    throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                    throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
                             metadataNode.getClass().getSimpleName(), metaFieldInfo.getMetaField()));
                 }
                 sb.append(metadataNode.format(metaFieldInfo.getMetaField()));

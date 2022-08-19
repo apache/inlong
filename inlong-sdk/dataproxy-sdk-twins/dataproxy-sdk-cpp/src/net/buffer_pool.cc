@@ -255,15 +255,15 @@ namespace dataproxy_sdk
         {
             for (int32_t i = 0; i < g_config->inlong_group_ids_.size(); i++) // create a bufpool for ervery groupidS
             {
-                std::vector<BufferPoolPtr> bid_pool;
-                bid_pool.reserve(g_config->buffer_num_per_groupId_);
+                std::vector<BufferPoolPtr> groupid_pool;
+                groupid_pool.reserve(g_config->buffer_num_per_groupId_);
                 for (int32_t j = 0; j < g_config->buffer_num_per_groupId_; j++)
                 {
-                    bid_pool.push_back(std::make_shared<BufferPool>(j, g_config->bufNum(), g_config->buf_size_));
+                    groupid_pool.push_back(std::make_shared<BufferPool>(j, g_config->bufNum(), g_config->buf_size_));
                 }
 
-                bid2pool_map_[g_config->inlong_group_ids_[i]] = bid_pool;
-                bid2next_[g_config->inlong_group_ids_[i]] = 0;
+                groupid2pool_map_[g_config->inlong_group_ids_[i]] = groupid_pool;
+                groupid2next_[g_config->inlong_group_ids_[i]] = 0;
             }
         }
         else // round-robin
@@ -278,24 +278,24 @@ namespace dataproxy_sdk
 
     BufferPoolPtr TotalPools::getPool(const std::string &inlong_group_id)
     {
-        if (g_config->enable_groupId_isolation_) // bid隔离
+        if (g_config->enable_groupId_isolation_) // groupid隔离
         {
-            auto bid_pool = bid2pool_map_.find(inlong_group_id);
-            if (bid_pool == bid2pool_map_.end() || bid_pool->second.empty())
+            auto groupid_pool = groupid2pool_map_.find(inlong_group_id);
+            if (groupid_pool == groupid2pool_map_.end() || groupid_pool->second.empty())
             {
                 LOG_ERROR("fail to get bufferpool, inlong_group_id:%s", inlong_group_id.c_str());
                 return nullptr;
             }
-            if (bid2next_.find(inlong_group_id)==bid2next_.end())
+            if (groupid2next_.find(inlong_group_id)==groupid2next_.end())
             {
-                bid2next_[inlong_group_id]=0;
+                groupid2next_[inlong_group_id]=0;
             }
             
-            auto& pool_set=bid_pool->second;
+            auto& pool_set=groupid_pool->second;
             int32_t idx=0;
             for (int32_t i = 0; i < pool_set.size(); i++)
             {
-                idx = (bid2next_[inlong_group_id]++) % pool_set.size();
+                idx = (groupid2next_[inlong_group_id]++) % pool_set.size();
                 if (pool_set[idx]->isAvaliable())
                 {
                     return pool_set[idx];
@@ -332,17 +332,17 @@ namespace dataproxy_sdk
     bool TotalPools::isPoolAvailable(const std::string &inlong_group_id)
     {
 
-        if (g_config->enable_groupId_isolation_) // bid_isolation
+        if (g_config->enable_groupId_isolation_) // groupid_isolation
         {
-            auto bid_pool = bid2pool_map_.find(inlong_group_id);
-            if (bid_pool == bid2pool_map_.end())
+            auto groupid_pool = groupid2pool_map_.find(inlong_group_id);
+            if (groupid_pool == groupid2pool_map_.end())
             {
                 LOG_ERROR("no buffer allocated to inlong_group_id:%s, check config", inlong_group_id.c_str());
                 return false;
             }
-            for (int i = 0; i < bid_pool->second.size(); i++)
+            for (int i = 0; i < groupid_pool->second.size(); i++)
             {
-                if (bid_pool->second[i]->isAvaliable())
+                if (groupid_pool->second[i]->isAvaliable())
                 {
                     return true;
                 }
@@ -383,9 +383,9 @@ namespace dataproxy_sdk
     {
         if (g_config->enable_groupId_isolation_)
         {
-            for (auto &bid_pool : bid2pool_map_)
+            for (auto &groupid_pool : groupid2pool_map_)
             {
-                showStateHelper(bid_pool.first, bid_pool.second);
+                showStateHelper(groupid_pool.first, groupid_pool.second);
             }
         }
         else
@@ -416,9 +416,9 @@ namespace dataproxy_sdk
             pool->close();
         }
 
-        for (auto &bid_pool : bid2pool_map_)
+        for (auto &groupid_pool : groupid2pool_map_)
         {
-            for (auto &pool : bid_pool.second)
+            for (auto &pool : groupid_pool.second)
             {
                 pool->close();
             }

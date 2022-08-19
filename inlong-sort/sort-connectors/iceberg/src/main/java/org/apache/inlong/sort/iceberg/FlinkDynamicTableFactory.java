@@ -47,6 +47,8 @@ import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -208,6 +210,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
         options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 

@@ -58,7 +58,7 @@ class InlongGroupImplTest {
                 + "    \"tenant\" : null,\n"
                 + "    \"adminUrl\" : null,\n"
                 + "    \"serviceUrl\" : null,\n"
-                + "    \"queueModule\" : \"parallel\",\n"
+                + "    \"queueModule\" : \"PARALLEL\",\n"
                 + "    \"partitionNum\" : 3,\n"
                 + "    \"ensemble\" : 3,\n"
                 + "    \"writeQuorum\" : 3,\n"
