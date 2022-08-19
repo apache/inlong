@@ -42,6 +42,7 @@ public class CommandToolMain {
         jcommander.addCommand("create", new CreateCommand());
         jcommander.addCommand("delete", new DeleteCommand());
         jcommander.addCommand("update", new UpdateCommand());
+        jcommander.addCommand("log", new LogCommand());
     }
 
     public static void main(String[] args) {
