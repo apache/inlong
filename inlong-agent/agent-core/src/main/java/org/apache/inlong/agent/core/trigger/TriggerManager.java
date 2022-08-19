@@ -116,14 +116,18 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     /**
-     * Preprocessing before adding trigger
+     * Preprocessing before adding trigger, default value FULL
+     * 
+     * FULL: All directory by regex
+     * INCREMENT: Directory entry created 
      */
     public void preprocessTrigger(TriggerProfile profile) {
-        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, "");
-        if (FileCollectType.FULL.equals(syncType)) {
-            LOGGER.info("Initialize submit full path. trigger {} ", profile.getTriggerId());
-            manager.getJobManager().submitFileJobProfile(profile);
+        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, "FULL");
+        if (FileCollectType.INCREMENT.equals(syncType)) {
+            return;
         }
+        LOGGER.info("initialize submit full path. trigger {} ", profile.getTriggerId());
+        manager.getJobManager().submitFileJobProfile(profile);
     }
 
     private Runnable jobFetchThread() {
