@@ -45,7 +45,7 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"--group", "-g"}, required = true, description = "task id")
+        @Parameter(names = {"--group", "-g"}, required = true, description = "inlong task id")
         private String inlongGroupId;
 
         @Parameter(names = {"-c", "--config"}

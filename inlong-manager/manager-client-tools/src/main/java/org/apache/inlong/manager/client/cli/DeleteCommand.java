@@ -42,7 +42,7 @@ public class DeleteCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"--group", "-g"}, required = true, description = "group id")
+        @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
         private String inlongGroupId;
 
         @Override
