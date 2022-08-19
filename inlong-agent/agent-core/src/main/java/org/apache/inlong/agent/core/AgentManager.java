@@ -55,17 +55,14 @@ public class AgentManager extends AbstractDaemon {
     private final TriggerManager triggerManager;
     private final TaskPositionManager taskPositionManager;
     private final HeartbeatManager heartbeatManager;
-
-
-    // jetty for config operations via http.
-    private ConfigJetty configJetty;
-
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
     private final Db db;
     private final LocalProfile localProfile;
     private final CommandDb commandDb;
     private final JobProfileDb jobProfileDb;
+    // jetty for config operations via http.
+    private ConfigJetty configJetty;
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
@@ -99,7 +96,7 @@ public class AgentManager extends AbstractDaemon {
             return
                     (ProfileFetcher) constructor.newInstance(agentManager);
         } catch (Exception ex) {
-            LOGGER.warn("cannot find fetcher, ignore it {}", ex.getMessage());
+            LOGGER.warn("cannot find fetcher: ", ex);
         }
         return null;
     }

@@ -19,6 +19,8 @@
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PA
  */
 public final class TextFileReader extends AbstractFileReader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
+
     private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
 
     public TextFileReader(FileReaderOperator fileReaderOperator) {
@@ -48,6 +52,7 @@ public final class TextFileReader extends AbstractFileReader {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
                 fileReaderOperator.position)
                 .collect(Collectors.toList());
+        LOGGER.info("path is {}, data reads size {}", fileReaderOperator.file.getName(), lines.size());
         List<String> resultLines = new ArrayList<>();
         //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
