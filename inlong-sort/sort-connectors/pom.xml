@@ -54,6 +54,7 @@
         <module>elasticsearch-7</module>
         <module>redis</module>
         <module>tubemq</module>
+        <module>filesystem</module>
     </modules>
 
     <dependencies>

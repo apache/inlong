@@ -88,4 +88,10 @@ public final class Constants {
             .noDefaultValue()
             .withDescription("INLONG AUDIT HOST + '&' + PORT");
 
+    public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Regard upsert delete as insert kind.");
+
 }
