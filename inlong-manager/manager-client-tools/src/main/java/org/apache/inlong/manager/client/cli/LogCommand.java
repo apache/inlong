@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import java.util.List;
 
 /**
  * Log resource
@@ -34,7 +35,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 public class LogCommand extends AbstractCommand {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public LogCommand() {
         super("log");
