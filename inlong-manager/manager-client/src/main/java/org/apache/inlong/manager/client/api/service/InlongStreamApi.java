@@ -45,24 +45,24 @@ public interface InlongStreamApi {
     Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
             @Query("streamId") String streamId);
 
-    @POST("/stream/list")
+    @POST("stream/list")
     Call<Response<PageInfo<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
 
     @POST("stream/listAll")
     Call<Response<PageInfo<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
-    @POST("/stream/startProcess/{groupId}/{streamId}")
+    @POST("stream/startProcess/{groupId}/{streamId}")
     Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
-    @POST("/stream/suspendProcess/{groupId}/{streamId}")
+    @POST("stream/suspendProcess/{groupId}/{streamId}")
     Call<Response<Boolean>> suspendProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
-    @POST("/stream/restartProcess/{groupId}/{streamId}")
+    @POST("stream/restartProcess/{groupId}/{streamId}")
     Call<Response<Boolean>> restartProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
-    @POST("/stream/deleteProcess/{groupId}/{streamId}")
+    @POST("stream/deleteProcess/{groupId}/{streamId}")
     Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
-    @DELETE("/stream/delete")
+    @DELETE("stream/delete")
     Call<Response<Boolean>> delete(@Path("groupId") String groupId, @Path("streamId") String streamId);
 }

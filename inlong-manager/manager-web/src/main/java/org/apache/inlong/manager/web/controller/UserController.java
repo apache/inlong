@@ -71,9 +71,9 @@ public class UserController {
         return Response.success(userService.getById(id, currentUser));
     }
 
-    @GetMapping("/user/listAll")
+    @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
-    public Response<PageInfo<UserInfo>> list(UserRequest request) {
+    public Response<PageInfo<UserInfo>> list(@RequestBody UserRequest request) {
         return Response.success(userService.list(request));
     }
 
