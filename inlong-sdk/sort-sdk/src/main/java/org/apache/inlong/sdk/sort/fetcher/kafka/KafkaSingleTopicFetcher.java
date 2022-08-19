@@ -1,34 +1,33 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.kafka;
+package org.apache.inlong.sdk.sort.fetcher.kafka;
 
 import com.google.gson.Gson;
-
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
-import org.apache.inlong.sdk.sort.api.SortClientConfig.ConsumeStrategy;
+import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
+import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.fetcher.kafka.AckOffsetOnRebalance;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -51,45 +50,47 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Deprecated
-public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
-
-    private final Logger logger = LoggerFactory.getLogger(InLongKafkaFetcherImpl.class);
+/**
+ * Kafka single topic fetcher.
+ */
+public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSingleTopicFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap = new ConcurrentHashMap<>();
-    private final AtomicLong ackOffsets = new AtomicLong(0);
-    private volatile boolean stopConsume = false;
     private String bootstrapServers;
     private KafkaConsumer<byte[], byte[]> consumer;
 
-    public InLongKafkaFetcherImpl(InLongTopic inLongTopic, ClientContext context) {
-        super(inLongTopic, context);
+    public KafkaSingleTopicFetcher(
+            InLongTopic inLongTopic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer,
+            String bootstrapServers) {
+        super(inLongTopic, context, interceptor, deserializer);
+        this.bootstrapServers = bootstrapServers;
     }
 
     @Override
-    public boolean init(Object object) {
-        String bootstrapServers = (String) object;
+    public boolean init() {
         try {
             createKafkaConsumer(bootstrapServers);
             if (consumer != null) {
-                logger.info("start to subscribe topic:{}", new Gson().toJson(inLongTopic));
-                this.seeker = SeekerFactory.createKafkaSeeker(consumer, inLongTopic);
-                consumer.subscribe(Collections.singletonList(inLongTopic.getTopic()),
-                        new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), seeker,
+                LOGGER.info("start to subscribe topic:{}", new Gson().toJson(topic));
+                this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
+                consumer.subscribe(Collections.singletonList(topic.getTopic()),
+                        new AckOffsetOnRebalance(this.topic.getInLongCluster().getClusterId(), seeker,
                                 commitOffsetMap));
             } else {
-                logger.info("consumer is null");
+                LOGGER.info("consumer is null");
                 return false;
             }
-            this.bootstrapServers = bootstrapServers;
-            String threadName = String.format("sort_sdk_fetch_thread_%s_%s_%d",
-                    this.inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic(), this.hashCode());
-            this.fetchThread = new Thread(new Fetcher(), threadName);
-            logger.info("start to start thread:{}", threadName);
-            this.fetchThread.start();
+            String threadName = String.format("sort_sdk_kafka_single_topic_fetch_thread_%s_%s_%d",
+                    this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
+            this.fetchThread = new Thread(new KafkaSingleTopicFetcher.Fetcher(), threadName);
+            fetchThread.start();
+            LOGGER.info("start to start thread:{}", threadName);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error("fail to init kafka single topic fetcher: {}",e.getMessage(), e);
             return false;
         }
         return true;
@@ -97,9 +98,10 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public void ack(String msgOffset) throws Exception {
+        // the format of kafka msg offset is partitionId:offset, such as 20:1746839
         String[] offset = msgOffset.split(":");
         if (offset.length == 2) {
-            TopicPartition topicPartition = new TopicPartition(inLongTopic.getTopic(), Integer.parseInt(offset[0]));
+            TopicPartition topicPartition = new TopicPartition(topic.getTopic(), Integer.parseInt(offset[0]));
             OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[1]));
             commitOffsetMap.put(topicPartition, offsetAndMetadata);
         } else {
@@ -127,10 +129,10 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
             if (consumer != null) {
                 consumer.close();
             }
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (Throwable t) {
+            LOGGER.warn(t.getMessage(), t);
         }
-        logger.info("closed {}", inLongTopic);
+        LOGGER.info("closed {}", topic);
         return true;
     }
 
@@ -140,28 +142,18 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
     }
 
     @Override
-    public void stopConsume(boolean stopConsume) {
-        this.stopConsume = stopConsume;
+    public void setStopConsume(boolean isStopConsume) {
+        this.stopConsume = isStopConsume;
     }
 
     @Override
-    public boolean isConsumeStop() {
+    public boolean isStopConsume() {
         return this.stopConsume;
     }
 
     @Override
-    public InLongTopic getInLongTopic() {
-        return inLongTopic;
-    }
-
-    @Override
-    public long getConsumedDataSize() {
-        return 0;
-    }
-
-    @Override
-    public long getAckedOffset() {
-        return 0;
+    public List<InLongTopic> getTopics() {
+        return Collections.singletonList(topic);
     }
 
     private void createKafkaConsumer(String bootstrapServers) {
@@ -175,12 +167,12 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         properties.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG,
                 context.getConfig().getKafkaSocketRecvBufferSize());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
-        if (offsetResetStrategy == ConsumeStrategy.lastest
-                || offsetResetStrategy == ConsumeStrategy.lastest_absolutely) {
+        SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+        if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest
+                || offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        } else if (offsetResetStrategy == ConsumeStrategy.earliest
-                || offsetResetStrategy == ConsumeStrategy.earliest_absolutely) {
+        } else if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
+                || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         } else {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
@@ -194,9 +186,9 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 RangeAssignor.class.getName());
         properties.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, 120000L);
         this.bootstrapServers = bootstrapServers;
-        logger.info("start to create kafka consumer:{}", properties);
+        LOGGER.info("start to create kafka consumer:{}", properties);
         this.consumer = new KafkaConsumer<>(properties);
-        logger.info("end to create kafka consumer:{}", consumer);
+        LOGGER.info("end to create kafka consumer:{}", consumer);
     }
 
     public class Fetcher implements Runnable {
@@ -206,11 +198,8 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 try {
                     consumer.commitSync(commitOffsetMap);
                     commitOffsetMap.clear();
-                    // TODO monitor commit succ
-
                 } catch (Exception e) {
-                    // TODO monitor commit fail
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error("commit kafka offset failed: {}", e.getMessage(), e);
                 }
             }
         }
@@ -223,21 +212,14 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();
             try {
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackTimes(1);
+                context.getStateCounterByTopic(topic).addCallbackTimes(1);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1);
+                context.getStateCounterByTopic(topic)
+                        .addCallbackTimeCost(System.currentTimeMillis() - start)
+                        .addCallbackDoneTimes(1);
             } catch (Exception e) {
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackErrorTimes(1);
-                logger.error(e.getMessage(), e);
+                context.getStateCounterByTopic(topic).addCallbackErrorTimes(1);
+                LOGGER.error("failed to callback: {}", e.getMessage(), e);
             }
         }
 
@@ -275,11 +257,8 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                     // commit
                     commitKafkaOffset();
                 } catch (Exception e) {
-                    context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addFetchErrorTimes(1);
-                    logger.error(e.getMessage(), e);
+                    context.getStateCounterByTopic(topic).addFetchErrorTimes(1);
+                    LOGGER.error(e.getMessage(), e);
                 } finally {
                     if (hasPermit) {
                         context.releaseRequestPermit();
@@ -289,50 +268,35 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         }
 
         private void fetchFromKafka() throws Exception {
-            context.getStatManager()
-                    .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                    .addMsgCount(1).addFetchTimes(1);
+            context.getStateCounterByTopic(topic).addMsgCount(1).addFetchTimes(1);
 
             long startFetchTime = System.currentTimeMillis();
             ConsumerRecords<byte[], byte[]> records = consumer
                     .poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
-            context.getStatManager()
-                    .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                    .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+            context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
             if (null != records && !records.isEmpty()) {
 
                 List<MessageRecord> msgs = new ArrayList<>();
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
                     String offsetKey = getOffset(msg.partition(), msg.offset());
                     List<InLongMessage> inLongMessages = deserializer
-                            .deserialize(context, inLongTopic, getMsgHeaders(msg.headers()), msg.value());
+                            .deserialize(context, topic, getMsgHeaders(msg.headers()), msg.value());
                     inLongMessages = interceptor.intercept(inLongMessages);
                     if (inLongMessages.isEmpty()) {
                         ack(offsetKey);
                         continue;
                     }
 
-                    msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
+                    msgs.add(new MessageRecord(topic.getTopicKey(),
                             inLongMessages,
                             offsetKey, System.currentTimeMillis()));
-                    context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addConsumeSize(msg.value().length);
+                    context.getStateCounterByTopic(topic).addConsumeSize(msg.value().length);
                 }
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addMsgCount(msgs.size());
+                context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
                 handleAndCallbackMsg(msgs);
                 sleepTime = 0L;
             } else {
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addEmptyFetchTimes(1);
+                context.getStateCounterByTopic(topic).addEmptyFetchTimes(1);
                 emptyFetchTimes++;
                 if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
                     sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),

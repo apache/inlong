@@ -13,9 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.interceptor;
+package org.apache.inlong.sdk.sort.interceptor;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.Interceptor;

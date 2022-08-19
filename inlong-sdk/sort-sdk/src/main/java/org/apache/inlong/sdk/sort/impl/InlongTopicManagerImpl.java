@@ -38,7 +38,7 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.kafka.InLongKafkaFetcherImpl;
 import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
 import org.apache.inlong.sdk.sort.impl.tube.InLongTubeFetcherImpl;
-import org.apache.inlong.sdk.sort.impl.tube.TubeConsumerCreater;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
 import org.apache.inlong.sdk.sort.util.PeriodicTask;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -49,6 +49,7 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class InlongTopicManagerImpl extends InlongTopicManager {
 
     private final Logger logger = LoggerFactory.getLogger(InlongTopicManagerImpl.class);
@@ -56,7 +57,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
     private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers
             = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, TubeConsumerCreater> tubeFactories = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
 
     private final PeriodicTask updateMetaDataWorker;
     private volatile List<String> toBeSelectFetchers = new ArrayList<>();
@@ -250,7 +251,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
     }
 
     private void closeTubeSessionFactory() {
-        for (Map.Entry<String, TubeConsumerCreater> entry : tubeFactories.entrySet()) {
+        for (Map.Entry<String, TubeConsumerCreator> entry : tubeFactories.entrySet()) {
             MessageSessionFactory tubeMessageSessionFactory = entry.getValue().getMessageSessionFactory();
             String key = entry.getKey();
             try {
@@ -401,9 +402,9 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
                     //create MessageSessionFactory
                     TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
-                    TubeConsumerCreater tubeConsumerCreater = new TubeConsumerCreater(messageSessionFactory,
+                    TubeConsumerCreator tubeConsumerCreator = new TubeConsumerCreator(messageSessionFactory,
                             tubeConfig);
-                    tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreater);
+                    tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreator);
                     logger.debug("create tube client succ {} {} {}",
                             new String[]{inLongTopic.getInLongCluster().getClusterId(),
                                     inLongTopic.getInLongCluster().getBootstraps(),

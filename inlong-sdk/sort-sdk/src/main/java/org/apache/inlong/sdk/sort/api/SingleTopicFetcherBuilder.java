@@ -13,30 +13,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.fetcher.kafka.KafkaSeeker;
-import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSeeker;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.pulsar.client.api.Consumer;
 
 /**
- * Factory that create configured seeker
+ * Builder to build single topic fetcher
  */
-public class SeekerFactory {
+public abstract class SingleTopicFetcherBuilder implements TopicFetcherBuilder {
+    protected Interceptor interceptor;
+    protected Deserializer deserializer;
+    protected ClientContext context;
+    protected InLongTopic topic;
 
-    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InLongTopic inLongTopic) {
-        PulsarSeeker seeker = new PulsarSeeker(consumer);
-        seeker.configure(inLongTopic);
-        return seeker;
+    public SingleTopicFetcherBuilder interceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
+        return this;
     }
 
-    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
-        KafkaSeeker seeker = new KafkaSeeker(consumer);
-        seeker.configure(inLongTopic);
-        return seeker;
+    public SingleTopicFetcherBuilder topic(InLongTopic topic) {
+        this.topic = topic;
+        return this;
+    }
+
+    public SingleTopicFetcherBuilder deserializer(Deserializer deserializer) {
+        this.deserializer = deserializer;
+        return this;
+    }
+
+    public SingleTopicFetcherBuilder context(ClientContext context) {
+        this.context = context;
+        return this;
     }
 }

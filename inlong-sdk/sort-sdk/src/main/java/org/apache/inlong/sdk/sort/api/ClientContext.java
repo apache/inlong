@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
 import org.apache.inlong.sdk.sort.stat.StatManager;
 
 public abstract class ClientContext implements Cleanable {
@@ -51,4 +53,14 @@ public abstract class ClientContext implements Cleanable {
     public void releaseRequestPermit() {
         config.getGlobalInProgressRequest().release();
     }
+
+    public SortClientStateCounter getStateCounterByTopic(InLongTopic topic) {
+        return statManager.getStatistics(config.getSortTaskId(),
+                topic.getInLongCluster().getClusterId(), topic.getTopic());
+    }
+
+    public SortClientStateCounter getDefaultStateCounter() {
+        return statManager.getStatistics(config.getSortTaskId());
+    }
+
 }

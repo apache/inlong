@@ -13,24 +13,35 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.sdk.sort.api;
 
+import org.apache.inlong.sdk.sort.fetcher.kafka.KafkaSingleTopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSingleTopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeSingleTopicFetcherBuilder;
+
 /**
- * the seeker is used to reset the offset of topic-partition of rollback task
+ * Interface of topic fetcher builder.
  */
-public interface Seeker extends Configurable {
+public interface TopicFetcherBuilder {
 
     /**
-     * do seek
+     * Subscribe topics and build the {@link TopicFetcher}
+     * @return The prepared topic fetcher
      */
-    void seek();
+    TopicFetcher subscribe();
 
-    /**
-     * return the expected seek time of seeker
-     * @return expected seek time
-     */
-    long getSeekTime();
+    static KafkaSingleTopicFetcherBuilder kafkaSingleTopic() {
+        return new KafkaSingleTopicFetcherBuilder();
+    }
 
+    static PulsarSingleTopicFetcherBuilder pulsarSingleTopic() {
+        return new PulsarSingleTopicFetcherBuilder();
+    }
+
+    static TubeSingleTopicFetcherBuilder tubeSingleTopic() {
+        return new TubeSingleTopicFetcherBuilder();
+    }
 }

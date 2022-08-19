@@ -13,6 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.sdk.sort.api;
@@ -21,18 +22,22 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Deprecated
-public abstract class InLongTopicFetcher {
-
-    protected InLongTopic inLongTopic;
+/**
+ * Topic fetcher that only consumer one topic.
+ * The advantage of single topic fetcher is that it provide much flexible configuration ability to customize the
+ * components such as {@link Deserializer} and {@link Interceptor} for this very topic.
+ */
+public abstract class SingleTopicFetcher implements TopicFetcher {
+    protected InLongTopic topic;
     protected ClientContext context;
     protected Deserializer deserializer;
     protected volatile Thread fetchThread;
     protected volatile boolean closed = false;
-    protected volatile boolean isStopConsume = false;
+    protected volatile boolean stopConsume = false;
     // use for empty topic to sleep
     protected long sleepTime = 0L;
     protected int emptyFetchTimes = 0;
@@ -40,43 +45,32 @@ public abstract class InLongTopicFetcher {
     protected Interceptor interceptor;
     protected Seeker seeker;
 
-    public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
-        this.inLongTopic = inLongTopic;
+    public SingleTopicFetcher(
+            InLongTopic topic,
+            ClientContext context,
+            Interceptor interceptor,
+            Deserializer deserializer) {
+        this.topic = topic;
         this.context = context;
-        this.deserializer = new MessageDeserializer();
-        this.interceptor = new MsgTimeInterceptor();
-        this.interceptor.configure(inLongTopic);
+        this.deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
+        this.interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
     }
 
-    public abstract boolean init(Object client);
-
-    public abstract void ack(String msgOffset) throws Exception;
-
-    public abstract void pause();
-
-    public abstract void resume();
-
-    public abstract boolean close();
-
-    public abstract boolean isClosed();
-
-    public abstract void stopConsume(boolean stopConsume);
-
-    public abstract boolean isConsumeStop();
-
-    public abstract InLongTopic getInLongTopic();
-
-    public abstract long getConsumedDataSize();
-
-    public abstract long getAckedOffset();
-
-    public boolean updateTopic(InLongTopic topic) {
-        if (Objects.equals(inLongTopic, topic)) {
+    @Override
+    public boolean updateTopics(List<InLongTopic> topics) {
+        if (topics.size() != 1) {
             return false;
         }
-        this.inLongTopic = topic;
-        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
-        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
+        return this.updateSingleTopic(topics.get(0));
+    }
+
+    private boolean updateSingleTopic(InLongTopic topic) {
+        if (Objects.equals(this.topic, topic)) {
+            return false;
+        }
+        this.topic = topic;
+        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(this.topic));
+        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(this.topic));
         return true;
     }
 }

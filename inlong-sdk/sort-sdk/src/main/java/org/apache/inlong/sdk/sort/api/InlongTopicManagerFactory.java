@@ -16,21 +16,19 @@
  *
  */
 
-package org.apache.inlong.sdk.sort.manager;
+package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InlongTopicManager;
-import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
-import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicManagerType;
+import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicType;
+import org.apache.inlong.sdk.sort.manager.InlongSingleTopicManager;
 
 /**
  * Inlong topic manager factory.
- * To create single or multi topic fetcher manager according to the {@link TopicManagerType}
+ * To create single or multi topic fetcher manager according to the {@link TopicType}
  */
 public class InlongTopicManagerFactory {
 
-    public static InlongTopicManager createInLongTopicManager(
-            TopicManagerType type,
+    public static TopicManager createInLongTopicManager(
+            TopicType type,
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
         switch (type) {
@@ -40,13 +38,13 @@ public class InlongTopicManagerFactory {
         }
     }
 
-    public static InlongTopicManager createSingleTopicManager(
+    public static TopicManager createSingleTopicManager(
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
         return new InlongSingleTopicManager(context, queryConsumeConfig);
     }
 
-    public static InlongTopicManager createMultiTopicManager(
+    public static TopicManager createMultiTopicManager(
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
         return null;

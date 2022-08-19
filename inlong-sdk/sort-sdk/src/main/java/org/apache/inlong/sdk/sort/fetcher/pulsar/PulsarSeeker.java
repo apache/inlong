@@ -13,9 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.sdk.sort.impl.pulsar;
+package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
 import org.apache.inlong.sdk.sort.api.Seeker;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
@@ -25,9 +26,12 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Pulsar seeker.
+ */
 public class PulsarSeeker implements Seeker {
 
-    private final Logger logger = LoggerFactory.getLogger(PulsarSeeker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSeeker.class);
     private long seekTime = -1;
     private Consumer<byte[]> consumer;
     private String topic;
@@ -40,7 +44,7 @@ public class PulsarSeeker implements Seeker {
     public void configure(InLongTopic inLongTopic) {
         seekTime = TimeUtil.parseStartTime(inLongTopic);
         topic = inLongTopic.getTopic();
-        logger.info("start to config pulsar seeker, topic is {}, seek time is {}", topic, seekTime);
+        LOGGER.info("start to config pulsar seeker, topic is {}, seek time is {}", topic, seekTime);
     }
 
     @Override
@@ -48,11 +52,11 @@ public class PulsarSeeker implements Seeker {
         if (seekTime < 0) {
             return;
         }
-        logger.info("start to seek pulsar topic {}, seek time is {}", topic, seekTime);
+        LOGGER.info("start to seek pulsar topic {}, seek time is {}", topic, seekTime);
         try {
             consumer.seek(seekTime);
         } catch (PulsarClientException e) {
-            logger.error("fail to seek, start time is {}, ex is {}", seekTime, e.getMessage(), e);
+            LOGGER.error("fail to seek, start time is {}, ex is {}", seekTime, e.getMessage(), e);
         }
     }
 
