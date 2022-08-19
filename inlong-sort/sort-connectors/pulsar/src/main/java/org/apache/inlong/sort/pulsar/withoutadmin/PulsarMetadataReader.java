@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.inlong.sort.pulsar.tdmq;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -55,8 +55,8 @@ import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOption
  * - getEarliest / Latest / Specific MessageIds
  * - guarantee message existence using subscription by setup, move and remove
  */
-public class TDMQMetadataReader implements AutoCloseable {
-    private static final Logger log = LoggerFactory.getLogger(TDMQMetadataReader.class);
+public class PulsarMetadataReader implements AutoCloseable {
+    private static final Logger log = LoggerFactory.getLogger(PulsarMetadataReader.class);
 
     public static final ConfigOption<String> AUTHENTICATION_TOKEN =
             ConfigOptions.key("authentication-token")
@@ -85,7 +85,7 @@ public class TDMQMetadataReader implements AutoCloseable {
 
     private final SerializableRange range;
 
-    public TDMQMetadataReader(
+    public PulsarMetadataReader(
             String serverUrl,
             ClientConfigurationData clientConf,
             String subscriptionName,
@@ -133,7 +133,7 @@ public class TDMQMetadataReader implements AutoCloseable {
         return SerializableRange.of(range);
     }
 
-    public TDMQMetadataReader(
+    public PulsarMetadataReader(
             String serverUrl,
             ClientConfigurationData clientConf,
             String subscriptionName,

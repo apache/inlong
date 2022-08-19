@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.inlong.sort.pulsar.tdmq;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.ExceptionProxy;
@@ -46,9 +46,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> the record type that read from each Pulsar message.
  */
-public class TDMQReaderThread<T> extends Thread {
-    private static final Logger log = LoggerFactory.getLogger(TDMQReaderThread.class);
-    protected final TDMQFetcher<T> owner;
+public class ReaderThread<T> extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(ReaderThread.class);
+    protected final PulsarFetcher<T> owner;
     protected final PulsarTopicState<T> state;
     protected final ClientConfigurationData clientConf;
     protected final Map<String, Object> readerConf;
@@ -67,8 +67,8 @@ public class TDMQReaderThread<T> extends Thread {
 
     protected volatile Reader<T> reader = null;
 
-    public TDMQReaderThread(
-            TDMQFetcher<T> owner,
+    public ReaderThread(
+            PulsarFetcher<T> owner,
             PulsarTopicState state,
             ClientConfigurationData clientConf,
             Map<String, Object> readerConf,
@@ -87,8 +87,8 @@ public class TDMQReaderThread<T> extends Thread {
         this.startMessageId = state.getOffset();
     }
 
-    public TDMQReaderThread(
-            TDMQFetcher<T> owner,
+    public ReaderThread(
+            PulsarFetcher<T> owner,
             PulsarTopicState state,
             ClientConfigurationData clientConf,
             Map<String, Object> readerConf,

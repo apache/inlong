@@ -79,7 +79,6 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.pulsar.table.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.pulsar.table.InLongPulsarOptions.INLONG_TDMQ_PULSAR;
 
 /**
  * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9
@@ -258,7 +257,6 @@ public class PulsarDynamicTableFactory implements
         validateTableSourceOptions(tableOptions);
         validateSinkMessageRouter(tableOptions);
         validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
-        validateTDMQPulsar(tableOptions);
 
         Properties properties = getPulsarProperties(context.getCatalogTable().toProperties());
 
@@ -277,7 +275,6 @@ public class PulsarDynamicTableFactory implements
         String serviceUrl = tableOptions.get(SERVICE_URL);
         String inlongMetric = tableOptions.get(INLONG_METRIC);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
-        boolean isTDMQPulsar = tableOptions.get(INLONG_TDMQ_PULSAR);
 
         return createPulsarTableSource(
                 physicalDataType,
@@ -293,8 +290,7 @@ public class PulsarDynamicTableFactory implements
                 properties,
                 startupOptions,
                 inlongMetric,
-                auditHostAndPorts,
-                isTDMQPulsar);
+                auditHostAndPorts);
     }
 
     @Override
@@ -334,7 +330,6 @@ public class PulsarDynamicTableFactory implements
         options.add(PROPERTIES);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
-        options.add(INLONG_TDMQ_PULSAR);
 
         return options;
     }
@@ -367,8 +362,7 @@ public class PulsarDynamicTableFactory implements
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             String inLongMetric,
-            String auditHostAndPorts,
-            boolean isTDMQPulsar) {
+            String auditHostAndPorts) {
         return new PulsarDynamicTableSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -384,16 +378,6 @@ public class PulsarDynamicTableFactory implements
                 startupOptions,
                 false,
                 inLongMetric,
-                auditHostAndPorts,
-                isTDMQPulsar);
-    }
-
-    private void validateTDMQPulsar(ReadableConfig tableOptions) {
-        Optional<String> adminUrl = tableOptions.getOptional(ADMIN_URL);
-        Boolean isTDMQPulsar = tableOptions.get(INLONG_TDMQ_PULSAR);
-
-        if (!adminUrl.isPresent() && !isTDMQPulsar) {
-            throw new ValidationException("Option 'admin-url' must be set except using tdmq pulsar.");
-        }
+                auditHostAndPorts);
     }
 }

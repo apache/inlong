@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.inlong.sort.pulsar.tdmq;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
 import org.apache.flink.api.common.eventtime.WatermarkOutputMultiplexer;
@@ -68,8 +68,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * @param <T> The type of elements deserialized from Pulsar messages, and emitted into
  *           the Flink data stream.
  */
-public class TDMQFetcher<T> {
-    private static final Logger log = LoggerFactory.getLogger(TDMQFetcher.class);
+public class PulsarFetcher<T> {
+    private static final Logger log = LoggerFactory.getLogger(PulsarFetcher.class);
     private static final int NO_TIMESTAMPS_WATERMARKS = 0;
     private static final int WITH_WATERMARK_GENERATOR = 1;
 
@@ -121,7 +121,7 @@ public class TDMQFetcher<T> {
 
     private final int commitMaxRetries;
 
-    protected final TDMQMetadataReader metadataReader;
+    protected final PulsarMetadataReader metadataReader;
 
     /**
      * Wrapper around our SourceContext for allowing the
@@ -139,7 +139,7 @@ public class TDMQFetcher<T> {
     private volatile boolean running = true;
 
     /** The threads that runs the actual reading and hand the records to this fetcher. */
-    private Map<TopicRange, TDMQReaderThread<T>> topicToThread;
+    private Map<TopicRange, ReaderThread<T>> topicToThread;
 
     /** Failed or not when data loss. **/
     private boolean failOnDataLoss = true;
@@ -165,7 +165,7 @@ public class TDMQFetcher<T> {
      */
     private final MetricGroup consumerMetricGroup;
 
-    public TDMQFetcher(
+    public PulsarFetcher(
             SourceContext<T> sourceContext,
             Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
             SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
@@ -177,7 +177,7 @@ public class TDMQFetcher<T> {
             Map<String, Object> readerConf,
             int pollTimeoutMs,
             PulsarDeserializationSchema<T> deserializer,
-            TDMQMetadataReader metadataReader,
+            PulsarMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
             boolean useMetrics) throws Exception {
         this(
@@ -200,7 +200,7 @@ public class TDMQFetcher<T> {
         );
     }
 
-    public TDMQFetcher(
+    public PulsarFetcher(
             SourceContext<T> sourceContext,
             Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
             Set<TopicRange> excludeStartMessageIds,
@@ -214,7 +214,7 @@ public class TDMQFetcher<T> {
             int pollTimeoutMs,
             int commitMaxRetries,
             PulsarDeserializationSchema<T> deserializer,
-            TDMQMetadataReader metadataReader,
+            PulsarMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
             boolean useMetrics) throws Exception {
 
@@ -361,13 +361,13 @@ public class TDMQFetcher<T> {
 
                     topicToThread.values().removeIf(s -> !s.isAlive());
 
-                    for (TDMQReaderThread t : topicToThread.values()) {
+                    for (ReaderThread t : topicToThread.values()) {
                         t.cancel();
                         runningThreads++;
                     }
 
                     if (runningThreads > 0) {
-                        for (TDMQReaderThread t : topicToThread.values()) {
+                        for (ReaderThread t : topicToThread.values()) {
                             t.join(500 / runningThreads + 1);
                         }
 
@@ -482,13 +482,13 @@ public class TDMQFetcher<T> {
         return state;
     }
 
-    public Map<TopicRange, TDMQReaderThread<T>> createAndStartReaderThread(
+    public Map<TopicRange, ReaderThread<T>> createAndStartReaderThread(
             List<PulsarTopicState<T>> states,
             ExceptionProxy exceptionProxy) {
-        Map<TopicRange, TDMQReaderThread<T>> topic2Threads = new HashMap<>();
+        Map<TopicRange, ReaderThread<T>> topic2Threads = new HashMap<>();
 
         for (PulsarTopicState state : states) {
-            TDMQReaderThread<T> readerT = createReaderThread(exceptionProxy, state);
+            ReaderThread<T> readerT = createReaderThread(exceptionProxy, state);
             readerT.setName(String.format(
                     "Pulsar Reader for %s in task %s",
                     state.getTopicRange(),
@@ -505,8 +505,8 @@ public class TDMQFetcher<T> {
         return subscribedPartitionStates;
     }
 
-    protected TDMQReaderThread<T> createReaderThread(ExceptionProxy exceptionProxy, PulsarTopicState state) {
-        return new TDMQReaderThread<>(
+    protected ReaderThread<T> createReaderThread(ExceptionProxy exceptionProxy, PulsarTopicState state) {
+        return new ReaderThread<>(
                 this,
                 state,
                 clientConf,
@@ -704,7 +704,7 @@ public class TDMQFetcher<T> {
         }
     }
 
-    public TDMQMetadataReader getMetaDataReader() {
+    public PulsarMetadataReader getMetaDataReader() {
         return this.metadataReader;
     }
 }

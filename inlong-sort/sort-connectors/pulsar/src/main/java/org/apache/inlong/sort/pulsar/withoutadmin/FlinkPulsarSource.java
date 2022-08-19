@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.inlong.sort.pulsar.tdmq;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -95,12 +95,12 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *
  * @param <T> The type of records produced by this data source.
  */
-public class FlinkTDMQSource<T>
+public class FlinkPulsarSource<T>
         extends RichParallelSourceFunction<T>
         implements ResultTypeQueryable<T>,
         CheckpointListener,
         CheckpointedFunction {
-    private static final Logger log = LoggerFactory.getLogger(FlinkTDMQSource.class);
+    private static final Logger log = LoggerFactory.getLogger(FlinkPulsarSource.class);
 
     /** The maximum number of pending non-committed checkpoints to track, to avoid memory leaks. */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
@@ -175,10 +175,10 @@ public class FlinkTDMQSource<T>
     private final LinkedHashMap<Long, Map<TopicRange, MessageId>> pendingOffsetsToCommit = new LinkedHashMap<>();
 
     /** Fetcher implements Pulsar reads. */
-    private transient volatile TDMQFetcher<T> tdmqFetcher;
+    private transient volatile PulsarFetcher<T> pulsarFetcher;
 
     /** The partition discoverer, used to find new partitions. */
-    protected transient volatile TDMQMetadataReader metadataReader;
+    protected transient volatile PulsarMetadataReader metadataReader;
 
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
@@ -223,7 +223,7 @@ public class FlinkTDMQSource<T>
 
     private transient int numParallelTasks;
 
-    public FlinkTDMQSource(
+    public FlinkPulsarSource(
             String serverUrl,
             ClientConfigurationData clientConf,
             PulsarDeserializationSchema<T> deserializer,
@@ -253,7 +253,7 @@ public class FlinkTDMQSource<T>
         this.oldStateVersion = SourceSinkUtils.getOldStateVersion(caseInsensitiveParams, oldStateVersion);
     }
 
-    public FlinkTDMQSource(
+    public FlinkPulsarSource(
             String serviceUrl,
             DeserializationSchema<T> deserializer,
             Properties properties) {
@@ -288,7 +288,7 @@ public class FlinkTDMQSource<T>
      * @return The reader object, to allow function chaining.
      */
     @Deprecated
-    public FlinkTDMQSource<T> assignTimestampsAndWatermarks(AssignerWithPunctuatedWatermarks<T> assigner) {
+    public FlinkPulsarSource<T> assignTimestampsAndWatermarks(AssignerWithPunctuatedWatermarks<T> assigner) {
         checkNotNull(assigner);
 
         if (this.watermarkStrategy != null) {
@@ -328,7 +328,7 @@ public class FlinkTDMQSource<T>
      * @return The reader object, to allow function chaining.
      */
     @Deprecated
-    public FlinkTDMQSource<T> assignTimestampsAndWatermarks(AssignerWithPeriodicWatermarks<T> assigner) {
+    public FlinkPulsarSource<T> assignTimestampsAndWatermarks(AssignerWithPeriodicWatermarks<T> assigner) {
         checkNotNull(assigner);
 
         if (this.watermarkStrategy != null) {
@@ -364,7 +364,7 @@ public class FlinkTDMQSource<T>
      *
      * @return The consumer object, to allow function chaining.
      */
-    public FlinkTDMQSource<T> assignTimestampsAndWatermarks(
+    public FlinkPulsarSource<T> assignTimestampsAndWatermarks(
             WatermarkStrategy<T> watermarkStrategy) {
         checkNotNull(watermarkStrategy);
 
@@ -378,23 +378,23 @@ public class FlinkTDMQSource<T>
         return this;
     }
 
-    public FlinkTDMQSource<T> setStartFromEarliest() {
+    public FlinkPulsarSource<T> setStartFromEarliest() {
         this.startupMode = StartupMode.EARLIEST;
         return this;
     }
 
-    public FlinkTDMQSource<T> setStartFromLatest() {
+    public FlinkPulsarSource<T> setStartFromLatest() {
         this.startupMode = StartupMode.LATEST;
         return this;
     }
 
-    public FlinkTDMQSource<T> setStartFromSubscription(String externalSubscriptionName) {
+    public FlinkPulsarSource<T> setStartFromSubscription(String externalSubscriptionName) {
         this.startupMode = StartupMode.EXTERNAL_SUBSCRIPTION;
         this.externalSubscriptionName = checkNotNull(externalSubscriptionName);
         return this;
     }
 
-    public FlinkTDMQSource<T> setStartFromSubscription(String externalSubscriptionName,
+    public FlinkPulsarSource<T> setStartFromSubscription(String externalSubscriptionName,
                                                          MessageId subscriptionPosition) {
         this.startupMode = StartupMode.EXTERNAL_SUBSCRIPTION;
         this.externalSubscriptionName = checkNotNull(externalSubscriptionName);
@@ -495,8 +495,8 @@ public class FlinkTDMQSource<T>
         }
     }
 
-    protected TDMQMetadataReader createMetadataReader() throws PulsarClientException {
-        return new TDMQMetadataReader(
+    protected PulsarMetadataReader createMetadataReader() throws PulsarClientException {
+        return new PulsarMetadataReader(
                 serverUrl,
                 clientConfigurationData,
                 getSubscriptionName(),
@@ -533,7 +533,7 @@ public class FlinkTDMQSource<T>
 
         StreamingRuntimeContext streamingRuntime = (StreamingRuntimeContext) getRuntimeContext();
 
-        this.tdmqFetcher = createFetcher(
+        this.pulsarFetcher = createFetcher(
                 ctx,
                 ownedTopicStarts,
                 watermarkStrategy,
@@ -549,13 +549,13 @@ public class FlinkTDMQSource<T>
         }
 
         if (discoveryIntervalMillis < 0) {
-            tdmqFetcher.runFetchLoop();
+            pulsarFetcher.runFetchLoop();
         } else {
             runWithTopicsDiscovery();
         }
     }
 
-    protected TDMQFetcher<T> createFetcher(
+    protected PulsarFetcher<T> createFetcher(
             SourceContext<T> sourceContext,
             Map<TopicRange, MessageId> seedTopicsWithInitialOffsets,
             SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
@@ -568,7 +568,7 @@ public class FlinkTDMQSource<T>
 
         //readerConf.putIfAbsent(PulsarOptions.SUBSCRIPTION_ROLE_OPTION_KEY, getSubscriptionName());
 
-        return new TDMQFetcher<>(
+        return new PulsarFetcher<>(
                 sourceContext,
                 seedTopicsWithInitialOffsets,
                 excludeStartMessageIds,
@@ -598,7 +598,7 @@ public class FlinkTDMQSource<T>
         AtomicReference<Exception> discoveryLoopErrorRef = new AtomicReference<>();
         createAndStartDiscoveryLoop(discoveryLoopErrorRef);
 
-        tdmqFetcher.runFetchLoop();
+        pulsarFetcher.runFetchLoop();
 
         joinDiscoveryLoopThread();
 
@@ -616,14 +616,14 @@ public class FlinkTDMQSource<T>
                             Set<TopicRange> added = metadataReader.discoverTopicChanges();
 
                             if (running && !added.isEmpty()) {
-                                tdmqFetcher.addDiscoveredTopics(added);
+                                pulsarFetcher.addDiscoveredTopics(added);
                             }
 
                             if (running && discoveryIntervalMillis != -1) {
                                 Thread.sleep(discoveryIntervalMillis);
                             }
                         }
-                    } catch (TDMQMetadataReader.ClosedException e) {
+                    } catch (PulsarMetadataReader.ClosedException e) {
                         // break out while and do nothing
                     } catch (InterruptedException e) {
                         // break out while and do nothing
@@ -675,9 +675,9 @@ public class FlinkTDMQSource<T>
             discoveryLoopThread.interrupt();
         }
 
-        if (tdmqFetcher != null) {
+        if (pulsarFetcher != null) {
             try {
-                tdmqFetcher.cancel();
+                pulsarFetcher.cancel();
             } catch (Exception e) {
                 log.error("Failed to cancel the Pulsar Fetcher {}", ExceptionUtils.stringifyException(e));
                 throw new RuntimeException(e);
@@ -811,7 +811,7 @@ public class FlinkTDMQSource<T>
         } else {
             unionOffsetStates.clear();
 
-            TDMQFetcher<T> fetcher = this.tdmqFetcher;
+            PulsarFetcher<T> fetcher = this.pulsarFetcher;
 
             if (fetcher == null) {
                 // the fetcher has not yet been initialized, which means we need to return the
@@ -855,7 +855,7 @@ public class FlinkTDMQSource<T>
             return;
         }
 
-        TDMQFetcher<T> fetcher = this.tdmqFetcher;
+        PulsarFetcher<T> fetcher = this.pulsarFetcher;
 
         if (fetcher == null) {
             log.info("notifyCheckpointComplete() called on uninitialized source");
