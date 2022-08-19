@@ -55,14 +55,14 @@ public class FileDataUtils {
      * To judge json
      */
     public static boolean isJSON(String json) {
-        boolean flag;
+        boolean isJson;
         try {
             JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
-            flag = convertedObject.isJsonObject();
+            isJson = convertedObject.isJsonObject();
         } catch (Exception exception) {
             return false;
         }
-        return flag;
+        return isJson;
     }
-    
+
 }
