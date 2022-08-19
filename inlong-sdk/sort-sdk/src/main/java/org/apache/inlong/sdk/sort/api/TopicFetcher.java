@@ -66,13 +66,13 @@ public interface TopicFetcher {
      * Set stop consume flag.
      * @param stopConsume Stop consume flag.
      */
-    void stopConsume(boolean stopConsume);
+    void setStopConsume(boolean stopConsume);
 
     /**
      * Get stop consume flag.
      * @return stop consume flag.
      */
-    boolean isConsumeStop();
+    boolean isStopConsume();
 
     /**
      * Get the topics maintain by current fetcher.

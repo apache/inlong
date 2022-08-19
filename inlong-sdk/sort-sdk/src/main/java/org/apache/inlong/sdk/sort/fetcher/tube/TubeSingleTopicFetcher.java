@@ -157,12 +157,12 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
     }
 
     @Override
-    public void stopConsume(boolean stopConsume) {
+    public void setStopConsume(boolean stopConsume) {
         this.stopConsume = stopConsume;
     }
 
     @Override
-    public boolean isConsumeStop() {
+    public boolean isStopConsume() {
         return stopConsume;
     }
 

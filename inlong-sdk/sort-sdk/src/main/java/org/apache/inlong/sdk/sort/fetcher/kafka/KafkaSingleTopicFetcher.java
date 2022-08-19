@@ -142,12 +142,12 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
     }
 
     @Override
-    public void stopConsume(boolean isStopConsume) {
+    public void setStopConsume(boolean isStopConsume) {
         this.stopConsume = isStopConsume;
     }
 
     @Override
-    public boolean isConsumeStop() {
+    public boolean isStopConsume() {
         return this.stopConsume;
     }
 
