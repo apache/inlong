@@ -64,4 +64,10 @@ public class TestCommand {
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
+    //@Test
+   public void testLogGroup() throws Exception {
+        String[] arg = {"log", "group", "--query", "test_group", "inlongGroupId:test_group"};
+        Assertions.assertTrue(inlongAdminTool.run(arg));
+    }
+
 }
