@@ -111,12 +111,12 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
 
     @Override
     public void pause() {
-        this.isStopConsume = true;
+        this.stopConsume = true;
     }
 
     @Override
     public void resume() {
-        this.isStopConsume = false;
+        this.stopConsume = false;
     }
 
     @Override
@@ -143,12 +143,12 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
 
     @Override
     public void stopConsume(boolean isStopConsume) {
-        this.isStopConsume = isStopConsume;
+        this.stopConsume = isStopConsume;
     }
 
     @Override
     public boolean isConsumeStop() {
-        return this.isStopConsume;
+        return this.stopConsume;
     }
 
     @Override
@@ -241,7 +241,7 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
             while (true) {
                 hasPermit = false;
                 try {
-                    if (context.getConfig().isStopConsume() || isStopConsume) {
+                    if (context.getConfig().isStopConsume() || stopConsume) {
                         TimeUnit.MILLISECONDS.sleep(50);
                         continue;
                     }

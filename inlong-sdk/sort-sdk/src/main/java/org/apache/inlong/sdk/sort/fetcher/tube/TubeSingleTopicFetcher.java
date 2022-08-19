@@ -158,12 +158,12 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
 
     @Override
     public void stopConsume(boolean stopConsume) {
-        this.isStopConsume = stopConsume;
+        this.stopConsume = stopConsume;
     }
 
     @Override
     public boolean isConsumeStop() {
-        return isStopConsume;
+        return stopConsume;
     }
 
     @Override
@@ -225,7 +225,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
             while (true) {
                 hasPermit = false;
                 try {
-                    if (context.getConfig().isStopConsume() || isStopConsume) {
+                    if (context.getConfig().isStopConsume() || stopConsume) {
                         TimeUnit.MILLISECONDS.sleep(50L);
                         continue;
                     }

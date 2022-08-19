@@ -37,7 +37,7 @@ public abstract class SingleTopicFetcher implements TopicFetcher {
     protected Deserializer deserializer;
     protected volatile Thread fetchThread;
     protected volatile boolean closed = false;
-    protected volatile boolean isStopConsume = false;
+    protected volatile boolean stopConsume = false;
     // use for empty topic to sleep
     protected long sleepTime = 0L;
     protected int emptyFetchTimes = 0;
