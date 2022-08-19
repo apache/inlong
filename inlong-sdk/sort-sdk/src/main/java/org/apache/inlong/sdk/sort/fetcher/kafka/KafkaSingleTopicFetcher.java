@@ -87,6 +87,7 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
             String threadName = String.format("sort_sdk_kafka_single_topic_fetch_thread_%s_%s_%d",
                     this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
             this.fetchThread = new Thread(new KafkaSingleTopicFetcher.Fetcher(), threadName);
+            fetchThread.start();
             LOGGER.info("start to start thread:{}", threadName);
         } catch (Exception e) {
             LOGGER.error("fail to init kafka single topic fetcher: {}",e.getMessage(), e);
