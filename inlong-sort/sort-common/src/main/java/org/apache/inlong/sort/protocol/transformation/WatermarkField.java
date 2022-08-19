@@ -24,6 +24,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,12 +49,23 @@ public class WatermarkField implements TimeWindowFunction {
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
-        this.interval = Preconditions.checkNotNull(interval, "interval is null");
-        this.timeUnit = Preconditions.checkNotNull(timeUnit, "timeUnit is null");
+        this.interval = interval;
+        this.timeUnit = timeUnit;
+    }
+
+    public WatermarkField(@JsonProperty("timeAttr") FieldInfo timeAttr) {
+        this(timeAttr, null, null);
     }
 
     @Override
     public String format() {
+        if (interval == null) {
+            return String.format("%s FOR %s AS %s", getName(), timeAttr.format(), timeAttr.format());
+        }
+        if (timeUnit == null) {
+            return String.format("%s FOR %s AS %s - INTERVAL %s %s", getName(), timeAttr.format(),
+                    timeAttr.format(), interval.format(), TimeUnit.SECOND.name());
+        }
         return String.format("%s FOR %s AS %s - INTERVAL %s %s", getName(), timeAttr.format(),
                 timeAttr.format(), interval.format(), timeUnit.format());
     }

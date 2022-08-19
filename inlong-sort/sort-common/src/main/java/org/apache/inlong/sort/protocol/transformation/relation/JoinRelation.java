@@ -41,8 +41,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
         @JsonSubTypes.Type(value = LeftOuterJoinNodeRelation.class, name = "leftOuterJoin"),
         @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin"),
-        @JsonSubTypes.Type(value = InnerTemporalJoin.class, name = "innerTemporalJoin"),
-        @JsonSubTypes.Type(value = LeftOuterTemporalJoin.class, name = "leftOuterTemporalJoin")
+        @JsonSubTypes.Type(value = InnerTemporalJoinRelationRelation.class, name = "innerTemporalJoin"),
+        @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelationRelation.class, name = "leftOuterTemporalJoin")
 })
 @EqualsAndHashCode(callSuper = true)
 @Data

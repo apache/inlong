@@ -30,6 +30,7 @@ import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
+import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
@@ -77,35 +78,137 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
+    @Nonnull
+    @JsonProperty("extractMode")
+    private ExtractMode extractMode;
+    @JsonProperty("url")
+    private String url;
 
+    /**
+     * Constructor only used for {@link ExtractMode#CDC}
+     *
+     * @param id The id of node
+     * @param name The name of node
+     * @param fields The field list of node
+     * @param watermarkField The watermark field of node only used for {@link ExtractMode#CDC}
+     * @param properties The properties connect to mysql
+     * @param primaryKey The primark key connect to mysql
+     * @param tableNames The table names connect to mysql
+     * @param hostname The hostname connect to mysql only used for {@link ExtractMode#CDC}
+     * @param username The username connect to mysql
+     * @param password The password connect to mysql
+     * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
+     * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
+     * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
+     *         only used for {@link ExtractMode#CDC}
+     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
+     */
+    public MySqlExtractNode(@Nonnull @JsonProperty("id") String id,
+            @Nonnull @JsonProperty("name") String name,
+            @Nonnull @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
+            @Nullable @JsonProperty("properties") Map<String, String> properties,
+            @Nullable @JsonProperty("primaryKey") String primaryKey,
+            @Nonnull @JsonProperty("tableNames") List<String> tableNames,
+            @Nonnull @JsonProperty("hostname") String hostname,
+            @Nonnull @JsonProperty("username") String username,
+            @Nonnull @JsonProperty("password") String password,
+            @Nonnull @JsonProperty("database") String database,
+            @Nullable @JsonProperty("port") Integer port,
+            @Nullable @JsonProperty("serverId") Integer serverId,
+            @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
+            @Nullable @JsonProperty("serverTimeZone") String serverTimeZone) {
+        this(id, name, fields, watermarkField, properties, primaryKey, tableNames, hostname, username, password,
+                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null);
+    }
+
+    /**
+     * Constructor only used for {@link ExtractMode#SCAN}
+     *
+     * @param id The id of node
+     * @param name The name of node
+     * @param fields The field list of node
+     * @param properties The properties connect to mysql
+     * @param primaryKey The primark key connect to mysql
+     * @param tableNames The table names connect to mysql
+     * @param username The username connect to mysql
+     * @param password The password connect to mysql
+     * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
+     */
+    public MySqlExtractNode(@JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("properties") Map<String, String> properties,
+            @Nullable @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("tableNames") @Nonnull List<String> tableNames,
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password,
+            @Nullable @JsonProperty("url") String url) {
+        this(id, name, fields, null, properties, primaryKey, tableNames, null, username,
+                password, null, null, null, null, null,
+                ExtractMode.SCAN, url);
+    }
+
+    /**
+     * Base constructor
+     *
+     * @param id The id of node
+     * @param name The name of node
+     * @param fields The field list of node
+     * @param watermarkField The watermark field of node only used for {@link ExtractMode#CDC}
+     * @param properties The properties connect to mysql
+     * @param primaryKey The primark key connect to mysql
+     * @param tableNames The table names connect to mysql
+     * @param hostname The hostname connect to mysql only used for {@link ExtractMode#CDC}
+     * @param username The username connect to mysql
+     * @param password The password connect to mysql
+     * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
+     * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
+     * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
+     *         only used for {@link ExtractMode#CDC}
+     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
+     * @param extractMode The extract mode connect mysql {@link ExtractMode}
+     * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
+     */
     @JsonCreator
     public MySqlExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
-            @JsonProperty("properties") Map<String, String> properties,
-            @JsonProperty("primaryKey") String primaryKey,
+            @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
+            @Nullable @JsonProperty("properties") Map<String, String> properties,
+            @Nullable @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("tableNames") @Nonnull List<String> tableNames,
-            @JsonProperty("hostname") String hostname,
+            @Nullable @JsonProperty("hostname") String hostname,
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
-            @JsonProperty("database") String database,
-            @JsonProperty("port") Integer port,
-            @JsonProperty("serverId") Integer serverId,
-            @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
-            @JsonProperty("serverTimeZone") String serverTimeZone) {
-        super(id, name, fields, waterMarkField, properties);
+            @Nullable @JsonProperty("database") String database,
+            @Nullable @JsonProperty("port") Integer port,
+            @Nullable @JsonProperty("serverId") Integer serverId,
+            @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
+            @Nullable @JsonProperty("serverTimeZone") String serverTimeZone,
+            @Nonnull @JsonProperty("extractMode") ExtractMode extractMode,
+            @Nullable @JsonProperty("url") String url) {
+        super(id, name, fields, watermarkField, properties);
         this.tableNames = Preconditions.checkNotNull(tableNames, "tableNames is null");
         Preconditions.checkState(!tableNames.isEmpty(), "tableNames is empty");
-        this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
+        if (extractMode == ExtractMode.CDC) {
+            this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
+            this.database = Preconditions.checkNotNull(database, "database is null");
+        } else {
+            this.hostname = hostname;
+            this.database = database;
+            this.url = Preconditions.checkNotNull(url, "url is null");
+        }
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.database = Preconditions.checkNotNull(database, "database is null");
         this.primaryKey = primaryKey;
         this.port = port;
         this.serverId = serverId;
         this.incrementalSnapshotEnabled = incrementalSnapshotEnabled;
         this.serverTimeZone = serverTimeZone;
+        this.extractMode = extractMode;
     }
 
     @Override
@@ -121,23 +224,30 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "mysql-cdc-inlong");
-        options.put("hostname", hostname);
+        if (extractMode == ExtractMode.CDC) {
+            options.put("connector", "mysql-cdc-inlong");
+            options.put("hostname", hostname);
+            options.put("database-name", database);
+            if (port != null) {
+                options.put("port", port.toString());
+            }
+            if (serverId != null) {
+                options.put("server-id", serverId.toString());
+            }
+            if (incrementalSnapshotEnabled != null) {
+                options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
+            }
+            if (serverTimeZone != null) {
+                options.put("server-time-zone", serverTimeZone);
+            }
+        } else {
+            options.put("connector", "jdbc-inlong");
+            options.put("url", url);
+            Preconditions.checkState(tableNames.size() == 1,
+                    "Only support one table for scan extract mode");
+        }
         options.put("username", username);
         options.put("password", password);
-        options.put("database-name", database);
-        if (port != null) {
-            options.put("port", port.toString());
-        }
-        if (serverId != null) {
-            options.put("server-id", serverId.toString());
-        }
-        if (incrementalSnapshotEnabled != null) {
-            options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
-        }
-        if (serverTimeZone != null) {
-            options.put("server-time-zone", serverTimeZone);
-        }
         String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
                 String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put("table-name", String.format("%s", formatTable));
