@@ -2,7 +2,7 @@
   "FlinkSortConf": {
     "sortType": "flink",
     "authentication": "NONE",
-    "serviceUrl": "123.456.789",
+    "serviceUrl": "127.0.0.1:8123",
     "region": "beijing",
     "properties": {}
   }
