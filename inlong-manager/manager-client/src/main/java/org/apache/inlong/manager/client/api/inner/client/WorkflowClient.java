@@ -186,7 +186,8 @@ public class WorkflowClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
-        Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(workflowApi.listProcess(requestMap));
+        Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(
+                workflowApi.listProcess(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
