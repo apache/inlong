@@ -54,14 +54,6 @@ public class CommandToolMain {
         }
     }
 
-    public static InlongClient getMockClient() {
-        return mockClient;
-    }
-
-    public static void setMockClient(InlongClient client) {
-        mockClient = client;
-    }
-
     boolean run(String[] args) {
         try {
             jcommander.parse(args);
