@@ -30,7 +30,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import java.util.List;
 
 /**
- * Log resource
+ * The log command used to get filter certain kinds of inlong groups
+ * Please refer to the document for parameters
  */
 @Parameters(commandDescription = "Log resource")
 public class LogCommand extends AbstractCommand {
@@ -55,7 +56,7 @@ public class LogCommand extends AbstractCommand {
         @Override
         void run() {
             final int MAX_LOG_SIZE = 100;
-            //for now only filter by one condition. TODO:support OR and AND, make a condition filter.
+            // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
             String[] inputs = input.split(":");
             ClientUtils.initClientFactory();
             InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();

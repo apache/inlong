@@ -54,7 +54,7 @@ public class CreateCommand extends AbstractCommand {
                 description = "json file")
         private File file;
 
-        //TODO:add gdbc connector and others
+        // TODO:add gdbc connector and others
         @Parameter(names = {"-s"}, description = "optional log string to create file")
         private String input;
 
@@ -71,18 +71,18 @@ public class CreateCommand extends AbstractCommand {
                         return;
                     }
                 }
-                //first extract groupconfig from the file passed in
+                // first extract groupconfig from the file passed in
                 CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
-                //get the correspodning inlonggroup, a.k.a the task to execute
+                // get the correspodning inlonggroup, a.k.a the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
-                //put in parameters:source and sink,stream fields, then initialize
+                // put in parameters:source and sink,stream fields, then initialize
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
                 streamBuilder.sink(groupConf.getStreamSink());
                 streamBuilder.initOrUpdate();
-                //initialize the new stream group
+                // initialize the new stream group
                 group.init();
                 System.out.println("Create group success!");
             } catch (Exception e) {

@@ -28,6 +28,10 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import java.io.File;
 import java.util.List;
 
+/**
+ * The update command used to change the fields of inlong groups.
+ * Please refer to the document for parameters
+ */
 @Parameters(commandDescription = "Update resource by json file")
 public class UpdateCommand extends AbstractCommand {
 
@@ -62,7 +66,7 @@ public class UpdateCommand extends AbstractCommand {
                     System.out.println("Update group failed: file was empty!");
                     return;
                 }
-                //first extract groupconfig from the file passed in
+                // first extract groupconfig from the file passed in
                 BaseSortConf sortConf = objectMapper.readValue(fileContent, BaseSortConf.class);
                 group.update(sortConf);
                 System.out.println("update group success");

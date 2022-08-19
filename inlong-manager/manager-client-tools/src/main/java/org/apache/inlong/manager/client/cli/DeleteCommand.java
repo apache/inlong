@@ -25,6 +25,10 @@ import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
 import java.util.List;
 
+/**
+ * The delete command used for deleting inlong group instances.
+ * Please refer to the document for parameters
+ */
 @Parameters(commandDescription = "Delete resource by json file")
 public class DeleteCommand extends AbstractCommand {
 
@@ -47,8 +51,8 @@ public class DeleteCommand extends AbstractCommand {
 
         @Override
         void run() {
-            //get the group and the corresponding context(snapshot)
-            //TODO: handle and/or classify the exceptions
+            // get the group and the corresponding context(snapshot)
+            // TODO: handle and/or classify the exceptions
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
