@@ -31,23 +31,23 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: i18n.t('pages.AccessDetail.DataStream.Status.New'),
+    label: i18n.t('pages.GroupDetail.Stream.Status.New'),
     value: 100,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataStream.Status.Pending'),
+    label: i18n.t('pages.GroupDetail.Stream.Status.Pending'),
     value: 110,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: i18n.t('pages.AccessDetail.DataStream.Status.Error'),
+    label: i18n.t('pages.GroupDetail.Stream.Status.Error'),
     value: 120,
     type: 'error',
   },
   {
-    label: i18n.t('pages.AccessDetail.DataStream.Status.Success'),
+    label: i18n.t('pages.GroupDetail.Stream.Status.Success'),
     value: 130,
     type: 'success',
   },

@@ -122,6 +122,8 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: TZ
+              value: {{ .Values.timezone }}
           ports:
             - name: tubemq-mgr-port
               containerPort: 8089

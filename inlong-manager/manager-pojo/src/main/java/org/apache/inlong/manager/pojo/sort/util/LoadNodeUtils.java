@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -78,6 +79,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 
 /**
  * Util for load node info.
@@ -541,6 +543,8 @@ public class LoadNodeUtils {
                         } else {
                             inputField = new ConstantParam(constantField.getFieldValue());
                         }
+                    } else if (FieldType.FUNCTION.name().equalsIgnoreCase(field.getSourceFieldType())) {
+                        inputField = new CustomFunction(field.getSourceFieldName());
                     } else {
                         inputField = new FieldInfo(field.getSourceFieldName(), field.getOriginNodeName(),
                                 FieldInfoUtils.convertFieldFormat(field.getSourceFieldType()));

@@ -39,7 +39,7 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'select',
     name: 'sinkType',
-    label: i18n.t('pages.AccessDetail.DataStorage.Type'),
+    label: i18n.t('pages.GroupDetail.Sink.Type'),
     initialValue: defaultValues.sinkType,
     props: {
       dropdownMatchSelectWidth: false,
@@ -182,10 +182,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     () => [
       {
         type: 'select',
-        label: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
+        label: i18n.t('pages.GroupDetail.Sink.DataStreams'),
         name: 'inlongStreamId',
         props: {
-          notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
+          notFoundContent: i18n.t('pages.GroupDetail.Sink.NoDataStreams'),
           disabled: !!createModal.id,
           options: streamList.map(item => ({
             label: item.inlongStreamId,
@@ -202,7 +202,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columns = [
     {
-      title: i18n.t('pages.AccessDetail.DataStorage.DataStreams'),
+      title: i18n.t('pages.GroupDetail.Sink.DataStreams'),
       dataIndex: 'inlongStreamId',
     },
   ]
@@ -242,7 +242,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-              {i18n.t('pages.AccessDetail.DataStorage.New')}
+              {i18n.t('pages.GroupDetail.Sink.New')}
             </Button>
           )
         }

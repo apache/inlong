@@ -29,12 +29,13 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
+import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
@@ -73,6 +74,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
         @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
         @JsonSubTypes.Type(value = HudiExtractNode.class, name = "hudiExtract"),
+        @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),

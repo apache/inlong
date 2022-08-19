@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, forwardRef, useImperativeHandle } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
 import { getFormContent } from './ConsumeConfig';
@@ -29,6 +29,18 @@ const Comp = (
   ref,
 ) => {
   const [form] = useForm();
+
+  useEffect(() => {
+    const consumptionInfo = defaultData?.processInfo?.formData?.consumptionInfo;
+    const consumptionApproveInfo = defaultData?.currentTask?.formData?.consumptionApproveInfo;
+    if (consumptionInfo || consumptionApproveInfo) {
+      const obj = {
+        ...consumptionInfo,
+        ...consumptionApproveInfo,
+      };
+      form.setFieldsValue(obj);
+    }
+  }, [defaultData, form]);
 
   const onOk = async (useValidate = true) => {
     if (!useValidate) {

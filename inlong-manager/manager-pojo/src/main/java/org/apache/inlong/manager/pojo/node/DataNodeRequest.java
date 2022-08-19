@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.pojo.node;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -32,31 +32,31 @@ import javax.validation.constraints.NotNull;
  * Data node request
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Data node  request")
-public class DataNodeRequest {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+public abstract class DataNodeRequest {
 
     @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
     @NotBlank(message = "node name cannot be blank")
-    @ApiModelProperty(value = "Node name")
+    @ApiModelProperty(value = "Data node name")
     private String name;
 
     @NotBlank(message = "node type cannot be blank")
-    @ApiModelProperty(value = "Node type, including MYSQL, HIVE, KAFKA, ES, etc.")
+    @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Node url")
+    @ApiModelProperty(value = "Data node URL")
     private String url;
 
-    @ApiModelProperty(value = "Node username")
+    @ApiModelProperty(value = "Data node username")
     private String username;
 
-    @ApiModelProperty(value = "Node token if needed")
+    @ApiModelProperty(value = "Data node token if needed")
     private String token;
 
     @ApiModelProperty(value = "Extended params")

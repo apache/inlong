@@ -39,7 +39,7 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'radiobutton',
     name: 'sourceType',
-    label: i18n.t('pages.AccessDetail.DataSources.Type'),
+    label: i18n.t('pages.GroupDetail.Sources.Type'),
     initialValue: defaultValues.sourceType,
     props: {
       buttonStyle: 'solid',
@@ -103,7 +103,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       data: submitData,
     });
     await getList();
-    message.success(i18n.t('pages.AccessDetail.DataSources.SaveSuccessfully'));
+    message.success(i18n.t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };
 
   const onEdit = ({ id }) => {
@@ -112,7 +112,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
+      title: i18n.t('pages.GroupDetail.Sources.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/source/delete/${id}`,
@@ -122,7 +122,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           },
         });
         await getList();
-        message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
+        message.success(i18n.t('pages.GroupDetail.Sources.DeleteSuccessfully'));
       },
     });
   };
@@ -163,7 +163,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columns = [
     {
-      title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
+      title: i18n.t('pages.GroupDetail.Sources.DataStreams'),
       dataIndex: 'inlongStreamId',
     },
     {
@@ -200,10 +200,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const createContent = [
     {
       type: 'select',
-      label: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
+      label: i18n.t('pages.GroupDetail.Sources.DataStreams'),
       name: 'inlongStreamId',
       props: {
-        notFoundContent: i18n.t('pages.AccessDetail.DataSources.NoDataStreams'),
+        notFoundContent: i18n.t('pages.GroupDetail.Sources.NoDataStreams'),
         disabled: !!createModal.id,
         options: {
           requestService: {
@@ -239,7 +239,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-              {i18n.t('pages.AccessDetail.DataSources.Create')}
+              {i18n.t('pages.GroupDetail.Sources.Create')}
             </Button>
           )
         }

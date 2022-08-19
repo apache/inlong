@@ -17,20 +17,21 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.SetUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -42,6 +43,10 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
@@ -51,373 +56,206 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
+import org.apache.inlong.dataproxy.sink.common.TubeProducerHolder;
+import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
 import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TubeSink extends AbstractSink implements Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
-    private static final MsgDedupHandler msgDedupHandler = new MsgDedupHandler();
-    private static final ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<>();
+    private static final MsgDedupHandler MSG_DEDUP_HANDLER = new MsgDedupHandler();
+    private TubeProducerHolder producerHolder = null;
     private static final String TOPIC = "topic";
-    // key: masterUrl
-    public Map<String, TubeMultiSessionFactory> sessionFactories;
-    public Map<String, List<TopicProducerInfo>> masterUrl2producers;
-    // key: topic
-    public Map<String, List<TopicProducerInfo>> producerInfoMap;
     private volatile boolean canTake = false;
     private volatile boolean canSend = false;
+    private volatile boolean isOverFlow = false;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
     private MQClusterConfig tubeConfig;
+    private String usedMasterAddr = null;
     private Set<String> masterHostAndPortLists;
-
+    // statistic info log
+    private int maxMonitorCnt = 300000;
+    private int statIntervalSec = 60;
+    private MonitorIndex monitorIndex;
+    private MonitorIndexExt monitorIndexExt;
+    private static final String KEY_SINK_DROPPED = "TUBE_SINK_DROPPED";
+    private static final String KEY_SINK_SUCCESS = "TUBE_SINK_SUCCESS";
+    private static final String KEY_SINK_FAILURE = "TUBE_SINK_FAILURE";
+    private static final String KEY_SINK_EXP = "TUBE_SINK_EXP";
     // used for RoundRobin different cluster while send message
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
-    private LinkedBlockingQueue<EventStat> resendQueue;
-    private LinkedBlockingQueue<Event> eventQueue;
     private RateLimiter diskRateLimiter;
     private Thread[] sinkThreadPool;
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
+    private final AtomicBoolean started = new AtomicBoolean(false);
+    private static final LogCounter LOG_SINK_TASK_PRINTER =
+            new LogCounter(10, 100000, 60 * 1000);
+    private LinkedBlockingQueue<Event> eventQueue;
+    private LinkedBlockingQueue<EventStat> resendQueue;
+    private final AtomicLong cachedMsgCnt = new AtomicLong(0);
+    private final AtomicLong takenMsgCnt = new AtomicLong(0);
+    private final AtomicLong resendMsgCnt = new AtomicLong(0);
+    private final AtomicLong blankTopicDiscardMsgCnt = new AtomicLong(0);
+    private final AtomicLong frozenTopicDiscardMsgCnt = new AtomicLong(0);
+    private final AtomicLong dupDiscardMsgCnt = new AtomicLong(0);
+    private final AtomicLong inflightMsgCnt = new AtomicLong(0);
+    private final AtomicLong successMsgCnt = new AtomicLong(0);
+    // statistic thread
+    private static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors
+            .newScheduledThreadPool(1, new HighPriorityThreadFactory("tubeSink-Printer-thread"));
 
-    private boolean overflow = false;
-
-    /**
-     * diff publish
-     */
-    public void diffSetPublish(Set<String> originalSet, Set<String> endSet) {
-        if (SetUtils.isEqualSet(originalSet, endSet)) {
-            return;
-        }
-
-        boolean changed = false;
-        Set<String> newTopics = new HashSet<>();
-        for (String s : endSet) {
-            if (!originalSet.contains(s)) {
-                changed = true;
-                newTopics.add(s);
-            }
-        }
-
-        if (changed) {
-            try {
-                initTopicSet(newTopics);
-            } catch (Exception e) {
-                logger.info("meta sink publish new topic fail.", e);
-            }
-
-            logger.info("topics.properties has changed, trigger diff publish for {}", getName());
-            topicProperties = configManager.getTopicProperties();
-        }
+    {
+        SCHEDULED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new TubeStatsTask(), 30L,
+                60L, TimeUnit.SECONDS);
+        logger.info("success to start performance statistic task!");
     }
 
-    /**
-     * when masterUrlLists change, update tubeClient
-     *
-     * @param originalCluster previous masterHostAndPortList set
-     * @param endCluster new masterHostAndPortList set
-     */
-    public void diffUpdateTubeClient(Set<String> originalCluster, Set<String> endCluster) {
-        if (SetUtils.isEqualSet(originalCluster, endCluster)) {
-            return;
-        }
-        // close
-        for (String masterUrl : originalCluster) {
-
-            if (!endCluster.contains(masterUrl)) {
-                // step1: close and remove all related producers
-                List<TopicProducerInfo> producerInfoList = masterUrl2producers.get(masterUrl);
-                if (producerInfoList != null) {
-                    for (TopicProducerInfo producerInfo : producerInfoList) {
-                        producerInfo.shutdown();
-                        // remove from topic<->producer map
-                        for (String topic : producerInfo.getTopicSet()) {
-                            List<TopicProducerInfo> curTopicProducers = producerInfoMap.get(topic);
-                            if (curTopicProducers != null) {
-                                curTopicProducers.remove(producerInfo);
-                            }
-                        }
-                    }
-                    // remove from masterUrl<->producer map
-                    masterUrl2producers.remove(masterUrl);
-                }
-
-                // step2: close and remove related sessionFactories
-                TubeMultiSessionFactory sessionFactory = sessionFactories.get(masterUrl);
-                if (sessionFactory != null) {
-                    try {
-                        sessionFactory.shutdown();
-                    } catch (TubeClientException e) {
-                        logger.error("destroy sessionFactory error in tubesink, MetaClientException {}",
-                                e.getMessage());
-                    }
-                    sessionFactories.remove(masterUrl);
-                }
-
-                logger.info("close tubeClient of masterList:{}", masterUrl);
-            }
-
-        }
-        // start new client
-        for (String masterUrl : endCluster) {
-            if (!originalCluster.contains(masterUrl)) {
-                TubeMultiSessionFactory sessionFactory = createConnection(masterUrl);
-                if (sessionFactory != null) {
-                    List<Set<String>> topicGroups = partitionTopicSet(new HashSet<>(topicProperties.values()));
-                    for (Set<String> topicSet : topicGroups) {
-                        createTopicProducers(masterUrl, sessionFactory, topicSet);
-                    }
-                    logger.info("successfully start new tubeClient for the new masterList: {}", masterUrl);
-                }
-            }
-        }
-
+    @Override
+    public void configure(Context context) {
+        logger.info(getName() + " configure from context: {}", context);
+        // initial parameters
+        configManager = ConfigManager.getInstance();
+        tubeConfig = configManager.getMqClusterConfig();
+        topicProperties = configManager.getTopicProperties();
         masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
-    }
-
-    /**
-     * when there are multi clusters, pick producer based on round-robin
-     */
-    private MessageProducer getProducer(String topic) throws TubeClientException {
-        if (producerInfoMap.containsKey(topic) && !producerInfoMap.get(topic).isEmpty()) {
-
-            List<TopicProducerInfo> producers = producerInfoMap.get(topic);
-            // round-roubin dispatch
-            int currentIndex = clusterIndex.getAndIncrement();
-            if (currentIndex > Integer.MAX_VALUE / 2) {
-                clusterIndex.set(0);
+        // start message deduplication handler
+        MSG_DEDUP_HANDLER.start(tubeConfig.getClientIdCache(),
+                tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
+        // only use first cluster address now
+        usedMasterAddr = getFirstClusterAddr(masterHostAndPortLists);
+        // create producer holder
+        producerHolder = new TubeProducerHolder(getName(),
+                usedMasterAddr, configManager.getMqClusterConfig());
+        // get statistic configure items
+        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
+        statIntervalSec = tubeConfig.getStatIntervalSec();
+        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
+        // initial TubeMQ configure
+        //     initial resend queue size
+        int badEventQueueSize = tubeConfig.getBadEventQueueSize();
+        Preconditions.checkArgument(badEventQueueSize > 0, "badEventQueueSize must be > 0");
+        resendQueue = new LinkedBlockingQueue<>(badEventQueueSize);
+        //     initial sink thread pool
+        int threadNum = tubeConfig.getThreadNum();
+        Preconditions.checkArgument(threadNum > 0, "threadNum must be > 0");
+        sinkThreadPool = new Thread[threadNum];
+        //     initial event queue size
+        int eventQueueSize = tubeConfig.getEventQueueSize();
+        Preconditions.checkArgument(eventQueueSize > 0, "eventQueueSize must be > 0");
+        eventQueue = new LinkedBlockingQueue<>(eventQueueSize);
+        //     initial disk rate limiter
+        if (tubeConfig.getDiskIoRatePerSec() != 0) {
+            diskRateLimiter = RateLimiter.create(tubeConfig.getDiskIoRatePerSec());
+        }
+        // register configure change callback functions
+        configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
+            @Override
+            public void update() {
+                diffSetPublish(new HashSet<>(topicProperties.values()),
+                        new HashSet<>(configManager.getTopicProperties().values()));
             }
-            int producerIndex = currentIndex % producers.size();
-            return producers.get(producerIndex).getProducer();
-        }
-        return null;
-//        else {
-//            synchronized (this) {
-//              if (!producerInfoMap.containsKey(topic)) {
-//                 if (producer == null || currentPublishTopicNum.get() >= tubeConfig.getMaxTopicsEachProducerHold()) {
-//                        producer = sessionFactory.createProducer();
-//                        currentPublishTopicNum.set(0);
-//                    }
-//                    // publish topic
-//                    producer.publish(topic);
-//                    producerMap.put(topic, producer);
-//                    currentPublishTopicNum.incrementAndGet();
-//                }
-//            }
-//            return producerMap.get(topic);
-//        }
-    }
-
-    private TubeClientConfig initTubeConfig(String masterUrl) throws Exception {
-        final TubeClientConfig tubeClientConfig = new TubeClientConfig(masterUrl);
-        tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(tubeConfig.getLinkMaxAllowedDelayedMsgCount());
-        tubeClientConfig.setSessionWarnDelayedMsgCount(tubeConfig.getSessionWarnDelayedMsgCount());
-        tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(tubeConfig.getSessionMaxAllowedDelayedMsgCount());
-        tubeClientConfig.setNettyWriteBufferHighWaterMark(tubeConfig.getNettyWriteBufferHighWaterMark());
-        tubeClientConfig.setHeartbeatPeriodMs(15000L);
-        tubeClientConfig.setRpcTimeoutMs(20000L);
-
-        return tubeClientConfig;
-    }
-
-    /**
-     * If this function is called successively without calling {@see #destroyConnection()}, only the
-     * first call has any effect.
-     *
-     * @throws FlumeException if an RPC client connection could not be opened
-     */
-    private void initCreateConnection() throws FlumeException {
-        // check the TubeMQ address
-        if (masterHostAndPortLists == null || masterHostAndPortLists.isEmpty()) {
-            logger.warn("Failed to get TubeMQ Cluster, make sure register TubeMQ to manager successfully.");
-            return;
-        }
-        // if already connected, just skip
-        if (sessionFactories != null) {
-            return;
-        }
-        sessionFactories = new HashMap<>();
-        for (String masterUrl : masterHostAndPortLists) {
-            createConnection(masterUrl);
-        }
-
-        if (sessionFactories.size() == 0) {
-            throw new FlumeException("create tube sessionFactories err, please re-check");
-        }
-    }
-
-    private TubeMultiSessionFactory createConnection(String masterHostAndPortList) {
-        TubeMultiSessionFactory sessionFactory;
-        try {
-            TubeClientConfig conf = initTubeConfig(masterHostAndPortList);
-            sessionFactory = new TubeMultiSessionFactory(conf);
-            sessionFactories.put(masterHostAndPortList, sessionFactory);
-        } catch (Throwable e) {
-            logger.error("connect to tube meta error, maybe tube master set error/shutdown, please re-check", e);
-            throw new FlumeException("connect to tube meta error, maybe tube master set error/shutdown in progress, "
-                    + "please re-check");
-        }
-        return sessionFactory;
-    }
-
-    private void destroyConnection() {
-        for (List<TopicProducerInfo> producerInfoList : producerInfoMap.values()) {
-            for (TopicProducerInfo producerInfo : producerInfoList) {
-                producerInfo.shutdown();
+        });
+        configManager.getMqClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
+            @Override
+            public void update() {
+                diffUpdateTubeClient(masterHostAndPortLists,
+                        configManager.getMqClusterUrl2Token().keySet());
             }
-        }
-        producerInfoMap.clear();
-
-        if (sessionFactories != null) {
-            for (TubeMultiSessionFactory sessionFactory : sessionFactories.values()) {
-                try {
-                    sessionFactory.shutdown();
-                } catch (Exception e) {
-                    logger.error("destroy sessionFactory error in tubesink: ", e);
-                }
-            }
-        }
-        sessionFactories.clear();
-        masterUrl2producers.clear();
-        logger.debug("closed meta producer");
-    }
-
-    /**
-     * partition topicSet to different group, each group is associated with a producer;
-     * if there are multi clusters, then each group is associated with a set of producer
-     */
-    private List<Set<String>> partitionTopicSet(Set<String> topicSet) {
-        List<Set<String>> topicGroups = new ArrayList<>();
-
-        List<String> sortedList = new ArrayList<>(topicSet);
-        Collections.sort(sortedList);
-        int maxTopicsEachProducerHolder = tubeConfig.getMaxTopicsEachProducerHold();
-        int cycle = sortedList.size() / maxTopicsEachProducerHolder;
-        int remainder = sortedList.size() % maxTopicsEachProducerHolder;
-
-        for (int i = 0; i <= cycle; i++) {
-            // allocate topic
-            Set<String> subset = new HashSet<>();
-            int startIndex = i * maxTopicsEachProducerHolder;
-            int endIndex = startIndex + maxTopicsEachProducerHolder - 1;
-            if (i == cycle) {
-                if (remainder == 0) {
-                    continue;
-                } else {
-                    endIndex = startIndex + remainder - 1;
-                }
-            }
-            for (int index = startIndex; index <= endIndex; index++) {
-                subset.add(sortedList.get(index));
-            }
-
-            topicGroups.add(subset);
-        }
-        return topicGroups;
-    }
-
-    /**
-     * create producer and publish topic
-     */
-    private void createTopicProducers(String masterUrl, TubeMultiSessionFactory sessionFactory,
-            Set<String> topicGroup) {
-
-        TopicProducerInfo info = new TopicProducerInfo(sessionFactory);
-        info.initProducer();
-        Set<String> succTopicSet = info.publishTopic(topicGroup);
-
-        masterUrl2producers.computeIfAbsent(masterUrl, k -> new ArrayList<>()).add(info);
-
-        if (succTopicSet != null) {
-            for (String succTopic : succTopicSet) {
-                producerInfoMap.computeIfAbsent(succTopic, k -> new ArrayList<>()).add(info);
-
-            }
-        }
-    }
-
-    private void initTopicSet(Set<String> topicSet) throws Exception {
-        long startTime = System.currentTimeMillis();
-
-        if (sessionFactories != null) {
-            List<Set<String>> topicGroups = partitionTopicSet(topicSet);
-            for (Set<String> subset : topicGroups) {
-                for (Map.Entry<String, TubeMultiSessionFactory> entry : sessionFactories.entrySet()) {
-                    createTopicProducers(entry.getKey(), entry.getValue(), subset);
-                }
-            }
-            logger.info(getName() + " producer is ready for topics : " + producerInfoMap.keySet());
-            logger.info(getName() + " initTopicSet cost: " + (System.currentTimeMillis() - startTime) + "ms");
-        }
+        });
     }
 
     @Override
     public void start() {
+        if (!this.started.compareAndSet(false, true)) {
+            logger.info("Duplicated call, " + getName() + " has started!");
+            return;
+        }
+        // initial monitors
+        if (statIntervalSec > 0) {
+            // switch for lots of metrics
+            monitorIndex = new MonitorIndex("Tube_Sink", statIntervalSec, maxMonitorCnt);
+            monitorIndexExt = new MonitorIndexExt("Tube_Sink_monitors#" + this.getName(),
+                    statIntervalSec, maxMonitorCnt);
+        }
+        // initial dimensions
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
         // register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
-
         // create tube connection
         try {
-            initCreateConnection();
+            producerHolder.start(new HashSet<>(topicProperties.values()));
         } catch (FlumeException e) {
-            logger.error("Unable to create tube client" + ". Exception follows.", e);
-            // Try to prevent leaking resources
-            destroyConnection();
-            // FIXME: Mark ourselves as failed
-            stop();
+            logger.error("Unable to start TubeMQ client. Exception follows.", e);
+            super.stop();
             return;
         }
-
         // start the cleaner thread
-
         super.start();
         this.canSend = true;
         this.canTake = true;
-
-        try {
-            initTopicSet(new HashSet<String>(topicProperties.values()));
-        } catch (Exception e) {
-            logger.info("meta sink start publish topic fail.", e);
-        }
-
         for (int i = 0; i < sinkThreadPool.length; i++) {
-            sinkThreadPool[i] = new Thread(new SinkTask(), getName() + "_tube_sink_sender-" + i);
+            sinkThreadPool[i] = new Thread(new TubeSinkTask(),
+                    getName() + "_tube_sink_sender-" + i);
             sinkThreadPool[i].start();
         }
-
+        logger.info(getName() + " started!");
     }
 
-    /**
-     * resend event
-     */
-    private void resendEvent(EventStat es, boolean isDecrement) {
-        try {
-            if (es == null || es.getEvent() == null) {
-                return;
-            }
-            msgDedupHandler.invalidMsgSeqId(es.getEvent()
-                    .getHeaders().get(ConfigConstants.SEQUENCE_ID));
-        } catch (Throwable throwable) {
-            logger.error(getName() + " Discard msg because put events to both of queue and "
-                    + "fileChannel fail,current resendQueue.size = "
-                    + resendQueue.size(), throwable);
+    @Override
+    public void stop() {
+        if (!this.started.compareAndSet(true, false)) {
+            logger.info("Duplicated call, " + getName() + " has stopped!");
+            return;
         }
+        this.canTake = false;
+        // waiting inflight message processed
+        int waitCount = 0;
+        while (takenMsgCnt.get() > 0 && waitCount++ < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.info("Stop thread has been interrupt!");
+                break;
+            }
+        }
+        // close sink thread pool
+        if (sinkThreadPool != null) {
+            for (Thread thread : sinkThreadPool) {
+                if (thread == null) {
+                    continue;
+                }
+                thread.interrupt();
+            }
+        }
+        // close producer holder
+        if (producerHolder != null) {
+            producerHolder.stop();
+        }
+        // stop statistic thread stop
+        SCHEDULED_EXECUTOR_SERVICE.shutdown();
+        // stop monitor index output
+        if (statIntervalSec > 0) {
+            try {
+                monitorIndex.shutDown();
+            } catch (Exception e) {
+                logger.warn("Stats runner interrupted");
+            }
+        }
+        super.stop();
+        logger.info(getName() + " stopped!");
     }
 
     @Override
@@ -442,19 +280,20 @@ public class TubeSink extends AbstractSink implements Configurable {
                 } else {
                     dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
                 }
-                if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
-                    logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
-                            + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
-                            + "it will cause memoryChannel full and fileChannel write.)", getName());
+                if (eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
+                    tx.commit();
+                    cachedMsgCnt.incrementAndGet();
+                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+                    metricItem.readSuccessCount.incrementAndGet();
+                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                } else {
                     tx.rollback();
+                    //logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
+                    //        + "--> TubeMQ, check if TubeMQ server or network is ok.(if this situation last long time "
+                    //        + "it will cause memoryChannel full and fileChannel write.)", getName());
                     // metric
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readFailCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
-                } else {
-                    tx.commit();
-                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-                    metricItem.readSuccessCount.incrementAndGet();
                     metricItem.readFailSize.addAndGet(event.getBody().length);
                 }
             } else {
@@ -475,196 +314,126 @@ public class TubeSink extends AbstractSink implements Configurable {
         return status;
     }
 
-    @Override
-    public void configure(Context context) {
-        logger.info("configure from context: {}", context);
-
-        configManager = ConfigManager.getInstance();
-        topicProperties = configManager.getTopicProperties();
-        masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
-        tubeConfig = configManager.getMqClusterConfig();
-        configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
-            @Override
-            public void update() {
-                diffSetPublish(new HashSet<>(topicProperties.values()),
-                        new HashSet<>(configManager.getTopicProperties().values()));
-            }
-        });
-        configManager.getMqClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
-            @Override
-            public void update() {
-                diffUpdateTubeClient(masterHostAndPortLists, configManager.getMqClusterUrl2Token().keySet());
-            }
-        });
-
-        producerInfoMap = new ConcurrentHashMap<>();
-        masterUrl2producers = new ConcurrentHashMap<>();
-        // start message deduplication handler
-        msgDedupHandler.start(tubeConfig.getClientIdCache(),
-                tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
-
-        int badEventQueueSize = tubeConfig.getBadEventQueueSize();
-        Preconditions.checkArgument(badEventQueueSize > 0, "badEventQueueSize must be > 0");
-        resendQueue = new LinkedBlockingQueue<>(badEventQueueSize);
-
-        int threadNum = tubeConfig.getThreadNum();
-        Preconditions.checkArgument(threadNum > 0, "threadNum must be > 0");
-        sinkThreadPool = new Thread[threadNum];
-        int eventQueueSize = tubeConfig.getEventQueueSize();
-        Preconditions.checkArgument(eventQueueSize > 0, "eventQueueSize must be > 0");
-        eventQueue = new LinkedBlockingQueue<>(eventQueueSize);
-
-        if (tubeConfig.getDiskIoRatePerSec() != 0) {
-            diskRateLimiter = RateLimiter.create(tubeConfig.getDiskIoRatePerSec());
-        }
-
-    }
-
-    private Map<String, String> getNewDimension(String otherKey, String value) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        dimensions.put(otherKey, value);
-        return dimensions;
-    }
-
-    /**
-     * get metricItemSet
-     *
-     * @return the metricItemSet
-     */
-    public DataProxyMetricItemSet getMetricItemSet() {
-        return metricItemSet;
-    }
-
-    class SinkTask implements Runnable {
-
-        private void sendMessage(MessageProducer producer, Event event,
-                                 String topic, AtomicBoolean flag, EventStat es)
-                throws TubeClientException, InterruptedException {
-            if (msgDedupHandler.judgeDupAndPutMsgSeqId(
-                    event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
-                logger.info("{} agent package {} existed,just discard.",
-                        getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
-            } else {
-                Message message = new Message(topic, event.getBody());
-                message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-                String streamId = "";
-                if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                    streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-                } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                    streamId = event.getHeaders().get(AttributeConstants.INAME);
-                }
-                message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-                producer.sendMessage(message, new MyCallback(es));
-                flag.set(true);
-            }
-            illegalTopicMap.remove(topic);
-        }
-
-        private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
-            if (t instanceof TubeClientException) {
-                String message = t.getMessage();
-                if (message != null && (message.contains("No available queue for topic")
-                        || message.contains("The brokers of topic are all forbidden"))) {
-                    illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
-                    logger.info("IllegalTopicMap.put " + topic);
-                    return;
-                } else {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        //ignore..
-                    }
-                }
-            }
-            logger.error("Sink task fail to send the message, decrementFlag=" + decrementFlag + ",sink.name="
-                    + Thread.currentThread().getName()
-                    + ",event.headers=" + es.getEvent().getHeaders(), t);
+    private class TubeSinkTask implements Runnable {
+        public TubeSinkTask() {
+            // ignore
         }
 
         @Override
         public void run() {
+            Event event = null;
+            EventStat es = null;
+            String topic = null;
+            boolean bChangedInflightValue = false;
+            MessageProducer producer = null;
             logger.info("sink task {} started.", Thread.currentThread().getName());
             while (canSend) {
-                boolean decrementFlag = false;
-                boolean resendBadEvent = false;
-                Event event = null;
-                EventStat es = null;
-                String topic = null;
                 try {
-                    if (TubeSink.this.overflow) {
-                        TubeSink.this.overflow = false;
-                        Thread.sleep(10);
+                    if (isOverFlow) {
+                        isOverFlow = false;
+                        Thread.sleep(30);
                     }
+                    event = null;
+                    topic = null;
+                    // get event from queues
                     if (!resendQueue.isEmpty()) {
                         es = resendQueue.poll();
-                        if (es != null) {
-                            event = es.getEvent();
-                            // logger.warn("Resend event: {}", event.toString());
-                            if (event.getHeaders().containsKey(TOPIC)) {
-                                topic = event.getHeaders().get(TOPIC);
-                            }
-                            resendBadEvent = true;
+                        if (es == null) {
+                            continue;
+                        }
+                        resendMsgCnt.decrementAndGet();
+                        event = es.getEvent();
+                        if (event.getHeaders().containsKey(TOPIC)) {
+                            topic = event.getHeaders().get(TOPIC);
                         }
                     } else {
-                        event = eventQueue.take();
+                        event = eventQueue.poll(2000, TimeUnit.MILLISECONDS);
+                        if (event == null) {
+                            if (!canTake && takenMsgCnt.get() <= 0) {
+                                logger.info("Found canTake is false and taken message count is zero, braek!");
+                                break;
+                            }
+                            continue;
+                        }
+                        cachedMsgCnt.decrementAndGet();
+                        takenMsgCnt.incrementAndGet();
                         es = new EventStat(event);
-//                            sendCnt.incrementAndGet();
                         if (event.getHeaders().containsKey(TOPIC)) {
                             topic = event.getHeaders().get(TOPIC);
                         }
                     }
-
-                    if (event == null) {
-                        // ignore event is null, when multiple-thread SinkTask running
-                        // this null value comes from resendQueue
-                        continue;
-                    }
-
-                    if (topic == null || topic.equals("")) {
-                        logger.warn("no topic specified in event header, just skip this event");
-                        continue;
-                    }
-
-                    Long expireTime = illegalTopicMap.get(topic);
-                    if (expireTime != null) {
-                        long currentTime = System.currentTimeMillis();
-                        if (expireTime > currentTime) {
-                            // TODO: need to be improved.
-//                            reChannelEvent(es, topic);
-                            continue;
-                        } else {
-                            illegalTopicMap.remove(topic);
+                    // valid event status
+                    if (StringUtils.isBlank(topic)) {
+                        blankTopicDiscardMsgCnt.incrementAndGet();
+                        takenMsgCnt.decrementAndGet();
+                        if (statIntervalSec > 0) {
+                            monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
                         }
-                    }
-                    MessageProducer producer = null;
-                    try {
-                        producer = getProducer(topic);
-                    } catch (Exception e) {
-                        logger.error("Get producer failed!", e);
-                    }
-
-                    if (producer == null) {
-                        illegalTopicMap.put(topic, System.currentTimeMillis() + 30 * 1000);
+                        if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
+                            logger.error("No topic specified, just discard the event, event header is "
+                                    + event.getHeaders().toString());
+                        }
                         continue;
                     }
-
-                    AtomicBoolean flagAtomic = new AtomicBoolean(decrementFlag);
-                    sendMessage(producer, event, topic, flagAtomic, es);
-                    decrementFlag = flagAtomic.get();
+                    // send message
+                    bChangedInflightValue = sendMessage(es, event, topic);
                 } catch (InterruptedException e) {
                     logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
                 } catch (Throwable t) {
-                    handleException(t, topic, decrementFlag, es);
-                    resendEvent(es, decrementFlag);
+                    resendEvent(es, bChangedInflightValue);
+                    if (t instanceof TubeClientException) {
+                        String message = t.getMessage();
+                        if (message != null && (message.contains("No available queue for topic")
+                                || message.contains("The brokers of topic are all forbidden"))) {
+                            isOverFlow = true;
+                        }
+                    }
+                    if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
+                        logger.error(
+                                "Sink task fail to send the message, finished = {}, sink.name = {},event.headers= {}",
+                                bChangedInflightValue, Thread.currentThread().getName(),
+                                es.getEvent().getHeaders(), t);
+                    }
                 }
+            }
+            logger.info("sink task {} stopped!", Thread.currentThread().getName());
+        }
+
+        private boolean sendMessage(EventStat es, Event event, String topic) throws Exception {
+            MessageProducer producer = producerHolder.getProducer(topic);
+            if (producer == null) {
+                frozenTopicDiscardMsgCnt.incrementAndGet();
+                takenMsgCnt.decrementAndGet();
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                }
+                if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
+                    logger.error("Get producer failed for " + topic);
+                }
+                return false;
+            }
+            if (MSG_DEDUP_HANDLER.judgeDupAndPutMsgSeqId(
+                    event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
+                dupDiscardMsgCnt.incrementAndGet();
+                takenMsgCnt.decrementAndGet();
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+                }
+                logger.info("{} agent package {} existed,just discard.",
+                        Thread.currentThread().getName(),
+                        event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
+                return false;
+            } else {
+                producer.sendMessage(TubeUtils.buildMessage(
+                        topic, event, false), new MyCallback(es));
+                inflightMsgCnt.incrementAndGet();
+                return true;
             }
         }
     }
 
-    public class MyCallback implements MessageSentCallback {
+    private class MyCallback implements MessageSentCallback {
 
         private EventStat myEventStat;
         private long sendTime;
@@ -677,24 +446,42 @@ public class TubeSink extends AbstractSink implements Configurable {
         @Override
         public void onMessageSent(final MessageSentResult result) {
             if (result.isSuccess()) {
-                // TODO: add stats
+                successMsgCnt.incrementAndGet();
+                inflightMsgCnt.decrementAndGet();
+                takenMsgCnt.decrementAndGet();
                 this.addMetric(myEventStat.getEvent(), true, sendTime);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_SUCCESS);
+                }
+                this.editStatistic(myEventStat.getEvent(), true);
             } else {
                 this.addMetric(myEventStat.getEvent(), false, 0);
+                if (statIntervalSec > 0) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_FAILURE);
+                }
+                this.editStatistic(myEventStat.getEvent(), false);
                 if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             result.getErrMsg(), resendQueue.size(),
                             myEventStat.getEvent().hashCode());
-
                     return;
-                }
-                if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW) {
+                } else if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW
+                        && LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             result.getErrMsg(), resendQueue.size(),
                             myEventStat.getEvent().hashCode());
                 }
                 resendEvent(myEventStat, true);
             }
+        }
+
+        @Override
+        public void onException(final Throwable e) {
+            if (statIntervalSec > 0) {
+                monitorIndexExt.incrementAndGet(KEY_SINK_EXP);
+            }
+            this.editStatistic(myEventStat.getEvent(), false);
+            resendEvent(myEventStat, true);
         }
 
         /**
@@ -729,67 +516,235 @@ public class TubeSink extends AbstractSink implements Configurable {
             }
         }
 
-        @Override
-        public void onException(final Throwable e) {
-            Throwable t = e;
-            while (t.getCause() != null) {
-                t = t.getCause();
-            }
-            if (t instanceof OverflowException) {
-                TubeSink.this.overflow = true;
-            }
-            resendEvent(myEventStat, true);
-        }
-    }
-
-    class TopicProducerInfo {
-
-        private TubeMultiSessionFactory sessionFactory;
-        private MessageProducer producer;
-        private Set<String> topicSet;
-
-        public TopicProducerInfo(TubeMultiSessionFactory sessionFactory) {
-            this.sessionFactory = sessionFactory;
-        }
-
-        public void shutdown() {
-            if (producer != null) {
-                try {
-                    producer.shutdown();
-                } catch (Throwable e) {
-                    logger.error("destroy producer error in tube sink", e);
+        private void editStatistic(final Event event, boolean isSuccess) {
+            String topic = "";
+            String streamId = "";
+            String nodeIp;
+            if (event != null) {
+                if (event.getHeaders().containsKey(TOPIC)) {
+                    topic = event.getHeaders().get(TOPIC);
+                }
+                if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+                    streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+                } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
+                    streamId = event.getHeaders().get(AttributeConstants.INAME);
+                }
+                // Compatible agent
+                if (event.getHeaders().containsKey("ip")) {
+                    event.getHeaders().put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get("ip"));
+                    event.getHeaders().remove("ip");
+                }
+                // Compatible agent
+                if (event.getHeaders().containsKey("time")) {
+                    event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
+                    event.getHeaders().remove("time");
+                }
+                if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IP_KEY)) {
+                    nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
+                    if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IDC_KEY)) {
+                        if (nodeIp != null) {
+                            nodeIp = nodeIp.split(":")[0];
+                        }
+                        long msgCounterL = 1L;
+                        // msg counter
+                        if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
+                            msgCounterL = Integer.parseInt(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+                        }
+                        StringBuilder newBase = new StringBuilder();
+                        newBase.append(getName()).append(SEP_HASHTAG).append(topic)
+                                .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
+                                .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
+                                .append(SEP_HASHTAG).append("non-order").append(SEP_HASHTAG)
+                                .append(event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+                        long messageSize = event.getBody().length;
+                        if (event.getHeaders().get(ConfigConstants.TOTAL_LEN) != null) {
+                            messageSize = Long.parseLong(event.getHeaders().get(ConfigConstants.TOTAL_LEN));
+                        }
+                        if (statIntervalSec > 0) {
+                            if (isSuccess) {
+                                monitorIndex.addAndGet(new String(newBase),
+                                        (int) msgCounterL, 1, messageSize, 0);
+                            } else {
+                                monitorIndex.addAndGet(new String(newBase),
+                                        0, 0, 0, (int) msgCounterL);
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
 
-        public void initProducer() {
-            if (sessionFactory == null) {
-                logger.error("sessionFactory is null, can't create producer");
+    private class TubeStatsTask implements Runnable {
+
+        @Override
+        public void run() {
+            if (!canTake && takenMsgCnt.get() <= 0) {
                 return;
             }
-            try {
-                this.producer = sessionFactory.createProducer();
-            } catch (TubeClientException e) {
-                logger.error("create tube messageProducer error in tubesink, ex {}", e.getMessage());
+            logger.info(getName() + "[TubeSink Stats] cachedMsgCnt=" + cachedMsgCnt.get()
+                    + ", takenMsgCnt=" + takenMsgCnt.get()
+                    + ", resendMsgCnt=" + resendMsgCnt.get()
+                    + ", blankTopicDiscardMsgCnt=" + blankTopicDiscardMsgCnt.get()
+                    + ", frozenTopicDiscardMsgCnt=" + frozenTopicDiscardMsgCnt.get()
+                    + ", dupDiscardMsgCnt=" + dupDiscardMsgCnt.get()
+                    + ", inflightMsgCnt=" + inflightMsgCnt.get()
+                    + ", successMsgCnt=" + successMsgCnt.get());
+        }
+    }
+
+    /**
+     * resend event
+     */
+    private void resendEvent(EventStat es, boolean sendFinished) {
+        try {
+            if (sendFinished) {
+                inflightMsgCnt.decrementAndGet();
+            }
+            if (es == null || es.getEvent() == null) {
+                takenMsgCnt.decrementAndGet();
+                return;
+            }
+            MSG_DEDUP_HANDLER.invalidMsgSeqId(es.getEvent()
+                    .getHeaders().get(ConfigConstants.SEQUENCE_ID));
+            if (resendQueue.offer(es)) {
+                resendMsgCnt.incrementAndGet();
+            } else {
+                FailoverChannelProcessorHolder.getChannelProcessor().processEvent(es.getEvent());
+                takenMsgCnt.decrementAndGet();
+                if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
+                    logger.error(Thread.currentThread().getName()
+                            + " Channel --> Tube --> ResendQueue(full) -->"
+                            + "FailOverChannelProcessor(current code point),"
+                            + " Resend queue is full,Check if Tube server or network is ok.");
+                }
+            }
+        } catch (Throwable throwable) {
+            takenMsgCnt.decrementAndGet();
+            if (statIntervalSec > 0) {
+                monitorIndexExt.incrementAndGet(KEY_SINK_DROPPED);
+            }
+            if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
+                logger.error(getName() + " Discard msg because put events to both of queue and "
+                        + "fileChannel fail,current resendQueue.size = "
+                        + resendQueue.size(), throwable);
             }
         }
+    }
 
-        public Set<String> publishTopic(Set<String> topicSet) {
-            try {
-                this.topicSet = producer.publish(topicSet);
-            } catch (TubeClientException e) {
-                logger.info(getName() + " meta sink initTopicSet fail.", e);
+    private Map<String, String> getNewDimension(String otherKey, String value) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
+        dimensions.put(otherKey, value);
+        return dimensions;
+    }
+
+    /**
+     * Differentiate unpublished topic sets and publish them
+     * attention: only append added topics
+     *
+     * @param curTopicSet   the current used topic set
+     * @param newTopicSet   the latest configured topic set
+     */
+    private void diffSetPublish(Set<String> curTopicSet, Set<String> newTopicSet) {
+        if (!this.started.get()) {
+            logger.info(getName() + " not started, ignore this change!");
+        }
+        if (SetUtils.isEqualSet(curTopicSet, newTopicSet)) {
+            return;
+        }
+        // filter unpublished topics
+        Set<String> addedTopics = new HashSet<>();
+        for (String topic : newTopicSet) {
+            if (StringUtils.isBlank(topic)) {
+                continue;
             }
-            return this.topicSet;
+            if (!curTopicSet.contains(topic)) {
+                addedTopics.add(topic);
+            }
         }
+        // publish them
+        if (!addedTopics.isEmpty()) {
+            try {
+                producerHolder.createProducersByTopicSet(addedTopics);
+            } catch (Exception e) {
+                logger.info(getName() + "'s publish new topic set fail.", e);
+            }
+            logger.info(getName() + "'s topics set has changed, trigger diff publish for {}",
+                    addedTopics);
+            topicProperties = configManager.getTopicProperties();
+        }
+    }
 
-        public MessageProducer getProducer() {
-            return producer;
+    /**
+     * When masterUrlLists change, update tubeClient
+     * Requirement: when switching the Master cluster,
+     * the DataProxy node must not do the data reporting service
+     *
+     * @param curClusterSet previous masterHostAndPortList set
+     * @param newClusterSet new masterHostAndPortList set
+     */
+    private void diffUpdateTubeClient(Set<String> curClusterSet,
+                                      Set<String> newClusterSet) {
+        if (!this.started.get()) {
+            logger.info(getName() + " not started, ignore this change!");
         }
+        if (newClusterSet == null || newClusterSet.isEmpty()
+                || SetUtils.isEqualSet(curClusterSet, newClusterSet)
+                || newClusterSet.contains(usedMasterAddr)) {
+            return;
+        }
+        String newMasterAddr = getFirstClusterAddr(newClusterSet);
+        if (newMasterAddr == null) {
+            return;
+        }
+        TubeProducerHolder newProducerHolder = new TubeProducerHolder(getName(),
+                newMasterAddr, configManager.getMqClusterConfig());
+        try {
+            newProducerHolder.start(new HashSet<>(configManager.getTopicProperties().values()));
+        } catch (Throwable e) {
+            logger.error(getName() + " create new producer holder for " + newMasterAddr
+                            + " failure, throw exception is  {}", e.getMessage());
+            return;
+        }
+        // replace current producer holder
+        final String tmpMasterAddr = usedMasterAddr;
+        TubeProducerHolder tmpProducerHolder = producerHolder;
+        producerHolder = newProducerHolder;
+        usedMasterAddr = newMasterAddr;
+        // close old producer holder
+        tmpProducerHolder.stop();
+        logger.info(getName() + " switch cluster from "
+                + tmpMasterAddr + " to " + usedMasterAddr);
+    }
 
-        public Set<String> getTopicSet() {
-            return this.topicSet;
+    /**
+     * Get first cluster address
+     *
+     * @param clusterSet  cluster set configure
+     * @return  the selected cluster address
+     *          null if set is empty or if items are all blank
+     */
+    private String getFirstClusterAddr(Set<String> clusterSet) {
+        String tmpMasterAddr = null;
+        for (String masterAddr : clusterSet) {
+            if (StringUtils.isBlank(masterAddr)) {
+                continue;
+            }
+            tmpMasterAddr = masterAddr;
+            break;
         }
+        return tmpMasterAddr;
+    }
+
+    /**
+     * get metricItemSet
+     *
+     * @return the metricItemSet
+     */
+    private DataProxyMetricItemSet getMetricItemSet() {
+        return metricItemSet;
     }
 
 }

@@ -49,6 +49,7 @@ public class SortClientConfig implements Serializable {
     private String managerApiUrl;
     private String managerApiVersion;
     private ConsumeStrategy consumeStrategy;
+    private TopicManagerType topicManagerType;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 0;
@@ -99,6 +100,22 @@ public class SortClientConfig implements Serializable {
 
     public void setOffsetResetStrategy(ConsumeStrategy consumeStrategy) {
         this.consumeStrategy = consumeStrategy;
+    }
+
+    /**
+     * get the type of topic manager
+     * @return
+     */
+    public TopicManagerType getTopicManagerType() {
+        return topicManagerType;
+    }
+
+    /**
+     * Set type of topic manager
+     * @param topicManagerType
+     */
+    public void setTopicManagerType(TopicManagerType topicManagerType) {
+        this.topicManagerType = topicManagerType;
     }
 
     /**
@@ -311,6 +328,13 @@ public class SortClientConfig implements Serializable {
         lastest_absolutely
     }
 
+    public enum TopicManagerType {
+        // single topic manager
+        SINGLE_TOPIC,
+        // multi topic manager
+        MULTI_TOPIC
+    }
+
     /**
      * setParameters
      * @param sortSdkParams
@@ -333,8 +357,10 @@ public class SortClientConfig implements Serializable {
         this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
-
+        String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
+                TopicManagerType.SINGLE_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
+        this.topicManagerType = TopicManagerType.valueOf(strManagerType);
 
         this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
                 reportStatisticIntervalSec);

@@ -117,6 +117,8 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: TZ
+              value: {{ .Values.timezone }}
           ports:
             - name: {{ .Values.agent.component }}-port
               containerPort: 8008

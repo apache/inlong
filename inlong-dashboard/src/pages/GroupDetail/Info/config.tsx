@@ -18,32 +18,15 @@
  */
 
 // import React from 'react';
-import getGroupFields from '@/metas/group';
+import { groupForm } from '@/metas/group';
+import { excludeObjectArray } from '@/utils';
 
-export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
-  const keys = [
-    'mqType',
-    'queueModule',
-    'partitionNum',
-    'inlongGroupId',
-    !isCreate && 'mqResource',
-    'name',
-    'inCharges',
-    'description',
-    'dailyRecords',
-    'dailyStorage',
-    'peakRecords',
-    'maxLength',
-    // 'ensemble',
-    'writeQuorum',
-    'ackQuorum',
-    'ttl',
-    'retentionTime',
-    'retentionSize',
-  ].filter(Boolean);
+export const getFormContent = ({ editing, isCreate, isUpdate }) => {
+  const excludeKeys = ['ensemble'].concat(isCreate ? 'mqResource' : '');
+  const fields = excludeObjectArray(excludeKeys, groupForm);
 
   return isCreate
-    ? getGroupFields(keys, initialValues).map(item => {
+    ? fields.map(item => {
         if (item.name === 'inlongGroupId' && isUpdate) {
           return {
             ...item,
@@ -55,9 +38,9 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
         }
         return item;
       })
-    : getGroupFields(keys, initialValues).map(item => ({
+    : fields.map(item => ({
         ...item,
-        type: transType(editing, item, initialValues),
+        type: transType(editing, item),
         suffix:
           typeof item.suffix === 'object' && !editing
             ? {
@@ -69,22 +52,8 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
       }));
 };
 
-function transType(editing: boolean, conf, initialValues) {
+function transType(editing: boolean, conf) {
   const arr = [
-    {
-      name: [
-        'mqType',
-        'queueModule',
-        'partitionNum',
-        'inlongGroupId',
-        'dailyRecords',
-        'dailyStorage',
-        'peakRecords',
-        'maxLength',
-      ],
-      as: 'text',
-      active: true,
-    },
     {
       name: [
         'name',
@@ -110,5 +79,5 @@ function transType(editing: boolean, conf, initialValues) {
     return item.active ? item.as : conf.type;
   }
 
-  return conf.type;
+  return 'text';
 }

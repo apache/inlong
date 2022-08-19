@@ -62,8 +62,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -111,6 +111,9 @@ class ClientFactoryTest {
 
     private static final int SERVICE_PORT = 8085;
     private static WireMockServer wireMockServer;
+
+    static ClientFactory clientFactory;
+
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
     private static StreamSourceClient sourceClient;
@@ -129,7 +132,8 @@ class ClientFactoryTest {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+        clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+
         groupClient = clientFactory.getGroupClient();
         streamClient = clientFactory.getStreamClient();
         sourceClient = clientFactory.getSourceClient();
@@ -234,7 +238,6 @@ class ClientFactoryTest {
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.MYSQL_BINLOG)
-                                                .clusterId(1)
                                                 .status(1)
                                                 .user("root")
                                                 .password("pwd")
@@ -275,7 +278,7 @@ class ClientFactoryTest {
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.FILE)
                                                 .status(1)
-                                                .ip("127.0.0.1")
+                                                .agentIp("127.0.0.1")
                                                 .pattern("pattern")
                                                 .build()
                                 )
@@ -363,7 +366,7 @@ class ClientFactoryTest {
                         .inlongGroupId("1")
                         .inlongStreamId("2")
                         .version(1)
-                        .ip("127.0.0.1")
+                        .agentIp("127.0.0.1")
                         .pattern("pattern")
                         .timeOffset("timeOffset")
                         .build(),
@@ -965,9 +968,8 @@ class ClientFactoryTest {
                                         Response.success(1))
                                 ))
         );
-        DataNodeRequest request = new DataNodeRequest();
-        request.setName("test_node");
-        request.setType(DataNodeType.HIVE);
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
         Integer nodeId = dataNodeClient.save(request);
         Assertions.assertEquals(1, nodeId);
     }
@@ -1007,9 +1009,8 @@ class ClientFactoryTest {
                         )
         );
 
-        DataNodeRequest request = new DataNodeRequest();
-        request.setName("test_node");
-        request.setToken(DataNodeType.HIVE);
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
         PageInfo<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
         Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
     }
@@ -1025,10 +1026,9 @@ class ClientFactoryTest {
                         )
         );
 
-        DataNodeRequest request = new DataNodeRequest();
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setId(1);
-        request.setName("test_node");
-        request.setType(DataNodeType.HIVE);
+        request.setName("test_hive_node");
         Boolean isUpdate = dataNodeClient.update(request);
         Assertions.assertTrue(isUpdate);
     }

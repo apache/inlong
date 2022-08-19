@@ -43,12 +43,12 @@ import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
+import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -57,7 +57,6 @@ import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
 import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
@@ -346,6 +345,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     }
 
     class SinkTask implements Runnable {
+
         private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
             throws TubeClientException, InterruptedException {
             if (msgDedupHandler.judgeDupAndPutMsgSeqId(
@@ -353,37 +353,11 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                 logger.info("{} agent package {} existed,just discard.",
                         getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
             } else {
-                Message message = this.parseEvent2Message(topic, event);
-                producer.sendMessage(message, new MyCallback(es));
+                producer.sendMessage(TubeUtils.buildMessage(
+                        topic, event, true), new MyCallback(es));
                 flag.set(true);
             }
             illegalTopicMap.remove(topic);
-        }
-        
-        /**
-         * parseEvent2Message
-         * @param topic
-         * @param event
-         * @return
-         */
-        private Message parseEvent2Message(String topic, Event event) {
-            Message message = new Message(topic, event.getBody());
-            message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-            String streamId = "";
-            if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-            } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                streamId = event.getHeaders().get(AttributeConstants.INAME);
-            }
-            message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-            // common attributes
-            Map<String, String> headers = event.getHeaders();
-            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
-            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
-            message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
-            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
-            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
-            return message;
         }
 
         private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {

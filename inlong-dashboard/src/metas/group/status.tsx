@@ -31,49 +31,49 @@ type StatusProp = {
 
 export const statusList: StatusProp[] = [
   {
-    label: i18n.t('pages.AccessDashboard.status.Draft'),
+    label: i18n.t('meta.Group.Status.Draft'),
     value: 0,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.Cancel'),
+    label: i18n.t('meta.Group.Status.Cancel'),
     value: 30,
     type: 'default',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.BeSubmitted'),
+    label: i18n.t('meta.Group.Status.BeSubmitted'),
     value: 100,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.BeApproved'),
+    label: i18n.t('meta.Group.Status.BeApproved'),
     value: 101,
     type: 'warning',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.Reject'),
+    label: i18n.t('meta.Group.Status.Reject'),
     value: 102,
     type: 'error',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.Approved'),
+    label: i18n.t('meta.Group.Status.Approved'),
     value: 103,
     type: 'success',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.InPlace'),
+    label: i18n.t('meta.Group.Status.InPlace'),
     value: 110,
     type: 'primary',
     icon: <ClockCircleFilled />,
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.ConfigurationFailed'),
+    label: i18n.t('meta.Group.Status.ConfigurationFailed'),
     value: 120,
     type: 'error',
   },
   {
-    label: i18n.t('pages.AccessDashboard.status.ConfigurationSuccess'),
+    label: i18n.t('meta.Group.Status.ConfigurationSuccess'),
     value: 130,
     type: 'success',
   },

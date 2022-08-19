@@ -199,7 +199,7 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createEncryptFieldRelations(List<StreamField> fieldList, String transformName,
             EncryptDefinition encryptDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
+        Preconditions.checkNotEmpty(preNodes, "PreNodes of encrypt should not be null");
         String preNode = preNodes.split(",")[0];
         List<EncryptRule> encryptRules = encryptDefinition.getEncryptRules();
         Set<String> encryptFields = Sets.newHashSet();
@@ -264,7 +264,7 @@ public class FieldRelationUtils {
     /**
      * Parse rule of encrypt.
      */
-    private static FieldRelation parseEncryptRule(EncryptRule encryptRule, Set<String> replaceFields,
+    private static FieldRelation parseEncryptRule(EncryptRule encryptRule, Set<String> encryptFields,
             String transformName, String preNode) {
         StreamField sourceField = encryptRule.getSourceField();
         final String fieldName = sourceField.getFieldName();
@@ -274,7 +274,7 @@ public class FieldRelationUtils {
         fieldInfo.setNodeId(preNode);
         FieldInfo targetFieldInfo = new FieldInfo(fieldName, transformName,
                 FieldInfoUtils.convertFieldFormat(FieldType.STRING.name()));
-        replaceFields.add(fieldName);
+        encryptFields.add(fieldName);
         EncryptFunction encryptFunction = new EncryptFunction(fieldInfo, new StringConstantParam(key),
                 new StringConstantParam(encrypt));
         return new FieldRelation(encryptFunction, targetFieldInfo);

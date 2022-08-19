@@ -60,6 +60,9 @@ public enum ErrorCodeEnum {
     CLUSTER_TYPE_NOT_SUPPORTED(1102, "Cluster type '%s' not supported"),
     CLUSTER_INFO_INCORRECT(1103, "Cluster info was incorrect"),
 
+    DATA_NODE_NOT_FOUND(1150, "Data node information does not exist"),
+    DATA_NODE_TYPE_NOT_SUPPORTED(1151, "Data node type '%s' not supported"),
+
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
     STREAM_OPT_NOT_ALLOWED(1203,

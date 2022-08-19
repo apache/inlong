@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 /**
  * Inlong stream service implementation.
  */
+@Slf4j
 @Data
 public class InlongStreamImpl implements InlongStream {
 
@@ -331,14 +333,7 @@ public class InlongStreamImpl implements InlongStream {
             StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);
             final String transformName = transform.getTransformName();
             final int id = transformResponse.getId();
-            if (this.streamTransforms.get(transformName) == null) {
-                TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(transform,
-                        streamInfo);
-                boolean isDelete = transformClient.deleteTransform(transformRequest);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete transform=%s failed", transformRequest));
-                }
-            } else {
+            if (this.streamTransforms.get(transformName) != null) {
                 StreamTransform newTransform = this.streamTransforms.get(transformName);
                 TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(newTransform,
                         streamInfo);
@@ -350,6 +345,8 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateTransformNames.add(transformName);
+            } else {
+                log.warn("Unknown transform {} from server", transformName);
             }
         }
         for (Map.Entry<String, StreamTransform> transformEntry : this.streamTransforms.entrySet()) {
@@ -370,12 +367,7 @@ public class InlongStreamImpl implements InlongStream {
         for (StreamSource source : streamSources) {
             final String sourceName = source.getSourceName();
             final int id = source.getId();
-            if (this.streamSources.get(sourceName) == null) {
-                boolean isDelete = sourceClient.deleteSource(id);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete source=%s failed", source));
-                }
-            } else {
+            if (this.streamSources.get(sourceName) != null) {
                 StreamSource streamSource = this.streamSources.get(sourceName);
                 streamSource.setId(id);
                 streamSource.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -387,6 +379,8 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateSourceNames.add(sourceName);
+            } else {
+                log.warn("Unknown source {} from server", sourceName);
             }
         }
         for (Map.Entry<String, StreamSource> sourceEntry : this.streamSources.entrySet()) {
@@ -408,12 +402,7 @@ public class InlongStreamImpl implements InlongStream {
         for (StreamSink sink : streamSinks) {
             final String sinkName = sink.getSinkName();
             final int id = sink.getId();
-            if (this.streamSinks.get(sinkName) == null) {
-                boolean isDelete = sinkClient.deleteSink(id);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
-                }
-            } else {
+            if (this.streamSinks.get(sinkName) != null) {
                 StreamSink streamSink = this.streamSinks.get(sinkName);
                 streamSink.setId(id);
                 streamSink.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -425,6 +414,8 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateSinkNames.add(sinkName);
+            } else {
+                log.error("Unknown sink {} from server", sinkName);
             }
         }
 
