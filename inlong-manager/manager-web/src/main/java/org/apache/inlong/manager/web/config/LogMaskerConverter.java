@@ -28,7 +28,6 @@ import org.apache.logging.log4j.core.pattern.PatternConverter;
 @ConverterKeys({"mask"})
 public class LogMaskerConverter extends LogEventPatternConverter {
 
-
     /**
      * Constructs an instance of LoggingEventPatternConverter.
      *
