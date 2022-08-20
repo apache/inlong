@@ -64,13 +64,13 @@ public class MySqlExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
     }
 
     private DorisLoadNode buildDorisLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(
+        final List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new IntFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo())
         );
 
-        List<FieldRelation> fieldRelations = Arrays
+        final List<FieldRelation> fieldRelations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
@@ -79,14 +79,13 @@ public class MySqlExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                                 new FieldInfo("age", new IntFormatInfo()))
                 );
 
-        List<FilterFunction> filters = new ArrayList<>();
-
         // Support delete event (sink.enable-delete='true'), requires Doris table to enable batch delete function
         Map<String, String> map = new HashMap<>();
         map.put("sink.properties.format", "json");
         map.put("sink.properties.strip_outer_array", "true");
         map.put("sink.enable-delete", "true");
 
+        List<FilterFunction> filters = new ArrayList<>();
         return new DorisLoadNode("2", "doris_output", fields, fieldRelations,
                 filters, null, 1, map,
                 "localhost:8030", "root",
