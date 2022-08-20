@@ -23,8 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Masker that masks a potential password. The password must be precedent by one of the following keywords,
- * followed by ':' or '=' character. A space may also be present right before the password
+ * MaskDataUtils is used to mask sensitive information.
  */
 public class MaskDataUtils {
 
