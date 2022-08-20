@@ -32,7 +32,6 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <flink.scala.binary.version>2.12</flink.scala.binary.version>
     </properties>
 
     <dependencies>
