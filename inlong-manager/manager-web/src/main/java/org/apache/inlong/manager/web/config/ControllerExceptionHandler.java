@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.web.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.source.StreamSourceServiceImpl;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -41,9 +43,10 @@ import java.util.Set;
 /**
  * Handler of controller exception.
  */
-@Slf4j
 @RestControllerAdvice
 public class ControllerExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
     private static final String ERROR_MSG = "failed to handle request on path: %s by user: %s";
 
@@ -52,7 +55,7 @@ public class ControllerExceptionHandler {
             ConstraintViolationException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         StringBuilder stringBuilder = new StringBuilder(64);
@@ -68,7 +71,7 @@ public class ControllerExceptionHandler {
             MethodArgumentNotValidException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
         BindingResult result = e.getBindingResult();
@@ -88,7 +91,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
@@ -96,7 +99,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleBindExceptionHandler(HttpServletRequest request, BindException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
         e.getBindingResult().getFieldErrors().forEach(
@@ -111,7 +114,7 @@ public class ControllerExceptionHandler {
             HttpMessageConversionException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("http message convert exception! pls check params");
     }
 
@@ -119,7 +122,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleWorkflowException(HttpServletRequest request, WorkflowException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
@@ -127,13 +130,13 @@ public class ControllerExceptionHandler {
     public Response<String> handleBusinessExceptionHandler(HttpServletRequest request, BusinessException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
     public Response<String> handleAuthenticationException(HttpServletRequest request, AuthenticationException e) {
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), ""), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), ""), e);
         return Response.fail("Username or password was incorrect, or the account has expired");
     }
 
@@ -141,7 +144,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleUnauthorizedException(HttpServletRequest request, AuthorizationException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(String.format("Current user [%s] has no permission to access URL",
                 (userInfo != null ? userInfo.getName() : "")));
     }
@@ -150,7 +153,7 @@ public class ControllerExceptionHandler {
     public Response<String> handle(HttpServletRequest request, Exception e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
-        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
+        LOGGER.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("There was an error in the service..."
                 + "Please try again later! "
                 + "If there are still problems, please contact the administrator");
