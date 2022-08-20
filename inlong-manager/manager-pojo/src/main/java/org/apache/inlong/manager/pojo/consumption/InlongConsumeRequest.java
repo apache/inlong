@@ -23,8 +23,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
@@ -34,6 +36,7 @@ import java.util.Date;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongConsumeRequest {
 
+    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "key id")
     private Integer id;
 

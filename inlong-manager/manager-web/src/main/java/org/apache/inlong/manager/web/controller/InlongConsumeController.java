@@ -22,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
@@ -62,7 +63,8 @@ public class InlongConsumeController {
     @RequestMapping(value = "/consume/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong consume")
-    public Response<Integer> save(@Validated @RequestBody InlongConsumeRequest consumeRequest) {
+    public Response<Integer> save(@Validated(UpdateValidation.class)
+                                  @RequestBody InlongConsumeRequest consumeRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(consumeService.save(consumeRequest, operator));
     }

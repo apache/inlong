@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InlongConsumeOperatorFactory {
@@ -35,12 +34,10 @@ public class InlongConsumeOperatorFactory {
      * Get a consumption operator instance via the given mqType
      */
     public InlongConsumeOperator getInstance(String mqType) {
-        Optional<InlongConsumeOperator> instance = consumeOperatorList.stream()
+        return consumeOperatorList.stream()
                 .filter(inst -> inst.accept(mqType))
-                .findFirst();
-        if (!instance.isPresent()) {
-            throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
-        }
-        return instance.get();
+                .findFirst()
+                .orElseThrow(() -> new
+                        BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType)));
     }
 }

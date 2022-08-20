@@ -21,6 +21,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -39,7 +40,6 @@ import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
             result = result.stream().filter(consumer -> !excludeSelfId.equals(consumer.getId()))
                     .collect(Collectors.toList());
         }
-        return !CollectionUtils.isEmpty(result);
+        return CollectionUtils.isNotEmpty(result);
     }
 
     @Override
@@ -102,8 +102,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     public Boolean update(InlongConsumeRequest consumeRequest, String operator) {
         Preconditions.checkNotNull(consumeRequest, "consumption info cannot be null");
         Integer consumptionId = consumeRequest.getId();
-        Preconditions.checkNotNull(consumptionId, "consumption id cannot be null");
-
         InlongConsumeEntity exists = consumeEntityMapper.selectByPrimaryKey(consumptionId);
         Preconditions.checkNotNull(exists, "consumption not exist with id " + consumptionId);
         Preconditions.checkTrue(exists.getInCharges().contains(operator),
