@@ -26,7 +26,8 @@ import org.apache.logging.log4j.core.pattern.PatternConverter;
 
 @Plugin(name = "logmasker", category = PatternConverter.CATEGORY)
 @ConverterKeys({"mask"})
-public class LogMaskConverter extends LogEventPatternConverter {
+public class LogMaskerConverter extends LogEventPatternConverter {
+
 
     /**
      * Constructs an instance of LoggingEventPatternConverter.
@@ -34,8 +35,12 @@ public class LogMaskConverter extends LogEventPatternConverter {
      * @param name name of converter.
      * @param style CSS style for output.
      */
-    protected LogMaskConverter(String name, String style) {
+    protected LogMaskerConverter(String name, String style) {
         super(name, style);
+    }
+
+    public static LogMaskerConverter newInstance(String[] options) {
+        return new LogMaskerConverter("mask", Thread.currentThread().getName());
     }
 
     @Override
