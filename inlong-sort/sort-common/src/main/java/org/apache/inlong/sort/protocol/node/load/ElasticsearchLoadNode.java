@@ -114,7 +114,6 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
         options.put("index", index);
         options.put("password", password);
         options.put("username", username);
-        options.put("routing.field-name", primaryKey);
         return options;
     }
 
