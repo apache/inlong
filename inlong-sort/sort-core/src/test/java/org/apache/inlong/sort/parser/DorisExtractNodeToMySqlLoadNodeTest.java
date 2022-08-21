@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Test for {@link DorisExtractNode}
  */
-public class DorisExtractToMySqlLoadTest extends AbstractTestBase {
+public class DorisExtractNodeToMySqlLoadNodeTest extends AbstractTestBase {
 
     private DorisExtractNode buildDorisExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
@@ -113,7 +113,7 @@ public class DorisExtractToMySqlLoadTest extends AbstractTestBase {
      * Test flink sql task for extract is doris {@link DorisExtractNode} and load is mysql {@link MySqlLoadNode}
      */
     @Test
-    public void testDorisExtractToMySqlLoadSqlParse() {
+    public void testDorisExtractNodeToMySqlLoadNodeSqlParse() {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
