@@ -94,8 +94,4 @@ public class DorisExtractNode extends ExtractNode implements Serializable {
         return String.format("table_%s", super.getId());
     }
 
-    @Override
-    public List<FieldInfo> getPartitionFields() {
-        return super.getPartitionFields();
-    }
 }
