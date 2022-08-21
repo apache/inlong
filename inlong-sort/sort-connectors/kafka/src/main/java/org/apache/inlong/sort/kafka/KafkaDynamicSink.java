@@ -139,7 +139,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Metric for inLong
      */
-    private final String inLongMetric;
+    private final String inlongMetric;
     /**
      * audit host and ports
      */
@@ -172,7 +172,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             boolean upsertMode,
             SinkBufferFlushMode flushMode,
             @Nullable Integer parallelism,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         // Format attributes
         this.consumedDataType =
@@ -200,7 +200,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                     "Sink buffer flush is only supported in upsert-kafka.");
         }
         this.parallelism = parallelism;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inLongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 

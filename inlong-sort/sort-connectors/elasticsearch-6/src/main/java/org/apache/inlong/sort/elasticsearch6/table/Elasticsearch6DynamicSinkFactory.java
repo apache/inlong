@@ -107,12 +107,12 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
 
         validate(config, configuration);
 
-        String inLongMetric = helper.getOptions().get(INLONG_METRIC);
+        String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(null);
 
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
 
         return new Elasticsearch6DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric, auditHostAndPorts);
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inlongMetric, auditHostAndPorts);
     }
 
     private void validate(Elasticsearch6Configuration config, Configuration originalConfiguration) {

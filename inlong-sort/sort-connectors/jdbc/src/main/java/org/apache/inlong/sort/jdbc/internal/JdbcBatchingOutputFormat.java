@@ -80,8 +80,8 @@ public class JdbcBatchingOutputFormat<
     private transient RuntimeContext runtimeContext;
 
     private SinkMetricData sinkMetricData;
-    private String inLongGroupId;
-    private String inLongStreamId;
+    private String inlongGroupId;
+    private String inlongStreamId;
     private transient AuditImp auditImp;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
@@ -131,11 +131,11 @@ public class JdbcBatchingOutputFormat<
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
         if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            inLongGroupId = inLongMetricArray[0];
-            inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            sinkMetricData = new SinkMetricData(inLongGroupId, inLongStreamId, nodeId, runtimeContext.getMetricGroup());
+            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
+            sinkMetricData = new SinkMetricData(inlongGroupId, inlongStreamId, nodeId, runtimeContext.getMetricGroup());
             sinkMetricData.registerMetricsForDirtyBytes();
             sinkMetricData.registerMetricsForDirtyRecords();
             sinkMetricData.registerMetricsForNumBytesOut();
@@ -207,8 +207,8 @@ public class JdbcBatchingOutputFormat<
         if (auditImp != null) {
             auditImp.add(
                     AUDIT_SORT_INPUT,
-                    inLongGroupId,
-                    inLongStreamId,
+                    inlongGroupId,
+                    inlongStreamId,
                     System.currentTimeMillis(),
                     1,
                     length);

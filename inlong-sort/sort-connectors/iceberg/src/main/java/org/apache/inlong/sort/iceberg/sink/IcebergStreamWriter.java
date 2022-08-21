@@ -77,12 +77,12 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
         // Initialize metric
         if (inLongMetric != null) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            String inLongGroupId = inLongMetricArray[0];
-            String inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+            String inlongGroupId = inlongMetricArray[0];
+            String inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             metricData = new SinkMetricData(
-                    inLongGroupId, inLongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
+                    inlongGroupId, inlongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());

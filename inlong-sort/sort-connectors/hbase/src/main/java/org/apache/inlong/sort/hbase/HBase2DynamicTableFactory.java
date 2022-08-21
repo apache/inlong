@@ -104,7 +104,7 @@ public class HBase2DynamicTableFactory
         HBaseWriteOptions hBaseWriteOptions = getHBaseWriteOptions(tableOptions);
         String nullStringLiteral = tableOptions.get(NULL_STRING_LITERAL);
         HBaseTableSchema hbaseSchema = HBaseTableSchema.fromTableSchema(tableSchema);
-        String inlongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = tableOptions.get(INLONG_AUDIT);
         ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
 

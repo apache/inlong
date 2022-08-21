@@ -140,7 +140,7 @@ public class KafkaDynamicSource
     /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. * */
     protected final boolean upsertMode;
 
-    protected final String inLongMetric;
+    protected final String inlongMetric;
 
     protected final String auditHostAndPorts;
 
