@@ -23,19 +23,24 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * MaskDataUtils is used to mask sensitive information.
+ * MaskDataUtils is used to mask sensitive message in the raw data.
  */
 public class MaskDataUtils {
 
-    private static final List<String> KEYWORDS =
-            Arrays.asList("password", "passphrase", "pwd", "pass", "secret_id", "token",
-                    "secret_key", "secret_token", "secretKey", "publicKey", "secretKey",
-                    "secretId");
+    private static final List<String> KEYWORDS = Arrays.asList(
+            "password", "passphrase", "pwd", "pass",
+            "token", "secret_token", "secret_id", "secretId",
+            "secret_key", "secretKey", "publicKey", "secretKey");
     private static final List<String> SEPARATORS = Arrays.asList(":", "=", "\": \"", "\":\"");
     private static final List<Character> STOP_CHARACTERS = Arrays.asList('\'', '"');
     private static final List<Character> KNOWN_DELIMITERS =
             Collections.unmodifiableList(Arrays.asList('\'', '"', '<', '>'));
 
+    /**
+     * mask sensitive message in the raw data
+     *
+     * @param stringBuilder raw data
+     */
     public static void mask(StringBuilder stringBuilder) {
         boolean maskedThisCharacter;
         int pos;
@@ -59,12 +64,30 @@ public class MaskDataUtils {
         }
     }
 
+    /**
+     * replace sensitive message with six specified maskChar
+     *
+     * @param builder raw data
+     * @param maskChar specified character for replace sensitive data
+     * @param startPos the start position of sensitive data
+     * @param endPos the end position of sensitive data
+     * @return the new end position of replaced data
+     */
     private static int mask(StringBuilder builder, char maskChar, int startPos, int endPos) {
         final String masked = "" + maskChar + maskChar + maskChar + maskChar + maskChar + maskChar;
         builder.replace(startPos, endPos, masked);
         return startPos + 6;
     }
 
+    /**
+     * mask data from specified start position of raw data
+     *
+     * @param builder raw data
+     * @param maskChar specified character for replace sensitive data
+     * @param startPos the start position of raw data
+     * @param buffLength the length of raw data
+     * @return the start position of first masked data
+     */
     public static int maskData(StringBuilder builder, char maskChar, int startPos, int buffLength) {
         int charPos = startPos;
         if (charPos + 5 > buffLength) {
@@ -93,7 +116,7 @@ public class MaskDataUtils {
             for (String separator: SEPARATORS) {
                 idxSeparator = StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
                 if (idxSeparator == keywordStart + keywordLength) {
-                    charPos = passwordStartPosition(keywordStart, keywordLength, separator, builder);
+                    charPos = maskStartPosition(keywordStart, keywordLength, separator, builder);
 
                     int endPos = detectEnd(builder, buffLength, charPos, keywordUsed, keywordLength, separator);
 
@@ -107,6 +130,17 @@ public class MaskDataUtils {
         return startPos;
     }
 
+    /**
+     * detect the end position of sensitive data
+     *
+     * @param builder raw data
+     * @param buffLength the length of raw data
+     * @param startPos the start position of sensitive data
+     * @param keyword the keyword of sensitive data
+     * @param keywordLength the length of keyword
+     * @param separator the specified separator char
+     * @return the end position of sensitive data
+     */
     private static int detectEnd(StringBuilder builder, int buffLength, int startPos, String keyword,
             int keywordLength, String separator) {
         if (separator.charAt(0) == '>') {
@@ -118,6 +152,14 @@ public class MaskDataUtils {
         }
     }
 
+    /**
+     * detect end position of sensitive data in unknown format content
+     *
+     * @param builder raw data
+     * @param buffLength the length of raw data
+     * @param startPos the start position of sensitive data
+     * @return the end position of sensitive data
+     */
     private static int detectEndNoXml(StringBuilder builder, int buffLength, int startPos) {
         while (startPos < buffLength && !isDelimiter(builder.charAt(startPos))) {
             startPos++;
@@ -126,6 +168,14 @@ public class MaskDataUtils {
         return startPos;
     }
 
+    /**
+     * detect end position of sensitive data in json
+     *
+     * @param builder raw data
+     * @param buffLength the length of raw data
+     * @param startPos the start position of sensitive data
+     * @return the end position of sensitive data
+     */
     private static int detectEndJson(StringBuilder builder, int buffLength, int startPos) {
         while (startPos < buffLength && !isEndOfJson(builder, startPos)) {
             startPos++;
@@ -134,14 +184,37 @@ public class MaskDataUtils {
         return startPos;
     }
 
+    /**
+     * whether a character is a delimiter
+     *
+     * @param character
+     * @return true or false
+     */
     private static boolean isDelimiter(char character) {
         return Character.isWhitespace(character) || KNOWN_DELIMITERS.contains(character);
     }
 
+    /**
+     * whether data is end of json
+     *
+     * @param builder raw data
+     * @param pos the position of raw data
+     * @return true or false
+     */
     private static boolean isEndOfJson(StringBuilder builder, int pos) {
         return builder.charAt(pos) == '"' && builder.charAt(pos - 1) != '\\';
     }
 
+    /**
+     * detect the end position of sensitive data in xml
+     *
+     * @param builder raw data
+     * @param buffLength the length of raw data
+     * @param startPos the start position of sensitive data
+     * @param keyword the keyword of sensitive data
+     * @param keywordLength the length of keyword
+     * @return the end position os sensitive data
+     */
     private static int detectEndXml(StringBuilder builder, int buffLength, int startPos,
             String keyword, int keywordLength) {
         if (buffLength < startPos + keywordLength + 3) {
@@ -156,6 +229,12 @@ public class MaskDataUtils {
         return -1;
     }
 
+    /**
+     * whether the character is the first char of keyword
+     *
+     * @param character character
+     * @return true or false
+     */
     private static boolean isKeyWorkdStart(Character character) {
         boolean result = false;
         for (String keyword : KEYWORDS) {
@@ -164,11 +243,27 @@ public class MaskDataUtils {
         return result;
     }
 
+    /**
+     * whether keyword start at right position
+     *
+     * @param keywordStart the start position of keyword
+     * @param pos the right position
+     * @return true or false
+     */
     private static boolean keywordStartAtRightPosition(int keywordStart, int pos) {
         return keywordStart >= 0 && (keywordStart == pos || keywordStart == pos + 1);
     }
 
-    private static int passwordStartPosition(int keywordStart, int keywordLength, String separator,
+    /**
+     * the start position of sensitive data
+     *
+     * @param keywordStart the start position of keyword
+     * @param keywordLength the length of keyword
+     * @param separator the separator character of keyword and sensitive data
+     * @param builder raw data
+     * @return the start position of sensitive data
+     */
+    private static int maskStartPosition(int keywordStart, int keywordLength, String separator,
             StringBuilder builder) {
         int charPos = keywordStart + keywordLength + separator.length();
         if (Character.isWhitespace(builder.charAt(charPos))) {
