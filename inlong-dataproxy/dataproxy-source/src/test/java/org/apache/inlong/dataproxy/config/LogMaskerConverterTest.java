@@ -15,20 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.util;
+package org.apache.inlong.dataproxy.config;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.impl.Log4jLogEvent;
+import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.MessageFormatMessage;
 import org.junit.Test;
 
 /**
- * MaskDataUtils unit test
+ * Test class for LogMaskerConverter.
  */
-public class MaskDataUtilsTest {
+public class LogMaskerConverterTest {
 
     @Test
-    public void testMaskDataUtils() throws Exception {
-        String unmasked = "{\n"
+    public void testLogMaskerConverter() {
+        String unmasked = "(\n"
                 + "  \"password\": \"inlong\",\n"
                 + "  \"pwd\": \"inlong\",\n"
                 + "  \"pass\": \"inlong\",\n"
@@ -39,8 +43,8 @@ public class MaskDataUtilsTest {
                 + "  \"secret_key\": \"inlong\",\n"
                 + "  \"secretKey\": \"inlong\",\n"
                 + "  \"publicKey\": \"inlong\"\n"
-                + "}";
-        String masked = "{\n"
+                + ")";
+        String masked = "(\n"
                 + "  \"password\": \"******\",\n"
                 + "  \"pwd\": \"******\",\n"
                 + "  \"pass\": \"******\",\n"
@@ -51,10 +55,13 @@ public class MaskDataUtilsTest {
                 + "  \"secret_key\": \"******\",\n"
                 + "  \"secretKey\": \"******\",\n"
                 + "  \"publicKey\": \"******\"\n"
-                + "}";
+                + ")";
+        LogMaskerConverter logMaskerConverter = LogMaskerConverter.newInstance(null);
+        Message message = new MessageFormatMessage(unmasked);
+        LogEvent logEvent = Log4jLogEvent.newBuilder().setMessage(message).build();
         StringBuilder buffer = new StringBuilder(unmasked);
-        MaskDataUtils.mask(buffer);
-        assertEquals(masked, buffer.toString());
+        logMaskerConverter.format(logEvent, buffer);
+        assertEquals(unmasked + masked, buffer.toString());
     }
 
 }
