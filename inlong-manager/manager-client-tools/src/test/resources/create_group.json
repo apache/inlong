@@ -46,13 +46,6 @@
     "dataNodeName": "hi2",
     "serializationType": "csv",
     "snapshot": "hi3",
-    "version": "4",
-    "status": "5",
-    "previousStatus": "6",
-    "creator": "me",
-    "modifier": "none",
-    "createTime": "2000-07-08 12:05:12",
-    "modifyTime": "2000-07-08 12:05:12",
     "properties": {}
   },
   "streamSink": {

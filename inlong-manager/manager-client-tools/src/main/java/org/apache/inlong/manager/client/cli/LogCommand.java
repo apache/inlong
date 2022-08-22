@@ -56,18 +56,22 @@ public class LogCommand extends AbstractCommand {
         @Override
         void run() {
             final int MAX_LOG_SIZE = 100;
-            // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
-            String[] inputs = input.split(":");
-            ClientUtils.initClientFactory();
-            InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
-            InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
-            pageRequest.setKeyword(inputs[1]);
-            PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
-            if (pageInfo.getSize() > MAX_LOG_SIZE) {
-                System.err.println("log too large to print, consider changing filter.");
-                return;
+            try {
+                // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
+                String[] inputs = input.split(":");
+                ClientUtils.initClientFactory();
+                InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
+                InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
+                pageRequest.setKeyword(inputs[1]);
+                PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
+                if (pageInfo.getSize() > MAX_LOG_SIZE) {
+                    System.err.println("log too large to print, consider changing filter.");
+                    return;
+                }
+                PrintUtils.print(pageInfo.getList(), GroupInfo.class);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            PrintUtils.print(pageInfo.getList(), GroupInfo.class);
         }
     }
 }

@@ -46,27 +46,27 @@ public class TestCommand {
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
-    // @Test
+    @Test
     public void testCreateGroup() {
         String[] arg = {"create", "group", "-f", "src/test/resources/create_group.json"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
-    // @Test
+    @Test
     public void testDeleteGroup() throws Exception {
         String[] arg = {"delete", "group", "-g", "test_group"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
-    // @Test
+    @Test
     public void testUpdateGroup() throws Exception {
         String[] arg = {"update", "group", "-g", "test_group", "-c", "src/test/resources/test_config.json"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
-    // @Test
+    @Test
     public void testLogGroup() throws Exception {
-        String[] arg = {"log", "group", "--query", "test_group", "inlongGroupId:test_group"};
+        String[] arg = {"log", "group", "--query", "inlongGroupId:test_group"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
