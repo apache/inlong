@@ -118,7 +118,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
      * PropertiesConfigurationProvider
      * 
      * @param agentName
-     * @param flumeConf
+     * @param flumeFile
      * @param commonProperties
      */
     public InlongConfigurationProvider(String agentName, File flumeFile,
@@ -167,8 +167,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                 for (String channelName : channelNames) {
                     ChannelComponent channelComponent = channelComponentMap.get(channelName);
                     if (channelComponent.components.isEmpty()) {
-                        LOGGER.warn(String.format("Channel %s has no components connected" +
-                                " and has been removed.", channelName));
+                        LOGGER.warn(String.format("Channel %s has no components connected" + " and has been removed.",
+                                channelName));
                         channelComponentMap.remove(channelName);
                         Map<String, Channel> nameChannelMap = channelCache.get(channelComponent.channel.getClass());
                         if (nameChannelMap != null) {
@@ -252,8 +252,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                             new ChannelComponent(channel));
                     LOGGER.info("Created channel " + chName);
                 } catch (Exception e) {
-                    String msg = String.format("Channel %s has been removed due to an " +
-                            "error during configuration", chName);
+                    String msg = String.format("Channel %s has been removed due to an " + "error during configuration",
+                            chName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -272,8 +272,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     channelComponentMap.put(chName, new ChannelComponent(channel));
                     LOGGER.info("Created channel " + chName);
                 } catch (Exception e) {
-                    String msg = String.format("Channel %s has been removed due to an " +
-                            "error during configuration", chName);
+                    String msg = String.format("Channel %s has been removed due to an " + "error during configuration",
+                            chName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -298,12 +298,6 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
 
     /**
      * getOrCreateChannel
-     *
-     * @param channelsNotReused
-     * @param name
-     * @param type
-     * @return
-     * @throws FlumeException
      */
     private Channel getOrCreateChannel(
             ListMultimap<Class<? extends Channel>, String> channelsNotReused,
@@ -364,8 +358,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     Set<String> channelNames = config.getChannels();
                     List<Channel> sourceChannels = getSourceChannels(channelComponentMap, source, channelNames);
                     if (sourceChannels.isEmpty()) {
-                        String msg = String.format("Source %s is not connected to a " +
-                                "channel", sourceName);
+                        String msg = String.format("Source %s is not connected to a " + "channel", sourceName);
                         throw new IllegalStateException(msg);
                     }
                     ChannelSelectorConfiguration selectorConfig = config.getSelectorConfiguration();
@@ -386,8 +379,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                         channelComponent.components.add(sourceName);
                     }
                 } catch (Exception e) {
-                    String msg = String.format("Source %s has been removed due to an " +
-                            "error during configuration", sourceName);
+                    String msg = String.format("Source %s has been removed due to an " + "error during configuration",
+                            sourceName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -409,8 +402,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     List<Channel> sourceChannels = getSourceChannels(channelComponentMap, source,
                             Arrays.asList(channelNames));
                     if (sourceChannels.isEmpty()) {
-                        String msg = String.format("Source %s is not connected to a " +
-                                "channel", sourceName);
+                        String msg = String.format("Source %s is not connected to a " + "channel", sourceName);
                         throw new IllegalStateException(msg);
                     }
                     Map<String, String> selectorConfig = context.getSubProperties(
@@ -431,8 +423,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                         channelComponent.components.add(sourceName);
                     }
                 } catch (Exception e) {
-                    String msg = String.format("Source %s has been removed due to an " +
-                            "error during configuration", sourceName);
+                    String msg = String.format("Source %s has been removed due to an " + "error during configuration",
+                            sourceName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -441,12 +433,6 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
 
     /**
      * getSourceChannels
-     *
-     * @param channelComponentMap
-     * @param source
-     * @param channelNames
-     * @return
-     * @throws InstantiationException
      */
     private List<Channel> getSourceChannels(Map<String, ChannelComponent> channelComponentMap,
             Source source, Collection<String> channelNames) throws InstantiationException {
@@ -463,10 +449,6 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
 
     /**
      * checkSourceChannelCompatibility
-     *
-     * @param source
-     * @param channel
-     * @throws InstantiationException
      */
     private void checkSourceChannelCompatibility(Source source, Channel channel)
             throws InstantiationException {
@@ -475,9 +457,9 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
             long batchSize = ((BatchSizeSupported) source).getBatchSize();
             if (transCap < batchSize) {
                 String msg = String.format(
-                        "Incompatible source and channel settings defined. " +
-                                "source's batch size is greater than the channels transaction capacity. " +
-                                "Source: %s, batch size = %d, channel %s, transaction capacity = %d",
+                        "Incompatible source and channel settings defined. "
+                                + "source's batch size is greater than the channels transaction capacity. "
+                                + "Source: %s, batch size = %d, channel %s, transaction capacity = %d",
                         source.getName(), batchSize,
                         channel.getName(), transCap);
                 throw new InstantiationException(msg);
@@ -499,9 +481,9 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
             long batchSize = ((BatchSizeSupported) sink).getBatchSize();
             if (transCap < batchSize) {
                 String msg = String.format(
-                        "Incompatible sink and channel settings defined. " +
-                                "sink's batch size is greater than the channels transaction capacity. " +
-                                "Sink: %s, batch size = %d, channel %s, transaction capacity = %d",
+                        "Incompatible sink and channel settings defined. "
+                                + "sink's batch size is greater than the channels transaction capacity. "
+                                + "Sink: %s, batch size = %d, channel %s, transaction capacity = %d",
                         sink.getName(), batchSize,
                         channel.getName(), transCap);
                 throw new InstantiationException(msg);
@@ -535,8 +517,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     Configurables.configure(sink, config);
                     ChannelComponent channelComponent = channelComponentMap.get(config.getChannel());
                     if (channelComponent == null) {
-                        String msg = String.format("Sink %s is not connected to a " +
-                                "channel", sinkName);
+                        String msg = String.format("Sink %s is not connected to a " + "channel", sinkName);
                         throw new IllegalStateException(msg);
                     }
                     checkSinkChannelCompatibility(sink, channelComponent.channel);
@@ -544,8 +525,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     sinks.put(comp.getComponentName(), sink);
                     channelComponent.components.add(sinkName);
                 } catch (Exception e) {
-                    String msg = String.format("Sink %s has been removed due to an " +
-                            "error during configuration", sinkName);
+                    String msg = String.format("Sink %s has been removed due to an " + "error during configuration",
+                            sinkName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -565,8 +546,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     ChannelComponent channelComponent = channelComponentMap.get(
                             context.getString(BasicConfigurationConstants.CONFIG_CHANNEL));
                     if (channelComponent == null) {
-                        String msg = String.format("Sink %s is not connected to a " +
-                                "channel", sinkName);
+                        String msg = String.format("Sink %s is not connected to a " + "channel", sinkName);
                         throw new IllegalStateException(msg);
                     }
                     checkSinkChannelCompatibility(sink, channelComponent.channel);
@@ -574,8 +554,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     sinks.put(sinkName, sink);
                     channelComponent.components.add(sinkName);
                 } catch (Exception e) {
-                    String msg = String.format("Sink %s has been removed due to an " +
-                            "error during configuration", sinkName);
+                    String msg = String.format("Sink %s has been removed due to an " + "error during configuration",
+                            sinkName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -609,8 +589,7 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                         String sinkUser = usedSinks.get(sink);
                         if (sinkUser != null) {
                             throw new InstantiationException(String.format(
-                                    "Sink %s of group %s already " +
-                                            "in use by group %s",
+                                    "Sink %s of group %s already " + "in use by group %s",
                                     sink, groupName, sinkUser));
                         } else {
                             throw new InstantiationException(String.format(
@@ -629,8 +608,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     sinkRunnerMap.put(comp.getComponentName(),
                             new InlongSinkRunner(group.getProcessor(), commonProperties));
                 } catch (Exception e) {
-                    String msg = String.format("SinkGroup %s has been removed due to " +
-                            "an error during configuration", groupName);
+                    String msg = String.format(
+                            "SinkGroup %s has been removed due to " + "an error during configuration", groupName);
                     LOGGER.error(msg, e);
                 }
             }
@@ -646,8 +625,8 @@ public class InlongConfigurationProvider implements ConfigurationProvider {
                     Configurables.configure(pr, new Context());
                     sinkRunnerMap.put(entry.getKey(), new InlongSinkRunner(pr, commonProperties));
                 } catch (Exception e) {
-                    String msg = String.format("SinkGroup %s has been removed due to " +
-                            "an error during configuration", entry.getKey());
+                    String msg = String.format(
+                            "SinkGroup %s has been removed due to " + "an error during configuration", entry.getKey());
                     LOGGER.error(msg, e);
                 }
             }

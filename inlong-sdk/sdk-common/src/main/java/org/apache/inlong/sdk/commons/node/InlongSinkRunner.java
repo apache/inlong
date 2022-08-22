@@ -103,8 +103,7 @@ public class InlongSinkRunner extends SinkRunner {
         inlongRunner.shouldStop = new AtomicBoolean();
 
         inlongRunnerThread = new Thread(inlongRunner);
-        inlongRunnerThread.setName("SinkRunner-PollingRunner-" +
-                policy.getClass().getSimpleName());
+        inlongRunnerThread.setName("SinkRunner-PollingRunner-" + policy.getClass().getSimpleName());
         inlongRunnerThread.start();
 
         inlongLifecycleState = LifecycleState.START;
