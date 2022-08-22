@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.enums;
-
-import org.apache.inlong.manager.common.enums.SourceStatus;
+package org.apache.inlong.manager.common.enums;
 
 /**
  * The simple stream source status, more readable for users
