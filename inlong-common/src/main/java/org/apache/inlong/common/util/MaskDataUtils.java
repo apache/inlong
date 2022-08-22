@@ -28,9 +28,11 @@ import org.apache.commons.lang3.StringUtils;
 public class MaskDataUtils {
 
     private static final List<String> KEYWORDS = Arrays.asList(
-            "password", "pwd", "pass", "token",
-            "secret_token", "secret_id", "secretId",
-            "secret_key", "secretKey", "publicKey");
+            "password", "pwd", "pass",
+            "token", "secret_token", "secretToken",
+            "secret_id", "secretId",
+            "secret_key", "secretKey",
+            "public_key", "publicKey");
     private static final List<String> SEPARATORS = Arrays.asList(":", "=", "\": \"", "\":\"");
     private static final List<Character> STOP_CHARACTERS = Arrays.asList('\'', '"');
     private static final List<Character> KNOWN_DELIMITERS =

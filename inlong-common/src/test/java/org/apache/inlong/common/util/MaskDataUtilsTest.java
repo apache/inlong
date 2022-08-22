@@ -34,10 +34,12 @@ public class MaskDataUtilsTest {
                 + "  \"pass\": \"inlong\",\n"
                 + "  \"token\": \"inlong\",\n"
                 + "  \"secret_token\": \"inlong\",\n"
+                + "  \"secretToken\": \"inlong\",\n"
                 + "  \"secret_id\": \"inlong\",\n"
                 + "  \"secretId\": \"inlong\",\n"
                 + "  \"secret_key\": \"inlong\",\n"
                 + "  \"secretKey\": \"inlong\",\n"
+                + "  \"public_key\": \"inlong\",\n"
                 + "  \"publicKey\": \"inlong\"\n"
                 + "}";
         String masked = "{\n"
@@ -46,10 +48,12 @@ public class MaskDataUtilsTest {
                 + "  \"pass\": \"******\",\n"
                 + "  \"token\": \"******\",\n"
                 + "  \"secret_token\": \"******\",\n"
+                + "  \"secretToken\": \"******\",\n"
                 + "  \"secret_id\": \"******\",\n"
                 + "  \"secretId\": \"******\",\n"
                 + "  \"secret_key\": \"******\",\n"
                 + "  \"secretKey\": \"******\",\n"
+                + "  \"public_key\": \"******\",\n"
                 + "  \"publicKey\": \"******\"\n"
                 + "}";
         StringBuilder buffer = new StringBuilder(unmasked);
