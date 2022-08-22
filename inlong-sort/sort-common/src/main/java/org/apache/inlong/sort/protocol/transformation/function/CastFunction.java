@@ -15,38 +15,50 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.sort.protocol.transformation.function;
 
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.ConstantParam;
+import org.apache.inlong.sort.protocol.transformation.Function;
+import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * Defines the relation between fields from input to output field
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonTypeName("fieldRelation")
+@JsonTypeName("cast")
 @Data
 @NoArgsConstructor
-public class FieldRelation {
+public class CastFunction implements Function {
 
-    @JsonProperty("inputField")
-    private FunctionParam inputField;
-    @JsonProperty("outputField")
-    private FieldInfo outputField;
+    @JsonProperty("field")
+    private FunctionParam field;
+
+    private String type;
 
     @JsonCreator
-    public FieldRelation(@JsonProperty("inputField") FunctionParam inputField,
-            @JsonProperty("outputField") FieldInfo outputField) {
-        this.inputField = inputField;
-        this.outputField = outputField;
+    public CastFunction(@JsonProperty("field") FunctionParam field,
+            @JsonProperty("type") String type) {
+        this.field = Preconditions.checkNotNull(field, "field is null");
+        this.type = Preconditions.checkNotNull(type, "type is null");
+    }
+
+    @Override
+    public List<FunctionParam> getParams() {
+        return Arrays.asList(field, new ConstantParam(type));
+    }
+
+    @Override
+    public String getName() {
+        return "CAST";
+    }
+
+    @Override
+    public String format() {
+        return String.format("%s(%s AS %s)", getName(), field.format(), type);
     }
 }

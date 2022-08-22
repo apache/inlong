@@ -17,27 +17,25 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Inner temporal join relation
+ * This class defines the interval join relation.In interval join, the join conditions is same as filters,
+ * and so we forbid the filters for interval join. And the same time,
+ * the joinConditionMap will be allowed to have only one value.
  */
-@JsonTypeName("innerTemporalJoin")
+@JsonTypeName("intervalJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
-public class InnerTemporalJoinRelationRelation extends TemporalJoinRelation {
+public class IntervalJoinRelation extends JoinRelation {
 
     /**
      * Constructor
@@ -47,19 +45,18 @@ public class InnerTemporalJoinRelationRelation extends TemporalJoinRelation {
      * @param joinConditionMap The joinConditionMap is a map of join conditions
      *         the key of joinConditionMap is the node id of join node
      *         the value of joinConditionMap is a list of join contidition
-     * @param systemTime The system time for temporal join
      */
-    @JsonCreator
-    public InnerTemporalJoinRelationRelation(
-            @JsonProperty("inputs") List<String> inputs,
+    public IntervalJoinRelation(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
-            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap,
-            @Nullable @JsonProperty("systemTimeMap") FieldInfo systemTime) {
-        super(inputs, outputs, joinConditionMap, systemTime);
+            @JsonProperty("joinConditionMap") LinkedHashMap<String, List<FilterFunction>> joinConditionMap) {
+        super(inputs, outputs, joinConditionMap);
+        Preconditions.checkState(joinConditionMap.size() == 1,
+                String.format("The size of joinConditionMap must be one for %s", this.getClass().getSimpleName()));
     }
 
     @Override
     public String format() {
-        return "INNER JOIN";
+        throw new UnsupportedOperationException(String.format("Format is not supported for %s",
+                this.getClass().getSimpleName()));
     }
 }

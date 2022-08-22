@@ -46,8 +46,8 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
-import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelationRelation;
-import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelationRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -146,9 +146,9 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("currency", "1", new LongFormatInfo()),
                 EqualOperator.getInstance(), new FieldInfo("currency", "2", new StringFormatInfo()))));
         if (left) {
-            return new LeftOuterTemporalJoinRelationRelation(inputIds, outputIds, conditionMap, systemTime);
+            return new LeftOuterTemporalJoinRelation(inputIds, outputIds, conditionMap, systemTime);
         }
-        return new InnerTemporalJoinRelationRelation(inputIds, outputIds, conditionMap, systemTime);
+        return new InnerTemporalJoinRelation(inputIds, outputIds, conditionMap, systemTime);
     }
 
     /**

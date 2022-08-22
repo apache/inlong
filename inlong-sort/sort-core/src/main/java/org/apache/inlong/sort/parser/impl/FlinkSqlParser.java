@@ -46,6 +46,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
+import org.apache.inlong.sort.protocol.transformation.relation.IntervalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
@@ -198,7 +199,6 @@ public class FlinkSqlParser implements Parser {
 
     /**
      * parse node relation
-     * <p/>
      * Here we only parse the output node in the relation,
      * and the input node parsing is achieved by parsing the dependent node parsing of the output node.
      *
@@ -427,6 +427,15 @@ public class FlinkSqlParser implements Parser {
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
         if (relation instanceof TemporalJoinRelation) {
             parseTemporalJoin((TemporalJoinRelation) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        } else if (relation instanceof IntervalJoinRelation) {
+            Preconditions.checkState(filters == null || filters.isEmpty(),
+                    String.format("filters must be empty for %s", relation.getClass().getSimpleName()));
+            parseIntervalJoin((IntervalJoinRelation) relation, nodeMap, tableNameAliasMap, sb);
+            List<FilterFunction> conditions = conditionMap.values().stream().findFirst().orElse(null);
+            Preconditions.checkState(conditions != null && !conditions.isEmpty(),
+                    String.format("Join conditions must no be empty for %s", relation.getClass().getSimpleName()));
+            fillOutTableNameAlias(new ArrayList<>(conditions), tableNameAliasMap);
+            parseFilterFields(FilterStrategy.RETAIN, conditions, sb);
         } else {
             parseRegularJoin(relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         }
@@ -441,6 +450,15 @@ public class FlinkSqlParser implements Parser {
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
         return sb.toString();
+    }
+
+    private void parseIntervalJoin(IntervalJoinRelation relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append(", ").append(nodeMap.get(inputId).genTableName())
+                    .append(" ").append(tableNameAliasMap.get(inputId));
+        }
     }
 
     private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
@@ -590,9 +608,9 @@ public class FlinkSqlParser implements Parser {
      */
     private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
-            sb.append("\n    WHERE ");
+            sb.append("\nWHERE ");
             String subSql = StringUtils
-                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), " ");
+                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), "\n    ");
             if (filterStrategy == FilterStrategy.REMOVE) {
                 sb.append("not (").append(subSql).append(")");
             } else {
