@@ -76,6 +76,9 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
 
+    @ApiModelProperty("Sub source information of existing agents")
+    private List<SubSourceDTO> subSourceList;
+
     public FileSource() {
         this.setSourceType(SourceType.FILE);
     }

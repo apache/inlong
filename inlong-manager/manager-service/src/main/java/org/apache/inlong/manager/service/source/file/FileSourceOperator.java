@@ -23,17 +23,20 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.pojo.source.file.SubSourceDTO;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * File source operator, such as get or set file source info.
@@ -43,6 +46,9 @@ public class FileSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -79,6 +85,13 @@ public class FileSourceOperator extends AbstractSourceOperator {
 
         List<StreamField> sourceFields = super.getSourceFields(entity.getId());
         source.setFieldList(sourceFields);
+
+        List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(entity.getId());
+        source.setSubSourceList(subSourceList.stream().map(e -> SubSourceDTO.builder()
+                        .templateId(entity.getTemplateId())
+                        .agentIp(entity.getAgentIp())
+                        .status(entity.getStatus()).build())
+                .collect(Collectors.toList()));
         return source;
     }
 
