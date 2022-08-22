@@ -609,7 +609,7 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this(
                 defaultTopic,
@@ -619,7 +619,7 @@ public class FlinkKafkaProducer<IN>
                 producerConfig,
                 semantic,
                 kafkaProducersPoolSize,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 
@@ -659,13 +659,13 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         super(
                 new FlinkKafkaProducer.TransactionStateSerializer(),
                 new FlinkKafkaProducer.ContextStateSerializer());
 
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
 
         this.defaultTopicId = checkNotNull(defaultTopic, "defaultTopic is null");
@@ -905,8 +905,8 @@ public class FlinkKafkaProducer<IN>
                     RuntimeContextInitializationContextAdapters.serializationAdapter(
                             getRuntimeContext(), metricGroup -> metricGroup.addGroup("user")));
         }
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+        if (inlongMetric != null && !inlongMetric.isEmpty()) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
             inlongGroupId = inlongMetricArray[0];
             inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];

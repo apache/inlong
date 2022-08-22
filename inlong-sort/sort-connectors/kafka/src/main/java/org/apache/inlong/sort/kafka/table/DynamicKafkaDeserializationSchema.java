@@ -118,9 +118,9 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         valueDeserialization.open(context);
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
             String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            inlongGroupId = inLongMetricArray[0];
-            inlongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             metricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
             metricData.registerMetricsForNumBytesIn();
             metricData.registerMetricsForNumBytesInPerSecond();

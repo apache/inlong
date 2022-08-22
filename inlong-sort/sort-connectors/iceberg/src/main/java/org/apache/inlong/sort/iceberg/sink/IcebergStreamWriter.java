@@ -43,7 +43,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     private final String fullTableName;
     private final TaskWriterFactory<T> taskWriterFactory;
-    private final String inLongMetric;
+    private final String inlongMetric;
     private final String auditHostAndPorts;
 
     private transient TaskWriter<T> writer;
@@ -55,11 +55,11 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     IcebergStreamWriter(
             String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
@@ -76,8 +76,8 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         this.writer = taskWriterFactory.create();
 
         // Initialize metric
-        if (inLongMetric != null) {
-            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+        if (inlongMetric != null) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
             String inlongGroupId = inlongMetricArray[0];
             String inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];

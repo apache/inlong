@@ -69,7 +69,7 @@ public class JdbcBatchingOutputFormat<
     private final JdbcExecutionOptions executionOptions;
     private final StatementExecutorFactory<JdbcExec> statementExecutorFactory;
     private final RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
-    private final String inLongMetric;
+    private final String inlongMetric;
     private final String auditHostAndPorts;
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
@@ -91,13 +91,13 @@ public class JdbcBatchingOutputFormat<
             @Nonnull JdbcExecutionOptions executionOptions,
             @Nonnull StatementExecutorFactory<JdbcExec> statementExecutorFactory,
             @Nonnull RecordExtractor<In, JdbcIn> recordExtractor,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -130,8 +130,8 @@ public class JdbcBatchingOutputFormat<
     public void open(int taskNumber, int numTasks) throws IOException {
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+        if (inlongMetric != null && !inlongMetric.isEmpty()) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
             inlongGroupId = inlongMetricArray[0];
             inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
@@ -371,7 +371,7 @@ public class JdbcBatchingOutputFormat<
         private String[] fieldNames;
         private String[] keyFields;
         private int[] fieldTypes;
-        private String inLongMetric;
+        private String inlongMetric;
         private String auditHostAndPorts;
         private JdbcExecutionOptions.Builder executionOptionsBuilder =
                 JdbcExecutionOptions.builder();
@@ -409,10 +409,10 @@ public class JdbcBatchingOutputFormat<
         }
 
         /**
-         * required, inLongMetric
+         * required, inlongMetric
          */
-        public Builder setinLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+        public Builder setinlongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
             return this;
         }
 
@@ -471,7 +471,7 @@ public class JdbcBatchingOutputFormat<
                         new SimpleJdbcConnectionProvider(options),
                         dml,
                         executionOptionsBuilder.build(),
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
             } else {
                 // warn: don't close over builder fields
@@ -493,7 +493,7 @@ public class JdbcBatchingOutputFormat<
                             Preconditions.checkArgument(tuple2.f0);
                             return tuple2.f1;
                         },
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
             }
         }

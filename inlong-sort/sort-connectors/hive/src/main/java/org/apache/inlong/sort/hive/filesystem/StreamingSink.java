@@ -65,10 +65,10 @@ public class StreamingSink {
                     T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
                     bucketsBuilder,
             int parallelism,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         StreamingFileWriter<T> fileWriter =
-                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder, inLongMetric, auditHostAndPorts);
+                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
         return inputStream
                 .transform(
                         StreamingFileWriter.class.getSimpleName(),
@@ -92,10 +92,10 @@ public class StreamingSink {
             CompactReader.Factory<T> readFactory,
             long targetFileSize,
             int parallelism,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         CompactFileWriter<T> writer = new CompactFileWriter<>(
-                bucketCheckInterval, bucketsBuilder, inLongMetric, auditHostAndPorts);
+                bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
 
         SupplierWithException<FileSystem, IOException> fsSupplier =
                 (SupplierWithException<FileSystem, IOException> & Serializable)

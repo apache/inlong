@@ -56,7 +56,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             bucketsBuilder;
 
     @Nullable
-    private String inLongMetric;
+    private String inlongMetric;
 
     @Nullable
     private String auditHostAndPorts;
@@ -77,11 +77,11 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             StreamingFileSink.BucketsBuilder<
                     IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
                     bucketsBuilder,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this.bucketCheckInterval = bucketCheckInterval;
         this.bucketsBuilder = bucketsBuilder;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
@@ -111,8 +111,8 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     @Override
     public void open() throws Exception {
         super.open();
-        if (inLongMetric != null) {
-            String[] inlongMetricArray = inLongMetric.split(DELIMITER);
+        if (inlongMetric != null) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
             String inlongGroupId = inlongMetricArray[0];
             String inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
