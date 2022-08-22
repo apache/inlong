@@ -23,7 +23,10 @@ import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 public class HashRing {
