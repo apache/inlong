@@ -96,7 +96,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Select all sub sources by template id
      */
-    List<StreamSourceEntity> selectByTemplateId(@Param("template_id") Integer templateId);
+    List<StreamSourceEntity> selectByTemplateId(@Param("templateId") Integer templateId);
 
     /**
      * Get the distinct source type from the given groupId and streamId
