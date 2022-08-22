@@ -44,8 +44,8 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
-import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelationRelation;
-import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelationRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -144,10 +144,10 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("id", "1", new LongFormatInfo()),
                 EqualOperator.getInstance(), new FieldInfo("k", "5", new StringFormatInfo()))));
         if (left) {
-            return new LeftOuterTemporalJoinRelationRelation(inputIds, outputIds, conditionMap,
+            return new LeftOuterTemporalJoinRelation(inputIds, outputIds, conditionMap,
                     new FieldInfo("proc_time"));
         }
-        return new InnerTemporalJoinRelationRelation(inputIds, outputIds, conditionMap, new FieldInfo("proc_time"));
+        return new InnerTemporalJoinRelation(inputIds, outputIds, conditionMap, new FieldInfo("proc_time"));
     }
 
     /**

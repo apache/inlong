@@ -37,7 +37,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class LeftOuterTemporalJoinRelationRelation extends TemporalJoinRelation {
+public class LeftOuterTemporalJoinRelation extends TemporalJoinRelation {
 
     /**
      * LeftOuterTemporalJoin Constructor
@@ -50,7 +50,7 @@ public class LeftOuterTemporalJoinRelationRelation extends TemporalJoinRelation 
      * @param systemTime The system time for temporal join
      */
     @JsonCreator
-    public LeftOuterTemporalJoinRelationRelation(
+    public LeftOuterTemporalJoinRelation(
             @JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap,
