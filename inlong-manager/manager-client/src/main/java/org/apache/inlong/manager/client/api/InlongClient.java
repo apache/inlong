@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.client.api;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;

@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -75,9 +76,6 @@ public class FileSource extends StreamSource {
 
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
     private Map<String, String> filterMetaByLabels;
-
-    @ApiModelProperty("Sub source information of existing agents")
-    private List<SubSourceDTO> subSourceList;
 
     public FileSource() {
         this.setSourceType(SourceType.FILE);
