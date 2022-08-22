@@ -77,7 +77,7 @@ public class HashRing {
         return node;
     }
 
-    public synchronized void extendNode(List<HostInfo> nodes) {
+    private synchronized void extendNode(List<HostInfo> nodes) {
         this.nodeList.addAll(nodes);
         for (HostInfo host : this.nodeList) {
             for (int i = 0; i < this.virtualNode; i++) {
@@ -89,7 +89,7 @@ public class HashRing {
         LOGGER.info("append node list {}", nodes);
     }
 
-    public synchronized void removeNode(List<HostInfo> hosts) {
+    private synchronized void removeNode(List<HostInfo> hosts) {
         for (HostInfo host : hosts) {
             this.nodeList.remove(host);
             for (int i = 0; i < this.virtualNode; i++) {
