@@ -40,6 +40,9 @@ public class SubSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    @ApiModelProperty("stream source id")
+    private Integer id;
+
     @ApiModelProperty("Template source id this sub source belongs to")
     private Integer templateId;
 
