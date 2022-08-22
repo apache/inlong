@@ -53,7 +53,7 @@ public class InlongGroupTopicInfo {
     @ApiModelProperty(value = "Pulsar admin URL")
     private String pulsarAdminUrl;
 
-    @ApiModelProperty(value = "Pulsar admin URL")
-    private String kafkaBootStrapServers;
+    @ApiModelProperty(value = "Kafka admin URL")
+    private String kafkaBootstrapServers;
 
 }

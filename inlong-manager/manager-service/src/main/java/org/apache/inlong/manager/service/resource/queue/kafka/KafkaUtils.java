@@ -35,7 +35,7 @@ public class KafkaUtils {
     public static AdminClient getAdminClient(KafkaClusterInfo kafkaClusterInfo) {
         Properties properties = new Properties();
         // Configure the access address and port number of the Kafka service
-        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootStrapServers());
+        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootstrapServers());
         // Create AdminClient instance
         return AdminClient.create(properties);
     }
@@ -43,7 +43,7 @@ public class KafkaUtils {
     public static KafkaConsumer createKafkaConsumer(KafkaClusterInfo kafkaClusterInfo) {
         Properties properties = new Properties();
         // The connected kafka cluster address
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootStrapServers());
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootstrapServers());
         // consumer grouping
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaClusterInfo.getGroupId());
         // Confirm Auto Commit

@@ -41,7 +41,7 @@ public class KafkaClusterInfo extends ClusterInfo {
 
     @ApiModelProperty(value = "Kafka admin bootStrapServers, such as: 127.0.0.1:9092",
             notes = "Kafka service URL is the 'url' field of the cluster")
-    private String bootStrapServers;
+    private String bootstrapServers;
     // partition number
     private int numPartitions;
     // replicationFactor number

@@ -62,8 +62,6 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create kafka resource for groupId={}", groupId);
@@ -83,7 +81,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
                 this.createKafkaTopic(groupInfo, kafkaCluster, streamInfo.getInlongStreamId());
             }
         } catch (Exception e) {
-            String msg = String.format("failed to create pulsar resource for groupId=%s", groupId);
+            String msg = String.format("failed to create kafka resource for groupId=%s", groupId);
             log.error(msg, e);
             throw new WorkflowListenerException(msg + ": " + e.getMessage());
         }
@@ -178,7 +176,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
         boolean exist = kafkaOperator.topicIsExists(kafkaCluster, topicName);
         if (!exist) {
-            String bootStrapServers = kafkaCluster.getBootStrapServers();
+            String bootStrapServers = kafkaCluster.getBootstrapServers();
             log.error("topic={} not exists in {}", topicName, bootStrapServers);
             throw new WorkflowListenerException("topic=" + topicName + " not exists in " + bootStrapServers);
         }

@@ -61,7 +61,7 @@ public class KafkaOperator {
     }
 
     /**
-     * Force delete Pulsar topic
+     * Force delete Kafka topic
      */
     public void forceDeleteTopic(KafkaClusterInfo kafkaClusterInfo, String topicName) {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
@@ -89,7 +89,7 @@ public class KafkaOperator {
             Map<String, List<PartitionInfo>> topics = consumer.listTopics();
             List<PartitionInfo> partitions = topics.get(topic);
             if (partitions == null) {
-                LOGGER.info("subscription is exist");
+                LOGGER.info("subscription is not exist");
                 return false;
             }
             return true;

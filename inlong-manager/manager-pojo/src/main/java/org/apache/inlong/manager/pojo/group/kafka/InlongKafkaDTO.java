@@ -39,16 +39,13 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
-
-    private int tmp;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
     /**
      * Get the dto instance from the request
      */
     public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request) {
         return InlongKafkaDTO.builder()
-                .tmp(request.getTmp())
                 .build();
     }
 
@@ -57,7 +54,6 @@ public class InlongKafkaDTO {
      */
     public static InlongKafkaDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, InlongKafkaDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());

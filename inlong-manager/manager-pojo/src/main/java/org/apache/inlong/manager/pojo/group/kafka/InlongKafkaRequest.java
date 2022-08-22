@@ -35,8 +35,6 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 @JsonTypeDefine(value = MQType.KAFKA)
 public class InlongKafkaRequest extends InlongGroupRequest {
 
-    private int tmp;
-
     public InlongKafkaRequest() {
         this.setMqType(MQType.KAFKA);
     }

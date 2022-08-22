@@ -48,7 +48,7 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
 
     @Override
     public Boolean accept(String mqType) {
-        return getMQType().equals(mqType) || MQType.KAFKA.equals(mqType);
+        return getMQType().equals(mqType);
     }
 
     @Override
@@ -92,13 +92,6 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         InlongGroupTopicInfo topicInfo = super.getTopic(groupInfo);
-        // TODO add cache for cluster info
-        // pulsar topic corresponds to the inlong stream one-to-one
-        // topicInfo.setDsTopicList(streamService.getTopicList(groupInfo.getInlongGroupId()));
-        // commonOperateService.getSpecifiedParam(InlongConstants.TUBE_MASTER_URL);
-        // groupInfo.setTenant();
-        // groupInfo.setAdminUrl();
-        // groupInfo.setServiceUrl();
         return topicInfo;
     }
 

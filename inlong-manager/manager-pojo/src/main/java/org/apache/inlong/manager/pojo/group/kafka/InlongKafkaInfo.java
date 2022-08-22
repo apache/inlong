@@ -33,13 +33,11 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
  */
 @Data
 @SuperBuilder
-@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = MQType.KAFKA)
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaInfo extends InlongGroupInfo {
-    private int tmp;
 
     public InlongKafkaInfo() {
         this.setMqType(MQType.KAFKA);

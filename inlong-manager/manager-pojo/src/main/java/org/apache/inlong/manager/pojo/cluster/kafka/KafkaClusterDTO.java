@@ -40,7 +40,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
     @ApiModelProperty(value = "Kafka admin URL, such as: http://127.0.0.1:8080",
             notes = "Pulsar service URL is the 'url' field of the cluster")
@@ -60,7 +60,6 @@ public class KafkaClusterDTO {
      */
     public static KafkaClusterDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, KafkaClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
