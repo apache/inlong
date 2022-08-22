@@ -64,6 +64,7 @@ public class KafkaZoneProducer {
      */
     public void start() {
         try {
+            LOG.info("start KafkaZoneProducer:{}", workerName);
             this.reload();
             this.setReloadTimer();
         } catch (Exception e) {

@@ -27,11 +27,11 @@ import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.SinkContext;
+import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -43,8 +43,9 @@ public class PulsarZoneSinkContext extends SinkContext {
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
 
-    private final LinkedBlockingQueue<DispatchProfile> dispatchQueue;
+    private final BufferQueue<DispatchProfile> dispatchQueue;
 
+    private final String proxyClusterId;
     private final String nodeId;
     private final Context producerContext;
     //
@@ -54,13 +55,13 @@ public class PulsarZoneSinkContext extends SinkContext {
 
     /**
      * Constructor
-     * 
-     * @param context
      */
     public PulsarZoneSinkContext(String sinkName, Context context, Channel channel,
-            LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
+            BufferQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.dispatchQueue = dispatchQueue;
+        // proxyClusterId
+        this.proxyClusterId = CommonPropertiesHolder.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
         // nodeId
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, "127.0.0.1");
         // compressionType
@@ -98,11 +99,20 @@ public class PulsarZoneSinkContext extends SinkContext {
     }
 
     /**
+     * get proxyClusterId
+     * 
+     * @return the proxyClusterId
+     */
+    public String getProxyClusterId() {
+        return proxyClusterId;
+    }
+
+    /**
      * get dispatchQueue
      * 
      * @return the dispatchQueue
      */
-    public LinkedBlockingQueue<DispatchProfile> getDispatchQueue() {
+    public BufferQueue<DispatchProfile> getDispatchQueue() {
         return dispatchQueue;
     }
 
@@ -152,18 +162,54 @@ public class PulsarZoneSinkContext extends SinkContext {
     }
 
     /**
-     * addSendMetric
-     * 
-     * @param currentRecord
-     * @param bid
+     * addSendResultMetric
      */
-    public void addSendMetric(DispatchProfile currentRecord, String bid) {
+    public void addSendResultMetric(DispatchProfile currentRecord, String topic, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
-        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, bid);
+        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
+        final long currentTime = System.currentTimeMillis();
+        currentRecord.getEvents().forEach(event -> {
+            long msgTime = event.getMsgTime();
+            long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+            dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+            DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
+            if (result) {
+                metricItem.sendSuccessCount.addAndGet(1);
+                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
+                if (sendTime > 0) {
+                    long sinkDuration = currentTime - sendTime;
+                    long nodeDuration = currentTime - event.getSourceTime();
+                    long wholeDuration = currentTime - msgTime;
+                    metricItem.sinkDuration.addAndGet(sinkDuration);
+                    metricItem.nodeDuration.addAndGet(nodeDuration);
+                    metricItem.wholeDuration.addAndGet(wholeDuration);
+                }
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+            } else {
+                metricItem.sendFailCount.addAndGet(1);
+                metricItem.sendFailSize.addAndGet(event.getBody().length);
+            }
+        });
+    }
+
+    /**
+     * addSendMetric
+     */
+    public void addSendMetric(DispatchProfile currentRecord, String topic) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
+        // metric
+        fillInlongId(currentRecord, dimensions);
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         long msgTime = currentRecord.getDispatchTime();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
@@ -180,19 +226,22 @@ public class PulsarZoneSinkContext extends SinkContext {
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
+        dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, "-");
+        dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, "-");
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "-");
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        metricItem.readFailCount.incrementAndGet();
+        metricItem.sendFailCount.incrementAndGet();
+        metricItem.sendFailSize.incrementAndGet();
     }
 
     /**
      * fillInlongId
-     * 
-     * @param currentRecord
-     * @param dimensions
      */
     public static void fillInlongId(DispatchProfile currentRecord, Map<String, String> dimensions) {
         String inlongGroupId = currentRecord.getInlongGroupId();
@@ -205,60 +254,13 @@ public class PulsarZoneSinkContext extends SinkContext {
 
     /**
      * processSendFail
-     * @param currentRecord
-     * @param producerTopic
-     * @param sendTime
      */
-    public void processSendFail(DispatchProfile currentRecord, String producerTopic, long sendTime) {
+    public void processSendFail(DispatchProfile currentRecord, String topic, long sendTime) {
         if (currentRecord.isResend()) {
             dispatchQueue.offer(currentRecord);
-            this.addSendResultMetric(currentRecord, producerTopic, false, sendTime);
+            this.addSendResultMetric(currentRecord, topic, false, sendTime);
         } else {
             currentRecord.fail();
-        }
-    }
-
-    /**
-     * addSendResultMetric
-     * 
-     * @param currentRecord
-     * @param bid
-     * @param result
-     * @param sendTime
-     */
-    public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
-        // metric
-        fillInlongId(currentRecord, dimensions);
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
-        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, bid);
-        long dispatchTime = currentRecord.getDispatchTime();
-        long auditFormatTime = dispatchTime - dispatchTime % CommonPropertiesHolder.getAuditFormatInterval();
-        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-        DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        long count = currentRecord.getCount();
-        long size = currentRecord.getSize();
-        if (result) {
-            metricItem.sendSuccessCount.addAndGet(count);
-            metricItem.sendSuccessSize.addAndGet(size);
-            currentRecord.getEvents().forEach((event) -> {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
-            });
-            if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
-                currentRecord.getEvents().forEach((event) -> {
-                    long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - event.getSourceTime();
-                    long wholeDuration = currentTime - event.getMsgTime();
-                    metricItem.sinkDuration.addAndGet(sinkDuration);
-                    metricItem.nodeDuration.addAndGet(nodeDuration);
-                    metricItem.wholeDuration.addAndGet(wholeDuration);
-                });
-            }
-        } else {
-            metricItem.sendFailCount.addAndGet(count);
-            metricItem.sendFailSize.addAndGet(size);
         }
     }
 }

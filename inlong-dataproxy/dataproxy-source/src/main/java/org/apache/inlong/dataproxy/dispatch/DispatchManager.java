@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.dispatch;
 
 import org.apache.flume.Context;
+import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
@@ -27,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,7 +48,7 @@ public class DispatchManager {
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
+    private BufferQueue<DispatchProfile> dispatchQueue;
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
@@ -61,7 +61,7 @@ public class DispatchManager {
      * @param context
      * @param dispatchQueue
      */
-    public DispatchManager(Context context, LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
+    public DispatchManager(Context context, BufferQueue<DispatchProfile> dispatchQueue) {
         this.dispatchQueue = dispatchQueue;
         this.dispatchTimeout = context.getLong(KEY_DISPATCH_TIMEOUT, DEFAULT_DISPATCH_TIMEOUT);
         this.maxPackCount = context.getLong(KEY_DISPATCH_MAX_PACKCOUNT, DEFAULT_DISPATCH_MAX_PACKCOUNT);
@@ -91,6 +91,7 @@ public class DispatchManager {
             DispatchProfile newDispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
+            this.dispatchQueue.acquire(oldDispatchProfile.getSize());
             this.dispatchQueue.offer(oldDispatchProfile);
             outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
@@ -118,6 +119,7 @@ public class DispatchManager {
             // dispatch profile is full
             if (!addResult) {
                 outCounter.addAndGet(dispatchProfile.getCount());
+                this.dispatchQueue.acquire(dispatchProfile.getSize());
                 this.dispatchQueue.offer(dispatchProfile);
                 dispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
                         dispatchTime);
@@ -128,6 +130,7 @@ public class DispatchManager {
         // last dispatch profile
         if (dispatchProfile.getEvents().size() > 0) {
             outCounter.addAndGet(dispatchProfile.getCount());
+            this.dispatchQueue.acquire(dispatchProfile.getSize());
             this.dispatchQueue.offer(dispatchProfile);
         }
     }
@@ -159,6 +162,7 @@ public class DispatchManager {
         removeKeys.forEach((key) -> {
             DispatchProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
+                this.dispatchQueue.acquire(dispatchProfile.getSize());
                 dispatchQueue.offer(dispatchProfile);
                 outCounter.addAndGet(dispatchProfile.getCount());
             }

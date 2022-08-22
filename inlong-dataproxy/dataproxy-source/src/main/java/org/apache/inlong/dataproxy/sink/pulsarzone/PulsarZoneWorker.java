@@ -77,18 +77,20 @@ public class PulsarZoneWorker extends Thread {
     public void run() {
         LOG.info(String.format("start PulsarZoneWorker:%s", this.workerName));
         while (status != LifecycleState.STOP) {
+            DispatchProfile event = null;
             try {
-                DispatchProfile event = context.getDispatchQueue().poll();
+                event = context.getDispatchQueue().pollRecord();
                 if (event == null) {
                     this.sleepOneInterval();
                     continue;
                 }
-                // metric
-                context.addSendMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {
                 LOG.error(e.getMessage(), e);
+                if (event != null) {
+                    context.getDispatchQueue().offer(event);
+                }
                 this.sleepOneInterval();
             }
         }

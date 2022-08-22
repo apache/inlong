@@ -26,6 +26,8 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.dataproxy.dispatch.DispatchManager;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.apache.inlong.dataproxy.sink.SinkContext;
+import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
@@ -34,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -50,7 +51,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
     private List<KafkaZoneWorker> workers = new ArrayList<>();
     // message group
     private DispatchManager dispatchManager;
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
+    private BufferQueue<DispatchProfile> dispatchQueue;
     // scheduled thread pool
     // reload
     // dispatch
@@ -73,6 +74,7 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
+            this.dispatchQueue = SinkContext.createBufferQueue();
             this.context = new KafkaZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");

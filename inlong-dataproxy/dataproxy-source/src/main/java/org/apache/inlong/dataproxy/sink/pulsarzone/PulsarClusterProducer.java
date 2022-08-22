@@ -21,9 +21,9 @@ import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.apache.inlong.sdk.commons.protocol.EventConstants;
-import org.apache.inlong.sdk.commons.protocol.EventUtils;
+import org.apache.inlong.dataproxy.sink.EventHandler;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
@@ -38,15 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 /**
  * PulsarClusterProducer
@@ -86,6 +82,7 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     private String tenant;
     private String namespace;
+    private EventHandler handler;
 
     /**
      * pulsar client
@@ -98,9 +95,9 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * Constructor
      * 
-     * @param workerName Worker name
-     * @param config Cache cluster configuration
-     * @param context Sink context
+     * @param workerName
+     * @param config
+     * @param context
      */
     public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         this.workerName = workerName;
@@ -111,6 +108,7 @@ public class PulsarClusterProducer implements LifecycleAware {
         this.cacheClusterName = config.getClusterName();
         this.tenant = config.getParams().get(KEY_TENANT);
         this.namespace = config.getParams().get(KEY_NAMESPACE);
+        this.handler = this.sinkContext.createEventHandler();
     }
 
     /**
@@ -160,7 +158,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getPulsarCompressionType
      * 
-     * @return CompressionType LZ4/NONE/ZLIB/ZSTD/SNAPPY
+     * @return CompressionType
      */
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
@@ -204,7 +202,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getLifecycleState
      * 
-     * @return LifecycleState state
+     * @return
      */
     @Override
     public LifecycleState getLifecycleState() {
@@ -212,20 +210,35 @@ public class PulsarClusterProducer implements LifecycleAware {
     }
 
     /**
-     * send DispatchProfile
+     * send
      * 
-     * @param event DispatchProfile
-     * @return boolean sendResult
+     * @param event
      */
     public boolean send(DispatchProfile event) {
         try {
+            // idConfig
+            IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
+            if (idConfig == null) {
+                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(event.getSize());
+                return false;
+            }
+            String baseTopic = idConfig.getTopicName();
+            if (baseTopic == null) {
+                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(event.getSize());
+                return false;
+            }
             // topic
-            String producerTopic = this.getProducerTopic(event);
+            String producerTopic = this.getProducerTopic(baseTopic);
             if (producerTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(event.getSize());
                 event.fail();
                 return false;
             }
+            // metric
+            sinkContext.addSendMetric(event, producerTopic);
             // get producer
             Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
@@ -256,9 +269,10 @@ public class PulsarClusterProducer implements LifecycleAware {
                 return false;
             }
             // headers
-            Map<String, String> headers = this.encodeCacheMessageHeaders(event);
+            Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
+                    sinkContext.getCompressType());
             // compress
-            byte[] bodyBytes = EventUtils.encodeCacheMessageBody(sinkContext.getCompressType(), event.getEvents());
+            byte[] bodyBytes = this.handler.parseBody(idConfig, event, sinkContext.getCompressType());
             // sendAsync
             long sendTime = System.currentTimeMillis();
             CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -271,6 +285,7 @@ public class PulsarClusterProducer implements LifecycleAware {
                     sinkContext.processSendFail(event, producerTopic, sendTime);
                 } else {
                     sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                    sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
                 }
             });
@@ -284,15 +299,8 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * getProducerTopic
-     * 
-     * @param event DispatchProfile
-     * @return String Full topic name
      */
-    private String getProducerTopic(DispatchProfile event) {
-        String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
-        if (baseTopic == null) {
-            return null;
-        }
+    private String getProducerTopic(String baseTopic) {
         StringBuilder builder = new StringBuilder();
         if (tenant != null) {
             builder.append(tenant).append("/");
@@ -302,39 +310,6 @@ public class PulsarClusterProducer implements LifecycleAware {
         }
         builder.append(baseTopic);
         return builder.toString();
-    }
-
-    /**
-     * encodeCacheMessageHeaders
-     * 
-     * @param  event DispatchProfile
-     * @return Map cache message headers
-     */
-    public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
-        Map<String, String> headers = new HashMap<>();
-        // version int32 protocol version, the value is 1
-        headers.put(HEADER_KEY_VERSION, HEADER_CACHE_VERSION_1);
-        // inlongGroupId string inlongGroupId
-        headers.put(EventConstants.INLONG_GROUP_ID, event.getInlongGroupId());
-        // inlongStreamId string inlongStreamId
-        headers.put(EventConstants.INLONG_STREAM_ID, event.getInlongStreamId());
-        // proxyName string proxy node id, IP or conainer name
-        headers.put(EventConstants.HEADER_KEY_PROXY_NAME, sinkContext.getNodeId());
-        // packTime int64 pack time, milliseconds
-        headers.put(EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
-        // msgCount int32 message count
-        headers.put(EventConstants.HEADER_KEY_MSG_COUNT, String.valueOf(event.getEvents().size()));
-        // srcLength int32 total length of raw messages body
-        headers.put(EventConstants.HEADER_KEY_SRC_LENGTH, String.valueOf(event.getSize()));
-        // compressType int
-        // compress type of body data
-        // INLONG_NO_COMPRESS = 0,
-        // INLONG_GZ = 1,
-        // INLONG_SNAPPY = 2
-        headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
-                String.valueOf(sinkContext.getCompressType().getNumber()));
-        // messageKey string partition hash key, optional
-        return headers;
     }
 
     /**
