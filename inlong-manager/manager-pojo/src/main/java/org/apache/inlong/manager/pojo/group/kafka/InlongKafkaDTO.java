@@ -39,7 +39,8 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
     /**
      * Get the dto instance from the request
