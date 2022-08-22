@@ -462,6 +462,10 @@
       inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarDynamicTableFactory.java
       inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarDynamicTableSink.java
       inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/UpsertPulsarDynamicTableFactory.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/withoutadmin/FlinkPulsarSource.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/withoutadmin/PulsarFetcher.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/withoutadmin/PulsarMetadataReader.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/withoutadmin/ReaderThread.java
  Source  : pulsar-flink-connector_2.11 1.13.6.1-rc9 (Please note that the software have been modified.)
  License : https://github.com/streamnative/pulsar-flink/blob/master/LICENSE
 
