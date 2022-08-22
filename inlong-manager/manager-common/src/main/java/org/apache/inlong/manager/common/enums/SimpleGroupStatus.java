@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.enums;
-
-import org.apache.inlong.manager.common.enums.GroupStatus;
+package org.apache.inlong.manager.common.enums;
 
 import java.util.ArrayList;
 import java.util.List;

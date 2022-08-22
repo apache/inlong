@@ -237,7 +237,8 @@ public class AgentServiceImpl implements AgentService {
 
             // Cluster name is not blank, split task if necessary
             // The agent ip field of the entity holds the ip list of the agents that has already been issued
-            if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)) {
+            if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)
+                    && Objects.isNull(sourceEntity.getTemplateId())) {
 
                 // Is the task already fetched by this agent ?
                 if (StringUtils.isNotBlank(sourceEntity.getAgentIp())) {
@@ -256,6 +257,7 @@ public class AgentServiceImpl implements AgentService {
                 fileEntity.setAgentIp(agentIp);
                 fileEntity.setUuid(uuid);
                 fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
+                fileEntity.setTemplateId(sourceEntity.getId());
                 int op = getOp(fileEntity.getStatus());
                 int nextStatus = getNextStatus(fileEntity.getStatus());
                 fileEntity.setStatus(nextStatus);
