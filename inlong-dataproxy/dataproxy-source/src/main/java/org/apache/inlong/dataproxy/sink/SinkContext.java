@@ -51,11 +51,11 @@ public class SinkContext {
     protected final Context sinkContext;
 
     protected final Channel channel;
-    //
+
     protected final int maxThreads;
     protected final long processInterval;
     protected final long reloadInterval;
-    //
+
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
