@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * doris extract node using doris flink-doris-connector-1.13.5_2.12
+ * doris extract node using doris flink-doris-connector-1.13.5_2.11
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("dorisExtract")
@@ -94,8 +94,4 @@ public class DorisExtractNode extends ExtractNode implements Serializable {
         return String.format("table_%s", super.getId());
     }
 
-    @Override
-    public List<FieldInfo> getPartitionFields() {
-        return super.getPartitionFields();
-    }
 }
