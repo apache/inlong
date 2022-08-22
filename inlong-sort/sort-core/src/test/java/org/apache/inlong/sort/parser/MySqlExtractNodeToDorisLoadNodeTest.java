@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.parser;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Test mysql cdc for {@link DorisLoadNode}
  */
+@Slf4j
 public class MySqlExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMysqlExtractNode() {
@@ -131,7 +133,7 @@ public class MySqlExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
         try {
             Assert.assertTrue(result.tryExecute());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("An exception occurred: {}", e.getMessage());
         }
     }
 }

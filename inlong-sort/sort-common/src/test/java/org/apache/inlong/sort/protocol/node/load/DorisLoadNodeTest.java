@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * test for doris load node
+ * Test for {@link DorisLoadNode}
  */
 public class DorisLoadNodeTest extends SerializeBaseTest<DorisLoadNode> {
 
