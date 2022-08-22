@@ -66,12 +66,12 @@ public class PulsarConsumer {
 
     public InLongTopic getTopic(String msgOffset) {
         Tuple2<InLongTopic, MessageId> tuple = offsetCache.get(msgOffset);
-        return tuple == null? null : tuple.getF0();
+        return tuple == null ? null : tuple.getF0();
     }
 
     public MessageId getMessageId(String msgOffset) {
         Tuple2<InLongTopic, MessageId> tuple = offsetCache.get(msgOffset);
-        return tuple == null? null : tuple.getF1();
+        return tuple == null ? null : tuple.getF1();
     }
 
     public boolean remove(String offsetKey) {

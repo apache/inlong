@@ -128,7 +128,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         }
         PulsarConsumer newConsumerWrapper = new PulsarConsumer(newConsumer);
         InLongTopic firstTopic = newTopics.stream().findFirst().get();
-        Seeker newSeeker = SeekerFactory.createPulsarSeeker(newConsumer, firstTopic);
+        final Seeker newSeeker = SeekerFactory.createPulsarSeeker(newConsumer, firstTopic);
         // save
         currentConsumer.setStopTime(System.currentTimeMillis());
         toBeRemovedConsumers.add(currentConsumer);
@@ -317,7 +317,6 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         }
         return false;
     }
-
 
     public class Fetcher implements Runnable {
 

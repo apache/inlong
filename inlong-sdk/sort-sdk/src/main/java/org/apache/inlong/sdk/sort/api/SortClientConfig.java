@@ -322,6 +322,7 @@ public class SortClientConfig implements Serializable {
     public void setCleanOldConsumerIntervalSec(int cleanOldConsumerIntervalSec) {
         this.cleanOldConsumerIntervalSec = cleanOldConsumerIntervalSec;
     }
+
     /**
      * ConsumeStrategy
      */
