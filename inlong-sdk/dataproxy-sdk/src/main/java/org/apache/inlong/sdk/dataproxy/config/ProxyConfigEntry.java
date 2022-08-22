@@ -28,6 +28,8 @@ public class ProxyConfigEntry implements java.io.Serializable {
     private int load;
     private int switchStat;
     private boolean isInterVisit;
+    private int virtualNode;
+    private String loadBalance;
 
     public int getLoad() {
         return load;
@@ -78,11 +80,19 @@ public class ProxyConfigEntry implements java.io.Serializable {
         isInterVisit = interVisit;
     }
 
+    public void setVirtualNode(int virtualNode) {
+        this.virtualNode = virtualNode;
+    }
+
+    public void setLoadBalance(String loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
     @Override
     public String toString() {
         return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
-                + isInterVisit + ", groupId=" + groupId
-                + ", switch=" + switchStat + "]";
+                + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat + ", loadBalance=" + loadBalance
+                + "virtualNode=" + virtualNode + "]";
     }
 
     public int getClusterId() {

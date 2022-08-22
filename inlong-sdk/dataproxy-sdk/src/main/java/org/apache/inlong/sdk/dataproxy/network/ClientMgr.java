@@ -32,7 +32,6 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
-import org.apache.inlong.sdk.dataproxy.utils.HashRing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +95,7 @@ public class ClientMgr {
      * Lock to protect FSNamesystem.
      */
     private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
+    private static String LOAD_BALANCE = "Consistency Hash";
 
     public int getLoadThreshold() {
         return loadThreshold;
@@ -352,7 +352,7 @@ public class ClientMgr {
     }
 
     public synchronized NettyClient getClientByRandom() {
-        NettyClient client = null;
+        NettyClient client;
         if (clientList.isEmpty()) {
             return null;
         }
@@ -362,8 +362,11 @@ public class ClientMgr {
         do {
             int randomId = random.nextInt();
             client = clientList.get(randomId % currSize);
+            if (client != null && client.isActive()) {
+                break;
+            }
             maxRetry--;
-        } while (client != null && client.isActive() && maxRetry > 0);
+        } while (maxRetry > 0);
         if (client == null || !client.isActive()) {
             return null;
         }
@@ -381,6 +384,56 @@ public class ClientMgr {
         client = this.clientMap.get(info);
         return client;
     }
+
+//    public synchronized NettyClient getClientByLeastConnections() {}
+
+    public synchronized NettyClient getClientByWeightRoundRobin() {
+        NettyClient client = null;
+        double maxWeight = Double.MIN_VALUE;
+        int clientId = 0;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        for (int retryTime = 0; retryTime < currSize; retryTime++) {
+            currentIndex = (++currentIndex) % currSize;
+            client = clientList.get(currentIndex);
+            if (client != null && client.isActive() && client.getWeight() > maxWeight) {
+                clientId = currentIndex;
+            }
+        }
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return clientList.get(clientId);
+    }
+
+    public synchronized NettyClient getClientByWeightRandom() {
+        NettyClient client;
+        double maxWeight = Double.MIN_VALUE;
+        int clientId = 0;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        int maxRetry = 1000;
+        Random random = new Random(System.currentTimeMillis());
+        do {
+            int randomId = random.nextInt();
+            client = clientList.get(randomId % currSize);
+            if (client != null && client.isActive()) {
+                clientId = randomId;
+                break;
+            }
+            maxRetry--;
+        } while (maxRetry > 0);
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return clientList.get(clientId);
+    }
+
+//    public synchronized NettyClient getClientByWeightLeastConnections(){}
 
     public NettyClient getContainProxy(String proxyip) {
         if (proxyip == null) {

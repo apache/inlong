@@ -22,10 +22,7 @@ import io.netty.channel.Channel;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sdk.dataproxy.FileCallback;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.*;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
@@ -233,26 +230,30 @@ public class Sender {
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
             long timeout, TimeUnit timeUnit) {
         return syncSendMessage(encodeObject, msgUUID, timeout,
-                timeUnit, LoadBalance.CONSISTENCY_HASH);
+                timeUnit, ConfigConstants.DEFAULT_LOAD_BALANCE);
     }
 
-    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
-                                      long timeout, TimeUnit timeUnit,
-                                      LoadBalance loadBalance) {
-        metricWorker.recordNumByKey(encodeObject.getMessageId(),
-                encodeObject.getGroupId(), encodeObject.getStreamId(),
+    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout,
+                                      TimeUnit timeUnit, String loadBalance) {
+        metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
         NettyClient client = null;
         switch (loadBalance) {
-            case RANDOM:
+            case "random":
                 client = clientMgr.getClientByRandom();
                 break;
-            case CONSISTENCY_HASH:
+            case "consistency hash":
                 client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
                 break;
-            case ROUND_ROBIN:
-            default:
+            case "robin":
                 client = clientMgr.getClientByRoundRobin();
+                break;
+            case "weight robin":
+                client = clientMgr.getClientByWeightRoundRobin();
+                break;
+            case "weight random":
+                client = clientMgr.getClientByWeightRandom();
+                break;
         }
         SendResult message = null;
         try {
@@ -536,12 +537,12 @@ public class Sender {
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback,
                                  String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
         asyncSendMessage(encodeObject, callback, msgUUID, timeout,
-                timeUnit, LoadBalance.CONSISTENCY_HASH);
+                timeUnit, ConfigConstants.DEFAULT_LOAD_BALANCE);
     }
 
     public void asyncSendMessage(EncodeObject encodeObject,
                                  SendMessageCallback callback, String msgUUID,
-                                 long timeout, TimeUnit timeUnit, LoadBalance loadBalance) throws ProxysdkException {
+                                 long timeout, TimeUnit timeUnit, String loadBalance) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
@@ -550,15 +551,21 @@ public class Sender {
 
         NettyClient client = null;
         switch (loadBalance) {
-            case RANDOM:
+            case "random":
                 client = clientMgr.getClientByRandom();
                 break;
-            case CONSISTENCY_HASH:
+            case "consistency hash":
                 client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
                 break;
-            case ROUND_ROBIN:
-            default:
+            case "robin":
                 client = clientMgr.getClientByRoundRobin();
+                break;
+            case "weight robin":
+                client = clientMgr.getClientByWeightRoundRobin();
+                break;
+            case "weight random":
+                client = clientMgr.getClientByWeightRandom();
+                break;
         }
         if (client == null) {
             throw new ProxysdkException(SendResult.NO_CONNECTION.toString());

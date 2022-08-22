@@ -69,4 +69,8 @@ public class ConfigConstants {
 
     public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
 
+    public static String DEFAULT_LOAD_BALANCE = "robin";
+
+    public static int DEFAULT_VIRTUAL_NODE = 1000;
+
 }

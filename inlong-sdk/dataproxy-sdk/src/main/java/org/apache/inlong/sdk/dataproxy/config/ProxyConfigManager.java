@@ -52,7 +52,7 @@ import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.apache.inlong.sdk.dataproxy.utils.HashRing;
+import org.apache.inlong.sdk.dataproxy.network.HashRing;
 import org.apache.inlong.sdk.dataproxy.utils.LoadBalance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +104,7 @@ public class ProxyConfigManager extends Thread {
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
     private final HashRing hashRing = HashRing.getInstance();
-    private LoadBalance loadBalance = LoadBalance.CONSISTENCY_HASH;
+    private String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
@@ -631,6 +631,14 @@ public class ProxyConfigManager extends Thread {
         if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
             isSwitch = proxyCluster.getIsSwitch();
         }
+        int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getVirtualNode())) {
+            virtualNode = proxyCluster.getVirtualNode();
+        }
+        String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getLoadBalance())) {
+            loadBalance = proxyCluster.getLoadBalance();
+        }
 
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
         proxyEntry.setClusterId(clusterId);
@@ -640,6 +648,8 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
         proxyEntry.setSize(nodeList.size());
+        proxyEntry.setVirtualNode(virtualNode);
+        proxyEntry.setLoadBalance(loadBalance);
         return proxyEntry;
     }
 
