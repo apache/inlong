@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
  */
 public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
 
-    private KafkaExtractNode buildKafkaExtractNode() {
+    private KafkaExtractNode buildIntervalJoinLeftStream() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
@@ -82,7 +82,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 "groupId_1", null);
     }
 
-    private KafkaExtractNode buildKafkaExtractNode2() {
+    private KafkaExtractNode buildIntervalJoinRightStream() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
@@ -170,13 +170,13 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 .inStreamingMode()
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        Node kafkaExtractNode = buildKafkaExtractNode();
-        Node kafkaExtractNode2 = buildKafkaExtractNode2();
+        Node leftStream = buildIntervalJoinLeftStream();
+        Node rightStream = buildIntervalJoinRightStream();
         Node kafkaLoadNode = buildKafkaLoadNode();
         StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(kafkaExtractNode, kafkaExtractNode2, kafkaLoadNode),
+                Arrays.asList(leftStream, rightStream, kafkaLoadNode),
                 Collections.singletonList(
-                        buildNodeRelation(Arrays.asList(kafkaExtractNode, kafkaExtractNode2),
+                        buildNodeRelation(Arrays.asList(leftStream, rightStream),
                                 Collections.singletonList(kafkaLoadNode)))
         );
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
