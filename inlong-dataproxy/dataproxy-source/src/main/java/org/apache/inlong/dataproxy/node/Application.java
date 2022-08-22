@@ -21,6 +21,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -42,7 +43,6 @@ import org.apache.flume.lifecycle.LifecycleSupervisor.SupervisorPolicy;
 import org.apache.flume.node.MaterializedConfiguration;
 import org.apache.flume.node.PollingPropertiesFileConfigurationProvider;
 import org.apache.flume.node.PollingZooKeeperConfigurationProvider;
-import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.common.config.IDataProxyConfigHolder;
@@ -52,6 +52,7 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
+import org.apache.inlong.sdk.commons.node.InlongConfigurationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -348,23 +349,11 @@ public class Application {
             option = new Option("h", "help", false, "display help text");
             options.addOption(option);
 
-            // load configuration data from manager
-            option = new Option(null, "load-conf-from-manager", false,
-                    "load configuration data from manager");
-            option.setRequired(false);
-            options.addOption(option);
-
             CommandLineParser parser = new GnuParser();
             CommandLine commandLine = parser.parse(options, args);
 
             if (commandLine.hasOption('h')) {
                 new HelpFormatter().printHelp("flume-ng agent", options, true);
-                return;
-            }
-
-            // start by manager configuation
-            if (commandLine.hasOption("load-conf-from-manager")) {
-                startByManagerConf(commandLine);
                 return;
             }
 
@@ -426,11 +415,10 @@ public class Application {
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
-                    PropertiesFileConfigurationProvider configurationProvider;
-                    configurationProvider = new PropertiesFileConfigurationProvider(
-                            agentName, configurationFile);
+                    InlongConfigurationProvider provider = new InlongConfigurationProvider(
+                            agentName, configurationFile, CommonPropertiesHolder.get());
                     application = new Application();
-                    application.handleConfigurationEvent(configurationProvider.getConfiguration());
+                    application.handleConfigurationEvent(provider.getConfiguration());
                 }
             }
             // metrics
@@ -454,28 +442,5 @@ public class Application {
         } catch (Exception e) {
             logger.error("A fatal error occurred while running. Exception follows.", e);
         }
-    }
-
-    /**
-     * startByManagerConf
-     *
-     * @param commandLine
-     */
-    private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
-        ManagerPropertiesConfigurationProvider configurationProvider = new ManagerPropertiesConfigurationProvider(
-                proxyName);
-        Application application = new Application();
-        application.handleConfigurationEvent(configurationProvider.getConfiguration());
-        application.start();
-
-        final Application appReference = application;
-        Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
-
-            @Override
-            public void run() {
-                appReference.stop();
-            }
-        });
     }
 }

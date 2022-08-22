@@ -17,9 +17,7 @@
 
 package org.apache.inlong.sort.standalone;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.locks.ReentrantLock;
+import com.google.common.eventbus.Subscribe;
 
 import org.apache.flume.Channel;
 import org.apache.flume.SinkRunner;
@@ -29,12 +27,16 @@ import org.apache.flume.lifecycle.LifecycleSupervisor;
 import org.apache.flume.lifecycle.LifecycleSupervisor.SupervisorPolicy;
 import org.apache.flume.node.MaterializedConfiguration;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.commons.node.InlongConfigurationProvider;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.google.common.eventbus.Subscribe;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 
@@ -80,8 +82,8 @@ public class SortTask {
         //
         Map<String, String> flumeConfiguration = FlumeConfigGenerator.generateFlumeConfiguration(config);
         LOG.info("Start sort task:{},config:{}", taskName, flumeConfiguration);
-        PropertiesConfigurationProvider configurationProvider = new PropertiesConfigurationProvider(
-                config.getName(), flumeConfiguration);
+        InlongConfigurationProvider configurationProvider = new InlongConfigurationProvider(
+                config.getName(), flumeConfiguration, CommonPropertiesHolder.get());
         this.handleConfigurationEvent(configurationProvider.getConfiguration());
     }
 
