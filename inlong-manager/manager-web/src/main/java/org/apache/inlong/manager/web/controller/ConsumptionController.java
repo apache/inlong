@@ -21,7 +21,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
@@ -67,7 +66,7 @@ public class ConsumptionController {
     @ApiOperation(value = "List data consumptions")
     public Response<PageResult<ConsumptionListVo>> list(ConsumptionQuery query) {
         query.setUsername(LoginUserUtils.getLoginUser().getName());
-        return Response.success(PageUtils.of(consumptionService.list(query)));
+        return Response.success(consumptionService.list(query));
     }
 
     @GetMapping("/consumption/get/{id}")

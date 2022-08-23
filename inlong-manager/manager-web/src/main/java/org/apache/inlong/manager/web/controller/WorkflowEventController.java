@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
@@ -61,7 +60,7 @@ public class WorkflowEventController {
     @GetMapping("/workflow/event/list")
     @ApiOperation(value = "Get event list by paginating")
     public Response<PageResult<EventLogResponse>> list(EventLogRequest query) {
-        return Response.success(PageUtils.of(workflowEventService.list(query)));
+        return Response.success(workflowEventService.list(query));
     }
 
     @Deprecated

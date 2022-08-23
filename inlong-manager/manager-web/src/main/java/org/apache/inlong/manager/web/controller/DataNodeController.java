@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -73,7 +72,7 @@ public class DataNodeController {
     @PostMapping(value = "/node/list")
     @ApiOperation(value = "List data node")
     public Response<PageResult<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
-        return Response.success(PageUtils.of(dataNodeService.list(request)));
+        return Response.success(dataNodeService.list(request));
     }
 
     @PostMapping(value = "/node/update")

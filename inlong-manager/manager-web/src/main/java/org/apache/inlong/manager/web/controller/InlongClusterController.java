@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -82,7 +81,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster tags")
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        return Response.success(PageUtils.of(clusterService.listTag(request)));
+        return Response.success(clusterService.listTag(request));
     }
 
     @PostMapping(value = "/cluster/tag/update")
@@ -122,7 +121,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "List clusters")
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
-        return Response.success(PageUtils.of(clusterService.list(request)));
+        return Response.success(clusterService.list(request));
     }
 
     @PostMapping(value = "/cluster/update")
@@ -170,7 +169,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster nodes")
     public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
-        return Response.success(PageUtils.of(clusterService.listNode(request, currentUser)));
+        return Response.success(clusterService.listNode(request, currentUser));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)

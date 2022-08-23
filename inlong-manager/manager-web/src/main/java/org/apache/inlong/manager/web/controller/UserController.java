@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -75,7 +74,7 @@ public class UserController {
     @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
     public Response<PageResult<UserInfo>> list(@RequestBody UserRequest request) {
-        return Response.success(PageUtils.of(userService.list(request)));
+        return Response.success(userService.list(request));
     }
 
     @PostMapping("/user/update")

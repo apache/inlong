@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.ListenerExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
@@ -131,7 +132,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public PageInfo<ProcessResponse> listProcess(ProcessRequest query) {
+    public PageResult<ProcessResponse> listProcess(ProcessRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowProcessEntity> result = (Page<WorkflowProcessEntity>) queryService.listProcessEntity(query);
         PageInfo<ProcessResponse> pageInfo = result.toPageInfo(entity -> {
@@ -142,7 +143,8 @@ public class WorkflowServiceImpl implements WorkflowService {
             return response;
         });
 
-        pageInfo.setTotal(result.getTotal());
+        PageResult<ProcessResponse> pageResult = new PageResult<>(pageInfo.getList(),
+                pageInfo.getTotal(), pageInfo.getPageNum(), pageInfo.getPageSize());
 
         if (query.getIncludeCurrentTask()) {
             TaskRequest taskQuery = TaskRequest.builder()
@@ -150,20 +152,20 @@ public class WorkflowServiceImpl implements WorkflowService {
                     .statusSet(Collections.singleton(TaskStatus.PENDING))
                     .build();
             PageHelper.startPage(0, 100);
-            pageInfo.getList().forEach(this.addCurrentTask(taskQuery));
+            pageResult.getList().forEach(this.addCurrentTask(taskQuery));
         }
-        return pageInfo;
+        return pageResult;
     }
 
     @Override
-    public PageInfo<TaskResponse> listTask(TaskRequest query) {
+    public PageResult<TaskResponse> listTask(TaskRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowTaskEntity> result = (Page<WorkflowTaskEntity>) queryService.listTaskEntity(query);
+
         PageInfo<TaskResponse> pageInfo = result.toPageInfo(WorkflowUtils::getTaskResponse);
         addShowInListForEachTask(pageInfo.getList());
-        pageInfo.setTotal(result.getTotal());
 
-        return pageInfo;
+        return new PageResult<>(pageInfo.getList(), pageInfo.getTotal(), pageInfo.getPageNum(), pageInfo.getPageSize());
     }
 
     @Override
@@ -177,7 +179,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     }
 
     @Override
-    public PageInfo<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query) {
+    public PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query) {
         Preconditions.checkNotNull(query, "task execute log query params cannot be null");
 
         String groupId = query.getInlongGroupId();
@@ -229,8 +231,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         LOGGER.info("success to page list task execute logs for " + query);
-        pageInfo.setTotal(entityPage.getTotal());
-        return pageInfo;
+
+        return new PageResult<>(pageInfo.getList(), pageInfo.getTotal(), pageInfo.getPageNum(),
+                pageInfo.getPageSize());
     }
 
     private Consumer<ProcessResponse> addCurrentTask(TaskRequest query) {

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.group;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,6 +42,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -181,7 +181,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
+    public PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
             LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
@@ -210,10 +210,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 group.setStreamSources(sources);
             });
         }
-        PageInfo<InlongGroupBriefInfo> page = new PageInfo<>(briefInfos);
-        page.setTotal(entityPage.getTotal());
+
+        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+
         LOGGER.debug("success to list inlong group for {}", request);
-        return page;
+        return pageResult;
     }
 
     @Override

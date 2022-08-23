@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
@@ -144,14 +143,14 @@ public class WorkflowController {
     @ApiOperation(value = "Get process list by paginating")
     public Response<PageResult<ProcessResponse>> listProcess(ProcessRequest query) {
         query.setApplicant(LoginUserUtils.getLoginUser().getName());
-        return Response.success(PageUtils.of(workflowService.listProcess(query)));
+        return Response.success(workflowService.listProcess(query));
     }
 
     @GetMapping("/workflow/listTask")
     @ApiOperation(value = "Get task list by paginating")
     public Response<PageResult<TaskResponse>> listTask(TaskRequest query) {
         query.setApprover(LoginUserUtils.getLoginUser().getName());
-        return Response.success(PageUtils.of(workflowService.listTask(query)));
+        return Response.success(workflowService.listTask(query));
     }
 
     @GetMapping("/workflow/processSummary")
@@ -171,7 +170,7 @@ public class WorkflowController {
     @GetMapping("/workflow/listTaskLogs")
     @ApiOperation(value = "Get task execution logs")
     public Response<PageResult<WorkflowExecuteLog>> listTaskLogs(TaskLogRequest query) {
-        return Response.success(PageUtils.of(workflowService.listTaskLogs(query)));
+        return Response.success(workflowService.listTaskLogs(query));
     }
 
 }

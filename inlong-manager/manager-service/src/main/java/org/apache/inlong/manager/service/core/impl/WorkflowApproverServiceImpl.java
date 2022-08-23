@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -27,6 +26,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
@@ -111,15 +111,14 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     }
 
     @Override
-    public PageInfo<ApproverResponse> listByCondition(ApproverPageRequest request) {
+    public PageResult<ApproverResponse> listByCondition(ApproverPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
         Page<WorkflowApproverEntity> page = (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
         List<ApproverResponse> resultList = CommonBeanUtils.copyListProperties(page,
                 ApproverResponse::new);
-        PageInfo<ApproverResponse> pageInfo = new PageInfo<>(resultList);
-        pageInfo.setTotal(page.getTotal());
-        return pageInfo;
+
+        return new PageResult<>(resultList, page.getTotal(), page.getPageNum(), page.getPageSize());
     }
 
     @Override

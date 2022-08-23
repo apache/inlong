@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
@@ -67,19 +66,19 @@ public class HeartbeatController {
     @ApiOperation(value = "List component heartbeats")
     public Response<PageResult<ComponentHeartbeatResponse>> listComponentHeartbeat(
             @RequestBody HeartbeatPageRequest request) {
-        return Response.success(PageUtils.of(heartbeatService.listComponentHeartbeat(request)));
+        return Response.success(heartbeatService.listComponentHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/group/list", method = RequestMethod.POST)
     @ApiOperation(value = "List group heartbeats")
     public Response<PageResult<GroupHeartbeatResponse>> listGroupHeartbeat(@RequestBody HeartbeatPageRequest request) {
-        return Response.success(PageUtils.of(heartbeatService.listGroupHeartbeat(request)));
+        return Response.success(heartbeatService.listGroupHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream heartbeats")
     public Response<PageResult<StreamHeartbeatResponse>> listStreamHeartbeat(@RequestBody HeartbeatPageRequest req) {
-        return Response.success(PageUtils.of(heartbeatService.listStreamHeartbeat(req)));
+        return Response.success(heartbeatService.listStreamHeartbeat(req));
     }
 
 }

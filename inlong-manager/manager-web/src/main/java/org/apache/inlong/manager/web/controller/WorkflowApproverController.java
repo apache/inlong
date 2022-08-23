@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
@@ -70,7 +69,7 @@ public class WorkflowApproverController {
     public Response<PageResult<ApproverResponse>> listByCondition(ApproverPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
-        return Response.success(PageUtils.of(workflowApproverService.listByCondition(request)));
+        return Response.success(workflowApproverService.listByCondition(request));
     }
 
     @PostMapping("/workflow/approver/update")

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.web.controller.openapi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -55,7 +54,7 @@ public class OpenClusterController {
     @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "Get clusters by paginating")
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
-        return Response.success(PageUtils.of(clusterService.list(request)));
+        return Response.success(clusterService.list(request));
     }
 
 }

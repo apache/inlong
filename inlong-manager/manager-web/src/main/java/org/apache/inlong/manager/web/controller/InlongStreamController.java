@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.dao.util.PageUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -89,7 +88,7 @@ public class InlongStreamController {
     public Response<PageResult<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
-        return Response.success(PageUtils.of(streamService.listBrief(request)));
+        return Response.success(streamService.listBrief(request));
     }
 
     @RequestMapping(value = "/stream/listAll", method = RequestMethod.POST)
@@ -97,7 +96,7 @@ public class InlongStreamController {
     public Response<PageResult<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
-        return Response.success(PageUtils.of(streamService.listAll(request)));
+        return Response.success(streamService.listAll(request));
     }
 
     @RequestMapping(value = "/stream/update", method = RequestMethod.POST)
