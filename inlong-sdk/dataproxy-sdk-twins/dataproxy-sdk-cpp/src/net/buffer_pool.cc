@@ -278,7 +278,7 @@ namespace dataproxy_sdk
 
     BufferPoolPtr TotalPools::getPool(const std::string &inlong_group_id)
     {
-        if (g_config->enable_groupId_isolation_) // groupid隔离
+        if (g_config->enable_groupId_isolation_) // groupid isolate
         {
             auto groupid_pool = groupid2pool_map_.find(inlong_group_id);
             if (groupid_pool == groupid2pool_map_.end() || groupid_pool->second.empty())

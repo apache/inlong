@@ -49,7 +49,7 @@ public class SortClientConfig implements Serializable {
     private String managerApiUrl;
     private String managerApiVersion;
     private ConsumeStrategy consumeStrategy;
-    private TopicManagerType topicManagerType;
+    private TopicType topicType;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 0;
@@ -106,16 +106,16 @@ public class SortClientConfig implements Serializable {
      * get the type of topic manager
      * @return
      */
-    public TopicManagerType getTopicManagerType() {
-        return topicManagerType;
+    public TopicType getTopicType() {
+        return topicType;
     }
 
     /**
      * Set type of topic manager
-     * @param topicManagerType
+     * @param topicType
      */
-    public void setTopicManagerType(TopicManagerType topicManagerType) {
-        this.topicManagerType = topicManagerType;
+    public void setTopicManagerType(TopicType topicType) {
+        this.topicType = topicType;
     }
 
     /**
@@ -328,10 +328,10 @@ public class SortClientConfig implements Serializable {
         lastest_absolutely
     }
 
-    public enum TopicManagerType {
-        // single topic manager
+    public enum TopicType {
+        // single topic manager and fetcher
         SINGLE_TOPIC,
-        // multi topic manager
+        // multi topic manager and fetcher
         MULTI_TOPIC
     }
 
@@ -358,9 +358,9 @@ public class SortClientConfig implements Serializable {
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
         String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
-                TopicManagerType.SINGLE_TOPIC.toString());
+                TopicType.SINGLE_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
-        this.topicManagerType = TopicManagerType.valueOf(strManagerType);
+        this.topicType = TopicType.valueOf(strManagerType);
 
         this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
                 reportStatisticIntervalSec);

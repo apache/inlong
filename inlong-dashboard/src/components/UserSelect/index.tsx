@@ -18,14 +18,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Select, Spin, Tag } from 'antd';
-import type { SelectProps, DefaultOptionType } from 'antd/es/select';
-import { useTranslation } from 'react-i18next';
+import { Tag } from 'antd';
+import type { DefaultOptionType } from 'antd/es/select';
 import { State } from '@/models';
-import { useRequest, useSelector } from '@/hooks';
-import debounce from 'lodash/debounce';
+import { useSelector } from '@/hooks';
+import HighSelect, { HighSelectProps } from '@/components/HighSelect';
 
-export interface UserSelectProps extends SelectProps<any> {
+export interface UserSelectProps extends HighSelectProps {
   onChange?: (value: string | string[]) => void;
   // Whether to delete the currently logged in user
   currentUserClosable?: boolean;
@@ -70,8 +69,6 @@ const UserSelect: React.FC<UserSelectProps> = ({
   currentUserClosable = true,
   ...rest
 }) => {
-  const { t } = useTranslation();
-
   const { userName } = useSelector<State, State>(state => state);
 
   const [currentValue, setCurrentValue] = useState<string | string[]>(value);
@@ -107,48 +104,35 @@ const UserSelect: React.FC<UserSelectProps> = ({
     }
   };
 
-  const { data: staffList, loading, run: getStaffList } = useRequest(
-    (username = '') => ({
-      url: '/user/listAll',
-      method: 'POST',
-      data: {
-        username,
-      },
-    }),
-    {
-      manual: true,
-      initialData: getCache(),
-      formatResult: result =>
-        result.list?.map(item => ({
-          label: item.name,
-          value: item.name,
-        })),
-    },
-  );
-
-  const onSearch = debounce((value: string) => {
-    if (value) {
-      getStaffList(value);
-    }
-  }, 300);
-
-  const dropdownRender = menu =>
-    loading ? <Spin size="small" style={{ margin: '0 15px' }} /> : menu;
-
   return (
-    <Select
-      placeholder={t('components.UserSelect.Placeholder')}
+    <HighSelect
       showSearch
       allowClear
       {...rest}
+      options={{
+        ...rest.options,
+        requestTrigger: ['onSearch'],
+        requestService: name => ({
+          url: '/user/listAll',
+          method: 'POST',
+          data: {
+            name,
+          },
+        }),
+        requestParams: {
+          initialData: getCache(),
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      }}
       optionLabelProp="value"
       filterOption={false}
       value={currentValue}
-      dropdownRender={dropdownRender}
-      notFoundContent={loading ? <span /> : undefined}
-      onSearch={onSearch}
       onChange={onValueChange}
-      options={staffList}
       tagRender={props => (
         <Tag
           closable={props.value === userName ? currentUserClosable : true}

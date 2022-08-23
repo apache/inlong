@@ -21,10 +21,6 @@
 #include <string>
 #include <system_error>
 
-#include "sdk_core.h"
-#include "executor_thread_pool.h"
-#include "logger.h"
-#include "recv_buffer.h"
 #include "socket_connection.h"
 
 using namespace std;

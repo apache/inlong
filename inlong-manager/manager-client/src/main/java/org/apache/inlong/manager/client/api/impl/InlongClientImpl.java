@@ -28,8 +28,8 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongCluster;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
-import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
@@ -49,6 +49,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.List;
@@ -121,21 +122,26 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) {
+    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) {
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setGroupIdList(groupIds);
         request.setListSources(true);
 
         PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
         List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
-        Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
+        Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
             briefInfos.forEach(briefInfo -> {
                 String groupId = briefInfo.getInlongGroupId();
                 SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(briefInfo.getStatus());
                 List<StreamSource> sources = briefInfo.getStreamSources();
                 groupStatus = recheckGroupStatus(groupStatus, sources);
-                groupStatusMap.put(groupId, groupStatus);
+                InlongGroupStatusInfo statusInfo = InlongGroupStatusInfo.builder()
+                        .inlongGroupId(briefInfo.getInlongGroupId())
+                        .originalStatus(briefInfo.getStatus())
+                        .simpleGroupStatus(groupStatus)
+                        .streamSources(sources).build();
+                groupStatusMap.put(groupId, statusInfo);
             });
         }
         return groupStatusMap;
