@@ -304,22 +304,6 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         return false;
     }
 
-    private boolean needUpdate(Collection<InLongTopic> newTopics) {
-        if (newTopics.size() != onlineTopics.size()) {
-            return true;
-        }
-        // all topic should share the same properties in one task
-        if (Objects.equals(newTopics.stream().findFirst(), onlineTopics.values().stream().findFirst())) {
-            return true;
-        }
-        for (InLongTopic topic : newTopics) {
-            if (!onlineTopics.containsKey(topic.getTopic())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public class Fetcher implements Runnable {
 
         /**
