@@ -935,7 +935,7 @@ public class FlinkKafkaProducer<IN>
     }
 
     private void sendDirtyMetrics(Long rowSize, Long dataSize) {
-        if (metricData.getDirtyRecords() != null) {
+        if (metricData != null) {
             metricData.getDirtyRecords().inc(rowSize);
             metricData.getDirtyBytes().inc(dataSize);
         }
