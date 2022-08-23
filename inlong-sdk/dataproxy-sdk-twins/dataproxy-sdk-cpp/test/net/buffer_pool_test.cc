@@ -19,7 +19,7 @@
 
 #include "atomic.h"
 #include "buffer_pool.h"
-#include "buslist_config.h"
+#include "proxylist_config.h"
 #include "executor_thread_pool.h"
 #include "logger.h"
 #include "send_buffer.h"
@@ -44,17 +44,15 @@ TEST(bufpool, basetest)
     EXPECT_EQ(g_config->parseConfig(), true);
     cout << g_config->bufNum() << endl;
 
-    g_pools = new TotalPools(g_config->thread_nums_, g_config->bufNum(), g_config->buf_size_);
-    EXPECT_NE(g_pools->getPool(0), nullptr);
-    EXPECT_NE(g_pools->getPool(1), nullptr);
-    EXPECT_NE(g_pools->getPool(2), nullptr);
-    EXPECT_EQ(g_pools->getPool(3), nullptr);
+    g_pools = new TotalPools();
+    EXPECT_NE(g_pools->getPool("groupid_1"), nullptr);
+    EXPECT_NE(g_pools->getPool("groupid_2"), nullptr);
 
     SendBuffer* buf = nullptr;
-    EXPECT_EQ(g_pools->getPool(0)->writeId(), 0);
-    EXPECT_EQ(g_pools->getPool(0)->getSendBuf(buf), 0);
+    EXPECT_EQ(g_pools->getPool("groupid_1")->writeId(), 0);
+    EXPECT_EQ(g_pools->getPool("groupid_2")->getSendBuf(buf), 0);
     EXPECT_NE(buf, nullptr);
-    EXPECT_EQ(g_pools->getPool(0)->writeId(), 1);
+    EXPECT_EQ(g_pools->getPool("groupid_1")->writeId(), 1);
 }
 
 int main(int argc, char* argv[])

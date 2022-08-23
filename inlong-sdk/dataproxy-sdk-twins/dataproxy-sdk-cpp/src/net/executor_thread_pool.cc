@@ -19,8 +19,6 @@
 
 #include "executor_thread_pool.h"
 
-#include "sdk_core.h"
-
 namespace dataproxy_sdk
 {
     ExecutorThread::ExecutorThread(int32_t id)
