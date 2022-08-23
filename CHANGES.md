@@ -21,7 +21,7 @@
 # of release header or remove the below marker. This file is generated.
 # DO NOT REMOVE THIS MARKER; FOR INTERPOLATING CHANGES!-->
 
-## Release InLong 1.3.0-incubating - Released (as of 2022-08-20)
+## Release InLong 1.3.0 - Released (as of 2022-08-23)
 
 ### Agent
 | ISSUE                                                       | Summary                                                                                   |
