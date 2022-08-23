@@ -29,7 +29,6 @@
 #include <stdlib.h>
 
 #include "sdk_constant.h"
-#include "sdk_core.h"
 #include "executor_thread_pool.h"
 #include "ini_help.h"
 #include "logger.h"

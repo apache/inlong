@@ -20,7 +20,7 @@
 #include "../common.h"
 
 ExecutorThreadPtr th1 = make_shared<ExecutorThread>(1);
-ProxyInfoPtr proxy        = make_shared<ProxyInfo>("1", "127.0.0.1", 4000);
+ProxyInfoPtr proxy        = make_shared<ProxyInfo>(1, "127.0.0.1", 4000);
 ConnectionPtr conn1   = make_shared<Connection>(th1, proxy);
 
 TEST(connection, sendBufTest1)
@@ -34,7 +34,6 @@ TEST(connection, sendBufTest1)
     conn1->decreaseWaiting();
     EXPECT_EQ(conn1->getWaitingSend(), 0);
     EXPECT_EQ(conn1->getRemoteInfo(), "[ip:127.0.0.1, port:4000]");
-    EXPECT_EQ(conn1->getProxyInfo(), proxy);
 
     this_thread::sleep_for(chrono::seconds(3));
     EXPECT_EQ(conn1->isConnected(), true);

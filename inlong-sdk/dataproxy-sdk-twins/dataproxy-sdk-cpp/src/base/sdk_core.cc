@@ -51,45 +51,13 @@ namespace dataproxy_sdk
     ExecutorThreadPool *g_executors = nullptr;
     int32_t g_use_default = 0; // whether use default config to init sdk if user's config file error
 
-    int32_t tc_api_init(const char *config_file)
+    int32_t init_helper ()
     {
-        getLogger().init(5, 15, Logger::Level(3), 2, true, "./", ".cpplog");
-
-        // one process is only initialized once
-        if (!init_flag.compareAndSwap(0, 1))
-        {
-            LOG_ERROR("dataproxy_sdk_cpp has been initialized before!");
-            return SDKInvalidResult::kMultiInit;
-        }
-        user_exit_flag.getAndSet(0);
-
-        g_config = new ClientConfig(config_file);
-
-        if (!g_config){
-            LOG_ERROR("dataproxy_sdk_cpp init error");
-            return SDKInvalidResult::kErrorInit;
-        }
-        bool res = g_config->parseConfig();
-        
-        if (!res){
-            // init error and not allow default init
-            if (g_use_default)
-            {
-                g_config->defaultInit();
-            }
-            else
-            {
-                LOG_ERROR("dataproxy_sdk_cpp init error");
-                return SDKInvalidResult::kErrorInit;
-            }         
-        }
-        
-        remove("./.cpplog");
-
         getLogger().init(g_config->log_size_, g_config->log_num_, Logger::Level(g_config->log_level_), g_config->log_file_type_,
                          g_config->log_enable_limit_, g_config->log_path_);
 
-        LOG_WARN("dataproxy_sdk_cpp start init, config path:%s, version:%s", config_file, constants::kTDBusCAPIVersion);
+        LOG_WARN("dataproxy_sdk_cpp start init, version:%s", constants::kTDBusCAPIVersion);
+        
         g_config->showClientConfig();
 
         // get local ip
@@ -155,6 +123,79 @@ namespace dataproxy_sdk
         LOG_WARN("dataproxy_sdk_cpp init complete!");
 
         return 0;
+
+    }
+
+    int32_t tc_api_init(const char *config_file)
+    {
+        getLogger().init(5, 15, Logger::Level(3), 2, true, "./", ".cpplog");
+
+        // one process is only initialized once
+        if (!init_flag.compareAndSwap(0, 1))
+        {
+            LOG_ERROR("dataproxy_sdk_cpp has been initialized before!");
+            return SDKInvalidResult::kMultiInit;
+        }
+        user_exit_flag.getAndSet(0);
+
+        g_config = new ClientConfig(config_file);
+        if (!g_config){
+            LOG_ERROR("dataproxy_sdk_cpp init error");
+            return SDKInvalidResult::kErrorInit;
+        }
+        bool res = g_config->parseConfig();
+        
+        if (!res){
+            // init error and not allow default init
+            if (g_use_default)
+            {
+                g_config->defaultInit();
+            }
+            else
+            {
+                LOG_ERROR("dataproxy_sdk_cpp init error");
+                return SDKInvalidResult::kErrorInit;
+            }         
+        }
+        
+        remove("./.cpplog");
+
+        return init_helper();
+
+        
+    }
+
+
+    int32_t tc_api_init(ClientConfig* client_config)
+    {
+        if (!init_flag.compareAndSwap(0, 1))
+        {
+            return SDKInvalidResult::kMultiInit;
+        }
+
+        if (!client_config)
+        {
+            return SDKInvalidResult::kErrorInit;
+
+        }
+        
+        // check and proxy url
+        if (client_config->proxy_URL_.empty())
+        {
+            return SDKInvalidResult::kErrorInit;
+            
+        }
+        // check auth setting
+        if (client_config->need_auth_ && (client_config->auth_id_.empty() || client_config->auth_key_.empty()))
+        {
+            return SDKInvalidResult::kErrorAuthInfo;
+        }
+
+        g_config = client_config;
+        g_config->updateBufSize(); 
+
+        return init_helper();
+       
     }
 
     int32_t tc_api_init_ext(const char *config_file, int32_t use_def)
@@ -295,4 +336,5 @@ namespace dataproxy_sdk
 
         return 0;
     }
+
 } // namespace dataproxy_sdk

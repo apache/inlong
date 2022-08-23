@@ -46,6 +46,27 @@ TEST(client, test2)
     EXPECT_EQ(client.parseConfig(), true);
 }
 
+TEST(client, init)
+{
+    ClientConfig client = ClientConfig("proxy_url", false, "", "key");
+    EXPECT_EQ(client.proxy_URL_, "proxy_url");
+    EXPECT_EQ(client.need_auth_, false);
+    EXPECT_EQ(client.auth_id_, "");
+    EXPECT_EQ(client.auth_key_, "key");
+    EXPECT_EQ(client.enable_pack_, constants::kEnablePack);
+}
+
+TEST(sdk, init)
+{
+    ClientConfig client = ClientConfig("proxy_url", false, "", "key");
+    int32_t init_first = tc_api_init("./release/conf/config_example.json");
+    int32_t init_second = tc_api_init(&client);
+    EXPECT_EQ(init_first, 0);
+    EXPECT_EQ(init_second, SDKInvalidResult::kMultiInit);
+    EXPECT_EQ(tc_api_close(1000), 0);
+
+}
+
 int main(int argc, char* argv[])
 {
     getLogger().init(5, 15, Logger::Level(4), 2, true, "./newlogs/");
