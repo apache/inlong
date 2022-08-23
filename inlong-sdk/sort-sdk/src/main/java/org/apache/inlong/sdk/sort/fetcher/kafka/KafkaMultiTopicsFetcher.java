@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -223,6 +224,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
         this.listener = new AckOffsetOnRebalance(topic.getInLongCluster().getClusterId(), seeker,
                 commitOffsetMap);
+        Optional.ofNullable(interceptor).ifPresent(i -> i.configure(topic));
 
         // subscribe new
         consumer.subscribe(onlineTopics.keySet(), listener);
