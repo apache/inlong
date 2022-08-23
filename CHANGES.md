@@ -55,6 +55,7 @@
 | [INLONG-5000](https://github.com/apache/inlong/issues/5000) | [Bug][Agent] The forked VM terminated without properly saying goodbye                     |
 | [INLONG-4998](https://github.com/apache/inlong/issues/4998) | [Bug][Agent] Create PrometheusMetric repeatedly                                           |
 | [INLONG-4854](https://github.com/apache/inlong/issues/4854) | [Improve][Agent] Report metrics at inongGroupId and inlongStreamId                        |
+| [INLONG-5589](https://github.com/apache/inlong/issues/5589) | [Improve][Agent] To extend type of file data for k8s log                                  |
 
 
 ### Audit
@@ -138,7 +139,6 @@
 ### Manager
 | ISSUE                                                       | Summary                                                                                                                      |
 |:------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|
-| [INLONG-5589](https://github.com/apache/inlong/issues/5589) | [Improve][Agent] To extend type of file data for k8s log                                                                     |
 | [INLONG-5585](https://github.com/apache/inlong/issues/5585) | [Bug][Manager] Some errors of inlong stream API and user API                                                                 |
 | [INLONG-5577](https://github.com/apache/inlong/issues/5577) | [Feature][Manager][Sort] Support function fieldType                                                                          |
 | [INLONG-5570](https://github.com/apache/inlong/issues/5570) | [Improve][Manager] Add manager client packages into the lib directory                                                        |
