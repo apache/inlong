@@ -342,6 +342,42 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             return Base64.getEncoder().encodeToString(msgId.toByteArray());
         }
 
+        private List<MessageRecord> processPulsarMsg(Messages<byte[]> messages) throws Exception {
+            List<MessageRecord> msgs = new ArrayList<>();
+            for (Message<byte[]> msg : messages) {
+                String topicName = msg.getTopicName();
+                InLongTopic topic = onlineTopics.get(topicName);
+                if (Objects.isNull(topic)) {
+                    LOGGER.error("got a message with topic {}, which is not subscribe", topicName);
+                    continue;
+                }
+                // if need seek
+                if (msg.getPublishTime() < seeker.getSeekTime()) {
+                    seeker.seek();
+                    break;
+                }
+                String offsetKey = getOffset(msg.getMessageId());
+                currentConsumer.put(offsetKey, topic, msg.getMessageId());
+
+                //deserialize
+                List<InLongMessage> inLongMessages = deserializer
+                        .deserialize(context, topic, msg.getProperties(), msg.getData());
+                // intercept
+                inLongMessages = interceptor.intercept(inLongMessages);
+                if (inLongMessages.isEmpty()) {
+                    ack(offsetKey);
+                    continue;
+                }
+
+                msgs.add(new MessageRecord(topic.getTopicKey(),
+                        inLongMessages,
+                        offsetKey, System.currentTimeMillis()));
+                context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
+            }
+            context.getDefaultStateCounter().addMsgCount(msgs.size());
+            return msgs;
+        }
+
         @Override
         public void run() {
             boolean hasPermit;
@@ -362,42 +398,11 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     context.getDefaultStateCounter().addMsgCount(1L).addFetchTimes(1L);
 
                     long startFetchTime = System.currentTimeMillis();
-                    Messages<byte[]> messages = currentConsumer.batchReceive();
+                    Messages<byte[]> pulsarMessages = currentConsumer.batchReceive();
 
                     context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
-                    if (null != messages && messages.size() != 0) {
-                        List<MessageRecord> msgs = new ArrayList<>();
-                        for (Message<byte[]> msg : messages) {
-                            String topicName = msg.getTopicName();
-                            InLongTopic topic = onlineTopics.get(topicName);
-                            if (Objects.isNull(topic)) {
-                                LOGGER.error("got a message with topic {}, which is not subscribe", topicName);
-                                continue;
-                            }
-                            // if need seek
-                            if (msg.getPublishTime() < seeker.getSeekTime()) {
-                                seeker.seek();
-                                break;
-                            }
-                            String offsetKey = getOffset(msg.getMessageId());
-                            currentConsumer.put(offsetKey, topic, msg.getMessageId());
-
-                            //deserialize
-                            List<InLongMessage> inLongMessages = deserializer
-                                    .deserialize(context, topic, msg.getProperties(), msg.getData());
-                            // intercept
-                            inLongMessages = interceptor.intercept(inLongMessages);
-                            if (inLongMessages.isEmpty()) {
-                                ack(offsetKey);
-                                continue;
-                            }
-
-                            msgs.add(new MessageRecord(topic.getTopicKey(),
-                                    inLongMessages,
-                                    offsetKey, System.currentTimeMillis()));
-                            context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
-                        }
-                        context.getDefaultStateCounter().addMsgCount(msgs.size());
+                    if (null != pulsarMessages && pulsarMessages.size() != 0) {
+                        List<MessageRecord> msgs = this.processPulsarMsg(pulsarMessages);
                         handleAndCallbackMsg(msgs);
                         sleepTime = 0L;
                     } else {
