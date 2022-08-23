@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -147,14 +146,5 @@ public class PlaceholderResolver {
      */
     public Path resolveByMap(Path file, final Map<String, Object> valueMap) {
         return resolveByRule(file, placeholderValue -> String.valueOf(valueMap.get(placeholderValue)));
-    }
-
-    public static void main(String[] args) {
-        String before = "today is ${date}, today weather is ${weather}";
-        Map<String, Object> maps = new HashMap<>();
-        maps.put("date", "2022.08.05");
-        maps.put("weather", "rain");
-        String after = PlaceholderResolver.getDefaultResolver().resolveByMap(before, maps);
-        System.out.println(after);
     }
 }

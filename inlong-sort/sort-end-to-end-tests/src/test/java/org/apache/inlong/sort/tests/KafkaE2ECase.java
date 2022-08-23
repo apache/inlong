@@ -138,13 +138,13 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String topic = "test-topic";
         final String mysqlInputTable = "test_input";
         final String mysqlOutputTable = "test_output";
-        initializeMysqlTable("kafka_test_mysql_init1.txt", new HashMap() {
+        initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
             {
                 put("MYSQL_INPUT_TABLE", mysqlInputTable);
                 put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
             }
         });
-        initializeKafkaTable("kafka_test_kafka_init1.txt", new HashMap() {
+        initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
             {
                 put("TOPIC", topic);
                 put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
@@ -187,13 +187,13 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String topic = "test_topic_for_group_file";
         final String mysqlInputTable = "test_input_for_group_file";
         final String mysqlOutputTable = "test_output_for_group_file";
-        initializeMysqlTable("kafka_test_mysql_init1.txt", new HashMap() {
+        initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
             {
                 put("MYSQL_INPUT_TABLE", mysqlInputTable);
                 put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
             }
         });
-        initializeKafkaTable("kafka_test_kafka_init1.txt", new HashMap() {
+        initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
             {
                 put("TOPIC", topic);
                 put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
