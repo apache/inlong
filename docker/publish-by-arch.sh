@@ -88,21 +88,25 @@ tagImage() {
   docker tag inlong/agent:latest${SRC_POSTFIX}           inlong/agent:latest${DES_POSTFIX}
   docker tag inlong/dataproxy:latest${SRC_POSTFIX}       inlong/dataproxy:latest${DES_POSTFIX}
   docker tag inlong/tubemq-manager:latest${SRC_POSTFIX}  inlong/tubemq-manager:latest${DES_POSTFIX}
-  docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      inlong/tubemq-all:latest${DES_POSTFIX}
-  docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    inlong/tubemq-build:latest${DES_POSTFIX}
   docker tag inlong/dashboard:latest${SRC_POSTFIX}       inlong/dashboard:latest${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      inlong/tubemq-cpp:latest${DES_POSTFIX}
   docker tag inlong/audit:latest${SRC_POSTFIX}           inlong/audit:latest${DES_POSTFIX}
+  if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
+    docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      inlong/tubemq-cpp:latest${DES_POSTFIX}
+    docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      inlong/tubemq-all:latest${DES_POSTFIX}
+    docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    inlong/tubemq-build:latest${DES_POSTFIX}
+  fi
 
   docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX}         inlong/manager:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX}           inlong/agent:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX}       inlong/dataproxy:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}  inlong/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    inlong/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}       inlong/dashboard:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}           inlong/audit:${MVN_VERSION}${DES_POSTFIX}
+  if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
+    docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
+    docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
+    docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    inlong/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
+  fi
   echo "End tagging images"
 }
 
