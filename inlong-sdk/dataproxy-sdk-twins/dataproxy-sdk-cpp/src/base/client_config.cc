@@ -27,6 +27,44 @@
 
 namespace dataproxy_sdk
 {
+    ClientConfig::ClientConfig(const std::string& proxy_url, bool need_auth, const std::string& auth_id, const std::string& auth_key): 
+        proxy_URL_(proxy_url),
+        need_auth_(need_auth),
+        auth_id_(auth_id),
+        auth_key_(auth_key),
+        thread_nums_(constants::kThreadNums), 
+        shared_buf_nums_(constants::kSharedBufferNums),
+        enable_groupId_isolation_(constants::kEnableGroupidIsolation),
+        buffer_num_per_groupId_(constants::kBufferNumPerGroupid),
+        net_tag_(constants::kNetTag),
+        enable_pack_(constants::kEnablePack),
+        pack_size_(constants::kPackSize),
+        pack_timeout_(constants::kPackTimeout),
+        ext_pack_size_(constants::kExtPackSize),
+        enable_zip_(constants::kEnableZip),
+        min_zip_len_(constants::kMinZipLen),
+        enable_retry_(constants::kEnableRetry),
+        retry_interval_(constants::kRetryInterval),
+        retry_num_(constants::kRetryNum),
+        log_num_(constants::kLogNum),
+        log_size_(constants::kLogSize),
+        log_level_(constants::kLogLevel),
+        log_file_type_(constants::kLogFileType),
+        log_path_(constants::kLogPath),
+        log_enable_limit_(constants::kLogEnableLimit),
+        enable_proxy_URL_from_cluster_(constants::kEnableProxyURLFromCluster),
+        proxy_cluster_URL_(constants::kProxyClusterURL),
+        proxy_update_interval_(constants::kProxyUpdateInterval),
+        proxy_URL_timeout_(constants::kProxyURLTimeout),
+        max_active_proxy_num_(constants::kMaxActiveProxyNum),
+        ser_ip_(constants::kSerIP),
+        max_buf_pool_(constants::kMaxBufPool),
+        msg_type_(constants::kMsgType),
+        enable_TCP_nagle_(constants::kEnableTCPNagle),
+        mask_cpu_affinity_(constants::kMaskCPUAffinity),
+        is_from_DC_(constants::kIsFromDC),
+        extend_field_(constants::kExtendField) {}
+
     bool ClientConfig::parseConfig()
     {
         std::string file_content;
@@ -382,7 +420,7 @@ namespace dataproxy_sdk
         }
         else
         {
-            proxy_cluster_URL_ = constants::kBusClusterURL;
+            proxy_cluster_URL_ = constants::kProxyClusterURL;
             LOG_WARN("proxy_cluster_URL(proxy_cfg_url) in user config is not expect, then use default: %s", proxy_cluster_URL_.c_str());
         }
         // enable_proxy_URL_from_cluster
@@ -592,11 +630,17 @@ namespace dataproxy_sdk
         }
 
         // set bufNum
-        buf_size_ = ext_pack_size_ + 400;
-        buf_num_ = max_buf_pool_ / (buf_size_);
+        updateBufSize();
+        
         LOG_WARN("sendBuf num of a pool is %d", buf_num_);
 
         return true;
+    }
+
+    void ClientConfig::updateBufSize()
+    {
+        buf_size_ = ext_pack_size_ + 400;
+        buf_num_ = max_buf_pool_ / (buf_size_);
     }
 
     void ClientConfig::defaultInit(){
@@ -630,7 +674,7 @@ namespace dataproxy_sdk
         proxy_URL_=constants::kProxyURL;
         enable_proxy_URL_from_cluster_=constants::kEnableProxyURLFromCluster;
 
-        proxy_cluster_URL_=constants::kBusClusterURL;
+        proxy_cluster_URL_=constants::kProxyClusterURL;
         proxy_update_interval_=constants::kProxyUpdateInterval;
         proxy_URL_timeout_=constants::kProxyURLTimeout;
         max_active_proxy_num_=constants::kMaxActiveProxyNum;

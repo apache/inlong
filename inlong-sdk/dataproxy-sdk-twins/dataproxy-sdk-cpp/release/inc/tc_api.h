@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "user_msg.h"
+#include "client_config.h"
 
 namespace dataproxy_sdk
 {
@@ -39,7 +40,8 @@ enum SDKInvalidResult {
     kFailWriteToBuf    = 15,
     kErrorCURL         = 16,  // request manager error
     kErrorParseJson    = 17,
-    kFailGetPackQueue  = 18  // failed to get pack queue
+    kFailGetPackQueue  = 18,  // failed to get pack queue
+    kErrorAuthInfo     = 19 // wrong authen
 
 };
 
@@ -57,6 +59,13 @@ int32_t tc_api_init(const char* config_file);
  * @param {int32_t} use_def - is use_def isn't 0, 
  */
 int32_t tc_api_init_ext(const char* config_file, int32_t use_def);
+
+/**
+ * @description: Using ClientConfig to init api
+ * @return 0 if success
+ * @param {ClientConfig&} refer to client_config.h
+ */
+int32_t tc_api_init(ClientConfig* client_config);
 
 
 /**

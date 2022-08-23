@@ -45,7 +45,7 @@ int32_t callBackFunc(const char* inlong_group_id, const char* inlong_stream_id, 
 TEST(sendBuffer, callbacktest)
 {
     SendBuffer* buf = new SendBuffer(102400);
-    buf->setBid("bid1");
+    buf->setGroupid("inlong_group_id_1");
     buf->setStreamid("inlong_stream_id");
 
     UserMsgPtr req = make_shared<UserMsg>("lksdewoigiore", "127.0.0.1", 0, callBackFunc, "no_attr", "127.0.0.1", 0);

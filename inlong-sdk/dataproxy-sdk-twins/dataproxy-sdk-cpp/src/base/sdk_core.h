@@ -27,10 +27,10 @@
 
 #include "atomic.h"
 #include "user_msg.h"
+#include "client_config.h"
 
 // #include "buffer_pool.h"
 namespace dataproxy_sdk {
-class ClientConfig;
 class GlobalCluster;
 class GlobalQueues;
 class TotalPools;

@@ -68,7 +68,7 @@ namespace dataproxy_sdk
 
         static const std::string kProxyURL = "http://127.0.0.1:8099/api/dataproxy_ip_v2";
         static const bool kEnableProxyURLFromCluster = false;
-        static const std::string kBusClusterURL =
+        static const std::string kProxyClusterURL =
             "http://127.0.0.1:8099/heartbeat/dataproxy_ip_v2?cluster_id=0&net_tag=normal";
         static const uint32_t kProxyUpdateInterval = 10;
         static const uint32_t kProxyURLTimeout = 2;

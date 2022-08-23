@@ -94,9 +94,12 @@ namespace dataproxy_sdk
     std::string auth_key_;
 
     ClientConfig(const std::string config_path) : config_path_(config_path) {}
+    ClientConfig(const std::string& proxy_url, bool need_auth, const std::string& auth_id, const std::string& auth_key);
+
     bool parseConfig(); // return false if parse failed
     void defaultInit();
     void showClientConfig();
+    void updateBufSize();
 
     inline bool enableCharGroupid() const { return (((extend_field_)&0x4) >> 2); } // use char type groupId、streadmId
     inline bool enableTraceIP() const { return (((extend_field_)&0x2) >> 1); }

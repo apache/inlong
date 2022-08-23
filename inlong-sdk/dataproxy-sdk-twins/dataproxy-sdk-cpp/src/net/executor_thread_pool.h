@@ -27,7 +27,6 @@
 #include <thread>
 
 #include "sdk_core.h"
-#include "client_config.h"
 #include "logger.h"
 #include "noncopyable.h"
 

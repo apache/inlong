@@ -26,7 +26,6 @@
 #include "buffer_pool.h"
 #include "proxylist_config.h"
 #include "sdk_constant.h"
-#include "client_config.h"
 #include "send_buffer.h"
 #include "utils.h"
 

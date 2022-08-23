@@ -21,7 +21,7 @@
 
 TEST(businfo, basetest)
 {
-    ProxyInfoPtr proxy = make_shared<ProxyInfo>("1", "0.0.0.0", 11009);
+    ProxyInfoPtr proxy = make_shared<ProxyInfo>(1, "0.0.0.0", 11009);
     EXPECT_EQ(proxy->getString(), "[ip:0.0.0.0, port:11009]");
 }
 
