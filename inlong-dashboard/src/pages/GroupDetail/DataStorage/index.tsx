@@ -68,8 +68,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     sinkType: Sinks[0].value,
   });
 
-  const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
-
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
   });
@@ -87,44 +85,8 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     },
   );
 
-  const { data: streamList = [] } = useRequest(
-    {
-      url: '/stream/list',
-      method: 'POST',
-      data: {
-        pageNum: 1,
-        pageSize: 1000,
-        inlongGroupId,
-      },
-    },
-    {
-      ready: !!createModal.visible,
-      formatResult: result => result?.list || [],
-    },
-  );
-
-  const onSave = async values => {
-    const isUpdate = createModal.id;
-    const submitData = {
-      ...values,
-      sinkType: options.sinkType,
-      inlongGroupId: inlongGroupId,
-    };
-    if (isUpdate) {
-      submitData.id = createModal.id;
-    }
-    await request({
-      url: isUpdate ? '/sink/update' : '/sink/save',
-      method: 'POST',
-      data: submitData,
-    });
-    await getList();
-    message.success(i18n.t('basic.OperatingSuccess'));
-  };
-
-  const onEdit = ({ id, inlongStreamId }) => {
+  const onEdit = ({ id }) => {
     setCreateModal({ visible: true, id });
-    setCurDataStreamIdentifier(inlongStreamId);
   };
 
   const onDelete = ({ id }) => {
@@ -177,28 +139,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       ),
     [],
   );
-
-  const createContent = useMemo(
-    () => [
-      {
-        type: 'select',
-        label: i18n.t('pages.GroupDetail.Sink.DataStreams'),
-        name: 'inlongStreamId',
-        props: {
-          notFoundContent: i18n.t('pages.GroupDetail.Sink.NoDataStreams'),
-          disabled: !!createModal.id,
-          options: streamList.map(item => ({
-            label: item.inlongStreamId,
-            value: item.inlongStreamId,
-          })),
-        },
-        rules: [{ required: true }],
-      },
-    ],
-    [createModal.id, streamList],
-  );
-
-  const streamItem = streamList.find(item => item.inlongStreamId === curDataStreamIdentifier);
 
   const columns = [
     {
@@ -259,13 +199,9 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       <DetailModal
         {...createModal}
         inlongGroupId={inlongGroupId}
-        content={createContent}
-        sinkType={options.sinkType as any}
         visible={createModal.visible as boolean}
-        dataType={streamItem?.dataType}
-        onValuesChange={(c, v) => setCurDataStreamIdentifier(v?.inlongStreamId)}
-        onOk={async values => {
-          await onSave(values);
+        onOk={async () => {
+          await getList();
           setCreateModal({ visible: false });
         }}
         onCancel={() => setCreateModal({ visible: false })}
