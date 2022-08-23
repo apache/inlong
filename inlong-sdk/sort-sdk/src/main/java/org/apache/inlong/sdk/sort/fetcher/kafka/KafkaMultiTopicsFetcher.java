@@ -131,8 +131,8 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         // the format of multi topic kafka fetcher msg offset is topic:partitionId:offset, such as topic1:20:1746839
         String[] offset = msgOffset.split(":");
         if (offset.length != 3) {
-            throw new Exception("offset is illegal, the correct format is topic:partitionId:offset, " +
-                    "the error offset is:" + msgOffset);
+            throw new Exception("offset is illegal, the correct format is topic:partitionId:offset, "
+                    + "the error offset is:" + msgOffset);
         }
 
         // parse topic partition offset
