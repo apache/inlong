@@ -68,6 +68,7 @@ public class InlongGroupContext implements Serializable {
         this.groupInfo = groupInfo;
         this.inlongStreamMap = groupContext.getStreamMap();
         this.status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        recheckState();
         this.statusInfo = InlongGroupStatusInfo.builder()
                 .inlongGroupId(groupInfo.getInlongGroupId())
                 .originalStatus(groupInfo.getStatus())
