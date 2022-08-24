@@ -74,6 +74,7 @@ int main(int argc, char* argv[]) {
   topic_list.insert(topic_name);
   ConsumerConfig consumer_config;
   TubeMQServiceConfig serviceConfig;
+  serviceConfig.SetLogPrintLevel(3);
 
   consumer_config.SetRpcReadTimeoutMs(20000);
   result = consumer_config.SetMasterAddrInfo(err_info, master_addr);
