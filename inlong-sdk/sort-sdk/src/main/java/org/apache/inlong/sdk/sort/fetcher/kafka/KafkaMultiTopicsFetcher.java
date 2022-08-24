@@ -229,7 +229,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         InLongTopic topic = onlineTopics.values().stream().findFirst().get();
         this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
         this.listener = new AckOffsetOnRebalance(topic.getInLongCluster().getClusterId(), seeker,
-                commitOffsetMap);
+                commitOffsetMap, ackOffsetMap);
         Optional.ofNullable(interceptor).ifPresent(i -> i.configure(topic));
 
         // subscribe new
