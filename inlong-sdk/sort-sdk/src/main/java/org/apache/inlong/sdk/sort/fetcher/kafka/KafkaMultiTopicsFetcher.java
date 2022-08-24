@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -142,14 +143,17 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
 
         // ack
         if (!ackOffsetMap.containsKey(topicPartition) || !ackOffsetMap.get(topicPartition).containsKey(ackOffset)) {
-            LOGGER.warn("did not find offsetMap or ack offset of {}, offset {}, just ack it",
+            LOGGER.warn("did not find offsetMap or ack offset of {}, offset {}, just ignore it",
                     topicPartition, ackOffset);
-            OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[2]));
-            commitOffsetMap.put(topicPartition, offsetAndMetadata);
+            return;
         }
 
         // mark this offset has been ack.
-        ackOffsetMap.get(topicPartition).put(ackOffset, true);
+        ConcurrentSkipListMap<Long, Boolean> tpOffsetMap = ackOffsetMap.get(topicPartition);
+        // to prevent race condition in AckOffsetOnRebalance::onPartitionsRevoked
+        if (Objects.nonNull(tpOffsetMap)) {
+            tpOffsetMap.put(ackOffset, true);
+        }
     }
 
     @Override
@@ -170,9 +174,11 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                 fetchThread.interrupt();
             }
             if (consumer != null) {
+                prepareCommit();
+                consumer.commitSync(commitOffsetMap);
                 consumer.close();
             }
-
+            commitOffsetMap.clear();
         } catch (Throwable t) {
             LOGGER.warn(t.getMessage(), t);
         }
@@ -234,38 +240,38 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         return true;
     }
 
-    public class Fetcher implements Runnable {
-
-        private void prepareCommit() {
-            ackOffsetMap.forEach((topicPartition, tpOffsetMap) -> {
-                synchronized (tpOffsetMap) {
-                    // get the remove list
-                    List<Long> removeOffsets = new ArrayList<>();
-                    long commitOffset = -1;
-                    for (Long ackOffset : tpOffsetMap.keySet()) {
-                        if (!tpOffsetMap.get(ackOffset)) {
-                            break;
-                        }
-                        removeOffsets.add(ackOffset);
-                        commitOffset = ackOffset;
+    private void prepareCommit() {
+        ackOffsetMap.forEach((topicPartition, tpOffsetMap) -> {
+            synchronized (tpOffsetMap) {
+                // get the remove list
+                List<Long> removeOffsets = new ArrayList<>();
+                long commitOffset = -1;
+                for (Long ackOffset : tpOffsetMap.keySet()) {
+                    if (!tpOffsetMap.get(ackOffset)) {
+                        break;
                     }
-                    // the first haven't ack, do nothing
-                    if (commitOffset == -1) {
-                        return;
-                    }
-
-                    // remove offset and commit offset
-                    removeOffsets.forEach(tpOffsetMap::remove);
-                    commitOffsetMap.put(topicPartition, new OffsetAndMetadata(commitOffset));
+                    removeOffsets.add(ackOffset);
+                    commitOffset = ackOffset;
                 }
-            });
-        }
+                // the first haven't ack, do nothing
+                if (commitOffset == -1) {
+                    return;
+                }
+
+                // remove offset and commit offset
+                removeOffsets.forEach(tpOffsetMap::remove);
+                commitOffsetMap.put(topicPartition, new OffsetAndMetadata(commitOffset));
+            }
+        });
+    }
+
+    public class Fetcher implements Runnable {
 
         private void commitKafkaOffset() {
             prepareCommit();
             if (consumer != null) {
                 try {
-                    consumer.commitSync(commitOffsetMap);
+                    consumer.commitAsync(commitOffsetMap, null);
                     commitOffsetMap.clear();
                 } catch (Exception e) {
                     LOGGER.error("commit kafka offset failed: {}", e.getMessage(), e);
