@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -75,18 +74,17 @@ public final class KubernetesFileReader extends AbstractFileReader {
         try {
             client = getKubernetesClient();
         } catch (IOException e) {
-            log.error("Get k8s client error: ", e);
+            log.error("get k8s client error: ", e);
         }
         fileReaderOperator.metadata = getK8sMetadata(fileReaderOperator.jobConf);
     }
 
     // TODO only support default config in the POD
     private KubernetesClient getKubernetesClient() throws IOException {
-        String ip = System.getProperty(KUBERNETES_SERVICE_HOST);
-        String port = System.getProperty(KUBERNETES_SERVICE_PORT);
-        if (Objects.isNull(ip) || Objects.isNull(port)) {
-            log.warn("k8s env ip and port is null,can not connect k8s master");
-            return null;
+        String ip = System.getenv(KUBERNETES_SERVICE_HOST);
+        String port = System.getenv(KUBERNETES_SERVICE_PORT);
+        if (Objects.isNull(ip) && Objects.isNull(port)) {
+            throw new RuntimeException("get k8s client error,k8s env ip and port is null");
         }
         String maserUrl = HTTPS.concat(ip).concat(CommonConstants.AGENT_COLON).concat(port);
         Config config = new ConfigBuilder()
@@ -117,26 +115,27 @@ public final class KubernetesFileReader extends AbstractFileReader {
             return null;
         }
         Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.file.getName());
+        log.info("k8s information size:{}", k8sInfo.size());
+        Map<String, String> metadata = new HashMap<>();
         if (k8sInfo.isEmpty()) {
-            return null;
+            return metadata;
         }
-        List<String> namespaces = MetaDataUtils.getNamespace(jobConf);
-        if (Objects.isNull(namespaces) || namespaces.isEmpty()) {
-            return null;
+
+        metadata.put(METADATA_NAMESPACE, k8sInfo.get(NAMESPACE));
+        metadata.put(METADATA_CONTAINER_NAME, k8sInfo.get(CONTAINER_NAME));
+        metadata.put(METADATA_CONTAINER_ID, k8sInfo.get(CONTAINER_ID));
+        metadata.put(METADATA_POD_NAME, k8sInfo.get(POD_NAME));
+
+        PodResource podResource = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
+                .withName(k8sInfo.get(POD_NAME));
+        if (Objects.isNull(podResource)) {
+            return metadata;
         }
-        if (!namespaces.contains(k8sInfo.get(NAMESPACE))) {
-            return null;
-        }
-        Pod pod = client.pods().inNamespace(k8sInfo.get(NAMESPACE)).withName(k8sInfo.get(POD_NAME)).get();
+        Pod pod = podResource.get();
         PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
                 .withLabels(MetaDataUtils.getPodLabels(jobConf)).list();
-        Map<String, String> metadata = new HashMap<>();
         podList.getItems().forEach(data -> {
             if (data.equals(pod)) {
-                metadata.put(METADATA_NAMESPACE, k8sInfo.get(NAMESPACE));
-                metadata.put(METADATA_CONTAINER_NAME, k8sInfo.get(CONTAINER_NAME));
-                metadata.put(METADATA_CONTAINER_ID, k8sInfo.get(CONTAINER_ID));
-                metadata.put(METADATA_POD_NAME, k8sInfo.get(POD_NAME));
                 metadata.put(METADATA_POD_UID, pod.getMetadata().getUid());
                 metadata.put(METADATA_POD_LABEL, GSON.toJson(pod.getMetadata().getLabels()));
             }
