@@ -115,9 +115,6 @@ tagImage() {
 }
 
 publishImages() {
-
-  docker images
-
   if [ -z "$DOCKER_USER" ]; then
       echo "Docker user in variable \$DOCKER_USER was not set. Skipping image publishing"
       exit 1
