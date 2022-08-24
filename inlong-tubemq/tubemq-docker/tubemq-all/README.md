@@ -3,7 +3,7 @@ TubeMQ standalone is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/tubemq-all:latest
+docker pull inlong/tubemq-all:1.3.0
 ```
 
 ##### Start Standalone Container

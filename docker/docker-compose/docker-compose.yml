@@ -43,7 +43,7 @@ services:
     command: bin/pulsar standalone
 
   manager:
-    image: inlong/manager
+    image: inlong/manager:1.3.0
     container_name: manager
     depends_on:
       mysql:
@@ -60,7 +60,7 @@ services:
       - AUDIT_PROXY_URL=audit:10081
 
   webisite:
-    image: inlong/dashboard
+    image: inlong/dashboard:1.3.0
     container_name: dashboard
     depends_on:
       - manager
@@ -70,7 +70,7 @@ services:
       - MANAGER_API_ADDRESS=manager:8083
 
   dataproxy:
-    image: inlong/dataproxy:latest
+    image: inlong/dataproxy:1.3.0
     container_name: dataproxy
     depends_on:
       - manager
@@ -83,7 +83,7 @@ services:
       - MQ_TYPE=pulsar
 
   agent:
-    image: inlong/agent:latest
+    image: inlong/agent:1.3.0
     container_name: agent
     depends_on:
       - manager
@@ -100,7 +100,7 @@ services:
       - ./collect-data:/data/collect-data
 
   audit:
-    image: inlong/audit:latest
+    image: inlong/audit:1.3.0
     container_name: audit
     depends_on:
       mysql:
