@@ -171,7 +171,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             LOGGER.info("create consumer for topics {}", topicNames);
             return consumer;
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("failed to create pulsar consumer", e);
             return null;
         }
     }
