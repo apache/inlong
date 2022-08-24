@@ -90,7 +90,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             consumer.subscribe(onlineTopics.keySet(), listener);
             return true;
         } catch (Throwable t) {
-            LOGGER.error("failed to init kafka consumer: {}", t.getMessage(), t);
+            LOGGER.error("failed to init kafka consumer: ", t);
             return false;
         }
     }
@@ -180,7 +180,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             }
             commitOffsetMap.clear();
         } catch (Throwable t) {
-            LOGGER.warn(t.getMessage(), t);
+            LOGGER.warn("got exception in multi topic fetcher close: ", t);
         }
         LOGGER.info("closed kafka multi topic fetcher");
         return true;
@@ -274,7 +274,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                     consumer.commitAsync(commitOffsetMap, null);
                     commitOffsetMap.clear();
                 } catch (Exception e) {
-                    LOGGER.error("commit kafka offset failed: {}", e.getMessage(), e);
+                    LOGGER.error("commit kafka offset failed: ", e);
                 }
             }
         }
@@ -294,7 +294,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                         .addCallbackDoneTimes(1);
             } catch (Exception e) {
                 context.getDefaultStateCounter().addCallbackErrorTimes(1);
-                LOGGER.error("failed to callback: {}", e.getMessage(), e);
+                LOGGER.error("failed to callback: ", e);
             }
         }
 
@@ -335,7 +335,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                     commitKafkaOffset();
                 } catch (Exception e) {
                     context.getDefaultStateCounter().addFetchErrorTimes(1);
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.error("failed in kafka multi topic fetcher: ", e);
                 } finally {
                     if (hasPermit) {
                         context.releaseRequestPermit();
