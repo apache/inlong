@@ -349,8 +349,7 @@ public class AgentUtils {
      * Check agent ip from manager
      */
     public static String fetchLocalIp() {
-        if (AgentConfiguration.getAgentConf().hasKey(CUSTOM_FIXED_IP) && StringUtils
-                .isNoneBlank(AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP))) {
+        if (StringUtils.isNoneBlank(AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP, null))) {
             return AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP);
         }
         return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
