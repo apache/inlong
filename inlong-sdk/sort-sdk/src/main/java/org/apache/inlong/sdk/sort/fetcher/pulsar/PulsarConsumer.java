@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PulsarConsumer {
     private final ConcurrentHashMap<String, Tuple2<InLongTopic, MessageId>> offsetCache = new ConcurrentHashMap<>();
     private final Consumer<byte[]> consumer;
-    long stopTime = -1;
+    private long stopTime = -1;
 
     public PulsarConsumer(Consumer<byte[]> consumer) {
         this.consumer = consumer;
@@ -58,6 +58,10 @@ public class PulsarConsumer {
 
     public CompletableFuture<Void> acknowledgeAsync(MessageId messageId) {
         return this.consumer.acknowledgeAsync(messageId);
+    }
+
+    public long getStopTime() {
+        return stopTime;
     }
 
     public void setStopTime(long stopTime) {

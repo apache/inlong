@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 
 /**
  * MultiTopicsFetcher for pulsar.
- *
  */
 public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
@@ -95,12 +94,12 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         long cur = System.currentTimeMillis();
         List<PulsarConsumer> newList = new LinkedList<>();
         toBeRemovedConsumers.forEach(consumer -> {
-            long diff = cur - consumer.stopTime;
+            long diff = cur - consumer.getStopTime();
             if (diff > context.getConfig().getCleanOldConsumerIntervalSec() * 1000L || consumer.isEmpty()) {
                 try {
                     consumer.close();
                 } catch (PulsarClientException e) {
-                    LOGGER.warn("exception in close old consumer {}", e.getMessage(), e);
+                    LOGGER.warn("got exception in close old consumer", e);
                 }
                 return;
             }
@@ -124,6 +123,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         if (Objects.isNull(newConsumer)) {
             currentConsumer.resume();
             this.setStopConsume(false);
+            LOGGER.error("create new consumer failed, use the old one");
             return false;
         }
         PulsarConsumer newConsumerWrapper = new PulsarConsumer(newConsumer);
@@ -215,8 +215,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         consumer.acknowledgeAsync(messageId)
                 .thenAccept(ctx -> ackSucc(msgOffset, topic, this.currentConsumer))
                 .exceptionally(exception -> {
-                    LOGGER.error("ack fail:{} {},error:{}",
-                            topic, msgOffset, exception.getMessage(), exception);
+                    LOGGER.error("topic " + topic + " ack failed for offset " + msgOffset + ", error: ", exception);
                     context.getStateCounterByTopic(topic).addAckFailTimes(1L);
                     return null;
                 });
@@ -245,6 +244,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
     public boolean close() {
         mainLock.writeLock().lock();
         try {
+            this.setStopConsume(true);
             LOGGER.info("closed online topics {}", onlineTopics);
             try {
                 if (currentConsumer != null) {
@@ -254,7 +254,9 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     fetchThread.interrupt();
                 }
             } catch (PulsarClientException e) {
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("close pulsar client: ", e);
+            } catch (Throwable t) {
+                LOGGER.warn("got exception in close multi topic fetcher: ", t);
             }
             toBeRemovedConsumers.stream()
                     .filter(Objects::nonNull)
@@ -262,7 +264,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                         try {
                             c.close();
                         } catch (PulsarClientException e) {
-                            LOGGER.warn(e.getMessage(), e);
+                            LOGGER.warn("close pulsar client: ", e);
                         }
                     });
             toBeRemovedConsumers.clear();
@@ -334,7 +336,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                         .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getDefaultStateCounter().addCallbackErrorTimes(1L);
-                LOGGER.error("failed to callback {}", e.getMessage(), e);
+                LOGGER.error("failed to handle callback: ", e);
             }
         }
 
@@ -416,7 +418,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     }
                 } catch (Exception e) {
                     context.getDefaultStateCounter().addFetchErrorTimes(1L);
-                    LOGGER.error("failed to fetch msg: {}", e.getMessage(), e);
+                    LOGGER.error("failed to fetch msg ", e);
                 } finally {
                     if (hasPermit) {
                         context.releaseRequestPermit();
