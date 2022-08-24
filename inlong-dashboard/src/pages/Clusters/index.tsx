@@ -186,9 +186,8 @@ const Comp: React.FC = () => {
 
       <CreateModal
         {...createModal}
-        type={options.type as any}
         visible={createModal.visible as boolean}
-        onOk={async values => {
+        onOk={async () => {
           await getList();
           setCreateModal({ visible: false });
         }}
