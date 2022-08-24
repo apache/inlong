@@ -40,7 +40,7 @@ namespace dataproxy_sdk
     {
         data_ = new char[data_capacity_];
         memset(data_, 0x0, data_capacity_);
-        topic_desc_ = "inlong_group_id=" + inlong_group_id_ + "&inlong_stream_id=" + inlong_stream_id_;
+        topic_desc_ = "groupId=" + inlong_group_id_ + "&streamId=" + inlong_stream_id_;
         first_use_ = Utils::getCurrentMsTime();
         last_use_ = Utils::getCurrentMsTime();
         data_time_ = 0;
