@@ -87,7 +87,6 @@ public class FileReaderOperator extends AbstractReader {
     public Message read() {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
-            LOGGER.info("message information:{}", message);
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
