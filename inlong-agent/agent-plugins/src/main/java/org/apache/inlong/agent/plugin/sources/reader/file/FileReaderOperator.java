@@ -87,6 +87,7 @@ public class FileReaderOperator extends AbstractReader {
     public Message read() {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
+            LOGGER.info("message information:{}", message);
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
@@ -178,7 +179,7 @@ public class FileReaderOperator extends AbstractReader {
                     fileReader.getData();
                     fileReader.mergeData(this);
                 } catch (Exception ex) {
-                    LOGGER.error("read file data error:{}", ex.getMessage());
+                    LOGGER.error("read file data error", ex);
                 }
             });
             if (Objects.nonNull(stream)) {
@@ -211,14 +212,14 @@ public class FileReaderOperator extends AbstractReader {
 
     public List<AbstractFileReader> getInstance(FileReaderOperator reader, JobProfile jobConf) {
         List<AbstractFileReader> fileReaders = new ArrayList<>();
-        fileReaders.add(new TextFileReader(this));
+        fileReaders.add(new TextFileReader(reader));
         if (!jobConf.hasKey(JOB_FILE_META_ENV_LIST)) {
             return fileReaders;
         }
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
-                fileReaders.add(new KubernetesFileReader(this));
+                fileReaders.add(new KubernetesFileReader(reader));
             }
         });
         return fileReaders;
