@@ -91,7 +91,7 @@ public class InlongGroupContext implements Serializable {
                 for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
                     StreamSource source = entry.getValue();
                     if (source != null) {
-                        sourcesInGroup.add(source);
+                        groupSources.add(source);
                     }
                 }
             }
