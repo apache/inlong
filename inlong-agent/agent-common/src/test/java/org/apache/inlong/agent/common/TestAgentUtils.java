@@ -89,4 +89,11 @@ public class TestAgentUtils {
         Assert.assertNotEquals("127.0.0.1", AgentUtils.fetchLocalIp());
         LOGGER.info("local ip is {}", AgentUtils.fetchLocalIp());
     }
+
+    @Test
+    public void testCustomFixedIp() {
+        String ip = AgentUtils.fetchLocalIp();
+        Assert.assertEquals("127.0.0.10", ip);
+        LOGGER.info("custom fixed ip  is {}", AgentUtils.fetchLocalIp());
+    }
 }
