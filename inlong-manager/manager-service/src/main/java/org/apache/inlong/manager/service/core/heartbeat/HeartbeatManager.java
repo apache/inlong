@@ -43,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -158,7 +157,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
-        if (!Objects.isNull(entity)) {
+        if (null != entity) {
             // TODO Load balancing needs to be considered.
             InlongClusterOperator operator = clusterOperatorFactory.getInstance(entity.getType());
             return operator.getFromEntity(entity);
