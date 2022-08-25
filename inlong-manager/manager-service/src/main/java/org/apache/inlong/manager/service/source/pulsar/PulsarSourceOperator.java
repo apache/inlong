@@ -151,6 +151,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
                 pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
             }
+            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
+                Map<String, Object> properties = pulsarSource.getProperties();
+                properties.put(InlongConstants.FIELD_DELIMITER, streamInfo.getDataSeparator());
+            }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
             pulsarSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);

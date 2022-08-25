@@ -110,4 +110,9 @@ public class InlongConstants {
 
     public static final String SORT_PROPERTIES = "sort.properties";
 
+    /**
+     * common config
+     */
+    public static final String FIELD_DELIMITER = "fieldDelimiter";
+
 }
