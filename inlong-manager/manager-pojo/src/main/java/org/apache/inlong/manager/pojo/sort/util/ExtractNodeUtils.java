@@ -59,6 +59,7 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 /**
  * Parse SourceInfo to ExtractNode which sort needed
@@ -181,6 +182,9 @@ public class ExtractNodeUtils {
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
                 break;
+            case RAW:
+                format = new RawFormat();
+                break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
@@ -244,6 +248,9 @@ public class ExtractNodeUtils {
                 break;
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
+                break;
+            case RAW:
+                format = new RawFormat();
                 break;
             default:
                 throw new IllegalArgumentException(
