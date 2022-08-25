@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.InlongCluster;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
@@ -26,6 +25,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class InlongClusterImpl implements InlongCluster {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setName(clusterName);
         request.setType(clusterType);
-        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        PageResult<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
         return clusterNodePage.getList();
     }
 
@@ -55,7 +55,7 @@ public class InlongClusterImpl implements InlongCluster {
         request.setName(clusterName);
         request.setType(clusterType);
         request.setClusterTagList(clusterTags);
-        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        PageResult<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
         return clusterNodePage.getList();
     }
 
@@ -65,7 +65,7 @@ public class InlongClusterImpl implements InlongCluster {
         request.setName(clusterName);
         request.setType(clusterType);
         request.setClusterTag(clusterTag);
-        PageInfo<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
+        PageResult<ClusterNodeResponse> clusterNodePage = clusterClient.listNode(request);
         return clusterNodePage.getList();
     }
 

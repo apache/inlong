@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +26,11 @@ import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.Map;
 
@@ -79,7 +79,7 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     }
 
     @Override
-    public PageInfo<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) {
+    public PageResult<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) {
         InlongGroupClient groupClient = ClientUtils.getClientFactory(configuration).getGroupClient();
         return groupClient.listGroups(request);
     }

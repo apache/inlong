@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,6 +34,8 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -44,13 +45,12 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.HttpUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
@@ -108,7 +108,7 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) {
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(expr, status, pageNum,
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(expr, status, pageNum,
                 pageSize);
         if (CollectionUtils.isEmpty(pageInfo.getList())) {
             return Lists.newArrayList();
@@ -127,7 +127,7 @@ public class InlongClientImpl implements InlongClient {
         request.setGroupIdList(groupIds);
         request.setListSources(true);
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
         List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
         Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
@@ -170,7 +170,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
+    public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
         return clusterClient.listTag(request);
     }
 
@@ -238,7 +238,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request) {
+    public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
         Preconditions.checkNotNull(request.getParentId(), "Cluster id cannot be empty");
         return clusterClient.listNode(request);
     }

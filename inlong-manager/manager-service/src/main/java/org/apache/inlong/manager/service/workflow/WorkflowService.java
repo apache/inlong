@@ -17,18 +17,18 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
-import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
-import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskLogRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
-import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
@@ -127,7 +127,7 @@ public interface WorkflowService {
      * @param query Query conditions.
      * @return Process list.
      */
-    PageInfo<ProcessResponse> listProcess(ProcessRequest query);
+    PageResult<ProcessResponse> listProcess(ProcessRequest query);
 
     /**
      * Get task list
@@ -135,7 +135,7 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return List
      */
-    PageInfo<TaskResponse> listTask(TaskRequest query);
+    PageResult<TaskResponse> listTask(TaskRequest query);
 
     /**
      * Get process statistics
@@ -159,6 +159,6 @@ public interface WorkflowService {
      * @param query Query conditions
      * @return Execution log
      */
-    PageInfo<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query);
+    PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query);
 
 }

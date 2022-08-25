@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
@@ -87,7 +87,7 @@ public interface Workflow {
      * @param request workflow process request
      * @return process response list
      */
-    PageInfo<ProcessResponse> listProcess(ProcessRequest request);
+    PageResult<ProcessResponse> listProcess(ProcessRequest request);
 
     /**
      * Get task list
@@ -95,5 +95,5 @@ public interface Workflow {
      * @param request workflow task query request
      * @return task response list
      */
-    PageInfo<TaskResponse> listTask(TaskRequest request);
+    PageResult<TaskResponse> listTask(TaskRequest request);
 }

@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.client.api.inner.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApproverApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
@@ -90,7 +90,7 @@ public class WorkflowApproverClient {
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
-        Response<PageInfo<ApproverResponse>> response = ClientUtils.executeHttpCall(
+        Response<PageResult<ApproverResponse>> response = ClientUtils.executeHttpCall(
                 workflowApproverApi.listByCondition(requestMap));
         ClientUtils.assertRespSuccess(response);
 

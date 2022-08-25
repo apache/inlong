@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -42,7 +42,7 @@ public interface WorkflowEventService {
      * @param query Query conditions
      * @return Log list
      */
-    PageInfo<EventLogResponse> list(EventLogRequest query);
+    PageResult<EventLogResponse> list(EventLogRequest query);
 
     /**
      * Execute the listener based on the log ID

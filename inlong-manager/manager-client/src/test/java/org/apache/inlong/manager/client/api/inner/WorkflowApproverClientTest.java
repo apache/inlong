@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.inner.client.WorkflowApproverClient;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
@@ -71,7 +71,7 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(
-                                                PageInfo.of(
+                                                new PageResult<>(
                                                         Lists.newArrayList(
                                                                 ApproverResponse.builder()
                                                                         .taskName("task1")
