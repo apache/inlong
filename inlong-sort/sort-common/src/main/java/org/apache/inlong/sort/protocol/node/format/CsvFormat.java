@@ -79,6 +79,11 @@ public class CsvFormat implements Format {
         this(",", true, null, false, true, ";", null, null);
     }
 
+    @JsonCreator
+    public CsvFormat(@JsonProperty(value = "fieldDelimiter", defaultValue = ",") String fieldDelimiter) {
+        this(fieldDelimiter, true, null, false, true, ";", null, null);
+    }
+
     @JsonIgnore
     @Override
     public String getFormat() {
