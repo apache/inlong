@@ -74,7 +74,7 @@ public class LogCommand extends AbstractCommand {
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(inputs[1]);
                 PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
-                if (pageInfo.getSize() > MAX_LOG_SIZE) {
+                if (pageInfo.getPageSize() > MAX_LOG_SIZE) {
                     System.err.println("the log is too large to print, please change the filter condition");
                     return;
                 }
