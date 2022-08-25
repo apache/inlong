@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -31,8 +31,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
@@ -79,7 +79,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/tag/list")
     @ApiOperation(value = "List cluster tags")
-    public Response<PageInfo<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
+    public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         return Response.success(clusterService.listTag(request));
     }
@@ -120,7 +120,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "List clusters")
-    public Response<PageInfo<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
+    public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         return Response.success(clusterService.list(request));
     }
 
@@ -167,7 +167,7 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/node/list")
     @ApiOperation(value = "List cluster nodes")
-    public Response<PageInfo<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
+    public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.listNode(request, currentUser));
     }

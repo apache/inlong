@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
@@ -64,7 +64,7 @@ public class ConsumptionController {
 
     @GetMapping("/consumption/list")
     @ApiOperation(value = "List data consumptions")
-    public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
+    public Response<PageResult<ConsumptionListVo>> list(ConsumptionQuery query) {
         query.setUsername(LoginUserUtils.getLoginUser().getName());
         return Response.success(consumptionService.list(query));
     }

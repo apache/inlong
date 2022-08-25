@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -29,6 +28,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.PageResult;
 
 import java.util.List;
 
@@ -61,7 +61,7 @@ public interface InlongClusterService {
      * @param request page request conditions
      * @return cluster tag list
      */
-    PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request);
+    PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request);
 
     /**
      * Update cluster tag.
@@ -116,7 +116,7 @@ public interface InlongClusterService {
      * @param request page request conditions
      * @return cluster list
      */
-    PageInfo<ClusterInfo> list(ClusterPageRequest request);
+    PageResult<ClusterInfo> list(ClusterPageRequest request);
 
     /**
      * Update cluster information
@@ -170,7 +170,7 @@ public interface InlongClusterService {
      * @param currentUser current operator
      * @return cluster node list
      */
-    PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
+    PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
 
     /**
      * Query node IP list by cluster type

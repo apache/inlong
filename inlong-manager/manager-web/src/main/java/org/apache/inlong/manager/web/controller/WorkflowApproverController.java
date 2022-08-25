@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
@@ -66,7 +66,7 @@ public class WorkflowApproverController {
 
     @GetMapping("/workflow/approver/list")
     @ApiOperation(value = "List workflow approvers")
-    public Response<PageInfo<ApproverResponse>> listByCondition(ApproverPageRequest request) {
+    public Response<PageResult<ApproverResponse>> listByCondition(ApproverPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(workflowApproverService.listByCondition(request));

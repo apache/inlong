@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
@@ -39,7 +39,7 @@ public interface WorkflowApproverApi {
     Call<Response<ApproverResponse>> get(@Path("id") Integer id);
 
     @GET("workflow/approver/list")
-    Call<Response<PageInfo<ApproverResponse>>> listByCondition(@Query("map") Map<String, Object> map);
+    Call<Response<PageResult<ApproverResponse>>> listByCondition(@Query("map") Map<String, Object> map);
 
     @POST("workflow/approver/update")
     Call<Response<Integer>> update(@Body ApproverRequest request);

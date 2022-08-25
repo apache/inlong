@@ -20,7 +20,6 @@ package org.apache.inlong.manager.client.api.inner.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -28,6 +27,7 @@ import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
@@ -180,13 +180,14 @@ public class WorkflowClient {
      * @param request workflow process request
      * @return process response list
      */
-    public PageInfo<ProcessResponse> listProcess(ProcessRequest request) {
+    public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
         Preconditions.checkNotNull(request, "process request cannot be null");
 
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
-        Response<PageInfo<ProcessResponse>> response = ClientUtils.executeHttpCall(workflowApi.listProcess(requestMap));
+        Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(
+                workflowApi.listProcess(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -197,13 +198,13 @@ public class WorkflowClient {
      * @param request workflow task query request
      * @return task response list
      */
-    public PageInfo<TaskResponse> listTask(TaskRequest request) {
+    public PageResult<TaskResponse> listTask(TaskRequest request) {
         Preconditions.checkNotNull(request, "task request cannot be null");
 
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
                 });
-        Response<PageInfo<TaskResponse>> response = ClientUtils.executeHttpCall(workflowApi.listTask(requestMap));
+        Response<PageResult<TaskResponse>> response = ClientUtils.executeHttpCall(workflowApi.listTask(requestMap));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

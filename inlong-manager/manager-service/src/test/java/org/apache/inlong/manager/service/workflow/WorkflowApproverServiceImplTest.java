@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -37,9 +37,9 @@ public class WorkflowApproverServiceImplTest extends ServiceBaseTest {
     @Test
     public void testListAndGet() {
         // The workflow approvers was init by SQL file.
-        PageInfo<ApproverResponse> approverList = workflowApproverService.listByCondition(
+        PageResult<ApproverResponse> approverList = workflowApproverService.listByCondition(
                 ApproverPageRequest.builder().build());
-        Assertions.assertTrue(approverList.getSize() > 0);
+        Assertions.assertTrue(approverList.getList().size() > 0);
 
         Integer id = approverList.getList().get(0).getId();
         ApproverResponse approverResponse = workflowApproverService.get(id);

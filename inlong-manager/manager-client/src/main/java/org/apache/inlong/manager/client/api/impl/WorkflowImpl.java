@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.Workflow;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
@@ -79,13 +79,13 @@ public class WorkflowImpl implements Workflow {
     }
 
     @Override
-    public PageInfo<ProcessResponse> listProcess(ProcessRequest request) {
+    public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
         Preconditions.checkNotNull(request, "process request cannot be null");
         return workflowClient.listProcess(request);
     }
 
     @Override
-    public PageInfo<TaskResponse> listTask(TaskRequest request) {
+    public PageResult<TaskResponse> listTask(TaskRequest request) {
         Preconditions.checkNotNull(request, "task request cannot be null");
         return workflowClient.listTask(request);
     }

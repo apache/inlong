@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 
@@ -45,7 +45,7 @@ public interface DataNode {
      * @param request page request conditions
      * @return node list
      */
-    PageInfo<DataNodeResponse> list(DataNodeRequest request);
+    PageResult<DataNodeResponse> list(DataNodeRequest request);
 
     /**
      * Update data node.

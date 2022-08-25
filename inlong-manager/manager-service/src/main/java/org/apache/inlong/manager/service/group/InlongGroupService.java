@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -59,7 +59,7 @@ public interface InlongGroupService {
      * @param request pagination query request
      * @return group list
      */
-    PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
+    PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
 
     /**
      * Modify group information

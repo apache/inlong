@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -26,15 +25,16 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Default operator of stream source.
@@ -98,11 +99,15 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     }
 
     @Override
-    public PageInfo<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage) {
+    public PageResult<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage) {
         if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
+            return PageResult.empty();
         }
-        return entityPage.toPageInfo(this::getFromEntity);
+
+        List<StreamSource> streamSources = entityPage.stream()
+                .map(this::getFromEntity)
+                .collect(Collectors.toList());
+        return new PageResult<>(streamSources, entityPage.getTotal(), entityPage.getPageNum(), entityPage.size());
     }
 
     @Override
