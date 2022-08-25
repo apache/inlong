@@ -73,7 +73,7 @@ const getRowInitialValue = (columns: EditableTableProps['columns']) =>
       [cur.dataIndex]: cur.initialValue,
     }),
     {
-      _etid: Math.random().toString(),
+      _etid: `_etnew_${Math.random().toString()}`, // The tag of new.
     },
   );
 
@@ -104,13 +104,7 @@ const Comp = ({
   const { t } = useTranslation();
 
   const [data, setData] = useState<RecordType[]>(
-    addIdToValues(value) ||
-      (required
-        ? [getRowInitialValue(columns)].map(item => ({
-            ...item,
-            _etid: `_etnew_${item._etid}`, // The tag of new.
-          }))
-        : []),
+    addIdToValues(value) || (required ? [getRowInitialValue(columns)] : []),
   );
 
   const [colsSet, setColsSet] = useState(new Set(columns.map(item => item.dataIndex)));
