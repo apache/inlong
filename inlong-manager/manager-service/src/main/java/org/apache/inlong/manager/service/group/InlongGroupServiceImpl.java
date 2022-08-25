@@ -423,9 +423,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     private BaseSortConf buildSortConfig(List<InlongGroupExtInfo> extInfos) {
-        Map<String, String> extMap = extInfos.stream()
-                .collect(HashMap::new, (map, extInfo) -> map.put(extInfo.getKeyName(), extInfo.getKeyValue()),
-                        HashMap::putAll);
+        Map<String, String> extMap = new HashMap<>();
+        extInfos.forEach(extInfo -> extMap.put(extInfo.getKeyName(), extInfo.getKeyValue()));
         String type = extMap.get(InlongConstants.SORT_TYPE);
         if (StringUtils.isBlank(type)) {
             return null;
