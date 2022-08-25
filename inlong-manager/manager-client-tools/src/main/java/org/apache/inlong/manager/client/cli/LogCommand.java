@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
@@ -62,7 +63,7 @@ public class LogCommand extends AbstractCommand {
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
-                if(inputs[1] != null) {
+                if(StringUtils.isNotBlank(inputs[1])) {
                     pageRequest.setKeyword(inputs[1]);
                 }
                 PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
