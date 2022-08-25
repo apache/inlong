@@ -50,7 +50,7 @@ public class LogCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"--query"}, description = "condition filters")
+        @Parameter(names = {"--query"}, required = true, description = "condition filters")
         private String input;
 
         @Override
