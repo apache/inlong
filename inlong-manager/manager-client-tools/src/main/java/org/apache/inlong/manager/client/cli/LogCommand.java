@@ -60,7 +60,7 @@ public class LogCommand extends AbstractCommand {
                 // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
                 // sample input: inlongGroupId:test_group
                 if (StringUtils.isNotBlank(input) {
-                    System.err.println("please enter your input!");
+                    System.err.println("please enter your input! the input must contain ':'");
                     return;
                 }
                 String[] inputs = input.split(":");
