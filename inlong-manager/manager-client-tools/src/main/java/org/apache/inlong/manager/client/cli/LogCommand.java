@@ -31,7 +31,6 @@ import java.util.List;
 
 /**
  * The log command used to get filter certain kinds of inlong groups
- * Please refer to the document for parameters
  */
 @Parameters(commandDescription = "Log resource")
 public class LogCommand extends AbstractCommand {
