@@ -232,9 +232,10 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String fieldDelimiter = (String) pulsarSource.getProperties()
-                        .get(InlongConstants.FIELD_DELIMITER);
-                format = StringUtils.isBlank(fieldDelimiter) ? new CsvFormat() : new CsvFormat(fieldDelimiter);
+                Map<String, Object> properties = pulsarSource.getProperties();
+                String fieldDelimiter = (String) properties.get(InlongConstants.FIELD_DELIMITER);
+                format = StringUtils.isEmpty(fieldDelimiter) ? new CsvFormat() : new CsvFormat(fieldDelimiter);
+                properties.remove(InlongConstants.FIELD_DELIMITER);
                 break;
             case AVRO:
                 format = new AvroFormat();
