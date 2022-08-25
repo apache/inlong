@@ -65,10 +65,10 @@ public class PulsarSource extends StreamSource {
     private String primaryKey;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
-    private String dataEncoding = StandardCharsets.UTF_8.toString();
+    private String dataEncoding;
 
     @ApiModelProperty(value = "Data separator, stored as ASCII code")
-    private String dataSeparator = DataSeparator.VERTICAL_BAR.getAsciiCode().toString();
+    private String dataSeparator;
 
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
