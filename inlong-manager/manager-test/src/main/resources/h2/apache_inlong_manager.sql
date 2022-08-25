@@ -382,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `source_name`         varchar(128) NOT NULL DEFAULT '' COMMENT 'source_name',
     `source_type`         varchar(20)           DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
     `template_id`         int(11)      DEFAULT NULL COMMENT 'Id of the template task this agent belongs to',
-    `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task',
+    `agent_ip`            text                  DEFAULT NULL COMMENT 'Ip of the agent running the task',
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
