@@ -346,7 +346,6 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
 
         private void processPulsarMsg(Messages<byte[]> messages) throws Exception {
             for (Message<byte[]> msg : messages) {
-                List<MessageRecord> msgs = new ArrayList<>();
                 String topicName = msg.getTopicName();
                 InLongTopic topic = onlineTopics.get(topicName);
                 if (Objects.isNull(topic)) {
@@ -370,7 +369,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     ack(offsetKey);
                     continue;
                 }
-
+                List<MessageRecord> msgs = new ArrayList<>();
                 msgs.add(new MessageRecord(topic.getTopicKey(),
                         inLongMessages,
                         offsetKey, System.currentTimeMillis()));

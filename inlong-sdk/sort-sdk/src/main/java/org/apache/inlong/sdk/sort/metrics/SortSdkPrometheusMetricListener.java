@@ -42,8 +42,8 @@ public class SortSdkPrometheusMetricListener {
         this.metricItem = new SortSdkMetricItem(sortTaskId);
 
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        String strBeanName = JMX_DOMAIN + DOMAIN_SEPARATOR + "type=SortSdk" + ",name=" + sortTaskId +
-                metricItem.hashCode();
+        String strBeanName = JMX_DOMAIN + DOMAIN_SEPARATOR + "type=SortSdk" + ",name=" + sortTaskId
+                + metricItem.hashCode();
         try {
             ObjectName objName = new ObjectName(strBeanName);
             mbs.registerMBean(metricItem, objName);
