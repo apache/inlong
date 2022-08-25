@@ -66,6 +66,8 @@ public class InlongConstants {
 
     public static final String PULSAR_QUEUE_TYPE_PARALLEL = "PARALLEL";
 
+    public static final String PULSAR_CSV_FIELDDELIMITER = "fieldDelimiter";
+
     /**
      * Format of the Pulsar topic: "persistent://tenant/namespace/topic
      */
