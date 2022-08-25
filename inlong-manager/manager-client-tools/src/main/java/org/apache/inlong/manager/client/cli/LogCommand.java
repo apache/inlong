@@ -73,12 +73,12 @@ public class LogCommand extends AbstractCommand {
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(inputs[1]);
-                PageResult<InlongGroupBriefInfo> groupPageResults = groupClient.listGroups(pageRequest);
-                if (groupPageResults.getPageSize() > MAX_LOG_SIZE) {
+                PageResult<InlongGroupBriefInfo> pageResult = groupClient.listGroups(pageRequest);
+                if (pageResult.getPageSize() > MAX_LOG_SIZE) {
                     System.err.println("the log is too large to print, please change the filter condition");
                     return;
                 }
-                PrintUtils.print(groupPageResults.getList(), GroupInfo.class);
+                PrintUtils.print(pageResult.getList(), GroupInfo.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
