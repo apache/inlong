@@ -59,6 +59,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     }),
     {
       manual: true,
+      formatResult: result => ({
+        ...result,
+        approvers: result.approvers?.split(','),
+      }),
       onSuccess: result => {
         form.setFieldsValue(result);
       },
@@ -72,11 +76,13 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       values.id = id;
       values.version = savedData?.version;
     }
-    console.log(values, 'values');
     await request({
       url: isUpdate ? '/workflow/approver/update' : '/workflow/approver/save',
       method: 'POST',
-      data: values,
+      data: {
+        ...values,
+        approvers: values.approvers?.join(','),
+      },
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
