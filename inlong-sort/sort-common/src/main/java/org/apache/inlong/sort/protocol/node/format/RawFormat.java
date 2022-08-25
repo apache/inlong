@@ -33,8 +33,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
  *         Raw Format</a>
  */
 
-@JsonTypeName("rawFormat")
 @Data
+@JsonTypeName("rawFormat")
 @ToString
 public class RawFormat implements Format {
 
