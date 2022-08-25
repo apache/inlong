@@ -80,7 +80,7 @@ public class CsvFormat implements Format {
     }
 
     @JsonCreator
-    public CsvFormat(@JsonProperty(value = "fieldDelimiter", defaultValue = ",") String fieldDelimiter) {
+    public CsvFormat(String fieldDelimiter) {
         this(fieldDelimiter, true, null, false, true, ";", null, null);
     }
 
