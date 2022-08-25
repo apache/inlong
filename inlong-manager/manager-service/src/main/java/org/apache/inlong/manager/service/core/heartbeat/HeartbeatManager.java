@@ -24,7 +24,6 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
@@ -44,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -158,12 +157,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
-        List<InlongClusterEntity> entities = clusterMapper.selectByKey(clusterTag, clusterName, type);
-        if (CollectionUtils.isNotEmpty(entities)) {
+        InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
+        if (!Objects.isNull(entity)) {
             // TODO Load balancing needs to be considered.
-            InlongClusterEntity cluster = entities.get(0);
-            InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
-            return operator.getFromEntity(cluster);
+            InlongClusterOperator operator = clusterOperatorFactory.getInstance(entity.getType());
+            return operator.getFromEntity(entity);
         }
 
         InlongClusterEntity cluster = new InlongClusterEntity();
