@@ -142,10 +142,6 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                         && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
                     pulsarSource.setSerializationType(sourceInfo.getSerializationType());
                 }
-                if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
-                    Map<String, Object> properties = pulsarSource.getProperties();
-                    properties.put(InlongConstants.PULSAR_CSV_FIELDDELIMITER, streamInfo.getDataSeparator());
-                }
                 if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
                 }
@@ -154,6 +150,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             // if the SerializationType is still null, set it to the CSV
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
                 pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+            }
+            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
+                Map<String, Object> properties = pulsarSource.getProperties();
+                properties.put(InlongConstants.FIELD_DELIMITER, streamInfo.getDataSeparator());
             }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
             pulsarSource.setFieldList(streamInfo.getFieldList());
