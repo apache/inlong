@@ -59,16 +59,16 @@ public class LogCommand extends AbstractCommand {
             try {
                 // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
                 // sample input: inlongGroupId:test_group
-                if(input == null) {
-                    System.err.println("empty input");
+                if (StringUtils.isNotBlank(input) {
+                    System.err.println("please enter your input!");
                     return;
                 }
                 String[] inputs = input.split(":");
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
-                if (inputs.length<2 || StringUtils.isBlank(inputs[1])) {
-                    System.err.println("invalid input");
+                if (inputs.length < 2 || StringUtils.isBlank(inputs[1])) {
+                    System.err.println("the input is invalid. Sample input is inlongGroupId:test_group.");
                     return;
                 }
                 pageRequest.setKeyword(inputs[1]);
