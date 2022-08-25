@@ -57,11 +57,14 @@ public class LogCommand extends AbstractCommand {
             final int MAX_LOG_SIZE = 100;
             try {
                 // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
+                //sample input: inlongGroupId:test_group
                 String[] inputs = input.split(":");
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
-                pageRequest.setKeyword(inputs[1]);
+                if(inputs[1] != null) {
+                    pageRequest.setKeyword(inputs[1]);
+                }
                 PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 if (pageInfo.getSize() > MAX_LOG_SIZE) {
                     System.err.println("log too large to print, consider changing filter.");
