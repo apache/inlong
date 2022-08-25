@@ -78,7 +78,7 @@ public class LogCommand extends AbstractCommand {
                     System.err.println("the log is too large to print, please change the filter condition");
                     return;
                 }
-                PrintUtils.print(pageInfo.getList(), GroupInfo.class);
+                PrintUtils.print(groupPageResults.getList(), GroupInfo.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
