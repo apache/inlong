@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
@@ -212,6 +213,8 @@ public class AgentServiceImpl implements AgentService {
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
         final String uuid = taskRequest.getUuid();
+        Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
+                "both agent ip and cluster name are blank when fetching file task");
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
         List<DataConfig> fileTasks = Lists.newArrayList();
@@ -235,18 +238,15 @@ public class AgentServiceImpl implements AgentService {
                 continue;
             }
 
-            // Cluster name is not blank, split task if necessary
-            // The agent ip field of the entity holds the ip list of the agents that has already been issued
+            // Cluster name is not blank, split subtask if necessary
+            // The template task's id is assigned to the subtask's template id field
             if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)
                     && Objects.isNull(sourceEntity.getTemplateId())) {
 
                 // Is the task already fetched by this agent ?
-                if (StringUtils.isNotBlank(sourceEntity.getAgentIp())) {
-                    if (Arrays.asList(sourceEntity.getAgentIp().split(InlongConstants.COMMA)).contains(agentIp)) {
-                        LOGGER.debug("Task={} has already been fetched by agentIP={}", sourceEntity.getExtParams(),
-                                agentIp);
-                        continue;
-                    }
+                List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
+                if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
+                    continue;
                 }
 
                 // If not, clone a sub task for the new agent
@@ -264,9 +264,6 @@ public class AgentServiceImpl implements AgentService {
                 if (sourceMapper.insert(fileEntity) > 0) {
                     fileTasks.add(getDataConfig(fileEntity, op));
                 }
-
-                // Append new agent ip
-                sourceMapper.appendAgentIp(sourceEntity.getId(), agentIp);
             }
             if (fileTasks.size() >= TASK_FETCH_SIZE) {
                 break;

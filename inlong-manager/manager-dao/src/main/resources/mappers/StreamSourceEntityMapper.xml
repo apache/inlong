@@ -27,7 +27,7 @@
         <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
         <result column="source_name" jdbcType="VARCHAR" property="sourceName"/>
         <result column="template_id" jdbcType="INTEGER" property="templateId"/>
-        <result column="agent_ip" jdbcType="LONGVARCHAR" property="agentIp"/>
+        <result column="agent_ip" jdbcType="VARCHAR" property="agentIp"/>
         <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
@@ -60,7 +60,7 @@
                                    previous_status, creator, modifier)
         values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
-                #{agentIp,jdbcType=LONGVARCHAR},#{uuid,jdbcType=VARCHAR},
+                #{agentIp,jdbcType=VARCHAR},#{uuid,jdbcType=VARCHAR},
                 #{dataNodeName,jdbcType=VARCHAR}, #{inlongClusterName,jdbcType=VARCHAR},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
@@ -150,7 +150,7 @@
         <include refid="Base_Column_List"/>
         from stream_source
         where is_deleted = 0
-        and agent_ip = #{agentIp, jdbcType=LONGVARCHAR}
+        and agent_ip = #{agentIp, jdbcType=VARCHAR}
     </select>
     <select id="selectByRelatedId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
@@ -221,7 +221,7 @@
                     #{item}
                 </foreach>
             </if>
-            and (agent_ip = #{agentIp, jdbcType=LONGVARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
+            and (agent_ip = #{agentIp, jdbcType=VARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
             limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
@@ -230,7 +230,7 @@
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
-            agent_ip = #{agentIp, jdbcType=LONGVARCHAR}
+            agent_ip = #{agentIp, jdbcType=VARCHAR}
             <if test="statusList != null and statusList.size()>0">
                 and status in
                 <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
@@ -288,7 +288,7 @@
                 source_name = #{sourceName,jdbcType=VARCHAR},
             </if>
             <if test="agentIp != null">
-                agent_ip = #{agentIp,jdbcType=LONGVARCHAR},
+                agent_ip = #{agentIp,jdbcType=VARCHAR},
             </if>
             <if test="uuid != null">
                 uuid = #{uuid,jdbcType=VARCHAR},
@@ -337,7 +337,7 @@
             inlong_stream_id    = #{inlongStreamId,jdbcType=VARCHAR},
             source_type         = #{sourceType,jdbcType=VARCHAR},
             source_name         = #{sourceName,jdbcType=VARCHAR},
-            agent_ip            = #{agentIp,jdbcType=LONGVARCHAR},
+            agent_ip            = #{agentIp,jdbcType=VARCHAR},
             uuid                = #{uuid,jdbcType=VARCHAR},
             data_node_name      = #{dataNodeName,jdbcType=VARCHAR},
             inlong_cluster_name = #{inlongClusterName,jdbcType=VARCHAR},
@@ -376,7 +376,7 @@
     </update>
     <update id="updateIpAndUuid">
         update stream_source
-        set agent_ip = #{agentIp,jdbcType=LONGVARCHAR},
+        set agent_ip = #{agentIp,jdbcType=VARCHAR},
         uuid = #{uuid,jdbcType=VARCHAR}
         <if test="changeTime == false">
             , modify_time = modify_time
@@ -388,11 +388,6 @@
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
             report_time = #{reportTime,jdbcType=TIMESTAMP},
             modify_time = modify_time
-        where id = #{id,jdbcType=INTEGER}
-    </update>
-    <update id="appendAgentIp">
-        update stream_source
-        set agent_ip = IF(agent_ip is NULL or agent_ip = '', #{agentIp,jdbcType=LONGVARCHAR}, CONCAT(agent_ip, ',', #{agentIp}))
         where id = #{id,jdbcType=INTEGER}
     </update>
 
