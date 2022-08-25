@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
@@ -27,6 +26,7 @@ import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class LogCommand extends AbstractCommand {
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(inputs[1]);
-                PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
+                PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 if (pageInfo.getSize() > MAX_LOG_SIZE) {
                     System.err.println("the log is too large to print, please change the filter condition");
                     return;
