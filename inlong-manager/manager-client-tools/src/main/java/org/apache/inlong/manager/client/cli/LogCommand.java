@@ -24,9 +24,9 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.pojo.common.PageResult;
 
 import java.util.List;
 
@@ -73,8 +73,8 @@ public class LogCommand extends AbstractCommand {
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(inputs[1]);
-                PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
-                if (pageInfo.getPageSize() > MAX_LOG_SIZE) {
+                PageResult<InlongGroupBriefInfo> groupPageResults = groupClient.listGroups(pageRequest);
+                if (groupPageResults.getPageSize() > MAX_LOG_SIZE) {
                     System.err.println("the log is too large to print, please change the filter condition");
                     return;
                 }
