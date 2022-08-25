@@ -353,8 +353,8 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
             if (null != records && !records.isEmpty()) {
 
-                List<MessageRecord> msgs = new ArrayList<>();
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
+                    List<MessageRecord> msgs = new ArrayList<>();
                     String topicName = msg.topic();
                     InLongTopic topic = onlineTopics.get(topicName);
                     String offsetKey = getOffset(topicName, msg.partition(), msg.offset());
@@ -370,9 +370,9 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                             inLongMessages,
                             offsetKey, System.currentTimeMillis()));
                     context.getStateCounterByTopic(topic).addConsumeSize(msg.value().length);
+                    context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
+                    handleAndCallbackMsg(msgs);
                 }
-                context.getDefaultStateCounter().addMsgCount(msgs.size());
-                handleAndCallbackMsg(msgs);
                 sleepTime = 0L;
             } else {
                 context.getDefaultStateCounter().addEmptyFetchTimes(1);
