@@ -31,7 +31,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import java.util.List;
 
 /**
- * The log command used to get filter certain kinds of inlong groups
+ * The log command was used to get log info for specified inlong groups.
  */
 @Parameters(commandDescription = "Log resource")
 public class LogCommand extends AbstractCommand {
@@ -59,22 +59,23 @@ public class LogCommand extends AbstractCommand {
             try {
                 // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
                 // sample input: inlongGroupId:test_group
-                if (StringUtils.isNotBlank(input) {
-                    System.err.println("please enter your input! the input must contain ':'");
+                if (StringUtils.isNotBlank(input)) {
+                    System.err.println("input cannot be empty, for example: inlongGroupId:test_group");
                     return;
                 }
                 String[] inputs = input.split(":");
+                if (inputs.length < 2 || StringUtils.isBlank(inputs[1])) {
+                    System.err.println("the input must contain ':'");
+                    return;
+                }
+
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
-                if (inputs.length < 2 || StringUtils.isBlank(inputs[1])) {
-                    System.err.println("the input is invalid. Sample input is inlongGroupId:test_group.");
-                    return;
-                }
                 pageRequest.setKeyword(inputs[1]);
                 PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 if (pageInfo.getSize() > MAX_LOG_SIZE) {
-                    System.err.println("log too large to print, consider changing filter.");
+                    System.err.println("the log is too large to print, please change the filter condition");
                     return;
                 }
                 PrintUtils.print(pageInfo.getList(), GroupInfo.class);
