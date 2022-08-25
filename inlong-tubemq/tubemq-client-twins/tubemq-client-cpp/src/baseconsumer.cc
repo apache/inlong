@@ -526,6 +526,15 @@ void BaseConsumer::heartBeat2Master() {
           master_sh_retry_cnt_++;
           LOG_WARN("[CONSUMER] heartBeat2Master failue to (%s:%d) : %s, client=%s",
                    target_ip.c_str(), target_port, error.Message().c_str(), client_uuid_.c_str());
+          if (master_sh_retry_cnt_ >= tb_config::kMaxMasterHBRetryCount) {
+              LOG_WARN("[CONSUMER] heartBeat2Master found over max-hb-retry(%d), client=%s",
+                       master_sh_retry_cnt_, client_uuid_.c_str());
+              master_sh_retry_cnt_ = 0;
+              is_master_actived_.Set(false);
+              asyncRegister2Master(true);
+              master_hb_status_.CompareAndSet(1, 0);
+              return;
+          }
         } else {
           // process response
           auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
@@ -540,9 +549,10 @@ void BaseConsumer::heartBeat2Master() {
             if (error_code == err_code::kErrHbNoNode ||
                 error_info.find("StandbyException") != string::npos) {
               is_master_actived_.Set(false);
-              LOG_WARN("[CONSUMER] hb2master found no-node or standby, re-register, client=%s",
-                       client_uuid_.c_str());
-              asyncRegister2Master(!(error_code == err_code::kErrHbNoNode));
+              bool need_change = !(error_code == err_code::kErrHbNoNode);
+              LOG_WARN("[CONSUMER] heartBeat2Master found no-node or standby, client=%s, change=%d",
+                       client_uuid_.c_str(), need_change);
+              asyncRegister2Master(need_change);
               master_hb_status_.CompareAndSet(1, 0);
               return;
             }
