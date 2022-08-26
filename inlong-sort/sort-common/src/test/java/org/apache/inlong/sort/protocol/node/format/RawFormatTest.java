@@ -15,32 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.enums;
+package org.apache.inlong.sort.protocol.node.format;
 
-import java.util.Locale;
-import lombok.Getter;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-public enum DataTypeEnum {
-    CSV("csv"),
-    AVRO("avro"),
-    JSON("json"),
-    CANAL("canal"),
-    DEBEZIUM_JSON("debezium_json"),
-    RAW("raw");
+/**
+ * Test for {@link RawFormat}
+ */
+public class RawFormatTest extends SerializeBaseTest<RawFormat> {
 
-    @Getter
-    private final String name;
-
-    DataTypeEnum(String name) {
-        this.name = name;
-    }
-
-    public static DataTypeEnum forName(String name) {
-        for (DataTypeEnum dataType : values()) {
-            if (dataType.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataType;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupport dataType for Inlong:%s", name));
+    /**
+     * Get test object
+     *
+     * @return The test object
+     */
+    @Override
+    public RawFormat getTestObject() {
+        return new RawFormat();
     }
 }
