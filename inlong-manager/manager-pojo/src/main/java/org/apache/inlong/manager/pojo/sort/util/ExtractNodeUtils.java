@@ -56,6 +56,7 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 import java.util.List;
 import java.util.Map;
@@ -247,6 +248,9 @@ public class ExtractNodeUtils {
                 break;
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
+                break;
+            case RAW:
+                format = new RawFormat();
                 break;
             default:
                 throw new IllegalArgumentException(
