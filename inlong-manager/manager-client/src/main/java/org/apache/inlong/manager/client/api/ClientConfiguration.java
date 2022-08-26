@@ -52,4 +52,6 @@ public class ClientConfiguration implements Serializable {
     private boolean isUseTls = false;
 
     private boolean retryOnConnectionFailure = true;
+    
+    private String version = "1.3.0";
 }

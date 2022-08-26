@@ -21,14 +21,15 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.Response;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -44,6 +45,12 @@ import java.util.Optional;
 public class ClientUtils {
 
     private static final String REQUEST_FAILED_MSG = "Request to Inlong %s failed: %s";
+
+    private static final String API_PATH_120 = "/api/inlong/manager";
+
+    private static final String API_PATH_130 = "/inlong/manager/api";
+
+    private static final String STABLE_API_VERSION = "1.3.0";
 
     private static ClientFactory clientFactory;
 
@@ -82,8 +89,14 @@ public class ClientUtils {
                 .retryOnConnectionFailure(true)
                 .build();
 
+        String path = API_PATH_130;
+        if (StringUtils.isNotBlank(configuration.getVersion()) &&
+                !VersionUtils.checkInlongVersion(configuration.getVersion(), STABLE_API_VERSION)) {
+            path = API_PATH_120;
+        }
+
         return new Retrofit.Builder()
-                .baseUrl("http://" + host + ":" + port + "/inlong/manager/api/")
+                .baseUrl("http://" + host + ":" + port + path)
                 .addConverterFactory(JacksonConverterFactory.create(JsonUtils.OBJECT_MAPPER))
                 .client(okHttpClient)
                 .build();
