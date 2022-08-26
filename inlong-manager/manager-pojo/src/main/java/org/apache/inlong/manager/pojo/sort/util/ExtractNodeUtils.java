@@ -233,7 +233,7 @@ public class ExtractNodeUtils {
         switch (dataType) {
             case CSV:
                 String separator = DataSeparator
-                        .forAscii(Integer.valueOf(pulsarSource.getDataSeparator())).getSeparator();
+                        .forAscii(Integer.parseInt(pulsarSource.getDataSeparator())).getSeparator();
                 format = new CsvFormat(separator);
                 break;
             case AVRO:
