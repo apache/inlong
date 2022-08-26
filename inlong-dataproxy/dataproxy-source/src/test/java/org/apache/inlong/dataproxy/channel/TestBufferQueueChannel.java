@@ -59,15 +59,12 @@ public class TestBufferQueueChannel {
         bufferChannel.start();
         // times
         int times = 1000000;
-        int transactionSize = 1;
-        long memoryDuration = 0;
-        long bufferDuration = 0;
         // transactionSize=1
-        transactionSize = 1;
-        memoryDuration = runChannel(memoryChannel, times, transactionSize);
+        int transactionSize = 1;
+        long memoryDuration = runChannel(memoryChannel, times, transactionSize);
         System.out.println(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
                 transactionSize, memoryDuration));
-        bufferDuration = runChannel(bufferChannel, times, transactionSize);
+        long bufferDuration = runChannel(bufferChannel, times, transactionSize);
         System.out.println(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
                 transactionSize, bufferDuration,
                 String.valueOf((memoryDuration - bufferDuration) * 1.0 / memoryDuration)));
