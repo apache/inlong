@@ -182,9 +182,6 @@ public class ExtractNodeUtils {
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
                 break;
-            case RAW:
-                format = new RawFormat();
-                break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
