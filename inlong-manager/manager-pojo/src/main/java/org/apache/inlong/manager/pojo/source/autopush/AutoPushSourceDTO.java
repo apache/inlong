@@ -43,6 +43,15 @@ public class AutoPushSourceDTO {
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
+    @ApiModelProperty(value = "Data separator, stored as ASCII code")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    private String dataEscapeChar;
+
     public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {
         return AutoPushSourceDTO.builder()
                 .dataProxyGroup(request.getDataProxyGroup())

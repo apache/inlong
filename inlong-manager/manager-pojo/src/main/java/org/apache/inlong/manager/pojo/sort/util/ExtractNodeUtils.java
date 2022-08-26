@@ -23,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
@@ -232,9 +232,9 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String fieldDelimiter = (String) pulsarSource.getProperties()
-                        .get(InlongConstants.FIELD_DELIMITER);
-                format = StringUtils.isBlank(fieldDelimiter) ? new CsvFormat() : new CsvFormat(fieldDelimiter);
+                String separator = DataSeparator
+                        .forAscii(Integer.parseInt(pulsarSource.getDataSeparator())).getSeparator();
+                format = new CsvFormat(separator);
                 break;
             case AVRO:
                 format = new AvroFormat();
