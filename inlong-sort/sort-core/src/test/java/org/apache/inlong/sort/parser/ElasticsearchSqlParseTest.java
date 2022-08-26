@@ -41,7 +41,6 @@ import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * test elastic search sql parse
