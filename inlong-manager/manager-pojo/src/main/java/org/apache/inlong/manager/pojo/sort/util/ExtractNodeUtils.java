@@ -230,9 +230,10 @@ public class ExtractNodeUtils {
 
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
-        String separator = DataSeparator.forAscii(Integer.valueOf(pulsarSource.getDataSeparator())).getSeparator();
         switch (dataType) {
             case CSV:
+                String separator = DataSeparator
+                        .forAscii(Integer.valueOf(pulsarSource.getDataSeparator())).getSeparator();
                 format = new CsvFormat(separator);
                 break;
             case AVRO:
