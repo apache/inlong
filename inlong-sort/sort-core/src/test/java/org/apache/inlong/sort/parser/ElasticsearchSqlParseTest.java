@@ -46,7 +46,7 @@ import org.junit.Test;
 /**
  * test elastic search sql parse
  */
-public class ElasticsearchSqlParseTest extends AbstractTestBase {
+public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMysqlExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
@@ -59,7 +59,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
             true, null);
     }
 
-    private ElasticsearchLoadNode buildElasticsearchLoadNode() {
+    ElasticsearchLoadNode buildElasticsearchLoadNode(int i) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
             new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
@@ -72,7 +72,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
             2, null,
             "test", "http://localhost:9200",
-            "elastic", "my_password", null, "age", 7);
+            "elastic", "my_password", null, "age", i);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -86,8 +86,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
      *
      * @throws Exception The exception may throws when execute the case
      */
-    @Test
-    public void testMysqlToElasticsearch() throws Exception {
+    public void testMysqlToElasticsearch(Node node) throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
             .newInstance()
             .useBlinkPlanner()
@@ -98,7 +97,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMysqlExtractNode();
-        Node outputNode = buildElasticsearchLoadNode();
+        Node outputNode = node;
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
             Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                 Collections.singletonList(outputNode))));
