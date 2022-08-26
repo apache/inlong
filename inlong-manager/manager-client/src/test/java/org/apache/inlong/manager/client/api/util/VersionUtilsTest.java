@@ -23,21 +23,21 @@ import org.junit.jupiter.api.Test;
 public class VersionUtilsTest {
 
     @Test
-    void testCheckInlongVersion(){
+    void testCheckInlongVersion() {
         String current = "1.2.0";
         String target = "1.3.0";
-        Assertions.assertFalse(VersionUtils.checkInlongVersion(current,target));
+        Assertions.assertFalse(VersionUtils.checkInlongVersion(current, target));
         current = "1.3.0";
         target = "1.3.0";
-        Assertions.assertTrue(VersionUtils.checkInlongVersion(current,target));
+        Assertions.assertTrue(VersionUtils.checkInlongVersion(current, target));
         current = "1.3.5";
         target = "1.3.0";
-        Assertions.assertTrue(VersionUtils.checkInlongVersion(current,target));
+        Assertions.assertTrue(VersionUtils.checkInlongVersion(current, target));
         current = "1.2.3-1";
         target = "1.3.0";
         try {
-            VersionUtils.checkInlongVersion(current,target);
-        } catch (Exception e){
+            VersionUtils.checkInlongVersion(current, target);
+        } catch (Exception e) {
             Assertions.assertTrue(e instanceof IllegalArgumentException);
             Assertions.assertTrue(e.getMessage().contains("Unsupported version"));
         }
