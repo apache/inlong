@@ -36,7 +36,7 @@
 namespace dataproxy_sdk
 {
     PackQueue::PackQueue(const std::string &inlong_group_id, const std::string &inlong_stream_id)
-        : cur_len_(0), inlong_group_id_(inlong_group_id), inlong_stream_id_(inlong_stream_id), groupId_num_(0), streamId_num_(0), msg_type_(g_config->msg_type_), data_capacity_(g_config->buf_size_)
+        : cur_len_(0), inlong_group_id_(inlong_group_id), inlong_stream_id_(inlong_stream_id), groupId_num_(0), streamId_num_(0), msg_type_(g_config.msg_type_), data_capacity_(g_config.buf_size_)
     {
         data_ = new char[data_capacity_];
         memset(data_, 0x0, data_capacity_);
@@ -84,7 +84,7 @@ namespace dataproxy_sdk
         }
 
         //if uneable_pack, single msg is written to packqueue and directly sent to buf
-        if (!g_config->enable_pack_)
+        if (!g_config.enable_pack_)
         {
             int32_t res = writeToBuf();
             if (res)
@@ -173,9 +173,9 @@ namespace dataproxy_sdk
     int32_t PackQueue::appendMsg(const std::string &msg, std::string client_ip, int64_t report_time, UserCallBack call_back)
     {
         //too long msg
-        if (msg.size() > g_config->ext_pack_size_)
+        if (msg.size() > g_config.ext_pack_size_)
         {
-            LOG_ERROR("msg len (%d) more than ext_pack_size (%d)", msg.size(), g_config->ext_pack_size_);
+            LOG_ERROR("msg len (%d) more than ext_pack_size (%d)", msg.size(), g_config.ext_pack_size_);
             return SDKInvalidResult::kMsgTooLong;
         }
 
@@ -203,11 +203,11 @@ namespace dataproxy_sdk
         
         cur_len_ += msg.size() + 1; // '\n' using one byte
 
-        if (g_config->isNormalDataPackFormat())
+        if (g_config.isNormalDataPackFormat())
         {
             cur_len_ += 4;
         }
-        if (g_config->isAttrDataPackFormat())
+        if (g_config.isAttrDataPackFormat())
         {
             cur_len_ += constants::kAttrLen + 8;
         }
@@ -241,7 +241,7 @@ namespace dataproxy_sdk
         {
             time_trigger = true;
         }
-        if (msg_len + cur_len_ > g_config->pack_size_)
+        if (msg_len + cur_len_ > g_config.pack_size_)
         {
             len_trigger = true;
         }
@@ -278,7 +278,7 @@ namespace dataproxy_sdk
             idx += static_cast<uint32_t>(it->msg.size());
 
             //add attrlen|attr
-            if (g_config->isAttrDataPackFormat())
+            if (g_config.isAttrDataPackFormat())
             {
                 *(uint32_t *)(&data_[idx]) = htonl(it->data_pack_format_attr.size());
                 idx += sizeof(uint32_t);
@@ -333,7 +333,7 @@ namespace dataproxy_sdk
             uint32_t char_groupid_flag = 0;
             std::string groupid_streamid_char;
             uint16_t groupid_num = 0, streamid_num = 0;
-            if (g_config->enableCharGroupid() || groupId_num_ == 0 || streamId_num_ == 0) //using string groupid and streamid
+            if (g_config.enableCharGroupid() || groupId_num_ == 0 || streamId_num_ == 0) //using string groupid and streamid
             {
                 groupid_num = 0;
                 streamid_num = 0;
@@ -345,17 +345,17 @@ namespace dataproxy_sdk
                 groupid_num = groupId_num_;
                 streamid_num = streamId_num_;
             }
-            uint16_t ext_field = (g_config->extend_field_ | char_groupid_flag);
+            uint16_t ext_field = (g_config.extend_field_ | char_groupid_flag);
             uint32_t data_time = data_time_ / 1000;
 
             // attr
             std::string attr;
-            if (g_config->enableTraceIP())
+            if (g_config.enableTraceIP())
             {
                 if (groupid_streamid_char.empty())
-                    attr = "node1ip=" + g_config->ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
+                    attr = "node1ip=" + g_config.ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
                 else
-                    attr = groupid_streamid_char + "&node1ip=" + g_config->ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
+                    attr = groupid_streamid_char + "&node1ip=" + g_config.ser_ip_ + "&rtime1=" + std::to_string(Utils::getCurrentMsTime());
             }
             else
             {
@@ -427,9 +427,9 @@ namespace dataproxy_sdk
                 attr += "&cp=snappy";
             attr += "&cnt=" + std::to_string(cnt);
             attr += "&sid=" + std::string(Utils::getSnowflakeId());
-            if (g_config->is_from_DC_)
+            if (g_config.is_from_DC_)
             { //&__addcol1_reptime=yyyymmddHHMMSS&__addcol2__ip=BBB&f=dc
-                attr += "&__addcol1_reptime=" + Utils::getFormatTime(Utils::getCurrentMsTime()) + "&__addcol2__ip=" + g_config->ser_ip_ + "&f=dc";
+                attr += "&__addcol1_reptime=" + Utils::getFormatTime(Utils::getCurrentMsTime()) + "&__addcol2__ip=" + g_config.ser_ip_ + "&f=dc";
             }
 
             // attrlen
@@ -459,7 +459,7 @@ namespace dataproxy_sdk
      */
     bool PackQueue::isZipAndOperate(std::string &res, uint32_t real_cur_len)
     {
-        if (g_config->enable_zip_ && real_cur_len > g_config->min_zip_len_)
+        if (g_config.enable_zip_ && real_cur_len > g_config.min_zip_len_)
         {
             LOG_TRACE("start snappy.");
             Utils::zipData(data_, real_cur_len, res);
@@ -474,7 +474,7 @@ namespace dataproxy_sdk
         if (cur_len_ == 0 || msg_set_.empty())
             return;
         //no timeout, and it isn't last packing
-        if (Utils::getCurrentMsTime() - first_use_ < g_config->pack_timeout_ && !isLastPack)// FIXME:should use first_use instead of last_use?
+        if (Utils::getCurrentMsTime() - first_use_ < g_config.pack_timeout_ && !isLastPack)// FIXME:should use first_use instead of last_use?
             return;
         LOG_TRACE("start auto pack, inlong_group_id:%s, inlong_stream_id:%s", inlong_group_id_.c_str(), inlong_stream_id_.c_str());
 
@@ -544,7 +544,7 @@ namespace dataproxy_sdk
             return;
         for (auto &it : queues_)
         {
-            LOG_WARN("-------> dataproxy_sdk_cpp #local:%s#%s#success send msg:%d", g_config->ser_ip_.c_str(), it.second->topicDesc().c_str(),
+            LOG_STAT("dataproxy_sdk_cpp #local:%s#%s#success send msg:%d", g_config.ser_ip_.c_str(), it.second->topicDesc().c_str(),
                      it.second->success_num_.getAndSet(0));
         }
     }
@@ -555,7 +555,7 @@ namespace dataproxy_sdk
             return;
         for (auto &it : queues_)
         {
-            LOG_WARN("-------> dataproxy_sdk_cpp #local:%s#%s#total success msg:%d", g_config->ser_ip_.c_str(), it.second->topicDesc().c_str(),
+            LOG_STAT("dataproxy_sdk_cpp #local:%s#%s#total success msg:%d", g_config.ser_ip_.c_str(), it.second->topicDesc().c_str(),
                      it.second->total_success_num_.get());
         }
     }
@@ -569,9 +569,9 @@ namespace dataproxy_sdk
         {
             uint32_t pack = it.second->pack_num_.getAndSet(0);
             total_pack += pack;
-            LOG_DEBUG("------->toipc:%s, pack_num:%d", it.second->topicDesc().c_str(), pack);
+            LOG_DEBUG("toipc:%s, pack_num:%d", it.second->topicDesc().c_str(), pack);
         }
-        LOG_DEBUG("------->total_pack:%d", total_pack);
+        LOG_DEBUG("total_pack:%d", total_pack);
 
         g_pools->showState();
         g_executors->showState();

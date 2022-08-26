@@ -50,7 +50,7 @@ namespace dataproxy_sdk
         status_ = kConnecting;
         timer_->expires_after(std::chrono::milliseconds(kConnectTimeout));
         timer_->async_wait(std::bind(&Connection::connectHandler, this, std::placeholders::_1));
-        if (g_config->enable_TCP_nagle_ == false)
+        if (g_config.enable_TCP_nagle_ == false)
         {
             socket_->set_option(asio::ip::tcp::no_delay(true));
         } // close nagle
@@ -140,10 +140,10 @@ namespace dataproxy_sdk
                       remote_info_.c_str(), send_err_nums_.get(), ec.message().c_str());
         }
 
-        if (retry_hb_.get() > g_config->retry_num_)  //close and create new conn
+        if (retry_hb_.get() > g_config.retry_num_)  //close and create new conn
         {
             LOG_ERROR("conn l:%s->r:%s send_error_num:%d, more than max_retry_num:%d, this conn will close", local_info_.c_str(),
-                      remote_info_.c_str(), retry_hb_.get(), g_config->retry_num_);
+                      remote_info_.c_str(), retry_hb_.get(), g_config.retry_num_);
             doClose(&ec);
         } });
     }
@@ -205,7 +205,7 @@ namespace dataproxy_sdk
                           length, curBuf->len(), curBuf->uniqId());
 
                 //ack buf
-                if (g_config->msg_type_ == 2) { curBuf->timeout_timer_->cancel(); }
+                if (g_config.msg_type_ == 2) { curBuf->timeout_timer_->cancel(); }
 
             }
 

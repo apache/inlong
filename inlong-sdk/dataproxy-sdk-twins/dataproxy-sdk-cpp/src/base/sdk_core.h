@@ -53,7 +53,7 @@ using SteadyTimerPtr = std::shared_ptr<asio::steady_timer>;
 using io_context_work = asio::executor_work_guard<asio::io_context::executor_type>;
 
 extern AtomicUInt          g_send_msgid;
-extern ClientConfig*       g_config;
+extern ClientConfig        g_config;
 extern GlobalCluster*      g_clusters;
 extern GlobalQueues*       g_queues;
 extern TotalPools*         g_pools;

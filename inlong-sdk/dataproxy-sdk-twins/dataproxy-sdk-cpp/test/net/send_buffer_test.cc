@@ -82,8 +82,6 @@ TEST(senBuffer, mutextest) { SendBuffer* buf = new SendBuffer(1024); }
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 1, true, "./logs/");
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

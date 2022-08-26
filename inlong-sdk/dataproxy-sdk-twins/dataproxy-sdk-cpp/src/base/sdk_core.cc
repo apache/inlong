@@ -44,31 +44,29 @@ namespace dataproxy_sdk
     AtomicInt user_exit_flag{0};
     AtomicUInt g_send_msgid{0}; // msg uuid
     AtomicInt g_buf_full{0};    // used for buf full log limit
-    ClientConfig *g_config = nullptr;
+    ClientConfig g_config;
     GlobalCluster *g_clusters = nullptr;
     GlobalQueues *g_queues = nullptr;
     TotalPools *g_pools = nullptr;
     ExecutorThreadPool *g_executors = nullptr;
-    int32_t g_use_default = 0; // whether use default config to init sdk if user's config file error
 
     int32_t init_helper ()
     {
-        getLogger().init(g_config->log_size_, g_config->log_num_, Logger::Level(g_config->log_level_), g_config->log_file_type_,
-                         g_config->log_enable_limit_, g_config->log_path_);
-
+        debug_init_log();
+        
         LOG_WARN("dataproxy_sdk_cpp start init, version:%s", constants::kTDBusCAPIVersion);
         
-        g_config->showClientConfig();
+        g_config.showClientConfig();
 
         // get local ip
-        if (!Utils::getFirstIpAddr(g_config->ser_ip_))
+        if (!Utils::getFirstIpAddr(g_config.ser_ip_))
         {
-            LOG_WARN("not found the localHost in local OS, use user's ser_ip(%s) in config", g_config->ser_ip_.c_str());
+            LOG_WARN("not found the localHost in local OS, use user's ser_ip(%s) in config", g_config.ser_ip_.c_str());
         }
 
-        if (g_config->enable_setaffinity_)
+        if (g_config.enable_setaffinity_)
         {
-            Utils::bindCPU(g_config->mask_cpu_affinity_);
+            Utils::bindCPU(g_config.mask_cpu_affinity_);
         }
 
         signal(SIGPIPE, SIG_IGN);
@@ -108,7 +106,7 @@ namespace dataproxy_sdk
         LOG_INFO("read cache proxylist for disaster tolerance");
         g_clusters->readCacheBuslist();
 
-        if (!g_config->inlong_group_ids_.empty())
+        if (!g_config.inlong_group_ids_.empty())
         {
             int32_t ret = g_clusters->initBuslistAndCreateConns();
             // FIXME: improve, return ret to user?
@@ -128,7 +126,6 @@ namespace dataproxy_sdk
 
     int32_t tc_api_init(const char *config_file)
     {
-        getLogger().init(5, 15, Logger::Level(3), 2, true, "./", ".cpplog");
 
         // one process is only initialized once
         if (!init_flag.compareAndSwap(0, 1))
@@ -138,61 +135,38 @@ namespace dataproxy_sdk
         }
         user_exit_flag.getAndSet(0);
 
-        g_config = new ClientConfig(config_file);
-        if (!g_config){
-            LOG_ERROR("dataproxy_sdk_cpp init error");
-            return SDKInvalidResult::kErrorInit;
+        if (!g_config.parseConfig(config_file)){
+            LOG_ERROR("dataproxy_sdk_cpp init error, something configs use default value");
         }
-        bool res = g_config->parseConfig();
-        
-        if (!res){
-            // init error and not allow default init
-            if (g_use_default)
-            {
-                g_config->defaultInit();
-            }
-            else
-            {
-                LOG_ERROR("dataproxy_sdk_cpp init error");
-                return SDKInvalidResult::kErrorInit;
-            }         
-        }
-        
-        remove("./.cpplog");
 
         return init_helper();
-
         
     }
 
 
-    int32_t tc_api_init(ClientConfig* client_config)
+    int32_t tc_api_init(ClientConfig& client_config)
     {
         if (!init_flag.compareAndSwap(0, 1))
         {
             return SDKInvalidResult::kMultiInit;
         }
-
-        if (!client_config)
-        {
-            return SDKInvalidResult::kErrorInit;
-
-        }
         
         // check and proxy url
-        if (client_config->proxy_URL_.empty())
+        if (client_config.proxy_URL_.empty())
         {
+            init_flag.compareAndSwap(1, 0);
             return SDKInvalidResult::kErrorInit;
             
         }
         // check auth setting
-        if (client_config->need_auth_ && (client_config->auth_id_.empty() || client_config->auth_key_.empty()))
+        if (client_config.need_auth_ && (client_config.auth_id_.empty() || client_config.auth_key_.empty()))
         {
+            init_flag.compareAndSwap(1, 0);
             return SDKInvalidResult::kErrorAuthInfo;
         }
 
         g_config = client_config;
-        g_config->updateBufSize(); 
+        g_config.updateBufSize(); 
 
         return init_helper();
        
@@ -200,8 +174,25 @@ namespace dataproxy_sdk
 
     int32_t tc_api_init_ext(const char *config_file, int32_t use_def)
     {
-        g_use_default = use_def;
-        return tc_api_init(config_file);
+        if (!init_flag.compareAndSwap(0, 1))
+        {
+            LOG_ERROR("dataproxy_sdk_cpp has been initialized before!");
+            return SDKInvalidResult::kMultiInit;
+        }
+        user_exit_flag.getAndSet(0);
+        if (!g_config.parseConfig(config_file)){
+            LOG_ERROR("dataproxy_sdk_cpp init error");
+            
+            // don't use default, return directly
+            if (!use_def)
+            {
+                LOG_ERROR("not using default config, dataproxy_sdk_cpp should be inited again!");
+                init_flag.compareAndSwap(1, 0);
+                return SDKInvalidResult::kErrorInit;
+            }
+            
+        }
+        return init_helper();
     }
 
     int32_t sendBaseMsg(const std::string msg,
@@ -226,14 +217,14 @@ namespace dataproxy_sdk
         }
 
         // msg len check
-        if (msg.size() > g_config->ext_pack_size_)
+        if (msg.size() > g_config.ext_pack_size_)
         {
-            LOG_ERROR("msg len is too long, cur msg_len:%d, ext_pack_size:%d", msg.size(), g_config->ext_pack_size_);
+            LOG_ERROR("msg len is too long, cur msg_len:%d, ext_pack_size:%d", msg.size(), g_config.ext_pack_size_);
             return SDKInvalidResult::kMsgTooLong;
         }
 
-        if(g_config->enable_groupId_isolation_){
-            if(std::find(g_config->inlong_group_ids_.begin(),g_config->inlong_group_ids_.end(),inlong_group_id)==g_config->inlong_group_ids_.end()){
+        if(g_config.enable_groupId_isolation_){
+            if(std::find(g_config.inlong_group_ids_.begin(),g_config.inlong_group_ids_.end(),inlong_group_id)==g_config.inlong_group_ids_.end()){
                 LOG_ERROR("inlong_group_id:%s is not specified in config file, check it", inlong_group_id.c_str());
                 return SDKInvalidResult::kInvalidGroupId;
             }
@@ -316,7 +307,10 @@ namespace dataproxy_sdk
 
         std::this_thread::sleep_for(std::chrono::milliseconds(max_waitms));
 
-        g_queues->printTotalAck(); // pring ack msg count of each groupid+streamid
+        if(g_queues)
+        {
+            g_queues->printTotalAck(); // pring ack msg count of each groupid+streamid
+        }
 
         delete g_queues;
         g_queues=nullptr;
@@ -327,8 +321,6 @@ namespace dataproxy_sdk
         g_pools=nullptr;
         delete g_clusters;
         g_clusters=nullptr;
-        delete g_config;
-        g_config=nullptr;
 
         // std::this_thread::sleep_for(std::chrono::seconds(5));
 

@@ -281,7 +281,10 @@ std::string Utils::base64_encode(const std::string& data)
 std::string Utils::genBasicAuthCredential(const std::string& id, const std::string& key)
 {
     std::string credential = id + constants::kBasicAuthJoiner + key;
-    return constants::kBasicAuthPrefix + constants::kBasicAuthSeparator + base64_encode(credential);
+    std::string result = constants::kBasicAuthPrefix;
+    result.append(constants::kBasicAuthSeparator);
+    result.append(base64_encode(credential));
+    return result;
 }
 
 int32_t Utils::requestUrl(std::string& res, const HttpRequest* request)
@@ -303,7 +306,9 @@ int32_t Utils::requestUrl(std::string& res, const HttpRequest* request)
     if ( request->need_auth && !request->auth_id.empty() && !request->auth_key.empty())
     {
         // Authorization: Basic xxxxxxxx
-        std::string auth = constants::kBasicAuthHeader + constants::kBasicAuthSeparator + genBasicAuthCredential(request->auth_id, request->auth_key);
+        std::string auth = constants::kBasicAuthHeader;
+        auth.append(constants::kBasicAuthSeparator);
+        auth.append(genBasicAuthCredential(request->auth_id, request->auth_key));
         LOG_INFO("request manager, auth-header:%s", auth.c_str());
         list = curl_slist_append(list, auth.c_str());
     }
