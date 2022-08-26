@@ -32,7 +32,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
  * @see <a herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/raw/">
  *         Raw Format</a>
  */
-
 @Data
 @JsonTypeName("rawFormat")
 @ToString
