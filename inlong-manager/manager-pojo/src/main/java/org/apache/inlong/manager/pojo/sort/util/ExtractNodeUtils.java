@@ -55,11 +55,11 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 /**
  * Parse SourceInfo to ExtractNode which sort needed
