@@ -46,9 +46,9 @@ public class ClientUtils {
 
     private static final String REQUEST_FAILED_MSG = "Request to Inlong %s failed: %s";
 
-    private static final String API_PATH_120 = "/api/inlong/manager";
+    private static final String API_PATH_120 = "/api/inlong/manager/";
 
-    private static final String API_PATH_130 = "/inlong/manager/api";
+    private static final String API_PATH_130 = "/inlong/manager/api/";
 
     private static final String STABLE_API_VERSION = "1.3.0";
 
