@@ -90,8 +90,8 @@ public class ClientUtils {
                 .build();
 
         String path = API_PATH_130;
-        if (StringUtils.isNotBlank(configuration.getVersion()) &&
-                !VersionUtils.checkInlongVersion(configuration.getVersion(), STABLE_API_VERSION)) {
+        if (StringUtils.isNotBlank(configuration.getVersion())
+                && !VersionUtils.checkInlongVersion(configuration.getVersion(), STABLE_API_VERSION)) {
             path = API_PATH_120;
         }
 
