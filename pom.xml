@@ -111,6 +111,7 @@
         <plugin.failsafe.version>3.0.0-M7</plugin.failsafe.version>
         <plugin.shade.version>3.2.4</plugin.shade.version>
         <plugin.maven.source>3.0.1</plugin.maven.source>
+        <plugin.maven.jar.version>3.2.0</plugin.maven.jar.version>
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
