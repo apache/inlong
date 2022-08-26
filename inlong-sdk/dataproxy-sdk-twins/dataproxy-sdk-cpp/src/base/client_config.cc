@@ -27,46 +27,9 @@
 
 namespace dataproxy_sdk
 {
-    ClientConfig::ClientConfig(const std::string& proxy_url, bool need_auth, const std::string& auth_id, const std::string& auth_key): 
-        proxy_URL_(proxy_url),
-        need_auth_(need_auth),
-        auth_id_(auth_id),
-        auth_key_(auth_key),
-        thread_nums_(constants::kThreadNums), 
-        shared_buf_nums_(constants::kSharedBufferNums),
-        enable_groupId_isolation_(constants::kEnableGroupidIsolation),
-        buffer_num_per_groupId_(constants::kBufferNumPerGroupid),
-        net_tag_(constants::kNetTag),
-        enable_pack_(constants::kEnablePack),
-        pack_size_(constants::kPackSize),
-        pack_timeout_(constants::kPackTimeout),
-        ext_pack_size_(constants::kExtPackSize),
-        enable_zip_(constants::kEnableZip),
-        min_zip_len_(constants::kMinZipLen),
-        enable_retry_(constants::kEnableRetry),
-        retry_interval_(constants::kRetryInterval),
-        retry_num_(constants::kRetryNum),
-        log_num_(constants::kLogNum),
-        log_size_(constants::kLogSize),
-        log_level_(constants::kLogLevel),
-        log_file_type_(constants::kLogFileType),
-        log_path_(constants::kLogPath),
-        log_enable_limit_(constants::kLogEnableLimit),
-        enable_proxy_URL_from_cluster_(constants::kEnableProxyURLFromCluster),
-        proxy_cluster_URL_(constants::kProxyClusterURL),
-        proxy_update_interval_(constants::kProxyUpdateInterval),
-        proxy_URL_timeout_(constants::kProxyURLTimeout),
-        max_active_proxy_num_(constants::kMaxActiveProxyNum),
-        ser_ip_(constants::kSerIP),
-        max_buf_pool_(constants::kMaxBufPool),
-        msg_type_(constants::kMsgType),
-        enable_TCP_nagle_(constants::kEnableTCPNagle),
-        mask_cpu_affinity_(constants::kMaskCPUAffinity),
-        is_from_DC_(constants::kIsFromDC),
-        extend_field_(constants::kExtendField) {}
-
-    bool ClientConfig::parseConfig()
+    bool ClientConfig::parseConfig(const std::string& config_path)
     {
+        config_path_ = config_path;
         std::string file_content;
         if (!Utils::readFile(config_path_, file_content))
         {
@@ -644,7 +607,6 @@ namespace dataproxy_sdk
     }
 
     void ClientConfig::defaultInit(){
-        user_config_err_=true;
 
         thread_nums_=constants::kThreadNums;
         shared_buf_nums_=constants::kSharedBufferNums;
@@ -690,16 +652,14 @@ namespace dataproxy_sdk
         is_from_DC_=constants::kIsFromDC;
         extend_field_=constants::kExtendField;
 
+        need_auth_=constants::kNeedAuth;
+
         buf_size_ = ext_pack_size_ + 400;
         buf_num_ = max_buf_pool_ / (buf_size_);
     }
 
     void ClientConfig::showClientConfig()
     {
-        if(user_config_err_){
-            LOG_ERROR("dataproxy_sdk_cpp init user config err, then use default config values");
-        }
-
         LOG_WARN("thread_num: %d", thread_nums_);
         LOG_WARN("shared_buf_num: %d", shared_buf_nums_);
         LOG_WARN("inlong_group_ids: <%s>", Utils::getVectorStr(inlong_group_ids_).c_str());

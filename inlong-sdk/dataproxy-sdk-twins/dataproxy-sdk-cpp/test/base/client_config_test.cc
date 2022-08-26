@@ -32,23 +32,24 @@ using namespace dataproxy_sdk;
 
 TEST(clientBase, test1)
 {
-    ClientConfig client = ClientConfig("config.json");
-    EXPECT_EQ(client.parseConfig(), true);
+    ClientConfig client;
+    EXPECT_EQ(client.parseConfig("config.json"), true);
     // EXPECT_EQ(client.bufNum(), 1204);
 
-    ClientConfig client2 = ClientConfig("nochconfig.json");
-    EXPECT_EQ(client2.parseConfig(), false);
+    EXPECT_EQ(client.parseConfig("nochconfig.json"), false);
 }
 
 TEST(client, test2)
 {
-    ClientConfig client = ClientConfig("emptyconfig.json");
-    EXPECT_EQ(client.parseConfig(), true);
+    ClientConfig client;
+    EXPECT_EQ(client.parseConfig("emptyconfig.json"), true);
 }
 
 TEST(client, init)
 {
-    ClientConfig client = ClientConfig("proxy_url", false, "", "key");
+    ClientConfig client;
+    client.proxy_URL_ = "proxy_url";
+    client.auth_key_ = "key";
     EXPECT_EQ(client.proxy_URL_, "proxy_url");
     EXPECT_EQ(client.need_auth_, false);
     EXPECT_EQ(client.auth_id_, "");
@@ -58,9 +59,9 @@ TEST(client, init)
 
 TEST(sdk, init)
 {
-    ClientConfig client = ClientConfig("proxy_url", false, "", "key");
+    ClientConfig client;
     int32_t init_first = tc_api_init("./release/conf/config_example.json");
-    int32_t init_second = tc_api_init(&client);
+    int32_t init_second = tc_api_init(client);
     EXPECT_EQ(init_first, 0);
     EXPECT_EQ(init_second, SDKInvalidResult::kMultiInit);
     EXPECT_EQ(tc_api_close(1000), 0);
@@ -69,8 +70,6 @@ TEST(sdk, init)
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 2, true, "./newlogs/");
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

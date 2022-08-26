@@ -24,9 +24,9 @@ using namespace testing;
 // #if 0
 TEST(packqueue, basetest)
 {
-    g_config->msg_type_    = 3;
-    g_config->retry_num_   = 100;
-    g_config->enable_pack_ = false;
+    g_config.msg_type_    = 3;
+    g_config.retry_num_   = 100;
+    g_config.enable_pack_ = false;
 
     ExecutorThreadPtr th1 = make_shared<ExecutorThread>(1);
     ProxyInfoPtr proxy        = make_shared<ProxyInfo>(1, "127.0.0.1", 4000);
@@ -70,9 +70,9 @@ TEST(packqueue, basetest)
 // #endif
 TEST(packzip, test)
 {
-    g_config->msg_type_    = 3;
-    g_config->enable_pack_ = false;
-    g_config->enable_zip_  = false;
+    g_config.msg_type_    = 3;
+    g_config.enable_pack_ = false;
+    g_config.enable_zip_  = false;
 
     string msg2(1024, 'a');
     msg2 += "end";
@@ -91,10 +91,10 @@ TEST(packzip, test)
 
 TEST(packqueue, packtest)
 {
-    g_config->msg_type_    = 5;
-    g_config->retry_num_   = 100;
-    g_config->enable_pack_ = false;
-    g_config->enable_zip_  = false;
+    g_config.msg_type_    = 5;
+    g_config.retry_num_   = 100;
+    g_config.enable_pack_ = false;
+    g_config.enable_zip_  = false;
 
     string inlong_group_id     = "inlong_groupid_1";
     string inlong_stream_id     = "inlong_streamid_1";
@@ -116,16 +116,13 @@ TEST(packqueue, packtest)
     buf->setLen(out_len);
     LOG_DEBUG("buf content is%d", buf->content());
     delete buf;
-    delete g_config;
 }
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 1, true, "./");
 
-    g_config = new ClientConfig("config.json");
-    g_config->parseConfig();
-    Utils::getFirstIpAddr(g_config->ser_ip_);
+    g_config.parseConfig("config.json");
+    Utils::getFirstIpAddr(g_config.ser_ip_);
 
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
