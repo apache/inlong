@@ -49,6 +49,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ClickHouseConfig chConfig;
     // ClickHouseService
     private ClickHouseService ckService;
+    
     /**
      * Initializing bean
      */
