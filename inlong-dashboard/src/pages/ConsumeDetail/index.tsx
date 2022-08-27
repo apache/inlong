@@ -69,15 +69,17 @@ const Comp: React.FC = () => {
         history.push({
           search: `?id=${result}&step=1`,
         });
+        return result;
       }
+      return id;
     } finally {
       setConfirmLoading(false);
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async _id => {
     await request({
-      url: `/consumption/startProcess/${id}`,
+      url: `/consumption/startProcess/${_id}`,
       method: 'POST',
       data,
     });
@@ -108,8 +110,8 @@ const Comp: React.FC = () => {
         <Button
           type="primary"
           onClick={async () => {
-            await onOk(current);
-            await onSubmit();
+            const id = await onOk(current);
+            await onSubmit(id);
           }}
         >
           {t('pages.ConsumeCreate.Submit')}

@@ -27,7 +27,9 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.AbstractFileConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -110,6 +112,10 @@ public class BrokerConfig extends AbstractFileConfig {
     private ZKConfig zkConfig = new ZKConfig();
     // tls config
     private TLSConfig tlsConfig = new TLSConfig();
+    // audit configure
+    private ADConfig auditConfig = null;
+    // prometheus
+    private PrometheusConfig prometheusConfig = null;
     private boolean visitMasterAuth = false;
     private String visitName = "";
     private String visitPassword = "";
@@ -147,6 +153,22 @@ public class BrokerConfig extends AbstractFileConfig {
 
     public TLSConfig getTlsConfig() {
         return this.tlsConfig;
+    }
+
+    public ADConfig getAuditConfig() {
+        return auditConfig;
+    }
+
+    public boolean isAuditEnable() {
+        return this.auditConfig.isAuditEnable();
+    }
+
+    public PrometheusConfig getPrometheusConfig() {
+        return prometheusConfig;
+    }
+
+    public boolean isPromEnable() {
+        return this.prometheusConfig.isPromEnable();
     }
 
     public int getBrokerId() {
@@ -194,12 +216,25 @@ public class BrokerConfig extends AbstractFileConfig {
         this.tlsConfig = this.loadTlsSectConf(iniConf,
                 TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
+        this.auditConfig = loadAuditSectConf(iniConf);
+        this.prometheusConfig = loadPrometheusSecConf(iniConf);
         if (this.port == this.webPort
                 || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
             throw new IllegalArgumentException(new StringBuilder(512)
                     .append("Illegal port value configuration, the value of ")
                     .append("port or tlsPort cannot be the same as the value of webPort!")
                     .toString());
+        }
+        if (this.prometheusConfig.isPromEnable()) {
+            int promHttpPort = this.prometheusConfig.getPromHttpPort();
+            if ((promHttpPort == this.port || promHttpPort == this.webPort
+                    || (tlsConfig.isTlsEnable()
+                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                throw new IllegalArgumentException(new StringBuilder(512)
+                        .append("Illegal port value configuration, the value of ")
+                        .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
+                        .toString());
+            }
         }
     }
 

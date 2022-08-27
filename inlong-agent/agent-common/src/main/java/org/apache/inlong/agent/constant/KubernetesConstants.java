@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.constant;
 
 /**
- *  k8s information
+ * k8s information
  */
 public class KubernetesConstants {
 
@@ -32,5 +32,14 @@ public class KubernetesConstants {
     public static final String CONTAINER_NAME = "container.name";
     public static final String CONTAINER_ID = "container.id";
 
-
+    // k8s metadata
+    public static final String METADATA_CONTAINER_ID = "__container_id__";
+    public static final String METADATA_CONTAINER_NAME = "__container_name__";
+    public static final String METADATA_NAMESPACE = "__namespace__";
+    public static final String METADATA_POD_UID = "__pod_uid__";
+    public static final String METADATA_POD_NAME = "__pod_name__";
+    public static final String METADATA_POD_LABEL = "__pod_label__";
+    public static final String DATA_CONTENT = "__content__";
+    public static final String DATA_CONTENT_TIME = "__LogTime__";
+    
 }

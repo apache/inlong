@@ -29,7 +29,6 @@
 #include <stdlib.h>
 
 #include "sdk_constant.h"
-#include "sdk_core.h"
 #include "executor_thread_pool.h"
 #include "ini_help.h"
 #include "logger.h"
@@ -49,7 +48,7 @@ namespace dataproxy_sdk
     bool ClusterProxyList::isNeedLoadBalance()
     {
         // #if 0
-        if (!g_config->enable_heart_beat_ || !g_config->heart_beat_interval_)
+        if (!g_config.enable_heart_beat_ || !g_config.heart_beat_interval_)
         {
             return false;
         }
@@ -130,7 +129,7 @@ namespace dataproxy_sdk
         return err_count;
     }
 
-    int32_t ClusterProxyList::clearAllConn()
+    void ClusterProxyList::clearAllConn()
     {
         unique_write_lock<read_write_mutex> rdlck(rwmutex_);
 
@@ -404,10 +403,10 @@ namespace dataproxy_sdk
                                  { clearInvalidConn(ec); });
 
         // whether need do balance
-        if (g_config->enable_heart_beat_ && g_config->heart_beat_interval_ > 0)
+        if (g_config.enable_heart_beat_ && g_config.heart_beat_interval_ > 0)
         {
             keepAlive_timer_ = timer_worker_->createSteadyTimer();
-            keepAlive_timer_->expires_after(std::chrono::seconds(g_config->heart_beat_interval_));
+            keepAlive_timer_->expires_after(std::chrono::seconds(g_config.heart_beat_interval_));
             keepAlive_timer_->async_wait([this](const std::error_code &ec)
                                          { keepConnAlive(ec); });
         }
@@ -450,7 +449,7 @@ namespace dataproxy_sdk
 
     int32_t GlobalCluster::initBuslistAndCreateConns()
     {
-        for (auto &inlong_group_id : g_config->inlong_group_ids_)
+        for (auto &inlong_group_id : g_config.inlong_group_ids_)
         {
             groupid2cluster_map_[inlong_group_id] = -1;
         }
@@ -519,7 +518,7 @@ namespace dataproxy_sdk
         while (true)
         {
             std::unique_lock<std::mutex> con_lck(cond_mutex_);
-            if (cond_.wait_for(con_lck, std::chrono::minutes(g_config->proxy_update_interval_), [this]()
+            if (cond_.wait_for(con_lck, std::chrono::minutes(g_config.proxy_update_interval_), [this]()
                                { return update_flag_; }))
             {
                 if (exit_flag_)
@@ -531,7 +530,7 @@ namespace dataproxy_sdk
             }
             else
             {
-                LOG_INFO("proxy update interval is %d mins, update proxylist", g_config->proxy_update_interval_);
+                LOG_INFO("proxy update interval is %d mins, update proxylist", g_config.proxy_update_interval_);
                 doUpdate();
             }
         }
@@ -561,7 +560,7 @@ namespace dataproxy_sdk
         con_lck.unlock();
         cond_.notify_one();
 
-        LOG_DEBUG("add inlong_group_id:%s to global  bid2cluster_map, and set notify proxy updating", inlong_group_id.c_str());
+        LOG_DEBUG("add inlong_group_id:%s to global  groupid2cluster_map, and set notify proxy updating", inlong_group_id.c_str());
         return 0;
     }
 
@@ -581,25 +580,25 @@ namespace dataproxy_sdk
             unique_write_lock<read_write_mutex> wtlck(groupid2cluster_rwmutex_);
 
             // for (auto& it : proxylist_map_)
-            for (auto &bid2cluster : groupid2cluster_map_)
+            for (auto &groupid2cluster : groupid2cluster_map_)
             {
                 //拼接tdm请求的url
                 std::string url;
-                if (g_config->enable_proxy_URL_from_cluster_)
-                    url = g_config->proxy_cluster_URL_;
+                if (g_config.enable_proxy_URL_from_cluster_)
+                    url = g_config.proxy_cluster_URL_;
                 else
                 {
-                    url = g_config->proxy_URL_ + "/" + bid2cluster.first;
+                    url = g_config.proxy_URL_ + "/" + groupid2cluster.first;
                 }
-                std::string post_data = "ip=" + g_config->ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
-                LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s", bid2cluster.first.c_str(), url.c_str(), post_data.c_str());
+                std::string post_data = "ip=" + g_config.ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
+                LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s", groupid2cluster.first.c_str(), url.c_str(), post_data.c_str());
 
                 // request proxylist from mananer, if failed multi-times, read from local cache file
                 std::string meta_data;
                 int32_t ret;
                 for (int i = 0; i < constants::kMaxRequestTDMTimes; i++)
                 {
-                    HttpRequest request = {url, g_config->proxy_URL_timeout_, g_config->need_auth_, g_config->auth_id_, g_config->auth_key_, post_data};
+                    HttpRequest request = {url, g_config.proxy_URL_timeout_, g_config.need_auth_, g_config.auth_id_, g_config.auth_key_, post_data};
                     ret = Utils::requestUrl(meta_data, &request);
                     if (!ret)
                     {
@@ -609,31 +608,31 @@ namespace dataproxy_sdk
 
                 if (!ret) // success
                 {
-                    LOG_WARN("get inlong_group_id:%s proxy json list from tdm: %s", bid2cluster.first.c_str(), meta_data.c_str());
+                    LOG_WARN("get inlong_group_id:%s proxy json list from tdm: %s", groupid2cluster.first.c_str(), meta_data.c_str());
                 }
                 else //request manager error
                 {
-                    LOG_ERROR("failed to request inlong_group_id:%s proxylist from tdm, has tried max_times(%d)", bid2cluster.first.c_str(),
+                    LOG_ERROR("failed to request inlong_group_id:%s proxylist from tdm, has tried max_times(%d)", groupid2cluster.first.c_str(),
                               constants::kMaxRequestTDMTimes);
 
-                    if (bid2cluster.second != -1 && cluster_set_.find(bid2cluster.second) != cluster_set_.end())
+                    if (groupid2cluster.second != -1 && cluster_set_.find(groupid2cluster.second) != cluster_set_.end())
                     {
-                        LOG_WARN("failed to request inlong_group_id:%s proxylist from tdm, use previous proxylist", bid2cluster.first.c_str());
+                        LOG_WARN("failed to request inlong_group_id:%s proxylist from tdm, use previous proxylist", groupid2cluster.first.c_str());
                         continue;
                     }
                     else //new groupid, try to read from cache proxylist
                     {
                         LOG_WARN("failed to request inlong_group_id:%s proxylist from tdm, also no previous proxylist, then try to find from cache file",
-                                 bid2cluster.first.c_str());
-                        auto it = cache_groupid2metaInfo_.find(bid2cluster.first);
+                                 groupid2cluster.first.c_str());
+                        auto it = cache_groupid2metaInfo_.find(groupid2cluster.first);
                         if (it != cache_groupid2metaInfo_.end())
                         {
                             meta_data = it->second;
-                            LOG_WARN("get inlong_group_id:%s proxy json from cache file: %s", bid2cluster.first.c_str(), meta_data.c_str());
+                            LOG_WARN("get inlong_group_id:%s proxy json from cache file: %s", groupid2cluster.first.c_str(), meta_data.c_str());
                         }
                         else
                         {
-                            LOG_ERROR("failed to find inlong_group_id:%s proxylist from cache file", bid2cluster.first.c_str());
+                            LOG_ERROR("failed to find inlong_group_id:%s proxylist from cache file", groupid2cluster.first.c_str());
                             continue;
                         }
                     }
@@ -641,21 +640,21 @@ namespace dataproxy_sdk
 
                 ClusterProxyListPtr new_proxylist_cfg = std::make_shared<ClusterProxyList>();
 
-                ret = parseAndGet(bid2cluster.first, meta_data, new_proxylist_cfg);
+                ret = parseAndGet(groupid2cluster.first, meta_data, new_proxylist_cfg);
                 if (ret)
                 {
-                    LOG_ERROR("failed to parse inlong_group_id:%s json proxylist", bid2cluster.first.c_str());
+                    LOG_ERROR("failed to parse inlong_group_id:%s json proxylist", groupid2cluster.first.c_str());
                     continue;
                 }
 
                 unique_write_lock<read_write_mutex> wtlck_cluster_set(cluster_set_rwmutex_);
 
-                cache_groupid2metaInfo_[bid2cluster.first] = meta_data; //for disaster
+                cache_groupid2metaInfo_[groupid2cluster.first] = meta_data; //for disaster
 
                 // #if 0
 
                 // case1. new groupid, but there is its clusterid in memory
-                if (bid2cluster.second == -1 && cluster_set_.find(new_proxylist_cfg->clusterId()) != cluster_set_.end())
+                if (groupid2cluster.second == -1 && cluster_set_.find(new_proxylist_cfg->clusterId()) != cluster_set_.end())
                 {
                     auto cluster_id = new_proxylist_cfg->clusterId();
                     if (cluster_set_[cluster_id]->enableUpdate(new_proxylist_cfg))
@@ -664,33 +663,33 @@ namespace dataproxy_sdk
                         cluster_set_[cluster_id] = new_proxylist_cfg;
                         LOG_INFO("update cluster(id:%d) info and connections", cluster_id);
                     }
-                    bid2cluster.second = cluster_id;
-                    LOG_INFO("add inlong_group_id:%s to bid2cluster, its cluster(id:%d) is already in global_cluster", bid2cluster.first.c_str(), cluster_id);
+                    groupid2cluster.second = cluster_id;
+                    LOG_INFO("add inlong_group_id:%s to groupid2cluster, its cluster(id:%d) is already in global_cluster", groupid2cluster.first.c_str(), cluster_id);
                     continue;
                 }
 
                 // case2. new groupid, there is no its clusterid in memory, update groupid2cluster, add it into cluster
-                if (bid2cluster.second == -1 && cluster_set_.find(new_proxylist_cfg->clusterId()) == cluster_set_.end())
+                if (groupid2cluster.second == -1 && cluster_set_.find(new_proxylist_cfg->clusterId()) == cluster_set_.end())
                 {
-                    bid2cluster.second = new_proxylist_cfg->clusterId();
+                    groupid2cluster.second = new_proxylist_cfg->clusterId();
                     new_proxylist_cfg->initConn();
-                    cluster_set_[bid2cluster.second] = new_proxylist_cfg;
-                    LOG_INFO("add inlong_group_id:%s to cluster(id:%d) map in global_cluster, and init connections completely", bid2cluster.first.c_str(),
+                    cluster_set_[groupid2cluster.second] = new_proxylist_cfg;
+                    LOG_INFO("add inlong_group_id:%s to cluster(id:%d) map in global_cluster, and init connections completely", groupid2cluster.first.c_str(),
                              new_proxylist_cfg->clusterId());
 
                     continue;
                 }
 
                 // case3. already existing groupid, whether needs update
-                if (cluster_set_[bid2cluster.second]->enableUpdate(new_proxylist_cfg))
+                if (cluster_set_[groupid2cluster.second]->enableUpdate(new_proxylist_cfg))
                 {
                     new_proxylist_cfg->initConn();
-                    cluster_set_[bid2cluster.second] = new_proxylist_cfg;
-                    LOG_INFO("update cluster(id:%d) info and connections", bid2cluster.second);
+                    cluster_set_[groupid2cluster.second] = new_proxylist_cfg;
+                    LOG_INFO("update cluster(id:%d) info and connections", groupid2cluster.second);
                 }
                 // #endif
             }
-            // flush cache_bid2metaInfo to file
+            // flush cache_groupid2metaInfo to file
             for (auto &it : cache_groupid2metaInfo_)
             {
                 writeMetaData2File(outfile, groupId_count, it.first, it.second);
@@ -734,14 +733,14 @@ namespace dataproxy_sdk
         }
         for (int32_t i = 0; i < groupId_count; i++)
         {
-            std::string bidlist = "inlong_group_id" + std::to_string(i);
+            std::string groupidlist = "inlong_group_id" + std::to_string(i);
             std::string inlong_group_id, proxy;
-            if (ini.getString(bidlist, "inlong_group_id", &inlong_group_id))
+            if (ini.getString(groupidlist, "inlong_group_id", &inlong_group_id))
             {
                 LOG_WARN("failed to get %s name from cache file", inlong_group_id.c_str());
                 continue;
             }
-            if (ini.getString(bidlist, "proxy_cfg", &proxy))
+            if (ini.getString(groupidlist, "proxy_cfg", &proxy))
             {
                 LOG_WARN("failed to get %s cache proxylist", inlong_group_id.c_str());
                 continue;
@@ -883,7 +882,7 @@ namespace dataproxy_sdk
         proxylist_config->initUnusedBus();
 
         //set active_proxy_num and backup_proxy_num
-        proxylist_config->setActiveAndBackupBusNum(g_config->max_active_proxy_num_);
+        proxylist_config->setActiveAndBackupBusNum(g_config.max_active_proxy_num_);
 
         return 0;
     }
@@ -931,7 +930,7 @@ namespace dataproxy_sdk
             }
         }
 
-        keepAlive_timer_->expires_after(std::chrono::seconds(g_config->heart_beat_interval_));
+        keepAlive_timer_->expires_after(std::chrono::seconds(g_config.heart_beat_interval_));
         keepAlive_timer_->async_wait([this](const std::error_code &ec)
                                      { keepConnAlive(ec); });
     }

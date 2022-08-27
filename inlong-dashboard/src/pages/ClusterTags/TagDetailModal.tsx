@@ -23,7 +23,7 @@ import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
-import StaffSelect from '@/components/StaffSelect';
+import UserSelect from '@/components/UserSelect';
 import request from '@/utils/request';
 
 export interface TagDetailModalProps extends ModalProps {
@@ -89,7 +89,7 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         tooltip: i18n.t('pages.ClusterTags.NameEditHelp'),
       },
       {
-        type: <StaffSelect mode="multiple" currentUserClosable={false} />,
+        type: <UserSelect mode="multiple" currentUserClosable={false} />,
         label: i18n.t('pages.ClusterTags.InCharges'),
         name: 'inCharges',
         rules: [{ required: true }],

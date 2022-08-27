@@ -18,17 +18,8 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.HashSet;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
@@ -41,9 +32,18 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}.
@@ -51,24 +51,6 @@ import org.apache.pulsar.client.api.Schema;
 class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
-
-    @Nullable
-    private final DeserializationSchema<RowData> keyDeserialization;
-
-    private final DeserializationSchema<RowData> valueDeserialization;
-
-    private final boolean hasMetadata;
-
-    private final OutputProjectionCollector outputCollector;
-
-    private final TypeInformation<RowData> producedTypeInfo;
-
-    private final boolean upsertMode;
-
-    private SourceMetricData sourceMetricData;
-
-    private String inlongMetric;
-
     private static final ThreadLocal<SimpleCollector<RowData>> tlsCollector =
             new ThreadLocal<SimpleCollector<RowData>>() {
                 @Override
@@ -76,6 +58,22 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
                     return new SimpleCollector();
                 }
             };
+    @Nullable
+    private final DeserializationSchema<RowData> keyDeserialization;
+    private final DeserializationSchema<RowData> valueDeserialization;
+    private final boolean hasMetadata;
+    private final OutputProjectionCollector outputCollector;
+    private final TypeInformation<RowData> producedTypeInfo;
+    private final boolean upsertMode;
+    private SourceMetricData sourceMetricData;
+    private String inlongMetric;
+    private String auditHostAndPorts;
+
+    private AuditImp auditImp;
+
+    private String inlongGroupId;
+
+    private String inlongStreamId;
 
     DynamicPulsarDeserializationSchema(
             int physicalArity,
@@ -87,7 +85,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
-    String inlongMetric) {
+            String inlongMetric, String auditHostAndPorts) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -105,6 +103,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -115,19 +114,20 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         valueDeserialization.open(context);
 
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            sourceMetricData = new SourceMetricData(context.getMetricGroup());
-            String[] inLongMetricArray = inlongMetric.split(DELIMITER);
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            sourceMetricData.registerMetricsForNumBytesIn(groupId,
-                streamId, nodeId, NUM_BYTES_IN);
-            sourceMetricData.registerMetricsForNumBytesInPerSecond(groupId,
-                streamId, nodeId, NUM_BYTES_IN_PER_SECOND);
-            sourceMetricData.registerMetricsForNumRecordsIn(groupId, streamId,
-                nodeId, NUM_RECORDS_IN);
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId,
-                nodeId, NUM_RECORDS_IN_PER_SECOND);
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
+            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
+            sourceMetricData.registerMetricsForNumBytesIn();
+            sourceMetricData.registerMetricsForNumBytesInPerSecond();
+            sourceMetricData.registerMetricsForNumRecordsIn();
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
+        }
+
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            auditImp = AuditImp.getInstance();
         }
 
     }
@@ -150,11 +150,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), collector);
-            if (sourceMetricData != null) {
-                sourceMetricData.getNumRecordsIn().inc(1L);
-                sourceMetricData.getNumBytesIn()
-                    .inc(message.getData().length);
-            }
+            outputMetrics(message);
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();
@@ -173,14 +169,27 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             outputCollector.collect(null);
         } else {
             valueDeserialization.deserialize(message.getData(), outputCollector);
-            if (sourceMetricData != null) {
-                sourceMetricData.getNumRecordsIn().inc(1L);
-                sourceMetricData.getNumBytesIn()
-                    .inc(message.getData().length);
-            }
+            outputMetrics(message);
         }
 
         keyCollector.buffer.clear();
+    }
+
+    private void outputMetrics(Message<RowData> message) {
+        if (sourceMetricData != null) {
+            sourceMetricData.getNumRecordsIn().inc(1L);
+            sourceMetricData.getNumBytesIn()
+                    .inc(message.getData().length);
+        }
+        if (auditImp != null) {
+            auditImp.add(
+                Constants.AUDIT_SORT_INPUT,
+                inlongGroupId,
+                inlongStreamId,
+                System.currentTimeMillis(),
+                1,
+                message.getData().length);
+        }
     }
 
     @Override
@@ -196,6 +205,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     // --------------------------------------------------------------------------------------------
 
     interface MetadataConverter extends Serializable {
+
         Object read(Message<?> message);
     }
 
@@ -219,6 +229,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     }
 
     private static class SimpleCollector<T> implements Collector<T> {
+
         private T record;
 
         @Override
@@ -320,7 +331,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
                 } else {
                     throw new DeserializationException(
                             "Invalid null value received in non-upsert mode. "
-                                + "Could not to set row kind for output record.");
+                                    + "Could not to set row kind for output record.");
                 }
             } else {
                 rowKind = physicalValueRow.getRowKind();

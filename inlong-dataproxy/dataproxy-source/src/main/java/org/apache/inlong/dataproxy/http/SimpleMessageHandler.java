@@ -17,64 +17,62 @@
 
 package org.apache.inlong.dataproxy.http;
 
+import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
-import org.apache.inlong.common.monitor.CounterGroup;
-import org.apache.inlong.common.monitor.CounterGroupExt;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
-import org.apache.inlong.common.monitor.StatConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SimpleMessageHandler implements MessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleMessageHandler.class);
     private static final ConfigManager configManager = ConfigManager.getInstance();
-    private static final String SEPARATOR = "#";
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMddHHmm");
-                }
-            };
-    private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
-    private final CounterGroup counterGroup;
-    private final CounterGroupExt counterGroupExt;
-    private final MonitorIndex monitorIndex = new MonitorIndex("Source", 60, 300000);
-    private final MonitorIndexExt monitorIndexExt =
-            new MonitorIndexExt("DataProxy_monitors#http", 60, 100000);
-    private final ChannelProcessor processor;
+    private static final DateTimeFormatter DATE_FORMATTER
+            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final ZoneId defZoneId = ZoneId.systemDefault();
 
-    private final boolean isNewMetricOn = true;
+    private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
+    private final MonitorIndex monitorIndex;
+    private final MonitorIndexExt monitorIndexExt;
+    private final DataProxyMetricItemSet metricItemSet;
+    private final ChannelProcessor processor;
 
     @SuppressWarnings("unused")
     private int maxMsgLength;
     private long logCounter = 0L;
     private long channelTrace = 0L;
 
-    public SimpleMessageHandler(ChannelProcessor processor, CounterGroup counterGroup,
-            CounterGroupExt counterGroupExt, ServiceDecoder decoder) {
+    public SimpleMessageHandler(ChannelProcessor processor, MonitorIndex monitorIndex,
+                                MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
+                                ServiceDecoder decoder) {
         this.processor = processor;
-        this.counterGroup = counterGroup;
-        this.counterGroupExt = counterGroupExt;
+        this.monitorIndex = monitorIndex;
+        this.monitorIndexExt = monitorIndexExt;
+        this.metricItemSet = metricItemSet;
         init();
     }
 
@@ -84,7 +82,6 @@ public class SimpleMessageHandler implements MessageHandler {
 
     @Override
     public void destroy() {
-
     }
 
     @Override
@@ -139,13 +136,12 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);
         byte[] data = inLongMsg.buildArray();
         headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
-        String pkgTime = DATE_FORMATTER.get().format(inLongMsg.getCreatetime());
+        LocalDateTime localDateTime =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(inLongMsg.getCreatetime()), defZoneId);
+        String pkgTime = DATE_FORMATTER.format(localDateTime);
         headers.put(ConfigConstants.PKG_TIME_KEY, pkgTime);
         Event event = EventBuilder.withBody(data, headers);
-
-        String counterExtKey = topicValue + "#" + 0 + "#" + strRemoteIP + "#time#" + pkgTime;
-        counterGroupExt.addAndGet(counterExtKey, Long.valueOf(msgCount));
-
+        inLongMsg.reset();
         long dtten;
         try {
             dtten = Long.parseLong(dt);
@@ -153,35 +149,31 @@ public class SimpleMessageHandler implements MessageHandler {
             throw new MessageProcessException(new Throwable(
                     "attribute dt=" + dt + " has error," + " detail is: " + newAttrBuffer));
         }
-
         dtten = dtten / 1000 / 60 / 10;
         dtten = dtten * 1000 * 60 * 10;
-
         StringBuilder newBase = new StringBuilder();
-        newBase.append("http").append(SEPARATOR).append(topicValue).append(SEPARATOR)
-                .append(streamId).append(SEPARATOR).append(strRemoteIP).append(SEPARATOR)
-                .append(NetworkUtils.getLocalIp()).append(SEPARATOR)
-                .append(new SimpleDateFormat("yyyyMMddHHmm").format(dtten)).append(SEPARATOR)
+        newBase.append("http").append(SEP_HASHTAG).append(topicValue).append(SEP_HASHTAG)
+                .append(streamId).append(SEP_HASHTAG).append(strRemoteIP).append(SEP_HASHTAG)
+                .append(NetworkUtils.getLocalIp()).append(SEP_HASHTAG)
+                .append("non-order").append(SEP_HASHTAG)
+                .append(new SimpleDateFormat("yyyyMMddHHmm").format(dtten)).append(SEP_HASHTAG)
                 .append(pkgTime);
-
-        if (isNewMetricOn) {
-            monitorIndex.addAndGet(new String(newBase), Integer.parseInt(msgCount), 1, data.length, 0);
-        }
-        inLongMsg.reset();
-
         long beginTime = System.currentTimeMillis();
         try {
             processor.processEvent(event);
-            counterGroup.incrementAndGet(StatConstants.EVENT_SUCCESS);
-            monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
-
-        } catch (ChannelException ex) {
-            counterGroup.incrementAndGet(StatConstants.EVENT_DROPPED);
-            monitorIndexExt.incrementAndGet("EVENT_DROPPED");
-            if (isNewMetricOn) {
-                monitorIndex.addAndGet(new String(newBase), 0, 0, 0, Integer.parseInt(msgCount));
+            if (monitorIndex != null) {
+                monitorIndex.addAndGet(new String(newBase),
+                        Integer.parseInt(msgCount), 1, data.length, 0);
+                monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
             }
-
+            addMetric(true, data.length, event);
+        } catch (ChannelException ex) {
+            if (monitorIndex != null) {
+                monitorIndex.addAndGet(new String(newBase),
+                        0, 0, 0, Integer.parseInt(msgCount));
+                monitorIndexExt.incrementAndGet("EVENT_DROPPED");
+            }
+            addMetric(false, data.length, event);
             logCounter++;
             if (logCounter == 1 || logCounter % 1000 == 0) {
                 LOG.error("Error writing to channel, and will retry after 1s, ex={},"
@@ -221,4 +213,32 @@ public class SimpleMessageHandler implements MessageHandler {
         return topic;
     }
 
+    /**
+     * add audit metric
+     *
+     * @param result  success or failure
+     * @param size    message size
+     * @param event   message event
+     */
+    private void addMetric(boolean result, long size, Event event) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, this.metricItemSet.getName());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, this.metricItemSet.getName());
+        DataProxyMetricItem.fillInlongId(event, dimensions);
+        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
+        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
+        if (result) {
+            metricItem.readSuccessCount.incrementAndGet();
+            metricItem.readSuccessSize.addAndGet(size);
+            try {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            } catch (Exception e) {
+                LOG.error("add audit metric has exception e= {}", e);
+            }
+        } else {
+            metricItem.readFailCount.incrementAndGet();
+            metricItem.readFailSize.addAndGet(size);
+        }
+    }
 }

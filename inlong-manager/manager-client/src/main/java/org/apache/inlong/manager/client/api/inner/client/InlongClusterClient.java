@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongClusterApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
-import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -31,7 +30,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
-import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 
 /**
  * Client for {@link InlongClusterApi}.
@@ -75,8 +75,8 @@ public class InlongClusterClient {
      * @param request page request conditions
      * @return cluster tag list
      */
-    public PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
-        Response<PageInfo<ClusterTagResponse>> response = ClientUtils.executeHttpCall(
+    public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
+        Response<PageResult<ClusterTagResponse>> response = ClientUtils.executeHttpCall(
                 inlongClusterApi.listTag(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -215,8 +215,8 @@ public class InlongClusterClient {
      * @param request page request conditions
      * @return cluster node list
      */
-    public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request) {
-        Response<PageInfo<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
+    public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
+        Response<PageResult<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
                 inlongClusterApi.listNode(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

@@ -30,7 +30,7 @@ public interface InlongCluster {
      *
      * @param clusterName cluster name
      * @param clusterType cluster type
-     *  {@link org.apache.inlong.manager.common.enums.ClusterType}
+     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
      * @return node list
      */
     List<ClusterNodeResponse> listNodes(String clusterName, String clusterType);
@@ -40,11 +40,22 @@ public interface InlongCluster {
      *
      * @param clusterName cluster name
      * @param clusterType cluster type
-     *  {@link org.apache.inlong.manager.common.enums.ClusterType}
+     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
      * @param clusterTags cluster tags
      * @return node list
      */
     List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, List<String> clusterTags);
+
+    /**
+     * List nodes by clusterName, clusterType and tag
+     *
+     * @param clusterName cluster name
+     * @param clusterType cluster type
+     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @param clusterTag cluster tag
+     * @return node list
+     */
+    List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, String clusterTag);
 
     /**
      * Save DATA_PROXY|PULSAR|TUBE cluster

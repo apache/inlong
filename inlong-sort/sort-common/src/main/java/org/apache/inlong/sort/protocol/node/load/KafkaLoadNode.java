@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -54,7 +55,7 @@ import java.util.Set;
 @JsonTypeName("kafkaLoad")
 @Data
 @NoArgsConstructor
-public class KafkaLoadNode extends LoadNode implements Metadata, Serializable {
+public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
 
 
     private static final long serialVersionUID = -558158965060708408L;
@@ -116,7 +117,7 @@ public class KafkaLoadNode extends LoadNode implements Metadata, Serializable {
                 options.put("sink.ignore.changelog", "true");
                 options.putAll(format.generateOptions(false));
             } else {
-                options.put("connector", "upsert-kafka");
+                options.put("connector", "upsert-kafka-inlong");
                 options.putAll(format.generateOptions(true));
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {

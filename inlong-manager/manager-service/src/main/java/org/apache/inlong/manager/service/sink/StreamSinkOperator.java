@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -68,7 +68,7 @@ public interface StreamSinkOperator {
      * @param entityPage sink entity page
      * @return sink info list
      */
-    PageInfo<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage);
+    PageResult<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage);
 
     /**
      * Update the sink info.
@@ -89,4 +89,11 @@ public interface StreamSinkOperator {
      */
     void updateFieldOpt(Boolean onlyAdd, SinkRequest request);
 
+    /**
+     * Delete the sink info.
+     *
+     * @param entity sink info needs to delete
+     * @param operator name of the operator
+     */
+    void deleteOpt(StreamSinkEntity entity, String operator);
 }

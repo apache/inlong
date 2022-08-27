@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.cli.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.inlong.manager.client.cli.util.ParseStatus;
 
@@ -36,5 +37,6 @@ public class SinkInfo {
 
     @ParseStatus
     private String status;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 }

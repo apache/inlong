@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,12 +41,6 @@ import java.util.Map;
 public class FileSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    @ApiModelProperty("Agent Cluster tag")
-    private String clusterTag;
-
-    @ApiModelProperty("Agent IP address")
-    private String ip;
 
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
@@ -60,11 +55,39 @@ public class FileSourceDTO {
     @ApiModelProperty("Properties for File")
     private Map<String, Object> properties;
 
+    @ApiModelProperty("Line end regex pattern, for example: &end&")
+    private String lineEndPattern;
+
+    @ApiModelProperty("Type of file content, for example: FULL, INCREMENT")
+    private String contentCollectType;
+
+    @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
+    private String envList;
+
+    @ApiModelProperty("Metadata of data, for example: [{data:field1,field2},"
+            + "{kubernetes:namespace,labels,name,uuid}] and so on")
+    private List<Map<String, String>> metaFields;
+
+    @ApiModelProperty(" Type of data result for column separator"
+            + "         CSV format, set this parameter to a custom separator: , | : "
+            + "         Json format, set this parameter to json ")
+    private String dataContentStyle;
+
+    @ApiModelProperty("Column separator of data source ")
+    private String dataSeparator;
+
+    @ApiModelProperty("Metadata filters by label, special parameters for K8S")
+    private Map<String, String> filterMetaByLabels;
+
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
-                .clusterTag(fileSourceRequest.getClusterTag())
-                .ip(fileSourceRequest.getIp())
                 .pattern(fileSourceRequest.getPattern())
+                .lineEndPattern(fileSourceRequest.getLineEndPattern())
+                .contentCollectType(fileSourceRequest.getContentCollectType())
+                .envList(fileSourceRequest.getEnvList())
+                .dataContentStyle(fileSourceRequest.getDataContentStyle())
+                .filterMetaByLabels(fileSourceRequest.getFilterMetaByLabels())
+                .metaFields(fileSourceRequest.getMetaFields())
                 .timeOffset(fileSourceRequest.getTimeOffset())
                 .properties(fileSourceRequest.getProperties())
                 .build();

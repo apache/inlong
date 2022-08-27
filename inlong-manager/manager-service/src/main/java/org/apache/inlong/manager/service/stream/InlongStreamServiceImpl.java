@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.stream;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -39,6 +38,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -199,7 +199,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public PageInfo<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request) {
+    public PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request) {
         LOGGER.debug("begin to list inlong stream page by {}", request);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -209,15 +209,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongStreamBriefInfo::new);
 
-        PageInfo<InlongStreamBriefInfo> page = new PageInfo<>(streamList);
-        page.setTotal(streamList.size());
+        PageResult<InlongStreamBriefInfo> pageResult = new PageResult<>(streamList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong stream info for groupId={}", request.getInlongGroupId());
-        return page;
+        return pageResult;
     }
 
     @Override
-    public PageInfo<InlongStreamInfo> listAll(InlongStreamPageRequest request) {
+    public PageResult<InlongStreamInfo> listAll(InlongStreamPageRequest request) {
         LOGGER.debug("begin to list full inlong stream page by {}", request);
         Preconditions.checkNotNull(request, "request is empty");
         String groupId = request.getInlongGroupId();
@@ -250,11 +250,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             streamInfo.setSinkList(sinkList);
         }
 
-        PageInfo<InlongStreamInfo> pageInfo = new PageInfo<>(streamInfoList);
-        pageInfo.setTotal(pageInfo.getTotal());
+        PageResult<InlongStreamInfo> pageResult = new PageResult<>(streamInfoList, page.getTotal(),
+                page.getPageNum(), page.getPageSize());
 
         LOGGER.debug("success to list full inlong stream info by {}", request);
-        return pageInfo;
+        return pageResult;
     }
 
     @Override

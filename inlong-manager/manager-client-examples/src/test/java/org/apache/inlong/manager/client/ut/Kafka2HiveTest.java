@@ -17,17 +17,18 @@
 
 package org.apache.inlong.manager.client.ut;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -40,7 +41,6 @@ import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -130,7 +130,7 @@ class Kafka2HiveTest extends BaseTest {
                                         + "\"creator\":\"admin\",\"modifier\":\"admin\","
                                         + "\"createTime\":\"2022-06-06 09:59:10\","
                                         + "\"modifyTime\":\"2022-06-06 02:24:50\",\"extList\":[],\"tenant\":null,"
-                                        + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"parallel\","
+                                        + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"PARALLEL\","
                                         + "\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,\"ackQuorum\":2,"
                                         + "\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
                                         + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,"
@@ -187,7 +187,7 @@ class Kafka2HiveTest extends BaseTest {
                                 + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
                                 + "\"createTime\":\"2022-06-06 16:36:35\",\"modifyTime\":\"2022-06-06 08:37:04\","
                                 + "\"extList\":[],\"tenant\":null,\"adminUrl\":null,\"serviceUrl\":null,"
-                                + "\"queueModule\":\"parallel\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
+                                + "\"queueModule\":\"PARALLEL\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
                                 + "\"ackQuorum\":2,\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
                                 + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,\"retentionSizeUnit\":\"MB\"},"
                                 + "\"streamInfoList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
@@ -230,7 +230,7 @@ class Kafka2HiveTest extends BaseTest {
                                                 .createTime(new Date())
                                                 .modifyTime(new Date())
                                                 .extList(new ArrayList<>())
-                                                .queueModule("parallel")
+                                                .queueModule("PARALLEL")
                                                 .partitionNum(3)
                                                 .ensemble(3)
                                                 .writeQuorum(3)
@@ -327,8 +327,8 @@ class Kafka2HiveTest extends BaseTest {
         streamInfo.setSourceList(kafkaSources);
         streamInfo.setSinkList(hiveSinks);
 
-        Response<PageInfo<InlongStreamInfo>> fullStreamResponsePage = Response.success(
-                new PageInfo<>(Lists.newArrayList(streamInfo))
+        Response<PageResult<InlongStreamInfo>> fullStreamResponsePage = Response.success(
+                new PageResult<>(Lists.newArrayList(streamInfo))
         );
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/listAll.*"))
@@ -369,7 +369,7 @@ class Kafka2HiveTest extends BaseTest {
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/workflow/event/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(
                                         Lists.newArrayList(eventLogView1, eventLogView2)
                                 ))))
                         )
@@ -378,7 +378,7 @@ class Kafka2HiveTest extends BaseTest {
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/stream/config/log/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>())))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>())))
                         )
         );
     }

@@ -29,7 +29,6 @@
 #include "atomic.h"
 #include "buffer_pool.h"
 #include "sdk_core.h"
-#include "client_config.h"
 #include "noncopyable.h"
 #include "user_msg.h"
 namespace dataproxy_sdk
@@ -84,7 +83,7 @@ class PackQueue
     char* data() const { return data_; }
 
     std::string inlong_group_id() const { return inlong_group_id_; }
-    void setBid(const std::string& inlong_group_id) { inlong_group_id_ = inlong_group_id; }
+    void setGroupid(const std::string& inlong_group_id) { inlong_group_id_ = inlong_group_id; }
 
     void increasePackErr() { pack_err_.increment(); }
 

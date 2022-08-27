@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -235,11 +236,11 @@ public class SortSourceServiceImpl implements SortSourceService {
 
             task2Group.forEach((task, groupList) -> {
                 // get topic properties under this cluster and task, group them by group id.
-                Map<String, Map<String, String>> group2topicProp = allStreamInfos.stream()
-                        .filter(stream -> stream.getSortTaskName().equals(task)
-                                && stream.getSortClusterName().equals(clusterName))
-                        .collect(Collectors.toMap(SortSourceStreamInfo::getGroupId,
-                                SortSourceStreamInfo::getExtParamsMap));
+                Map<String, Map<String, String>> group2topicProp = new HashMap<>();
+                allStreamInfos.stream().filter(stream -> stream.getSortTaskName().equals(task)
+                        && stream.getSortClusterName().equals(clusterName)).forEach(
+                        sortSourceStreamInfo -> group2topicProp.put(sortSourceStreamInfo.getGroupId(),
+                                sortSourceStreamInfo.getExtParamsMap()));
 
                 Map<String, CacheZone> cacheZones;
                 try {
@@ -317,9 +318,9 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<String> tags = new ArrayList<>(tag2GroupInfos.keySet());
 
         // Clusters that related to these tags
-        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos = allTag2ClusterInfos.entrySet().stream()
-                .filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos = new HashMap<>();
+        allTag2ClusterInfos.entrySet().stream().filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
+                .forEach(entry -> tag2ClusterInfos.put(entry.getKey(), entry.getValue()));
 
         // get CacheZone list
         return tags.stream()

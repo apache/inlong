@@ -106,7 +106,8 @@ public class JobProfileDto {
         fileJob.setDir(dir);
         fileJob.setCollectType(fileJobTaskConfig.getCollectType());
         fileJob.setContentCollectType(fileJobTaskConfig.getContentCollectType());
-
+        fileJob.setDataSeparator(fileJobTaskConfig.getDataSeparator());
+        fileJob.setProperties(fileJobTaskConfig.getProperties());
         if (fileJobTaskConfig.getTimeOffset() != null) {
             fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
         }
@@ -126,6 +127,10 @@ public class JobProfileDto {
 
         if (null != fileJobTaskConfig.getMetaFields()) {
             fileJob.setMetaFields(fileJob.getMetaFields());
+        }
+
+        if (null != fileJobTaskConfig.getFilterMetaByLabels()) {
+            fileJob.setFilterMetaByLabels(fileJobTaskConfig.getFilterMetaByLabels());
         }
         return fileJob;
     }

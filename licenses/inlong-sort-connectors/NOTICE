@@ -881,6 +881,19 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
+Flink Connector for Apache Doris NOTICE
+========================================================================
+
+Flink Connector for Apache Doris
+Copyright 2018-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 Flink : Core NOTICE
 ========================================================================
 
@@ -2384,6 +2397,14 @@ https://github.com/airlift/airlift/blob/master/LICENSE
 
 ========================================================================
 
+flink-connector-redis
+Copyright 2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+========================================================================
+
 Jetty :: Apache JSP Implementation NOTICE
 ------------------------------------------------------
 Apache Calcite Avatica (Shaded) NOTICE
@@ -2550,5 +2571,20 @@ Apache Parquet Hadoop NOTICE
 ========================================================================
 
 The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : Runtime Blink
+Copyright 2014-2021 The Apache Software Foundation
 
 

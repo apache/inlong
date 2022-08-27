@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.user;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -34,6 +33,7 @@ import org.apache.inlong.manager.common.util.RSAUtils;
 import org.apache.inlong.manager.common.util.SHAUtils;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     private UserEntityMapper userMapper;
 
     @Override
-    public Integer save(UserRequest request) {
+    public Integer save(UserRequest request, String currentUser) {
         String username = request.getName();
         UserEntity userExists = userMapper.selectByName(username);
         String password = request.getPassword();
@@ -73,9 +73,9 @@ public class UserServiceImpl implements UserService {
         entity.setPassword(SHAUtils.encrypt(password));
         entity.setAccountType(request.getAccountType());
         entity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
-        String currentUser = LoginUserUtils.getLoginUser().getName();
         entity.setCreator(currentUser);
         entity.setModifier(currentUser);
+        entity.setExtParams(request.getExtParams());
         try {
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
@@ -139,22 +139,28 @@ public class UserServiceImpl implements UserService {
     public UserInfo getByName(String name) {
         Preconditions.checkNotNull(name, "User name cannot be null");
         UserEntity entity = userMapper.selectByName(name);
-        return CommonBeanUtils.copyProperties(entity, UserInfo::new);
+        if (entity == null) {
+            return null;
+        }
+        UserInfo userInfo = CommonBeanUtils.copyProperties(entity, UserInfo::new);
+        userInfo.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
+        return userInfo;
     }
 
     @Override
-    public PageInfo<UserInfo> list(UserRequest request) {
+    public PageResult<UserInfo> list(UserRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByCondition(request);
         List<UserInfo> userList = CommonBeanUtils.copyListProperties(entityPage, UserInfo::new);
 
         // Check whether the user account has expired
         userList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
-        PageInfo<UserInfo> page = new PageInfo<>(userList);
-        page.setTotal(entityPage.getTotal());
 
-        LOGGER.debug("success to list users for request={}, result size={}", request, page.getTotal());
-        return page;
+        PageResult<UserInfo> pageResult = new PageResult<>(userList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
+
+        LOGGER.debug("success to list users for request={}, result size={}", request, pageResult.getTotal());
+        return pageResult;
     }
 
     @Override
@@ -211,8 +217,9 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
         updateUserEntity.setAccountType(request.getAccountType());
         updateUserEntity.setName(updateName);
+        updateUserEntity.setExtParams(request.getExtParams());
 
-        int rowCount = userMapper.updateById(updateUserEntity);
+        int rowCount = userMapper.updateByPrimaryKeySelective(updateUserEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

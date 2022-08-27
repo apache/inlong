@@ -25,7 +25,8 @@ public enum DataTypeEnum {
     AVRO("avro"),
     JSON("json"),
     CANAL("canal"),
-    DEBEZIUM_JSON("debezium_json");
+    DEBEZIUM_JSON("debezium_json"),
+    RAW("raw");
 
     @Getter
     private final String name;

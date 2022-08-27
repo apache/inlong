@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSourceApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class StreamSourceClient {
      * List stream sources by the specified source type.
      */
     public List<StreamSource> listSources(String groupId, String streamId, String sourceType) {
-        Response<PageInfo<StreamSource>> response = ClientUtils.executeHttpCall(
+        Response<PageResult<StreamSource>> response = ClientUtils.executeHttpCall(
                 streamSourceApi.listSources(groupId, streamId, sourceType));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();

@@ -55,6 +55,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_E
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
@@ -291,6 +292,7 @@ public class AgentUtils {
                 }
             }
         }
+        LOGGER.info("path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
         return true;
     }
 
@@ -347,6 +349,9 @@ public class AgentUtils {
      * Check agent ip from manager
      */
     public static String fetchLocalIp() {
+        if (StringUtils.isNoneBlank(AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP, null))) {
+            return AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP);
+        }
         return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
     }
 

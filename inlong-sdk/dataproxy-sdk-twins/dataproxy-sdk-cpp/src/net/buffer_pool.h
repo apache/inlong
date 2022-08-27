@@ -27,7 +27,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "atomic.h"
 #include "sdk_core.h"
 #include "noncopyable.h"
 #include "pack_queue.h"
@@ -94,9 +93,9 @@ namespace dataproxy_sdk
     std::vector<BufferPoolPtr> pools_;
     int32_t next_;
 
-    // bid_isolation
-    std::unordered_map<std::string, std::vector<BufferPoolPtr>> bid2pool_map_;
-    std::unordered_map<std::string, int32_t> bid2next_;
+    // groupid_isolation
+    std::unordered_map<std::string, std::vector<BufferPoolPtr>> groupid2pool_map_;
+    std::unordered_map<std::string, int32_t> groupid2next_;
 
     std::unordered_map<uint32_t, BufferPoolPtr> uid2buf_pool_;// <sent buf uid, bufpool>
 

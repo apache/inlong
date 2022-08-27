@@ -25,6 +25,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -41,7 +42,7 @@ import java.util.Map;
 @JsonTypeName("oracleLoad")
 @Data
 @NoArgsConstructor
-public class OracleLoadNode extends LoadNode implements Serializable {
+public class OracleLoadNode extends LoadNode implements InlongMetric, Serializable {
     /**
      * jdbc:oracle://host:port/database
      */

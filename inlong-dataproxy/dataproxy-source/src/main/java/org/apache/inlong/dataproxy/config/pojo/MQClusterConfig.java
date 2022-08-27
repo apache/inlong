@@ -68,10 +68,10 @@ public class MQClusterConfig extends Context {
 
     // TubeMQ params
     private static final String MAX_SURVIVED_TIME = "max_survived_time";
-    private static final int DEFAULT_MAX_SURVIVED_TIME = 300000;
+    private static final int DEFAULT_MAX_SURVIVED_TIME = 30000;
 
     private static final String MAX_SURVIVED_SIZE = "max_survived_size";
-    private static final int DEFAULT_MAX_SURVIVED_SIZE = 3000000;
+    private static final int DEFAULT_MAX_SURVIVED_SIZE = 5000000;
 
     private static final String NEW_CHECK_PATTERN = "new_check_pattern";
     private static final boolean DEFAULT_NEW_CHECK_PATTERN = true;
@@ -86,7 +86,7 @@ public class MQClusterConfig extends Context {
     private static final int DEFAULT_MAX_TOPICS_EACH_PRODUCER_HOLD = 200;
 
     private static final String TUBE_REQUEST_TIMEOUT = "tube_request_timeout";
-    private static final int DEFAULT_TUBE_REQUEST_TIMEOUT = 60;
+    private static final long DEFAULT_TUBE_REQUEST_TIMEOUT = 20000L;
 
     private static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = "link_max_allowed_delayed_msg_count";
     private static final long DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = 80000L;
@@ -99,6 +99,9 @@ public class MQClusterConfig extends Context {
 
     private static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK = "netty_write_buffer_high_water_mark";
     private static final long DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK = 15 * 1024 * 1024L;
+
+    private static final String HEARTBEAT_C2M_PERIOD_MS_MARK = "tube_heartbeat_period_ms";
+    private static final long DEFAULT_HEARTBEAT_C2M_PERIOD_MS = 15000L;
 
     private static final String RECOVER_THREAD_COUNT = "recover_thread_count";
     private static final int DEFAULT_RECOVER_THREAD_COUNT = Runtime.getRuntime().availableProcessors() + 1;
@@ -157,6 +160,10 @@ public class MQClusterConfig extends Context {
 
     public long getNettyWriteBufferHighWaterMark() {
         return getLong(NETTY_WRITE_BUFFER_HIGH_WATER_MARK, DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
+    }
+
+    public long getTubeHeartbeatPeriodMs() {
+        return getLong(HEARTBEAT_C2M_PERIOD_MS_MARK, DEFAULT_HEARTBEAT_C2M_PERIOD_MS);
     }
 
     public int getRecoverThreadCount() {
@@ -284,8 +291,8 @@ public class MQClusterConfig extends Context {
         return getInteger(MAX_TOPICS_EACH_PRODUCER_HOLD, DEFAULT_MAX_TOPICS_EACH_PRODUCER_HOLD);
     }
 
-    public int getTubeRequestTimeout() {
-        return getInteger(TUBE_REQUEST_TIMEOUT, DEFAULT_TUBE_REQUEST_TIMEOUT);
+    public long getTubeRpcTimeoutMs() {
+        return getLong(TUBE_REQUEST_TIMEOUT, DEFAULT_TUBE_REQUEST_TIMEOUT);
     }
 
     public String getLogTopic() {

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,6 +35,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,13 +105,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         // According to the sink type, save sink information
-        StreamSinkOperator operation = operatorFactory.getInstance(request.getSinkType());
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
             fields.forEach(sinkField -> sinkField.setId(null));
         }
-        int id = operation.saveOpt(request, operator);
+        int id = sinkOperator.saveOpt(request, operator);
 
         LOGGER.info("success to save sink info: {}", request);
         return id;
@@ -126,8 +125,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             LOGGER.error("sink not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
-        StreamSinkOperator operation = operatorFactory.getInstance(entity.getSinkType());
-        StreamSink streamSink = operation.getFromEntity(entity);
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
+        StreamSink streamSink = sinkOperator.getFromEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return streamSink;
     }
@@ -178,7 +177,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request) {
+    public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -191,15 +190,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         List<StreamSink> responseList = Lists.newArrayList();
         for (Map.Entry<String, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
-            StreamSinkOperator operation = operatorFactory.getInstance(entry.getKey());
-            PageInfo<? extends StreamSink> pageInfo = operation.getPageInfo(entry.getValue());
+            StreamSinkOperator sinkOperator = operatorFactory.getInstance(entry.getKey());
+            PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
             responseList.addAll(pageInfo.getList());
         }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageInfo<? extends StreamSink> pageInfo = PageInfo.of(responseList);
+        PageResult<StreamSink> pageResult = new PageResult<>(responseList);
 
-        LOGGER.debug("success to list sink page, result size {}", pageInfo.getSize());
-        return pageInfo;
+        LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
+        return pageResult;
     }
 
     @Override
@@ -230,8 +229,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             fields.forEach(sinkField -> sinkField.setId(null));
         }
 
-        StreamSinkOperator operation = operatorFactory.getInstance(request.getSinkType());
-        operation.updateOpt(request, operator);
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
+        sinkOperator.updateOpt(request, operator);
 
         // The inlong group status is [Configuration successful], then asynchronously initiate
         // the [Single inlong stream resource creation] workflow
@@ -266,20 +265,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
-
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(InlongConstants.DELETED_STATUS);
-        entity.setIsDeleted(id);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
-        sinkFieldMapper.logicDeleteAll(id);
-
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
+        sinkOperator.deleteOpt(entity, operator);
         LOGGER.info("success to delete sink info: {}", entity);
         return true;
     }

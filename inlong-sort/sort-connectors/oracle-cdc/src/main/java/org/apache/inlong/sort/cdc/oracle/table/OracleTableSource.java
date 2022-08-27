@@ -64,7 +64,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
     private final String schemaName;
     private final Properties dbzProperties;
     private final StartupOptions startupOptions;
-    private final String inLongMetric;
+    private final String inlongMetric;
+    private final String inlongAudit;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -87,7 +88,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
             String password,
             Properties dbzProperties,
             StartupOptions startupOptions,
-            String inLongMetric) {
+            String inlongMetric,
+            String inlongAudit) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -100,7 +102,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
         this.startupOptions = startupOptions;
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -140,7 +143,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         .debeziumProperties(dbzProperties)
                         .startupOptions(startupOptions)
                         .deserializer(deserializer)
-                        .inLongMetric(inLongMetric);
+                        .inlongMetric(inlongMetric)
+                        .inlongAudit(inlongAudit);
         DebeziumSourceFunction<RowData> sourceFunction = builder.build();
 
         return SourceFunctionProvider.of(sourceFunction, false);
@@ -176,7 +180,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         password,
                         dbzProperties,
                         startupOptions,
-                        inLongMetric);
+                        inlongMetric,
+                        inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -203,7 +208,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                 && Objects.equals(startupOptions, that.startupOptions)
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
-                && Objects.equals(inLongMetric, that.inLongMetric);
+                && Objects.equals(inlongMetric, that.inlongMetric)
+                && Objects.equals(inlongAudit, that.inlongAudit);
     }
 
     @Override
@@ -221,7 +227,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                 startupOptions,
                 producedDataType,
                 metadataKeys,
-                inLongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override

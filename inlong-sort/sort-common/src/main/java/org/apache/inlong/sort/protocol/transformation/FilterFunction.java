@@ -19,6 +19,7 @@ package org.apache.inlong.sort.protocol.transformation;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.sort.protocol.transformation.function.BetweenFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 
@@ -31,8 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilter
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
-        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter")}
-)
+        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
+        @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction")
+})
 public interface FilterFunction extends Function {
 
 }

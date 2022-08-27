@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
@@ -59,7 +59,7 @@ public class WorkflowEventController {
 
     @GetMapping("/workflow/event/list")
     @ApiOperation(value = "Get event list by paginating")
-    public Response<PageInfo<EventLogResponse>> list(EventLogRequest query) {
+    public Response<PageResult<EventLogResponse>> list(EventLogRequest query) {
         return Response.success(workflowEventService.list(query));
     }
 

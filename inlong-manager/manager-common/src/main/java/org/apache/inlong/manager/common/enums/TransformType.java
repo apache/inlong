@@ -46,7 +46,12 @@ public enum TransformType {
     /**
      * Joins different sources in one stream
      */
-    JOINER("joiner");
+    JOINER("joiner"),
+
+    /**
+     * Encrypt records on given fields
+     */
+    ENCRYPT("encrypt");
 
     @Getter
     private final String type;

@@ -31,7 +31,6 @@
 #include <unordered_map>
 
 #include "sdk_core.h"
-#include "client_config.h"
 #include "noncopyable.h"
 #include "read_write_mutex.h"
 namespace dataproxy_sdk
@@ -92,7 +91,7 @@ namespace dataproxy_sdk
     void addBusAddress(const ProxyInfoPtr &proxy_info);
     bool enableUpdate(const ClusterProxyListPtr &other);
     virtual int32_t initConn(); //init active conns and backup conns
-    int32_t clearAllConn();
+    void clearAllConn();
     void clearInvalidConns();
     void keepConnsAlive();
     void balanceConns();

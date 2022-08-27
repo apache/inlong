@@ -23,11 +23,12 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
-import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.Preconditions;
 
@@ -57,6 +58,8 @@ public class InlongGroupContext implements Serializable {
 
     private SimpleGroupStatus status;
 
+    private InlongGroupStatusInfo statusInfo;
+
     public InlongGroupContext(InnerGroupContext groupContext) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
@@ -66,6 +69,11 @@ public class InlongGroupContext implements Serializable {
         this.inlongStreamMap = groupContext.getStreamMap();
         this.status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
         recheckState();
+        this.statusInfo = InlongGroupStatusInfo.builder()
+                .inlongGroupId(groupInfo.getInlongGroupId())
+                .originalStatus(groupInfo.getStatus())
+                .simpleGroupStatus(this.status)
+                .streamSources(getGroupSources()).build();
         this.extensions = Maps.newHashMap();
         List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
         if (CollectionUtils.isNotEmpty(extInfos)) {
@@ -73,6 +81,22 @@ public class InlongGroupContext implements Serializable {
                 extensions.put(extInfo.getKeyName(), extInfo.getKeyValue());
             });
         }
+    }
+
+    private List<StreamSource> getGroupSources() {
+        List<StreamSource> groupSources = Lists.newArrayList();
+        this.inlongStreamMap.values().forEach(inlongStream -> {
+            Map<String, StreamSource> sources = inlongStream.getSources();
+            if (MapUtils.isNotEmpty(sources)) {
+                for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
+                    StreamSource source = entry.getValue();
+                    if (source != null) {
+                        groupSources.add(source);
+                    }
+                }
+            }
+        });
+        return groupSources;
     }
 
     private void recheckState() {

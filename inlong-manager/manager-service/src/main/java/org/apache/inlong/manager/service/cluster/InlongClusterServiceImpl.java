@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -33,10 +32,10 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -62,6 +61,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -153,16 +153,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
+    public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterTagEntity> entityPage = (Page<InlongClusterTagEntity>) clusterTagMapper
                 .selectByCondition(request);
-        List<ClusterTagResponse> tagList = CommonBeanUtils.copyListProperties(entityPage, ClusterTagResponse::new);
-        PageInfo<ClusterTagResponse> page = new PageInfo<>(tagList);
-        page.setTotal(tagList.size());
 
+        List<ClusterTagResponse> tagList = CommonBeanUtils.copyListProperties(entityPage, ClusterTagResponse::new);
+
+        PageResult<ClusterTagResponse> pageResult = new PageResult<>(tagList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
         LOGGER.debug("success to list cluster tag by {}", request);
-        return page;
+        return pageResult;
     }
 
     @Override
@@ -313,18 +314,23 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageInfo<ClusterInfo> list(ClusterPageRequest request) {
+    public PageResult<ClusterInfo> list(ClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
         List<ClusterInfo> list = entityPage.stream()
                 .map(entity -> {
                     InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
                     return instance.getFromEntity(entity);
-                }).collect(Collectors.toList());
-        PageInfo<ClusterInfo> page = new PageInfo<>(list);
-        page.setTotal(list.size());
+                })
+                .collect(Collectors.toList());
+
+        PageResult<ClusterInfo> pageResult = new PageResult<>(
+                list, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize()
+        );
+
         LOGGER.debug("success to list inlong cluster by {}", request);
-        return page;
+        return pageResult;
     }
 
     @Override
@@ -494,24 +500,42 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser) {
+    public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser) {
+        if (StringUtils.isNotBlank(request.getClusterTag())) {
+            List<ClusterNodeResponse> nodeList = listNodeByClusterTag(request);
+
+            return new PageResult<>(nodeList, (long) nodeList.size());
+        }
         Integer parentId = request.getParentId();
         Preconditions.checkNotNull(parentId, "Cluster id cannot be empty");
         InlongClusterEntity cluster = clusterMapper.selectById(parentId);
         UserEntity userEntity = userMapper.selectByName(currentUser);
         boolean isInCharge = Preconditions.inSeparatedString(currentUser, cluster.getInCharges(),
                 InlongConstants.COMMA);
+
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster node list");
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
                 clusterNodeMapper.selectByCondition(request);
         List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
-        PageInfo<ClusterNodeResponse> page = new PageInfo<>(nodeList);
-        page.setTotal(nodeList.size());
+
+        PageResult<ClusterNodeResponse> pageResult = new PageResult<>(nodeList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong cluster node by {}", request);
-        return page;
+        return pageResult;
+    }
+
+    public List<ClusterNodeResponse> listNodeByClusterTag(ClusterPageRequest request) {
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(request.getClusterTag(), request.getName(),
+                request.getType());
+        List<InlongClusterNodeEntity> allNodeList = new ArrayList<>();
+        for (InlongClusterEntity cluster : clusterList) {
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(cluster.getId());
+            allNodeList.addAll(nodeList);
+        }
+        return CommonBeanUtils.copyListProperties(allNodeList, ClusterNodeResponse::new);
     }
 
     @Override
@@ -737,6 +761,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             MQClusterInfo clusterInfo = new MQClusterInfo();
             clusterInfo.setUrl(cluster.getUrl());
             clusterInfo.setToken(cluster.getToken());
+            clusterInfo.setMqType(cluster.getType());
             Map<String, String> configParams = GSON.fromJson(cluster.getExtParams(), Map.class);
             clusterInfo.setParams(configParams);
             mqSet.add(clusterInfo);

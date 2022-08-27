@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
@@ -29,12 +30,12 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
@@ -192,6 +193,7 @@ public class AgentServiceImpl implements AgentService {
             sourceEntity.setAgentIp(taskRequest.getAgentIp());
             sourceEntity.setUuid(taskRequest.getUuid());
             if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                sourceEntity.setVersion(sourceEntity.getVersion() + 1);
                 nonFileTasks.add(getDataConfig(sourceEntity, op));
             }
         }
@@ -208,49 +210,53 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         final String agentIp = taskRequest.getAgentIp();
-        final String agentClusterTag = taskRequest.getClusterTag();
+        final String agentClusterName = taskRequest.getClusterName();
         final String uuid = taskRequest.getUuid();
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE), TASK_FETCH_SIZE * 10);
+        Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
+                "both agent ip and cluster name are blank when fetching file task");
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
+                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
         List<DataConfig> fileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
             FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
-            final String ip = fileSourceDTO.getIp();
-            final String clusterTag = fileSourceDTO.getClusterTag();
-            // ClusterTag is blank
-            if (StringUtils.isNotBlank(ip) && StringUtils.isBlank(clusterTag)) {
-                if (ip.equals(agentIp)) {
+            final String destIp = sourceEntity.getAgentIp();
+            final String destClusterName = sourceEntity.getInlongClusterName();
+
+            // Cluster name is blank
+            if (StringUtils.isNotBlank(destIp) && StringUtils.isBlank(destClusterName)) {
+                if (destIp.equals(agentIp)) {
                     int op = getOp(sourceEntity.getStatus());
                     int nextStatus = getNextStatus(sourceEntity.getStatus());
-                    sourceEntity.setAgentIp(agentIp);
                     sourceEntity.setUuid(uuid);
                     sourceEntity.setStatus(nextStatus);
                     if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                        sourceEntity.setVersion(sourceEntity.getVersion() + 1);
                         fileTasks.add(getDataConfig(sourceEntity, op));
                     }
                 }
                 continue;
             }
-            // ClusterTag is not blank
-            if (StringUtils.isNotBlank(clusterTag) && clusterTag.equals(agentClusterTag)) {
-                String clusterIps = sourceEntity.getAgentIp() == null ? "" : sourceEntity.getAgentIp();
-                if (clusterIps.contains(agentIp)) {
-                    LOGGER.debug("Task={} has already be fetch by agentIP={}", sourceEntity.getExtParams(), agentIp);
+
+            // Cluster name is not blank, split subtask if necessary
+            // The template task's id is assigned to the subtask's template id field
+            if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)
+                    && Objects.isNull(sourceEntity.getTemplateId())) {
+
+                // Is the task already fetched by this agent ?
+                List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
+                if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
                     continue;
                 }
-                clusterIps += InlongConstants.COMMA + agentIp;
-                sourceEntity.setAgentIp(clusterIps);
-                // Update until success
-                while (sourceMapper.updateByPrimaryKeySelective(sourceEntity) != 1) {
-                    sourceEntity = sourceMapper.selectById(sourceEntity.getId());
-                    sourceEntity.setAgentIp(clusterIps);
-                }
+
+                // If not, clone a sub task for the new agent
+                // Note that a new source name with random suffix is generated to adhere to the unique constraint
                 StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
                 FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
-                childFileSourceDTO.setIp(agentIp);
                 fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
                 fileEntity.setAgentIp(agentIp);
                 fileEntity.setUuid(uuid);
+                fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
+                fileEntity.setTemplateId(sourceEntity.getId());
                 int op = getOp(fileEntity.getStatus());
                 int nextStatus = getNextStatus(fileEntity.getStatus());
                 fileEntity.setStatus(nextStatus);
@@ -279,6 +285,7 @@ public class AgentServiceImpl implements AgentService {
             int nextStatus = getNextStatus(issuedTask.getStatus());
             issuedTask.setStatus(nextStatus);
             if (sourceMapper.updateByPrimaryKeySelective(issuedTask) == 1) {
+                issuedTask.setVersion(issuedTask.getVersion() + 1);
                 issuedTasks.add(getDataConfig(issuedTask, op));
             }
         }
@@ -291,8 +298,7 @@ public class AgentServiceImpl implements AgentService {
 
     private int getNextStatus(int status) {
         int op = status % MODULUS_100;
-        int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
-        return nextStatus;
+        return ISSUED_STATUS * MODULUS_100 + op;
     }
 
     /**
@@ -311,7 +317,6 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setTaskType(getTaskType(entity));
         dataConfig.setTaskName(entity.getSourceName());
         dataConfig.setSnapshot(entity.getSnapshot());
-        dataConfig.setExtParams(entity.getExtParams());
         dataConfig.setVersion(entity.getVersion());
 
         String groupId = entity.getInlongGroupId();
@@ -319,13 +324,31 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setInlongGroupId(groupId);
         dataConfig.setInlongStreamId(streamId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        String extParams = entity.getExtParams();
         if (streamEntity != null) {
             dataConfig.setSyncSend(streamEntity.getSyncSend());
+            if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
+                String dataSeparator = streamEntity.getDataSeparator();
+                extParams = null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams;
+            }
         } else {
             dataConfig.setSyncSend(0);
             LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
         }
+        dataConfig.setExtParams(extParams);
         return dataConfig;
+    }
+
+    private String getExtParams(String extParams, String dataSeparator) {
+        if (Objects.isNull(extParams)) {
+            return null;
+        }
+        FileSourceDTO fileSourceDTO = JsonUtils.parseObject(extParams, FileSourceDTO.class);
+        if (Objects.nonNull(fileSourceDTO)) {
+            fileSourceDTO.setDataSeparator(dataSeparator);
+            return JsonUtils.toJsonString(fileSourceDTO);
+        }
+        return extParams;
     }
 
     /**

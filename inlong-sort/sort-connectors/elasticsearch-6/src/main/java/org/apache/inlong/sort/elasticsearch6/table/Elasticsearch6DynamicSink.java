@@ -21,10 +21,6 @@ package org.apache.inlong.sort.elasticsearch6.table;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
-import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
-import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
-import org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink;
 import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -34,14 +30,17 @@ import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.StringUtils;
-
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
+import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
+import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
 import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch6.ElasticsearchSink;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -49,7 +48,6 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -59,19 +57,16 @@ import java.util.Objects;
  */
 @PublicEvolving
 final class Elasticsearch6DynamicSink implements DynamicTableSink {
+
     @VisibleForTesting
     static final Elasticsearch6RequestFactory REQUEST_FACTORY = new Elasticsearch6RequestFactory();
 
     private final EncodingFormat<SerializationSchema<RowData>> format;
     private final TableSchema schema;
     private final Elasticsearch6Configuration config;
-
-    public Elasticsearch6DynamicSink(
-            EncodingFormat<SerializationSchema<RowData>> format,
-            Elasticsearch6Configuration config,
-            TableSchema schema) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new));
-    }
+    private final String inLongMetric;
+    private final String auditHostAndPorts;
+    private final ElasticSearchBuilderProvider builderProvider;
 
     // --------------------------------------------------------------
     // Hack to make configuration testing possible.
@@ -83,28 +78,29 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     // on the sink itself.
     // --------------------------------------------------------------
 
-    private final ElasticSearchBuilderProvider builderProvider;
-
-    @FunctionalInterface
-    interface ElasticSearchBuilderProvider {
-        ElasticsearchSink.Builder<RowData> createBuilder(
-                List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
+    public Elasticsearch6DynamicSink(
+            EncodingFormat<SerializationSchema<RowData>> format,
+            Elasticsearch6Configuration config,
+            TableSchema schema,
+            String inLongMetric,
+            String auditHostAndPorts) {
+        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric, auditHostAndPorts);
     }
 
     Elasticsearch6DynamicSink(
             EncodingFormat<SerializationSchema<RowData>> format,
             Elasticsearch6Configuration config,
             TableSchema schema,
-            ElasticSearchBuilderProvider builderProvider) {
+            ElasticSearchBuilderProvider builderProvider,
+            String inLongMetric,
+            String auditHostAndPorts) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
+        this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
-
-    // --------------------------------------------------------------
-    // End of hack to make configuration testing possible
-    // --------------------------------------------------------------
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
@@ -116,6 +112,10 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         }
         return builder.build();
     }
+
+    // --------------------------------------------------------------
+    // End of hack to make configuration testing possible
+    // --------------------------------------------------------------
 
     @Override
     public SinkFunctionProvider getSinkRuntimeProvider(Context context) {
@@ -132,7 +132,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                             REQUEST_FACTORY,
                             KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
                             RoutingExtractor.createRoutingExtractor(
-                                    schema, config.getRoutingField().orElse(null)));
+                                    schema, config.getRoutingField().orElse(null)),
+                            inLongMetric,
+                            auditHostAndPorts);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
@@ -142,6 +144,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             builder.setBulkFlushMaxSizeMb((int) (config.getBulkFlushMaxByteSize() >> 20));
             builder.setBulkFlushInterval(config.getBulkFlushInterval());
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
+            builder.setInLongMetric(inLongMetric);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
@@ -182,7 +185,37 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         return "Elasticsearch6";
     }
 
-    /** Serializable {@link RestClientFactory} used by the sink. */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Elasticsearch6DynamicSink that = (Elasticsearch6DynamicSink) o;
+        return Objects.equals(format, that.format)
+                && Objects.equals(schema, that.schema)
+                && Objects.equals(config, that.config)
+                && Objects.equals(builderProvider, that.builderProvider)
+                && Objects.equals(inLongMetric, that.inLongMetric);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(format, schema, config, builderProvider, inLongMetric);
+    }
+
+    @FunctionalInterface
+    interface ElasticSearchBuilderProvider {
+
+        ElasticsearchSink.Builder<RowData> createBuilder(
+                List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
+    }
+
+    /**
+     * Serializable {@link RestClientFactory} used by the sink.
+     */
     @VisibleForTesting
     static class DefaultRestClientFactory implements RestClientFactory {
 
@@ -217,7 +250,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         }
     }
 
-    /** Serializable {@link RestClientFactory} used by the sink which enable authentication. */
+    /**
+     * Serializable {@link RestClientFactory} used by the sink which enable authentication.
+     */
     @VisibleForTesting
     static class AuthRestClientFactory implements RestClientFactory {
 
@@ -274,6 +309,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
      * sink.
      */
     private static class Elasticsearch6RequestFactory implements RequestFactory {
+
         @Override
         public UpdateRequest createUpdateRequest(
                 String index,
@@ -300,25 +336,5 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         public DeleteRequest createDeleteRequest(String index, String docType, String key) {
             return new DeleteRequest(index, docType, key);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Elasticsearch6DynamicSink that = (Elasticsearch6DynamicSink) o;
-        return Objects.equals(format, that.format)
-                && Objects.equals(schema, that.schema)
-                && Objects.equals(config, that.config)
-                && Objects.equals(builderProvider, that.builderProvider);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(format, schema, config, builderProvider);
     }
 }

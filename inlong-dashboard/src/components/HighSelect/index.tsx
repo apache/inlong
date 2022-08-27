@@ -21,10 +21,11 @@
  * A select that can automatically initiate asynchronous (cooperating with useRequest) to obtain drop-down list data
  */
 import React, { useMemo, useState, useEffect } from 'react';
-import { Select, Space, Input } from 'antd';
+import { Select, Space, Input, Spin } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
 import debounce from 'lodash/debounce';
+import i18n from '@/i18n';
 
 // example options: {
 //   requestService: '/group/listAll',
@@ -44,11 +45,12 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
         requestService: unknown;
         requestParams?: unknown;
         requestAuto?: boolean;
-        requestTrigger?: 'onOpen' | 'onSearch'[];
+        requestTrigger?: ('onOpen' | 'onSearch')[];
       };
   asyncValueLabel?: string;
   useInput?: boolean;
   useInputProps?: Record<string, unknown>;
+  addonAfter?: React.ReactNode;
 }
 
 const HighSelect: React.FC<HighSelectProps> = ({
@@ -56,12 +58,13 @@ const HighSelect: React.FC<HighSelectProps> = ({
   asyncValueLabel,
   useInput = false,
   useInputProps,
+  addonAfter,
   ...rest
 }) => {
   const [diyWatcher, setDiyWatcher] = useState(true);
   const [diyState, setDiyState] = useState(false);
 
-  const { data: list = [], run: getList } = useRequest(options?.requestService, {
+  const { data: list = [], loading, run: getList } = useRequest(options?.requestService, {
     manual: !options?.requestAuto,
     ready: !!options?.requestService && (options?.requestParams?.ready ?? true),
     ...options?.requestParams,
@@ -76,7 +79,7 @@ const HighSelect: React.FC<HighSelectProps> = ({
 
     return useInput
       ? output.concat({
-          label: 'DIY',
+          label: i18n.t('components.HighSelect.Customize'),
           value: '__DIYState',
         })
       : output;
@@ -138,12 +141,25 @@ const HighSelect: React.FC<HighSelectProps> = ({
     onValueChange(e.target.value);
   };
 
+  const showSearch =
+    rest.showSearch || options?.requestTrigger?.includes('onSearch')
+      ? rest.showSearch
+      : optionList.length > 5;
+
   const SelectComponent = (
     <Select
-      showSearch={
-        options?.requestTrigger?.includes('onSearch') ? rest.showSearch : optionList.length > 5
-      }
       {...rest}
+      showSearch={showSearch}
+      placeholder={
+        showSearch
+          ? rest.placeholder || i18n.t('components.HighSelect.SearchPlaceholder')
+          : rest.placeholder
+      }
+      dropdownRender={
+        rest.dropdownRender ||
+        (menu => (loading ? <Spin size="small" style={{ margin: '0 15px' }} /> : menu))
+      }
+      notFoundContent={rest.notFoundContent || (loading ? <span /> : undefined)}
       onSearch={options?.requestTrigger?.includes('onSearch') ? onSearch : rest.onSearch}
       onDropdownVisibleChange={onDropdownVisibleChange}
       onChange={onSelectChange}
@@ -161,12 +177,13 @@ const HighSelect: React.FC<HighSelectProps> = ({
     />
   );
 
-  return useInput ? (
+  return useInput || addonAfter ? (
     <Space>
       {SelectComponent}
       {useInput && diyState && (
         <Input {...useInputProps} value={rest.value} onChange={onInputChange} />
       )}
+      {addonAfter}
     </Space>
   ) : (
     SelectComponent

@@ -66,6 +66,7 @@ public class MessageDeserializerTest {
         inLongTopic.setTopic("testTopic");
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
+        inLongTopic.setProperties(new HashMap<>());
 
         when(context.getConfig()).thenReturn(sortClientConfig);
         when(context.getStatManager()).thenReturn(statManager);

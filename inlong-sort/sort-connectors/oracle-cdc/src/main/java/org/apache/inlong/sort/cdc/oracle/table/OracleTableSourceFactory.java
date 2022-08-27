@@ -28,11 +28,14 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Factory for creating configured instance of {@link OracleTableSource}.
@@ -40,12 +43,6 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProper
 public class OracleTableSourceFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "oracle-cdc-inlong";
-
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     private static final ConfigOption<String> HOSTNAME =
             ConfigOptions.key("hostname")
@@ -115,8 +112,9 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        String inLongMetric = config.get(INLONG_METRIC);
-
+        String inlongMetric = config.get(INLONG_METRIC);
+        String inlongAudit = config.get(INLONG_AUDIT);
+        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
         return new OracleTableSource(
                 physicalSchema,
                 port,
@@ -128,7 +126,8 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-                inLongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override
@@ -154,6 +153,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         options.add(PORT);
         options.add(SCAN_STARTUP_MODE);
         options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 

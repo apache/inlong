@@ -58,6 +58,10 @@ public enum UserTypeEnum implements IntListValuable {
                 .orElse(null);
     }
 
+    public static String name(Integer value) {
+        return parse(value).name();
+    }
+
     @Override
     public List<Integer> valueList() {
         return ARRAYS;

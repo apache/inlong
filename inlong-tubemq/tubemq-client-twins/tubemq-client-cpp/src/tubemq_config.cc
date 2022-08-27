@@ -53,9 +53,12 @@ void TubeMQServiceConfig::SetLogCofigInfo(int32_t log_max_num,
                             int32_t log_max_size, int32_t log_level, const string& log_path) {
   log_num_   = log_max_num;
   log_size_  = log_max_size;
-  log_level_ = log_level;
   log_path_  = log_path;
   log_level_ = TUBEMQ_MID(log_level, 4, 0);
+}
+
+void TubeMQServiceConfig::SetLogPrintLevel(int32_t log_level) {
+    log_level_ = TUBEMQ_MID(log_level, 4, 0);
 }
 
 void TubeMQServiceConfig::SetDnsXfsPeriodInMs(int32_t dns_xfs_period_ms) {

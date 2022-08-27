@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.sort.impl.tube;
 
 import com.google.common.base.Splitter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import org.apache.inlong.sdk.sort.api.SysConstants;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -46,6 +48,7 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class InLongTubeFetcherImpl extends InLongTopicFetcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(InLongTubeFetcherImpl.class);
@@ -58,18 +61,20 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
 
     @Override
     public boolean init(Object object) {
-        TubeConsumerCreater tubeConsumerCreater = (TubeConsumerCreater) object;
-        TubeClientConfig tubeClientConfig = tubeConsumerCreater.getTubeClientConfig();
+        TubeConsumerCreator tubeConsumerCreator = (TubeConsumerCreator) object;
+        TubeClientConfig tubeClientConfig = tubeConsumerCreator.getTubeClientConfig();
         try {
             ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
                     context.getConfig().getSortTaskId());
 
-            messageConsumer = tubeConsumerCreater.getMessageSessionFactory().createPullConsumer(consumerConfig);
+            messageConsumer = tubeConsumerCreator.getMessageSessionFactory().createPullConsumer(consumerConfig);
             if (messageConsumer != null) {
                 TreeSet<String> filters = null;
                 if (inLongTopic.getProperties() != null && inLongTopic.getProperties().containsKey(
                         SysConstants.TUBE_TOPIC_FILTER_KEY)) {
-                    filters = (TreeSet<String>) inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                    String filterStr = inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                    String[] filterArray = filterStr.split(" ");
+                    filters = new TreeSet<>(Arrays.asList(filterArray));
                 }
                 messageConsumer.subscribe(inLongTopic.getTopic(), filters);
                 messageConsumer.completeSubscribe();
@@ -270,6 +275,10 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, inLongTopic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
+                            deserialize = interceptor.intercept(deserialize);
+                            if (deserialize.isEmpty()) {
+                                continue;
+                            }
                             msgs.addAll(deserialize);
                             context.getStatManager()
                                     .getStatistics(context.getConfig().getSortTaskId(),

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,6 +36,7 @@ import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
@@ -161,7 +161,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
     }
 
     @Override
-    public PageInfo<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
+    public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
@@ -180,7 +180,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
     }
 
     @Override
-    public PageInfo<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
+    public PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
@@ -199,7 +199,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
     }
 
     @Override
-    public PageInfo<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {
+    public PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
@@ -251,40 +251,35 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         return true;
     }
 
-    private PageInfo<ComponentHeartbeatResponse> listComponentHeartbeatOpt(HeartbeatPageRequest request) {
+    private PageResult<ComponentHeartbeatResponse> listComponentHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<ComponentHeartbeatEntity> entityPage = (Page<ComponentHeartbeatEntity>)
                 componentHeartbeatMapper.selectByCondition(request);
         List<ComponentHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
                 ComponentHeartbeatResponse::new);
 
-        PageInfo<ComponentHeartbeatResponse> pageInfo = new PageInfo<>(responseList);
-        pageInfo.setTotal(responseList.size());
-        return pageInfo;
+        return new PageResult<>(responseList, entityPage.getTotal());
     }
 
-    private PageInfo<GroupHeartbeatResponse> listGroupHeartbeatOpt(HeartbeatPageRequest request) {
+    private PageResult<GroupHeartbeatResponse> listGroupHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<GroupHeartbeatEntity> entityPage = (Page<GroupHeartbeatEntity>) groupHeartbeatMapper.selectByCondition(
                 request);
         List<GroupHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
                 GroupHeartbeatResponse::new);
 
-        PageInfo<GroupHeartbeatResponse> pageInfo = new PageInfo<>(responseList);
-        pageInfo.setTotal(responseList.size());
-        return pageInfo;
+        return new PageResult<>(responseList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 
-    private PageInfo<StreamHeartbeatResponse> listStreamHeartbeatOpt(HeartbeatPageRequest request) {
+    private PageResult<StreamHeartbeatResponse> listStreamHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<StreamHeartbeatEntity> entityPage = (Page<StreamHeartbeatEntity>)
                 streamHeartbeatMapper.selectByCondition(request);
         List<StreamHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
                 StreamHeartbeatResponse::new);
 
-        PageInfo<StreamHeartbeatResponse> pageInfo = new PageInfo<>(responseList);
-        pageInfo.setTotal(responseList.size());
-        return pageInfo;
+        return new PageResult<>(responseList, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 
 }

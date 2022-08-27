@@ -20,7 +20,6 @@
 #ifndef DATAPROXY_SDK_BASE_CORE_H_
 #define DATAPROXY_SDK_BASE_CORE_H_
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -28,10 +27,10 @@
 
 #include "atomic.h"
 #include "user_msg.h"
+#include "client_config.h"
 
 // #include "buffer_pool.h"
 namespace dataproxy_sdk {
-class ClientConfig;
 class GlobalCluster;
 class GlobalQueues;
 class TotalPools;
@@ -54,7 +53,7 @@ using SteadyTimerPtr = std::shared_ptr<asio::steady_timer>;
 using io_context_work = asio::executor_work_guard<asio::io_context::executor_type>;
 
 extern AtomicUInt          g_send_msgid;
-extern ClientConfig*       g_config;
+extern ClientConfig        g_config;
 extern GlobalCluster*      g_clusters;
 extern GlobalQueues*       g_queues;
 extern TotalPools*         g_pools;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -36,13 +35,13 @@ import java.util.Map;
 @JsonTypeDefine(value = BaseSortConf.SORT_USER_DEFINED)
 public class UserDefinedSortConf extends BaseSortConf {
 
-    @JsonIgnore
-    @ApiModelProperty(value = "Sort type")
-    private SortType type = SortType.USER_DEFINED;
-
     @ApiModelProperty("Name for user defined sort functions")
     private String sortName;
 
     @ApiModelProperty("Properties for user defined sort functions if needed")
     private Map<String, String> properties = Maps.newHashMap();
+
+    public SortType getType() {
+        return SortType.USER_DEFINED;
+    }
 }

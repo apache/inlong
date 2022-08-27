@@ -19,7 +19,12 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
+import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
+import java.util.Objects;
+import java.util.Optional;
+
+@Deprecated
 public abstract class InLongTopicFetcher {
 
     protected InLongTopic inLongTopic;
@@ -31,11 +36,16 @@ public abstract class InLongTopicFetcher {
     // use for empty topic to sleep
     protected long sleepTime = 0L;
     protected int emptyFetchTimes = 0;
+    // for rollback
+    protected Interceptor interceptor;
+    protected Seeker seeker;
 
     public InLongTopicFetcher(InLongTopic inLongTopic, ClientContext context) {
         this.inLongTopic = inLongTopic;
         this.context = context;
         this.deserializer = new MessageDeserializer();
+        this.interceptor = new MsgTimeInterceptor();
+        this.interceptor.configure(inLongTopic);
     }
 
     public abstract boolean init(Object client);
@@ -59,4 +69,14 @@ public abstract class InLongTopicFetcher {
     public abstract long getConsumedDataSize();
 
     public abstract long getAckedOffset();
+
+    public boolean updateTopic(InLongTopic topic) {
+        if (Objects.equals(inLongTopic, topic)) {
+            return false;
+        }
+        this.inLongTopic = topic;
+        Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
+        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
+        return true;
+    }
 }

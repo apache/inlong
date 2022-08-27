@@ -30,7 +30,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
@@ -203,6 +203,7 @@
         <iceberg.flink.version>0.13.1</iceberg.flink.version>
         <iceberg.version>0.13.1</iceberg.version>
         <flink.version>1.13.5</flink.version>
+        <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
@@ -212,6 +213,8 @@
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
+        <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
+        <flink.connector.redis>1.1.0</flink.connector.redis>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
@@ -241,7 +244,7 @@
         <jsr.version>3.0.2</jsr.version>
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
-        <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <tencentcloud.cls.version>1.0.9</tencentcloud.cls.version>
         <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
@@ -313,6 +316,12 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mongodb-cdc</artifactId>
                 <version>${flink.connector.mongodb.cdc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.bahir</groupId>
+                <artifactId>flink-connector-redis_${flink.scala.binary.version}</artifactId>
+                <version>${flink.connector.redis}</version>
             </dependency>
 
             <!-- hive -->
@@ -580,6 +589,11 @@
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-connector-mysql</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-connector-postgres</artifactId>
                 <version>${debezium.version}</version>
             </dependency>
             <dependency>

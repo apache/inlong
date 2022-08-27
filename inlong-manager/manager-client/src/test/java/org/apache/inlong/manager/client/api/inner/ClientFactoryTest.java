@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.github.pagehelper.PageInfo;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.collect.Lists;
@@ -27,17 +26,23 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
+import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.auth.TokenAuthentication;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -48,6 +53,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -57,6 +63,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -66,6 +74,7 @@ import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
@@ -75,6 +84,8 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -85,6 +96,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -100,11 +112,17 @@ class ClientFactoryTest {
 
     private static final int SERVICE_PORT = 8085;
     private static WireMockServer wireMockServer;
+
+    static ClientFactory clientFactory;
+
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
     private static StreamSourceClient sourceClient;
     private static StreamSinkClient sinkClient;
     private static InlongClusterClient clusterClient;
+    private static DataNodeClient dataNodeClient;
+    private static UserClient userClient;
+    private static WorkflowClient workflowClient;
 
     @BeforeAll
     static void setup() {
@@ -116,13 +134,17 @@ class ClientFactoryTest {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+        clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+
         groupClient = clientFactory.getGroupClient();
         streamClient = clientFactory.getStreamClient();
         sourceClient = clientFactory.getSourceClient();
         sinkClient = clientFactory.getSinkClient();
         streamClient = clientFactory.getStreamClient();
         clusterClient = clientFactory.getClusterClient();
+        dataNodeClient = clientFactory.getDataNodeClient();
+        userClient = clientFactory.getUserClient();
+        workflowClient = clientFactory.getWorkflowClient();
     }
 
     @AfterAll
@@ -144,6 +166,8 @@ class ClientFactoryTest {
 
     @Test
     void testGetGroupInfo() {
+        FlinkSortConf flinkSortConf = new FlinkSortConf();
+        flinkSortConf.setAuthentication(new TokenAuthentication());
         InlongPulsarInfo inlongGroupResponse = InlongPulsarInfo.builder()
                 .id(1)
                 .inlongGroupId("1")
@@ -157,7 +181,7 @@ class ClientFactoryTest {
                                 .keyValue("keyValue")
                                 .build()
                         )
-                ).build();
+                ).sortConf(flinkSortConf).build();
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/group/get/1.*"))
@@ -194,11 +218,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -217,7 +241,6 @@ class ClientFactoryTest {
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.MYSQL_BINLOG)
-                                                .clusterId(1)
                                                 .status(1)
                                                 .user("root")
                                                 .password("pwd")
@@ -230,11 +253,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -258,7 +281,7 @@ class ClientFactoryTest {
                                                 .inlongStreamId("2")
                                                 .sourceType(SourceType.FILE)
                                                 .status(1)
-                                                .ip("127.0.0.1")
+                                                .agentIp("127.0.0.1")
                                                 .pattern("pattern")
                                                 .build()
                                 )
@@ -268,11 +291,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -308,11 +331,11 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -346,7 +369,7 @@ class ClientFactoryTest {
                         .inlongGroupId("1")
                         .inlongStreamId("2")
                         .version(1)
-                        .ip("127.0.0.1")
+                        .agentIp("127.0.0.1")
                         .pattern("pattern")
                         .timeOffset("timeOffset")
                         .build(),
@@ -379,12 +402,12 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos)))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(groupBriefInfos)))
                                 )
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
                 JsonUtils.toJsonString(pageInfo.getList()));
     }
@@ -400,7 +423,7 @@ class ClientFactoryTest {
                         )
         );
 
-        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertNull(pageInfo);
     }
 
@@ -642,7 +665,7 @@ class ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/stream/listAll.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(Lists.newArrayList(streamInfo))))
+                                        Response.success(new PageResult<>(Lists.newArrayList(streamInfo))))
                                 )
                         )
         );
@@ -701,7 +724,7 @@ class ClientFactoryTest {
                 get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(Lists.newArrayList(sinkList))))
+                                        Response.success(new PageResult<>(Lists.newArrayList(sinkList))))
                                 )
                         )
         );
@@ -938,4 +961,164 @@ class ClientFactoryTest {
         Assertions.assertEquals(1, sourceInfo.getId());
         Assertions.assertTrue(sourceInfo instanceof MySQLBinlogSource);
     }
+
+    @Test
+    void testSaveDataNode() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                ))
+        );
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
+        Integer nodeId = dataNodeClient.save(request);
+        Assertions.assertEquals(1, nodeId);
+    }
+
+    @Test
+    void testGetDataNode() {
+        DataNodeResponse response = DataNodeResponse.builder()
+                .id(1)
+                .name("test_node")
+                .type(DataNodeType.HIVE)
+                .build();
+        stubFor(
+                get(urlMatching("/inlong/manager/api/node/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(response))
+                                ))
+        );
+        DataNodeResponse nodeInfo = dataNodeClient.get(1);
+        Assertions.assertEquals(1, nodeInfo.getId());
+    }
+
+    @Test
+    void testListDataNode() {
+        List<DataNodeResponse> nodeResponses = Lists.newArrayList(
+                DataNodeResponse.builder()
+                        .id(1)
+                        .name("test_node")
+                        .type(DataNodeType.HIVE)
+                        .build()
+        );
+
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/list.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(nodeResponses))))
+                        )
+        );
+
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setName("test_hive_node");
+        PageResult<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
+        Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
+    }
+
+    @Test
+    void testUpdateDataNode() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/node/update.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setId(1);
+        request.setName("test_hive_node");
+        Boolean isUpdate = dataNodeClient.update(request);
+        Assertions.assertTrue(isUpdate);
+    }
+
+    @Test
+    void testDeleteDataNode() {
+        stubFor(
+                delete(urlMatching("/inlong/manager/api/node/delete/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        Boolean isUpdate = dataNodeClient.delete(1);
+        Assertions.assertTrue(isUpdate);
+    }
+
+    @Test
+    void testRegisterUser() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/user/register.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        UserRequest request = new UserRequest();
+        request.setName("test_user");
+        request.setPassword("test_pwd");
+        Integer userId = userClient.register(request);
+        Assertions.assertEquals(1, userId);
+    }
+
+    @Test
+    void testGetUserById() {
+        UserInfo userInfo = UserInfo.builder()
+                .id(1)
+                .name("test_user")
+                .password("test_pwd")
+                .build();
+
+        stubFor(
+                get(urlMatching("/inlong/manager/api/user/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(userInfo))
+                                )
+                        )
+        );
+        UserInfo info = userClient.getById(1);
+        Assertions.assertEquals(info.getId(), 1);
+    }
+
+    @Test
+    void testUpdateUser() {
+        stubFor(
+                post(urlMatching("/inlong/manager/api/user/update.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        UserRequest request = new UserRequest();
+        request.setId(1);
+        request.setName("test_user");
+        request.setPassword("test_pwd");
+        request.setNewPassword("test_new_pwd");
+        request.setAccountType(UserTypeEnum.ADMIN.getCode());
+        Integer userId = userClient.update(request);
+        Assertions.assertEquals(userId, 1);
+    }
+
+    @Test
+    void testDeleteUser() {
+        stubFor(
+                delete(urlMatching("/inlong/manager/api/user/delete.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        Boolean isDelete = userClient.delete(1);
+        Assertions.assertTrue(isDelete);
+    }
+
 }

@@ -163,7 +163,7 @@ export function pickObject(keys = [], sourceObj) {
   }, {});
 }
 
-export function excludeObject(keys = [], sourceObj: Record<string, unknown>) {
+export function excludeObject<T>(keys = [], sourceObj: Record<string, unknown>): T {
   const set = new Set(keys);
   return Object.entries(sourceObj).reduce((acc, [key, value]) => {
     if (!set.has(key)) {
@@ -173,7 +173,7 @@ export function excludeObject(keys = [], sourceObj: Record<string, unknown>) {
       };
     }
     return acc;
-  }, {});
+  }, {} as T);
 }
 
 /**

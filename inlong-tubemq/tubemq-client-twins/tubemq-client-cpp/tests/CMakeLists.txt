@@ -29,6 +29,6 @@ function(tubemq_add_tests _name)
   TARGET_LINK_LIBRARIES (${_name} tubemq ssl crypto liblog4cplus.a libprotobuf.a libsnappy.a tubemq_proto pthread rt)
 endfunction()
 
-add_subdirectory (log)
+add_subdirectory (logger_test)
 add_subdirectory (executor_pool)
 add_subdirectory (thread_pool)

@@ -84,4 +84,7 @@ public class UserRequest extends PageRequest {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    @ApiModelProperty(value = "Extension json info")
+    private String extParams;
+
 }

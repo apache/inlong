@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink;
 
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -43,11 +43,12 @@ import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
+import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -56,16 +57,10 @@ import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
 import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 public class SimpleMessageTubeSink extends AbstractSink implements Configurable {
 
@@ -107,9 +102,6 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     private static String MAX_SURVIVED_SIZE = "max-survived-size";
     private static String CLIENT_ID_CACHE = "client-id-cache";
 
-    private int maxSurvivedTime = 3 * 1000 * 30;
-    private int maxSurvivedSize = 100000;
-
     private String proxyLogTopic = "teg_manager";
     private String proxyLogGroupId = "b_teg_manager";
     private String proxyLogStreamId = "proxy_measure_log";
@@ -145,26 +137,9 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     //
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
-
-    private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
-            .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000).expireAfterAccess(30, TimeUnit.SECONDS)
-            .build(new CacheLoader<String, Long>() {
-
-                @Override
-                public Long load(String key) {
-                    return System.currentTimeMillis();
-                }
-            });
-
-    private IdCacheCleaner idCacheCleaner;
-    protected static boolean idCleanerStarted = false;
-    protected static final ConcurrentHashMap<String, Long> agentIdMap =
-            new ConcurrentHashMap<String, Long>();
+    private static final MsgDedupHandler msgDedupHandler = new MsgDedupHandler();
     private static ConcurrentHashMap<String, Long> illegalTopicMap =
             new ConcurrentHashMap<String, Long>();
-
-    private boolean clientIdCache = false;
-    private boolean isNewCache = true;
 
     private boolean overflow = false;
 
@@ -352,12 +327,6 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             return;
         }
 
-        // start the cleaner thread
-        if (clientIdCache && !isNewCache) {
-            idCacheCleaner = new IdCacheCleaner(this, maxSurvivedTime, maxSurvivedSize);
-            idCacheCleaner.start();
-        }
-
         super.start();
         this.canSend = true;
         this.canTake = true;
@@ -376,68 +345,19 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     }
 
     class SinkTask implements Runnable {
+
         private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
             throws TubeClientException, InterruptedException {
-            String clientId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
-            if (!isNewCache) {
-                Long lastTime = 0L;
-                if (clientIdCache && clientId != null) {
-                    lastTime = agentIdMap.put(clientId, System.currentTimeMillis());
-                }
-                if (clientIdCache && clientId != null && lastTime != null && lastTime > 0) {
-                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
-                } else {
-                    Message message = this.parseEvent2Message(topic, event);
-                    producer.sendMessage(message, new MyCallback(es));
-                    flag.set(true);
-
-                }
+            if (msgDedupHandler.judgeDupAndPutMsgSeqId(
+                    event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
+                logger.info("{} agent package {} existed,just discard.",
+                        getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
             } else {
-                boolean hasKey = false;
-                if (clientIdCache && clientId != null) {
-                    hasKey = agentIdCache.asMap().containsKey(clientId);
-                }
-
-                if (clientIdCache && clientId != null && hasKey) {
-                    agentIdCache.put(clientId, System.currentTimeMillis());
-                    logger.info("{} agent package {} existed,just discard.", getName(), clientId);
-                } else {
-                    if (clientId != null) {
-                        agentIdCache.put(clientId, System.currentTimeMillis());
-                    }
-
-                    Message message = this.parseEvent2Message(topic, event);
-                    producer.sendMessage(message, new MyCallback(es));
-                    flag.set(true);
-                }
+                producer.sendMessage(TubeUtils.buildMessage(
+                        topic, event, true), new MyCallback(es));
+                flag.set(true);
             }
             illegalTopicMap.remove(topic);
-        }
-        
-        /**
-         * parseEvent2Message
-         * @param topic
-         * @param event
-         * @return
-         */
-        private Message parseEvent2Message(String topic, Event event) {
-            Message message = new Message(topic, event.getBody());
-            message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-            String streamId = "";
-            if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-            } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                streamId = event.getHeaders().get(AttributeConstants.INAME);
-            }
-            message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-            // common attributes
-            Map<String, String> headers = event.getHeaders();
-            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
-            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
-            message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
-            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
-            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
-            return message;
         }
 
         private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
@@ -638,19 +558,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             if (es == null || es.getEvent() == null) {
                 return;
             }
-
-            if (clientIdCache) {
-                String clientId = es.getEvent().getHeaders().get(ConfigConstants.SEQUENCE_ID);
-                if (!isNewCache) {
-                    if (clientId != null && agentIdMap.containsKey(clientId)) {
-                        agentIdMap.remove(clientId);
-                    }
-                } else {
-                    if (clientId != null && agentIdCache.asMap().containsKey(clientId)) {
-                        agentIdCache.invalidate(clientId);
-                    }
-                }
-            }
+            msgDedupHandler.invalidMsgSeqId(
+                    es.getEvent().getHeaders().get(ConfigConstants.SEQUENCE_ID));
         } catch (Throwable throwable) {
             logger.error(getName() + " Discard msg because put events to both of queue and "
                     + "fileChannel fail,current resendQueue.size = "
@@ -747,23 +656,10 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
         if (isSlaMetricSink) {
             this.metaTopicFilePath = slaTopicFilePath;
         }
-
-        clientIdCache = context.getBoolean(CLIENT_ID_CACHE, clientIdCache);
-        if (clientIdCache) {
-            int survivedTime = context.getInteger(MAX_SURVIVED_TIME, maxSurvivedTime);
-            if (survivedTime > 0) {
-                maxSurvivedTime = survivedTime;
-            } else {
-                logger.warn("invalid {}:{}", MAX_SURVIVED_TIME, survivedTime);
-            }
-
-            int survivedSize = context.getInteger(MAX_SURVIVED_SIZE, maxSurvivedSize);
-            if (survivedSize > 0) {
-                maxSurvivedSize = survivedSize;
-            } else {
-                logger.warn("invalid {}:{}", MAX_SURVIVED_SIZE, survivedSize);
-            }
-        }
+        // start message deduplication handler
+        msgDedupHandler.start(context.getBoolean(CLIENT_ID_CACHE, false),
+                context.getInteger(MAX_SURVIVED_TIME, -1),
+                context.getInteger(MAX_SURVIVED_SIZE, -1));
 
         String requestTimeout = context.getString(TUBE_REQUEST_TIMEOUT);
         if (requestTimeout != null) {

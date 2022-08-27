@@ -29,6 +29,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
@@ -50,7 +51,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static org.apache.inlong.agent.constant.AgentConstants.GLOBAL_METRICS;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
@@ -59,7 +59,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
  */
 public class BinlogReader extends AbstractReader {
 
-    public static final String COMPONENT_NAME = "BinlogReader";
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
@@ -78,7 +77,6 @@ public class BinlogReader extends AbstractReader {
     public static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
     private static final Gson GSON = new Gson();
-    private static final String BINLOG_READER_TAG_NAME = "AgentBinlogMetric";
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
      * pair.left: table name
@@ -113,7 +111,7 @@ public class BinlogReader extends AbstractReader {
     @Override
     public Message read() {
         if (!binlogMessagesQueue.isEmpty()) {
-            GLOBAL_METRICS.incReadNum(metricTagName);
+            readerMetric.pluginReadCount.incrementAndGet();
             return getBinlogMessage();
         } else {
             return null;
@@ -129,6 +127,7 @@ public class BinlogReader extends AbstractReader {
 
     @Override
     public void init(JobProfile jobConf) {
+        super.init(jobConf);
         jobProfile = jobConf;
         LOGGER.info("init binlog reader with jobConf {}", jobConf.toJsonStr());
         userName = jobConf.get(JOB_DATABASE_USER);
@@ -158,8 +157,6 @@ public class BinlogReader extends AbstractReader {
         String offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         binlogSnapshot.save(offset);
 
-        metricTagName = String.join("_", BINLOG_READER_TAG_NAME, inlongGroupId, inlongStreamId);
-
         Properties props = getEngineProps();
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(io.debezium.engine.format.Json.class)
                 .notifying((records, committer) -> {
@@ -170,7 +167,11 @@ public class BinlogReader extends AbstractReader {
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
+                        readerMetric.pluginReadFailCount.addAndGet(records.size());
                         LOGGER.error("parse binlog message error", e);
                     }
                 })

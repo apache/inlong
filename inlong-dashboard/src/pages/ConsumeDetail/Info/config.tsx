@@ -17,37 +17,18 @@
  * under the License.
  */
 
-import { genBasicFields } from '@/components/ConsumeHelper';
-import i18n from '@/i18n';
+import { consumptionForm } from '@/metas/consumption';
+import { excludeObjectArray } from '@/utils';
 
-export const getFormContent = ({ editing, initialValues, isCreate }) => {
-  const keys = [
-    !isCreate && {
-      type: 'text',
-      label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
-      name: 'consumerGroupId',
-      rules: [{ required: true }],
-    },
-    'consumerGroupName',
-    'inCharges',
-    !isCreate && 'masterUrl',
-    'inlongGroupId',
-    'topic',
-    'filterEnabled',
-    'inlongStreamId',
-    'mqExtInfo.isDlq',
-    'mqExtInfo.deadLetterTopic',
-    'mqExtInfo.isRlq',
-    'mqExtInfo.retryLetterTopic',
-  ].filter(Boolean);
+export const getFormContent = ({ editing, isCreate }) => {
+  const excludeKeys = isCreate ? ['masterUrl'] : [];
+  const fields = excludeObjectArray(excludeKeys, consumptionForm);
 
   return isCreate
-    ? genBasicFields(keys, initialValues).map(item => {
-        return item;
-      })
-    : genBasicFields(keys, initialValues).map(item => ({
+    ? fields
+    : fields.map(item => ({
         ...item,
-        type: transType(editing, item, initialValues),
+        type: transType(editing, item),
         suffix:
           typeof item.suffix === 'object' && !editing
             ? {
@@ -59,20 +40,8 @@ export const getFormContent = ({ editing, initialValues, isCreate }) => {
       }));
 };
 
-function transType(editing: boolean, conf, initialValues) {
+function transType(editing: boolean, conf) {
   const arr = [
-    {
-      name: [
-        'consumerGroupId',
-        'consumerGroupName',
-        'inlongGroupId',
-        'topic',
-        'filterEnabled',
-        'inlongStreamId',
-      ],
-      as: 'text',
-      active: true,
-    },
     {
       name: [
         'inCharges',
@@ -94,5 +63,5 @@ function transType(editing: boolean, conf, initialValues) {
     return item.active ? item.as : conf.type;
   }
 
-  return conf.type;
+  return 'text';
 }

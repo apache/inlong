@@ -43,6 +43,12 @@ public class FileJob {
 
     private List<Map<String, String>> metaFields;
 
+    private String dataSeparator;
+
+    private Map<String, String> filterMetaByLabels;
+
+    private Map<String, Object> properties;
+
     @Data
     public static class Dir {
 
@@ -83,11 +89,28 @@ public class FileJob {
 
         private String lineEndPattern;
 
+        // Type of file content, for example: FULL, INCREMENT
         private String contentCollectType;
 
+        // File needs to collect environment information, for example: kubernetes
         private String envList;
-
+        // Metadata of data, for example:
+        // [{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on
         private List<Map<String, String>> metaFields;
+        // Type of data result for column separator
+        // CSV format, set this parameter to a custom separator: , | :
+        // Json format, set this parameter to json 
+        private String dataContentStyle;
+
+        // Column separator of data source 
+        private String dataSeparator;
+
+        // Metadata filters by label, special parameters for K8S
+        private Map<String, String> filterMetaByLabels;
+
+        // Properties for File
+        private Map<String, Object> properties;
+
     }
 
 }

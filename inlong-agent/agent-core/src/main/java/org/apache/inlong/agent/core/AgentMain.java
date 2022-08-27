@@ -24,9 +24,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.metrics.AgentMetricBaseListener;
-import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.common.metric.MetricObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +37,6 @@ import java.util.Iterator;
 public class AgentMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMain.class);
-
-    private static AgentMetricBaseListener agentJmxMetricHandler;
 
     /**
      * Print help information
@@ -118,15 +115,14 @@ public class AgentMain {
         try {
             manager.start();
             stopManagerIfKilled(manager);
-            agentJmxMetricHandler = AgentMetricSingleton.getAgentMetricHandler();
-
+            //metrics
+            MetricObserver.init(AgentConfiguration.getAgentConf().getConfigProperties());
             manager.join();
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         } finally {
             manager.stop();
             AuditUtils.sendReport();
-            agentJmxMetricHandler.close();
         }
     }
 }

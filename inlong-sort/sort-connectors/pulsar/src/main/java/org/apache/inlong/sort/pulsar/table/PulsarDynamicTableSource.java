@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.connectors.pulsar.config.StartupMode;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarClientUtils;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions;
@@ -55,6 +55,7 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.pulsar.withoutadmin.FlinkPulsarSource;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
@@ -146,7 +147,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
     /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. **/
     protected final boolean upsertMode;
 
-    protected String inLongMetric;
+    protected String inlongMetric;
+
+    protected String auditHostAndPorts;
 
     public PulsarDynamicTableSource(
             DataType physicalDataType,
@@ -158,11 +161,12 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             List<String> topics,
             String topicPattern,
             String serviceUrl,
-            String adminUrl,
+            @Nullable String adminUrl,
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
-            String inlongMetric) {
+            String inlongMetric,
+            String auditHostAndPorts) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -189,8 +193,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.properties = Preconditions.checkNotNull(properties, "Properties must not be null.");
         this.startupOptions = startupOptions;
         this.upsertMode = upsertMode;
-        this.inLongMetric = inlongMetric;
-
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     private void setTopicInfo(Properties properties, List<String> topics, String topicPattern) {
@@ -230,34 +234,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 valueDeserialization,
                 producedTypeInfo);
         final ClientConfigurationData clientConfigurationData = PulsarClientUtils.newClientConf(serviceUrl, properties);
-        FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
-                adminUrl,
-                clientConfigurationData,
-                deserializationSchema,
-                properties
-        );
-
-        if (watermarkStrategy != null) {
-            source.assignTimestampsAndWatermarks(watermarkStrategy);
-        }
-
-        switch (startupOptions.startupMode) {
-            case EARLIEST:
-                source.setStartFromEarliest();
-                break;
-            case LATEST:
-                source.setStartFromLatest();
-                break;
-            case SPECIFIC_OFFSETS:
-                source.setStartFromSpecificOffsets(startupOptions.specificOffsets);
-                break;
-            case EXTERNAL_SUBSCRIPTION:
-                MessageId subscriptionPosition = MessageId.latest;
-                if (CONNECTOR_STARTUP_MODE_VALUE_EARLIEST.equals(startupOptions.externalSubStartOffset)) {
-                    subscriptionPosition = MessageId.earliest;
-                }
-                source.setStartFromSubscription(startupOptions.externalSubscriptionName, subscriptionPosition);
-        }
+        SourceFunction<RowData> source = adminUrl != null
+                ? createPulsarSource(clientConfigurationData, deserializationSchema)
+                : createPulsarSourceWithoutAdmin(clientConfigurationData, deserializationSchema);
         return SourceFunctionProvider.of(source, false);
     }
 
@@ -295,7 +274,71 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 metadataConverters,
                 producedTypeInfo,
                 upsertMode,
-            inLongMetric);
+            inlongMetric,
+            auditHostAndPorts);
+    }
+
+    private SourceFunction<RowData> createPulsarSource(
+            ClientConfigurationData clientConfigurationData,
+            PulsarDeserializationSchema<RowData> deserializationSchema) {
+        org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource source =
+                new org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource(
+                        adminUrl,
+                        clientConfigurationData,
+                        deserializationSchema,
+                        properties
+                );
+
+        if (watermarkStrategy != null) {
+            source.assignTimestampsAndWatermarks(watermarkStrategy);
+        }
+
+        switch (startupOptions.startupMode) {
+            case EARLIEST:
+                source.setStartFromEarliest();
+                break;
+            case LATEST:
+                source.setStartFromLatest();
+                break;
+            case SPECIFIC_OFFSETS:
+                source.setStartFromSpecificOffsets(startupOptions.specificOffsets);
+                break;
+            case EXTERNAL_SUBSCRIPTION:
+                MessageId subscriptionPosition = MessageId.latest;
+                if (CONNECTOR_STARTUP_MODE_VALUE_EARLIEST.equals(startupOptions.externalSubStartOffset)) {
+                    subscriptionPosition = MessageId.earliest;
+                }
+                source.setStartFromSubscription(startupOptions.externalSubscriptionName, subscriptionPosition);
+        }
+        return source;
+    }
+
+    private SourceFunction<RowData> createPulsarSourceWithoutAdmin(
+            ClientConfigurationData clientConfigurationData,
+            PulsarDeserializationSchema<RowData> deserializationSchema) {
+        FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
+                serviceUrl,
+                clientConfigurationData,
+                deserializationSchema,
+                properties
+        );
+
+        if (watermarkStrategy != null) {
+            source.assignTimestampsAndWatermarks(watermarkStrategy);
+        }
+
+        switch (startupOptions.startupMode) {
+            case EARLIEST:
+                source.setStartFromEarliest();
+                break;
+            case LATEST:
+                source.setStartFromLatest();
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "Unknown startup mode option for tdmq pulsar: " + startupOptions.startupMode);
+        }
+        return source;
     }
 
     @Override
@@ -313,7 +356,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 adminUrl,
                 properties,
                 startupOptions,
-                false, inLongMetric);
+                false,
+                inlongMetric,
+                auditHostAndPorts);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
