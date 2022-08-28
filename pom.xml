@@ -1749,6 +1749,9 @@
                         <exclude>**/tubemq-client-go/go.mod</exclude>
                         <!-- Go sum -->
                         <exclude>**/tubemq-client-go/go.sum</exclude>
+                        <!-- Docker build-->
+                        <exclude>**/docker/docker-compose/**/**</exclude>
+
                     </excludes>
                 </configuration>
             </plugin>
