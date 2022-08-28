@@ -17,10 +17,10 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<configuration status="WARN" monitorInterval="30" package="org.apache.inlong.manager.web.config">
+<configuration status="WARN" monitorInterval="30" packages="org.apache.inlong.manager.web.config">
     <properties>
         <property name="basePath">logs</property>
-        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p [%5.30t] %-30.30C{1.}:%L - %mask%n</property>
+        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p [%5.30t] %-30.30C{1.}:%L - %mask %n</property>
         <property name="every_file_size">1G</property>
         <property name="rolling_max">50</property>
         <property name="all_fileName">${basePath}/manager-all.log</property>
