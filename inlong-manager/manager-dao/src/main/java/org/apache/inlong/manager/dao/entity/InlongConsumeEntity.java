@@ -34,26 +34,12 @@ public class InlongConsumeEntity implements Serializable {
     private String consumerGroup;
     private Integer filterEnabled;
     private String inlongStreamId;
-//    private String name;
     private String description;
     private String mqType;
     private String topic;
-//    private String mqResource;
-//    private Integer dailyRecords;
-//    private Integer dailyStorage;
-//    private Integer peakRecords;
-//    private Integer maxLength;
-
-//    private Integer enableZookeeper;
-//    private Integer enableCreateResource;
-//    private Integer lightweight;
-//    private String inlongClusterTag;
-
     private String extParams;
     private String inCharges;
-//    private String followers;
     private Integer status;
-//    private Integer previousStatus;
     private Integer isDeleted;
     private String creator;
     private String modifier;
