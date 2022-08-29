@@ -147,8 +147,14 @@ public class InlongGroupImpl implements InlongGroup {
                 "groupId must be same");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
-        updateOpt(groupInfo);
+        this.updateOpt(groupInfo);
         this.groupInfo = this.groupContext.getGroupInfo();
+    }
+
+    @Override
+    public void update(BaseSortConf sortConf) throws Exception {
+        Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
+        this.updateOpt(InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf));
     }
 
     private void updateOpt(InlongGroupInfo groupInfo) {
@@ -164,12 +170,6 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkNull(errMsg, errMsg);
 
         this.groupContext.setGroupInfo(groupInfo);
-    }
-
-    @Override
-    public void update(BaseSortConf sortConf) throws Exception {
-        Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
-        updateOpt(InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf));
     }
 
     @Override
