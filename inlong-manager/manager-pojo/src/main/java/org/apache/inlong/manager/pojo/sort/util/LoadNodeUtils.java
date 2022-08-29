@@ -21,8 +21,8 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -71,12 +71,12 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 
 /**
  * Util for load node info.
@@ -102,8 +102,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fieldInfos = streamSink.getSinkFieldList().stream()
                 .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, streamSink.getSinkName()))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(),
-                streamSink.getSinkName(), constantFieldMap);
+        List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         Map<String, String> properties = streamSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         String sinkType = streamSink.getSinkType();
@@ -497,7 +496,7 @@ public class LoadNodeUtils {
     /**
      * Parse information field of data sink.
      */
-    public static List<FieldRelation> parseSinkFields(List<SinkField> fieldList, String sinkName,
+    public static List<FieldRelation> parseSinkFields(List<SinkField> fieldList,
             Map<String, StreamField> constantFieldMap) {
         if (CollectionUtils.isEmpty(fieldList)) {
             return Lists.newArrayList();
@@ -505,7 +504,7 @@ public class LoadNodeUtils {
         return fieldList.stream()
                 .filter(sinkField -> StringUtils.isNotEmpty(sinkField.getSourceFieldName()))
                 .map(field -> {
-                    FieldInfo outputField = new FieldInfo(field.getFieldName(), sinkName,
+                    FieldInfo outputField = new FieldInfo(field.getFieldName(),
                             FieldInfoUtils.convertFieldFormat(field.getFieldType(), field.getFieldFormat()));
                     FunctionParam inputField;
                     String fieldKey = String.format("%s-%s", field.getOriginNodeName(), field.getSourceFieldName());

@@ -62,6 +62,15 @@ public class PulsarSource extends StreamSource {
     @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
+    @ApiModelProperty(value = "Data separator, stored as ASCII code")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    private String dataEscapeChar;
+
     @ApiModelProperty("Configure the Source's startup mode. "
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
     @Builder.Default

@@ -48,7 +48,7 @@ namespace dataproxy_sdk
     bool ClusterProxyList::isNeedLoadBalance()
     {
         // #if 0
-        if (!g_config->enable_heart_beat_ || !g_config->heart_beat_interval_)
+        if (!g_config.enable_heart_beat_ || !g_config.heart_beat_interval_)
         {
             return false;
         }
@@ -403,10 +403,10 @@ namespace dataproxy_sdk
                                  { clearInvalidConn(ec); });
 
         // whether need do balance
-        if (g_config->enable_heart_beat_ && g_config->heart_beat_interval_ > 0)
+        if (g_config.enable_heart_beat_ && g_config.heart_beat_interval_ > 0)
         {
             keepAlive_timer_ = timer_worker_->createSteadyTimer();
-            keepAlive_timer_->expires_after(std::chrono::seconds(g_config->heart_beat_interval_));
+            keepAlive_timer_->expires_after(std::chrono::seconds(g_config.heart_beat_interval_));
             keepAlive_timer_->async_wait([this](const std::error_code &ec)
                                          { keepConnAlive(ec); });
         }
@@ -449,7 +449,7 @@ namespace dataproxy_sdk
 
     int32_t GlobalCluster::initBuslistAndCreateConns()
     {
-        for (auto &inlong_group_id : g_config->inlong_group_ids_)
+        for (auto &inlong_group_id : g_config.inlong_group_ids_)
         {
             groupid2cluster_map_[inlong_group_id] = -1;
         }
@@ -518,7 +518,7 @@ namespace dataproxy_sdk
         while (true)
         {
             std::unique_lock<std::mutex> con_lck(cond_mutex_);
-            if (cond_.wait_for(con_lck, std::chrono::minutes(g_config->proxy_update_interval_), [this]()
+            if (cond_.wait_for(con_lck, std::chrono::minutes(g_config.proxy_update_interval_), [this]()
                                { return update_flag_; }))
             {
                 if (exit_flag_)
@@ -530,7 +530,7 @@ namespace dataproxy_sdk
             }
             else
             {
-                LOG_INFO("proxy update interval is %d mins, update proxylist", g_config->proxy_update_interval_);
+                LOG_INFO("proxy update interval is %d mins, update proxylist", g_config.proxy_update_interval_);
                 doUpdate();
             }
         }
@@ -584,13 +584,13 @@ namespace dataproxy_sdk
             {
                 //拼接tdm请求的url
                 std::string url;
-                if (g_config->enable_proxy_URL_from_cluster_)
-                    url = g_config->proxy_cluster_URL_;
+                if (g_config.enable_proxy_URL_from_cluster_)
+                    url = g_config.proxy_cluster_URL_;
                 else
                 {
-                    url = g_config->proxy_URL_ + "/" + groupid2cluster.first;
+                    url = g_config.proxy_URL_ + "/" + groupid2cluster.first;
                 }
-                std::string post_data = "ip=" + g_config->ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
+                std::string post_data = "ip=" + g_config.ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
                 LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s", groupid2cluster.first.c_str(), url.c_str(), post_data.c_str());
 
                 // request proxylist from mananer, if failed multi-times, read from local cache file
@@ -598,7 +598,7 @@ namespace dataproxy_sdk
                 int32_t ret;
                 for (int i = 0; i < constants::kMaxRequestTDMTimes; i++)
                 {
-                    HttpRequest request = {url, g_config->proxy_URL_timeout_, g_config->need_auth_, g_config->auth_id_, g_config->auth_key_, post_data};
+                    HttpRequest request = {url, g_config.proxy_URL_timeout_, g_config.need_auth_, g_config.auth_id_, g_config.auth_key_, post_data};
                     ret = Utils::requestUrl(meta_data, &request);
                     if (!ret)
                     {
@@ -882,7 +882,7 @@ namespace dataproxy_sdk
         proxylist_config->initUnusedBus();
 
         //set active_proxy_num and backup_proxy_num
-        proxylist_config->setActiveAndBackupBusNum(g_config->max_active_proxy_num_);
+        proxylist_config->setActiveAndBackupBusNum(g_config.max_active_proxy_num_);
 
         return 0;
     }
@@ -930,7 +930,7 @@ namespace dataproxy_sdk
             }
         }
 
-        keepAlive_timer_->expires_after(std::chrono::seconds(g_config->heart_beat_interval_));
+        keepAlive_timer_->expires_after(std::chrono::seconds(g_config.heart_beat_interval_));
         keepAlive_timer_->async_wait([this](const std::error_code &ec)
                                      { keepConnAlive(ec); });
     }

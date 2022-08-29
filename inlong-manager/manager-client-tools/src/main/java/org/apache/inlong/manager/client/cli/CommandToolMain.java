@@ -28,7 +28,6 @@ import java.util.Arrays;
 public class CommandToolMain {
 
     private final JCommander jcommander;
-
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
     boolean help;
 
@@ -36,10 +35,12 @@ public class CommandToolMain {
         jcommander = new JCommander();
         jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
-
         jcommander.addCommand("list", new ListCommand());
         jcommander.addCommand("describe", new DescribeCommand());
         jcommander.addCommand("create", new CreateCommand());
+        jcommander.addCommand("delete", new DeleteCommand());
+        jcommander.addCommand("update", new UpdateCommand());
+        jcommander.addCommand("log", new LogCommand());
     }
 
     public static void main(String[] args) {

@@ -24,7 +24,7 @@
         "enable_hb": true,
         "hb_interval": 60,
         "proxy_update_interval": 10,
-        "proxy_cfg_preurl": "http://127.0.0.1:8099/api/inlong/manager/openapi/dataproxy/getIpList",
+        "proxy_cfg_preurl": "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList",
         "need_auth": true,
         "auth_id": "admin",
         "auth_key": "87haw3VYTPqK5fK0"

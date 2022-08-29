@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 
 /**
@@ -68,7 +68,7 @@ public interface HeartbeatService {
      * @param request paging query request
      * @return list of component heartbeat
      */
-    PageInfo<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request);
+    PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request);
 
     /**
      * List group heartbeat by page
@@ -76,7 +76,7 @@ public interface HeartbeatService {
      * @param request paging query request
      * @return list of group heartbeat
      */
-    PageInfo<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request);
+    PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request);
 
     /**
      * List stream heartbeat by page
@@ -84,6 +84,6 @@ public interface HeartbeatService {
      * @param request paging query request
      * @return list of stream heartbeat
      */
-    PageInfo<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request);
+    PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request);
 
 }

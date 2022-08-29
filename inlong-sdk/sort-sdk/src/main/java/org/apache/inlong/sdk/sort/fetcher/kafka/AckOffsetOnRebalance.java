@@ -26,7 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
@@ -34,12 +36,22 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     private final String clusterId;
     private final Seeker seeker;
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
+    private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap;
 
     public AckOffsetOnRebalance(String clusterId, Seeker seeker,
                                 ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
+        this(clusterId, seeker, commitOffsetMap, null);
+    }
+
+    public AckOffsetOnRebalance(
+            String clusterId,
+            Seeker seeker,
+            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap,
+            ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap) {
         this.clusterId = clusterId;
         this.seeker = seeker;
         this.commitOffsetMap = commitOffsetMap;
+        this.ackOffsetMap = ackOffsetMap;
     }
 
     @Override
@@ -47,6 +59,30 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
         LOGGER.debug("*- in re-balance:onPartitionsRevoked");
         collection.forEach((v) -> {
             LOGGER.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
+        });
+        if (Objects.nonNull(ackOffsetMap) && Objects.nonNull(commitOffsetMap)) {
+            ackRevokedPartitions(collection);
+        }
+    }
+
+    private void ackRevokedPartitions(Collection<TopicPartition> collection) {
+        collection.forEach(tp -> {
+            if (!ackOffsetMap.containsKey(tp)) {
+                return;
+            }
+            ConcurrentSkipListMap<Long, Boolean> tpOffsetMap = ackOffsetMap.remove(tp);
+            long commitOffset = -1;
+            for (Long ackOffset : tpOffsetMap.keySet()) {
+                if (!tpOffsetMap.get(ackOffset)) {
+                    break;
+                }
+                commitOffset = ackOffset;
+            }
+            // the first haven't ack, do nothing
+            if (commitOffset == -1) {
+                return;
+            }
+            commitOffsetMap.put(tp, new OffsetAndMetadata(commitOffset));
         });
     }
 

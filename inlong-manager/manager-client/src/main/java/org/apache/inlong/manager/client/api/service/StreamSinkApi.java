@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -41,7 +41,7 @@ public interface StreamSinkApi {
     Call<Response<Boolean>> deleteSink(@Path("id") Integer id);
 
     @GET("sink/list")
-    Call<Response<PageInfo<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
+    Call<Response<PageResult<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
 
     @GET("sink/get/{id}")

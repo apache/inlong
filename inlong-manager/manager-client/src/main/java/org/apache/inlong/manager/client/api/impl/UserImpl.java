@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.User;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
@@ -55,7 +55,7 @@ public class UserImpl implements User {
     }
 
     @Override
-    public PageInfo<UserInfo> list(UserRequest request) {
+    public PageResult<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
         return userClient.list(request);
     }

@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
-import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.workflow.core.EventListenerService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
@@ -52,15 +52,13 @@ public class WorkflowEventServiceImpl implements WorkflowEventService {
     }
 
     @Override
-    public PageInfo<EventLogResponse> list(EventLogRequest query) {
+    public PageResult<EventLogResponse> list(EventLogRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         Page<WorkflowEventLogEntity> page = (Page<WorkflowEventLogEntity>) queryService.listEventLog(query);
 
         List<EventLogResponse> viewList = CommonBeanUtils.copyListProperties(page, EventLogResponse::new);
-        PageInfo<EventLogResponse> pageInfo = new PageInfo<>(viewList);
-        pageInfo.setTotal(page.getTotal());
 
-        return pageInfo;
+        return new PageResult<>(viewList, page.getTotal(), page.getPageNum(), page.getPageSize());
     }
 
     @Override

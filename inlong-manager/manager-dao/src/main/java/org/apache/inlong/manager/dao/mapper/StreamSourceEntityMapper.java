@@ -129,8 +129,6 @@ public interface StreamSourceEntityMapper {
 
     int updateSnapshot(StreamSourceEntity entity);
 
-    int appendAgentIp(@Param("id") Integer id, @Param("agentIp") String agentIp);
-
     /**
      * Physical delete stream sources.
      */

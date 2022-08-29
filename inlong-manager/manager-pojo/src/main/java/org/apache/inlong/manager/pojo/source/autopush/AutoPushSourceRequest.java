@@ -19,10 +19,12 @@ package org.apache.inlong.manager.pojo.source.autopush;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
@@ -38,6 +40,15 @@ public class AutoPushSourceRequest extends SourceRequest {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
+
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding = StandardCharsets.UTF_8.toString();
+
+    @ApiModelProperty(value = "Data separator, stored as ASCII code")
+    private String dataSeparator = DataSeparator.VERTICAL_BAR.getAsciiCode().toString();
+
+    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    private String dataEscapeChar;
 
     public AutoPushSourceRequest() {
         this.setSourceType(SourceType.AUTO_PUSH);

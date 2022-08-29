@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <artifactId>dataproxy-sdk</artifactId>
     <name>Apache InLong - DataProxy SDK</name>

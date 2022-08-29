@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
-import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
@@ -29,6 +28,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
@@ -75,7 +75,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * List clusters by page.
      */
-    public PageInfo<ClusterInfo> listCluster(String type, String clusterTag) {
+    public PageResult<ClusterInfo> listCluster(String type, String clusterTag) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setClusterTag(clusterTag);
@@ -118,7 +118,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * List cluster nodes by page.
      */
-    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword, Integer parentId) {
+    public PageResult<ClusterNodeResponse> listClusterNode(String type, String keyword, Integer parentId) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
@@ -159,7 +159,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(id);
 
         // list cluster
-        PageInfo<ClusterInfo> listCluster = this.listCluster(ClusterType.PULSAR, clusterTag);
+        PageResult<ClusterInfo> listCluster = this.listCluster(ClusterType.PULSAR, clusterTag);
         Assertions.assertTrue(listCluster.getList().size() > 0);
         ClusterInfo clusterInfo = listCluster.getList().get(0);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
@@ -181,7 +181,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId);
 
         // list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip, id);
+        PageResult<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip, id);
         Assertions.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node

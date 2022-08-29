@@ -56,7 +56,7 @@ int32_t tc_api_init(const char* config_file);
  * @description: tc_api_init ext function
  * @return 0 if success
  * @param {char*} config_file - user configfile, prefer using absolute path
- * @param {int32_t} use_def - is use_def isn't 0, 
+ * @param {int32_t} use_def - if use_def is zero, directly return if parsing config_file failed, which means this init failed 
  */
 int32_t tc_api_init_ext(const char* config_file, int32_t use_def);
 
@@ -65,7 +65,7 @@ int32_t tc_api_init_ext(const char* config_file, int32_t use_def);
  * @return 0 if success
  * @param {ClientConfig&} refer to client_config.h
  */
-int32_t tc_api_init(ClientConfig* client_config);
+int32_t tc_api_init(ClientConfig& client_config);
 
 
 /**

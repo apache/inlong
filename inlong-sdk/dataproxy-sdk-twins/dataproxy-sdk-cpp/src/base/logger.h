@@ -49,13 +49,13 @@ Logger& getLogger();
         }                                                                                                                        \
     }
 
-#define LOG_TRACE(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogTrace, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogDebug, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogInfo, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogWarn, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogError, fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) LOG_TDBUSCAPI(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogTrace, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) LOG_TDBUSCAPI(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogDebug, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) LOG_TDBUSCAPI(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogInfo, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) LOG_TDBUSCAPI(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogWarn, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) LOG_TDBUSCAPI(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogError, fmt, ##__VA_ARGS__)
 
-#define LOG_SDKCPP(logger, level, fmt, ...)                                                                                   \
+#define LOG_TDBUSCAPI(logger, level, fmt, ...)                                                                                   \
     {                                                                                                                            \
         if (logger.enableLevel(level))                                                                                           \
         {                                                                                                                        \

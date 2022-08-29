@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSinkApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class StreamSinkClient {
      * List stream sinks by the specified sink type.
      */
     public List<StreamSink> listSinks(String groupId, String streamId, String sinkType) {
-        Response<PageInfo<StreamSink>> response = ClientUtils.executeHttpCall(
+        Response<PageResult<StreamSink>> response = ClientUtils.executeHttpCall(
                 streamSinkApi.listSinks(groupId, streamId, sinkType));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();

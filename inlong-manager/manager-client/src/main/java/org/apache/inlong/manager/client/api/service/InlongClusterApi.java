@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -27,6 +26,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -44,7 +44,7 @@ public interface InlongClusterApi {
     Call<Response<ClusterTagResponse>> getTag(@Path("id") Integer id);
 
     @POST("cluster/tag/list")
-    Call<Response<PageInfo<ClusterTagResponse>>> listTag(@Body ClusterTagPageRequest request);
+    Call<Response<PageResult<ClusterTagResponse>>> listTag(@Body ClusterTagPageRequest request);
 
     @POST("cluster/tag/update")
     Call<Response<Boolean>> updateTag(@Body ClusterTagRequest request);
@@ -77,7 +77,7 @@ public interface InlongClusterApi {
     Call<Response<ClusterNodeResponse>> getNode(@Path("id") Integer id);
 
     @POST("cluster/node/list")
-    Call<Response<PageInfo<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
+    Call<Response<PageResult<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
 
     @POST("cluster/node/update")
     Call<Response<Boolean>> updateNode(@Body ClusterNodeRequest request);

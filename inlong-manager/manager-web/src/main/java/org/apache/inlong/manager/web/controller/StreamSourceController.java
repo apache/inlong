@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -65,7 +65,7 @@ public class StreamSourceController {
 
     @RequestMapping(value = "/source/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream source list by paginating")
-    public Response<PageInfo<? extends StreamSource>> listByCondition(SourcePageRequest request) {
+    public Response<PageResult<? extends StreamSource>> listByCondition(SourcePageRequest request) {
         return Response.success(sourceService.listByCondition(request));
     }
 

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.LowLevelInlongClientImpl;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
@@ -56,6 +56,6 @@ public interface LowLevelInlongClient {
      * @return group info page
      * @throws Exception the exception may throw
      */
-    PageInfo<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) throws Exception;
+    PageResult<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) throws Exception;
 
 }

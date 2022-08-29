@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -93,7 +93,7 @@ public interface StreamSinkService {
      * @param request paging request.
      * @return sink list
      */
-    PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request);
+    PageResult<? extends StreamSink> listByCondition(SinkPageRequest request);
 
     /**
      * Modify data sink information.

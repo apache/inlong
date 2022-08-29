@@ -45,7 +45,7 @@ void logfunc()
 
 int main(int argc, char const* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 2, true, "./log/");
+    debug_init_log();
     LOG_INFO("this is info log %d", 1);
     std::string str = "tttttt";
     LOG_TRACE("this is trace log:%s", str.c_str());

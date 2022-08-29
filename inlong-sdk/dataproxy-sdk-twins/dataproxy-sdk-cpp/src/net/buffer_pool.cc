@@ -93,12 +93,12 @@ namespace dataproxy_sdk
         std::lock_guard<std::mutex> buf_lck(send_buf->mutex_);
 
         auto self = shared_from_this();
-        if (g_config->retry_num_ > 0 && g_config->retry_interval_ > 0) //resend if need
+        if (g_config.retry_num_ > 0 && g_config.retry_interval_ > 0) //resend if need
         {
             executor_->postTask([self, this, send_buf]
                                 {
                 send_buf->timeout_timer_ = executor_->createSteadyTimer();
-                send_buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config->retry_interval_));
+                send_buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config.retry_interval_));
                 send_buf->timeout_timer_->async_wait(std::bind(&BufferPool::RetryHandler, shared_from_this(), std::placeholders::_1, send_buf)); });
         }
         if (send_buf->target()->isStop())
@@ -137,7 +137,7 @@ namespace dataproxy_sdk
     {
         if (ec) // timer is cancelled, two cases: 1.ackbuf->sendbuf.reset;2.msg_type=2,conn.doWrite->cancel
         {
-            if (g_config->msg_type_ == 2)
+            if (g_config.msg_type_ == 2)
             {
                 LOG_TRACE("msg_type is 2, no need ackmsg, clear buf(uid:%d) directly", buf->uniqId());
                 ackBuf(buf->uniqId());
@@ -155,19 +155,19 @@ namespace dataproxy_sdk
         if (buf->getAlreadySend() == 2)
         {
             LOG_INFO("buf(id:%d, inlong_group_id:%s, inlong_stream_id:%s) ackmsg timeout, send %d times(max retry_num:%d)", buf->uniqId(), buf->inlong_group_id().c_str(),
-                  buf->inlong_stream_id().c_str(), buf->getAlreadySend(), g_config->retry_num_);
+                  buf->inlong_stream_id().c_str(), buf->getAlreadySend(), g_config.retry_num_);
         }
         else
         {
             LOG_DEBUG("buf(id:%d, inlong_group_id:%s, inlong_stream_id:%s) ackmsg timeout, send %d times(max retry_num:%d)", buf->uniqId(), buf->inlong_group_id().c_str(),
-                  buf->inlong_stream_id().c_str(), buf->getAlreadySend(), g_config->retry_num_);
+                  buf->inlong_stream_id().c_str(), buf->getAlreadySend(), g_config.retry_num_);
         }
         
         // max_retry_num, usercallback
-        if (buf->getAlreadySend() >= g_config->retry_num_ || buf->fail_create_conn_.get() >= constants::kMaxRetryConnection)
+        if (buf->getAlreadySend() >= g_config.retry_num_ || buf->fail_create_conn_.get() >= constants::kMaxRetryConnection)
         {
             LOG_WARN("fail to send buf(id:%d, inlong_group_id:%s, inlong_stream_id:%s), has send max_retry_num(%d) times, start usercallback", buf->uniqId(), buf->inlong_group_id().c_str(),
-                     buf->inlong_stream_id().c_str(), g_config->retry_num_);
+                     buf->inlong_stream_id().c_str(), g_config.retry_num_);
             buf->doUserCallBack();
             buf->reset();
         }
@@ -181,7 +181,7 @@ namespace dataproxy_sdk
                 {
                     LOG_INFO("fail to create new conn to send buf, inlong_group_id:%s, inlong_stream_id:%s", buf->inlong_group_id().c_str(), buf->inlong_stream_id().c_str());
                     buf->fail_create_conn_.increment();
-                    buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config->retry_interval_));
+                    buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config.retry_interval_));
                     buf->timeout_timer_->async_wait(std::bind(&BufferPool::RetryHandler, shared_from_this(), std::placeholders::_1, buf));
                     return;
                 }
@@ -190,7 +190,7 @@ namespace dataproxy_sdk
 
             buf->target()->sendBuf(buf);
             buf->increaseRetryNum();
-            buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config->retry_interval_));
+            buf->timeout_timer_->expires_after(std::chrono::milliseconds(g_config.retry_interval_));
             buf->timeout_timer_->async_wait(std::bind(&BufferPool::RetryHandler, shared_from_this(), std::placeholders::_1, buf));
         }
     }
@@ -230,13 +230,13 @@ namespace dataproxy_sdk
     {
         if (inlong_group_id.empty())
         {
-            LOG_INFO("STATE|pool_id:%d, current_use:%d(total:%d), invoke_send_buf:%d, has_ack:%d, waiting_ack:%d", pool_id_, currentUse(),
-                      g_config->bufNum(), has_send_buf_.get(), has_ack_.get(), waiting_ack_.get());
+            LOG_STAT("STATE|pool_id:%d, current_use:%d(total:%d), invoke_send_buf:%d, has_ack:%d, waiting_ack:%d", pool_id_, currentUse(),
+                      g_config.bufNum(), has_send_buf_.get(), has_ack_.get(), waiting_ack_.get());
         }
         else
         {
-            LOG_INFO("STATE|inlong_group_id:%s, pool_id:%d, current_use:%d(total:%d), invoke_send_buf:%d, has_ack:%d, waiting_ack:%d", inlong_group_id.c_str(), pool_id_, currentUse(),
-                      g_config->bufNum(), has_send_buf_.get(), has_ack_.get(), waiting_ack_.get());
+            LOG_STAT("STATE|inlong_group_id:%s, pool_id:%d, current_use:%d(total:%d), invoke_send_buf:%d, has_ack:%d, waiting_ack:%d", inlong_group_id.c_str(), pool_id_, currentUse(),
+                      g_config.bufNum(), has_send_buf_.get(), has_ack_.get(), waiting_ack_.get());
         }
     }
 
@@ -251,34 +251,34 @@ namespace dataproxy_sdk
 
     TotalPools::TotalPools() : next_(0), mutex_()
     {
-        if (g_config->enable_groupId_isolation_) // different groupid data use different bufpool
+        if (g_config.enable_groupId_isolation_) // different groupid data use different bufpool
         {
-            for (int32_t i = 0; i < g_config->inlong_group_ids_.size(); i++) // create a bufpool for ervery groupidS
+            for (int32_t i = 0; i < g_config.inlong_group_ids_.size(); i++) // create a bufpool for ervery groupidS
             {
                 std::vector<BufferPoolPtr> groupid_pool;
-                groupid_pool.reserve(g_config->buffer_num_per_groupId_);
-                for (int32_t j = 0; j < g_config->buffer_num_per_groupId_; j++)
+                groupid_pool.reserve(g_config.buffer_num_per_groupId_);
+                for (int32_t j = 0; j < g_config.buffer_num_per_groupId_; j++)
                 {
-                    groupid_pool.push_back(std::make_shared<BufferPool>(j, g_config->bufNum(), g_config->buf_size_));
+                    groupid_pool.push_back(std::make_shared<BufferPool>(j, g_config.bufNum(), g_config.buf_size_));
                 }
 
-                groupid2pool_map_[g_config->inlong_group_ids_[i]] = groupid_pool;
-                groupid2next_[g_config->inlong_group_ids_[i]] = 0;
+                groupid2pool_map_[g_config.inlong_group_ids_[i]] = groupid_pool;
+                groupid2next_[g_config.inlong_group_ids_[i]] = 0;
             }
         }
         else // round-robin
         {
-            pools_.reserve(g_config->shared_buf_nums_);
-            for (int i = 0; i < g_config->shared_buf_nums_; i++)
+            pools_.reserve(g_config.shared_buf_nums_);
+            for (int i = 0; i < g_config.shared_buf_nums_; i++)
             {
-                pools_.push_back(std::make_shared<BufferPool>(i, g_config->bufNum(), g_config->buf_size_));
+                pools_.push_back(std::make_shared<BufferPool>(i, g_config.bufNum(), g_config.buf_size_));
             }
         }
     }
 
     BufferPoolPtr TotalPools::getPool(const std::string &inlong_group_id)
     {
-        if (g_config->enable_groupId_isolation_) // groupid isolate
+        if (g_config.enable_groupId_isolation_) // groupid isolate
         {
             auto groupid_pool = groupid2pool_map_.find(inlong_group_id);
             if (groupid_pool == groupid2pool_map_.end() || groupid_pool->second.empty())
@@ -332,7 +332,7 @@ namespace dataproxy_sdk
     bool TotalPools::isPoolAvailable(const std::string &inlong_group_id)
     {
 
-        if (g_config->enable_groupId_isolation_) // groupid_isolation
+        if (g_config.enable_groupId_isolation_) // groupid_isolation
         {
             auto groupid_pool = groupid2pool_map_.find(inlong_group_id);
             if (groupid_pool == groupid2pool_map_.end())
@@ -381,7 +381,7 @@ namespace dataproxy_sdk
 
     void TotalPools::showState()
     {
-        if (g_config->enable_groupId_isolation_)
+        if (g_config.enable_groupId_isolation_)
         {
             for (auto &groupid_pool : groupid2pool_map_)
             {

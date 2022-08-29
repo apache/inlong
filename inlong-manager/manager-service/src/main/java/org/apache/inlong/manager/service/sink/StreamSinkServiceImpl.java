@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,6 +35,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -177,7 +177,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request) {
+    public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -191,14 +191,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<StreamSink> responseList = Lists.newArrayList();
         for (Map.Entry<String, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
             StreamSinkOperator sinkOperator = operatorFactory.getInstance(entry.getKey());
-            PageInfo<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
+            PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
             responseList.addAll(pageInfo.getList());
         }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageInfo<? extends StreamSink> pageInfo = PageInfo.of(responseList);
+        PageResult<StreamSink> pageResult = new PageResult<>(responseList);
 
-        LOGGER.debug("success to list sink page, result size {}", pageInfo.getSize());
-        return pageInfo;
+        LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
+        return pageResult;
     }
 
     @Override

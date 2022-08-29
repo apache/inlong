@@ -339,60 +339,6 @@ CREATE TABLE IF NOT EXISTS `operation_log`
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------
--- Table structure for source_file_basic
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `source_file_basic`
-(
-    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `is_hybrid_source`  tinyint(1)        DEFAULT '0' COMMENT 'Whether to mix data sources',
-    `is_table_mapping`  tinyint(1)        DEFAULT '0' COMMENT 'Is there a table name mapping',
-    `date_offset`       int(4)            DEFAULT '0' COMMENT 'Time offset\n',
-    `date_offset_unit`  varchar(2)        DEFAULT 'H' COMMENT 'Time offset unit',
-    `file_rolling_type` varchar(2)        DEFAULT 'H' COMMENT 'File rolling type',
-    `upload_max_size`   int(4)            DEFAULT '120' COMMENT 'Upload maximum size',
-    `need_compress`     tinyint(1)        DEFAULT '0' COMMENT 'Whether need compress',
-    `is_deleted`        int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`           varchar(64)  NOT NULL COMMENT 'Creator',
-    `modifier`          varchar(64)       DEFAULT NULL COMMENT 'Modifier',
-    `create_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`         text              DEFAULT NULL COMMENT 'temp view',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='basic configuration of file data source';
-
--- ----------------------------
--- Table structure for source_file_detail
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `source_file_detail`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
-    `access_type`      varchar(20)       DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
-    `server_name`      varchar(64)       DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
-    `ip`               varchar(128) NOT NULL COMMENT 'Data source IP address',
-    `port`             int(11)      NOT NULL COMMENT 'Data source port number',
-    `is_inner_ip`      tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
-    `issue_type`       varchar(10)       DEFAULT 'SSH' COMMENT 'Issuing method, there are SSH, TCS',
-    `username`         varchar(32)       DEFAULT NULL COMMENT 'User name of the data source IP host',
-    `password`         varchar(64)       DEFAULT NULL COMMENT 'The password corresponding to the above user name',
-    `file_path`        varchar(256) NOT NULL COMMENT 'File path, supports regular matching',
-    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
-
--- ----------------------------
 -- Table structure for stream_source
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_source`
@@ -403,7 +349,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `source_name`         varchar(128) NOT NULL DEFAULT '' COMMENT 'source_name',
     `source_type`         varchar(20)           DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
     `template_id`         int(11)      DEFAULT NULL COMMENT 'Id of the template task this agent belongs to',
-    `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task',
+    `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task, NULL if this is a template task',
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
@@ -422,7 +368,8 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
     KEY `source_status_index` (`status`, `is_deleted`),
-    KEY `source_agent_ip_index` (`agent_ip`, `is_deleted`)
+    KEY `source_agent_ip_index` (`agent_ip`, `is_deleted`),
+    KEY `template_id_index` (`template_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
