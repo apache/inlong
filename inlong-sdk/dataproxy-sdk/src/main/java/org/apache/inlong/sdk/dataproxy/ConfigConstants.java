@@ -83,4 +83,6 @@ public class ConfigConstants {
 
     public static final String LOAD_BALANCE_WEIGHT_ROBIN = "weight robin";
 
+    public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
+
 }

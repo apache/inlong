@@ -98,6 +98,8 @@ public class ProxyClientConfig {
 
     private String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
 
+    private int maxRetry = ConfigConstants.DEFAULT_RANDOM_MAX_RETRY;
+
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey)
@@ -477,5 +479,13 @@ public class ProxyClientConfig {
 
     public String getLoadBalance() {
         return loadBalance;
+    }
+
+    public int getMaxRetry() {
+        return maxRetry;
+    }
+
+    public void setMaxRetry(int maxRetry) {
+        this.maxRetry = maxRetry;
     }
 }
