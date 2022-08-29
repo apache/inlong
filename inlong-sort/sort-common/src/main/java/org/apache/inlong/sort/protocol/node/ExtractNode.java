@@ -28,6 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.InfluxDBExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
@@ -62,7 +63,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
         @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
         @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
-        @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract")
+        @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
+        @JsonSubTypes.Type(value = InfluxDBExtractNode.class, name = "influxDBExtract")
 })
 @Data
 @NoArgsConstructor
