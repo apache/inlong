@@ -416,7 +416,7 @@ public class ClientMgr {
             return null;
         }
         int currSize = clientList.size();
-        int maxRetry = 1000;
+        int maxRetry = this.configure.getMaxRetry();
         Random random = new Random(System.currentTimeMillis());
         do {
             int randomId = random.nextInt();
