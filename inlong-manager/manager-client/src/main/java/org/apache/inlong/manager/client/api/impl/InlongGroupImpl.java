@@ -24,7 +24,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
@@ -34,11 +33,11 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
@@ -147,41 +146,29 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
                 "groupId must be same");
 
-        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
-        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
-        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
-        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
-                "inlong group is in init status, should not be updated");
-
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
-        groupInfo.setVersion(existGroupInfo.getVersion());
-        InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
-        String errMsg = idAndErr.getValue();
-        Preconditions.checkNull(errMsg, errMsg);
-
-        this.groupContext.setGroupInfo(groupInfo);
-        this.groupInfo = groupInfo;
+        this.updateOpt(groupInfo);
+        this.groupInfo = this.groupContext.getGroupInfo();
     }
 
     @Override
     public void update(BaseSortConf sortConf) throws Exception {
         Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
+        this.updateOpt(InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf));
+    }
 
-        final String groupId = this.groupInfo.getInlongGroupId();
-
-        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupId);
-        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exists, cannot update");
+    private void updateOpt(InlongGroupInfo groupInfo) {
+        InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupInfo.getInlongGroupId());
+        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exist, cannot be updated");
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
-                "inlong group is in init status, should not be updated");
+                "inlong group is in init status, cannot be updated");
 
-        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
         groupInfo.setVersion(existGroupInfo.getVersion());
-        InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<String, String> idAndErr = groupClient.updateGroup(groupRequest);
+        Pair<String, String> idAndErr = groupClient.updateGroup(groupInfo.genRequest());
         String errMsg = idAndErr.getValue();
         Preconditions.checkNull(errMsg, errMsg);
+
         this.groupContext.setGroupInfo(groupInfo);
     }
 
@@ -207,11 +194,9 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext suspend(boolean async) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        Pair<String, String> idAndErr = groupClient.updateGroup(groupInfo.genRequest());
-        final String errMsg = idAndErr.getValue();
-        final String groupId = idAndErr.getKey();
-        Preconditions.checkNull(errMsg, errMsg);
-        groupClient.operateInlongGroup(groupId, SimpleGroupStatus.STOPPED, async);
+        this.updateOpt(groupInfo);
+
+        groupClient.operateInlongGroup(groupInfo.getInlongGroupId(), SimpleGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
 
@@ -223,11 +208,9 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext restart(boolean async) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        Pair<String, String> idAndErr = groupClient.updateGroup(groupInfo.genRequest());
-        final String errMsg = idAndErr.getValue();
-        final String groupId = idAndErr.getKey();
-        Preconditions.checkNull(errMsg, errMsg);
-        groupClient.operateInlongGroup(groupId, SimpleGroupStatus.STARTED, async);
+        this.updateOpt(groupInfo);
+
+        groupClient.operateInlongGroup(groupInfo.getInlongGroupId(), SimpleGroupStatus.STARTED, async);
         return generateSnapshot();
     }
 
