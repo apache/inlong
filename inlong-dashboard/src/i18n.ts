@@ -34,6 +34,7 @@ const resources = {
       'configs.menus.SystemManagement': 'System',
       'configs.menus.UserManagement': 'User',
       'configs.menus.ResponsibleManagement': 'ApprovalManagement',
+      'configs.menus.Node': 'Nodes',
     },
   },
   cn: {
@@ -47,6 +48,7 @@ const resources = {
       'configs.menus.SystemManagement': '系统管理',
       'configs.menus.UserManagement': '用户管理',
       'configs.menus.ResponsibleManagement': '审批责任人管理',
+      'configs.menus.Node': '节点管理',
     },
   },
 };

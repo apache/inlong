@@ -28,12 +28,13 @@ export interface FieldItemType extends FormItemProps {
 
 export const genFields = (
   fieldsDefault: FieldItemType[],
-  fieldsExtends: FieldItemType[],
-): FormItemProps[] => {
+  fieldsExtends?: FieldItemType[],
+): FieldItemType[] => {
   const output: FieldItemType[] = [];
   const fields = fieldsDefault.concat(fieldsExtends);
   while (fields.length) {
     const fieldItem = fields.shift();
+    if (!fieldItem) continue;
     if (fieldItem.position) {
       const [positionType, positionName] = fieldItem.position;
       const index = output.findIndex(item => item.name === positionName);
