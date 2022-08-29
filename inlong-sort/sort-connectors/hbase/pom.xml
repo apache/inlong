@@ -74,6 +74,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${plugin.shade.version}</version>
                 <executions>
                     <execution>
                         <id>shade-flink</id>
