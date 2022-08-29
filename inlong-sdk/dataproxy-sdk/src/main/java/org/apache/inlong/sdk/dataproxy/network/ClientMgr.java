@@ -379,7 +379,7 @@ public class ClientMgr {
             return null;
         }
         String hash = ConsistencyHashUtil.hashMurMurHash(messageId);
-        HashRing cluster = this.ipManager.getHashRing();
+        HashRing cluster = HashRing.getInstance();
         HostInfo info = cluster.getNode(hash);
         client = this.clientMap.get(info);
         return client;

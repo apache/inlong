@@ -73,4 +73,14 @@ public class ConfigConstants {
 
     public static int DEFAULT_VIRTUAL_NODE = 1000;
 
+    public static final String LOAD_BALANCE_RANDOM = "random";
+
+    public static final String LOAD_BALANCE_ROBIN = "robin";
+
+    public static final String LOAD_BALANCE_CONSISTENCY_HASH = "consistency hash";
+
+    public static final String LOAD_BALANCE_WEIGHT_RANDOM = "weight random";
+
+    public static final String LOAD_BALANCE_WEIGHT_ROBIN = "weight robin";
+
 }

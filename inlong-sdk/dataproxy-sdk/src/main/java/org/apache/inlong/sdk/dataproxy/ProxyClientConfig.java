@@ -88,12 +88,15 @@ public class ProxyClientConfig {
     private int metricIntervalInMs = 60 * 1000;
     // max cache time for proxy config.
     private long maxProxyCacheTimeInMs = 30 * 60 * 1000;
-
     // metric groupId
     private String metricGroupId = "inlong_sla_metric";
 
     private int ioThreadNum = Runtime.getRuntime().availableProcessors();
     private boolean enableBusyWait = false;
+
+    private int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;
+
+    private String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
@@ -458,5 +461,21 @@ public class ProxyClientConfig {
 
     public void setEnableBusyWait(boolean enableBusyWait) {
         this.enableBusyWait = enableBusyWait;
+    }
+
+    public void setVirtualNode(int virtualNode) {
+        this.virtualNode = virtualNode;
+    }
+
+    public void setLoadBalance(String loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
+    public int getVirtualNode() {
+        return virtualNode;
+    }
+
+    public String getLoadBalance() {
+        return loadBalance;
     }
 }

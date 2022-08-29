@@ -103,12 +103,12 @@ public class ProxyConfigManager extends Thread {
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
     private final HashRing hashRing = HashRing.getInstance();
-    private String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
         this.localIP = localIP;
         this.clientManager = clientManager;
+        this.hashRing.setVirtualNode(configure.getVirtualNode());
     }
 
     public String getGroupId() {
@@ -117,10 +117,6 @@ public class ProxyConfigManager extends Thread {
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;
-    }
-
-    public HashRing getHashRing() {
-        return this.hashRing;
     }
 
     public void shutDown() {
