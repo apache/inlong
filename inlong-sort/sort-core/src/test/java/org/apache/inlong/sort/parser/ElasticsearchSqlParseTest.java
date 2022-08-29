@@ -58,7 +58,13 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
             true, null);
     }
 
-    ElasticsearchLoadNode buildElasticsearchLoadNode(int i) {
+    /**
+     * Build elasticsearch node
+     *
+     * @param version version number
+     * @return ElasticsearchLoadNode
+     */
+    ElasticsearchLoadNode buildElasticsearchLoadNode(int version) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
             new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
@@ -71,7 +77,7 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
             2, null,
             "test", "http://localhost:9200",
-            "elastic", "my_password", null, "age", i);
+            "elastic", "my_password", null, "age", version);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
