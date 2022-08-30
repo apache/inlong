@@ -46,6 +46,7 @@ public final class TextFileReader extends AbstractFileReader {
 
     public TextFileReader(FileReaderOperator fileReaderOperator) {
         super.fileReaderOperator = fileReaderOperator;
+        MonitorTextFile.getInstance().monitor(fileReaderOperator,this);
     }
 
     public void getData() throws IOException {
@@ -84,6 +85,7 @@ public final class TextFileReader extends AbstractFileReader {
         }
         lines = resultLines.isEmpty() ? lines : resultLines;
         fileReaderOperator.stream = lines.stream();
+        fileReaderOperator.position = fileReaderOperator.position + lines.size();
     }
 
 }

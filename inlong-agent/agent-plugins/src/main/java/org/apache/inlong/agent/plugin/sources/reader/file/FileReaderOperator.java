@@ -61,7 +61,7 @@ public class FileReaderOperator extends AbstractReader {
     public Stream<String> stream;
     public Map<String, String> metadata;
     public JobProfile jobConf;
-    private Iterator<String> iterator;
+    public Iterator<String> iterator;
     private long timeout;
     private long waitTimeout;
 
