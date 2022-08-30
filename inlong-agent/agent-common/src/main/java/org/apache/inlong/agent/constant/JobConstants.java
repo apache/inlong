@@ -57,6 +57,8 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_META_FILTER_BY_LABELS = "job.fileJob.filterMetaByLabels";
     public static final String JOB_FILE_PROPERTIES = "job.fileJob.properties";
     public static final String JOB_FILE_DATA_SOURCE_COLUMN_SEPARATOR = "job.fileJob.dataSeparator";
+    public static final String JOB_FILE_MONITOR_INTERVAL = "job.fileJob.monitorInterval";
+    public static final String JOB_FILE_MONITOR_STATUS = "job.fileJob.monitorStatus";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
@@ -140,6 +142,10 @@ public class JobConstants extends CommonConstants {
      * sync send data when sending to DataProxy
      */
     public static final int SYNC_SEND_OPEN = 1;
+
+    public static final String INTERVAL_MILLISECONDS = "500L";
+
+    public static final String JOB_FILE_MONITOR_DEFAULT_STATUS = "1";
 
 
 }

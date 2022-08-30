@@ -28,6 +28,9 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.agent.constant.JobConstants.INTERVAL_MILLISECONDS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INTERVAL;
+
 /**
  * monitor files
  */
@@ -35,13 +38,12 @@ public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
     private static MonitorTextFile monitorTextFile;
-    private static Long INTERVAL = 2000L;
     // monitor thread pool
     private final ThreadPoolExecutor runningPool = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<>(),
-            new AgentThreadFactory("monitor file"));
+            new AgentThreadFactory("monitor-file"));
 
     private MonitorTextFile() {
 
@@ -63,6 +65,7 @@ public final class MonitorTextFile {
 
         private final FileReaderOperator fileReaderOperator;
         private final TextFileReader textFileReader;
+        private final Long interval;
         /**
          * the last modify time of the file
          */
@@ -71,6 +74,8 @@ public final class MonitorTextFile {
         public MonitorEvent(FileReaderOperator fileReaderOperator, TextFileReader textFileReader) {
             this.fileReaderOperator = fileReaderOperator;
             this.textFileReader = textFileReader;
+            this.interval = Long
+                    .parseLong(fileReaderOperator.jobConf.get(JOB_FILE_MONITOR_INTERVAL, INTERVAL_MILLISECONDS));
             try {
                 this.attributesBefore = Files
                         .readAttributes(fileReaderOperator.file.toPath(), BasicFileAttributes.class);
@@ -84,7 +89,7 @@ public final class MonitorTextFile {
             while (true) {
                 try {
                     listen();
-                    TimeUnit.MILLISECONDS.sleep(INTERVAL);
+                    TimeUnit.MILLISECONDS.sleep(interval);
                 } catch (Exception e) {
                     LOGGER.error("monitor {} error:", this.fileReaderOperator.file.getName(), e);
                 }
