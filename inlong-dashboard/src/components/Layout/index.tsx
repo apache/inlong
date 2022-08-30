@@ -33,7 +33,6 @@ import { Link } from 'react-router-dom';
 import type { MenuProps } from 'antd/es/menu';
 import { State } from '@/models';
 import NavWidget from './NavWidget';
-import './index.css';
 
 const renderMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
   menus.map(({ icon, children, ...item }) => ({

@@ -61,11 +61,11 @@ const Charts: React.FC<Props> = ({
     if (!dom) return undefined;
 
     // mount
-    let chart = null;
+    let chart = null as any;
     const resize = throttle(() => {
       if (chart) chart.resize();
     }, 1000);
-    chart = echarts.init(dom, null);
+    chart = echarts.init(dom);
     if (Object.keys(option).length) {
       // init option
       chart.setOption(merge(option));
