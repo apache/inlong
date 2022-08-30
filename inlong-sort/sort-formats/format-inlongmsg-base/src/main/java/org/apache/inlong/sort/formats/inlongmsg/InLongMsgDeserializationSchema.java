@@ -62,6 +62,11 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     }
 
     @Override
+    public void open(InitializationContext context) throws Exception {
+        deserializationSchema.open(context);
+    }
+
+    @Override
     public RowData deserialize(byte[] bytes) throws IOException {
         throw new RuntimeException(
                 "Please invoke DeserializationSchema#deserialize(byte[], Collector<RowData>) instead.");
