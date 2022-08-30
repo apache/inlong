@@ -143,7 +143,7 @@ public class JobConstants extends CommonConstants {
      */
     public static final int SYNC_SEND_OPEN = 1;
 
-    public static final String INTERVAL_MILLISECONDS = "500L";
+    public static final String INTERVAL_MILLISECONDS = "500";
 
     public static final String JOB_FILE_MONITOR_DEFAULT_STATUS = "1";
 
