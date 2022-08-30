@@ -44,6 +44,8 @@ public class ClientFactory {
 
     private final UserClient userClient;
 
+    private final AnnoClient annoClient;
+
     private final WorkflowApproverClient workflowApproverClient;
 
     public ClientFactory(ClientConfiguration configuration) {
@@ -56,6 +58,7 @@ public class ClientFactory {
         workflowClient = new WorkflowClient(configuration);
         dataNodeClient = new DataNodeClient(configuration);
         userClient = new UserClient(configuration);
+        annoClient = new AnnoClient(configuration);
         workflowApproverClient = new WorkflowApproverClient(configuration);
     }
 }
