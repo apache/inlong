@@ -73,7 +73,11 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/source/list',
       params: {

@@ -64,7 +64,11 @@ const HighSelect: React.FC<HighSelectProps> = ({
   const [diyWatcher, setDiyWatcher] = useState(true);
   const [diyState, setDiyState] = useState(false);
 
-  const { data: list = [], loading, run: getList } = useRequest(options?.requestService, {
+  const {
+    data: list = [],
+    loading,
+    run: getList,
+  } = useRequest(options?.requestService, {
     manual: !options?.requestAuto,
     ready: !!options?.requestService && (options?.requestParams?.ready ?? true),
     ...options?.requestParams,

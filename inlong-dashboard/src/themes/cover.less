@@ -21,54 +21,58 @@
 /**
  * Public library coverage code
  */
- table {
-  .ant-table-tbody {
-    & > tr > td {
-      word-break: break-all;
-      > a:not(:last-child) {
-        margin-right: 10px;
-      }
-    }
-    & td .ant-btn-link {
-      padding: 0;
-      &:not(:last-child) {
-        margin-right: 10px;
-      }
-    }
-  }
-}
-
-.ant-form-item,
-.ant-legacy-form-item {
-  button.ant-btn + button.ant-btn {
-    margin-left: 10px;
-  }
-}
-
-.ant-spin-nested-loading > div > .ant-spin {
-  max-height: initial;
-}
-
-.ant-row-flex > .ant-col > .ant-card {
-  height: 100%;
-}
-
-.ant-descriptions-item {
-  .ant-descriptions-item-content {
-    vertical-align: top;
-  }
-}
-
-.ant-divider-horizontal.ant-divider-with-text-left {
-  &::before {
-    display: none;
-  }
-  .ant-divider-inner-text {
-    padding-left: 0;
-  }
-}
-
 body {
+  .ant-pro-top-nav-header-logo img {
+    height: 100%;
+  }
+  
+  table {
+    .ant-table-tbody {
+      & > tr > td {
+        word-break: break-all;
+        > a:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+      & td .ant-btn-link {
+        padding: 0;
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+
+  .ant-form-item,
+  .ant-legacy-form-item {
+    button.ant-btn + button.ant-btn {
+      margin-left: 10px;
+    }
+  }
+
+  .ant-spin-nested-loading > div > .ant-spin {
+    max-height: initial;
+  }
+
+  .ant-row-flex > .ant-col > .ant-card {
+    height: 100%;
+  }
+
+  .ant-descriptions-item {
+    .ant-descriptions-item-content {
+      vertical-align: top;
+    }
+  }
+
+  .ant-divider-horizontal.ant-divider-with-text-left {
+    &::before {
+      display: none;
+    }
+    .ant-divider-inner-text {
+      padding-left: 0;
+    }
+  }
+
   .ant-input,
   textarea.ant-input,
   .ant-select {
@@ -81,22 +85,22 @@ body {
     max-width: 500px;
     text-align: right;
   }
-}
 
-.ant-modal-footer,
-.ant-modal-confirm-btns {
-  display: flex;
-  flex-direction: row-reverse;
-  & > button {
-    margin-left: 8px;
+  .ant-modal-footer,
+  .ant-modal-confirm-btns {
+    display: flex;
+    flex-direction: row-reverse;
+    & > button {
+      margin-left: 8px;
+    }
   }
-}
 
-.ant-card-head-title .ant-descriptions-row > th,
-.ant-card-head-title .ant-descriptions-row > td {
-  padding-bottom: 0;
-}
+  .ant-card-head-title .ant-descriptions-row > th,
+  .ant-card-head-title .ant-descriptions-row > td {
+    padding-bottom: 0;
+  }
 
-.ant-pro-grid-content.wide {
-  max-width: 1600px;
+  .ant-pro-grid-content.wide {
+    max-width: 1600px;
+  }
 }

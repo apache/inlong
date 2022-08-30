@@ -69,7 +69,11 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/cluster/list',
       method: 'POST',
