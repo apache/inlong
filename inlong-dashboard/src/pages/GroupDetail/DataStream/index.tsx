@@ -45,7 +45,11 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongGroupId,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/stream/list',
       method: 'POST',

@@ -42,7 +42,11 @@ const Comp: React.FC = () => {
     url: '/consumption/summary',
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/consumption/list',
       params: options,
