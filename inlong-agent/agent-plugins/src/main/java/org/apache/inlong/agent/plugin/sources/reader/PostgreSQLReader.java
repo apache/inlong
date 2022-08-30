@@ -146,7 +146,7 @@ public class PostgreSQLReader extends AbstractReader {
         specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
         specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
         postgreSQLSnapshot = new PostgreSQLSnapshotBase(offsetStoreFileName);
-        postgreSQLSnapshot.save(offset);
+        postgreSQLSnapshot.save(offset, postgreSQLSnapshot.getFile());
 
         Properties props = getEngineProps();
 

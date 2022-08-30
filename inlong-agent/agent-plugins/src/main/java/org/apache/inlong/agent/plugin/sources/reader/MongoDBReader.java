@@ -31,7 +31,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.snapshot.MongoDBSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
@@ -60,7 +59,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 /**
  * MongoDBReader : mongo source, split mongo source job into multi readers
  */
-public class MongoDBReader extends AbstractReader implements Reader {
+public class MongoDBReader extends AbstractReader {
 
     /**
      * job conf prefix: <br/>
