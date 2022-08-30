@@ -328,8 +328,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             return Base64.getEncoder().encodeToString(msgId.toByteArray());
         }
 
-        private List<MessageRecord> processPulsarMsg(Messages<byte[]> messages) throws Exception {
-            List<MessageRecord> msgs = new ArrayList<>();
+        private void processPulsarMsg(Messages<byte[]> messages) throws Exception {
             for (Message<byte[]> msg : messages) {
                 String topicName = msg.getTopicName();
                 InLongTopic topic = onlineTopics.get(topicName);
@@ -354,14 +353,14 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     ack(offsetKey);
                     continue;
                 }
-
+                List<MessageRecord> msgs = new ArrayList<>();
                 msgs.add(new MessageRecord(topic.getTopicKey(),
                         inLongMessages,
                         offsetKey, System.currentTimeMillis()));
                 context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
+                context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
+                handleAndCallbackMsg(msgs);
             }
-            context.getDefaultStateCounter().addMsgCount(msgs.size());
-            return msgs;
         }
 
         @Override
@@ -388,8 +387,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
 
                     context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != pulsarMessages && pulsarMessages.size() != 0) {
-                        List<MessageRecord> msgs = this.processPulsarMsg(pulsarMessages);
-                        handleAndCallbackMsg(msgs);
+                        processPulsarMsg(pulsarMessages);
                         sleepTime = 0L;
                     } else {
                         context.getDefaultStateCounter().addEmptyFetchTimes(1L);
