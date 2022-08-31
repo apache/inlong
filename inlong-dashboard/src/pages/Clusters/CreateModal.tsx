@@ -77,11 +77,12 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
-      // open
-      form.resetFields();
       if (id) {
         getData(id);
       }
+    } else {
+      form.resetFields();
+      setType(Clusters[0].value);
     }
   }, [modalProps.visible]);
 

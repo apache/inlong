@@ -88,9 +88,11 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      form.resetFields(); // Note that it will cause the form to remount to initiate a select request
       if (id) {
         getData(id);
+      } else {
+        form.resetFields(); // Note that it will cause the form to remount to initiate a select request
+        setSinkType(Sinks[0].value);
       }
     } else {
       setCurrentValues({});
@@ -153,7 +155,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
         type: 'select',
         label: t('meta.Sinks.SinkType'),
         rules: [{ required: true }],
-        initialValue: sinkType,
+        initialValue: Sinks[0].value,
         props: {
           disabled: !!id,
           options: Sinks,
