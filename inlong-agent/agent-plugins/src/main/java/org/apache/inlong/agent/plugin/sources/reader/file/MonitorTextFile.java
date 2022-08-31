@@ -29,6 +29,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.JobConstants.INTERVAL_MILLISECONDS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_EXPIRE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_EXPIRE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INTERVAL;
 
 /**
@@ -66,6 +68,7 @@ public final class MonitorTextFile {
         private final FileReaderOperator fileReaderOperator;
         private final TextFileReader textFileReader;
         private final Long interval;
+        private final long startTime = System.currentTimeMillis();
         /**
          * the last modify time of the file
          */
@@ -86,8 +89,15 @@ public final class MonitorTextFile {
 
         @Override
         public void run() {
-            while (true) {
+            while (!this.fileReaderOperator.finished) {
                 try {
+                    long expireTime = Long.parseLong(fileReaderOperator.jobConf
+                            .get(JOB_FILE_MONITOR_EXPIRE, JOB_FILE_MONITOR_DEFAULT_EXPIRE));
+                    long currentTime = System.currentTimeMillis();
+                    if (expireTime != Long.parseLong(JOB_FILE_MONITOR_DEFAULT_EXPIRE)
+                            && currentTime - this.startTime > expireTime) {
+                        break;
+                    }
                     listen();
                     TimeUnit.MILLISECONDS.sleep(interval);
                 } catch (Exception e) {

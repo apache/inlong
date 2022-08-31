@@ -34,7 +34,7 @@ public class FileJob {
     private String addictiveString;
     private String collectType;
     private Line line;
-    
+
     // INCREMENT 
     // FULL
     private String contentCollectType;
@@ -54,6 +54,9 @@ public class FileJob {
 
     // Monitor switch, 1 true and 0 false
     private Integer monitorStatus;
+
+    // Monitor expire time and the time in milliseconds
+    private Long monitorExpire;
 
     @Data
     public static class Dir {
@@ -116,12 +119,15 @@ public class FileJob {
 
         // Properties for file
         private Map<String, Object> properties;
-        
+
         // Monitor interval for file
         private Long monitorInterval;
-        
+
         // Monitor switch, 1 true and 0 false
         private Integer monitorStatus;
+        
+        // Monitor expire time and the time in milliseconds
+        private Long monitorExpire;
 
     }
 
