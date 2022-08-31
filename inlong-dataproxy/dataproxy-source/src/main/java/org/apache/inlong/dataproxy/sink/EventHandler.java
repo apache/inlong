@@ -25,7 +25,6 @@ import java.util.Map;
 
 /**
  * IEventHandler
- * 
  */
 public interface EventHandler {
 
