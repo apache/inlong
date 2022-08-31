@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -398,14 +399,15 @@ public class PulsarFetcher<T> {
      * @param pulsarEventTimestamp The timestamp of the pulsar record
      */
     protected void emitRecordsWithTimestamps(
-            T record,
+            Queue<T> records,
             PulsarTopicState<T> partitionState,
             MessageId offset,
             long pulsarEventTimestamp) {
         // emit the records, using the checkpoint lock to guarantee
         // atomicity of record emission and offset state update
         synchronized (checkpointLock) {
-            if (record != null) {
+            T record;
+            while ((record = records.poll()) != null) {
                 long timestamp = partitionState.extractTimestamp(record, pulsarEventTimestamp);
                 sourceContext.collectWithTimestamp(record, timestamp);
 
