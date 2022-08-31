@@ -25,7 +25,7 @@ import java.io.File;
 /**
  * PostgreSQL Snapshot
  */
-public class PostgreSQLSnapshotBase implements SnapshotBase {
+public class PostgreSQLSnapshotBase extends AbstractSnapshot {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
     private final File file;

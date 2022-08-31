@@ -53,7 +53,7 @@ public class JobProfileDto {
     /**
      * mongo source
      */
-    public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.BinlogSource";
+    public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
 
     private static final Gson GSON = new Gson();
 

@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * MongoDBSource : mongo source, split mongo source job into multi readers
  */
-public class MongoDBSource extends AbstractSource implements Source {
+public class MongoDBSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBSource.class);
 

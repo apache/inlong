@@ -25,7 +25,7 @@ import java.io.File;
 /**
  * binlog snapshot
  */
-public class BinlogSnapshotBase implements SnapshotBase {
+public class BinlogSnapshotBase extends AbstractSnapshot {
 
     private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
 

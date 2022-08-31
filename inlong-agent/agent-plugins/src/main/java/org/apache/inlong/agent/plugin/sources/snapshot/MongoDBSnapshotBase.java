@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * MongoDBSnapshotBase : mongo snapshot
  */
-public class MongoDBSnapshotBase implements SnapshotBase {
+public class MongoDBSnapshotBase extends AbstractSnapshot {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBSnapshotBase.class);
     /**
