@@ -23,12 +23,16 @@ import org.apache.flume.Transaction;
 import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.event.SimpleEvent;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * BufferQueueChannelTest
  * 
  */
 public class TestBufferQueueChannel {
+
+    public static final Logger LOG = LoggerFactory.getLogger(TestBufferQueueChannel.class);
 
     /**
      * testResult
@@ -62,28 +66,28 @@ public class TestBufferQueueChannel {
         // transactionSize=1
         int transactionSize = 1;
         long memoryDuration = runChannel(memoryChannel, times, transactionSize);
-        System.out.println(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
+        LOG.info(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
                 transactionSize, memoryDuration));
         long bufferDuration = runChannel(bufferChannel, times, transactionSize);
-        System.out.println(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
+        LOG.info(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
                 transactionSize, bufferDuration,
                 String.valueOf((memoryDuration - bufferDuration) * 1.0 / memoryDuration)));
         // transactionSize=10
         transactionSize = 10;
         memoryDuration = runChannel(memoryChannel, times, transactionSize);
-        System.out.println(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
+        LOG.info(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
                 transactionSize, memoryDuration));
         bufferDuration = runChannel(bufferChannel, times, transactionSize);
-        System.out.println(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
+        LOG.info(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
                 transactionSize, bufferDuration,
                 String.valueOf((memoryDuration - bufferDuration) * 1.0 / memoryDuration)));
         // transactionSize=100
         transactionSize = 100;
         memoryDuration = runChannel(memoryChannel, times, transactionSize);
-        System.out.println(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
+        LOG.info(String.format("MemoryChannel,times:%d,transactionSize:%d,duration:%d", times,
                 transactionSize, memoryDuration));
         bufferDuration = runChannel(bufferChannel, times, transactionSize);
-        System.out.println(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
+        LOG.info(String.format("BufferQueueChannel,times:%d,transactionSize:%d,duration:%d,gap:%s", times,
                 transactionSize, bufferDuration,
                 String.valueOf((memoryDuration - bufferDuration) * 1.0 / memoryDuration)));
     }
@@ -118,7 +122,7 @@ public class TestBufferQueueChannel {
                 takeTx.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         long endTime = System.currentTimeMillis();
         return endTime - startTime;
