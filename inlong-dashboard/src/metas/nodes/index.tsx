@@ -65,16 +65,6 @@ const defaultCommonFields: FieldItemType[] = [
     _renderTable: true,
   },
   {
-    type: 'input',
-    label: 'URL',
-    name: 'url',
-  },
-  {
-    type: 'input',
-    label: 'Token',
-    name: 'token',
-  },
-  {
     type: 'textarea',
     label: i18n.t('meta.Nodes.Description'),
     name: 'description',
