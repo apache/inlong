@@ -17,21 +17,22 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.service.consume.InlongConsumeProcessService;
 import org.apache.inlong.manager.service.consume.InlongConsumeService;
-import org.apache.inlong.manager.service.group.InlongGroupProcessService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,57 +55,62 @@ import org.springframework.web.bind.annotation.RestController;
 public class InlongConsumeController {
 
     @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupProcessService groupProcessOperation;
-    @Autowired
     private InlongConsumeService consumeService;
+    @Autowired
+    private InlongConsumeProcessService consumeProcessOperation;
 
     @RequestMapping(value = "/consume/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong consume")
-    public Response<Integer> save(@Validated(UpdateValidation.class)
-                                  @RequestBody InlongConsumeRequest consumeRequest) {
+    public Response<Integer> save(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(consumeService.save(consumeRequest, operator));
+        return Response.success(consumeService.save(request, operator));
+    }
+
+    @GetMapping("/consume/get/{id}")
+    @ApiOperation(value = "Get inlong consume")
+    @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
+    public Response<InlongConsumeInfo> get(@PathVariable(name = "id") Integer id) {
+        return Response.success(consumeService.get(id));
+    }
+
+    @GetMapping(value = "/consume/countStatus")
+    @ApiOperation(value = "Count inlong consume status by current user")
+    public Response<InlongConsumeCountInfo> countStatusByUser() {
+        return Response.success(consumeService.countStatus(LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @GetMapping("/consume/list")
+    @ApiOperation(value = "List inlong consume by pagination")
+    public Response<PageResult<InlongConsumeBriefInfo>> list(InlongConsumePageRequest request) {
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        return Response.success(consumeService.list(request));
     }
 
     @PostMapping("/consume/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update data consumption")
-    public Response<String> update(@Validated @RequestBody InlongConsumeRequest consumeRequest) {
-        consumeService.update(consumeRequest, LoginUserUtils.getLoginUser().getName());
-        return Response.success();
-    }
-
-    @GetMapping("/consume/get/{id}")
-    @ApiOperation(value = "Get consumption details")
-    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
-    public Response<InlongConsumeInfo> getDetail(@PathVariable(name = "id") Integer id) {
-        return Response.success(consumeService.get(id));
+    @ApiOperation(value = "Update inlong consume")
+    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
+        return Response.success(consumeService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping("/consume/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiOperation(value = "Delete data consumption")
-    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    @ApiOperation(value = "Delete inlong consume by ID")
+    @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> delete(@PathVariable(name = "id") Integer id) {
         this.consumeService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
-    @GetMapping("/consume/list")
-    @ApiOperation(value = "List data consumptions")
-    public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
-        query.setUsername(LoginUserUtils.getLoginUser().getName());
-        return Response.success(consumeService.list(query));
-    }
-
-    @GetMapping("/consume/summary")
-    @ApiOperation(value = "Get data consumption summary")
-    public Response<ConsumptionSummary> getSummary(ConsumptionQuery query) {
-        query.setUsername(LoginUserUtils.getLoginUser().getName());
-        return Response.success(consumeService.getSummary(query));
+    @PostMapping("/consume/startProcess/{id}")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Start inlong consume approval process")
+    @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
+    public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(consumeProcessOperation.startProcess(id, username));
     }
 
 }

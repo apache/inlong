@@ -23,14 +23,17 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
-import org.apache.inlong.manager.pojo.consumption.pulsar.ConsumePulsarInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Inlong consume operator for TubeMQ.
+ */
 @Service
 public class ConsumeTubeOperator extends AbstractConsumeOperator {
 

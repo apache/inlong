@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Factory for {@link InlongConsumeOperator}.
+ */
 @Service
 public class InlongConsumeOperatorFactory {
 

@@ -18,9 +18,12 @@
 package org.apache.inlong.manager.service.consume;
 
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 
+/**
+ * Interface of the inlong consume operator.
+ */
 public interface InlongConsumeOperator {
 
     /**

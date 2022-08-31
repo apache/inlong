@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -104,9 +104,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         return ConsumptionSummary.builder()
                 .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
-                .waitingApproveCount(countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
-                .rejectedCount(countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
+                .waitingAssignCount(countMap.getOrDefault(ConsumeStatus.WAIT_ASSIGN.getCode() + "", 0))
+                .waitingApproveCount(countMap.getOrDefault(ConsumeStatus.WAIT_APPROVE.getCode() + "", 0))
+                .rejectedCount(countMap.getOrDefault(ConsumeStatus.REJECTED.getCode() + "", 0)).build();
     }
 
     @Override
@@ -166,9 +166,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         if (info.getId() != null) {
             ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
             Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
-                    "consumption not allow update when status is " + consumptionStatus.name());
+            ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(consumptionEntity.getStatus());
+            Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
+                    "consumption not allow update when status is " + consumeStatus.name());
         }
 
         setTopicInfo(info);
@@ -284,7 +284,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
             // If the consumption has been approved, then close/open DLQ or RLQ, it is necessary to
             // add/remove inlong streams in the inlong group
-            if (ConsumptionStatus.APPROVED.getStatus() == exists.getStatus()) {
+            if (ConsumeStatus.APPROVED.getCode() == exists.getStatus()) {
                 String groupId = info.getInlongGroupId();
                 String dlqNameOld = pulsarEntity.getDeadLetterTopic();
                 String dlqNameNew = update.getDeadLetterTopic();
@@ -356,7 +356,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setInCharges(groupInfo.getInCharges());
         entity.setFilterEnabled(0);
 
-        entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
+        entity.setStatus(ConsumeStatus.APPROVED.getCode());
         String operator = groupInfo.getCreator();
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -377,7 +377,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
-        entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
+        entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 

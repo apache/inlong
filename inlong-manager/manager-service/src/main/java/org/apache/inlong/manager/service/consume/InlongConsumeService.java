@@ -17,54 +17,80 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * Inlong consume service layer interface
  */
 public interface InlongConsumeService {
 
-    Integer save(InlongConsumeRequest consumeRequest, String operator);
+    /**
+     * Save inlong consume info.
+     *
+     * @param request consume request need to save
+     * @param operator name of operator
+     * @return inlong consume id after saving
+     */
+    Integer save(InlongConsumeRequest request, String operator);
 
     /**
-     * Determine whether the Consumer group already exists
+     * Get inlong consume info based on ID
      *
-     * @param consumerGroup Consumer group
-     * @param excludeSelfId Exclude the ID of this record
-     * @return does it exist
+     * @param id inlong consume id
+     * @return detail of inlong group
      */
-    boolean isConsumerGroupExists(String consumerGroup, Integer excludeSelfId);
-
-    /**
-     * Update the person in charge of data consumption, etc
-     *
-     * @param consumeRequest consume request
-     * @param operator operator
-     */
-    Boolean update(InlongConsumeRequest consumeRequest, String operator);
-
     InlongConsumeInfo get(Integer id);
 
+    /**
+     * Check whether the consumer group exists or not
+     *
+     * @param consumerGroup consumer group
+     * @param excludeSelfId exclude the ID of this record
+     * @return true if exists, false if not exists
+     */
+    boolean consumerGroupExists(String consumerGroup, Integer excludeSelfId);
+
+    /**
+     * Paging query inlong consume info list
+     *
+     * @param request pagination query request
+     * @return inlong consume list
+     */
+    PageResult<InlongConsumeBriefInfo> list(InlongConsumePageRequest request);
+
+    /**
+     * Query the inlong consume statistics info via the username
+     *
+     * @param username username
+     * @return inlong consume status statistics
+     */
+    InlongConsumeCountInfo countStatus(String username);
+
+    /**
+     * Update the inlong consume
+     *
+     * @param request inlong consume request that needs to be updated
+     * @param operator name of operator
+     * @return whether succeed
+     */
+    Boolean update(@Valid @NotNull(message = "inlong consume request cannot be null") InlongConsumeRequest request,
+            String operator);
+
+    /**
+     * Delete the inlong consume by the id
+     *
+     * @param id inlong consume id that needs to be deleted
+     * @param operator name of operator
+     * @return whether succeed
+     */
     Boolean delete(Integer id, String operator);
 
-    /**
-     * Get data consumption list according to query conditions
-     *
-     * @param query Consumption info
-     * @return Consumption list
-     */
-    PageInfo<ConsumptionListVo> list(ConsumptionQuery query);
-
-    /**
-     * Data consumption statistics
-     *
-     * @param query Query conditions
-     * @return Statistics
-     */
-    ConsumptionSummary getSummary(ConsumptionQuery query);
 }

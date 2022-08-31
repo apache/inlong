@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -104,7 +104,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
         ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
-        update.setStatus(ConsumptionStatus.APPROVED.getStatus());
+        update.setStatus(ConsumeStatus.APPROVED.getCode());
         update.setConsumerGroup(consumerGroup);
         int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {

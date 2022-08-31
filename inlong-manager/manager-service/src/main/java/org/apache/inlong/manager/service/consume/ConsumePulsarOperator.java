@@ -18,26 +18,24 @@
 package org.apache.inlong.manager.service.consume;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeInfo;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
-import org.apache.inlong.manager.pojo.consumption.pulsar.ConsumePulsarDTO;
-import org.apache.inlong.manager.pojo.consumption.pulsar.ConsumePulsarInfo;
-import org.apache.inlong.manager.pojo.consumption.pulsar.ConsumePulsarRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarDTO;
+import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
+import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -53,7 +51,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
-@Slf4j
+/**
+ * Inlong consume operator for Pulsar.
+ */
 @Service
 public class ConsumePulsarOperator extends AbstractConsumeOperator {
 
@@ -71,8 +71,6 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
     private InlongStreamService streamService;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private InlongConsumeEntityMapper consumeEntityMapper;
 
     @Override
     public Boolean accept(String mqType) {
@@ -185,7 +183,6 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         Preconditions.checkEmpty(extParams, "Pulsar consumption cannot be null");
         ConsumePulsarDTO pulsarDTO = ConsumePulsarDTO.getFromJson(extParams);
 
-//        ConsumptionPulsarInfo pulsarRequestupdate = (ConsumptionPulsarInfo) info.getMqExtInfo();
         boolean dlqEnable = (pulsarRequest.getIsDlq() != null && pulsarRequest.getIsDlq() == 1);
         boolean rlqEnable = (pulsarRequest.getIsRlq() != null && pulsarRequest.getIsRlq() == 1);
 
@@ -196,7 +193,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
 
         // If the consumption has been approved, then close/open DLQ or RLQ, it is necessary to
         // add/remove inlong streams in the inlong group
-        if (ConsumptionStatus.APPROVED.getStatus() == exists.getStatus()) {
+        if (ConsumeStatus.APPROVED.getCode() == exists.getStatus()) {
             String groupId = pulsarRequest.getInlongGroupId();
             String dlqNameOld = pulsarDTO.getDeadLetterTopic();
             String dlqNameNew = pulsarRequest.getDeadLetterTopic();

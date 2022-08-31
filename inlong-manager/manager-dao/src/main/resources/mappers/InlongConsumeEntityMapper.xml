@@ -22,13 +22,13 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
-        <result column="topic" jdbcType="VARCHAR" property="topic"/>
+        <result column="consumer_group" jdbcType="VARCHAR" property="consumerGroup"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="mq_type" jdbcType="VARCHAR" property="mqType"/>
+        <result column="topic" jdbcType="VARCHAR" property="topic"/>
+        <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="filter_enabled" jdbcType="INTEGER" property="filterEnabled"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
-        <result column="consumer_group" jdbcType="VARCHAR" property="consumerGroup"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -47,163 +47,76 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
-        insert into inlong_consume (id, consumer_group,
-                                  description, mq_type,
-                                  topic, inlong_group_id,
-                                  filter_enabled, inlong_stream_id,
-                                  ext_params, in_charges,
-                                  status, is_deleted,
-                                  creator, modifier,
-                                  version)
-        values (#{id,jdbcType=INTEGER}, #{consumerGroup,jdbcType=VARCHAR},
-                #{description,jdbcType=VARCHAR}, #{mqType,jdbcType=VARCHAR},
-                #{topic,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{filterEnabled,jdbcType=INTEGER}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{extParams,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
-                #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{version,jdbcType=INTEGER})
+        insert into inlong_consume (id, consumer_group, description,
+                                    mq_type, topic, inlong_group_id,
+                                    filter_enabled, inlong_stream_id,
+                                    ext_params, in_charges, status,
+                                    is_deleted, creator, modifier)
+        values (#{id, jdbcType=INTEGER}, #{consumerGroup, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
+                #{mqType, jdbcType=VARCHAR}, #{topic, jdbcType=VARCHAR}, #{inlongGroupId, jdbcType=VARCHAR},
+                #{filterEnabled, jdbcType=INTEGER}, #{inlongStreamId, jdbcType=VARCHAR},
+                #{extParams, jdbcType=LONGVARCHAR}, #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER},
+                #{isDeleted, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
-    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
-        insert into inlong_consume
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
-            <if test="consumerGroup != null">
-                consumer_group,
-            </if>
-            <if test="inCharges != null">
-                in_charges,
-            </if>
-            <if test="inlongGroupId != null">
-                inlong_group_id,
-            </if>
-            <if test="mqType != null">
-                mq_type,
-            </if>
-            <if test="topic != null">
-                topic,
-            </if>
-            <if test="filterEnabled != null">
-                filter_enabled,
-            </if>
-            <if test="inlongStreamId != null">
-                inlong_stream_id,
-            </if>
-            <if test="extParams != null">
-                ext_params,
-            </if>
-            <if test="status != null">
-                status,
-            </if>
-            <if test="creator != null">
-                creator,
-            </if>
-            <if test="modifier != null">
-                modifier,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id, jdbcType=INTEGER},
-            </if>
-            <if test="consumerGroup != null">
-                #{consumerGroup, jdbcType=VARCHAR},
-            </if>
-            <if test="inCharges != null">
-                #{inCharges, jdbcType=VARCHAR},
-            </if>
-            <if test="inlongGroupId != null">
-                #{inlongGroupId, jdbcType=VARCHAR},
-            </if>
-            <if test="mqType != null">
-                #{mqType, jdbcType=VARCHAR},
-            </if>
-            <if test="topic != null">
-                #{topic, jdbcType=VARCHAR},
-            </if>
-            <if test="filterEnabled != null">
-                #{filterEnabled, jdbcType=INTEGER},
-            </if>
-            <if test="inlongStreamId != null">
-                #{inlongStreamId, jdbcType=VARCHAR},
-            </if>
-            <if test="extParams != null">
-                #{extParams, jdbcType=LONGVARCHAR},
-            </if>
-            <if test="status != null">
-                #{status, jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                #{creator, jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                #{modifier, jdbcType=VARCHAR},
-            </if>
-        </trim>
-    </insert>
-
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from inlong_consume
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id, jdbcType=INTEGER}
     </select>
-
-    <select id="listByQuery"
-            parameterType="org.apache.inlong.manager.pojo.consumption.ConsumptionQuery"
-            resultMap="BaseResultMap">
+    <select id="countByUser" resultType="java.util.Map">
+        select status, count(1) as total
+        from inlong_consume
+        where is_deleted = 0
+          and (creator = #{username, jdbcType=VARCHAR} or FIND_IN_SET(#{username, jdbcType=VARCHAR}, in_charges))
+        group by status
+    </select>
+    <select id="selectByCondition" resultMap="BaseResultMap"
+            parameterType="org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest">
         select
-        c.*
-        from inlong_consume c
-        where c.is_deleted=0
-        <if test="consumerGroup != null and consumerGroup != ''">
-            and c.consumer_group = #{consumerGroup, jdbcType=VARCHAR}
-        </if>
-        <if test="inlongGroupId != null and inlongGroupId != ''">
-            and c.inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
-        </if>
-        <if test="mqType != null and mqType != ''">
-            and c.mq_type = #{mqType, jdbcType=VARCHAR}
-        </if>
-        <if test="topic != null and topic != ''">
-            and c.topic like CONCAT('%', #{topic}, '%')
-        </if>
-        <if test="filterEnabled != null">
-            and c.filter_enabled = #{filterEnabled, jdbcType=INTEGER}
-        </if>
-        <if test="inlongStreamId != null and inlongStreamId != ''">
-            and c.inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
-        </if>
-        <if test="status != null">
-            and c.status = #{status, jdbcType=INTEGER}
-        </if>
-        <if test="creator != null and creator != ''">
-            and c.creator = #{creator, jdbcType=VARCHAR}
-        </if>
-        <if test="modifier != null and modifier != ''">
-            and c.modifier = #{modifier, jdbcType=VARCHAR}
-        </if>
-        <if test="isAdminRole == false">
-            and (
-            FIND_IN_SET(#{username, jdbcType=VARCHAR},c.in_charges)
-            or c.creator = #{username, jdbcType=VARCHAR}
-            )
-        </if>
-        <if test="keyword != null and keyword !=''">
-            and (c.topic like CONCAT('%', #{keyword}, '%') or c.consumer_group like CONCAT('%', #{keyword}, '%'))
-        </if>
-        <if test="lastConsumptionStatus != null and lastConsumptionStatus != 3">
-            and cas.latest_record_state = #{lastConsumptionStatus, jdbcType=INTEGER}
-        </if>
-        <if test="lastConsumptionStatus != null and lastConsumptionStatus == 3">
-            and (cas.latest_record_state = #{lastConsumptionStatus, jdbcType=INTEGER}
-            or cas.latest_record_state is null)
-        </if>
-        order by id desc
+        <include refid="Base_Column_List"/>
+        from inlong_consume
+        <where>
+            is_deleted = 0
+            <if test="isAdminRole == false">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or FIND_IN_SET(#{currentUser, jdbcType=VARCHAR}, in_charges)
+                )
+            </if>
+            <if test="keyword != null and keyword !=''">
+                and (consumer_group like CONCAT('%', #{keyword}, '%') or topic like CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="consumerGroup != null and consumerGroup != ''">
+                and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
+            </if>
+            <if test="mqType != null and mqType != ''">
+                and mq_type = #{mqType, jdbcType=VARCHAR}
+            </if>
+            <if test="topic != null and topic != ''">
+                and topic = #{topic}
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="statusList != null and statusList.size() > 0">
+                and status in
+                <foreach collection="statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+        </where>
+        <choose>
+            <when test="orderField != null and orderField != '' and orderType != null and orderType != ''">
+                order by ${orderField} ${orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
@@ -226,24 +139,24 @@
           and version = #{version, jdbcType=INTEGER}
     </update>
 
-    <update id="updateByPrimaryKeySelective"
+    <update id="updateByIdSelective"
             parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
         update inlong_consume
         <set>
             <if test="consumerGroup != null">
                 consumer_group = #{consumerGroup, jdbcType=VARCHAR},
             </if>
-            <if test="inCharges != null">
-                in_charges = #{inCharges, jdbcType=VARCHAR},
-            </if>
-            <if test="inlongGroupId != null">
-                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
             </if>
             <if test="mqType != null">
                 mq_type = #{mqType, jdbcType=VARCHAR},
             </if>
             <if test="topic != null">
                 topic = #{topic, jdbcType=VARCHAR},
+            </if>
+            <if test="inlongGroupId != null">
+                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
             </if>
             <if test="filterEnabled != null">
                 filter_enabled = #{filterEnabled, jdbcType=INTEGER},
@@ -254,11 +167,11 @@
             <if test="extParams != null">
                 ext_params = #{extParams, jdbcType=LONGVARCHAR},
             </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges, jdbcType=VARCHAR},
+            </if>
             <if test="status != null">
                 status = #{status, jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                creator = #{creator, jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
@@ -270,57 +183,9 @@
         and version = #{version, jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from inlong_consume
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
-    <select id="countByQuery"
-            parameterType="org.apache.inlong.manager.pojo.consumption.ConsumptionQuery"
-            resultType="org.apache.inlong.manager.pojo.common.CountInfo">
-        select status as `key`, count(1) as value
-        from inlong_consume
-        where is_deleted=0
-        <if test="consumerGroup != null and consumerGroup != ''">
-            and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
-        </if>
-        <if test="inCharges != null and inCharges != ''">
-            and FIND_IN_SET(#{inCharges, jdbcType=VARCHAR},in_charges)
-        </if>
-        <if test="inlongGroupId != null and inlongGroupId != ''">
-            and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
-        </if>
-        <if test="mqType != null and mqType != ''">
-            and mq_type = #{mqType, jdbcType=VARCHAR}
-        </if>
-        <if test="topic != null and topic != ''">
-            and topic = #{topic, jdbcType=VARCHAR}
-        </if>
-        <if test="filterEnabled != null">
-            and filter_enabled = #{filterEnabled, jdbcType=INTEGER}
-        </if>
-        <if test="inlongStreamId != null and inlongStreamId != ''">
-            and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
-        </if>
-        <if test="status != null">
-            and status = #{status, jdbcType=INTEGER}
-        </if>
-        <if test="creator != null and creator != ''">
-            and creator = #{creator, jdbcType=VARCHAR}
-        </if>
-        <if test="modifier != null and modifier != ''">
-            and modifier = #{modifier, jdbcType=VARCHAR}
-        </if>
-        <if test="username != null and username !=''">
-            and (
-            FIND_IN_SET(#{username, jdbcType=VARCHAR},in_charges)
-            or creator = #{username, jdbcType=VARCHAR}
-            )
-        </if>
-        <if test="keyword != null and keyword !=''">
-            and ( topic like CONCAT('%', #{keyword}, '%') or consumer_group like CONCAT('%', #{keyword}, '%') )
-        </if>
-        group by status
-    </select>
 </mapper>

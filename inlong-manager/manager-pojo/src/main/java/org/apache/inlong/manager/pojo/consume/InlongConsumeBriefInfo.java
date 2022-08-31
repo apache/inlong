@@ -15,38 +15,59 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.pojo.consume;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong consume entity.
+ * Inlong consume brief info
  */
 @Data
-public class InlongConsumeEntity implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong consume brief info")
+public class InlongConsumeBriefInfo {
 
-    private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
+
+    @ApiModelProperty(value = "Consumer group, only support [a-zA-Z0-9_]")
     private String consumerGroup;
-    private String description;
-    private String mqType;
+
+    @ApiModelProperty(value = "The target topic of inlong consume")
     private String topic;
 
+    @ApiModelProperty(value = "The target inlongGroupId of inlong consume")
     private String inlongGroupId;
-    private Integer filterEnabled;
-    private String inlongStreamId;
-    private String extParams;
 
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    private String mqType;
+
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Status")
     private Integer status;
-    private Integer isDeleted;
+
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
+
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-    private Integer version;
 
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consumption.pulsar;
+package org.apache.inlong.manager.pojo.consume.pulsar;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,12 +44,6 @@ public class ConsumePulsarDTO {
 
     @ApiModelProperty(value = "Consumption ID")
     private Integer consumptionId;
-
-//    @ApiModelProperty(value = "Consumer group")
-//    private String consumerGroup;
-
-//    @ApiModelProperty(value = "Consumption target inlong group id")
-//    private String inlongGroupId;
 
     @ApiModelProperty("Whether to delete, 0: not deleted, 1: deleted")
     private Integer isDeleted = 0;

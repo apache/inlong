@@ -17,30 +17,29 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
-import org.apache.inlong.manager.pojo.common.CountInfo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface InlongConsumeEntityMapper {
 
     int insert(InlongConsumeEntity record);
 
-    int insertSelective(InlongConsumeEntity record);
+    InlongConsumeEntity selectById(Integer id);
 
-    InlongConsumeEntity selectByPrimaryKey(Integer id);
+    List<Map<String, Object>> countByUser(@Param(value = "username") String username);
 
-    List<InlongConsumeEntity> listByQuery(ConsumptionQuery consumptionQuery);
+    List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
 
     int updateByPrimaryKey(InlongConsumeEntity record);
 
-    int updateByPrimaryKeySelective(InlongConsumeEntity record);
+    int updateByIdSelective(InlongConsumeEntity record);
 
-    int deleteByPrimaryKey(Integer id);
-
-    List<CountInfo> countByQuery(ConsumptionQuery consumptionQuery);
+    int deleteById(Integer id);
 
 }

@@ -21,17 +21,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 /**
- * Data consumption status
+ * Inlong consume status
  */
-@ApiModel("Data consumption status")
-public enum ConsumptionStatus {
+@ApiModel("Inlong consume status")
+public enum ConsumeStatus {
 
     @ApiModelProperty(value = "To be allocated: 10")
     WAIT_ASSIGN(10),
@@ -46,33 +47,41 @@ public enum ConsumptionStatus {
     APPROVED(21),
 
     @ApiModelProperty(value = "Cancel application: 22")
-    CANCELED(22);
+    CANCELED(22),
 
-    public static final Set<ConsumptionStatus> ALLOW_SAVE_UPDATE_STATUS = ImmutableSet
+    @ApiModelProperty(value = "Deleting: 40")
+    DELETING(40),
+
+    @ApiModelProperty(value = "Deleted: 41")
+    DELETED(41),
+
+    ;
+
+    public static final Set<ConsumeStatus> ALLOW_SAVE_UPDATE_STATUS = ImmutableSet
             .of(WAIT_ASSIGN, REJECTED, CANCELED);
 
-    public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAIT_ASSIGN);
+    public static final Set<ConsumeStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAIT_ASSIGN);
 
-    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InlongCollectionUtils.transformToImmutableMap(
-            Lists.newArrayList(ConsumptionStatus.values()),
-            ConsumptionStatus::getStatus,
+    private static final Map<Integer, ConsumeStatus> STATUS_MAP = InlongCollectionUtils.transformToImmutableMap(
+            Lists.newArrayList(ConsumeStatus.values()),
+            ConsumeStatus::getCode,
             Function.identity()
     );
 
-    private final int status;
+    private final int code;
 
-    ConsumptionStatus(int status) {
-        this.status = status;
+    ConsumeStatus(int code) {
+        this.code = code;
     }
 
-    public static ConsumptionStatus fromStatus(int status) {
-        ConsumptionStatus consumptionStatus = STATUS_MAP.get(status);
-        Preconditions.checkNotNull(consumptionStatus, "status is unavailable :" + status);
-        return consumptionStatus;
+    public static ConsumeStatus fromStatus(int status) {
+        ConsumeStatus consumeStatus = STATUS_MAP.get(status);
+        Preconditions.checkNotNull(consumeStatus, "consume status is invalid for " + status);
+        return consumeStatus;
     }
 
-    public int getStatus() {
-        return status;
+    public int getCode() {
+        return code;
     }
 
 }

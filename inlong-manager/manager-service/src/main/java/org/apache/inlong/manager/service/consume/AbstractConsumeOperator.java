@@ -18,18 +18,21 @@
 package org.apache.inlong.manager.service.consume;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
-import org.apache.inlong.manager.pojo.consumption.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Default operator of inlong consume.
+ */
 public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConsumeOperator.class);
@@ -39,13 +42,12 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
 
     protected abstract void setExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity entity);
 
-    protected abstract void updateExtParam(InlongConsumeRequest consumeRequest,
-                                           InlongConsumeEntity exists,
-                                           String operator);
+    protected abstract void updateExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity exists,
+            String operator);
 
     public void saveOpt(InlongConsumeRequest consumeRequest, String operator) {
         InlongConsumeEntity entity = CommonBeanUtils.copyProperties(consumeRequest, InlongConsumeEntity::new);
-        entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
+        entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 
@@ -54,7 +56,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
         if (consumeRequest.getId() != null) {
             int rowCount = consumeEntityMapper.updateByPrimaryKey(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+                LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
                         entity.getId(), entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }
@@ -62,15 +64,15 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
             consumeEntityMapper.insert(entity);
         }
 
-        Preconditions.checkNotNull(entity.getId(), "save consumption failed");
+        Preconditions.checkNotNull(entity.getId(), "inlong consume save failed");
     }
 
     public void updateOpt(InlongConsumeRequest consumeRequest, InlongConsumeEntity exists, String operator) {
         updateExtParam(consumeRequest, exists, operator);
 
-        int rowCount = consumeEntityMapper.updateByPrimaryKeySelective(exists);
+        int rowCount = consumeEntityMapper.updateByIdSelective(exists);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-//            LOGGER.error(errMsg);
+            // LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }

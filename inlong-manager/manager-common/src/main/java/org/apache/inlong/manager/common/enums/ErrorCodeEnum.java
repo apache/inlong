@@ -128,6 +128,12 @@ public enum ErrorCodeEnum {
     CONSUMER_INFO_INCORRECT(2609, "Consumer info was incorrect"),
     CONSUMER_NOR_FOUND(2609, "Consumer not found"),
 
+    CONSUME_NOT_FOUND(3001, "Inlong consume does not exist/no operation authority"),
+    CONSUME_DUPLICATE(3002, "Inlong consume already exists"),
+    CONSUME_INFO_INCORRECT(3003, "Inlong consume info was incorrect"),
+    CONSUME_SAVE_FAILED(3004, "Failed to save/update inlong consume"),
+    CONSUME_PERMISSION_DENIED(3005, "No permission to access this inlong consume"),
+
     ;
 
     private final int code;

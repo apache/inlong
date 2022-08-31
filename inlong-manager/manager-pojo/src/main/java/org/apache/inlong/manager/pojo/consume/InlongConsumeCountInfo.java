@@ -15,38 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.pojo.consume;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
- * Inlong consume entity.
+ * Statistics of inlong consume.
  */
 @Data
-public class InlongConsumeEntity implements Serializable {
+@ApiModel("Statistics of inlong consume")
+public class InlongConsumeCountInfo {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String consumerGroup;
-    private String description;
-    private String mqType;
-    private String topic;
+    @ApiModelProperty(value = "Total consume number")
+    private long totalCount;
 
-    private String inlongGroupId;
-    private Integer filterEnabled;
-    private String inlongStreamId;
-    private String extParams;
+    @ApiModelProperty(value = "Total number of to be allocated (the number of configuring consumes)")
+    private long waitAssignCount;
 
-    private String inCharges;
-    private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private Integer version;
+    @ApiModelProperty(value = "Total number of to be approved")
+    private long waitApproveCount;
+
+    @ApiModelProperty(value = "Total number of rejections")
+    private long rejectCount;
 
 }
