@@ -86,7 +86,7 @@ public class ClientMgr {
     private int groupIdNum = 0;
     private String groupId = "";
     private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
-//    private static final int total_weight = 240;
+    //    private static final int total_weight = 240;
     private int loadThreshold;
     private int loadCycle = 0;
 
