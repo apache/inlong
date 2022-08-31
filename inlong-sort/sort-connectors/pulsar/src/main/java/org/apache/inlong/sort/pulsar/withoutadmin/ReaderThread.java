@@ -24,6 +24,7 @@ import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicState;
 import org.apache.flink.streaming.connectors.pulsar.internal.TopicRange;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
+import org.apache.flink.util.Collector;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -36,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,6 +62,7 @@ public class ReaderThread<T> extends Thread {
     protected boolean excludeMessageId = false;
     private boolean failOnDataLoss = true;
     private boolean useEarliestWhenDataLoss = false;
+    private final PulsarCollector pulsarCollector;
 
     protected volatile boolean running = true;
     protected volatile boolean closed = false;
@@ -85,6 +89,7 @@ public class ReaderThread<T> extends Thread {
 
         this.topicRange = state.getTopicRange();
         this.startMessageId = state.getOffset();
+        this.pulsarCollector = new PulsarCollector();
     }
 
     public ReaderThread(
@@ -151,12 +156,13 @@ public class ReaderThread<T> extends Thread {
 
     protected void emitRecord(Message<T> message) throws IOException {
         MessageId messageId = message.getMessageId();
-        final T record = deserializer.deserialize(message);
-        if (deserializer.isEndOfStream(record)) {
+        deserializer.deserialize(message, pulsarCollector);
+
+        owner.emitRecordsWithTimestamps(pulsarCollector.getRecords(), state, messageId, message.getEventTime());
+        if (pulsarCollector.isEndOfStreamSignalled()) {
+            // end of stream signaled
             running = false;
-            return;
         }
-        owner.emitRecordsWithTimestamps(record, state, messageId, message.getEventTime());
     }
 
     public void cancel() throws IOException {
@@ -217,6 +223,34 @@ public class ReaderThread<T> extends Thread {
                             "comparing messageIds of type %s, %s",
                             l.getClass().toString(),
                             r.getClass().toString()));
+        }
+    }
+
+    private class PulsarCollector implements Collector<T> {
+        private final Queue<T> records = new ArrayDeque<>();
+
+        private boolean endOfStreamSignalled = false;
+
+        @Override
+        public void collect(T record) {
+            // do not emit subsequent elements if the end of the stream reached
+            if (endOfStreamSignalled || deserializer.isEndOfStream(record)) {
+                endOfStreamSignalled = true;
+                return;
+            }
+            records.add(record);
+        }
+
+        public Queue<T> getRecords() {
+            return records;
+        }
+
+        public boolean isEndOfStreamSignalled() {
+            return endOfStreamSignalled;
+        }
+
+        @Override
+        public void close() {
         }
     }
 }
