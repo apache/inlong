@@ -39,7 +39,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    private static MonitorTextFile monitorTextFile = null;
+    private static volatile MonitorTextFile monitorTextFile = null;
     // monitor thread pool
     private final ThreadPoolExecutor runningPool = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
