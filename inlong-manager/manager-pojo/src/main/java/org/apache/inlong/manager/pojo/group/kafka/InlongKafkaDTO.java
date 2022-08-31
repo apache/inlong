@@ -20,10 +20,8 @@ package org.apache.inlong.manager.pojo.group.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
@@ -34,8 +32,6 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
