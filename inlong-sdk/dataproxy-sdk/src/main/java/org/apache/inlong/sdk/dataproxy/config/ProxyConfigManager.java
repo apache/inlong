@@ -94,6 +94,7 @@ public class ProxyConfigManager extends Thread {
     private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
     private final JsonParser jsonParser = new JsonParser();
     private final Gson gson = new Gson();
+    private final HashRing hashRing = HashRing.getInstance();
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
     /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
     private int oldStat = 0;
@@ -102,7 +103,6 @@ public class ProxyConfigManager extends Thread {
     private boolean bShutDown = false;
     private long doworkTime = 0;
     private EncryptConfigEntry userEncryConfigEntry;
-    private final HashRing hashRing = HashRing.getInstance();
 
     public ProxyConfigManager(final ProxyClientConfig configure, final String localIP, final ClientMgr clientManager) {
         this.clientConfig = configure;
@@ -626,14 +626,6 @@ public class ProxyConfigManager extends Thread {
         if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
             isSwitch = proxyCluster.getIsSwitch();
         }
-        int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getVirtualNode())) {
-            virtualNode = proxyCluster.getVirtualNode();
-        }
-        String loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
-        if (ObjectUtils.isNotEmpty(proxyCluster.getLoadBalance())) {
-            loadBalance = proxyCluster.getLoadBalance();
-        }
 
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
         proxyEntry.setClusterId(clusterId);
@@ -643,8 +635,6 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
         proxyEntry.setSize(nodeList.size());
-        proxyEntry.setVirtualNode(virtualNode);
-        proxyEntry.setLoadBalance(loadBalance);
         return proxyEntry;
     }
 

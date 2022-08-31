@@ -52,8 +52,4 @@ public class DataProxyNodeResponse {
      */
     private List<DataProxyNodeInfo> nodeList;
 
-    private String loadBalance;
-
-    private int virtualNode;
-
 }

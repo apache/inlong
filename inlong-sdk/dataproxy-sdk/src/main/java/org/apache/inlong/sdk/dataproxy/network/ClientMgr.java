@@ -53,22 +53,28 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClientMgr {
     private static final Logger logger = LoggerFactory
             .getLogger(ClientMgr.class);
-
+    private static final int[] weight = {
+            1, 1, 1, 1, 1,
+            2, 2, 2, 2, 2,
+            3, 3, 3, 3, 3,
+            6, 6, 6, 6, 6,
+            12, 12, 12, 12, 12,
+            48, 96, 192, 384, 1000};
+    private static String LOAD_BALANCE = "Consistency Hash";
     private final Map<HostInfo, NettyClient> clientMapData = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMapHB = new ConcurrentHashMap<>();
     // clientMapData + clientMapHB = clientMap
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMap = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<HostInfo, AtomicLong> lastBadHostMap = new ConcurrentHashMap<>();
-
     // clientList is the valueSet of clientMapData
     private final ArrayList<NettyClient> clientList = new ArrayList<>();
-    private List<HostInfo> proxyInfoList = new ArrayList<>();
-
     private final Map<HostInfo, int[]> channelLoadMapData = new ConcurrentHashMap<>();
     private final Map<HostInfo, int[]> channelLoadMapHB = new ConcurrentHashMap<>();
-
+    /**
+     * Lock to protect FSNamesystem.
+     */
+    private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
+    private List<HostInfo> proxyInfoList = new ArrayList<>();
     private Bootstrap bootstrap;
     private int currentIndex = 0;
     private ProxyClientConfig configure;
@@ -77,110 +83,17 @@ public class ClientMgr {
     private int realSize;
     private SendHBThread sendHBThread;
     private ProxyConfigManager ipManager;
-
     private int groupIdNum = 0;
     private String groupId = "";
     private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
+//    private static final int total_weight = 240;
     private int loadThreshold;
     private int loadCycle = 0;
-    private static final int[] weight = {
-            1, 1, 1, 1, 1,
-            2, 2, 2, 2, 2,
-            3, 3, 3, 3, 3,
-            6, 6, 6, 6, 6,
-            12, 12, 12, 12, 12,
-            48, 96, 192, 384, 1000};
-//    private static final int total_weight = 240;
-    /**
-     * Lock to protect FSNamesystem.
-     */
-    private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
-    private static String LOAD_BALANCE = "Consistency Hash";
-
-    public int getLoadThreshold() {
-        return loadThreshold;
-    }
-
-    public void setLoadThreshold(int loadThreshold) {
-        this.loadThreshold = loadThreshold;
-    }
-
-    public int getGroupIdNum() {
-        return groupIdNum;
-    }
-
-    public void setGroupIdNum(int groupIdNum) {
-        this.groupIdNum = groupIdNum;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public Map<String, Integer> getStreamIdMap() {
-        return streamIdMap;
-    }
-
-    public void setStreamIdMap(Map<String, Integer> streamIdMap) {
-        this.streamIdMap = streamIdMap;
-    }
-
-    public EncryptConfigEntry getEncryptConfigEntry() {
-        return this.ipManager.getEncryptConfigEntry(configure.getUserName());
-    }
-
-    public List<HostInfo> getProxyInfoList() {
-        return proxyInfoList;
-    }
-
-    public int getAliveConnections() {
-        return aliveConnections;
-    }
-
-    public void setAliveConnections(int aliveConnections) {
-        this.aliveConnections = aliveConnections;
-    }
-
-    public void readLock() {
-        this.fsLock.readLock().lock();
-    }
-
-    public void readUnlock() {
-        this.fsLock.readLock().unlock();
-    }
-
-    public void writeLock() {
-        this.fsLock.writeLock().lock();
-    }
-
-    public void writeLockInterruptibly() throws InterruptedException {
-        this.fsLock.writeLock().lockInterruptibly();
-    }
-
-    public void writeUnlock() {
-        this.fsLock.writeLock().unlock();
-    }
-
-    public boolean hasWriteLock() {
-        return this.fsLock.isWriteLockedByCurrentThread();
-    }
-
-    public boolean hasReadLock() {
-        return this.fsLock.getReadHoldCount() > 0;
-    }
-
-    public boolean hasReadOrWriteLock() {
-        return hasReadLock() || hasWriteLock();
-    }
 
     public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
         this(configure, sender, null);
     }
-    
+
     /**
      * Build up the connection between the server and client.
      */
@@ -229,6 +142,130 @@ public class ClientMgr {
         this.sendHBThread = new SendHBThread();
         this.sendHBThread.setName("SendHBThread");
         this.sendHBThread.start();
+    }
+
+    public int getLoadThreshold() {
+        return loadThreshold;
+    }
+
+    public void setLoadThreshold(int loadThreshold) {
+        this.loadThreshold = loadThreshold;
+    }
+
+    public int getGroupIdNum() {
+        return groupIdNum;
+    }
+
+    public void setGroupIdNum(int groupIdNum) {
+        this.groupIdNum = groupIdNum;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public Map<String, Integer> getStreamIdMap() {
+        return streamIdMap;
+    }
+
+    public void setStreamIdMap(Map<String, Integer> streamIdMap) {
+        this.streamIdMap = streamIdMap;
+    }
+
+    public EncryptConfigEntry getEncryptConfigEntry() {
+        return this.ipManager.getEncryptConfigEntry(configure.getUserName());
+    }
+
+    public List<HostInfo> getProxyInfoList() {
+        return proxyInfoList;
+    }
+
+    public void setProxyInfoList(List<HostInfo> proxyInfoList) {
+        try {
+            /* Close and remove old client. */
+            writeLock();
+            this.proxyInfoList = proxyInfoList;
+
+            if (loadThreshold == 0) {
+                if (aliveConnections >= proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    aliveConnections = realSize;
+                    logger.error("there is no enough proxy to work!");
+                } else {
+                    realSize = aliveConnections;
+                }
+            } else {
+                if (aliveConnections >= proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    aliveConnections = realSize;
+                    logger.error("there is no idle proxy to choose for balancing!");
+                } else if ((aliveConnections + 4) > proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    logger.warn("there is only {} idle proxy to choose for balancing!",
+                            proxyInfoList.size() - aliveConnections);
+                } else {
+                    realSize = aliveConnections + 4;
+                }
+            }
+
+            List<HostInfo> hostInfos = getRealHosts(proxyInfoList, realSize);
+
+            /* Refresh the current channel connections. */
+            updateAllConnection(hostInfos);
+
+            logger.info(
+                    "update all connection ,client map size {},client list size {}",
+                    clientMapData.size(), clientList.size());
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            writeUnlock();
+        }
+    }
+
+    public int getAliveConnections() {
+        return aliveConnections;
+    }
+
+    public void setAliveConnections(int aliveConnections) {
+        this.aliveConnections = aliveConnections;
+    }
+
+    public void readLock() {
+        this.fsLock.readLock().lock();
+    }
+
+    public void readUnlock() {
+        this.fsLock.readLock().unlock();
+    }
+
+    public void writeLock() {
+        this.fsLock.writeLock().lock();
+    }
+
+    public void writeLockInterruptibly() throws InterruptedException {
+        this.fsLock.writeLock().lockInterruptibly();
+    }
+
+    public void writeUnlock() {
+        this.fsLock.writeLock().unlock();
+    }
+
+    public boolean hasWriteLock() {
+        return this.fsLock.isWriteLockedByCurrentThread();
+    }
+
+    public boolean hasReadLock() {
+        return this.fsLock.getReadHoldCount() > 0;
+    }
+
+    public boolean hasReadOrWriteLock() {
+        return hasReadLock() || hasWriteLock();
     }
 
     public ProxyConfigEntry getGroupIdConfigureInfo() throws Exception {
@@ -373,6 +410,8 @@ public class ClientMgr {
         return client;
     }
 
+//    public synchronized NettyClient getClientByLeastConnections() {}
+
     public synchronized NettyClient getClientByConsistencyHash(String messageId) {
         NettyClient client;
         if (clientList.isEmpty()) {
@@ -384,8 +423,6 @@ public class ClientMgr {
         client = this.clientMap.get(info);
         return client;
     }
-
-//    public synchronized NettyClient getClientByLeastConnections() {}
 
     public synchronized NettyClient getClientByWeightRoundRobin() {
         NettyClient client = null;
@@ -407,6 +444,8 @@ public class ClientMgr {
         }
         return clientList.get(clientId);
     }
+
+//    public synchronized NettyClient getClientByWeightLeastConnections(){}
 
     public synchronized NettyClient getClientByWeightRandom() {
         NettyClient client;
@@ -432,8 +471,6 @@ public class ClientMgr {
         }
         return clientList.get(clientId);
     }
-
-//    public synchronized NettyClient getClientByWeightLeastConnections(){}
 
     public NettyClient getContainProxy(String proxyip) {
         if (proxyip == null) {
@@ -941,50 +978,6 @@ public class ClientMgr {
 
     }
 
-    public void setProxyInfoList(List<HostInfo> proxyInfoList) {
-        try {
-            /* Close and remove old client. */
-            writeLock();
-            this.proxyInfoList = proxyInfoList;
-
-            if (loadThreshold == 0) {
-                if (aliveConnections >= proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    aliveConnections = realSize;
-                    logger.error("there is no enough proxy to work!");
-                } else {
-                    realSize = aliveConnections;
-                }
-            } else {
-                if (aliveConnections >= proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    aliveConnections = realSize;
-                    logger.error("there is no idle proxy to choose for balancing!");
-                } else if ((aliveConnections + 4) > proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    logger.warn("there is only {} idle proxy to choose for balancing!",
-                            proxyInfoList.size() - aliveConnections);
-                } else {
-                    realSize = aliveConnections + 4;
-                }
-            }
-
-            List<HostInfo> hostInfos = getRealHosts(proxyInfoList, realSize);
-
-            /* Refresh the current channel connections. */
-            updateAllConnection(hostInfos);
-
-            logger.info(
-                    "update all connection ,client map size {},client list size {}",
-                    clientMapData.size(), clientList.size());
-
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        } finally {
-            writeUnlock();
-        }
-    }
-
     private List<HostInfo> getRealHosts(List<HostInfo> hostList, int realSize) {
         if (realSize > hostList.size()) {
             return hostList;
@@ -1000,8 +993,8 @@ public class ClientMgr {
 
     private class SendHBThread extends Thread {
 
-        private boolean bShutDown = false;
         private final int[] random = {17, 19, 23, 31, 37};
+        private boolean bShutDown = false;
 
         public SendHBThread() {
             bShutDown = false;

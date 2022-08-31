@@ -30,11 +30,11 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 public class HashRing {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HashRing.class);
+    private static volatile HashRing instance;
     private int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;
     private TreeMap<String, HostInfo> virtualNode2RealNode;
     private List<HostInfo> nodeList;
-    private static volatile HashRing instance;
-    private static final Logger LOGGER = LoggerFactory.getLogger(HashRing.class);
 
     private HashRing() {
         this.virtualNode2RealNode = new TreeMap<>();
@@ -57,7 +57,7 @@ public class HashRing {
     }
 
     public String node2VirtualNode(HostInfo node, int index) {
-        return  "virtual&&" + index + "&&" + node.toString();
+        return "virtual&&" + index + "&&" + node.toString();
     }
 
     public void setVirtualNode(int virtualNode) {

@@ -68,21 +68,8 @@ public class ConfigConstants {
     public static final int FLAG_ALLOW_COMPRESS = 1 << 5;
 
     public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
-
-    public static String DEFAULT_LOAD_BALANCE = "robin";
-
+    public static LoadBalance DEFAULT_LOAD_BALANCE = LoadBalance.ROBIN;
     public static int DEFAULT_VIRTUAL_NODE = 1000;
-
-    public static final String LOAD_BALANCE_RANDOM = "random";
-
-    public static final String LOAD_BALANCE_ROBIN = "robin";
-
-    public static final String LOAD_BALANCE_CONSISTENCY_HASH = "consistency hash";
-
-    public static final String LOAD_BALANCE_WEIGHT_RANDOM = "weight random";
-
-    public static final String LOAD_BALANCE_WEIGHT_ROBIN = "weight robin";
-
     public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
 
 }

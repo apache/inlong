@@ -22,11 +22,7 @@ import io.netty.channel.Channel;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.FileCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.*;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
@@ -180,8 +176,8 @@ public class Sender {
     }
 
     private SendResult syncSendInternalMessage(NettyClient client,
-            EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit)
+                                               EncodeObject encodeObject, String msgUUID,
+                                               long timeout, TimeUnit timeUnit)
             throws ExecutionException, InterruptedException, TimeoutException {
 
         if (client == null) {
@@ -231,12 +227,12 @@ public class Sender {
      */
 //    @Deprecated
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) {
+                                      long timeout, TimeUnit timeUnit) {
         return syncSendMessage(encodeObject, msgUUID, timeout, timeUnit, configure.getLoadBalance());
     }
 
     public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout,
-                                      TimeUnit timeUnit, String loadBalance) {
+                                      TimeUnit timeUnit, LoadBalance loadBalance) {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
         NettyClient client = getClient(loadBalance, encodeObject);
@@ -402,7 +398,7 @@ public class Sender {
      * @throws ProxysdkException
      */
     public void asyncSendMessageIndex(EncodeObject encodeObject,
-            FileCallback callback, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
+                                      FileCallback callback, String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
         NettyClient client = chooseProxy.get(encodeObject.getMessageId());
         String proxyip = encodeObject.getProxyIp();
         if (proxyip != null && proxyip.length() != 0) {
@@ -523,7 +519,7 @@ public class Sender {
     }
 
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-                                 long timeout, TimeUnit timeUnit, String loadBalance) throws ProxysdkException {
+                                 long timeout, TimeUnit timeUnit, LoadBalance loadBalance) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
@@ -736,22 +732,22 @@ public class Sender {
         return true;
     }
 
-    private NettyClient getClient(String loadBalance, EncodeObject encodeObject) {
+    private NettyClient getClient(LoadBalance loadBalance, EncodeObject encodeObject) {
         NettyClient client = null;
         switch (loadBalance) {
-            case ConfigConstants.LOAD_BALANCE_RANDOM:
+            case RANDOM:
                 client = clientMgr.getClientByRandom();
                 break;
-            case ConfigConstants.LOAD_BALANCE_CONSISTENCY_HASH:
+            case CONSISTENCY_HASH:
                 client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
                 break;
-            case ConfigConstants.LOAD_BALANCE_ROBIN:
+            case ROBIN:
                 client = clientMgr.getClientByRoundRobin();
                 break;
-            case ConfigConstants.LOAD_BALANCE_WEIGHT_ROBIN:
+            case WEIGHT_ROBIN:
                 client = clientMgr.getClientByWeightRoundRobin();
                 break;
-            case ConfigConstants.LOAD_BALANCE_WEIGHT_RANDOM:
+            case WEIGHT_RANDOM:
                 client = clientMgr.getClientByWeightRandom();
                 break;
         }
