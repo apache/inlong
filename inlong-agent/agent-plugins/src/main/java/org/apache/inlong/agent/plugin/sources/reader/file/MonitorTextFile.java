@@ -39,7 +39,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    private static MonitorTextFile monitorTextFile;
+    private static MonitorTextFile monitorTextFile = null;
     // monitor thread pool
     private final ThreadPoolExecutor runningPool = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
@@ -51,19 +51,30 @@ public final class MonitorTextFile {
 
     }
 
-    public static synchronized MonitorTextFile getInstance() {
-        if (null == monitorTextFile) {
-            monitorTextFile = new MonitorTextFile();
+    /**
+     * Mode of singleton
+     * @return MonitorTextFile instance
+     */
+    public static MonitorTextFile getInstance() {
+        if (monitorTextFile == null) {
+            synchronized (MonitorTextFile.class) {
+                if (monitorTextFile == null) {
+                    monitorTextFile = new MonitorTextFile();
+                }
+            }
         }
         return monitorTextFile;
     }
 
     public void monitor(FileReaderOperator fileReaderOperator, TextFileReader textFileReader) {
-        MonitorEvent monitorEvent = new MonitorEvent(fileReaderOperator, textFileReader);
+        MonitorEventRunnable monitorEvent = new MonitorEventRunnable(fileReaderOperator, textFileReader);
         runningPool.execute(monitorEvent);
     }
 
-    private class MonitorEvent implements Runnable {
+    /**
+     * monitor file event
+     */
+    private class MonitorEventRunnable implements Runnable {
 
         private final FileReaderOperator fileReaderOperator;
         private final TextFileReader textFileReader;
@@ -74,7 +85,7 @@ public final class MonitorTextFile {
          */
         private BasicFileAttributes attributesBefore;
 
-        public MonitorEvent(FileReaderOperator fileReaderOperator, TextFileReader textFileReader) {
+        public MonitorEventRunnable(FileReaderOperator fileReaderOperator, TextFileReader textFileReader) {
             this.fileReaderOperator = fileReaderOperator;
             this.textFileReader = textFileReader;
             this.interval = Long
