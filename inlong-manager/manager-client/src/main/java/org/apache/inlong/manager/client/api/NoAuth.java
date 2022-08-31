@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
- * No auth user login, register, etc.
+ * No auth interface, such as user login, register, etc.
  */
 public interface NoAuth {
 

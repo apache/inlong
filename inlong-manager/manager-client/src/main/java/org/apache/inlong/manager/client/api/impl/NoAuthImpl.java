@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
- * No auth user implementation.
+ * No auth interface implementation
  */
 public class NoAuthImpl implements NoAuth {
 
