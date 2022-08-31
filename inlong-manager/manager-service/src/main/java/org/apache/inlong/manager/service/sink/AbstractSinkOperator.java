@@ -110,7 +110,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     }
 
     @Override
-    public void updateOpt(SinkRequest request, String operator) {
+    public void updateOpt(SinkRequest request, SinkStatus nextStatus, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
 
@@ -123,9 +123,11 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(SinkStatus.CONFIG_ING.getCode());
+        if (nextStatus != null) {
+            entity.setStatus(nextStatus.getCode());
+        }
         entity.setModifier(operator);
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -199,7 +201,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setStatus(InlongConstants.DELETED_STATUS);
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
