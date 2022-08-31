@@ -89,6 +89,36 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_KAFKA_READ_TIMEOUT = "job.kafkaJob.read.timeout";
     public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkaJob.autoOffsetReset";
 
+
+    public static final String JOB_MONGO_HOSTS = "job.mongoJob.hosts";
+    public static final String JOB_MONGO_USER = "job.mongoJob.user";
+    public static final String JOB_MONGO_PASSWORD = "job.mongoJob.password";
+    public static final String JOB_MONGO_DATABASE_INCLUDE_LIST = "job.mongoJob.databaseIncludeList";
+    public static final String JOB_MONGO_DATABASE_EXCLUDE_LIST = "job.mongoJob.databaseExcludeList";
+    public static final String JOB_MONGO_COLLECTION_INCLUDE_LIST = "job.mongoJob.collectionIncludeList";
+    public static final String JOB_MONGO_COLLECTION_EXCLUDE_LIST = "job.mongoJob.collectionExcludeList";
+    public static final String JOB_MONGO_FIELD_EXCLUDE_LIST = "job.mongoJob.fieldExcludeList";
+    public static final String JOB_MONGO_SNAPSHOT_MODE = "job.mongoJob.snapshotMode";
+    public static final String JOB_MONGO_CAPTURE_MODE = "job.mongoJob.captureMode";
+    public static final String JOB_MONGO_QUEUE_SIZE = "job.mongoJob.queueSize";
+    public static final String JOB_MONGO_STORE_HISTORY_FILENAME = "job.mongoJob.history.filename";
+    public static final String JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE = "job.mongoJob.offset.specificOffsetFile";
+    public static final String JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS = "job.mongoJob.offset.specificOffsetPos";
+    public static final String JOB_MONGO_OFFSETS = "job.mongoJob.offsets";
+    public static final String JOB_MONGO_CONNECT_TIMEOUT_MS = "job.mongoJob.connectTimeoutInMs";
+    public static final String JOB_MONGO_CURSOR_MAX_AWAIT = "job.mongoJob.cursorMaxAwaitTimeInMs";
+    public static final String JOB_MONGO_SOCKET_TIMEOUT = "job.mongoJob.socketTimeoutInMs";
+    public static final String JOB_MONGO_SELECTION_TIMEOUT = "job.mongoJob.selectionTimeoutInMs";
+    public static final String JOB_MONGO_FIELD_RENAMES = "job.mongoJob.fieldRenames";
+    public static final String JOB_MONGO_MEMBERS_DISCOVER = "job.mongoJob.membersAutoDiscover";
+    public static final String JOB_MONGO_CONNECT_MAX_ATTEMPTS = "job.mongoJob.connectMaxAttempts";
+    public static final String JOB_MONGO_BACKOFF_MAX_DELAY = "job.mongoJob.connectBackoffMaxDelayInMs";
+    public static final String JOB_MONGO_BACKOFF_INITIAL_DELAY = "job.mongoJob.connectBackoffInitialDelayInMs";
+    public static final String JOB_MONGO_INITIAL_SYNC_MAX_THREADS = "job.mongoJob.initialSyncMaxThreads";
+    public static final String JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED = "job.mongoJob.sslInvalidHostnameAllowed";
+    public static final String JOB_MONGO_SSL_ENABLE = "job.mongoJob.sslEnabled";
+    public static final String JOB_MONGO_POLL_INTERVAL = "job.mongoJob.pollIntervalInMs";
+
     public static final Long JOB_KAFKA_DEFAULT_OFFSET = 0L;
 
     // job type, delete/add

@@ -95,14 +95,14 @@ public class TestMongoDBReader {
     @Ignore
     public void readChangeEventFromMongo() {
         JobProfile jobProfile = new JobProfile();
-        jobProfile.set("job.mongoJob.mongodb.hosts", "localhost:37018");
-        jobProfile.set("job.mongoJob.mongodb.user", "mongo");
-        jobProfile.set("job.mongoJob.mongodb.password", "root");
-        jobProfile.set("job.mongoJob.mongodb.name", "myrs");
-        jobProfile.set("job.mongoJob.mongodb.connect.max.attempts", "3");
-        jobProfile.set("job.mongoJob.mongodb.database.include.list", "mall");
-        jobProfile.set("job.mongoJob.mongodb.collection.include.list", "order");
-        jobProfile.set("job.mongoJob.mongodb.snapshot.mode", "never");
+        jobProfile.set("job.mongoJob.hosts", "localhost:37018");
+        jobProfile.set("job.mongoJob.user", "mongo");
+        jobProfile.set("job.mongoJob.password", "root");
+        jobProfile.set("job.mongoJob.name", "myrs");
+        jobProfile.set("job.mongoJob.connectMaxAttempts", "3");
+        jobProfile.set("job.mongoJob.databaseIncludeList", "mall");
+        jobProfile.set("job.mongoJob.collectionIncludeList", "order");
+        jobProfile.set("job.mongoJob.snapshotMode", "never");
         jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
 
         jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
