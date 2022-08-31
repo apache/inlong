@@ -106,9 +106,11 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      form.resetFields(); // Note that it will cause the form to remount to initiate a select request
       if (id) {
         getData(id);
+      } else {
+        form.resetFields(); // Note that it will cause the form to remount to initiate a select request
+        setType(sources[0].value);
       }
     } else {
       setCurrentValues({});
@@ -163,7 +165,7 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
         type: 'radio',
         label: t('meta.Sources.Type'),
         rules: [{ required: true }],
-        initialValue: type,
+        initialValue: sources[0].value,
         props: {
           disabled: !!id,
           options: sources,
