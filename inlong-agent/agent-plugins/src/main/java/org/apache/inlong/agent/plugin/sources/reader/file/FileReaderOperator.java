@@ -61,10 +61,10 @@ public class FileReaderOperator extends AbstractReader {
     public Stream<String> stream;
     public Map<String, String> metadata;
     public JobProfile jobConf;
-    private Iterator<String> iterator;
+    public Iterator<String> iterator;
+    public volatile boolean finished = false;
     private long timeout;
     private long waitTimeout;
-
     private long lastTime = 0;
 
     private List<Validator> validators = new ArrayList<>();
@@ -107,6 +107,9 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public boolean isFinished() {
+        if (finished) {
+            return true;
+        }
         if (timeout == NEVER_STOP_SIGN) {
             return false;
         }
@@ -201,6 +204,7 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public void destroy() {
+        finished = true;
         if (stream == null) {
             return;
         }
