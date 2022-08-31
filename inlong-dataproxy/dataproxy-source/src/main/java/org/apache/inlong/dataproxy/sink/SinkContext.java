@@ -119,9 +119,8 @@ public class SinkContext {
     }
 
     /**
-     * get clusterId
-     * 
-     * @return the clusterId
+     * getClusterId
+     * @return
      */
     public String getClusterId() {
         return clusterId;

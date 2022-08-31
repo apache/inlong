@@ -40,7 +40,6 @@ import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_V
 
 /**
  * DefaultEventHandler
- * 
  */
 public class DefaultEventHandler implements EventHandler {
 

@@ -67,6 +67,7 @@ public class KafkaZoneProducer {
             LOG.info("start KafkaZoneProducer:{}", workerName);
             this.reload();
             this.setReloadTimer();
+            LOG.info("start KafkaZoneProducer success for {}", workerName);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
