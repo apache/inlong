@@ -132,6 +132,14 @@ public class JobProfileDto {
         if (null != fileJobTaskConfig.getFilterMetaByLabels()) {
             fileJob.setFilterMetaByLabels(fileJobTaskConfig.getFilterMetaByLabels());
         }
+
+        if (null != fileJobTaskConfig.getMonitorInterval()) {
+            fileJob.setMonitorInterval(fileJobTaskConfig.getMonitorInterval());
+        }
+
+        if (null != fileJobTaskConfig.getMonitorStatus()) {
+            fileJob.setMonitorStatus(fileJobTaskConfig.getMonitorStatus());
+        }
         return fileJob;
     }
 
