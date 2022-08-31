@@ -44,6 +44,8 @@ public class ClientFactory {
 
     private final UserClient userClient;
 
+    private final NoAuthClient noAuthClient;
+
     private final WorkflowApproverClient workflowApproverClient;
 
     public ClientFactory(ClientConfiguration configuration) {
@@ -56,6 +58,7 @@ public class ClientFactory {
         workflowClient = new WorkflowClient(configuration);
         dataNodeClient = new DataNodeClient(configuration);
         userClient = new UserClient(configuration);
+        noAuthClient = new NoAuthClient(configuration);
         workflowApproverClient = new WorkflowApproverClient(configuration);
     }
 }
