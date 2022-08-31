@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
-public interface Anno {
+/**
+ * API for AnnoController in manager-web
+ */
+public interface NoAuthApi {
 
-    /**
-     * Save user info
-     *
-     * @param request user info request
-     * @return user id after saving
-     */
-    Integer register(UserRequest request);
+    @POST("anno/register")
+    Call<Response<Integer>> register(@Body UserRequest request);
 }

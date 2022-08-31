@@ -18,21 +18,21 @@
 package org.apache.inlong.manager.client.api.inner.client;
 
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.service.AnnoApi;
+import org.apache.inlong.manager.client.api.service.NoAuthApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
- * Client for {@link AnnoApi}.
+ * Client for {@link NoAuthApi}.
  */
-public class AnnoClient {
+public class NoAuthClient {
 
-    private final AnnoApi annoApi;
+    private final NoAuthApi noAuthApi;
 
-    public AnnoClient(ClientConfiguration configuration) {
-        annoApi = ClientUtils.createRetrofit(configuration).create(AnnoApi.class);
+    public NoAuthClient(ClientConfiguration configuration) {
+        noAuthApi = ClientUtils.createRetrofit(configuration).create(NoAuthApi.class);
     }
 
     /**
@@ -47,7 +47,7 @@ public class AnnoClient {
         Preconditions.checkNotNull(request.getAccountType(), "accountType cannot be null");
         Preconditions.checkNotNull(request.getValidDays(), "validDays cannot be null");
 
-        Response<Integer> response = ClientUtils.executeHttpCall(annoApi.register(request));
+        Response<Integer> response = ClientUtils.executeHttpCall(noAuthApi.register(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

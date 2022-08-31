@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import org.apache.inlong.manager.client.api.inner.client.AnnoClient;
+import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -31,11 +31,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 
 /**
- * Tests for {@link org.apache.inlong.manager.client.api.inner.client.AnnoClient}
+ * Tests for {@link NoAuthClient}
  */
-public class AnnoClientTest extends ClientFactoryTest {
+public class NoAuthClientTest extends ClientFactoryTest {
 
-    private static final AnnoClient annoClient = clientFactory.getAnnoClient();
+    private static final NoAuthClient NO_AUTH_CLIENT = clientFactory.getNoAuthClient();
 
     @Test
     void testRegister() {
@@ -55,7 +55,7 @@ public class AnnoClientTest extends ClientFactoryTest {
                 .validDays(9999)
                 .build();
 
-        Integer userId = annoClient.register(request);
+        Integer userId = NO_AUTH_CLIENT.register(request);
         Assertions.assertEquals(1, userId);
     }
 }

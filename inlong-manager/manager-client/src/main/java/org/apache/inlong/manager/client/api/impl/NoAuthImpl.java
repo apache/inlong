@@ -17,21 +17,24 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.client.api.Anno;
+import org.apache.inlong.manager.client.api.NoAuth;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.inner.client.AnnoClient;
+import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
-public class AnnoImpl implements Anno {
+/**
+ * No auth user implementation.
+ */
+public class NoAuthImpl implements NoAuth {
 
-    private final AnnoClient annoClient;
+    private final NoAuthClient noAuthClient;
 
-    public AnnoImpl(ClientConfiguration configuration) {
+    public NoAuthImpl(ClientConfiguration configuration) {
         ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
-        this.annoClient = clientFactory.getAnnoClient();
+        this.noAuthClient = clientFactory.getNoAuthClient();
     }
 
     @Override
@@ -41,6 +44,6 @@ public class AnnoImpl implements Anno {
         Preconditions.checkNotNull(request.getAccountType(), "accountType cannot be null");
         Preconditions.checkNotNull(request.getValidDays(), "validDays cannot be null");
 
-        return annoClient.register(request);
+        return noAuthClient.register(request);
     }
 }
