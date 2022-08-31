@@ -41,7 +41,7 @@ class DataItem {
   DataItem();
   DataItem(const DataItem& target);
   DataItem(const uint32_t length, const char* data);
-  virtual ~DataItem();
+  ~DataItem();
   DataItem& operator=(const DataItem& target);
   const uint32_t GetLength() const { return length_; }
   const char* GetData() const { return data_; }
@@ -58,7 +58,7 @@ class DataItem {
 class TubeMQTDMsg {
  public:
   TubeMQTDMsg();
-  virtual ~TubeMQTDMsg();
+  ~TubeMQTDMsg();
   bool ParseTDMsg(const char* data,
     uint32_t data_length, string& err_info);
   bool ParseTDMsg(const vector<char>& data_vec, string& err_info);
