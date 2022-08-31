@@ -430,7 +430,7 @@
             <groupId>org.datanucleus</groupId>
             <artifactId>javax.jdo</artifactId>
             <version>3.2.1</version>
-        </dependency>org.apache.hadoop.hive.metastore.MetaStoreDirectSql.runTestQuery
+        </dependency>
 
         <dependency>
             <groupId>org.datanucleus</groupId>
