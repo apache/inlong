@@ -64,7 +64,7 @@ public class StreamSinkController {
     }
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
-    @ApiOperation(value = "Get stream sink list by paginating")
+    @ApiOperation(value = "List stream sinks by paginating")
     public Response<PageResult<? extends StreamSink>> listByCondition(SinkPageRequest request) {
         return Response.success(sinkService.listByCondition(request));
     }

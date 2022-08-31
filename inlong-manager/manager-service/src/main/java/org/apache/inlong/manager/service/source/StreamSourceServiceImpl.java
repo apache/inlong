@@ -150,7 +150,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Map<String, List<StreamSource>> result;
 
         // if the group mode is LIGHTWEIGHT, just get all related stream sources
-        List<StreamSource> streamSources = this.listSource(groupInfo.getInlongGroupId(), null);
+        List<StreamSource> streamSources = this.listSource(groupId, null);
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
             result = streamSources.stream()
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
