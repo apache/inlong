@@ -230,11 +230,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
-        List<SinkField> fields = request.getSinkFieldList();
-        // Remove id in sinkField before saving or updating
-        if (CollectionUtils.isNotEmpty(fields)) {
-            fields.forEach(sinkField -> sinkField.setId(null));
-        }
 
         SinkStatus nextStatus = null;
         boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
