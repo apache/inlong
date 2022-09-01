@@ -91,6 +91,10 @@ public class ClientMgr {
     private int loadCycle = 0;
     private LoadBalance loadBalance;
 
+    public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
+        this(configure, sender, null);
+    }
+
     /**
      * Build up the connection between the server and client.
      */
