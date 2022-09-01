@@ -229,17 +229,10 @@ public class Sender {
      * @param timeUnit
      * @return
      */
-//    @Deprecated
-    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID,
-                                      long timeout, TimeUnit timeUnit) {
-        return syncSendMessage(encodeObject, msgUUID, timeout, timeUnit, configure.getLoadBalance());
-    }
-
-    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout,
-                                      TimeUnit timeUnit, LoadBalance loadBalance) {
+    public SendResult syncSendMessage(EncodeObject encodeObject, String msgUUID, long timeout, TimeUnit timeUnit) {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(), encodeObject.getStreamId(),
                 Utils.getLocalIp(), encodeObject.getDt(), encodeObject.getPackageTime(), encodeObject.getRealCnt());
-        NettyClient client = getClient(loadBalance, encodeObject);
+        NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         SendResult message = null;
         try {
             message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
@@ -517,20 +510,15 @@ public class Sender {
     /**
      * Following methods used by asynchronously message sending.
      */
-    public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback,
-                                 String msgUUID, long timeout, TimeUnit timeUnit) throws ProxysdkException {
-        asyncSendMessage(encodeObject, callback, msgUUID, timeout, timeUnit, configure.getLoadBalance());
-    }
-
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-                                 long timeout, TimeUnit timeUnit, LoadBalance loadBalance) throws ProxysdkException {
+                                 long timeout, TimeUnit timeUnit) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
 
         // send message package time
 
-        NettyClient client = getClient(loadBalance, encodeObject);
+        NettyClient client = clientMgr.getClient(clientMgr.getLoadBalance(), encodeObject);
         if (client == null) {
             throw new ProxysdkException(SendResult.NO_CONNECTION.toString());
         }
@@ -734,28 +722,6 @@ public class Sender {
         }
 
         return true;
-    }
-
-    private NettyClient getClient(LoadBalance loadBalance, EncodeObject encodeObject) {
-        NettyClient client = null;
-        switch (loadBalance) {
-            case RANDOM:
-                client = clientMgr.getClientByRandom();
-                break;
-            case CONSISTENCY_HASH:
-                client = clientMgr.getClientByConsistencyHash(encodeObject.getMessageId());
-                break;
-            case ROBIN:
-                client = clientMgr.getClientByRoundRobin();
-                break;
-            case WEIGHT_ROBIN:
-                client = clientMgr.getClientByWeightRoundRobin();
-                break;
-            case WEIGHT_RANDOM:
-                client = clientMgr.getClientByWeightRandom();
-                break;
-        }
-        return client;
     }
 
 }

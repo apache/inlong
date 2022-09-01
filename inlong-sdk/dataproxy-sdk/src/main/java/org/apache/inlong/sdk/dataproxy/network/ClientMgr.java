@@ -24,6 +24,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
@@ -60,7 +61,6 @@ public class ClientMgr {
             6, 6, 6, 6, 6,
             12, 12, 12, 12, 12,
             48, 96, 192, 384, 1000};
-    private static String LOAD_BALANCE = "Consistency Hash";
     private final Map<HostInfo, NettyClient> clientMapData = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMapHB = new ConcurrentHashMap<>();
     // clientMapData + clientMapHB = clientMap
@@ -89,10 +89,7 @@ public class ClientMgr {
     //    private static final int total_weight = 240;
     private int loadThreshold;
     private int loadCycle = 0;
-
-    public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
-        this(configure, sender, null);
-    }
+    private LoadBalance loadBalance;
 
     /**
      * Build up the connection between the server and client.
@@ -129,6 +126,7 @@ public class ClientMgr {
         this.configure = configure;
         this.sender = sender;
         this.aliveConnections = configure.getAliveConnections();
+        this.loadBalance = configure.getLoadBalance();
 
         try {
             ipManager.doProxyEntryQueryWork();
@@ -142,6 +140,10 @@ public class ClientMgr {
         this.sendHBThread = new SendHBThread();
         this.sendHBThread.setName("SendHBThread");
         this.sendHBThread.start();
+    }
+
+    public LoadBalance getLoadBalance() {
+        return this.loadBalance;
     }
 
     public int getLoadThreshold() {
@@ -990,6 +992,29 @@ public class ClientMgr {
         }
         return resultHosts;
     }
+
+    public NettyClient getClient(LoadBalance loadBalance, EncodeObject encodeObject) {
+        NettyClient client = null;
+        switch (loadBalance) {
+            case RANDOM:
+                client = getClientByRandom();
+                break;
+            case CONSISTENCY_HASH:
+                client = getClientByConsistencyHash(encodeObject.getMessageId());
+                break;
+            case ROBIN:
+                client = getClientByRoundRobin();
+                break;
+            case WEIGHT_ROBIN:
+                client = getClientByWeightRoundRobin();
+                break;
+            case WEIGHT_RANDOM:
+                client = getClientByWeightRandom();
+                break;
+        }
+        return client;
+    }
+
 
     private class SendHBThread extends Thread {
 
