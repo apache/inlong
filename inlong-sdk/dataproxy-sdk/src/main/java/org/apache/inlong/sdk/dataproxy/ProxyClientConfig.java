@@ -94,11 +94,11 @@ public class ProxyClientConfig {
     private int ioThreadNum = Runtime.getRuntime().availableProcessors();
     private boolean enableBusyWait = false;
 
-    private int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;
+    private int virtualNode;
 
-    private LoadBalance loadBalance = ConfigConstants.DEFAULT_LOAD_BALANCE;
+    private LoadBalance loadBalance;
 
-    private int maxRetry = ConfigConstants.DEFAULT_RANDOM_MAX_RETRY;
+    private int maxRetry;
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
