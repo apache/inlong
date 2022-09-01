@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -58,24 +57,13 @@ public class SortConfigListener implements SortOperateListener {
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
+        String className = processForm.getClass().getSimpleName();
         String groupId = processForm.getInlongGroupId();
-        if (processForm instanceof GroupResourceProcessForm) {
-            GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-            InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper());
-
-            LOGGER.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
-            return enable;
-        } else if (processForm instanceof StreamResourceProcessForm) {
-            StreamResourceProcessForm streamResourceForm = (StreamResourceProcessForm) processForm;
-            InlongGroupInfo groupInfo = streamResourceForm.getGroupInfo();
-            InlongStreamInfo streamInfo = streamResourceForm.getStreamInfo();
-            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper());
-            LOGGER.info("zookeeper disabled was [{}] for groupId [{}] and streamId [{}] ", enable, groupId,
-                    streamInfo.getInlongStreamId());
-            return enable;
+        if (processForm instanceof GroupResourceProcessForm || processForm instanceof StreamResourceProcessForm) {
+            LOGGER.info("accept sort config listener as the process is {} for groupId [{}]", className, groupId);
+            return true;
         } else {
-            LOGGER.info("zk disabled for groupId [{}]", groupId);
+            LOGGER.info("not accept sort config listener as the process is {} for groupId [{}]", className, groupId);
             return false;
         }
     }
