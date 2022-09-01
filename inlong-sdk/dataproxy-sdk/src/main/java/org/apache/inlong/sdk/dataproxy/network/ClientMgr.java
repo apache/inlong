@@ -1019,7 +1019,6 @@ public class ClientMgr {
         return client;
     }
 
-
     private class SendHBThread extends Thread {
 
         private final int[] random = {17, 19, 23, 31, 37};
