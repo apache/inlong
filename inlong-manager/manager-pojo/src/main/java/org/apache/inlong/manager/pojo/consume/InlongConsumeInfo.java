@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.consume;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,63 +25,65 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
+/**
+ * Base inlong consume info
+ */
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong consume info")
+@ApiModel("Base inlong consume info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongConsumeInfo {
 
-    @ApiModelProperty(value = "key id")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "consumer group: only support [a-zA-Z0-9_]")
-    @NotBlank(message = "consumerGroup cannot be null")
+    @ApiModelProperty(value = "Consumer group, only support [a-zA-Z0-9_]")
     private String consumerGroup;
-
-    @ApiModelProperty(value = "consumption in charge")
-    @NotBlank(message = "inCharges cannot be null")
-    private String inCharges;
-
-    @ApiModelProperty(value = "consumption target inlong group id")
-    @NotBlank(message = "inlong group id cannot be null")
-    private String inlongGroupId;
 
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "consumption target topic")
+    @ApiModelProperty(value = "The target topic of this consume")
     private String topic;
 
-    @ApiModelProperty(value = "middleware cluster url")
-    private String masterUrl;
+    @ApiModelProperty(value = "The target inlong group id of this consume")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "whether to filter consumption, 0: not filter, 1: filter")
+    @ApiModelProperty(value = "Whether to filter consumption, 0-not filter, 1-filter")
     private Integer filterEnabled = 0;
 
-    @ApiModelProperty(value = "consumption target inlong stream id")
+    @ApiModelProperty(value = "The target inlong stream id of this consume, needed if the filterEnabled=1")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "
-            + "20: approval rejected, 20: approved")
+    @ApiModelProperty(value = "Cluster URL of message queue")
+    private String clusterUrl;
+
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    private String inCharges;
+
+    @ApiModelProperty(value = "Consume status")
     private Integer status;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
-    public abstract ConsumePulsarRequest genRequest();
+    public abstract InlongConsumeRequest genRequest();
+
 }

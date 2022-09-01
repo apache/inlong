@@ -54,7 +54,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
         setExtParam(consumeRequest, entity);
 
         if (consumeRequest.getId() != null) {
-            int rowCount = consumeEntityMapper.updateByPrimaryKey(entity);
+            int rowCount = consumeEntityMapper.updateById(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
                 LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
                         entity.getId(), entity.getVersion());

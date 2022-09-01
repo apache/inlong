@@ -57,7 +57,7 @@ public class InlongConsumeController {
     @Autowired
     private InlongConsumeService consumeService;
     @Autowired
-    private InlongConsumeProcessService consumeProcessOperation;
+    private InlongConsumeProcessService consumeProcessService;
 
     @RequestMapping(value = "/consume/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
@@ -106,11 +106,11 @@ public class InlongConsumeController {
 
     @PostMapping("/consume/startProcess/{id}")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Start inlong consume approval process")
+    @ApiOperation(value = "Start inlong consume process")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(consumeProcessOperation.startProcess(id, username));
+        return Response.success(consumeProcessService.startProcess(id, username));
     }
 
 }

@@ -49,11 +49,11 @@ public enum ConsumeStatus {
     @ApiModelProperty(value = "Cancel application: 22")
     CANCELED(22),
 
-    @ApiModelProperty(value = "Deleting: 40")
-    DELETING(40),
+    @ApiModelProperty(value = "Deleting: 41")
+    DELETING(41),
 
-    @ApiModelProperty(value = "Deleted: 41")
-    DELETED(41),
+    @ApiModelProperty(value = "Deleted: 40")
+    DELETED(40),
 
     ;
 

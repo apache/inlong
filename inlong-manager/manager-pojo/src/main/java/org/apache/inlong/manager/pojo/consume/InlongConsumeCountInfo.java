@@ -22,10 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Statistics of inlong consume.
+ * Count info of inlong consume status.
  */
 @Data
-@ApiModel("Statistics of inlong consume")
+@ApiModel("Count info of inlong consume status")
 public class InlongConsumeCountInfo {
 
     @ApiModelProperty(value = "Total consume number")

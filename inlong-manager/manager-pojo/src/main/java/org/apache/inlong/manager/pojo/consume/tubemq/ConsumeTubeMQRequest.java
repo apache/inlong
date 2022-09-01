@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consume.pulsar;
+package org.apache.inlong.manager.pojo.consume.tubemq;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,25 +26,15 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 
 /**
- * Inlong consume request of Pulsar
+ * Inlong consume request of TubeMQ
  */
 @Data
 @ToString
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong consume request of Pulsar")
-@JsonTypeDefine(value = MQType.PULSAR)
-public class ConsumePulsarRequest extends InlongConsumeRequest {
+@ApiModel("Inlong consume request of TubeMQ")
+@JsonTypeDefine(value = MQType.TUBEMQ)
+public class ConsumeTubeMQRequest extends InlongConsumeRequest {
 
-    @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
-    private Integer isDlq;
-
-    @ApiModelProperty("The name of the dead letter queue Topic")
-    private String deadLetterTopic;
-
-    @ApiModelProperty("Whether to configure the retry letter queue, 0: not configure, 1: configure")
-    private Integer isRlq;
-
-    @ApiModelProperty("The name of the retry letter queue topic")
-    private String retryLetterTopic;
+    // no fields
 
 }

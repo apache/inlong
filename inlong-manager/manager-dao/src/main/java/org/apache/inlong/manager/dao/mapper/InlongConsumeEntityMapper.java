@@ -36,7 +36,7 @@ public interface InlongConsumeEntityMapper {
 
     List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
 
-    int updateByPrimaryKey(InlongConsumeEntity record);
+    int updateById(InlongConsumeEntity record);
 
     int updateByIdSelective(InlongConsumeEntity record);
 

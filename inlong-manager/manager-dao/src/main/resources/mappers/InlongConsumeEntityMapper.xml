@@ -41,7 +41,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, consumer_group, description, mq_type, topic, inlong_group_id, filter_enabled, inlong_stream_id,
+        id
+        , consumer_group, description, mq_type, topic, inlong_group_id, filter_enabled, inlong_stream_id,
         ext_params, in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -119,7 +120,7 @@
         </choose>
     </select>
 
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
         update inlong_consume
         set consumer_group   = #{consumerGroup, jdbcType=VARCHAR},
             in_charges       = #{inCharges, jdbcType=VARCHAR},
@@ -130,7 +131,6 @@
             inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR},
             ext_params       = #{extParams, jdbcType = LONGVARCHAR},
             status           = #{status, jdbcType=INTEGER},
-            creator          = #{creator, jdbcType=VARCHAR},
             modifier         = #{modifier, jdbcType=VARCHAR},
             is_deleted       = #{isDeleted, jdbcType=INTEGER},
             version          = #{version, jdbcType=INTEGER} + 1

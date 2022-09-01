@@ -29,12 +29,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * Inlong consume request
+ * Base inlong consume request
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong consume request")
+@ApiModel("Base inlong consume request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongConsumeRequest {
 
@@ -46,18 +46,15 @@ public abstract class InlongConsumeRequest {
     @ApiModelProperty(value = "Consumer group, only support [a-zA-Z0-9_]")
     private String consumerGroup;
 
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    private String mqType;
+
     @ApiModelProperty(value = "The target topic of this consume")
     private String topic;
 
     @NotBlank(message = "inlong group id cannot be null")
     @ApiModelProperty(value = "The target inlong group id of this consume")
     private String inlongGroupId;
-
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
-    private String mqType;
-
-    @ApiModelProperty(value = "Cluster URL of message queue")
-    private String clusterUrl;
 
     @ApiModelProperty(value = "Whether to filter consumption, 0-not filter, 1-filter")
     private Integer filterEnabled = 0;

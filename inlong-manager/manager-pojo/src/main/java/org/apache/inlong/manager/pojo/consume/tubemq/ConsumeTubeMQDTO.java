@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consume.pulsar;
+package org.apache.inlong.manager.pojo.consume.tubemq;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,47 +30,33 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import javax.validation.constraints.NotNull;
 
 /**
- * Inlong group dto of Pulsar
+ * Inlong group info of TubeMQ
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong group dto of Pulsar")
-public class ConsumePulsarDTO {
+@ApiModel("Inlong group info of TubeMQ")
+public class ConsumeTubeMQDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
-    private Integer isDlq;
-
-    @ApiModelProperty("The name of the dead letter queue Topic")
-    private String deadLetterTopic;
-
-    @ApiModelProperty("Whether to configure the retry letter queue, 0: not configure, 1: configure")
-    private Integer isRlq;
-
-    @ApiModelProperty("The name of the retry letter queue topic")
-    private String retryLetterTopic;
+    // no fields
 
     /**
      * Get the dto instance from the request
      */
-    public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request) {
-        return ConsumePulsarDTO.builder()
-                .isDlq(request.getIsDlq())
-                .deadLetterTopic(request.getDeadLetterTopic())
-                .isRlq(request.getIsRlq())
-                .build();
+    public static ConsumeTubeMQDTO getFromRequest(ConsumeTubeMQRequest request) {
+        return ConsumeTubeMQDTO.builder().build();
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static ConsumePulsarDTO getFromJson(@NotNull String extParams) {
+    public static ConsumeTubeMQDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ConsumePulsarDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ConsumeTubeMQDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUMER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

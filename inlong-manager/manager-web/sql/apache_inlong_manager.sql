@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `inlong_consume`
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'The target inlong group id of this consume',
     `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter consume, 0: not filter, 1: filter',
     `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'The target inlong stream id of this consume, needed if the filter_enabled=1',
-    `ext_params`       text                  DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
+    `ext_params`       mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
     `in_charges`       varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`           int(4)                DEFAULT '100' COMMENT 'Inlong consume status',
     `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',

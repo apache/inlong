@@ -22,22 +22,22 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Statistics of inlong group.
+ * Statistics of inlong group status
  */
 @Data
-@ApiModel("Statistics of inlong group")
+@ApiModel("Statistics of inlong group status")
 public class InlongGroupCountResponse {
 
-    @ApiModelProperty(value = "Total consume number")
+    @ApiModelProperty(value = "Total group number")
     private long totalCount;
 
-    @ApiModelProperty(value = "Total number of to be allocated (the number of configuring groups)")
+    @ApiModelProperty(value = "The quantity to be allocated, which is the number of configuring groups")
     private long waitAssignCount;
 
-    @ApiModelProperty(value = "Total number of to be approved")
+    @ApiModelProperty(value = "Amount to be approved")
     private long waitApproveCount;
 
-    @ApiModelProperty(value = "Total number of rejections")
+    @ApiModelProperty(value = "Quantity rejected")
     private long rejectCount;
 
 }

@@ -43,19 +43,19 @@ public class InlongConsumeBriefInfo {
     @ApiModelProperty(value = "Consumer group, only support [a-zA-Z0-9_]")
     private String consumerGroup;
 
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    private String mqType;
+
     @ApiModelProperty(value = "The target topic of inlong consume")
     private String topic;
 
     @ApiModelProperty(value = "The target inlongGroupId of inlong consume")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
-    private String mqType;
-
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
 
-    @ApiModelProperty(value = "Status")
+    @ApiModelProperty(value = "Consume status")
     private Integer status;
 
     @ApiModelProperty(value = "Name of creator")

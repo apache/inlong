@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.consume.pulsar;
+package org.apache.inlong.manager.pojo.consume.tubemq;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,32 +29,19 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 
 /**
- * Inlong consume info of Pulsar
+ * Inlong consume info of TubeMQ
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.PULSAR)
-@ApiModel("Inlong consume info of Pulsar")
-public class ConsumePulsarInfo extends InlongConsumeInfo {
+@JsonTypeDefine(value = MQType.TUBEMQ)
+@ApiModel("Inlong consume info of TubeMQ")
+public class ConsumeTubeMQInfo extends InlongConsumeInfo {
 
-    @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
-    private Integer isDlq;
-
-    @ApiModelProperty("The name of the dead letter queue Topic")
-    private String deadLetterTopic;
-
-    @ApiModelProperty("Whether to configure the retry letter queue, 0: not configure, 1: configure")
-    private Integer isRlq;
-
-    @ApiModelProperty("The name of the retry letter queue topic")
-    private String retryLetterTopic;
+    // no fields
 
     @Override
-    public ConsumePulsarRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, ConsumePulsarRequest::new);
+    public ConsumeTubeMQRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, ConsumeTubeMQRequest::new);
     }
 
 }
