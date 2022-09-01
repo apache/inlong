@@ -32,7 +32,7 @@ import java.util.Base64;
 /**
  * AbstractSnapshot : AbstractSnapshot
  */
-public class AbstractSnapshot implements SnapshotBase {
+public abstract class AbstractSnapshot implements SnapshotBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SnapshotBase.class);
 
@@ -47,16 +47,6 @@ public class AbstractSnapshot implements SnapshotBase {
      * start offset
      */
     private static final int START_OFFSET = 0;
-
-    @Override
-    public String getSnapshot() {
-        return "";
-    }
-
-    @Override
-    public void close() {
-
-    }
 
     /**
      * Load the file contents from the specified path
