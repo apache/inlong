@@ -26,6 +26,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Global config.
@@ -36,7 +37,8 @@ public class InlongGlobalConfig {
     /**
      * Create a global ObjectMapper, and register JSON subtype
      */
-    @Bean(name = "objectMapper")
+    @Bean
+    @Primary
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
