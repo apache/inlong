@@ -27,6 +27,11 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 public interface InlongConsumeOperator {
 
     /**
+     * Determines whether the current instance matches the specified type.
+     */
+    Boolean accept(String mqType);
+
+    /**
      * Get the MQ type.
      *
      * @return MQ type string
@@ -34,15 +39,35 @@ public interface InlongConsumeOperator {
     String getMQType();
 
     /**
-     * Determines whether the current instance matches the specified type.
+     * Check whether the topic in inlong consume belongs to its inlong group id.
+     *
+     * @param request inlong consume request
      */
-    Boolean accept(String mqType);
+    void checkTopicInfo(InlongConsumeRequest request);
 
-    void setTopicInfo(InlongConsumeRequest consumeRequest);
+    /**
+     * Save the inlong consume info.
+     *
+     * @param request request of the group
+     * @param operator name of the operator
+     * @return inlong consume id after saving
+     */
+    Integer saveOpt(InlongConsumeRequest request, String operator);
 
-    void saveOpt(InlongConsumeRequest consumeRequest, String operator);
-
-    void updateOpt(InlongConsumeRequest consumeRequest, InlongConsumeEntity consumeEntity, String operator);
-
+    /**
+     * Get the inlong consume info from the given entity.
+     *
+     * @param entity get field value from the entity
+     * @return inlong consume info after encapsulating
+     */
     InlongConsumeInfo getFromEntity(InlongConsumeEntity entity);
+
+    /**
+     * Update the inlong consume info.
+     *
+     * @param request request of update
+     * @param operator name of operator
+     */
+    void updateOpt(InlongConsumeRequest request, String operator);
+
 }

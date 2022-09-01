@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
 
 -- ----------------------------
--- Table structure for consumption_pulsar
+-- Deprecated: Table structure for consumption_pulsar
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption_pulsar`
 (

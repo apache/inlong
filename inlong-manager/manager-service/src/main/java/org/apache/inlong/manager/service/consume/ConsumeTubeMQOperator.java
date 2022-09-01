@@ -17,33 +17,35 @@
 
 package org.apache.inlong.manager.service.consume;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
+import org.apache.inlong.manager.pojo.consume.tubemq.ConsumeTubeMQDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * Inlong consume operator for TubeMQ.
  */
 @Service
-public class ConsumeTubeOperator extends AbstractConsumeOperator {
+public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumeTubeMQOperator.class);
 
     @Autowired
     private InlongGroupService groupService;
-
-    @Override
-    public String getMQType() {
-        return MQType.TUBEMQ;
-    }
 
     @Override
     public Boolean accept(String mqType) {
@@ -51,39 +53,39 @@ public class ConsumeTubeOperator extends AbstractConsumeOperator {
     }
 
     @Override
-    public void setTopicInfo(InlongConsumeRequest consumeRequest) {
-        // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
-        String groupId = consumeRequest.getInlongGroupId();
-        InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
-        Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
+    public String getMQType() {
+        return MQType.TUBEMQ;
+    }
 
-        // Tube’s topic is the inlong group level, one inlong group, one TubeMQ topic
-        String mqResource = topicVO.getMqResource();
-        Preconditions.checkTrue(mqResource == null || mqResource.equals(consumeRequest.getTopic()),
-                "topic [" + consumeRequest.getTopic() + "] not belong to inlong group " + groupId);
+    @Override
+    public void checkTopicInfo(InlongConsumeRequest request) {
+        String groupId = request.getInlongGroupId();
+        InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
+        Preconditions.checkNotNull(topicInfo, "inlong group not exist: " + groupId);
 
-        consumeRequest.setMqType(topicVO.getMqType());
+        // one inlong group only has one TubeMQ topic
+        String mqResource = topicInfo.getMqResource();
+        Preconditions.checkTrue(Objects.equals(mqResource, request.getTopic()),
+                String.format("inlong consume topic %s not belongs to inlong group %s", request.getTopic(), groupId));
     }
 
     @Override
     public InlongConsumeInfo getFromEntity(InlongConsumeEntity entity) {
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.CONSUMER_NOR_FOUND);
-        }
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
 
         ConsumePulsarInfo consumeInfo = new ConsumePulsarInfo();
         CommonBeanUtils.copyProperties(entity, consumeInfo);
+        if (StringUtils.isNotBlank(entity.getExtParams())) {
+            ConsumeTubeMQDTO dto = ConsumeTubeMQDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(dto, consumeInfo);
+        }
+
         return consumeInfo;
     }
 
     @Override
-    protected void setExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity entity) {
-
-    }
-
-    @Override
-    protected void updateExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity exists, String operator) {
-
+    protected void setTargetEntity(InlongConsumeRequest request, InlongConsumeEntity targetEntity) {
+        LOGGER.info("do nothing for inlong consume with TubeMQ");
     }
 
 }

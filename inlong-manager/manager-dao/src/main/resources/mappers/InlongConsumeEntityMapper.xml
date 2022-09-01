@@ -41,8 +41,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        , consumer_group, description, mq_type, topic, inlong_group_id, filter_enabled, inlong_stream_id,
+        id, consumer_group, description, mq_type, topic, inlong_group_id, filter_enabled, inlong_stream_id,
         ext_params, in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 

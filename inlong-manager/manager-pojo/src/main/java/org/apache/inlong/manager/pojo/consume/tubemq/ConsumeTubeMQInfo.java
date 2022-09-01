@@ -18,11 +18,9 @@
 package org.apache.inlong.manager.pojo.consume.tubemq;
 
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -32,6 +30,7 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
  * Inlong consume info of TubeMQ
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = MQType.TUBEMQ)
 @ApiModel("Inlong consume info of TubeMQ")

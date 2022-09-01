@@ -29,10 +29,10 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
  * Inlong consume request of TubeMQ
  */
 @Data
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong consume request of TubeMQ")
 @JsonTypeDefine(value = MQType.TUBEMQ)
+@ApiModel("Inlong consume request of TubeMQ")
 public class ConsumeTubeMQRequest extends InlongConsumeRequest {
 
     // no fields

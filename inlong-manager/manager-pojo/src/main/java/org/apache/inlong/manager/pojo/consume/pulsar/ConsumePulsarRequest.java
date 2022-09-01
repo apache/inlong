@@ -30,7 +30,7 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
  * Inlong consume request of Pulsar
  */
 @Data
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong consume request of Pulsar")
 @JsonTypeDefine(value = MQType.PULSAR)

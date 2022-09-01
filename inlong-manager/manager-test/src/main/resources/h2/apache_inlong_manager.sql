@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
 );
 
 -- ----------------------------
--- Table structure for consumption_pulsar
+-- Deprecated: Table structure for consumption_pulsar
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption_pulsar`
 (

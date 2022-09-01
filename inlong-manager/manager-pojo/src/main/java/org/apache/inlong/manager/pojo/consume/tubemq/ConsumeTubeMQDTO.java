@@ -23,7 +23,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
@@ -34,12 +33,12 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info of TubeMQ")
 public class ConsumeTubeMQDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     // no fields
 
@@ -55,7 +54,6 @@ public class ConsumeTubeMQDTO {
      */
     public static ConsumeTubeMQDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ConsumeTubeMQDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUMER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());

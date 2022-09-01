@@ -22,13 +22,14 @@ import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Default operator of inlong consume.
@@ -38,42 +39,48 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConsumeOperator.class);
 
     @Autowired
-    private InlongConsumeEntityMapper consumeEntityMapper;
+    private InlongConsumeEntityMapper consumeMapper;
 
-    protected abstract void setExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity entity);
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Integer saveOpt(InlongConsumeRequest request, String operator) {
+        // firstly check the topic info
+        this.checkTopicInfo(request);
 
-    protected abstract void updateExtParam(InlongConsumeRequest consumeRequest, InlongConsumeEntity exists,
-            String operator);
-
-    public void saveOpt(InlongConsumeRequest consumeRequest, String operator) {
-        InlongConsumeEntity entity = CommonBeanUtils.copyProperties(consumeRequest, InlongConsumeEntity::new);
+        // set the ext params, init status, and other info
+        InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
+        this.setTargetEntity(request, entity);
         entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 
-        setExtParam(consumeRequest, entity);
-
-        if (consumeRequest.getId() != null) {
-            int rowCount = consumeEntityMapper.updateById(entity);
-            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
-                        entity.getId(), entity.getVersion());
-                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-            }
-        } else {
-            consumeEntityMapper.insert(entity);
-        }
-
-        Preconditions.checkNotNull(entity.getId(), "inlong consume save failed");
+        consumeMapper.insert(entity);
+        return entity.getId();
     }
 
-    public void updateOpt(InlongConsumeRequest consumeRequest, InlongConsumeEntity exists, String operator) {
-        updateExtParam(consumeRequest, exists, operator);
+    /**
+     * Set the parameters of the target entity.
+     *
+     * @param request inlong consume request
+     * @param targetEntity targetEntity which will set the new parameters
+     */
+    protected abstract void setTargetEntity(InlongConsumeRequest request, InlongConsumeEntity targetEntity);
 
-        int rowCount = consumeEntityMapper.updateByIdSelective(exists);
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void updateOpt(InlongConsumeRequest request, String operator) {
+        // get the entity from request
+        InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
+        // set the ext params
+        this.setTargetEntity(request, entity);
+        entity.setModifier(operator);
+
+        int rowCount = consumeMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            // LOGGER.error(errMsg);
+            LOGGER.error("inlong consume has already updated with id={}, expire version={}",
+                    request.getId(), request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }
+
 }

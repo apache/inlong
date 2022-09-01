@@ -75,22 +75,8 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
             throw new BusinessException(String.format("consumer group %s already exist", consumerGroup));
         }
 
-        //if (GroupStatus.notAllowedUpdate(curStatus)) {
-        //             String errMsg = String.format("Current status=%s is not allowed to update", curStatus);
-        //             LOGGER.error(errMsg);
-        //             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-        //         }
-        //
-        //         // mq type cannot be changed
-        //         if (!entity.getMqType().equals(request.getMqType()) && GroupStatus.notAllowedUpdateMQ(curStatus)) {
-        //             String errMsg = String.format("Current status=%s is not allowed to update MQ type", curStatus);
-        //             LOGGER.error(errMsg);
-        //             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
-        //         }
-
-        InlongConsumeOperator instance = consumeOperatorFactory.getInstance(request.getMqType());
-        instance.setTopicInfo(request);
-        instance.saveOpt(request, operator);
+        InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
+        consumeOperator.saveOpt(request, operator);
 
         LOGGER.info("success to save inlong consume for consumer group={} by user={}", consumerGroup, operator);
         return request.getId();
@@ -181,18 +167,18 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         Preconditions.checkTrue(existEntity.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the inlong consume");
 
-        ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(existEntity.getStatus());
-        Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
-                "inlong consume not allowed update when status is " + consumeStatus.name());
-
         if (!Objects.equals(existEntity.getVersion(), request.getVersion())) {
             LOGGER.error(String.format("inlong consume has already updated, id=%s, curVersion=%s",
                     existEntity.getId(), request.getVersion()));
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
+        ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(existEntity.getStatus());
+        Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
+                "inlong consume not allowed update when status is " + consumeStatus.name());
+
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
-        consumeOperator.updateOpt(request, existEntity, operator);
+        consumeOperator.updateOpt(request, operator);
 
         LOGGER.info("success to update inlong consume={} by user={}", request, operator);
         return true;
@@ -202,7 +188,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete inlong consume for id={} by user={}", id, operator);
         Preconditions.checkNotNull(id, "inlong consume id cannot be null");
-
         InlongConsumeEntity entity = consumeMapper.selectById(id);
         Preconditions.checkNotNull(entity, "inlong consume not exist with id " + id);
 

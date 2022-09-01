@@ -40,7 +40,8 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Inlong group dto of Pulsar")
 public class ConsumePulsarDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
     private Integer isDlq;
@@ -62,6 +63,7 @@ public class ConsumePulsarDTO {
                 .isDlq(request.getIsDlq())
                 .deadLetterTopic(request.getDeadLetterTopic())
                 .isRlq(request.getIsRlq())
+                .retryLetterTopic(request.getRetryLetterTopic())
                 .build();
     }
 
@@ -70,7 +72,6 @@ public class ConsumePulsarDTO {
      */
     public static ConsumePulsarDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ConsumePulsarDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUMER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
