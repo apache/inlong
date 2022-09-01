@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
@@ -60,7 +60,7 @@ public interface WorkflowApproverService {
      * @param request page query request
      * @return approver list
      */
-    PageInfo<ApproverResponse> listByCondition(ApproverPageRequest request);
+    PageResult<ApproverResponse> listByCondition(ApproverPageRequest request);
 
     /**
      * Update workflow approve.

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,6 +36,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -150,7 +150,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Map<String, List<StreamSource>> result;
 
         // if the group mode is LIGHTWEIGHT, just get all related stream sources
-        List<StreamSource> streamSources = this.listSource(groupInfo.getInlongGroupId(), null);
+        List<StreamSource> streamSources = this.listSource(groupId, null);
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
             result = streamSources.stream()
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
@@ -166,7 +166,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public PageInfo<? extends StreamSource> listByCondition(SourcePageRequest request) {
+    public PageResult<? extends StreamSource> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -182,15 +182,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         List<StreamSource> responseList = Lists.newArrayList();
         for (Map.Entry<String, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
             StreamSourceOperator sourceOperator = operatorFactory.getInstance(entry.getKey());
-            PageInfo<? extends StreamSource> pageInfo = sourceOperator.getPageInfo(entry.getValue());
+            PageResult<? extends StreamSource> pageInfo = sourceOperator.getPageInfo(entry.getValue());
             if (null != pageInfo && CollectionUtils.isNotEmpty(pageInfo.getList())) {
                 responseList.addAll(pageInfo.getList());
             }
         }
-        PageInfo<? extends StreamSource> pageInfo = PageInfo.of(responseList);
 
-        LOGGER.debug("success to list source page, result size {}", pageInfo.getSize());
-        return pageInfo;
+        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList);
+
+        LOGGER.debug("success to list source page, result size {}", pageResult.getList().size());
+        return pageResult;
     }
 
     @Override

@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import StaffSelect from '@/components/StaffSelect';
+import UserSelect from '@/components/UserSelect';
 import type { FieldItemType } from '@/metas/common';
 import { genFields, genForm, genTable } from '@/metas/common';
 import i18n from '@/i18n';
@@ -47,7 +47,7 @@ const consumptionDefault: FieldItemType[] = [
     _renderTable: true,
   },
   {
-    type: <StaffSelect mode="multiple" currentUserClosable={false} />,
+    type: <UserSelect mode="multiple" currentUserClosable={false} />,
     label: i18n.t('meta.Consumption.Owner'),
     name: 'inCharges',
     extra: i18n.t('meta.Consumption.OwnersExtra'),

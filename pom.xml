@@ -30,7 +30,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
@@ -111,6 +111,7 @@
         <plugin.failsafe.version>3.0.0-M7</plugin.failsafe.version>
         <plugin.shade.version>3.2.4</plugin.shade.version>
         <plugin.maven.source>3.0.1</plugin.maven.source>
+        <plugin.maven.jar.version>3.2.0</plugin.maven.jar.version>
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
@@ -203,6 +204,7 @@
         <iceberg.flink.version>0.13.1</iceberg.flink.version>
         <iceberg.version>0.13.1</iceberg.version>
         <flink.version>1.13.5</flink.version>
+        <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
@@ -212,6 +214,7 @@
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
+        <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
         <flink.connector.redis>1.1.0</flink.connector.redis>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
@@ -1747,6 +1750,9 @@
                         <exclude>**/tubemq-client-go/go.mod</exclude>
                         <!-- Go sum -->
                         <exclude>**/tubemq-client-go/go.sum</exclude>
+                        <!-- Docker build-->
+                        <exclude>**/docker/docker-compose/**/**</exclude>
+
                     </excludes>
                 </configuration>
             </plugin>

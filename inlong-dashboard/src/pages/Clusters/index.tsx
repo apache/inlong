@@ -62,7 +62,11 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/cluster/list',
       method: 'POST',
@@ -186,9 +190,8 @@ const Comp: React.FC = () => {
 
       <CreateModal
         {...createModal}
-        type={options.type as any}
         visible={createModal.visible as boolean}
-        onOk={async values => {
+        onOk={async () => {
           await getList();
           setCreateModal({ visible: false });
         }}

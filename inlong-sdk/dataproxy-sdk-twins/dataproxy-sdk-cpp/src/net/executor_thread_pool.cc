@@ -19,8 +19,6 @@
 
 #include "executor_thread_pool.h"
 
-#include "sdk_core.h"
-
 namespace dataproxy_sdk
 {
     ExecutorThread::ExecutorThread(int32_t id)
@@ -67,7 +65,7 @@ namespace dataproxy_sdk
 
     ExecutorThreadPool::ExecutorThreadPool() : next_idx_(0)
     {
-        for (int i = 0; i < g_config->thread_nums_; i++)
+        for (int i = 0; i < g_config.thread_nums_; i++)
         {
             executors_.emplace_back(std::make_shared<ExecutorThread>(i));
         }

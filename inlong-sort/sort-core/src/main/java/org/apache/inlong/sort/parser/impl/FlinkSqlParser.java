@@ -46,9 +46,10 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
+import org.apache.inlong.sort.protocol.transformation.relation.IntervalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoin;
+import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,7 +199,6 @@ public class FlinkSqlParser implements Parser {
 
     /**
      * parse node relation
-     * <p/>
      * Here we only parse the output node in the relation,
      * and the input node parsing is achieved by parsing the dependent node parsing of the output node.
      *
@@ -338,17 +338,15 @@ public class FlinkSqlParser implements Parser {
         // Generate mapping for output field to FieldRelation
         fieldRelations.forEach(s -> {
             // All field relations of input nodes will be the same if the node id of output field is blank.
-            // Currently, the node id in the output file is used to distinguish which field of the node in the upstream
-            // of the union the field comes from. A better way is through the upstream input field,
+            // Currently, the node id in the output field is used to distinguish which field of the node in the
+            // upstream of the union the field comes from. A better way is through the upstream input field,
             // but this abstraction does not yet have the ability to set node ids for all upstream input fields.
             // todo optimize the implementation of this block in the future
             String nodeId = s.getOutputField().getNodeId();
             if (StringUtils.isBlank(nodeId)) {
                 nodeId = unionRelation.getInputs().get(0);
             }
-            Map<String, FieldRelation> subRelationMap = fieldRelationMap
-                    .computeIfAbsent(nodeId, k -> new HashMap<>());
-            subRelationMap.put(s.getOutputField().getName(), s);
+            fieldRelationMap.computeIfAbsent(nodeId, k -> new HashMap<>()).put(s.getOutputField().getName(), s);
         });
         StringBuilder sb = new StringBuilder();
         sb.append(genUnionSingleSelectSql(unionRelation.getInputs().get(0),
@@ -425,8 +423,17 @@ public class FlinkSqlParser implements Parser {
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
         // Parse condition map of join and format condition to sql, such as on 1 = 1...
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
-        if (relation instanceof TemporalJoin) {
-            parseTemporalJoin((TemporalJoin) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        if (relation instanceof TemporalJoinRelation) {
+            parseTemporalJoin((TemporalJoinRelation) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+        } else if (relation instanceof IntervalJoinRelation) {
+            Preconditions.checkState(filters == null || filters.isEmpty(),
+                    String.format("filters must be empty for %s", relation.getClass().getSimpleName()));
+            parseIntervalJoin((IntervalJoinRelation) relation, nodeMap, tableNameAliasMap, sb);
+            List<FilterFunction> conditions = conditionMap.values().stream().findFirst().orElse(null);
+            Preconditions.checkState(conditions != null && !conditions.isEmpty(),
+                    String.format("Join conditions must no be empty for %s", relation.getClass().getSimpleName()));
+            fillOutTableNameAlias(new ArrayList<>(conditions), tableNameAliasMap);
+            parseFilterFields(FilterStrategy.RETAIN, conditions, sb);
         } else {
             parseRegularJoin(relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         }
@@ -443,6 +450,15 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
+    private void parseIntervalJoin(IntervalJoinRelation relation, Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+        for (int i = 1; i < relation.getInputs().size(); i++) {
+            String inputId = relation.getInputs().get(i);
+            sb.append(", ").append(nodeMap.get(inputId).genTableName())
+                    .append(" ").append(tableNameAliasMap.get(inputId));
+        }
+    }
+
     private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
             Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
         for (int i = 1; i < relation.getInputs().size(); i++) {
@@ -454,7 +470,7 @@ public class FlinkSqlParser implements Parser {
         }
     }
 
-    private void parseTemporalJoin(TemporalJoin relation, Map<String, Node> nodeMap,
+    private void parseTemporalJoin(TemporalJoinRelation relation, Map<String, Node> nodeMap,
             Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
         if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
             relation.getSystemTime().setNodeId(relation.getInputs().get(0));
@@ -590,9 +606,9 @@ public class FlinkSqlParser implements Parser {
      */
     private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
-            sb.append("\n    WHERE ");
+            sb.append("\nWHERE ");
             String subSql = StringUtils
-                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), " ");
+                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), "\n    ");
             if (filterStrategy == FilterStrategy.REMOVE) {
                 sb.append("not (").append(subSql).append(")");
             } else {

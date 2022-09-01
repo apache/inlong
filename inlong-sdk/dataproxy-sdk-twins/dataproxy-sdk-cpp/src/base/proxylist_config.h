@@ -31,7 +31,6 @@
 #include <unordered_map>
 
 #include "sdk_core.h"
-#include "client_config.h"
 #include "noncopyable.h"
 #include "read_write_mutex.h"
 namespace dataproxy_sdk

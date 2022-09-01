@@ -25,10 +25,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -45,6 +53,13 @@ public class WorkflowClient {
         workflowApi = ClientUtils.createRetrofit(configuration).create(WorkflowApi.class);
     }
 
+    /**
+     * Approval the process
+     *
+     * @param taskId taskId
+     * @param groupProcessForm inlong group process form
+     * @return workflow result info
+     */
     public WorkflowResult startInlongGroup(int taskId, ApplyGroupProcessForm groupProcessForm) {
         ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
@@ -65,6 +80,132 @@ public class WorkflowClient {
                 workflowApi.startInlongGroup(taskId, requestMap));
         ClientUtils.assertRespSuccess(response);
 
+        return response.getData();
+    }
+
+    /**
+     * Initiation process
+     *
+     * @param request workflow operation request
+     * @return workflow result info
+     */
+    public WorkflowResult start(WorkflowOperationRequest request) {
+        Preconditions.checkNotNull(request.getName(), "process name cannot be null");
+        Preconditions.checkNotNull(request.getForm(), "form cannot be null");
+
+        Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.start(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Initiation process
+     *
+     * @param processId process id
+     * @param request workflow operation request
+     * @return workflow result info
+     */
+    public WorkflowResult cancel(Integer processId, WorkflowOperationRequest request) {
+        Preconditions.checkNotNull(processId, "process id cannot be null");
+
+        Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.cancel(processId, request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Continue process when pending or failed
+     *
+     * @param processId process id
+     * @param request workflow operation request
+     * @return workflow result info
+     */
+    public WorkflowResult continueProcess(Integer processId, WorkflowOperationRequest request) {
+        Preconditions.checkNotNull(processId, "process id cannot be null");
+
+        Response<WorkflowResult> response = ClientUtils.executeHttpCall(
+                workflowApi.continueProcess(processId, request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Cancellation process application
+     *
+     * @param taskId taskId
+     * @param request workflow operation request
+     * @return workflow result info
+     */
+    public WorkflowResult reject(Integer taskId, WorkflowOperationRequest request) {
+        Preconditions.checkNotNull(taskId, "task id cannot be null");
+
+        Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.reject(taskId, request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Complete task-true to automatic task
+     *
+     * @param taskId taskId
+     * @param request workflow operation request
+     * @return workflow result info
+     */
+    public WorkflowResult complete(Integer taskId, WorkflowOperationRequest request) {
+        Preconditions.checkNotNull(taskId, "task id cannot be null");
+
+        Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.complete(taskId, request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Query process details according to the tracking number
+     *
+     * @param processId processId
+     * @param taskId taskId
+     * @return process detail response
+     */
+    public ProcessDetailResponse detail(Integer processId, Integer taskId) {
+        Preconditions.checkNotNull(processId, "process id cannot be null");
+
+        Response<ProcessDetailResponse> response = ClientUtils.executeHttpCall(workflowApi.detail(processId, taskId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Get process list
+     *
+     * @param request workflow process request
+     * @return process response list
+     */
+    public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
+        Preconditions.checkNotNull(request, "process request cannot be null");
+
+        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
+                new TypeReference<Map<String, Object>>() {
+                });
+        Response<PageResult<ProcessResponse>> response = ClientUtils.executeHttpCall(
+                workflowApi.listProcess(requestMap));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Get task list
+     *
+     * @param request workflow task query request
+     * @return task response list
+     */
+    public PageResult<TaskResponse> listTask(TaskRequest request) {
+        Preconditions.checkNotNull(request, "task request cannot be null");
+
+        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
+                new TypeReference<Map<String, Object>>() {
+                });
+        Response<PageResult<TaskResponse>> response = ClientUtils.executeHttpCall(workflowApi.listTask(requestMap));
+        ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 

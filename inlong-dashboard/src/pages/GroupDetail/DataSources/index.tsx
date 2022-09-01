@@ -73,7 +73,11 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/source/list',
       params: {
@@ -85,26 +89,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       refreshDeps: [options],
     },
   );
-
-  const onSave = async values => {
-    const isUpdate = createModal.id;
-    const submitData = {
-      ...values,
-      inlongGroupId: inlongGroupId,
-      sourceType: options.sourceType,
-    };
-    if (isUpdate) {
-      submitData.id = createModal.id;
-    }
-
-    await request({
-      url: `/source/${isUpdate ? 'update' : 'save'}`,
-      method: 'POST',
-      data: submitData,
-    });
-    await getList();
-    message.success(i18n.t('pages.GroupDetail.Sources.SaveSuccessfully'));
-  };
 
   const onEdit = ({ id }) => {
     setCreateModal({ visible: true, id });
@@ -167,7 +151,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       dataIndex: 'inlongStreamId',
     },
     {
-      title: i18n.t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
+      title: i18n.t('meta.Sources.Name'),
       dataIndex: 'sourceName',
     },
   ]
@@ -197,38 +181,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       } as any,
     ]);
 
-  const createContent = [
-    {
-      type: 'select',
-      label: i18n.t('pages.GroupDetail.Sources.DataStreams'),
-      name: 'inlongStreamId',
-      props: {
-        notFoundContent: i18n.t('pages.GroupDetail.Sources.NoDataStreams'),
-        disabled: !!createModal.id,
-        options: {
-          requestService: {
-            url: '/stream/list',
-            method: 'POST',
-            data: {
-              pageNum: 1,
-              pageSize: 1000,
-              inlongGroupId,
-            },
-          },
-          requestParams: {
-            ready: !!(createModal.visible && !createModal.id),
-            formatResult: result =>
-              result?.list.map(item => ({
-                label: item.inlongStreamId,
-                value: item.inlongStreamId,
-              })) || [],
-          },
-        },
-      },
-      rules: [{ required: true }],
-    },
-  ];
-
   return (
     <>
       <HighTable
@@ -255,11 +207,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
       <DetailModal
         {...createModal}
-        type={options.sourceType as any}
-        content={createContent}
+        inlongGroupId={inlongGroupId}
         visible={createModal.visible as boolean}
-        onOk={async values => {
-          await onSave(values);
+        onOk={async () => {
+          await getList();
           setCreateModal({ visible: false });
         }}
         onCancel={() => setCreateModal({ visible: false })}

@@ -21,13 +21,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
-import org.apache.inlong.common.monitor.CounterGroup;
-import org.apache.inlong.common.monitor.CounterGroupExt;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import org.apache.flume.Context;
 import org.apache.flume.channel.ChannelProcessor;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
@@ -118,12 +119,11 @@ public class SimpleHttpSource extends HttpBaseSource {
 
             @SuppressWarnings("unchecked") Class<? extends MessageHandler> clazz =
                     (Class<? extends MessageHandler>) Class.forName(messageHandlerName);
-
-            Constructor ctor = clazz.getConstructor(ChannelProcessor.class, CounterGroup.class,
-                    CounterGroupExt.class, ServiceDecoder.class);
+            Constructor ctor = clazz.getConstructor(ChannelProcessor.class,
+                    MonitorIndex.class, MonitorIndexExt.class, DataProxyMetricItemSet.class, ServiceDecoder.class);
             LOG.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
             messageHandler = (MessageHandler) ctor
-                    .newInstance(getChannelProcessor(), counterGroup, counterGroupExt, null);
+                    .newInstance(getChannelProcessor(), monitorIndex, monitorIndexExt, metricItemSet,null);
             messageHandler.configure(new Context(subProps));
             srv = new Server(new QueuedThreadPool(threadPoolSize));
             Connector[] connectors = new Connector[1];
@@ -147,6 +147,8 @@ public class SimpleHttpSource extends HttpBaseSource {
                 connector.setIdleTimeout(maxIdelTime);
                 connector.setAcceptedReceiveBufferSize(requestBufferSize);
                 connector.setAcceptQueueSize(backlog);
+                connector.setHost(host);
+                connector.setPort(port);
                 LOG.info("set config maxIdelTime {}, backlog {}", maxIdelTime, backlog);
                 connectors[0] = connector;
             }

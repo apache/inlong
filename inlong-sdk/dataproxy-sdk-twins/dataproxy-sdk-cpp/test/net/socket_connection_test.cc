@@ -20,21 +20,20 @@
 #include "../common.h"
 
 ExecutorThreadPtr th1 = make_shared<ExecutorThread>(1);
-ProxyInfoPtr proxy        = make_shared<ProxyInfo>("1", "127.0.0.1", 4000);
+ProxyInfoPtr proxy        = make_shared<ProxyInfo>(1, "127.0.0.1", 4000);
 ConnectionPtr conn1   = make_shared<Connection>(th1, proxy);
 
 TEST(connection, sendBufTest1)
 {
-    g_config->msg_type_    = 3;
-    g_config->retry_num_   = 100;
-    g_config->enable_pack_ = false;
+    g_config.msg_type_    = 3;
+    g_config.retry_num_   = 100;
+    g_config.enable_pack_ = false;
 
     EXPECT_EQ(conn1->getThreadId(), 1);
     EXPECT_EQ(conn1->getWaitingSend(), 0);
     conn1->decreaseWaiting();
     EXPECT_EQ(conn1->getWaitingSend(), 0);
     EXPECT_EQ(conn1->getRemoteInfo(), "[ip:127.0.0.1, port:4000]");
-    EXPECT_EQ(conn1->getProxyInfo(), proxy);
 
     this_thread::sleep_for(chrono::seconds(3));
     EXPECT_EQ(conn1->isConnected(), true);
@@ -57,8 +56,7 @@ TEST(connection, sendBufTest1)
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 1, true, "./logs/");
-    g_config = new ClientConfig("config.json");
+    g_config.parseConfig("config.json");
 
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

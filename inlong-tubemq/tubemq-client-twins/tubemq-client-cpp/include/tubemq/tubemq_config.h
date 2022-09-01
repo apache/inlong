@@ -41,6 +41,7 @@ class TubeMQServiceConfig {
   ~TubeMQServiceConfig();
   void SetLogCofigInfo(int32_t log_max_num,
                 int32_t log_max_size, int32_t log_level, const string& log_path);
+  void SetLogPrintLevel(int32_t log_level);
   const int32_t GetMaxLogFileNum() const;
   const int32_t GetMaxLogFileSize() const;
   const int32_t GetLogPrintLevel() const;

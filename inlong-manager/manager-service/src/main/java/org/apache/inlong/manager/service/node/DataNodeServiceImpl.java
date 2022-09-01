@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -27,6 +26,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -89,7 +89,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
-    public PageInfo<DataNodeInfo> list(DataNodePageRequest request) {
+    public PageResult<DataNodeInfo> list(DataNodePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
         List<DataNodeInfo> list = entityPage.stream()
@@ -97,10 +97,12 @@ public class DataNodeServiceImpl implements DataNodeService {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
                     return dataNodeOperator.getFromEntity(entity);
                 }).collect(Collectors.toList());
-        PageInfo<DataNodeInfo> page = new PageInfo<>(list);
-        page.setTotal(entityPage.getTotal());
+
+        PageResult<DataNodeInfo> pageResult = new PageResult<>(list, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
+
         LOGGER.debug("success to list data node by {}", request);
-        return page;
+        return pageResult;
     }
 
     @Override

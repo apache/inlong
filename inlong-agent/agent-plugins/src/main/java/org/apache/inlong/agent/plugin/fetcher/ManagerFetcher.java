@@ -282,7 +282,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * the fetch file command can be normal or special
      */
     private void dealWithFetchResult(TaskResult taskResult) {
-        LOGGER.info("deal with fetch result {}", taskResult);
+        if (!taskResult.getCmdConfigs().isEmpty() || !taskResult.getDataConfigs().isEmpty()) {
+            LOGGER.info("deal with fetch result {}", taskResult);
+        }
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
             LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
@@ -385,7 +387,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,

@@ -48,17 +48,18 @@ public abstract class AbstractFileReader {
         List<String> lines = fileReaderOperator.stream.collect(Collectors.toList());
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_CONTENT_COLLECT_TYPE)) {
             long timestamp = System.currentTimeMillis();
+            boolean isJson = FileDataUtils.isJSON(lines.isEmpty() ? null : lines.get(0));
             if (Objects.nonNull(fileReaderOperator.metadata)) {
                 lines = lines.stream().map(data -> {
                     Map<String, String> mergeData = new HashMap<>(fileReaderOperator.metadata);
-                    mergeData.put(DATA_CONTENT, FileDataUtils.getK8sJsonLog(data));
+                    mergeData.put(DATA_CONTENT, FileDataUtils.getK8sJsonLog(data, isJson));
                     mergeData.put(DATA_CONTENT_TIME, String.valueOf(timestamp));
                     return GSON.toJson(mergeData);
                 }).collect(Collectors.toList());
             } else if (!fileReaderOperator.jobConf.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
                 lines = lines.stream().map(data -> {
                     Map<String, String> mergeData = new HashMap<>();
-                    mergeData.put(DATA_CONTENT, FileDataUtils.getK8sJsonLog(data));
+                    mergeData.put(DATA_CONTENT, FileDataUtils.getK8sJsonLog(data, isJson));
                     mergeData.put(DATA_CONTENT_TIME, String.valueOf(timestamp));
                     return GSON.toJson(mergeData);
                 }).collect(Collectors.toList());

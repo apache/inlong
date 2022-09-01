@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
@@ -43,7 +43,7 @@ public interface ConsumptionService {
      * @param query Consumption info
      * @return Consumption list
      */
-    PageInfo<ConsumptionListVo> list(ConsumptionQuery query);
+    PageResult<ConsumptionListVo> list(ConsumptionQuery query);
 
     /**
      * Get data consumption details

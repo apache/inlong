@@ -928,19 +928,15 @@ public class FlinkKafkaProducer<IN>
     }
 
     private void sendOutMetrics(Long rowSize, Long dataSize) {
-        if (metricData.getNumRecordsOut() != null) {
+        if (metricData != null) {
             metricData.getNumRecordsOut().inc(rowSize);
-        }
-        if (metricData.getNumBytesOut() != null) {
             metricData.getNumBytesOut().inc(dataSize);
         }
     }
 
     private void sendDirtyMetrics(Long rowSize, Long dataSize) {
-        if (metricData.getDirtyRecords() != null) {
+        if (metricData != null) {
             metricData.getDirtyRecords().inc(rowSize);
-        }
-        if (metricData.getDirtyBytes() != null) {
             metricData.getDirtyBytes().inc(dataSize);
         }
     }

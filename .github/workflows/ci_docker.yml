@@ -103,6 +103,7 @@ jobs:
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_ORG: inlong
 
       # Publish aarch64 Docker images when the changes are being pushed to a release branch like 'release-1.0.0'.
       - name: Push aarch64 Docker images to Docker Hub
@@ -114,6 +115,7 @@ jobs:
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_ORG: inlong
 
       # Push manifest after publishing aarch64 Docker images.
       - name: Push manifest to Docker Hub

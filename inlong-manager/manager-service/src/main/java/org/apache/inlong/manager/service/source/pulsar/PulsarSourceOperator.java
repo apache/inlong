@@ -26,6 +26,7 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -55,6 +56,12 @@ import java.util.Map;
  */
 @Service
 public class PulsarSourceOperator extends AbstractSourceOperator {
+
+    private static final String AUTH_CLASSNAME_KEY = "properties.auth-plugin-classname";
+    private static final String AUTH_CLASSNAME_VALUE = "org.apache.pulsar.client.impl.auth.AuthenticationToken";
+    private static final String AUTH_PARAMS_KEY = "properties.auth-params";
+    // the %s must be replaced by the actual value
+    private static final String AUTH_PARAMS_VALUE = "token:%s";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -121,6 +128,13 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
 
+            // set the token info
+            if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
+                Map<String, Object> properties = pulsarSource.getProperties();
+                properties.putIfAbsent(AUTH_CLASSNAME_KEY, AUTH_CLASSNAME_VALUE);
+                properties.putIfAbsent(AUTH_PARAMS_KEY, String.format(AUTH_PARAMS_VALUE, pulsarCluster.getToken()));
+            }
+
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
@@ -137,6 +151,12 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             // if the SerializationType is still null, set it to the CSV
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
                 pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+            }
+            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
+                pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
+                if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
+                    pulsarSource.setDataSeparator(DataSeparator.COMMA.getAsciiCode().toString());
+                }
             }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
             pulsarSource.setFieldList(streamInfo.getFieldList());

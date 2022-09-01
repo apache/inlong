@@ -26,6 +26,7 @@
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
         <result column="source_type" jdbcType="VARCHAR" property="sourceType"/>
         <result column="source_name" jdbcType="VARCHAR" property="sourceName"/>
+        <result column="template_id" jdbcType="INTEGER" property="templateId"/>
         <result column="agent_ip" jdbcType="VARCHAR" property="agentIp"/>
         <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
@@ -44,7 +45,7 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
+        id, inlong_group_id, inlong_stream_id, source_type, source_name, template_id, agent_ip, uuid,
         data_node_name, inlong_cluster_name, serialization_type, snapshot, report_time, ext_params,
         version, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
@@ -52,14 +53,15 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         insert into stream_source (inlong_group_id, inlong_stream_id,
-                                   source_type, source_name, agent_ip,
+                                   source_type, source_name, template_id, agent_ip,
                                    uuid, data_node_name, inlong_cluster_name,
                                    serialization_type, snapshot,
                                    report_time, ext_params, status,
                                    previous_status, creator, modifier)
         values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
-                #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR}, #{inlongClusterName,jdbcType=VARCHAR},
+                #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
+                #{agentIp,jdbcType=VARCHAR},#{uuid,jdbcType=VARCHAR},
+                #{dataNodeName,jdbcType=VARCHAR}, #{inlongClusterName,jdbcType=VARCHAR},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
                 #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
@@ -70,6 +72,13 @@
         <include refid="Base_Column_List"/>
         from stream_source
         where id = #{id,jdbcType=INTEGER}
+        and is_deleted = 0
+    </select>
+    <select id="selectByTemplateId" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        where template_id = #{templateId,jdbcType=INTEGER}
         and is_deleted = 0
     </select>
     <select id="selectByIdForUpdate" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -125,6 +134,7 @@
             <if test="request.status != null and request.status != ''">
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
+            and template_id is NULL
         </where>
         <choose>
             <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
@@ -244,6 +254,7 @@
                     #{item}
                 </foreach>
             </if>
+            and template_id is NULL
         </where>
     </select>
     <select id="selectSourceType" resultType="java.lang.String">
@@ -377,11 +388,6 @@
         set snapshot    = #{snapshot,jdbcType=LONGVARCHAR},
             report_time = #{reportTime,jdbcType=TIMESTAMP},
             modify_time = modify_time
-        where id = #{id,jdbcType=INTEGER}
-    </update>
-    <update id="appendAgentIp">
-        update stream_source
-        set agent_ip = IF(agent_ip is NULL or agent_ip = '', #{agentIp,jdbcType=VARCHAR}, CONCAT(agent_ip, ',', #{agentIp}))
         where id = #{id,jdbcType=INTEGER}
     </update>
 

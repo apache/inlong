@@ -42,11 +42,11 @@
     <select id="queryCmdByAgentIp" resultMap="BaseResultMap">
         select cmd.*
         from stream_source_cmd_config cmd,
-             source_file_detail fd
-        where cmd.task_id = fd.id
+             stream_source src
+        where cmd.task_id = src.id
           and cmd.cmd_type in (2, 6, 7, 8)
           and cmd.bSend = 0
-          and fd.ip = #{ip,jdbcType=VARCHAR}
+          and src.agent_ip = #{ip, jdbcType=VARCHAR}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

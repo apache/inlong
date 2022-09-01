@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.stream;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -75,7 +75,7 @@ public interface InlongStreamService {
      * @param request query request
      * @return inlong stream brief list
      */
-    PageInfo<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request);
+    PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request);
 
     /**
      * Paging query inlong stream full info list, and get all related sources and sinks
@@ -83,7 +83,7 @@ public interface InlongStreamService {
      * @param request query request
      * @return inlong stream info list
      */
-    PageInfo<InlongStreamInfo> listAll(InlongStreamPageRequest request);
+    PageResult<InlongStreamInfo> listAll(InlongStreamPageRequest request);
 
     /**
      * Get the inlong stream brief list and related sink brief list.

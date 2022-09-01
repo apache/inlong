@@ -26,6 +26,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -38,13 +39,12 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("pulsarExtract")
 @Data
-public class PulsarExtractNode extends ExtractNode {
+public class PulsarExtractNode extends ExtractNode implements InlongMetric {
     private static final long serialVersionUID = 1L;
 
     @Nonnull
     @JsonProperty("topic")
     private String topic;
-    @Nonnull
     @JsonProperty("adminUrl")
     private String adminUrl;
     @Nonnull
@@ -67,18 +67,18 @@ public class PulsarExtractNode extends ExtractNode {
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("topic") String topic,
-            @Nonnull @JsonProperty("adminUrl") String adminUrl,
+            @JsonProperty("adminUrl") String adminUrl,
             @Nonnull @JsonProperty("serviceUrl") String serviceUrl,
             @Nonnull @JsonProperty("format") Format format,
             @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
             @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
-        this.adminUrl = Preconditions.checkNotNull(adminUrl, "pulsar adminUrl is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
         this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
         this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
                 "pulsar scanStartupMode is null.");
+        this.adminUrl = adminUrl;
         this.primaryKey = primaryKey;
     }
 
@@ -97,9 +97,11 @@ public class PulsarExtractNode extends ExtractNode {
             options.put("connector", "upsert-pulsar-inlong");
             options.putAll(format.generateOptions(true));
         }
+        if (adminUrl != null) {
+            options.put("admin-url", adminUrl);
+        }
         options.put("generic", "true");
         options.put("service-url", serviceUrl);
-        options.put("admin-url", adminUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);
 
