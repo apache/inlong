@@ -38,6 +38,15 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaInfo extends InlongGroupInfo {
 
+    // partition number
+    private int numPartitions;
+    // replicationFactor number
+    short replicationFactor = 1;
+    //consumer grouping
+    private String groupId;
+    // autocommit interval
+    private String autoCommit;
+
     public InlongKafkaInfo() {
         this.setMqType(MQType.KAFKA);
     }

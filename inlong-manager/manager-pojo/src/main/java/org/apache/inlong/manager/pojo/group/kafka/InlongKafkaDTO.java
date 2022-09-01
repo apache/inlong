@@ -35,6 +35,15 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
+    // partition number
+    private int numPartitions;
+    // replicationFactor number
+    short replicationFactor = 1;
+    //consumer grouping
+    private String groupId;
+    // autocommit interval
+    private String autoCommit;
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.pojo.cluster.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,16 +42,11 @@ public class KafkaClusterDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
-    @ApiModelProperty(value = "Kafka admin URL, such as: http://127.0.0.1:8080",
-            notes = "Pulsar service URL is the 'url' field of the cluster")
-    private String adminUrl;
-
     /**
      * Get the dto instance from the request
      */
     public static KafkaClusterDTO getFromRequest(KafkaClusterRequest request) {
         return KafkaClusterDTO.builder()
-                .adminUrl(request.getAdminUrl())
                 .build();
     }
 

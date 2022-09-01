@@ -18,15 +18,12 @@
 package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * Inlong cluster request for Kafka
@@ -37,11 +34,6 @@ import javax.validation.constraints.NotBlank;
 @JsonTypeDefine(value = ClusterType.KAFKA)
 @ApiModel("Inlong cluster request for Kafka")
 public class KafkaClusterRequest extends ClusterRequest {
-
-    @NotBlank(message = "adminUrl cannot be blank")
-    @ApiModelProperty(value = "Kafka admin URL, such as: http://127.0.0.1:8080",
-            notes = "Kafka service URL is the 'url' field of the cluster")
-    private String adminUrl;
 
     public KafkaClusterRequest() {
         this.setType(ClusterType.KAFKA);

@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -44,14 +45,14 @@ public class KafkaOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
 
     /**
-     * Create Kafka topic
+     * Create Kafka topic inlongKafkaInfo
      */
-    public void createTopic(KafkaClusterInfo kafkaClusterInfo, String topicName)
+    public void createTopic(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo, String topicName)
             throws InterruptedException, ExecutionException {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         NewTopic topic = new NewTopic(topicName,
-                kafkaClusterInfo.getNumPartitions(),
-                kafkaClusterInfo.getReplicationFactor());
+                inlongKafkaInfo.getNumPartitions(),
+                inlongKafkaInfo.getReplicationFactor());
         CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
         // To prevent the client from disconnecting too quickly and causing the Topic to not be created successfully
         Thread.sleep(500);
@@ -76,16 +77,17 @@ public class KafkaOperator {
         return topicList.contains(topic);
     }
 
-    public void createSubscription(KafkaClusterInfo kafkaClusterInfo, String subscription) {
+    public void createSubscription(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
+            String subscription) {
 
-        KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
+        KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(inlongKafkaInfo, kafkaClusterInfo);
         // subscription
         kafkaConsumer.subscribe(Collections.singletonList(subscription));
     }
 
-    public boolean subscriptionIsExists(KafkaClusterInfo kafkaClusterInfo, String topic) {
-        KafkaConsumer consumer = KafkaUtils.createKafkaConsumer(kafkaClusterInfo);
-        try {
+    public boolean subscriptionIsExists(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
+            String topic) {
+        try (KafkaConsumer consumer = KafkaUtils.createKafkaConsumer(inlongKafkaInfo, kafkaClusterInfo)) {
             Map<String, List<PartitionInfo>> topics = consumer.listTopics();
             List<PartitionInfo> partitions = topics.get(topic);
             if (partitions == null) {
@@ -93,10 +95,7 @@ public class KafkaOperator {
                 return false;
             }
             return true;
-        } finally {
-            consumer.close();
         }
-
     }
 
 }

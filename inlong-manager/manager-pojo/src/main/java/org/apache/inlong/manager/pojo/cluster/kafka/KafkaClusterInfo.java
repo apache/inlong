@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -38,20 +37,6 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 @JsonTypeDefine(value = ClusterType.KAFKA)
 @ApiModel("Inlong cluster info for Kafka")
 public class KafkaClusterInfo extends ClusterInfo {
-
-    @ApiModelProperty(value = "Kafka admin bootStrapServers, such as: 127.0.0.1:9092",
-            notes = "Kafka service URL is the 'url' field of the cluster")
-    private String bootstrapServers;
-    // partition number
-    private int numPartitions;
-    // replicationFactor number
-    short replicationFactor = 1;
-    //consumer grouping
-    private String groupId;
-    // autocommit interval
-    private String autoCommit;
-
-    //TODO add new attribute
 
     public KafkaClusterInfo() {
         this.setType(ClusterType.KAFKA);

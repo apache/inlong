@@ -76,9 +76,6 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
     @Override
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
         InlongKafkaRequest kafkaRequest = (InlongKafkaRequest) request;
-
-        //TODO check kafka params
-
         CommonBeanUtils.copyProperties(kafkaRequest, targetEntity, true);
         try {
             InlongKafkaDTO dto = InlongKafkaDTO.getFromRequest(kafkaRequest);

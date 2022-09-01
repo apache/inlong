@@ -35,6 +35,15 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 @JsonTypeDefine(value = MQType.KAFKA)
 public class InlongKafkaRequest extends InlongGroupRequest {
 
+    // partition number
+    private int numPartitions;
+    // replicationFactor number
+    short replicationFactor = 1;
+    //consumer grouping
+    private String groupId;
+    // autocommit interval
+    private String autoCommit;
+
     public InlongKafkaRequest() {
         this.setMqType(MQType.KAFKA);
     }

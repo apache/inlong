@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -35,17 +36,17 @@ public class KafkaUtils {
     public static AdminClient getAdminClient(KafkaClusterInfo kafkaClusterInfo) {
         Properties properties = new Properties();
         // Configure the access address and port number of the Kafka service
-        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootstrapServers());
+        properties.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
         // Create AdminClient instance
         return AdminClient.create(properties);
     }
 
-    public static KafkaConsumer createKafkaConsumer(KafkaClusterInfo kafkaClusterInfo) {
+    public static KafkaConsumer createKafkaConsumer(InlongKafkaInfo inlongKafkaInfo,KafkaClusterInfo kafkaClusterInfo) {
         Properties properties = new Properties();
         // The connected kafka cluster address
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getBootstrapServers());
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaClusterInfo.getUrl());
         // consumer grouping
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaClusterInfo.getGroupId());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, inlongKafkaInfo.getGroupId());
         // Confirm Auto Commit
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         // autocommit interval
