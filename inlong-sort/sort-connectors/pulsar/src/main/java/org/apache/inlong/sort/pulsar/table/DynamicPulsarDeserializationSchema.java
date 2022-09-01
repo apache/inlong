@@ -143,8 +143,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     /**
      * reflect get metricGroup
      *
-     * @param context
-     * @return
+     * @param context Contextual information that can be used during initialization.
+     * @return metric group that can be used to register new metrics with Flink and to create a nested hierarchy based
+     *         on the group names.
      */
     private MetricGroup getMetricGroup(DeserializationSchema.InitializationContext context)
             throws NoSuchFieldException, IllegalAccessException {
