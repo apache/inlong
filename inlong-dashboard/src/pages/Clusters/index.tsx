@@ -62,7 +62,11 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/cluster/list',
       method: 'POST',
@@ -145,7 +149,7 @@ const Comp: React.FC = () => {
           width: 200,
           render: (text, record) => (
             <>
-              {record.type === 'DATAPROXY' && (
+              {(record.type === 'DATAPROXY' || record.type === 'AGENT') && (
                 <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
                   {i18n.t('pages.Clusters.Node.Name')}
                 </Link>

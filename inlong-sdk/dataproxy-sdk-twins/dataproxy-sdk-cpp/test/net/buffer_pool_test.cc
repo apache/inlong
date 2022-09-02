@@ -40,9 +40,8 @@ using namespace dataproxy_sdk;
 
 TEST(bufpool, basetest)
 {
-    g_config = new ClientConfig("config.json");
-    EXPECT_EQ(g_config->parseConfig(), true);
-    cout << g_config->bufNum() << endl;
+    EXPECT_EQ(g_config.parseConfig("config.json"), true);
+    cout << g_config.bufNum() << endl;
 
     g_pools = new TotalPools();
     EXPECT_NE(g_pools->getPool("groupid_1"), nullptr);
@@ -57,8 +56,6 @@ TEST(bufpool, basetest)
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 2, true, "./");
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

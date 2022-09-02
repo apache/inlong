@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
@@ -86,14 +86,14 @@ public class WorkflowClientTest extends ClientFactoryTest {
                 get(urlMatching("/inlong/manager/api/workflow/listProcess.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(responses)))
+                                        Response.success(new PageResult<>(responses)))
                                 )
                         )
         );
 
         ProcessRequest request = new ProcessRequest();
         request.setId(1);
-        PageInfo<ProcessResponse> pageInfo = workflowClient.listProcess(request);
+        PageResult<ProcessResponse> pageInfo = workflowClient.listProcess(request);
         Assertions.assertEquals(JsonUtils.toJsonString(pageInfo.getList()), JsonUtils.toJsonString(responses));
     }
 }

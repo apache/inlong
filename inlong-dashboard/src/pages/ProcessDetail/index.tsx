@@ -71,7 +71,7 @@ const Comp: React.FC = () => {
 
   const { id, type } = useParams<Record<string, string>>();
 
-  const taskId = useMemo<string>(() => parse(location.search.slice(1))?.taskId, [location.search]);
+  const taskId = useMemo(() => parse(location.search.slice(1))?.taskId, [location.search]);
 
   const formRef = useRef(null);
 

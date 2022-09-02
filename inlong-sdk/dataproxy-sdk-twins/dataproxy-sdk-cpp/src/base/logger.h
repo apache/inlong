@@ -24,104 +24,220 @@
 #include <string.h>
 #include <string>
 #include <unistd.h>
+#include <sys/types.h>
 #include <vector>
 
 #include "sdk_constant.h"
+#include "sdk_core.h"
 
 namespace dataproxy_sdk
 {
-static const uint32_t kMBSize = 1024 * 1024;
-const uint32_t kPid           = getpid();
+    #ifndef  SDK_CFG_LOG_LEVEL
+    #define  SDK_CFG_LOG_LEVEL   g_config.log_level_
+    #endif
 
-class Logger;
+    #ifndef SDK_CFG_LOG_NUM
+    #define SDK_CFG_LOG_NUM      g_config.log_num_
+    #endif
 
-Logger& getLogger();
+    #ifndef SDK_CFG_LOG_SIZE
+    #define SDK_CFG_LOG_SIZE     g_config.log_size_
+    #endif
 
-// only show fileName
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+    #ifndef SDK_CFG_LOG_PATH
+    #define SDK_CFG_LOG_PATH     g_config.log_path_.c_str()
+    #endif
 
-#define LOG_LEVEL(level, fmt, ...)                                                                                               \
-    {                                                                                                                            \
-        if (dataproxy_sdk::getLogger().enableLevel(level))                                                                           \
-        {                                                                                                                        \
-            dataproxy_sdk::getLogger().write("[pid:%d][%s][%s:%s:%d]" fmt, kPid, dataproxy_sdk::Logger::level2String(level),             \
-                                         __FILENAME__, __func__, __LINE__, ##__VA_ARGS__);                                       \
-        }                                                                                                                        \
-    }
+    #define NAME_LEN            512
 
-#define LOG_TRACE(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogTrace, fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogDebug, fmt, ##__VA_ARGS__)
-#define LOG_INFO(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogInfo, fmt, ##__VA_ARGS__)
-#define LOG_WARN(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogWarn, fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) LOG_SDKCPP(dataproxy_sdk::getLogger(), dataproxy_sdk::Logger::kLogError, fmt, ##__VA_ARGS__)
+    // only show fileName
+    #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define LOG_SDKCPP(logger, level, fmt, ...)                                                                                   \
-    {                                                                                                                            \
-        if (logger.enableLevel(level))                                                                                           \
-        {                                                                                                                        \
-            logger.write("[pid:%d][%s][%s:%s:%d]" fmt, kPid, dataproxy_sdk::Logger::level2String(level), __FILENAME__, __func__,     \
-                         __LINE__, ##__VA_ARGS__);                                                                               \
-        }                                                                                                                        \
-    }
-
-class Logger
-{
-  public:
-    enum Level {
-        kLogError = 0,
-        kLogWarn  = 1,
-        kLogInfo  = 2,
-        kLogDebug = 3,
-        kLogTrace = 4,
+    enum _LOG_LEVEL_
+    {
+        _LOG_ERROR = 0x00,
+        _LOG_WARN,
+        _LOG_INFO,
+        _LOG_DEBUG,
+        _LOG_TRACE,
+        _LOG_STAT,
+        _LOG_MAX_FILE
     };
 
-  private:
-    uint32_t file_max_size_;
-    uint32_t file_num_;
-    uint8_t level_;
-    uint8_t output_type_;  //2->file, 1->console
-    bool enable_limit_;
-    std::string base_path_;
-    std::string log_name_;
-
-    std::string instance_;
-
-  public:
-    Logger()
-        : file_max_size_(10)
-        , file_num_(10)
-        , level_(kLogInfo)
-        , output_type_(2)
-        , enable_limit_(true)
-        , base_path_("./logs/")
-        , instance_("DataProxySDK")
+    enum _LOG_TYPE_
     {
-    }
+        _LOG_PTY = 0x01,
+        _LOG_FILE = 0x02,
+    };
 
-    ~Logger() {}
-
-    bool init(uint32_t file_max_size,
-              uint32_t file_num,
-              uint8_t level,
-              uint8_t output_type,
-              bool enable_limit,
-              const std::string& base_path,
-              const std::string& logname = constants::kLogName);
-    bool write(const char* sFormat, ...) __attribute__((format(printf, 2, 3)));
-    inline bool writeStream(const std::string& msg) { return writeCharStream(msg.c_str()); }
-    inline bool enableLevel(Level level) { return ((level <= level_) ? true : false); }
-    static const char* level2String(Level level)
+    enum _LOG_SHIFT_TYPE_
     {
-        static const char* level_names[] = {
-            "ERROR", "WARN", "INFO", "DEBUG", "TRACE",
-        };
-        return level_names[level];
-    }
+        _LOG_SHIFT_SIZE     = 0,    /*shift by size*/
+        _LOG_SHIFT_COUNT    = 1,    /*shift by log count*/
+    };
 
-  private:
-    void setUp();
-    bool writeCharStream(const char* msg);
-};
+    /* CFG debug info */
+    enum SDK_LOG_DEBUG_EN {
+        SDK_LOG_CHANGE_LEVEL,
+    };
+
+    typedef struct tag_debug_log_cfg
+    {
+        int32_t   level;
+        int32_t   num;
+        int32_t   size;
+        int32_t   shift_type;
+        int32_t   file_type;
+        char    path[NAME_LEN];
+    } debug_log_cfg;
+
+    typedef struct tag_debug_log_file {
+        char    file_list[_LOG_MAX_FILE][NAME_LEN];
+        int32_t   shift_type;
+        int32_t   max_lognum;
+        int32_t   max_size;
+        int32_t   max_count;
+        int32_t   log_count;
+    } debug_log_file;
+
+    typedef struct tag_debug_log_run {
+        pid_t   log_pid;
+        uint8_t   log_type;
+        uint8_t   log_level;
+        int32_t   log_change_min;
+    } debug_log_run;
+
+    #define _log_pid_         gst_log_run.log_pid
+    #define _log_type_        gst_log_run.log_type
+    #define _log_level_       gst_log_run.log_level
+
+
+    #define LOG_STAT(fmt, args...)                                          \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_STAT, 1, (char *)"PID[%d]STAT:%s:%.3d<%s>: "fmt,\
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]STAT:%s:%.3d<%s>: "fmt"\n",\
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #define LOG_ERROR(fmt, args...)                                          \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_ERROR, 1, (char *)"PID[%d]ERR:%s:%.3d<%s>: "fmt,\
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]ERR:%s:%.3d<%s>: "fmt"\n", \
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #define LOG_WARN(fmt, args...)                                          \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_level_ < _LOG_WARN)                                        \
+            {break;}                                                        \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_WARN, 1, (char *)"PID[%d]WARN:%s:%.3d<%s>: "fmt,\
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]WARN:%s:%.3d<%s>: "fmt"\n",\
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #define LOG_INFO(fmt, args...)                                          \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_level_ < _LOG_INFO)                                        \
+            {break;}                                                        \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_INFO, 1, (char *)"PID[%d]INFO:%s:%.3d<%s>: "fmt,\
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]INFO:%s:%.3d<%s>: "fmt"\n",\
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #define LOG_DEBUG(fmt, args...)                                         \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_level_ < _LOG_DEBUG)                                       \
+            {break;}                                                        \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_DEBUG, 1, (char *)"PID[%d]DEBUG:%s:%.3d<%s>: "fmt,\
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]DEBUG:%s:%.3d<%s>: "fmt"\n",\
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #define LOG_TRACE(fmt, args...)                                         \
+    do{                                                                     \
+        char    log_time[50] = {0};                                         \
+        if (_log_level_ < _LOG_TRACE)                                       \
+            {break;}                                                        \
+        if (_log_type_ & _LOG_FILE)                                         \
+        {                                                                   \
+            log_print(_LOG_TRACE, 1, (char *)"PID[%d]TRACE:%s:%.3d<%s>: "fmt,   \
+                    _log_pid_, __FILENAME__, __LINE__, __FUNCTION__, ##args);   \
+        }                                                                   \
+        if (_log_type_ & _LOG_PTY)                                          \
+        {                                                                   \
+            debug_get_date(log_time);                                       \
+            fprintf(stderr, (char *)"[%s]PID[%d]TRACE:%s:%.3d<%s>: "fmt"\n",\
+                    log_time, _log_pid_, __FILENAME__, __LINE__,                \
+                    __FUNCTION__, ##args);                                  \
+        }                                                                   \
+    }while(0)
+
+    #ifdef  __cplusplus
+    extern "C" {
+    #endif
+
+    extern debug_log_run gst_log_run;
+    extern debug_log_cfg gst_log_cfg;
+    extern debug_log_file gst_log_file;
+    extern void debug_get_date(char *logTime);
+
+    int32_t log_print(int32_t log_level, int32_t log_time, char *format, ...);
+    int32_t debug_init_log();
+    void tc_log_level_restore(void);
+
+    #ifdef  __cplusplus
+    }
+    #endif
 
 }  // namespace dataproxy_sdk
 

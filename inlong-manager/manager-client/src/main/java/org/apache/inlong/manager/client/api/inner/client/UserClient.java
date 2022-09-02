@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.UserApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -83,10 +83,10 @@ public class UserClient {
      * @param request request
      * @return user info list
      */
-    public PageInfo<UserInfo> list(UserRequest request) {
+    public PageResult<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
 
-        Response<PageInfo<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(request));
+        Response<PageResult<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

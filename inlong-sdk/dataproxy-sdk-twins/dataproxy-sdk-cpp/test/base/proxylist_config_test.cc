@@ -27,9 +27,8 @@ TEST(businfo, basetest)
 
 TEST(clusterProxylist, readCachelist) //.bus_list.ini文件中缓存有groupid_test1和groupid_test2
 {
-    g_config = new ClientConfig("config.json");
-    EXPECT_EQ(g_config->parseConfig(), true);
-    EXPECT_EQ(Utils::getFirstIpAddr(g_config->ser_ip_), true);
+    EXPECT_EQ(g_config.parseConfig("config.json"), true);
+    EXPECT_EQ(Utils::getFirstIpAddr(g_config.ser_ip_), true);
 
     GlobalClusterMock *m_clusters = new GlobalClusterMock();
 
@@ -49,13 +48,11 @@ TEST(clusterProxylist, readCachelist) //.bus_list.ini文件中缓存有groupid_t
 
     delete g_clusters;
     delete g_executors;
-    delete g_config;
 }
 
 TEST(clusterProxylist, basetest)
 {
-    g_config = new ClientConfig("config.json");
-    EXPECT_EQ(g_config->parseConfig(), true);
+    EXPECT_EQ(g_config.parseConfig("config.json"), true);
     ClusterProxyListPtr cluster = make_shared<ClusterProxyList>();
     GlobalCluster *g_cluster = new GlobalCluster();
     string meta_info;
@@ -78,13 +75,11 @@ TEST(clusterProxylist, basetest)
     EXPECT_EQ(cluster2->load(), 20);
     EXPECT_EQ(cluster2->isNeedLoadBalance(), false);
     delete g_cluster;
-    delete g_config;
 }
 
 TEST(clusterProxylist, addBuslistAndUpdate1)
 {
-    g_config = new ClientConfig("config.json");
-    EXPECT_EQ(g_config->parseConfig(), true);
+    EXPECT_EQ(g_config.parseConfig("config.json"), true);
     g_clusters = new GlobalCluster();
     g_executors = new ExecutorThreadPool();
     this_thread::sleep_for(std::chrono::seconds(5));
@@ -99,8 +94,6 @@ TEST(clusterProxylist, addBuslistAndUpdate1)
 
     delete g_clusters;
     delete g_executors;
-    delete g_config;
-
     // this_thread::sleep_for(std::chrono::seconds(10));
 }
 
@@ -121,9 +114,8 @@ void addExistBidFunc(GlobalCluster *gcluster)
 
 TEST(clusterProxylist, connInit)
 {
-    g_config = new ClientConfig("config.json");
-    EXPECT_EQ(g_config->parseConfig(), true);
-    EXPECT_EQ(Utils::getFirstIpAddr(g_config->ser_ip_), true);
+    EXPECT_EQ(g_config.parseConfig("config.json"), true);
+    EXPECT_EQ(Utils::getFirstIpAddr(g_config.ser_ip_), true);
 
     g_clusters = new GlobalCluster();
     g_executors = new ExecutorThreadPool();
@@ -144,15 +136,12 @@ TEST(clusterProxylist, connInit)
 
     delete g_clusters;
     delete g_executors;
-    delete g_config;
 
     this_thread::sleep_for(std::chrono::minutes(1));
 }
 
 int main(int argc, char *argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 2, true, "./");
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

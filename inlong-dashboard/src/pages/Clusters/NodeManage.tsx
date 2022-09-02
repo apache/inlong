@@ -39,7 +39,7 @@ const getFilterFormContent = defaultValues => [
 const Comp: React.FC = () => {
   const location = useLocation();
   const { type, clusterId } = useMemo<Record<string, string>>(
-    () => parse(location.search.slice(1)) || {},
+    () => (parse(location.search.slice(1)) as Record<string, string>) || {},
     [location.search],
   );
 
@@ -55,7 +55,11 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/cluster/node/list',
       method: 'POST',

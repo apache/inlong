@@ -24,6 +24,7 @@ import type { ClsConfigItemType, ClsTableItemType } from './common/types';
 import { DataProxy } from './DataProxy';
 import { Pulsar } from './Pulsar';
 import { TubeMQ } from './TubeMQ';
+import { Agent } from './Agent';
 
 export interface ClusterItemType {
   label: string;
@@ -33,6 +34,11 @@ export interface ClusterItemType {
 }
 
 const _Clusters: Omit<ClusterItemType, 'tableColumns'>[] = [
+  {
+    label: 'Agent',
+    value: 'AGENT',
+    config: Agent,
+  },
   {
     label: 'DataProxy',
     value: 'DATAPROXY',

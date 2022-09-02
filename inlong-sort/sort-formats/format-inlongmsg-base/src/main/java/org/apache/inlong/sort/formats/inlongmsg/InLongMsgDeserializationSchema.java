@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import com.esotericsoftware.minlog.Log;
 import com.google.common.base.Objects;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -62,6 +63,11 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     }
 
     @Override
+    public void open(InitializationContext context) throws Exception {
+        deserializationSchema.open(context);
+    }
+
+    @Override
     public RowData deserialize(byte[] bytes) throws IOException {
         throw new RuntimeException(
                 "Please invoke DeserializationSchema#deserialize(byte[], Collector<RowData>) instead.");
@@ -77,6 +83,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                 head = InLongMsgUtils.parseHead(attr);
             } catch (Throwable t) {
                 if (ignoreErrors) {
+                    Log.warn("Ignore inlong msg attr({})parse error.", attr, t);
                     continue;
                 }
                 throw new IOException(

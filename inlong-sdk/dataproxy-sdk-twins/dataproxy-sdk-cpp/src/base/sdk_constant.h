@@ -35,8 +35,8 @@ namespace dataproxy_sdk
 
         static const int32_t kMaxRequestTDMTimes = 4;
         static const int32_t kMaxRetryConnection = 20;                                                           //create conn failed more than 20 times, start sendbuf callback
-        static const std::string kAttrFormat = "__addcol1__reptime=yyyymmddHHMMSS&__addcol2_ip=xxx.xxx.xxx.xxx"; // msg_type 7 body's attr format
-        static const int32_t kAttrLen = kAttrFormat.size();
+        static const char kAttrFormat[] = "__addcol1__reptime=yyyymmddHHMMSS&__addcol2_ip=xxx.xxx.xxx.xxx"; // msg_type 7 body's attr format
+        static const int32_t kAttrLen = strlen(kAttrFormat);
 
         static const char kTDBusCAPIVersion[] = "dataproxy_sdk_cpp-v2.0.0";
         static const char kLogName[] = "dataproxy_cpp.log";
@@ -61,20 +61,20 @@ namespace dataproxy_sdk
         static const uint32_t kRetryNum = 3;         
         static const uint32_t kLogNum = 10;
         static const uint32_t kLogSize = 10;   
-        static const uint8_t kLogLevel = 1;    
+        static const uint8_t kLogLevel = 2;    
         static const uint8_t kLogFileType = 2;
-        static const std::string kLogPath = "./logs/";
+        static const char kLogPath[] = "./sdklogs/";
         static const bool kLogEnableLimit = true;
 
-        static const std::string kProxyURL = "http://127.0.0.1:8099/api/dataproxy_ip_v2";
+        static const char kProxyURL[] = "http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList";
         static const bool kEnableProxyURLFromCluster = false;
-        static const std::string kProxyClusterURL =
+        static const char kProxyClusterURL[] =
             "http://127.0.0.1:8099/heartbeat/dataproxy_ip_v2?cluster_id=0&net_tag=normal";
         static const uint32_t kProxyUpdateInterval = 10;
         static const uint32_t kProxyURLTimeout = 2;
         static const uint32_t kMaxActiveProxyNum = 3;
 
-        static const std::string kSerIP = "127.0.0.1"; 
+        static const char kSerIP[] = "127.0.0.1"; 
         static const uint32_t kMaxBufPool = 50 * 1024 * 1024;
         static const uint32_t kMsgType = 7;
 
@@ -85,15 +85,15 @@ namespace dataproxy_sdk
         static const uint32_t kMaskCPUAffinity = 0xff;
         static const bool kIsFromDC = false;
         static const uint16_t kExtendField = 0;
-        static const std::string kNetTag = "all";
+        static const char kNetTag[] = "all";
 
         static const bool kNeedAuth = false;
 
         // http basic auth  
-        static const std::string kBasicAuthHeader = "Authorization:";
-        static const std::string kBasicAuthPrefix = "Basic";
-        static const std::string kBasicAuthSeparator = " ";
-        static const std::string kBasicAuthJoiner = ":";
+        static const char kBasicAuthHeader[] = "Authorization:";
+        static const char kBasicAuthPrefix[] = "Basic";
+        static const char kBasicAuthSeparator[] = " ";
+        static const char kBasicAuthJoiner[] = ":";
 
     } // namespace constants
 

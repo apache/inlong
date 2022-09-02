@@ -30,7 +30,6 @@ namespace dataproxy_sdk
   {
   private:
     std::string config_path_;
-    bool user_config_err_=false;
     int32_t buf_num_; //sendbuf num of each bufpool, max_buf_pool_/(ext_pack_size_+400)
 
   public:
@@ -93,11 +92,11 @@ namespace dataproxy_sdk
     std::string auth_id_;
     std::string auth_key_;
 
-    ClientConfig(const std::string config_path) : config_path_(config_path) {}
-    ClientConfig(const std::string& proxy_url, bool need_auth, const std::string& auth_id, const std::string& auth_key);
-
-    bool parseConfig(); // return false if parse failed
     void defaultInit();
+
+    ClientConfig() { defaultInit(); }
+    
+    bool parseConfig(const std::string& config_path); // return false if parse failed
     void showClientConfig();
     void updateBufSize();
 

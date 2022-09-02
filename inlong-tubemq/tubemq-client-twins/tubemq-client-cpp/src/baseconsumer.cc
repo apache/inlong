@@ -126,13 +126,28 @@ void BaseConsumer::ShutDown() {
   close2Master();
   // 3. close all brokers
   closeAllBrokers();
-  // 4. remove client stub
+  // 4. check master hb thread status
+  int check_count = 0;
+  while (master_hb_status_.Get() != 0 || master_reg_status_.Get() != 0) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    if (++check_count % 10 == 0) {
+      if (check_count >= 1000) {
+          LOG_INFO("[CONSUMER] Found hb[%d] or reg[%d] not zero, count=%d, exit, client=%s",
+                   master_hb_status_.Get(), master_reg_status_.Get(), check_count, client_uuid_.c_str());
+        break;
+      } else {
+        LOG_INFO("[CONSUMER] Found hb[%d] or reg[%d] not zero, count=%d, continue, client=%s",
+                 master_hb_status_.Get(), master_reg_status_.Get(), check_count, client_uuid_.c_str());
+      }
+    }
+  }
+  // 5. join hb thread;
+  rebalance_thread_ptr_->join();
+  heart_beat_timer_ = nullptr;
+  rebalance_thread_ptr_ = nullptr;
+  // 6. remove client stub
   TubeMQService::Instance()->RmvClientObj(shared_from_this());
   client_index_ = tb_config::kInvalidValue;
-  // 5. join hb thread;
-  heart_beat_timer_ = nullptr;
-  rebalance_thread_ptr_->join();
-  rebalance_thread_ptr_ = nullptr;
   LOG_INFO("[CONSUMER] ShutDown consumer finished, client=%s", client_uuid_.c_str());
 }
 
@@ -522,18 +537,24 @@ void BaseConsumer::heartBeat2Master() {
   // send message to target
   AsyncRequest(request, req_protocol)
       .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
+        if (GetClientIndex() == tb_config::kInvalidValue ||
+          !TubeMQService::Instance()->IsRunning() ||
+          !isClientRunning()) {
+          master_hb_status_.CompareAndSet(1, 0);
+          return;
+        }
         if (error.Value() != err_code::kErrSuccess) {
           master_sh_retry_cnt_++;
           LOG_WARN("[CONSUMER] heartBeat2Master failue to (%s:%d) : %s, client=%s",
                    target_ip.c_str(), target_port, error.Message().c_str(), client_uuid_.c_str());
           if (master_sh_retry_cnt_ >= tb_config::kMaxMasterHBRetryCount) {
-              LOG_WARN("[CONSUMER] heartBeat2Master found over max-hb-retry(%d), client=%s",
-                       master_sh_retry_cnt_, client_uuid_.c_str());
-              master_sh_retry_cnt_ = 0;
-              is_master_actived_.Set(false);
-              asyncRegister2Master(true);
-              master_hb_status_.CompareAndSet(1, 0);
-              return;
+            LOG_WARN("[CONSUMER] heartBeat2Master found over max-hb-retry(%d), client=%s",
+                     master_sh_retry_cnt_, client_uuid_.c_str());
+            master_sh_retry_cnt_ = 0;
+            is_master_actived_.Set(false);
+            asyncRegister2Master(true);
+            master_hb_status_.CompareAndSet(1, 0);
+            return;
           }
         } else {
           // process response
@@ -557,6 +578,12 @@ void BaseConsumer::heartBeat2Master() {
               return;
             }
           }
+        }
+        if (GetClientIndex() == tb_config::kInvalidValue ||
+          !TubeMQService::Instance()->IsRunning() ||
+          !isClientRunning()) {
+          master_hb_status_.CompareAndSet(1, 0);
+          return;
         }
         heart_beat_timer_->expires_after(std::chrono::milliseconds(nextHeartBeatPeriodms()));
         auto self = shared_from_this();
@@ -665,6 +692,10 @@ void BaseConsumer::processConnect2Broker(ConsumerEvent& event) {
     rmtdata_cache_.FilterPartitions(subscribe_info, subscribed_partitions, unsub_partitions);
     if (!unsub_partitions.empty()) {
       for (it = unsub_partitions.begin(); it != unsub_partitions.end(); it++) {
+        if (!isClientRunning()) {
+          LOG_TRACE("[processConnect2Broker] client stopped, break pos1, clientid=%s", client_uuid_.c_str());
+          break;
+        }
         LOG_TRACE("[processConnect2Broker] connect to %s, clientid=%s",
                   it->GetPartitionKey().c_str(), client_uuid_.c_str());
         auto request = std::make_shared<RequestContext>();
@@ -681,6 +712,10 @@ void BaseConsumer::processConnect2Broker(ConsumerEvent& event) {
         // send message to target
         ResponseContext response_context;
         ErrorCode error = SyncRequest(response_context, request, req_protocol);
+        if (!isClientRunning()) {
+          LOG_TRACE("[processConnect2Broker] client stopped, break pos2, clientid=%s", client_uuid_.c_str());
+          break;
+        }
         if (error.Value() != err_code::kErrSuccess) {
           LOG_WARN("[Connect2Broker] request network failure to (%s:%d) : %s",
                    it->GetBrokerHost().c_str(), it->GetBrokerPort(), error.Message().c_str());
@@ -761,6 +796,11 @@ void BaseConsumer::processHeartBeat2Broker(NodeInfo broker_info) {
   // send message to target
   AsyncRequest(request, req_protocol)
       .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
+        if (GetClientIndex() == tb_config::kInvalidValue ||
+          !TubeMQService::Instance()->IsRunning() ||
+          !isClientRunning()) {
+          return;
+        }
         if (error.Value() != err_code::kErrSuccess) {
           LOG_WARN("[Heartbeat2Broker] request network  to failure (%s), ression is %s",
                    broker_info.GetAddrInfo().c_str(), error.Message().c_str());

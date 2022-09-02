@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.DataNodeApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
@@ -71,9 +71,9 @@ public class DataNodeClient {
      * @param request page request conditions
      * @return node list
      */
-    public PageInfo<DataNodeResponse> list(DataNodeRequest request) {
+    public PageResult<DataNodeResponse> list(DataNodeRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
-        Response<PageInfo<DataNodeResponse>> response = ClientUtils.executeHttpCall(dataNodeApi.list(request));
+        Response<PageResult<DataNodeResponse>> response = ClientUtils.executeHttpCall(dataNodeApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

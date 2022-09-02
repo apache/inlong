@@ -390,11 +390,6 @@
             modify_time = modify_time
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="appendAgentIp">
-        update stream_source
-        set agent_ip = IF(agent_ip is NULL or agent_ip = '', #{agentIp,jdbcType=VARCHAR}, CONCAT(agent_ip, ',', #{agentIp}))
-        where id = #{id,jdbcType=INTEGER}
-    </update>
 
     <delete id="deleteByRelatedId">
         delete

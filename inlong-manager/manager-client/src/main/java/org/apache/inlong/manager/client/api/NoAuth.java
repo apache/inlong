@@ -15,27 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service;
+package org.apache.inlong.manager.client.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
- * Init global params by Custom Command Line Runner
+ * No auth interface, such as user login, register, etc.
  */
-@Component
-public class ApplicationInitRunner implements CommandLineRunner {
+public interface NoAuth {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Override
-    public void run(String[] args) {
-        JsonUtils.initJsonTypeDefine(this.objectMapper);
-    }
-
+    /**
+     * Save user info
+     *
+     * @param request user info request
+     * @return user id after saving
+     */
+    Integer register(UserRequest request);
 }
-

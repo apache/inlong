@@ -19,10 +19,12 @@ package org.apache.inlong.manager.pojo.source.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
@@ -76,6 +78,15 @@ public class KafkaSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
+
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding = StandardCharsets.UTF_8.toString();
+
+    @ApiModelProperty(value = "Data separator, stored as ASCII code")
+    private String dataSeparator = DataSeparator.VERTICAL_BAR.getAsciiCode().toString();
+
+    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    private String dataEscapeChar;
 
     public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA);

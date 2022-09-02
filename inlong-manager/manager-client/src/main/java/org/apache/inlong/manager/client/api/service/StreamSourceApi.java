@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -38,7 +38,7 @@ public interface StreamSourceApi {
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);
 
     @GET("source/list")
-    Call<Response<PageInfo<StreamSource>>> listSources(@Query("inlongGroupId") String groupId,
+    Call<Response<PageResult<StreamSource>>> listSources(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId, @Query("sourceType") String sourceType);
 
     @DELETE("source/delete/{id}")

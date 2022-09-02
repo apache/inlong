@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory for {@link StreamSinkOperator}.
@@ -38,14 +37,11 @@ public class SinkOperatorFactory {
      * Get a sink operator instance via the given sinkType
      */
     public StreamSinkOperator getInstance(String sinkType) {
-        Optional<StreamSinkOperator> instance = sinkOperatorList.stream()
+        return sinkOperatorList.stream()
                 .filter(inst -> inst.accept(sinkType))
-                .findFirst();
-        if (!instance.isPresent()) {
-            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
-                    String.format(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage(), sinkType));
-        }
-        return instance.get();
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                        String.format(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage(), sinkType)));
     }
 
 }

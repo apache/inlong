@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
@@ -56,7 +56,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     /**
      * Get data node list info.
      */
-    public PageInfo<DataNodeInfo> listOpt(String type, String name) {
+    public PageResult<DataNodeInfo> listOpt(String type, String name) {
         DataNodePageRequest request = new DataNodePageRequest();
         request.setType(type);
         request.setName(name);
@@ -104,7 +104,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(type, dataNodeInfo.getType());
 
         // test get data node list
-        PageInfo<DataNodeInfo> listDataNode = this.listOpt(type, nodeName);
+        PageResult<DataNodeInfo> listDataNode = this.listOpt(type, nodeName);
         Assertions.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node

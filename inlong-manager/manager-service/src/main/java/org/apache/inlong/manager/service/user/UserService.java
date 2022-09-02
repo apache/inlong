@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
  * User service interface
@@ -56,7 +56,7 @@ public interface UserService {
      * @param request request
      * @return user info list
      */
-    PageInfo<UserInfo> list(UserRequest request);
+    PageResult<UserInfo> list(UserRequest request);
 
     /**
      * Update user info

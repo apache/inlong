@@ -17,17 +17,31 @@
  * under the License.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { createProxyMiddleware } = require('http-proxy-middleware');
+import i18n from '@/i18n';
+import type { FieldItemType } from '@/metas/common';
 
-const target = 'http://127.0.0.1:8083';
-
-module.exports = function (app) {
-  app.use(
-    createProxyMiddleware('/inlong/manager/api', {
-      target,
-      changeOrigin: true,
-      secure: false,
-    }),
-  );
-};
+export const hive: FieldItemType[] = [
+  {
+    type: 'input',
+    label: 'JDBC URL',
+    name: 'jdbcUrl',
+    rules: [{ required: true }],
+    initialValue: 'jdbc:hive2://127.0.0.1:10000',
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Hive.DataPath'),
+    name: 'dataPath',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
+    initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Hive.ConfDir'),
+    name: 'hiveConfDir',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
+    initialValue: '/usr/hive/conf',
+  },
+];

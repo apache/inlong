@@ -17,6 +17,7 @@
  * under the License.
  */
 
+// eslint-disable-next-line
 export default {
   navTheme: 'light',
   primaryColor: '#0052D9',
