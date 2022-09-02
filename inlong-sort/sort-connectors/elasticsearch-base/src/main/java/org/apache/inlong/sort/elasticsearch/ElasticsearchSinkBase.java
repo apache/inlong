@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * Base class for all Flink Elasticsearch Sinks.
@@ -121,7 +122,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
-    private final String inLongMetric;
+    private final String inlongMetric;
     /**
      * If true, the producer will wait until all outstanding action requests have been sent to
      * Elasticsearch.
@@ -167,8 +168,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             Map<String, String> userConfig,
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
-            String inLongMetric) {
-        this.inLongMetric = inLongMetric;
+            String inlongMetric) {
+        this.inlongMetric = inlongMetric;
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
@@ -265,11 +266,11 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("&");
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+        if (inlongMetric != null && !inlongMetric.isEmpty()) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            String groupId = inlongMetricArray[0];
+            String streamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
             sinkMetricData.registerMetricsForDirtyBytes();
             sinkMetricData.registerMetricsForDirtyRecords();

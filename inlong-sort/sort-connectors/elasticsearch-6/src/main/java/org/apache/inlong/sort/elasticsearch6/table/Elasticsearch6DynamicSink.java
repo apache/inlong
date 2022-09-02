@@ -64,7 +64,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     private final EncodingFormat<SerializationSchema<RowData>> format;
     private final TableSchema schema;
     private final Elasticsearch6Configuration config;
-    private final String inLongMetric;
+    private final String inlongMetric;
     private final String auditHostAndPorts;
     private final ElasticSearchBuilderProvider builderProvider;
 
@@ -82,9 +82,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             EncodingFormat<SerializationSchema<RowData>> format,
             Elasticsearch6Configuration config,
             TableSchema schema,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric, auditHostAndPorts);
+        this(format, config, schema, (ElasticsearchSink.Builder::new), inlongMetric, auditHostAndPorts);
     }
 
     Elasticsearch6DynamicSink(
@@ -92,13 +92,13 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             Elasticsearch6Configuration config,
             TableSchema schema,
             ElasticSearchBuilderProvider builderProvider,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -133,7 +133,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                             KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
-                            inLongMetric,
+                            inlongMetric,
                             auditHostAndPorts);
 
             final ElasticsearchSink.Builder<RowData> builder =
@@ -144,7 +144,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             builder.setBulkFlushMaxSizeMb((int) (config.getBulkFlushMaxByteSize() >> 20));
             builder.setBulkFlushInterval(config.getBulkFlushInterval());
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
-            builder.setInLongMetric(inLongMetric);
+            builder.setInLongMetric(inlongMetric);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
@@ -198,12 +198,12 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                 && Objects.equals(schema, that.schema)
                 && Objects.equals(config, that.config)
                 && Objects.equals(builderProvider, that.builderProvider)
-                && Objects.equals(inLongMetric, that.inLongMetric);
+                && Objects.equals(inlongMetric, that.inlongMetric);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(format, schema, config, builderProvider, inLongMetric);
+        return Objects.hash(format, schema, config, builderProvider, inlongMetric);
     }
 
     @FunctionalInterface

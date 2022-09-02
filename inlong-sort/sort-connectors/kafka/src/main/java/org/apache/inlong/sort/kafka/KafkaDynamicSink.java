@@ -139,7 +139,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Metric for inLong
      */
-    private final String inLongMetric;
+    private final String inlongMetric;
     /**
      * audit host and ports
      */
@@ -172,7 +172,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             boolean upsertMode,
             SinkBufferFlushMode flushMode,
             @Nullable Integer parallelism,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         // Format attributes
         this.consumedDataType =
@@ -200,7 +200,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                     "Sink buffer flush is only supported in upsert-kafka.");
         }
         this.parallelism = parallelism;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -302,7 +302,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         upsertMode,
                         flushMode,
                         parallelism,
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
         copy.metadataKeys = metadataKeys;
         return copy;
@@ -337,7 +337,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 && Objects.equals(upsertMode, that.upsertMode)
                 && Objects.equals(flushMode, that.flushMode)
                 && Objects.equals(parallelism, that.parallelism)
-                && Objects.equals(inLongMetric, that.inLongMetric)
+                && Objects.equals(inlongMetric, that.inlongMetric)
                 && Objects.equals(auditHostAndPorts, that.auditHostAndPorts);
     }
 
@@ -359,7 +359,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 upsertMode,
                 flushMode,
                 parallelism,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 
@@ -420,7 +420,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 properties,
                 FlinkKafkaProducer.Semantic.valueOf(semantic.toString()),
                 FlinkKafkaProducer.DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 
