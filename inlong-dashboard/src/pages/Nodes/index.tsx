@@ -17,19 +17,16 @@
  * under the License.
  */
 
-import React, { useState, useMemo, forwardRef } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Modal, message } from 'antd';
+import i18n from '@/i18n';
 import HighTable from '@/components/HighTable';
+import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import i18n from '@/i18n';
+import { nodes } from '@/metas/nodes';
 import DetailModal from './DetailModal';
-import { Sinks } from '@/metas/sinks';
 import request from '@/utils/request';
-import { CommonInterface } from '../common';
-import { statusList, genStatusTag } from './status';
-
-type Props = CommonInterface;
 
 const getFilterFormContent = defaultValues => [
   {
@@ -37,38 +34,29 @@ const getFilterFormContent = defaultValues => [
     name: 'keyword',
   },
   {
-    type: 'select',
-    name: 'sinkType',
-    label: i18n.t('pages.GroupDetail.Sink.Type'),
-    initialValue: defaultValues.sinkType,
+    type: 'radiobutton',
+    name: 'type',
+    label: i18n.t('meta.Nodes.Type'),
+    initialValue: defaultValues.type,
     props: {
-      dropdownMatchSelectWidth: false,
-      options: Sinks.map(item => ({
+      buttonStyle: 'solid',
+      options: nodes.map(item => ({
         label: item.label,
         value: item.value,
       })),
     },
   },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      options: statusList,
-    },
-  },
 ];
 
-const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
+const Comp: React.FC = () => {
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: Sinks[0].value,
+    type: nodes[0].value,
   });
 
-  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+  const [detailModal, setDetailModal] = useState<Record<string, unknown>>({
     visible: false,
   });
 
@@ -78,10 +66,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     run: getList,
   } = useRequest(
     {
-      url: '/sink/list',
-      params: {
+      url: '/node/list',
+      method: 'POST',
+      data: {
         ...options,
-        inlongGroupId,
       },
     },
     {
@@ -90,25 +78,25 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   );
 
   const onEdit = ({ id }) => {
-    setCreateModal({ visible: true, id });
+    setDetailModal({ visible: true, id });
   };
 
-  const onDelete = ({ id }) => {
-    Modal.confirm({
-      title: i18n.t('basic.DeleteConfirm'),
-      onOk: async () => {
-        await request({
-          url: `/sink/delete/${id}`,
-          method: 'DELETE',
-          params: {
-            sinkType: options.sinkType,
-          },
-        });
-        await getList();
-        message.success(i18n.t('basic.DeleteSuccess'));
-      },
-    });
-  };
+  const onDelete = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('basic.DeleteConfirm'),
+        onOk: async () => {
+          await request({
+            url: `/node/delete/${id}`,
+            method: 'DELETE',
+          });
+          await getList();
+          message.success(i18n.t('basic.DeleteSuccess'));
+        },
+      });
+    },
+    [getList],
+  );
 
   const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
@@ -127,43 +115,26 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   };
 
   const pagination = {
-    pageSize: options.pageSize,
-    current: options.pageNum,
+    pageSize: +options.pageSize,
+    current: +options.pageNum,
     total: data?.total,
   };
 
-  const columnsMap = useMemo(
-    () =>
-      Sinks.reduce(
-        (acc, cur) => ({
-          ...acc,
-          [cur.value]: cur.tableColumns,
-        }),
-        {},
-      ),
-    [],
-  );
+  const columns = useMemo(() => {
+    const current = nodes.find(item => item.value === options.type);
+    if (!current?.table) return [];
 
-  const columns = [
-    {
-      title: i18n.t('pages.GroupDetail.Sink.DataStreams'),
-      dataIndex: 'inlongStreamId',
-    },
-  ]
-    .concat(columnsMap[options.sinkType])
-    .concat([
-      {
-        title: i18n.t('basic.Status'),
-        dataIndex: 'status',
-        render: text => genStatusTag(text),
-      },
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        render: (text, record) =>
-          readonly ? (
-            '-'
-          ) : (
+    return current.table
+      .map(item => ({
+        ...item,
+        ellipsisMulti: 2,
+      }))
+      .concat([
+        {
+          title: i18n.t('basic.Operating'),
+          dataIndex: 'action',
+          width: 200,
+          render: (text, record) => (
             <>
               <Button type="link" onClick={() => onEdit(record)}>
                 {i18n.t('basic.Edit')}
@@ -173,22 +144,21 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
               </Button>
             </>
           ),
-      } as any,
-    ]);
+        } as any,
+      ]);
+  }, [options.type, onDelete]);
 
   return (
-    <>
+    <PageContainer useDefaultBreadcrumb={false}>
       <HighTable
         filterForm={{
           content: getFilterFormContent(options),
           onFilter,
         }}
         suffix={
-          !readonly && (
-            <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-              {i18n.t('pages.GroupDetail.Sink.New')}
-            </Button>
-          )
+          <Button type="primary" onClick={() => setDetailModal({ visible: true })}>
+            {i18n.t('basic.Create')}
+          </Button>
         }
         table={{
           columns,
@@ -201,17 +171,16 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       />
 
       <DetailModal
-        {...createModal}
-        inlongGroupId={inlongGroupId}
-        visible={createModal.visible as boolean}
+        {...detailModal}
+        visible={detailModal.visible as boolean}
         onOk={async () => {
           await getList();
-          setCreateModal({ visible: false });
+          setDetailModal({ visible: false });
         }}
-        onCancel={() => setCreateModal({ visible: false })}
+        onCancel={() => setDetailModal({ visible: false })}
       />
-    </>
+    </PageContainer>
   );
 };
 
-export default forwardRef(Comp);
+export default Comp;

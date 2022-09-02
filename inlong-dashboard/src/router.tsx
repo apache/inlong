@@ -117,12 +117,12 @@ const App = () => {
       import(
         /* webpackInclude: /(zh_CN|en_US)\.js$/ */
         /* webpackChunkName: 'antd-locales-[request]' */
-        `antd/lib/locale/${antdPath}.js`
+        `antd/es/locale/${antdPath}.js`
       ),
       import(
         /* webpackInclude: /(zh-cn|en)\.js$/ */
         /* webpackChunkName: 'dayjs-locales-[request]' */
-        `dayjs/locale/${dayjsPath}.js`
+        `dayjs/esm/locale/${dayjsPath}.js`
       ),
     ]);
     i18n.changeLanguage(locale);
@@ -195,6 +195,7 @@ const Content = () => (
   </Router>
 );
 
+// eslint-disable-next-line
 export default () => (
   <Provider store={store}>
     <Content />

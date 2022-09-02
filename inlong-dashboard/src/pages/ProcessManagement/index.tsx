@@ -40,7 +40,11 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/workflow/approver/list',
       params: options,

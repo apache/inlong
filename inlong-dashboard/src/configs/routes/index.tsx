@@ -88,11 +88,6 @@ const routes: RouteProps[] = [
       },
     ],
   },
-  // {
-  //   path: '/dataSources',
-  //   component: () => import('@/pages/DataSources'),
-  //   exact: true,
-  // },
   {
     path: '/user',
     component: () => import('@/pages/UserManagement'),
@@ -118,6 +113,11 @@ const routes: RouteProps[] = [
   {
     path: '/clusterTags',
     component: () => import('@/pages/ClusterTags'),
+    exact: true,
+  },
+  {
+    path: '/node',
+    component: () => import('@/pages/Nodes'),
     exact: true,
   },
   {

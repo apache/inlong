@@ -55,7 +55,7 @@ public class SortClientConfig implements Serializable {
     private int ackTimeoutSec = 0;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
-    private int emptyPollSleepStepMs = 50;
+    private int emptyPollSleepStepMs = 10;
     private int maxEmptyPollSleepMs = 500;
     private int emptyPollTimes = 10;
     private int cleanOldConsumerIntervalSec = 60;

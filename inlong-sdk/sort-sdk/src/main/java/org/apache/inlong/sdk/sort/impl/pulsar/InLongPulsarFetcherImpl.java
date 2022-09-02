@@ -17,19 +17,9 @@
 
 package org.apache.inlong.sdk.sort.impl.pulsar;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.SeekerFactory;
-import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
@@ -41,12 +31,18 @@ import org.apache.pulsar.client.api.Messages;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
-import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
     private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
@@ -149,25 +145,15 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             return false;
         }
         try {
-            SubscriptionInitialPosition position = SubscriptionInitialPosition.Latest;
-            SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
-            if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
-                    || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
-                logger.info("the subscription initial position is earliest!");
-                position = SubscriptionInitialPosition.Earliest;
-            }
-
             consumer = client.newConsumer(Schema.BYTES)
                     .topic(inLongTopic.getTopic())
                     .subscriptionName(context.getConfig().getSortTaskId())
                     .subscriptionType(SubscriptionType.Shared)
                     .startMessageIdInclusive()
-                    .subscriptionInitialPosition(position)
                     .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
                     .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
                     .subscribe();
 
-            this.seeker = SeekerFactory.createPulsarSeeker(consumer, inLongTopic);
             String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             this.fetchThread.start();
@@ -286,31 +272,18 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> messages = consumer.batchReceive();
-
                     context.getStatManager()
                             .getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != messages && messages.size() != 0) {
-                        List<MessageRecord> msgs = new ArrayList<>();
                         for (Message<byte[]> msg : messages) {
-                            // if need seek
-                            if (msg.getPublishTime() < seeker.getSeekTime()) {
-                                seeker.seek();
-                                break;
-                            }
+                            List<MessageRecord> msgs = new ArrayList<>();
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
-                            //deserialize
                             List<InLongMessage> inLongMessages = deserializer
                                     .deserialize(context, inLongTopic, msg.getProperties(), msg.getData());
-                            // intercept
-                            inLongMessages = interceptor.intercept(inLongMessages);
-                            if (inLongMessages.isEmpty()) {
-                                ack(offsetKey);
-                                continue;
-                            }
 
                             msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
                                     inLongMessages,
@@ -319,12 +292,12 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                                     .getStatistics(context.getConfig().getSortTaskId(),
                                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addConsumeSize(msg.getData().length);
+                            context.getStatManager()
+                                    .getStatistics(context.getConfig().getSortTaskId(),
+                                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    .addMsgCount(msgs.size());
+                            handleAndCallbackMsg(msgs);
                         }
-                        context.getStatManager()
-                                .getStatistics(context.getConfig().getSortTaskId(),
-                                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                                .addMsgCount(msgs.size());
-                        handleAndCallbackMsg(msgs);
                         sleepTime = 0L;
                     } else {
                         context.getStatManager()

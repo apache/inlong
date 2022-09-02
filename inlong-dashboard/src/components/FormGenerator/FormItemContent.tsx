@@ -59,42 +59,46 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
 }) => {
   // Form atomic component
   const Comp = useMemo(
-    () => ({ type, ...props }: { type: PluginsTypes }) => {
-      const Comp = plugins[(type as string) || 'input'];
-      return <Comp {...props} />;
-    },
+    () =>
+      ({ type, ...props }: { type: PluginsTypes }) => {
+        const Comp = plugins[(type as string) || 'input'];
+        return <Comp {...props} />;
+      },
     [],
   );
 
   const FormItem = useMemo(
-    () => ({ type: T, formItemProps, useSpace, props }) => {
-      return (
-        <Form.Item {...formItemProps} noStyle={useSpace}>
-          {typeof T === 'string' ? (
-            <Comp type={T} {...props} />
-          ) : React.isValidElement(T) ? (
-            T
-          ) : (
-            <T {...props} />
-          )}
-        </Form.Item>
-      );
-    },
+    () =>
+      ({ type: T, formItemProps, useSpace, props }) => {
+        return (
+          <Form.Item {...formItemProps} noStyle={useSpace}>
+            {typeof T === 'string' ? (
+              <Comp type={T} {...props} />
+            ) : React.isValidElement(T) ? (
+              T
+            ) : (
+              <T {...props} />
+            )}
+          </Form.Item>
+        );
+      },
+    // eslint-disable-next-line
     [],
   );
 
   const Content = useMemo(
-    () => ({ useSpace, suffix, children, label, required, style }) =>
-      useSpace ? (
-        <Form.Item label={label} required={required} style={style}>
-          <Space>
-            {children}
-            {suffix}
-          </Space>
-        </Form.Item>
-      ) : (
-        children
-      ),
+    () =>
+      ({ useSpace, suffix, extra, children, label, required, style }) =>
+        useSpace ? (
+          <Form.Item label={label} required={required} style={style} extra={extra}>
+            <Space>
+              {children}
+              {suffix}
+            </Space>
+          </Form.Item>
+        ) : (
+          children
+        ),
     [],
   );
 
@@ -116,6 +120,7 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
             <Content
               key={key.toString()}
               label={formItemProps.label}
+              extra={formItemProps.extra}
               required={formItemProps.rules?.some(item => (item as any).required)}
               suffix={(() => {
                 if ((suffix as SuffixDefineType)?.type) {
@@ -170,6 +175,7 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
           );
         },
       ),
+    // eslint-disable-next-line
     [content, useInline, values],
   );
 

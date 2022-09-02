@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sdk.sort.metrics;
 
-import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
 public class SortSdkPrometheusMetricListener {
 
@@ -40,9 +42,8 @@ public class SortSdkPrometheusMetricListener {
         this.metricItem = new SortSdkMetricItem(sortTaskId);
 
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortSdk").append(",name=").append(sortTaskId);
-        String strBeanName = beanName.toString();
+        String strBeanName = JMX_DOMAIN + DOMAIN_SEPARATOR + "type=SortSdk" + ",name=" + sortTaskId
+                + metricItem.hashCode();
         try {
             ObjectName objName = new ObjectName(strBeanName);
             mbs.registerMBean(metricItem, objName);
@@ -52,26 +53,29 @@ public class SortSdkPrometheusMetricListener {
         }
 
         // consume
-        metricValueMap.put(metricItem.M_CONSUME_SIZE, metricItem.consumeSize);
-        metricValueMap.put(metricItem.M_CONSUME_MSG_COUNT, metricItem.consumeMsgCount);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_SIZE, metricItem.consumeSize);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_MSG_COUNT, metricItem.consumeMsgCount);
         // callback
-        metricValueMap.put(metricItem.M_CALL_BACK_COUNT, metricItem.callbackCount);
-        metricValueMap.put(metricItem.M_CALL_BACK_DONE_COUNT, metricItem.callbackDoneCount);
-        metricValueMap.put(metricItem.M_CALL_BACK_TIME_COST, metricItem.callbackTimeCost);
-        metricValueMap.put(metricItem.M_CALL_BACK_FAIL_COUNT, metricItem.callbackFailCount);
+        metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_COUNT, metricItem.callbackCount);
+        metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_DONE_COUNT, metricItem.callbackDoneCount);
+        metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_TIME_COST, metricItem.callbackTimeCost);
+        metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_FAIL_COUNT, metricItem.callbackFailCount);
         // topic
-        metricValueMap.put(metricItem.M_TOPIC_ONLINE_COUNT, metricItem.topicOnlineCount);
-        metricValueMap.put(metricItem.M_TOPIC_OFFLINE_COUNT, metricItem.topicOfflineCount);
+        metricValueMap.put(SortSdkMetricItem.M_TOPIC_ONLINE_COUNT, metricItem.topicOnlineCount);
+        metricValueMap.put(SortSdkMetricItem.M_TOPIC_OFFLINE_COUNT, metricItem.topicOfflineCount);
         // ack
-        metricValueMap.put(metricItem.M_ACK_FAIL_COUNT, metricItem.ackFailCount);
-        metricValueMap.put(metricItem.M_ACK_SUCC_COUNT, metricItem.ackSuccCount);
+        metricValueMap.put(SortSdkMetricItem.M_ACK_FAIL_COUNT, metricItem.ackFailCount);
+        metricValueMap.put(SortSdkMetricItem.M_ACK_SUCC_COUNT, metricItem.ackSuccCount);
         // request manager
-        metricValueMap.put(metricItem.M_REQUEST_MANAGER_COUNT, metricItem.requestManagerCount);
-        metricValueMap.put(metricItem.M_REQUEST_MANAGER_TIME_COST, metricItem.requestManagerTimeCost);
-        metricValueMap.put(metricItem.M_REQUEST_MANAGER_FAIL_COUNT, metricItem.requestManagerFailCount);
-        metricValueMap.put(metricItem.M_REQUEST_MANAGER_CONF_CHANAGED_COUNT, metricItem.requestManagerConfChangedCount);
-        metricValueMap.put(metricItem.M_RQUEST_MANAGER_COMMON_ERROR_COUNT, metricItem.requestManagerCommonErrorCount);
-        metricValueMap.put(metricItem.M_RQUEST_MANAGER_PARAM_ERROR_COUNT, metricItem.requestManagerParamErrorCount);
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_COUNT, metricItem.requestManagerCount);
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_TIME_COST, metricItem.requestManagerTimeCost);
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_FAIL_COUNT, metricItem.requestManagerFailCount);
+        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_CONF_CHANAGED_COUNT,
+                metricItem.requestManagerConfChangedCount);
+        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_COMMON_ERROR_COUNT,
+                metricItem.requestManagerCommonErrorCount);
+        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_PARAM_ERROR_COUNT,
+                metricItem.requestManagerParamErrorCount);
 
     }
 

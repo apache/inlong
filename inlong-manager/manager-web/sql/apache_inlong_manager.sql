@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `max_length`             int(11)               DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `enable_zookeeper`       tinyint(1)            DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
     `enable_create_resource` tinyint(1)            DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
-    `lightweight`            tinyint(1)            DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
+    `lightweight`            tinyint(1)            DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-no, 1-yes',
     `inlong_cluster_tag`     varchar(128)          DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     `ext_params`             text                  DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num',
     `in_charges`             varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
@@ -339,60 +339,6 @@ CREATE TABLE IF NOT EXISTS `operation_log`
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------
--- Table structure for source_file_basic
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `source_file_basic`
-(
-    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `is_hybrid_source`  tinyint(1)        DEFAULT '0' COMMENT 'Whether to mix data sources',
-    `is_table_mapping`  tinyint(1)        DEFAULT '0' COMMENT 'Is there a table name mapping',
-    `date_offset`       int(4)            DEFAULT '0' COMMENT 'Time offset\n',
-    `date_offset_unit`  varchar(2)        DEFAULT 'H' COMMENT 'Time offset unit',
-    `file_rolling_type` varchar(2)        DEFAULT 'H' COMMENT 'File rolling type',
-    `upload_max_size`   int(4)            DEFAULT '120' COMMENT 'Upload maximum size',
-    `need_compress`     tinyint(1)        DEFAULT '0' COMMENT 'Whether need compress',
-    `is_deleted`        int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`           varchar(64)  NOT NULL COMMENT 'Creator',
-    `modifier`          varchar(64)       DEFAULT NULL COMMENT 'Modifier',
-    `create_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`         text              DEFAULT NULL COMMENT 'temp view',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='basic configuration of file data source';
-
--- ----------------------------
--- Table structure for source_file_detail
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `source_file_detail`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
-    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
-    `access_type`      varchar(20)       DEFAULT 'Agent' COMMENT 'Collection type, there are Agent, DataProxy client, LoadProxy, the file can only be Agent temporarily',
-    `server_name`      varchar(64)       DEFAULT NULL COMMENT 'The name of the data source service. If it is empty, add configuration through the following fields',
-    `ip`               varchar(128) NOT NULL COMMENT 'Data source IP address',
-    `port`             int(11)      NOT NULL COMMENT 'Data source port number',
-    `is_inner_ip`      tinyint(1)        DEFAULT '0' COMMENT 'Whether it is intranet, 0: no, 1: yes',
-    `issue_type`       varchar(10)       DEFAULT 'SSH' COMMENT 'Issuing method, there are SSH, TCS',
-    `username`         varchar(32)       DEFAULT NULL COMMENT 'User name of the data source IP host',
-    `password`         varchar(64)       DEFAULT NULL COMMENT 'The password corresponding to the above user name',
-    `file_path`        varchar(256) NOT NULL COMMENT 'File path, supports regular matching',
-    `status`           int(4)            DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`  int(4)            DEFAULT '0' COMMENT 'Previous status',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `temp_view`        text              DEFAULT NULL COMMENT 'Temporary view, used to save un-submitted and unapproved intermediate data after modification',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Detailed table of file data source';
-
--- ----------------------------
 -- Table structure for stream_source
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_source`
@@ -402,7 +348,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Inlong stream id',
     `source_name`         varchar(128) NOT NULL DEFAULT '' COMMENT 'source_name',
     `source_type`         varchar(20)           DEFAULT '0' COMMENT 'Source type, including: FILE, DB, etc',
-    `template_id`         int(11)      DEFAULT NULL COMMENT 'Id of the template task this agent belongs to',
+    `template_id`         int(11)               DEFAULT NULL COMMENT 'Id of the template task this agent belongs to',
     `agent_ip`            varchar(40)           DEFAULT NULL COMMENT 'Ip of the agent running the task, NULL if this is a template task',
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
@@ -576,7 +522,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `encrypt_version` int(11)               DEFAULT NULL COMMENT 'Encryption key version',
     `account_type`    int(11)      NOT NULL DEFAULT '1' COMMENT 'Account type, 0-manager 1-normal',
     `due_date`        datetime              DEFAULT NULL COMMENT 'Due date for user',
-    `ext_params`      text         COMMENT 'Json extension info',
+    `ext_params`      text COMMENT 'Json extension info',
     `status`          int(11)               DEFAULT '100' COMMENT 'Status',
     `is_deleted`      int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     `creator`         varchar(256) NOT NULL COMMENT 'Creator name',
@@ -794,8 +740,8 @@ CREATE TABLE IF NOT EXISTS `component_heartbeat`
     `id`               int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `component`        varchar(64) NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64) NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
-    `status_heartbeat` text        DEFAULT NULL COMMENT 'Status heartbeat info',
-    `metric_heartbeat` text        DEFAULT NULL COMMENT 'Metric heartbeat info',
+    `status_heartbeat` text                 DEFAULT NULL COMMENT 'Status heartbeat info',
+    `metric_heartbeat` text                 DEFAULT NULL COMMENT 'Metric heartbeat info',
     `report_time`      bigint(20)  NOT NULL COMMENT 'Report time',
     `create_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
@@ -813,8 +759,8 @@ CREATE TABLE IF NOT EXISTS `group_heartbeat`
     `component`        varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component name, such as: Agent, Sort...',
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
-    `status_heartbeat` text         DEFAULT NULL COMMENT 'Status heartbeat info',
-    `metric_heartbeat` text         DEFAULT NULL COMMENT 'Metric heartbeat info',
+    `status_heartbeat` text                  DEFAULT NULL COMMENT 'Status heartbeat info',
+    `metric_heartbeat` text                  DEFAULT NULL COMMENT 'Metric heartbeat info',
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
@@ -833,8 +779,8 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
     `instance`         varchar(64)  NOT NULL DEFAULT '' COMMENT 'Component instance, can be ip, name...',
     `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong group id',
     `inlong_stream_id` varchar(256) NOT NULL DEFAULT '' COMMENT 'Owning inlong stream id',
-    `status_heartbeat` text         DEFAULT NULL COMMENT 'Status heartbeat info',
-    `metric_heartbeat` text         DEFAULT NULL COMMENT 'Metric heartbeat info',
+    `status_heartbeat` text                  DEFAULT NULL COMMENT 'Status heartbeat info',
+    `metric_heartbeat` text                  DEFAULT NULL COMMENT 'Metric heartbeat info',
     `report_time`      bigint(20)   NOT NULL COMMENT 'Report time',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
