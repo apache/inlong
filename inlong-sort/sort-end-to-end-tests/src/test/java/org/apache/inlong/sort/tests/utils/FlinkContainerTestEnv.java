@@ -284,7 +284,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                 try (InputStream is = jarFile.getInputStream(entry)) {
                     jos.putNextEntry(entry);
                     jos.write(IOUtils.toByteArray(is));
-                    is.close();
                     jos.closeEntry();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -295,7 +294,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                 try (InputStream is = new FileInputStream(jar.toFile())) {
                     jos.putNextEntry(new JarEntry("lib/" + jar.getFileName().toString()));
                     jos.write(IOUtils.toByteArray(is));
-                    is.close();
                     jos.closeEntry();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
