@@ -112,7 +112,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        String inlongMetric = config.get(INLONG_METRIC);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
         ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
         return new OracleTableSource(

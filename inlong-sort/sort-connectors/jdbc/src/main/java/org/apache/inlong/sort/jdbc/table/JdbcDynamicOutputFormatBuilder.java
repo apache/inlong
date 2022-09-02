@@ -64,7 +64,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private boolean appendMode;
     private TypeInformation<RowData> rowDataTypeInformation;
     private DataType[] fieldDataTypes;
-    private String inLongMetric;
+    private String inlongMetric;
     private String auditHostAndPorts;
 
     public JdbcDynamicOutputFormatBuilder() {
@@ -236,8 +236,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         return this;
     }
 
-    public JdbcDynamicOutputFormatBuilder setInLongMetric(String inLongMetric) {
-        this.inLongMetric = inLongMetric;
+    public JdbcDynamicOutputFormatBuilder setInLongMetric(String inlongMetric) {
+        this.inlongMetric = inlongMetric;
         return this;
     }
 
@@ -264,7 +264,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             createBufferReduceExecutor(
                                     dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
-                    inLongMetric,
+                    inlongMetric,
                     auditHostAndPorts);
         } else {
             // append only query
@@ -285,7 +285,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                                     sql,
                                     rowDataTypeInformation),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
-                    inLongMetric,
+                    inlongMetric,
                     auditHostAndPorts);
         }
     }

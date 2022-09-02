@@ -188,7 +188,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         boolean appendMode = config.get(SINK_APPEND_MODE);
-        String inLongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
@@ -196,7 +196,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
                 physicalSchema,
                 appendMode,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 
