@@ -18,19 +18,21 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import com.sun.management.OperatingSystemMXBean;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.management.ManagementFactory;
+import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class NettyClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
@@ -211,6 +213,12 @@ public class NettyClient {
 
     public void setBusy() {
         setState(ConnState.BUSY);
+    }
+
+    public double getWeight() {
+        OperatingSystemMXBean operatingSystemMXBean =
+                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        return operatingSystemMXBean.getSystemLoadAverage();
     }
 
 }
