@@ -384,6 +384,10 @@
                     <artifactId>derby</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-standalone-metastore</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.thrift</groupId>
                     <artifactId>libthrift</artifactId>
                 </exclusion>
