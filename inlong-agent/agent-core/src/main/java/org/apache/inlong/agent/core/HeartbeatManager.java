@@ -17,7 +17,31 @@
 
 package org.apache.inlong.agent.core;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -39,34 +63,7 @@ import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_CHARGES;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
-
-/**
- * report heartbeat to inlong-manager
- */
+/** report heartbeat to inlong-manager */
 public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbeatManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
@@ -80,9 +77,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     private final String reportHeartbeatUrl;
     private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
 
-    /**
-     * Init heartbeat manager.
-     */
+    /** Init heartbeat manager. */
     public HeartbeatManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
         this.agentManager = agentManager;
@@ -108,7 +103,9 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(" {} report to manager", taskSnapshotRequest);
                     }
-                    SECONDS.sleep(conf.getInt(AGENT_HEARTBEAT_INTERVAL, DEFAULT_AGENT_HEARTBEAT_INTERVAL));
+                    SECONDS.sleep(
+                            conf.getInt(
+                                    AGENT_HEARTBEAT_INTERVAL, DEFAULT_AGENT_HEARTBEAT_INTERVAL));
                 } catch (Throwable e) {
                     LOGGER.error("interrupted while report snapshot", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
@@ -141,9 +138,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         httpManager.doSentPost(reportHeartbeatUrl, heartbeat);
     }
 
-    /**
-     * build task snapshot request of job
-     */
+    /** build task snapshot request of job */
     private TaskSnapshotRequest buildTaskSnapshotRequest() {
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
         List<TaskSnapshotMessage> taskSnapshotMessageList = new ArrayList<>();
@@ -174,9 +169,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return taskSnapshotRequest;
     }
 
-    /**
-     * build heartbeat message of agent
-     */
+    /** build heartbeat message of agent */
     private HeartbeatMsg buildHeartbeatMsg() {
         final String agentIp = AgentUtils.fetchLocalIp();
         final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
@@ -202,24 +195,27 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
         List<GroupHeartbeat> groupHeartbeats = Lists.newArrayList();
         List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList();
-        jobWrapperMap.values().forEach(jobWrapper -> {
-            Job job = jobWrapper.getJob();
-            JobProfile jobProfile = job.getJobConf();
-            final String groupId = jobProfile.get(JOB_GROUP_ID);
-            final String streamId = jobProfile.get(JOB_STREAM_ID);
-            State currentState = jobWrapper.getCurrentState();
-            String status = currentState.name();
-            GroupHeartbeat groupHeartbeat = new GroupHeartbeat();
-            groupHeartbeat.setInlongGroupId(groupId);
-            groupHeartbeat.setStatus(status);
-            groupHeartbeats.add(groupHeartbeat);
+        jobWrapperMap
+                .values()
+                .forEach(
+                        jobWrapper -> {
+                            Job job = jobWrapper.getJob();
+                            JobProfile jobProfile = job.getJobConf();
+                            final String groupId = jobProfile.get(JOB_GROUP_ID);
+                            final String streamId = jobProfile.get(JOB_STREAM_ID);
+                            State currentState = jobWrapper.getCurrentState();
+                            String status = currentState.name();
+                            GroupHeartbeat groupHeartbeat = new GroupHeartbeat();
+                            groupHeartbeat.setInlongGroupId(groupId);
+                            groupHeartbeat.setStatus(status);
+                            groupHeartbeats.add(groupHeartbeat);
 
-            StreamHeartbeat streamHeartbeat = new StreamHeartbeat();
-            streamHeartbeat.setInlongGroupId(groupId);
-            streamHeartbeat.setInlongStreamId(streamId);
-            streamHeartbeat.setStatus(status);
-            streamHeartbeats.add(streamHeartbeat);
-        });
+                            StreamHeartbeat streamHeartbeat = new StreamHeartbeat();
+                            streamHeartbeat.setInlongGroupId(groupId);
+                            streamHeartbeat.setInlongStreamId(streamId);
+                            streamHeartbeat.setStatus(status);
+                            streamHeartbeats.add(streamHeartbeat);
+                        });
 
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
@@ -229,20 +225,29 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     /**
      * build base url for manager according to config
      *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi
+     * <p>example - http://127.0.0.1:8080/inlong/manager/openapi
      */
     private String buildBaseUrl() {
-        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT)
-                + conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+        return "http://"
+                + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
+                + ":"
+                + conf.get(AGENT_MANAGER_VIP_HTTP_PORT)
+                + conf.get(
+                        AGENT_MANAGER_VIP_HTTP_PREFIX_PATH,
+                        DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     private String buildReportSnapShotUrl(String baseUrl) {
         return baseUrl
-                + conf.get(AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH, DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH);
+                + conf.get(
+                        AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH,
+                        DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH);
     }
 
     private String buildReportHeartbeatUrl(String baseUrl) {
-        return baseUrl + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
+        return baseUrl
+                + conf.get(
+                        AGENT_MANAGER_HEARTBEAT_HTTP_PATH,
+                        DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
     }
 }

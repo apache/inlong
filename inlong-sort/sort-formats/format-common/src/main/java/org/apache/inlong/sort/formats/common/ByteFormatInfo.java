@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The format information for strings.
- */
+/** The format information for strings. */
 public class ByteFormatInfo implements BasicFormatInfo<Byte> {
 
     private static final long serialVersionUID = 1L;

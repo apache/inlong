@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.workflow.core;
 
+import java.util.List;
+import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
@@ -25,15 +29,8 @@ import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
-import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 
-import java.util.List;
-
-/**
- * WorkflowProcess query service
- */
+/** WorkflowProcess query service */
 public interface WorkflowQueryService {
 
     /**
@@ -102,9 +99,7 @@ public interface WorkflowQueryService {
      */
     ProcessDetailResponse detail(Integer processId, Integer taskId, String operator);
 
-    /**
-     * Get event log based on ID
-     */
+    /** Get event log based on ID */
     WorkflowEventLogEntity getEventLog(Integer id);
 
     /**
@@ -114,5 +109,4 @@ public interface WorkflowQueryService {
      * @return the list of log
      */
     List<WorkflowEventLogEntity> listEventLog(EventLogRequest query);
-
 }

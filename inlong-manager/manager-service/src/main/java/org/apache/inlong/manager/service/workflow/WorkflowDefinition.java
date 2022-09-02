@@ -20,9 +20,7 @@ package org.apache.inlong.manager.service.workflow;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 
-/**
- * Definition of workflow
- */
+/** Definition of workflow */
 public interface WorkflowDefinition {
 
     String UT_ADMIN_NAME = "ut_admin";
@@ -41,5 +39,4 @@ public interface WorkflowDefinition {
      * @return process name
      */
     ProcessName getProcessName();
-
 }

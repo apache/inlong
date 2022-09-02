@@ -17,6 +17,8 @@
 
 package org.apache.inlong.audit.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
@@ -30,29 +32,19 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class AuditMsgConsumerServer implements InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditMsgConsumerServer.class);
-    @Autowired
-    private MessageQueueConfig mqConfig;
-    @Autowired
-    private AuditDataDao auditDataDao;
-    @Autowired
-    private ElasticsearchService esService;
-    @Autowired
-    private StoreConfig storeConfig;
-    @Autowired
-    private ClickHouseConfig chConfig;
+    @Autowired private MessageQueueConfig mqConfig;
+    @Autowired private AuditDataDao auditDataDao;
+    @Autowired private ElasticsearchService esService;
+    @Autowired private StoreConfig storeConfig;
+    @Autowired private ClickHouseConfig chConfig;
     // ClickHouseService
     private ClickHouseService ckService;
-    
-    /**
-     * Initializing bean
-     */
+
+    /** Initializing bean */
     public void afterPropertiesSet() {
         BaseConsume mqConsume = null;
         List<InsertData> insertServiceList = this.getInsertServiceList();
@@ -77,6 +69,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     /**
      * getInsertServiceList
+     *
      * @return
      */
     private List<InsertData> getInsertServiceList() {

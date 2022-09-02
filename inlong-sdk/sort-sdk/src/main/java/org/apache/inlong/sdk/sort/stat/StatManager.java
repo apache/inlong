@@ -30,7 +30,8 @@ import org.apache.inlong.sdk.sort.util.StringUtil;
 
 public class StatManager implements Cleanable {
 
-    private static final ConcurrentHashMap<String, SortClientStateCounter> READAPISTATE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, SortClientStateCounter> READAPISTATE =
+            new ConcurrentHashMap<>();
     private final SortClientConfig config;
     private final MetricReporter reporter;
     private final PeriodicTask processTask;
@@ -47,10 +48,11 @@ public class StatManager implements Cleanable {
     public StatManager(ClientContext context, MetricReporter reporter) {
         this.config = context.getConfig();
         this.reporter = reporter;
-        this.processTask = new ProcessStatThread(config.getReportStatisticIntervalSec(),
-                TimeUnit.SECONDS);
-        String threadName = "sortsdk_stat_manager_process_data_"
-                + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
+        this.processTask =
+                new ProcessStatThread(config.getReportStatisticIntervalSec(), TimeUnit.SECONDS);
+        String threadName =
+                "sortsdk_stat_manager_process_data_"
+                        + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
         processTask.start(threadName);
     }
 
@@ -83,10 +85,17 @@ public class StatManager implements Cleanable {
      * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter getStatistics(String sortTaskId) {
-        String key = makeKey(sortTaskId, defaultCluster, defaultTopic, String.valueOf(defaultPartitionId));
-        return READAPISTATE
-                .computeIfAbsent(key,
-                        k -> new SortClientStateCounter(sortTaskId, defaultCluster, defaultTopic, defaultPartitionId));
+        String key =
+                makeKey(
+                        sortTaskId,
+                        defaultCluster,
+                        defaultTopic,
+                        String.valueOf(defaultPartitionId));
+        return READAPISTATE.computeIfAbsent(
+                key,
+                k ->
+                        new SortClientStateCounter(
+                                sortTaskId, defaultCluster, defaultTopic, defaultPartitionId));
     }
 
     /**
@@ -99,9 +108,9 @@ public class StatManager implements Cleanable {
      */
     public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic) {
         String key = makeKey(sortTaskId, clusterId, topic, String.valueOf(defaultPartitionId));
-        return READAPISTATE
-                .computeIfAbsent(key,
-                        k -> new SortClientStateCounter(sortTaskId, clusterId, topic, defaultPartitionId));
+        return READAPISTATE.computeIfAbsent(
+                key,
+                k -> new SortClientStateCounter(sortTaskId, clusterId, topic, defaultPartitionId));
     }
 
     /**
@@ -113,10 +122,11 @@ public class StatManager implements Cleanable {
      * @param partitionId int
      * @return {@link SortClientStateCounter}
      */
-    public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic, int partitionId) {
+    public SortClientStateCounter getStatistics(
+            String sortTaskId, String clusterId, String topic, int partitionId) {
         String key = makeKey(sortTaskId, clusterId, topic);
-        return READAPISTATE
-                .computeIfAbsent(key, k -> new SortClientStateCounter(sortTaskId, clusterId, topic, partitionId));
+        return READAPISTATE.computeIfAbsent(
+                key, k -> new SortClientStateCounter(sortTaskId, clusterId, topic, partitionId));
     }
 
     private class ProcessStatThread extends PeriodicTask {
@@ -131,10 +141,18 @@ public class StatManager implements Cleanable {
                 String monitorName = SortClientConfig.MONITOR_NAME;
                 for (SortClientStateCounter offsetCounter : READAPISTATE.values()) {
                     SortClientStateCounter counter = offsetCounter.reset();
-                    String[] keys = new String[]{counter.sortTaskId, config.getLocalIp(), counter.cacheClusterId,
-                            counter.topic, String.valueOf(counter.partitionId)};
+                    String[] keys =
+                            new String[] {
+                                counter.sortTaskId,
+                                config.getLocalIp(),
+                                counter.cacheClusterId,
+                                counter.topic,
+                                String.valueOf(counter.partitionId)
+                            };
                     if (reporter != null) {
-                        logger.debug("report statistics:{} {}", Arrays.toString(keys),
+                        logger.debug(
+                                "report statistics:{} {}",
+                                Arrays.toString(keys),
                                 Arrays.toString(counter.getStatvalue()));
                         reporter.report(monitorName, keys, counter.getStatvalue());
                     } else {

@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * Data consumption table, including group name, group id, topic, etc
- */
+/** Data consumption table, including group name, group id, topic, etc */
 @Data
 public class ConsumptionPulsarEntity implements Serializable {
 
@@ -37,5 +34,4 @@ public class ConsumptionPulsarEntity implements Serializable {
     private Integer isRlq;
     private String retryLetterTopic;
     private Integer isDeleted;
-
 }

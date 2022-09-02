@@ -21,6 +21,9 @@ package org.apache.inlong.manager.service.source.tubemq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -42,20 +45,12 @@ import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-/**
- * TubeMQ source operator
- */
+/** TubeMQ source operator */
 @Service
 public class TubeMQSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private InlongClusterService clusterService;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -75,7 +70,8 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             TubeMQSourceDTO dto = TubeMQSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -94,31 +90,36 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
-    public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
-        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.TUBEMQ);
+    public Map<String, List<StreamSource>> getSourcesMap(
+            InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
+        ClusterInfo clusterInfo =
+                clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.TUBEMQ);
         TubeClusterInfo tubeClusterInfo = (TubeClusterInfo) clusterInfo;
         String masterRpc = tubeClusterInfo.getUrl();
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
-        streamInfos.forEach(streamInfo -> {
-            TubeMQSource tubeMQSource = new TubeMQSource();
-            String streamId = streamInfo.getInlongStreamId();
-            tubeMQSource.setSourceName(streamId);
-            tubeMQSource.setTopic(streamInfo.getMqResource());
-            tubeMQSource.setGroupId(streamId);
-            tubeMQSource.setMasterRpc(masterRpc);
-            for (StreamSource sourceInfo : streamSources) {
-                if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
-                    continue;
-                }
-                tubeMQSource.setSerializationType(sourceInfo.getSerializationType());
-            }
-            tubeMQSource.setFieldList(streamInfo.getFieldList());
-            sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(tubeMQSource);
-        });
+        streamInfos.forEach(
+                streamInfo -> {
+                    TubeMQSource tubeMQSource = new TubeMQSource();
+                    String streamId = streamInfo.getInlongStreamId();
+                    tubeMQSource.setSourceName(streamId);
+                    tubeMQSource.setTopic(streamInfo.getMqResource());
+                    tubeMQSource.setGroupId(streamId);
+                    tubeMQSource.setMasterRpc(masterRpc);
+                    for (StreamSource sourceInfo : streamSources) {
+                        if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
+                            continue;
+                        }
+                        tubeMQSource.setSerializationType(sourceInfo.getSerializationType());
+                    }
+                    tubeMQSource.setFieldList(streamInfo.getFieldList());
+                    sourceMap
+                            .computeIfAbsent(streamId, key -> Lists.newArrayList())
+                            .add(tubeMQSource);
+                });
 
         return sourceMap;
     }
-
 }

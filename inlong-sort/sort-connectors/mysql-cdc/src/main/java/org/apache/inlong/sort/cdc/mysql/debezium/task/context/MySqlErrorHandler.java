@@ -24,11 +24,10 @@ import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.connector.mysql.MySqlTaskContext;
 import io.debezium.pipeline.ErrorHandler;
 import io.debezium.relational.TableId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A subclass implementation of {@link ErrorHandler} which filter some {@link DebeziumException}, we

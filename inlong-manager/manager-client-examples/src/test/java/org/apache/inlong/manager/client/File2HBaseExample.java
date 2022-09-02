@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.client;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
@@ -35,13 +38,7 @@ import org.apache.shiro.util.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Test class for file to hbase.
- */
+/** Test class for file to hbase. */
 @Slf4j
 @Disabled
 public class File2HBaseExample extends BaseExample {
@@ -108,9 +105,7 @@ public class File2HBaseExample extends BaseExample {
         return streamFieldList;
     }
 
-    /**
-     * Create iceberg sink
-     */
+    /** Create iceberg sink */
     public HBaseSink createHBaseSink() throws Exception {
         HBaseSink sink = new HBaseSink();
 
@@ -121,11 +116,22 @@ public class File2HBaseExample extends BaseExample {
         sink.setZkNodeParent("{zk.node.path}");
         sink.setRowKey("{rowkey}");
 
-        final SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
-        final SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(),
-                "name");
-        final SinkField field3 = new SinkField(2, FieldType.DECIMAL.toString(), "score", FieldType.DECIMAL.toString(),
-                "score");
+        final SinkField field1 =
+                new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
+        final SinkField field2 =
+                new SinkField(
+                        1,
+                        FieldType.STRING.toString(),
+                        "name",
+                        FieldType.STRING.toString(),
+                        "name");
+        final SinkField field3 =
+                new SinkField(
+                        2,
+                        FieldType.DECIMAL.toString(),
+                        "score",
+                        FieldType.DECIMAL.toString(),
+                        "score");
 
         // field ext param
         HBaseColumnFamilyInfo info1 = new HBaseColumnFamilyInfo();

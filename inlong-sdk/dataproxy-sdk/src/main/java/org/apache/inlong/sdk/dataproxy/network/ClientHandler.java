@@ -25,8 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
-    private static final Logger logger = LoggerFactory
-            .getLogger(ClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     private final Sender sender;
     private final ClientMgr clientMgr;

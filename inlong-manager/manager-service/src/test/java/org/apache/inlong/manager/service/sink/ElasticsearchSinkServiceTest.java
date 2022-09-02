@@ -29,23 +29,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Elasticsearch sink service test
- */
+/** Elasticsearch sink service test */
 public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
     private static final String globalStreamId = "stream1";
     private static final String globalOperator = "admin";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
@@ -66,9 +60,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -96,5 +88,4 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 }

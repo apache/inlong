@@ -30,7 +30,6 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.relational.history.TableChanges.TableChangeType;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

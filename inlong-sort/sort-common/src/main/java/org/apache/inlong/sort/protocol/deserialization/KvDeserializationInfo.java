@@ -22,9 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Kv deserialization info
- */
+/** Kv deserialization info */
 public class KvDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = 1976031542480774581L;

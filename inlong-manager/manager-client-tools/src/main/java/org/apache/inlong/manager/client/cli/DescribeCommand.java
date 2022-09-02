@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.util.List;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
@@ -33,16 +34,11 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-
-/**
- * Describe the info of resources.
- */
+/** Describe the info of resources. */
 @Parameters(commandDescription = "Display details of one resource")
 public class DescribeCommand extends AbstractCommand {
 
-    @Parameter()
-    private java.util.List<String> params;
+    @Parameter() private java.util.List<String> params;
 
     public DescribeCommand() {
         super("describe");
@@ -56,10 +52,12 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get stream details")
     private static class DescribeStream extends AbstractCommandRunner {
 
-        @Parameter()
-        private java.util.List<String> params;
+        @Parameter() private java.util.List<String> params;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String groupId;
 
         @Override
@@ -78,16 +76,22 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get group details")
     private static class DescribeGroup extends AbstractCommandRunner {
 
-        @Parameter()
-        private java.util.List<String> params;
+        @Parameter() private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--status"}, description = "inlong group status")
+        @Parameter(
+                names = {"-s", "--status"},
+                description = "inlong group status")
         private int status;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-n", "--num"}, description = "the number displayed")
+        @Parameter(
+                names = {"-n", "--num"},
+                description = "the number displayed")
         private int pageSize;
 
         @Override
@@ -108,13 +112,18 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get sink details")
     private static class DescribeSink extends AbstractCommandRunner {
 
-        @Parameter()
-        private java.util.List<String> params;
+        @Parameter() private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
+        @Parameter(
+                names = {"-s", "--stream"},
+                required = true,
+                description = "inlong stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String group;
 
         @Override
@@ -133,16 +142,23 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get source details")
     private static class DescribeSource extends AbstractCommandRunner {
 
-        @Parameter()
-        private java.util.List<String> params;
+        @Parameter() private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
+        @Parameter(
+                names = {"-s", "--stream"},
+                required = true,
+                description = "inlong stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-t", "--type"}, description = "sink type")
+        @Parameter(
+                names = {"-t", "--type"},
+                description = "sink type")
         private String type;
 
         @Override

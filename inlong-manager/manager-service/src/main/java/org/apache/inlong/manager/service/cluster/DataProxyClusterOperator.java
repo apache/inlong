@@ -20,18 +20,16 @@ package org.apache.inlong.manager.service.cluster;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * DataProxy cluster operator.
- */
+/** DataProxy cluster operator. */
 @Service
 public class DataProxyClusterOperator extends AbstractClusterOperator {
 
@@ -59,5 +57,4 @@ public class DataProxyClusterOperator extends AbstractClusterOperator {
         }
         return CommonBeanUtils.copyProperties(entity, DataProxyClusterInfo::new);
     }
-
 }

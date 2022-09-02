@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for decimals.
- */
+/** The type information for decimals. */
 public class DecimalTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

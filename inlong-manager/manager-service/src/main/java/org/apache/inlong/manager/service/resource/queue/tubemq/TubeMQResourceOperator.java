@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.resource.queue.tubemq;
 
 import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
@@ -33,19 +33,14 @@ import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Operator for create TubeMQ Topic and ConsumerGroup
- */
+/** Operator for create TubeMQ Topic and ConsumerGroup */
 @Slf4j
 @Service
 public class TubeMQResourceOperator implements QueueResourceOperator {
 
-    @Autowired
-    private InlongClusterService clusterService;
-    @Autowired
-    private ConsumptionService consumptionService;
-    @Autowired
-    private TubeMQOperator tubeMQOperator;
+    @Autowired private InlongClusterService clusterService;
+    @Autowired private ConsumptionService consumptionService;
+    @Autowired private TubeMQOperator tubeMQOperator;
 
     @Override
     public boolean accept(String mqType) {
@@ -62,13 +57,16 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
 
         // if the group was successful, no need re-create topic and consumer group
         if (Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
-            log.info("skip to create tubemq resource as the status of groupId={} was successful", groupId);
+            log.info(
+                    "skip to create tubemq resource as the status of groupId={} was successful",
+                    groupId);
         }
 
         try {
             // 1. create tubemq topic
             String clusterTag = groupInfo.getInlongClusterTag();
-            TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
+            TubeClusterInfo tubeCluster =
+                    (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
             String topicName = groupInfo.getMqResource();
             tubeMQOperator.createTopic(tubeCluster, topicName, operator);
             log.info("success to create tubemq topic for groupId={}", groupId);
@@ -81,12 +79,20 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
 
             // insert the consumer group info into the consumption table
             consumptionService.saveSortConsumption(groupInfo, topicName, consumeGroup);
-            log.info("success to save consume for groupId={}, topic={}, consumer={}", groupId, topicName, consumeGroup);
+            log.info(
+                    "success to save consume for groupId={}, topic={}, consumer={}",
+                    groupId,
+                    topicName,
+                    consumeGroup);
 
-            log.info("success to create tubemq resource for groupId={}, cluster={}", groupId, tubeCluster);
+            log.info(
+                    "success to create tubemq resource for groupId={}, cluster={}",
+                    groupId,
+                    tubeCluster);
         } catch (Exception e) {
             log.error("failed to create tubemq resource for groupId=" + groupId, e);
-            throw new WorkflowListenerException("failed to create tubemq resource: " + e.getMessage());
+            throw new WorkflowListenerException(
+                    "failed to create tubemq resource: " + e.getMessage());
         }
     }
 
@@ -96,13 +102,14 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
     }
 
     @Override
-    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
+    public void createQueueForStream(
+            InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         // currently, not support create tubemq resource for stream
     }
 
     @Override
-    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
+    public void deleteQueueForStream(
+            InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         // currently, not support delete tubemq resource for stream
     }
-
 }

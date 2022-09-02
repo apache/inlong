@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.sink.sqlserver;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
-/**
- * SQLServer source info
- */
+/** SQLServer source info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -65,9 +62,7 @@ public class SQLServerSinkDTO {
     @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static SQLServerSinkDTO getFromRequest(SQLServerSinkRequest request) {
         return SQLServerSinkDTO.builder()
                 .username(request.getUsername())
@@ -81,15 +76,14 @@ public class SQLServerSinkDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from json
-     */
+    /** Get the dto instance from json */
     public static SQLServerSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, SQLServerSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -100,8 +94,8 @@ public class SQLServerSinkDTO {
      * @param columnList SqlServer column info list,{@link OracleColumnInfo}
      * @return {@link SQLServerTableInfo}
      */
-    public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sqlServerSink,
-            List<SQLServerColumnInfo> columnList) {
+    public static SQLServerTableInfo getTableInfo(
+            SQLServerSinkDTO sqlServerSink, List<SQLServerColumnInfo> columnList) {
         SQLServerTableInfo tableInfo = new SQLServerTableInfo();
         tableInfo.setTableName(sqlServerSink.getTableName());
         tableInfo.setPrimaryKey(sqlServerSink.getPrimaryKey());

@@ -25,13 +25,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
-/**
- * Inlong group info for Pulsar
- */
+/** Inlong group info for Pulsar */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -50,8 +48,10 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     @ApiModelProperty(value = "Pulsar service URL")
     private String serviceUrl;
 
-    @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
-            + "serial: single partition, low throughput, and orderly messages")
+    @ApiModelProperty(
+            value =
+                    "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
+                            + "serial: single partition, low throughput, and orderly messages")
     private String queueModule = "PARALLEL";
 
     @ApiModelProperty("The number of partitions of Topic, 1-20")
@@ -92,5 +92,4 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     public InlongPulsarRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongPulsarRequest::new);
     }
-
 }

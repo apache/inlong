@@ -29,9 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * ClickHouse sink service test
- */
+/** ClickHouse sink service test */
 public class ClickHouseSinkServiceTest extends ServiceBaseTest {
 
     // Partial test data
@@ -42,14 +40,10 @@ public class ClickHouseSinkServiceTest extends ServiceBaseTest {
     private static final String ckUsername = "ck_user";
     private static final String ckDatabaseName = "ck_db";
     private static final String ckTableName = "ck_tbl";
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
@@ -66,9 +60,7 @@ public class ClickHouseSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink by sink id.
-     */
+    /** Delete sink by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -96,5 +88,4 @@ public class ClickHouseSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 }

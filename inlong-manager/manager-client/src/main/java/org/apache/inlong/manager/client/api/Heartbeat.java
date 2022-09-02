@@ -24,9 +24,7 @@ import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 
-/**
- * Heartbeat interface.
- */
+/** Heartbeat interface. */
 public interface Heartbeat {
 
     /**

@@ -17,13 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface DataNodeEntityMapper {
@@ -43,5 +42,4 @@ public interface DataNodeEntityMapper {
     int updateByIdSelective(DataNodeEntity record);
 
     int deleteById(Integer id);
-
 }

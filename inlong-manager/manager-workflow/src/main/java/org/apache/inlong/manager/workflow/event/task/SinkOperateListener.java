@@ -20,22 +20,20 @@ package org.apache.inlong.manager.workflow.event.task;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
-/**
- * Listener of operate Sink.
- */
+/** Listener of operate Sink. */
 public interface SinkOperateListener extends TaskEventListener {
 
-    SinkOperateListener DEFAULT_SINK_OPERATE_LISTENER = new SinkOperateListener() {
+    SinkOperateListener DEFAULT_SINK_OPERATE_LISTENER =
+            new SinkOperateListener() {
 
-        @Override
-        public TaskEvent event() {
-            return TaskEvent.COMPLETE;
-        }
+                @Override
+                public TaskEvent event() {
+                    return TaskEvent.COMPLETE;
+                }
 
-        @Override
-        public ListenerResult listen(WorkflowContext context) {
-            return ListenerResult.success();
-        }
-    };
-
+                @Override
+                public ListenerResult listen(WorkflowContext context) {
+                    return ListenerResult.success();
+                }
+            };
 }

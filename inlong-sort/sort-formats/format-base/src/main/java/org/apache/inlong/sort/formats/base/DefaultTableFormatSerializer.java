@@ -27,44 +27,31 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The default implementation of {@link TableFormatSerializer}.
- */
+/** The default implementation of {@link TableFormatSerializer}. */
 public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTableFormatSerializer.class);
 
-    /**
-     * The delegated serialization schema for rows.
-     */
+    /** The delegated serialization schema for rows. */
     private final SerializationSchema<Row> serializationSchema;
 
-    /**
-     * True if ignore errors in the serialization.
-     */
+    /** True if ignore errors in the serialization. */
     private final boolean ignoreErrors;
 
     public DefaultTableFormatSerializer(
-            SerializationSchema<Row> serializationSchema,
-            boolean ignoreErrors
-    ) {
+            SerializationSchema<Row> serializationSchema, boolean ignoreErrors) {
         this.serializationSchema = serializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
-    public DefaultTableFormatSerializer(
-            SerializationSchema<Row> serializationSchema
-    ) {
+    public DefaultTableFormatSerializer(SerializationSchema<Row> serializationSchema) {
         this(serializationSchema, DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
-    public void flatMap(
-            Row row,
-            Collector<byte[]> collector
-    ) throws Exception {
+    public void flatMap(Row row, Collector<byte[]> collector) throws Exception {
         byte[] bytes;
 
         try {
@@ -93,7 +80,7 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
         DefaultTableFormatSerializer that = (DefaultTableFormatSerializer) o;
         return ignoreErrors == that.ignoreErrors
-                       && Objects.equals(serializationSchema, that.serializationSchema);
+                && Objects.equals(serializationSchema, that.serializationSchema);
     }
 
     @Override
@@ -104,8 +91,10 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
     @Override
     public String toString() {
         return "DefaultTableFormatSerializer{"
-                + "serializationSchema=" + serializationSchema
-                + ", ignoreErrors=" + ignoreErrors
+                + "serializationSchema="
+                + serializationSchema
+                + ", ignoreErrors="
+                + ignoreErrors
                 + '}';
     }
 }

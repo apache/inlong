@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
@@ -34,11 +35,7 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 
-import java.util.List;
-
-/**
- * Workflow service
- */
+/** Workflow service */
 public interface WorkflowService {
 
     /**
@@ -160,5 +157,4 @@ public interface WorkflowService {
      * @return Execution log
      */
     PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query);
-
 }

@@ -17,31 +17,29 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Factory for {@link InlongClusterOperator}.
- */
+/** Factory for {@link InlongClusterOperator}. */
 @Service
 public class InlongClusterOperatorFactory {
 
-    @Autowired
-    private List<InlongClusterOperator> clusterOperatorList;
+    @Autowired private List<InlongClusterOperator> clusterOperatorList;
 
-    /**
-     * Get a cluster operator instance via the given type
-     */
+    /** Get a cluster operator instance via the given type */
     public InlongClusterOperator getInstance(String type) {
         return clusterOperatorList.stream()
                 .filter(inst -> inst.accept(type))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(
-                        String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), type)));
+                .orElseThrow(
+                        () ->
+                                new BusinessException(
+                                        String.format(
+                                                ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED
+                                                        .getMessage(),
+                                                type)));
     }
-
 }

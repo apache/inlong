@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -25,10 +26,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import javax.annotation.Nonnull;
-
 /**
- * TimeUnitConstantParam class is used for the definition and encapsulation of time unit constant param.
+ * TimeUnitConstantParam class is used for the definition and encapsulation of time unit constant
+ * param.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("timeUnitConstant")
@@ -62,22 +62,13 @@ public class TimeUnitConstantParam extends ConstantParam {
         return getValue().toString();
     }
 
-    /**
-     * The TimeUnit class defines an enumeration of time units
-     */
+    /** The TimeUnit class defines an enumeration of time units */
     public enum TimeUnit {
-        /**
-         * Time unit for second
-         */
+        /** Time unit for second */
         SECOND,
-        /**
-         * Time unit for minute
-         */
+        /** Time unit for minute */
         MINUTE,
-        /**
-         * Time unit for hour
-         */
+        /** Time unit for hour */
         HOUR
     }
-
 }

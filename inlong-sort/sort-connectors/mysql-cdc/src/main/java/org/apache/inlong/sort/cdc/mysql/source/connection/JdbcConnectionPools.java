@@ -18,19 +18,16 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
+import static org.apache.inlong.sort.cdc.mysql.source.connection.PooledDataSourceFactory.createPooledDataSource;
+
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.connection.PooledDataSourceFactory.createPooledDataSource;
-
-/**
- * A Jdbc Connection pools implementation.
- */
+/** A Jdbc Connection pools implementation. */
 public class JdbcConnectionPools implements ConnectionPools {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcConnectionPools.class);
@@ -38,8 +35,7 @@ public class JdbcConnectionPools implements ConnectionPools {
     private static final JdbcConnectionPools INSTANCE = new JdbcConnectionPools();
     private final Map<ConnectionPoolId, HikariDataSource> pools = new HashMap<>();
 
-    private JdbcConnectionPools() {
-    }
+    private JdbcConnectionPools() {}
 
     public static JdbcConnectionPools getInstance() {
         return INSTANCE;

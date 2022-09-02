@@ -19,15 +19,12 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import java.util.List;
-
-/**
- * Task execution log query
- */
+/** Task execution log query */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Task execution log request")
@@ -41,5 +38,4 @@ public class TaskLogRequest extends PageRequest {
 
     @ApiModelProperty("Task type, include: ServiceTask, UserTask")
     private String taskType;
-
 }

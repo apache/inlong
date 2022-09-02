@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -28,13 +31,9 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * CascadeFunctionWrapper class is a wrapper of {@link CascadeFunction}
- * It contains a list of {@link CascadeFunction} that really will be executed
+ * CascadeFunctionWrapper class is a wrapper of {@link CascadeFunction} It contains a list of {@link
+ * CascadeFunction} that really will be executed
  */
 @JsonTypeName("cascadeFunctionWrapper")
 @EqualsAndHashCode(callSuper = false)
@@ -64,7 +63,8 @@ public class CascadeFunctionWrapper implements Function, Serializable {
 
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("The method of getName is not support of CascadeFunction");
+        throw new UnsupportedOperationException(
+                "The method of getName is not support of CascadeFunction");
     }
 
     @Override

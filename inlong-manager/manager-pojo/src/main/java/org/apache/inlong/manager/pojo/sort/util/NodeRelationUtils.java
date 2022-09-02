@@ -18,6 +18,11 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,74 +54,82 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.RightOuterJoinNodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Util for create node relation.
- */
+/** Util for create node relation. */
 @Slf4j
 public class NodeRelationUtils {
 
-    /**
-     * Create node relation for the given stream
-     */
+    /** Create node relation for the given stream */
     public static List<NodeRelation> createNodeRelations(InlongStreamInfo streamInfo) {
         if (StringUtils.isEmpty(streamInfo.getExtParams())) {
             log.warn("stream node relation is empty for {}", streamInfo);
             return Lists.newArrayList();
         }
-        StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getExtParams(),
-                streamInfo.getInlongStreamId());
+        StreamPipeline pipeline =
+                StreamParseUtils.parseStreamPipeline(
+                        streamInfo.getExtParams(), streamInfo.getInlongStreamId());
         return pipeline.getPipeline().stream()
-                .map(nodeRelation -> {
-                    if (nodeRelation.getInputNodes().size() > 1) {
-                        return new UnionNodeRelation(
-                                Lists.newArrayList(nodeRelation.getInputNodes()),
-                                Lists.newArrayList(nodeRelation.getOutputNodes()));
-                    } else {
-                        return new NodeRelation(
-                                Lists.newArrayList(nodeRelation.getInputNodes()),
-                                Lists.newArrayList(nodeRelation.getOutputNodes()));
-                    }
-                }).collect(Collectors.toList());
+                .map(
+                        nodeRelation -> {
+                            if (nodeRelation.getInputNodes().size() > 1) {
+                                return new UnionNodeRelation(
+                                        Lists.newArrayList(nodeRelation.getInputNodes()),
+                                        Lists.newArrayList(nodeRelation.getOutputNodes()));
+                            } else {
+                                return new NodeRelation(
+                                        Lists.newArrayList(nodeRelation.getInputNodes()),
+                                        Lists.newArrayList(nodeRelation.getOutputNodes()));
+                            }
+                        })
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Create node relation from the given sources and sinks
-     */
-    public static List<NodeRelation> createNodeRelations(List<StreamSource> sources, List<StreamSink> sinks) {
+    /** Create node relation from the given sources and sinks */
+    public static List<NodeRelation> createNodeRelations(
+            List<StreamSource> sources, List<StreamSink> sinks) {
         NodeRelation relation = new NodeRelation();
-        List<String> inputs = sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
-        List<String> outputs = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+        List<String> inputs =
+                sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
+        List<String> outputs =
+                sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
         relation.setInputs(inputs);
         relation.setOutputs(outputs);
         return Lists.newArrayList(relation);
     }
 
-    /**
-     * Optimize relation of node, JoinerRelation must be rebuilt.
-     */
-    public static void optimizeNodeRelation(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
+    /** Optimize relation of node, JoinerRelation must be rebuilt. */
+    public static void optimizeNodeRelation(
+            StreamInfo streamInfo, List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
             return;
         }
-        Map<String, TransformDefinition> transformTypeMap = transformResponses.stream().collect(
-                Collectors.toMap(TransformResponse::getTransformName, transformResponse -> {
-                    TransformType transformType = TransformType.forType(transformResponse.getTransformType());
-                    return StreamParseUtils.parseTransformDefinition(transformResponse.getTransformDefinition(),
-                            transformType);
-                }));
+        Map<String, TransformDefinition> transformTypeMap =
+                transformResponses.stream()
+                        .collect(
+                                Collectors.toMap(
+                                        TransformResponse::getTransformName,
+                                        transformResponse -> {
+                                            TransformType transformType =
+                                                    TransformType.forType(
+                                                            transformResponse.getTransformType());
+                                            return StreamParseUtils.parseTransformDefinition(
+                                                    transformResponse.getTransformDefinition(),
+                                                    transformType);
+                                        }));
         List<Node> nodes = streamInfo.getNodes();
-        Map<String, TransformNode> joinNodes = nodes.stream().filter(node -> node instanceof TransformNode)
-                .map(node -> (TransformNode) node)
-                .filter(transformNode -> {
-                    TransformDefinition transformDefinition = transformTypeMap.get(transformNode.getName());
-                    return transformDefinition.getTransformType() == TransformType.JOINER;
-                }).collect(Collectors.toMap(TransformNode::getName, transformNode -> transformNode));
+        Map<String, TransformNode> joinNodes =
+                nodes.stream()
+                        .filter(node -> node instanceof TransformNode)
+                        .map(node -> (TransformNode) node)
+                        .filter(
+                                transformNode -> {
+                                    TransformDefinition transformDefinition =
+                                            transformTypeMap.get(transformNode.getName());
+                                    return transformDefinition.getTransformType()
+                                            == TransformType.JOINER;
+                                })
+                        .collect(
+                                Collectors.toMap(
+                                        TransformNode::getName, transformNode -> transformNode));
 
         List<NodeRelation> relations = streamInfo.getRelations();
         Iterator<NodeRelation> shipIterator = relations.listIterator();
@@ -128,7 +141,8 @@ public class NodeRelationUtils {
                 String nodeName = outputs.get(0);
                 if (joinNodes.get(nodeName) != null) {
                     TransformDefinition transformDefinition = transformTypeMap.get(nodeName);
-                    joinRelations.add(getNodeRelation((JoinerDefinition) transformDefinition, relation));
+                    joinRelations.add(
+                            getNodeRelation((JoinerDefinition) transformDefinition, relation));
                     shipIterator.remove();
                 }
             }
@@ -136,7 +150,8 @@ public class NodeRelationUtils {
         relations.addAll(joinRelations);
     }
 
-    private static NodeRelation getNodeRelation(JoinerDefinition joinerDefinition, NodeRelation nodeRelation) {
+    private static NodeRelation getNodeRelation(
+            JoinerDefinition joinerDefinition, NodeRelation nodeRelation) {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
@@ -159,23 +174,36 @@ public class NodeRelationUtils {
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
-                return new LeftOuterJoinNodeRelation(preNodes, nodeRelation.getOutputs(), joinConditions);
+                return new LeftOuterJoinNodeRelation(
+                        preNodes, nodeRelation.getOutputs(), joinConditions);
             case INNER_JOIN:
-                return new InnerJoinNodeRelation(preNodes, nodeRelation.getOutputs(), joinConditions);
+                return new InnerJoinNodeRelation(
+                        preNodes, nodeRelation.getOutputs(), joinConditions);
             case RIGHT_JOIN:
-                return new RightOuterJoinNodeRelation(preNodes, nodeRelation.getOutputs(), joinConditions);
+                return new RightOuterJoinNodeRelation(
+                        preNodes, nodeRelation.getOutputs(), joinConditions);
             default:
-                throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported join mode=%s for inlong", joinMode));
         }
     }
 
-    private static SingleValueFilterFunction createFilterFunction(StreamField leftField, StreamField rightField,
-            LogicOperator operator) {
-        FieldInfo sourceField = new FieldInfo(leftField.getOriginFieldName(), leftField.getOriginNodeName(),
-                FieldInfoUtils.convertFieldFormat(leftField.getFieldType(), leftField.getFieldFormat()));
-        FieldInfo targetField = new FieldInfo(rightField.getOriginFieldName(), rightField.getOriginNodeName(),
-                FieldInfoUtils.convertFieldFormat(rightField.getFieldType(), rightField.getFieldFormat()));
-        return new SingleValueFilterFunction(operator, sourceField, EqualOperator.getInstance(), targetField);
+    private static SingleValueFilterFunction createFilterFunction(
+            StreamField leftField, StreamField rightField, LogicOperator operator) {
+        FieldInfo sourceField =
+                new FieldInfo(
+                        leftField.getOriginFieldName(),
+                        leftField.getOriginNodeName(),
+                        FieldInfoUtils.convertFieldFormat(
+                                leftField.getFieldType(), leftField.getFieldFormat()));
+        FieldInfo targetField =
+                new FieldInfo(
+                        rightField.getOriginFieldName(),
+                        rightField.getOriginNodeName(),
+                        FieldInfoUtils.convertFieldFormat(
+                                rightField.getFieldType(), rightField.getFieldFormat()));
+        return new SingleValueFilterFunction(
+                operator, sourceField, EqualOperator.getInstance(), targetField);
     }
 
     private static String getNodeName(StreamNode node) {
@@ -187,5 +215,4 @@ public class NodeRelationUtils {
             return ((StreamTransform) node).getTransformName();
         }
     }
-
 }

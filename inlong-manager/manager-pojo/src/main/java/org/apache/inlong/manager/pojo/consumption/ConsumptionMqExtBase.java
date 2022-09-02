@@ -23,16 +23,17 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Extended consumption information of different MQs
- */
+/** Extended consumption information of different MQs */
 @Data
 @ApiModel("Extended consumption information of different MQs")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType",
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        visible = true,
+        property = "mqType",
         defaultImpl = ConsumptionMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "PULSAR"),
-        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "TDMQ_PULSAR")
+    @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "PULSAR"),
+    @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "TDMQ_PULSAR")
 })
 public class ConsumptionMqExtBase {
 

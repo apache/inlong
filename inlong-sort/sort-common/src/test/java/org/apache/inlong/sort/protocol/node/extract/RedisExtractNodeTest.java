@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -25,23 +27,37 @@ import org.apache.inlong.sort.protocol.LookupOptions;
 import org.apache.inlong.sort.protocol.enums.RedisCommand;
 import org.apache.inlong.sort.protocol.enums.RedisMode;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Test for {@link RedisExtractNode}
- */
+/** Test for {@link RedisExtractNode} */
 public class RedisExtractNodeTest extends SerializeBaseTest<RedisExtractNode> {
 
     @Override
     public RedisExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
-        return new RedisExtractNode("1", "redis_input", fields, null, null,
-                null, RedisMode.STANDALONE, RedisCommand.HGET, null, null,
-                null, null, null, null, null, null,
-                null, null, null, null, null,
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
+        return new RedisExtractNode(
+                "1",
+                "redis_input",
+                fields,
+                null,
+                null,
+                null,
+                RedisMode.STANDALONE,
+                RedisCommand.HGET,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 new LookupOptions(1L, 10000L, 1, false));
     }
 }

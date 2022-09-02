@@ -22,6 +22,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
@@ -68,18 +76,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-/**
- * Inlong group service layer implementation
- */
+/** Inlong group service layer implementation */
 @Service
 @Validated
 public class InlongGroupServiceImpl implements InlongGroupService {
@@ -87,27 +84,23 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
     private static final Integer MAX_PAGE_SIZE = 100;
 
-    @Autowired
-    private InlongGroupOperatorFactory groupOperatorFactory;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private InlongGroupExtEntityMapper groupExtMapper;
-    @Autowired
-    private StreamSourceEntityMapper streamSourceMapper;
-    @Autowired
-    private SourceOperatorFactory sourceOperatorFactory;
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongGroupOperatorFactory groupOperatorFactory;
+    @Autowired private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongGroupExtEntityMapper groupExtMapper;
+    @Autowired private StreamSourceEntityMapper streamSourceMapper;
+    @Autowired private SourceOperatorFactory sourceOperatorFactory;
+    @Autowired private InlongStreamService streamService;
 
     /**
-     * Check whether modification is supported under the current group status, and which fields can be modified.
+     * Check whether modification is supported under the current group status, and which fields can
+     * be modified.
      *
      * @param entity original inlong group entity
      * @param request request of updated
      * @param operator current operator
      */
-    private static void checkGroupCanUpdate(InlongGroupEntity entity, InlongGroupRequest request, String operator) {
+    private static void checkGroupCanUpdate(
+            InlongGroupEntity entity, InlongGroupRequest request, String operator) {
         if (entity == null || request == null) {
             return;
         }
@@ -128,8 +121,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // mq type cannot be changed
-        if (!entity.getMqType().equals(request.getMqType()) && GroupStatus.notAllowedUpdateMQ(curStatus)) {
-            String errMsg = String.format("Current status=%s is not allowed to update MQ type", curStatus);
+        if (!entity.getMqType().equals(request.getMqType())
+                && GroupStatus.notAllowedUpdateMQ(curStatus)) {
+            String errMsg =
+                    String.format("Current status=%s is not allowed to update MQ type", curStatus);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
         }
@@ -172,7 +167,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // get all ext info
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
-        List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
+        List<InlongGroupExtInfo> extList =
+                CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
         groupInfo.setExtList(extList);
         BaseSortConf sortConf = buildSortConfig(extList);
         groupInfo.setSortConf(sortConf);
@@ -184,43 +180,64 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
-            LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
+            LOGGER.warn(
+                    "list group info, but page size is {}, change to {}",
+                    request.getPageSize(),
+                    MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
         }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
+        Page<InlongGroupEntity> entityPage =
+                (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
-        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupBriefInfo::new);
+        List<InlongGroupBriefInfo> briefInfos =
+                CommonBeanUtils.copyListProperties(entityPage, InlongGroupBriefInfo::new);
 
         // list all related sources
         if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
-            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
-                    .collect(Collectors.toSet());
-            List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
+            Set<String> groupIds =
+                    briefInfos.stream()
+                            .map(InlongGroupBriefInfo::getInlongGroupId)
+                            .collect(Collectors.toSet());
+            List<StreamSourceEntity> sourceEntities =
+                    streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
             Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
-            sourceEntities.forEach(sourceEntity -> {
-                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceEntity.getSourceType());
-                StreamSource source = operation.getFromEntity(sourceEntity);
-                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
-            });
-            briefInfos.forEach(group -> {
-                List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
-                group.setStreamSources(sources);
-            });
+            sourceEntities.forEach(
+                    sourceEntity -> {
+                        StreamSourceOperator operation =
+                                sourceOperatorFactory.getInstance(sourceEntity.getSourceType());
+                        StreamSource source = operation.getFromEntity(sourceEntity);
+                        sourceMap
+                                .computeIfAbsent(
+                                        sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
+                                .add(source);
+                    });
+            briefInfos.forEach(
+                    group -> {
+                        List<StreamSource> sources =
+                                sourceMap.getOrDefault(
+                                        group.getInlongGroupId(), Lists.newArrayList());
+                        group.setStreamSources(sources);
+                    });
         }
 
-        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        PageResult<InlongGroupBriefInfo> pageResult =
+                new PageResult<>(
+                        briefInfos,
+                        entityPage.getTotal(),
+                        entityPage.getPageNum(),
+                        entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong group for {}", request);
         return pageResult;
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+    @Transactional(
+            rollbackFor = Throwable.class,
+            isolation = Isolation.REPEATABLE_READ,
             propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to update inlong group={} by user={}", request, operator);
@@ -232,8 +249,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
-                    groupId, request.getVersion());
+            LOGGER.error(
+                    "inlong group has already updated with groupId={}, curVersion={}",
+                    groupId,
+                    request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // check whether the current status can be modified
@@ -250,10 +269,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+    @Transactional(
+            rollbackFor = Throwable.class,
+            isolation = Isolation.REPEATABLE_READ,
             propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, Integer status, String operator) {
-        LOGGER.info("begin to update group status to [{}] for groupId={} by user={}", status, groupId, operator);
+        LOGGER.info(
+                "begin to update group status to [{}] for groupId={} by user={}",
+                status,
+                groupId,
+                operator);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
@@ -264,14 +289,20 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         GroupStatus nextState = GroupStatus.forCode(status);
         if (GroupStatus.notAllowedTransition(curState, nextState)) {
-            String errorMsg = String.format("Current status=%s is not allowed to transfer to state=%s",
-                    curState, nextState);
+            String errorMsg =
+                    String.format(
+                            "Current status=%s is not allowed to transfer to state=%s",
+                            curState, nextState);
             LOGGER.error(errorMsg);
             throw new BusinessException(errorMsg);
         }
 
         groupMapper.updateStatus(groupId, status, operator);
-        LOGGER.info("success to update group status to [{}] for groupId={} by user={}", status, groupId, operator);
+        LOGGER.info(
+                "success to update group status to [{}] for groupId={} by user={}",
+                status,
+                groupId,
+                operator);
         return true;
     }
 
@@ -296,11 +327,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         /*
-         If the status allowed logic delete, all associated data can be logically deleted.
-         In other status, you need to delete the related "inlong stream" first.
-         When deleting a related inlong stream, you also need to check whether
-         there are some related "stream source" and "stream sink"
-         */
+        If the status allowed logic delete, all associated data can be logically deleted.
+        In other status, you need to delete the related "inlong stream" first.
+        When deleting a related inlong stream, you also need to check whether
+        there are some related "stream source" and "stream sink"
+        */
         if (GroupStatus.allowedLogicDelete(curState)) {
             streamService.logicDeleteAll(entity.getInlongGroupId(), operator);
         } else {
@@ -317,15 +348,20 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setModifier(operator);
         int rowCount = groupMapper.updateByIdentifierSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
-                    entity.getInlongGroupId(), entity.getVersion());
+            LOGGER.error(
+                    "inlong group has already updated with group id={}, curVersion={}",
+                    entity.getInlongGroupId(),
+                    entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
 
-        LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);
+        LOGGER.info(
+                "success to delete group and group ext property for groupId={} by user={}",
+                groupId,
+                operator);
         return true;
     }
 
@@ -384,7 +420,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
         }
         if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
+            throw new WorkflowListenerException(
+                    "inlong group status is [wait_approval], not allowed to approve again");
         }
 
         // bind cluster tag and update status to [GROUP_APPROVE_PASSED]
@@ -395,8 +432,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             entity.setModifier(operator);
             int rowCount = groupMapper.updateByIdentifierSelective(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
-                        groupId, entity.getVersion());
+                LOGGER.error(
+                        "inlong group has already updated with group id={}, curVersion={}",
+                        groupId,
+                        entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }
         } else {
@@ -409,12 +448,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> exts) {
-        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, exts);
+        LOGGER.info(
+                "begin to save or update inlong group ext info, groupId={}, ext={}", groupId, exts);
         if (CollectionUtils.isEmpty(exts)) {
             return;
         }
 
-        List<InlongGroupExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
+        List<InlongGroupExtEntity> entityList =
+                CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
         for (InlongGroupExtEntity entity : entityList) {
             entity.setInlongGroupId(groupId);
         }
@@ -446,21 +487,21 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         sortConf.setServiceUrl(extMap.get(InlongConstants.SORT_URL));
         String properties = extMap.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isNotBlank(properties)) {
-            sortConf.setProperties(JsonUtils.parseObject(properties,
-                    new TypeReference<Map<String, String>>() {
-                    }));
+            sortConf.setProperties(
+                    JsonUtils.parseObject(properties, new TypeReference<Map<String, String>>() {}));
         } else {
             sortConf.setProperties(Maps.newHashMap());
         }
         String authenticationType = extMap.get(InlongConstants.SORT_AUTHENTICATION_TYPE);
         if (StringUtils.isNotBlank(authenticationType)) {
             AuthType authType = AuthType.forType(authenticationType);
-            Preconditions.checkTrue(authType == AuthType.SECRET_AND_TOKEN,
+            Preconditions.checkTrue(
+                    authType == AuthType.SECRET_AND_TOKEN,
                     "Only support SECRET_AND_TOKEN for flink sort auth");
             String authentication = extMap.get(InlongConstants.SORT_AUTHENTICATION);
-            Map<String, String> authProperties = JsonUtils.parseObject(authentication,
-                    new TypeReference<Map<String, String>>() {
-                    });
+            Map<String, String> authProperties =
+                    JsonUtils.parseObject(
+                            authentication, new TypeReference<Map<String, String>>() {});
             SecretTokenAuthentication secretTokenAuthentication = new SecretTokenAuthentication();
             secretTokenAuthentication.configure(authProperties);
             sortConf.setAuthentication(secretTokenAuthentication);
@@ -474,9 +515,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         sortConf.setSortName(sortName);
         String properties = extMap.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isNotBlank(properties)) {
-            sortConf.setProperties(JsonUtils.parseObject(properties,
-                    new TypeReference<Map<String, String>>() {
-                    }));
+            sortConf.setProperties(
+                    JsonUtils.parseObject(properties, new TypeReference<Map<String, String>>() {}));
         } else {
             sortConf.setProperties(Maps.newHashMap());
         }

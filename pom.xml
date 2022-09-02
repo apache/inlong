@@ -185,6 +185,10 @@
         <jackson.databind.version>2.13.2.2</jackson.databind.version>
         <fastjson.version>1.2.83</fastjson.version>
 
+        <google.java.format.version>1.7</google.java.format.version>
+        <spotless.version>2.22.8</spotless.version>
+
+
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
         <thrift.version>0.9.3</thrift.version>
@@ -1646,6 +1650,29 @@
                 <configuration>
                     <!-- here add configures -->
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat>
+                            <version>${google.java.format.version}</version>
+                            <style>AOSP</style>
+                        </googleJavaFormat>
+                    </java>
+                    <lineEndings>UNIX</lineEndings>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.rat</groupId>

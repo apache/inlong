@@ -17,16 +17,10 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Audit query source
- */
+/** Audit query source */
 public enum AuditQuerySource {
-    /**
-     * MYSQL source of query
-     */
+    /** MYSQL source of query */
     MYSQL,
-    /**
-     * ELASTICSEARCH source of query
-     */
+    /** ELASTICSEARCH source of query */
     ELASTICSEARCH;
 }

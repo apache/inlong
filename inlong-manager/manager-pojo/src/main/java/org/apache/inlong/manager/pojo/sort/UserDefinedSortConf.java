@@ -20,15 +20,12 @@ package org.apache.inlong.manager.pojo.sort;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import java.util.Map;
-
-/**
- * Base configuration for user defined sort functions.
- */
+/** Base configuration for user defined sort functions. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for user defined sort functions")

@@ -17,14 +17,11 @@
 
 package org.apache.inlong.sort.redis.common.config;
 
-import org.apache.flink.annotation.Internal;
-
 import java.io.Serializable;
 import java.util.Objects;
+import org.apache.flink.annotation.Internal;
 
-/**
- * Options for the Redis lookup.
- */
+/** Options for the Redis lookup. */
 @Internal
 public class RedisLookupOptions implements Serializable {
 
@@ -34,9 +31,7 @@ public class RedisLookupOptions implements Serializable {
     private final long cacheMaxSize;
     private final long cacheExpireMs;
     private final int maxRetryTimes;
-    /**
-     * Asynchronous processing has not been implemented yet, but the entry is reserved
-     */
+    /** Asynchronous processing has not been implemented yet, but the entry is reserved */
     private final boolean lookupAsync;
 
     public RedisLookupOptions(
@@ -80,9 +75,7 @@ public class RedisLookupOptions implements Serializable {
         }
     }
 
-    /**
-     * Builder of {@link RedisLookupOptions}.
-     */
+    /** Builder of {@link RedisLookupOptions}. */
     public static class Builder {
 
         private long cacheMaxSize = -1L;
@@ -90,33 +83,25 @@ public class RedisLookupOptions implements Serializable {
         private int maxRetryTimes = DEFAULT_MAX_RETRY_TIMES;
         private boolean lookupAsync = false;
 
-        /**
-         * optional, lookup cache max size, over this value, the old data will be eliminated.
-         */
+        /** optional, lookup cache max size, over this value, the old data will be eliminated. */
         public Builder setCacheMaxSize(long cacheMaxSize) {
             this.cacheMaxSize = cacheMaxSize;
             return this;
         }
 
-        /**
-         * optional, lookup cache expire mills, over this time, the old data will expire.
-         */
+        /** optional, lookup cache expire mills, over this time, the old data will expire. */
         public Builder setCacheExpireMs(long cacheExpireMs) {
             this.cacheExpireMs = cacheExpireMs;
             return this;
         }
 
-        /**
-         * optional, max retry times for Hbase connector.
-         */
+        /** optional, max retry times for Hbase connector. */
         public Builder setMaxRetryTimes(int maxRetryTimes) {
             this.maxRetryTimes = maxRetryTimes;
             return this;
         }
 
-        /**
-         * optional, whether to set async lookup.
-         */
+        /** optional, whether to set async lookup. */
         public Builder setLookupAsync(boolean lookupAsync) {
             this.lookupAsync = lookupAsync;
             return this;

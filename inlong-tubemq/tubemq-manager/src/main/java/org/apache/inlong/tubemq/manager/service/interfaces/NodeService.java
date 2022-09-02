@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
@@ -47,7 +46,6 @@ public interface NodeService {
      *
      * @param req
      * @return
-     *
      * @throws Exception exception
      */
     TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception;
@@ -60,8 +58,8 @@ public interface NodeService {
      * @param addTopicReqs
      * @return
      */
-    TubeMQResult addTopicsToBrokers(MasterEntry masterEntry, List<Integer> brokerIds,
-                                    List<AddTopicReq> addTopicReqs);
+    TubeMQResult addTopicsToBrokers(
+            MasterEntry masterEntry, List<Integer> brokerIds, List<AddTopicReq> addTopicReqs);
 
     /**
      * add one topic to brokers
@@ -69,7 +67,6 @@ public interface NodeService {
      * @param req
      * @param masterEntry
      * @return
-     *
      * @throws Exception exception
      */
     TubeMQResult addTopicToBrokers(AddTopicReq req, MasterEntry masterEntry) throws Exception;
@@ -83,13 +80,15 @@ public interface NodeService {
      * @param maxBrokers
      * @return
      */
-    boolean configBrokersForTopics(MasterEntry masterEntry,
-                                   Set<String> topics, List<Integer> brokerList, int maxBrokers);
+    boolean configBrokersForTopics(
+            MasterEntry masterEntry, Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
-    void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
+    void handleReloadBroker(
+            MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
 
     /**
      * update broker status
+     *
      * @param clusterId
      * @param pendingTopic
      */
@@ -102,7 +101,6 @@ public interface NodeService {
      *
      * @param req
      * @return
-     *
      * @throws Exception exception
      */
     TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception;

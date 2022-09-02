@@ -27,7 +27,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import lombok.Data;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -117,8 +116,13 @@ public class TopicEntry {
     @Size(max = 32)
     private String issueMethod;
 
-    public TopicEntry(String businessName, String schemaName,
-                      String username, String passwd, String topic, String encodingType) {
+    public TopicEntry(
+            String businessName,
+            String schemaName,
+            String username,
+            String passwd,
+            String topic,
+            String encodingType) {
         this.businessName = businessName;
         this.schemaName = schemaName;
         this.username = username;
@@ -127,7 +131,5 @@ public class TopicEntry {
         this.encodingType = encodingType;
     }
 
-    public TopicEntry() {
-
-    }
+    public TopicEntry() {}
 }

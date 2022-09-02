@@ -19,13 +19,10 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Process detail response
- */
+/** Process detail response */
 @Data
 @ApiModel("Process detail response")
 public class ProcessDetailResponse {
@@ -41,5 +38,4 @@ public class ProcessDetailResponse {
 
     @ApiModelProperty(value = "Workflow view")
     private ProcessInfo workflow;
-
 }

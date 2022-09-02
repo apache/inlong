@@ -17,15 +17,14 @@
 
 package org.apache.inlong.manager.service.resource.sink.greenplum;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumColumnInfo;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GreenplumSqlBuilder {
 
@@ -39,13 +38,15 @@ public class GreenplumSqlBuilder {
      * @return the check table SQL string
      */
     public static String getCheckTable(final String schemaName, final String tableName) {
-        final StringBuilder sqlBuilder = new StringBuilder()
-                .append("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = '")
-                .append(schemaName)
-                .append("' AND TABLE_TYPE = 'BASE TABLE' ")
-                .append(" AND TABLE_NAME = '")
-                .append(tableName)
-                .append("' ;");
+        final StringBuilder sqlBuilder =
+                new StringBuilder()
+                        .append(
+                                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = '")
+                        .append(schemaName)
+                        .append("' AND TABLE_TYPE = 'BASE TABLE' ")
+                        .append(" AND TABLE_NAME = '")
+                        .append(tableName)
+                        .append("' ;");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -89,15 +90,18 @@ public class GreenplumSqlBuilder {
      * @param columnName Greenplum column name
      * @return the check column SQL string
      */
-    public static String getCheckColumn(final String schemaName, final String tableName, final String columnName) {
-        final StringBuilder sqlBuilder = new StringBuilder()
-                .append("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_SCHEMA = '")
-                .append(schemaName)
-                .append("' AND TABLE_NAME = '")
-                .append(tableName)
-                .append("' AND COLUMN_NAME = '")
-                .append(columnName)
-                .append("' ;");
+    public static String getCheckColumn(
+            final String schemaName, final String tableName, final String columnName) {
+        final StringBuilder sqlBuilder =
+                new StringBuilder()
+                        .append(
+                                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_SCHEMA = '")
+                        .append(schemaName)
+                        .append("' AND TABLE_NAME = '")
+                        .append(tableName)
+                        .append("' AND COLUMN_NAME = '")
+                        .append(columnName)
+                        .append("' ;");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -110,16 +114,19 @@ public class GreenplumSqlBuilder {
      */
     public static List<String> buildCreateTableSql(final GreenplumTableInfo table) {
         final List<String> sqls = Lists.newArrayList();
-        final StringBuilder createSql = new StringBuilder()
-                .append("CREATE TABLE ").append(table.getSchemaName())
-                .append(".\"")
-                .append(table.getTableName())
-                .append("\"")
-                .append(buildCreateColumnsSql(table));
+        final StringBuilder createSql =
+                new StringBuilder()
+                        .append("CREATE TABLE ")
+                        .append(table.getSchemaName())
+                        .append(".\"")
+                        .append(table.getTableName())
+                        .append("\"")
+                        .append(buildCreateColumnsSql(table));
         sqls.add(createSql.toString());
 
         // column comments
-        sqls.addAll(getColumnsComment(table.getSchemaName(), table.getTableName(), table.getColumns()));
+        sqls.addAll(
+                getColumnsComment(table.getSchemaName(), table.getTableName(), table.getColumns()));
         // table comment
         if (StringUtils.isNotEmpty(table.getComment())) {
             sqls.add(getTableComment(table));
@@ -136,24 +143,26 @@ public class GreenplumSqlBuilder {
      * @param columnList Greenplum column list {@link List}
      * @return add column SQL string list
      */
-    public static List<String> buildAddColumnsSql(final String schemaName, final String tableName,
-            List<GreenplumColumnInfo> columnList) {
+    public static List<String> buildAddColumnsSql(
+            final String schemaName, final String tableName, List<GreenplumColumnInfo> columnList) {
         final List<String> resultList = Lists.newArrayList();
         final StringBuilder sqlBuilder = new StringBuilder();
 
-        columnList.forEach(columnInfo -> {
-            sqlBuilder.append("ALTER TABLE \"")
-                    .append(schemaName)
-                    .append("\".\"")
-                    .append(tableName)
-                    .append("\" ADD \"")
-                    .append(columnInfo.getName())
-                    .append("\" ")
-                    .append(columnInfo.getType())
-                    .append(" ");
-            resultList.add(sqlBuilder.toString());
-            sqlBuilder.delete(0, sqlBuilder.length());
-        });
+        columnList.forEach(
+                columnInfo -> {
+                    sqlBuilder
+                            .append("ALTER TABLE \"")
+                            .append(schemaName)
+                            .append("\".\"")
+                            .append(tableName)
+                            .append("\" ADD \"")
+                            .append(columnInfo.getName())
+                            .append("\" ")
+                            .append(columnInfo.getType())
+                            .append(" ");
+                    resultList.add(sqlBuilder.toString());
+                    sqlBuilder.delete(0, sqlBuilder.length());
+                });
         resultList.addAll(getColumnsComment(schemaName, tableName, columnList));
         LOGGER.info("add columns sql={}", resultList);
         return resultList;
@@ -167,13 +176,10 @@ public class GreenplumSqlBuilder {
      */
     private static String buildCreateColumnsSql(final GreenplumTableInfo table) {
         final List<String> columnList = getColumnsInfo(table.getColumns());
-        final StringBuilder sql = new StringBuilder()
-                .append(" (")
-                .append(StringUtils.join(columnList, ","));
+        final StringBuilder sql =
+                new StringBuilder().append(" (").append(StringUtils.join(columnList, ","));
         if (!StringUtils.isEmpty(table.getPrimaryKey())) {
-            sql.append(", PRIMARY KEY (")
-                    .append(table.getPrimaryKey())
-                    .append(")");
+            sql.append(", PRIMARY KEY (").append(table.getPrimaryKey()).append(")");
         }
         sql.append(") ");
         return sql.toString();
@@ -189,14 +195,16 @@ public class GreenplumSqlBuilder {
         final List<String> columnList = new ArrayList<>();
         final StringBuilder columnBuilder = new StringBuilder();
 
-        columns.forEach(columnInfo -> {
-            columnBuilder.append("\"")
-                    .append(columnInfo.getName())
-                    .append("\" ")
-                    .append(columnInfo.getType());
-            columnList.add(columnBuilder.toString());
-            columnBuilder.delete(0, columnBuilder.length());
-        });
+        columns.forEach(
+                columnInfo -> {
+                    columnBuilder
+                            .append("\"")
+                            .append(columnInfo.getName())
+                            .append("\" ")
+                            .append(columnInfo.getType());
+                    columnList.add(columnBuilder.toString());
+                    columnBuilder.delete(0, columnBuilder.length());
+                });
         return columnList;
     }
 
@@ -207,8 +215,8 @@ public class GreenplumSqlBuilder {
      * @param columns Greenplum colum list {@link GreenplumColumnInfo}
      * @return the SQL String list
      */
-    private static List<String> getColumnsComment(final String schemaName, final String tableName,
-            List<GreenplumColumnInfo> columns) {
+    private static List<String> getColumnsComment(
+            final String schemaName, final String tableName, List<GreenplumColumnInfo> columns) {
         final List<String> commentList = new ArrayList<>();
         for (GreenplumColumnInfo columnInfo : columns) {
             if (StringUtils.isNoneBlank(columnInfo.getComment())) {
@@ -254,22 +262,25 @@ public class GreenplumSqlBuilder {
      * @return desc table SQL string
      */
     public static String buildDescTableSql(final String schemaName, final String tableName) {
-        StringBuilder sql = new StringBuilder().append(
-                        "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
-                .append(" LEFT JOIN   (SELECT PC.OID AS OOID,PN.NSPNAME,PC.RELNAME")
-                .append(" FROM PG_CLASS PC LEFT OUTER JOIN PG_NAMESPACE PN ON PC.RELNAMESPACE = PN.OID ")
-                .append(" WHERE PN.NSPNAME ='")
-                .append(schemaName)
-                .append("' AND PC.RELNAME = '")
-                .append(tableName)
-                .append("') B   ON A.TABLE_SCHEMA = B.NSPNAME AND A.TABLE_NAME = B.RELNAME")
-                .append(" LEFT JOIN PG_CATALOG.PG_DESCRIPTION C ")
-                .append("ON B.OOID = C.OBJOID AND A.ORDINAL_POSITION = C.OBJSUBID")
-                .append(" WHERE A.TABLE_SCHEMA = '")
-                .append(schemaName)
-                .append("' AND A.TABLE_NAME = '")
-                .append(tableName)
-                .append("'  ORDER BY  C.OBJSUBID ;");
+        StringBuilder sql =
+                new StringBuilder()
+                        .append(
+                                "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
+                        .append(" LEFT JOIN   (SELECT PC.OID AS OOID,PN.NSPNAME,PC.RELNAME")
+                        .append(
+                                " FROM PG_CLASS PC LEFT OUTER JOIN PG_NAMESPACE PN ON PC.RELNAMESPACE = PN.OID ")
+                        .append(" WHERE PN.NSPNAME ='")
+                        .append(schemaName)
+                        .append("' AND PC.RELNAME = '")
+                        .append(tableName)
+                        .append("') B   ON A.TABLE_SCHEMA = B.NSPNAME AND A.TABLE_NAME = B.RELNAME")
+                        .append(" LEFT JOIN PG_CATALOG.PG_DESCRIPTION C ")
+                        .append("ON B.OOID = C.OBJOID AND A.ORDINAL_POSITION = C.OBJSUBID")
+                        .append(" WHERE A.TABLE_SCHEMA = '")
+                        .append(schemaName)
+                        .append("' AND A.TABLE_NAME = '")
+                        .append(tableName)
+                        .append("'  ORDER BY  C.OBJSUBID ;");
         LOGGER.info("desc table sql={}", sql);
         return sql.toString();
     }

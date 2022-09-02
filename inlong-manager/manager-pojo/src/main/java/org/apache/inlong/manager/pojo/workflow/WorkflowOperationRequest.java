@@ -23,24 +23,30 @@ import lombok.Data;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.BaseProcessForm;
 
-/**
- * Workflow operation request
- */
+/** Workflow operation request */
 @Data
 @ApiModel("Workflow operation request")
 public class WorkflowOperationRequest {
 
-    @ApiModelProperty(value = "Process name", notes = "Specify the process name when initiating the process")
+    @ApiModelProperty(
+            value = "Process name",
+            notes = "Specify the process name when initiating the process")
     public ProcessName name;
 
-    @ApiModelProperty(value = "Applicant name", notes = "Nominate applicants when initiating the process")
+    @ApiModelProperty(
+            value = "Applicant name",
+            notes = "Nominate applicants when initiating the process")
     public String applicant;
 
-    @ApiModelProperty(value = "Remarks information", notes = "Submit remarks when operating a flow sheet or task sheet")
+    @ApiModelProperty(
+            value = "Remarks information",
+            notes = "Submit remarks when operating a flow sheet or task sheet")
     public String remark;
 
-    @ApiModelProperty(value = "Form information", notes = "When initiating a process or approving task, "
-            + "submit the form information that needs to be submitted")
+    @ApiModelProperty(
+            value = "Form information",
+            notes =
+                    "When initiating a process or approving task, "
+                            + "submit the form information that needs to be submitted")
     public BaseProcessForm form;
-
 }

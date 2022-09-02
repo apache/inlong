@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Calendar;
@@ -36,8 +33,14 @@ public class GroupConsumeCtrlEntityTest {
         String createUser = "creater";
         Date createDate = new Date();
         BdbGroupFilterCondEntity bdbEntity1 =
-                new BdbGroupFilterCondEntity(topicName, groupName, controlStatus,
-                        filterCondStr, attributes, createUser, createDate);
+                new BdbGroupFilterCondEntity(
+                        topicName,
+                        groupName,
+                        controlStatus,
+                        filterCondStr,
+                        attributes,
+                        createUser,
+                        createDate);
 
         GroupConsumeCtrlEntity ctrlEntry1 = new GroupConsumeCtrlEntity(bdbEntity1);
         Assert.assertEquals(ctrlEntry1.getGroupName(), bdbEntity1.getConsumerGroupName());
@@ -62,13 +65,17 @@ public class GroupConsumeCtrlEntityTest {
         c.setTime(newDate);
         c.add(Calendar.DAY_OF_MONTH, 1);
         newDate = c.getTime();
-        BaseEntity opInfoEntity =
-                new BaseEntity(newDataVerId, "modify", newDate);
+        BaseEntity opInfoEntity = new BaseEntity(newDataVerId, "modify", newDate);
         GroupConsumeCtrlEntity ctrlEntry2 = ctrlEntry1.clone();
         Assert.assertTrue(ctrlEntry2.isMatched(ctrlEntry1));
         ctrlEntry2.updBaseModifyInfo(opInfoEntity);
-        Assert.assertTrue(ctrlEntry2.updModifyInfo(opInfoEntity.getDataVerId(),
-                consumeEnable, disableRsn, filterEnable, newFilterCondStr));
+        Assert.assertTrue(
+                ctrlEntry2.updModifyInfo(
+                        opInfoEntity.getDataVerId(),
+                        consumeEnable,
+                        disableRsn,
+                        filterEnable,
+                        newFilterCondStr));
         // case 3
         BdbGroupFilterCondEntity bdbEntity3 = ctrlEntry2.buildBdbGroupFilterCondEntity();
         Assert.assertEquals(ctrlEntry2.getGroupName(), bdbEntity3.getConsumerGroupName());
@@ -84,7 +91,5 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(ctrlEntry2.getAttributes(), bdbEntity3.getAttributes());
         Assert.assertEquals(ctrlEntry2.getDisableReason(), bdbEntity3.getDisableConsumeReason());
         Assert.assertEquals(ctrlEntry2.getRecordKey(), bdbEntity3.getRecordKey());
-
     }
-
 }

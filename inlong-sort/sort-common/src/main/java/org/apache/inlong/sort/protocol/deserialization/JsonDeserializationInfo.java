@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
-/**
- * Json deserialization info
- */
+/** Json deserialization info */
 public class JsonDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = -5344203248610337314L;
@@ -33,5 +31,4 @@ public class JsonDeserializationInfo implements DeserializationInfo {
 
         return o != null && getClass() == o.getClass();
     }
-
 }

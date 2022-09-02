@@ -19,35 +19,28 @@ package org.apache.inlong.manager.workflow.event.process;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.inlong.manager.workflow.event.EventListener;
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
+import org.apache.inlong.manager.workflow.event.EventListener;
 
-/**
- * Process event listener
- */
+/** Process event listener */
 public interface ProcessEventListener extends EventListener<ProcessEvent> {
 
-    /**
-     * Empty listener list
-     */
+    /** Empty listener list */
     List<ProcessEventListener> EMPTY_LIST = Lists.newArrayList();
 
-    /**
-     * Async process common thread pool
-     */
-    ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("inlong-workflow-%s").build(),
-            new CallerRunsPolicy());
-
+    /** Async process common thread pool */
+    ExecutorService EXECUTOR_SERVICE =
+            new ThreadPoolExecutor(
+                    20,
+                    40,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(),
+                    new ThreadFactoryBuilder().setNameFormat("inlong-workflow-%s").build(),
+                    new CallerRunsPolicy());
 }

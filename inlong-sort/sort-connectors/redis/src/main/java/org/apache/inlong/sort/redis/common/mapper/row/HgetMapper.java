@@ -19,9 +19,7 @@ package org.apache.inlong.sort.redis.common.mapper.row;
 
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
-/**
- * Hget mapper that used to get value from a specified key with hash field
- */
+/** Hget mapper that used to get value from a specified key with hash field */
 public class HgetMapper extends RowRedisMapper {
 
     public HgetMapper() {
@@ -31,5 +29,4 @@ public class HgetMapper extends RowRedisMapper {
     public HgetMapper(String additionalKey) {
         super(additionalKey, RedisCommand.HGET);
     }
-
 }

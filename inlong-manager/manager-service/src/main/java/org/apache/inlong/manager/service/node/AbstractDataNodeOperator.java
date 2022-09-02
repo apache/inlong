@@ -30,15 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Default operation of data node.
- */
+/** Default operation of data node. */
 public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDataNodeOperator.class);
 
-    @Autowired
-    protected DataNodeEntityMapper dataNodeEntityMapper;
+    @Autowired protected DataNodeEntityMapper dataNodeEntityMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -70,8 +67,11 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         entity.setModifier(operator);
         int rowCount = dataNodeEntityMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("data node has already updated with name={}, type={}, curVersion={}", request.getName(),
-                    request.getType(), request.getVersion());
+            LOGGER.error(
+                    "data node has already updated with name={}, type={}, curVersion={}",
+                    request.getName(),
+                    request.getType(),
+                    request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }

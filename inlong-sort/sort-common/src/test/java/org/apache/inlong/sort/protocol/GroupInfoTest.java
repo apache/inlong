@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -34,50 +38,75 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.Time
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for {@link GroupInfo}
- */
+/** Test for {@link GroupInfo} */
 public class GroupInfoTest extends SerializeBaseTest<GroupInfo> {
 
     private MySqlExtractNode buildMySqlExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        WatermarkField wk = new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
-                new StringConstantParam("1"),
-                new TimeUnitConstantParam(TimeUnit.MINUTE));
-        return new MySqlExtractNode("1", "mysql_input", fields,
-                wk, null, "id",
-                Collections.singletonList("table"), "localhost", "username", "username",
-                "test_database", 3306, 123, true, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        WatermarkField wk =
+                new WatermarkField(
+                        new FieldInfo("ts", new TimestampFormatInfo()),
+                        new StringConstantParam("1"),
+                        new TimeUnitConstantParam(TimeUnit.MINUTE));
+        return new MySqlExtractNode(
+                "1",
+                "mysql_input",
+                fields,
+                wk,
+                null,
+                "id",
+                Collections.singletonList("table"),
+                "localhost",
+                "username",
+                "username",
+                "test_database",
+                3306,
+                123,
+                true,
+                null);
     }
 
     private KafkaLoadNode buildKafkaNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
-                "topic", "localhost:9092", new JsonFormat(),
-                1, null, "id");
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new KafkaLoadNode(
+                "2",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic",
+                "localhost:9092",
+                new JsonFormat(),
+                1,
+                null,
+                "id");
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -90,8 +119,14 @@ public class GroupInfoTest extends SerializeBaseTest<GroupInfo> {
     public GroupInfo getTestObject() {
         Node input = buildMySqlExtractNode();
         Node output = buildKafkaNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
-                buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(input, output),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(input),
+                                        Collections.singletonList(output))));
         return new GroupInfo("1", Collections.singletonList(streamInfo));
     }
 }

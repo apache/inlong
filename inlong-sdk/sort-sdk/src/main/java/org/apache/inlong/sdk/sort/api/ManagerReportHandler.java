@@ -39,5 +39,4 @@ public interface ManagerReportHandler {
      * @return ConsumeStatusResult
      */
     ConsumeStatusResult updateConsumeStatus(ConsumeStatusParams consumeStatusParams);
-
 }

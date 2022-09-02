@@ -31,14 +31,11 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * The listener for initial the InlongStream information.
- */
+/** The listener for initial the InlongStream information. */
 @Service
 public class InitStreamListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -59,5 +56,4 @@ public class InitStreamListener implements ProcessEventListener {
         streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_ING.getCode(), operator);
         return ListenerResult.success();
     }
-
 }

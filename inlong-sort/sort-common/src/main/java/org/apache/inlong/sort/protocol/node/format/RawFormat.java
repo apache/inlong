@@ -29,8 +29,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 /**
  * The Raw format
  *
- * @see <a herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/raw/">
- *         Raw Format</a>
+ * @see <a
+ *     herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/raw/">
+ *     Raw Format</a>
  */
 @Data
 @JsonTypeName("rawFormat")
@@ -41,12 +42,15 @@ public class RawFormat implements Format {
 
     @JsonProperty(value = "rawCharset", defaultValue = "UTF-8")
     private String rawCharset;
+
     @JsonProperty(value = "rawEndianness", defaultValue = "big-endian")
     private String rawEndianness;
 
     @JsonCreator
-    public RawFormat(@JsonProperty(value = "rawCharset", defaultValue = "UTF-8") String rawCharset,
-            @JsonProperty(value = "rawEndianness", defaultValue = "big-endian") String rawEndianness) {
+    public RawFormat(
+            @JsonProperty(value = "rawCharset", defaultValue = "UTF-8") String rawCharset,
+            @JsonProperty(value = "rawEndianness", defaultValue = "big-endian")
+                    String rawEndianness) {
         this.rawCharset = rawCharset;
         this.rawEndianness = rawEndianness;
     }

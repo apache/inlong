@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,13 +31,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-/**
- * Inlong stream info
- */
+/** Inlong stream info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -57,8 +54,10 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
-    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}",
-            notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
+    @ApiModelProperty(
+            value = "MQ resource for inlong stream. Default: ${inlongStreamId}",
+            notes =
+                    "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
     private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
@@ -73,9 +72,11 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
-            notes = "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
+    @ApiModelProperty(
+            value = "Whether to send synchronously, 0: no, 1: yes",
+            notes =
+                    "Each task under this stream sends data synchronously, "
+                            + "which will affect the throughput of data collection, please choose carefully")
     @Builder.Default
     private Integer syncSend = 0;
 

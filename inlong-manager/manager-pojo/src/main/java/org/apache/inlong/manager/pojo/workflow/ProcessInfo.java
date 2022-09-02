@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Workflow brief info
- */
+/** Workflow brief info */
 @Data
 @ApiModel("Workflow brief info")
 public class ProcessInfo {
@@ -39,5 +37,4 @@ public class ProcessInfo {
 
     @ApiModelProperty(value = "Process start node")
     private ElementInfo startEvent;
-
 }

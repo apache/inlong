@@ -20,9 +20,7 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import javax.annotation.Nonnull;
 
-/**
- * The base for all inlongmsg mixed format deserializers.
- */
+/** The base for all inlongmsg mixed format deserializers. */
 public abstract class AbstractInLongMsgMixedFormatDeserializer
         extends AbstractInLongMsgFormatDeserializer {
 

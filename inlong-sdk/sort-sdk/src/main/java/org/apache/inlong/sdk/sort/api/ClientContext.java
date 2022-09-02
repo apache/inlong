@@ -55,12 +55,11 @@ public abstract class ClientContext implements Cleanable {
     }
 
     public SortClientStateCounter getStateCounterByTopic(InLongTopic topic) {
-        return statManager.getStatistics(config.getSortTaskId(),
-                topic.getInLongCluster().getClusterId(), topic.getTopic());
+        return statManager.getStatistics(
+                config.getSortTaskId(), topic.getInLongCluster().getClusterId(), topic.getTopic());
     }
 
     public SortClientStateCounter getDefaultStateCounter() {
         return statManager.getStatistics(config.getSortTaskId());
     }
-
 }

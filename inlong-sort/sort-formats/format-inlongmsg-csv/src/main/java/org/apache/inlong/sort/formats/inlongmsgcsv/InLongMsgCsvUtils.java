@@ -34,9 +34,7 @@ import org.apache.inlong.sort.formats.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Utilities for {@link InLongMsgCsv}.
- */
+/** Utilities for {@link InLongMsgCsv}. */
 public class InLongMsgCsvUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(InLongMsgUtils.class);
@@ -50,8 +48,7 @@ public class InLongMsgCsvUtils {
             char delimiter,
             Character escapeChar,
             Character quoteChar,
-            boolean deleteHeadDelimiter
-    ) {
+            boolean deleteHeadDelimiter) {
 
         String bodyText;
         if (bytes[0] == delimiter && deleteHeadDelimiter) {
@@ -62,12 +59,7 @@ public class InLongMsgCsvUtils {
 
         String[] fieldTexts = StringUtils.splitCsv(bodyText, delimiter, escapeChar, quoteChar);
 
-        return new InLongMsgBody(
-                bytes,
-                null,
-                Arrays.asList(fieldTexts),
-                Collections.emptyMap()
-        );
+        return new InLongMsgBody(bytes, null, Arrays.asList(fieldTexts), Collections.emptyMap());
     }
 
     public static Row buildRow(
@@ -76,15 +68,18 @@ public class InLongMsgCsvUtils {
             Timestamp time,
             Map<String, String> attributes,
             List<String> predefinedFields,
-            List<String> fields
-    ) {
+            List<String> fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
         int actualNumFields = predefinedFields.size() + fields.size();
         if (actualNumFields != fieldNames.length) {
-            LOG.warn("The number of fields mismatches: " + fieldNames.length
-                     + " expected, but was " + actualNumFields + ".");
+            LOG.warn(
+                    "The number of fields mismatches: "
+                            + fieldNames.length
+                            + " expected, but was "
+                            + actualNumFields
+                            + ".");
         }
 
         Row row = new Row(2 + fieldNames.length);
@@ -104,11 +99,7 @@ public class InLongMsgCsvUtils {
 
             Object field =
                     TableFormatUtils.deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral
-                    );
+                            fieldName, fieldFormatInfo, fieldText, nullLiteral);
             row.setField(i + 2, field);
         }
 
@@ -125,11 +116,7 @@ public class InLongMsgCsvUtils {
 
             Object field =
                     TableFormatUtils.deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral
-                    );
+                            fieldName, fieldFormatInfo, fieldText, nullLiteral);
             row.setField(i + predefinedFields.size() + 2, field);
         }
 

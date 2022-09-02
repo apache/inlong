@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.client.api;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 
-import java.util.List;
-
-/**
- * Inlong stream builder.
- */
+/** Inlong stream builder. */
 public abstract class InlongStreamBuilder {
 
     /**
@@ -71,6 +68,3 @@ public abstract class InlongStreamBuilder {
      */
     public abstract InlongStream initOrUpdate();
 }
-
-
-

@@ -19,15 +19,12 @@ package org.apache.inlong.manager.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import javax.validation.constraints.NotBlank;
-
-/**
- * Paging query request for Sink
- */
+/** Paging query request for Sink */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Paging query request for Sink")
@@ -60,5 +57,4 @@ public class SinkPageRequest extends PageRequest {
 
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
-
 }

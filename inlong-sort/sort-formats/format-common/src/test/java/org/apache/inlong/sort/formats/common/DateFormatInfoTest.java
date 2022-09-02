@@ -26,9 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link DateFormatInfo}.
- */
+/** Unit tests for {@link DateFormatInfo}. */
 public class DateFormatInfoTest extends FormatInfoTestBase {
 
     @Override

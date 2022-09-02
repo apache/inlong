@@ -23,20 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.inlong.manager.common.enums.OperationType;
 
-/**
- * The interface of operation log
- */
+/** The interface of operation log */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OperationLog {
 
-    /**
-     * Operation type
-     */
+    /** Operation type */
     OperationType operation();
 
-    /**
-     * Whether to store in the database
-     */
+    /** Whether to store in the database */
     boolean db() default true;
 }

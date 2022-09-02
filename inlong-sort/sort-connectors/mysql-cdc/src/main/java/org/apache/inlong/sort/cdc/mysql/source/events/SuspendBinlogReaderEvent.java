@@ -30,7 +30,5 @@ public class SuspendBinlogReaderEvent implements SourceEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public SuspendBinlogReaderEvent() {
-
-    }
+    public SuspendBinlogReaderEvent() {}
 }

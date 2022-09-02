@@ -52,6 +52,7 @@ public class MonitorIndex {
 
     /**
      * addAndGet
+     *
      * @param key
      * @param cnt
      * @param packcnt
@@ -61,20 +62,34 @@ public class MonitorIndex {
     public void addAndGet(String key, int cnt, int packcnt, long packsize, int failcnt) {
         try {
             if (counterMap.size() < maxCnt) {
-                counterMap.compute(key, (key1, value) -> {
-                    if (value != null) {
-                        String[] va = value.split("#");
-                        value = (Integer.parseInt(va[0]) + cnt) + "#"
-                                + (Integer.parseInt(va[1]) + packcnt) + "#"
-                                + (Long.parseLong(va[2]) + packsize) + "#"
-                                + (Integer.parseInt(va[3]) + failcnt);
-                    } else {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        value = stringBuilder.append(cnt).append("#").append(packcnt).append("#")
-                                .append(packsize).append("#").append(failcnt).toString();
-                    }
-                    return value;
-                });
+                counterMap.compute(
+                        key,
+                        (key1, value) -> {
+                            if (value != null) {
+                                String[] va = value.split("#");
+                                value =
+                                        (Integer.parseInt(va[0]) + cnt)
+                                                + "#"
+                                                + (Integer.parseInt(va[1]) + packcnt)
+                                                + "#"
+                                                + (Long.parseLong(va[2]) + packsize)
+                                                + "#"
+                                                + (Integer.parseInt(va[3]) + failcnt);
+                            } else {
+                                StringBuilder stringBuilder = new StringBuilder();
+                                value =
+                                        stringBuilder
+                                                .append(cnt)
+                                                .append("#")
+                                                .append(packcnt)
+                                                .append("#")
+                                                .append(packsize)
+                                                .append("#")
+                                                .append(failcnt)
+                                                .toString();
+                            }
+                            return value;
+                        });
             } else if (logPrinter.shouldPrint()) {
                 logger.error(this.name + "exceed monitor's max size");
             }
@@ -97,8 +112,7 @@ public class MonitorIndex {
         this.maxCnt = maxCnt;
     }
 
-    private class IndexCollectThread
-            extends Thread {
+    private class IndexCollectThread extends Thread {
 
         private boolean bShutDown = false;
 
@@ -117,22 +131,23 @@ public class MonitorIndex {
                 try {
                     Thread.sleep(intervalSec * 1000L);
                     for (String str : counterMap.keySet()) {
-                        counterMap.computeIfPresent(str, (s, s2) -> {
-                            counterExt.put(s, s2);
-                            return null;
-                        });
+                        counterMap.computeIfPresent(
+                                str,
+                                (s, s2) -> {
+                                    counterExt.put(s, s2);
+                                    return null;
+                                });
                     }
                     for (Map.Entry<String, String> entrys : counterExt.entrySet()) {
-                        logger.info("{}#{}#{}",
-                                new Object[]{name, entrys.getKey(), entrys.getValue()});
+                        logger.info(
+                                "{}#{}#{}",
+                                new Object[] {name, entrys.getKey(), entrys.getValue()});
                     }
                     counterExt.clear();
                 } catch (Exception e) {
                     logger.warn("monitor interrupted");
                 }
             }
-
         }
     }
 }
-

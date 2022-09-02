@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * SQLServer source info
- */
+/** SQLServer source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -80,5 +78,4 @@ public class SQLServerSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, SQLServerSourceRequest::new);
     }
-
 }

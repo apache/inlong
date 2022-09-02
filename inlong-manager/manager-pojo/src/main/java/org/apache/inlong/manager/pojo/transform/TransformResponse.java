@@ -19,15 +19,12 @@ package org.apache.inlong.manager.pojo.transform;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Response of transform
- */
+/** Response of transform */
 @Data
 @ApiModel("Response of the stream transform")
 public class TransformResponse {

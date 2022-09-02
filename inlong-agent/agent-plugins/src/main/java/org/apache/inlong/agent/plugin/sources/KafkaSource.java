@@ -17,25 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.google.gson.Gson;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
@@ -47,9 +28,25 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 
-/**
- * kafka source, split kafka source job into multi readers
- */
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** kafka source, split kafka source job into multi readers */
 public class KafkaSource extends AbstractSource {
 
     public static final String JOB_KAFKA_AUTO_RESETE = "auto.offset.reset";
@@ -65,8 +62,7 @@ public class KafkaSource extends AbstractSource {
     private static final Gson gson = new Gson();
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
-    public KafkaSource() {
-    }
+    public KafkaSource() {}
 
     @Override
     public List<Reader> split(JobProfile conf) {
@@ -76,7 +72,8 @@ public class KafkaSource extends AbstractSource {
 
         Properties props = new Properties();
         Map<String, String> map = gson.fromJson(conf.toJsonStr(), Map.class);
-        props.put(JOB_KAFKA_BOOTSTRAP_SERVERS.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+        props.put(
+                JOB_KAFKA_BOOTSTRAP_SERVERS.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
                 map.get(JOB_KAFKA_BOOTSTRAP_SERVERS));
 
         props.put(KAFKA_KEY_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
@@ -100,27 +97,39 @@ public class KafkaSource extends AbstractSource {
         // spilt reader reduce to partition
         if (null != partitionInfoList) {
             for (PartitionInfo partitionInfo : partitionInfoList) {
-                props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
-                        map.getOrDefault(JOB_KAFKA_GROUP_ID,
-                                map.get(JOB_ID) + JOB_OFFSET_DELIMITER
-                                        + "group" + partitionInfo.partition()));
+                props.put(
+                        JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                        map.getOrDefault(
+                                JOB_KAFKA_GROUP_ID,
+                                map.get(JOB_ID)
+                                        + JOB_OFFSET_DELIMITER
+                                        + "group"
+                                        + partitionInfo.partition()));
                 KafkaConsumer<String, byte[]> partitonConsumer = new KafkaConsumer<>(props);
-                partitonConsumer.assign(Collections.singletonList(
-                        new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
+                partitonConsumer.assign(
+                        Collections.singletonList(
+                                new TopicPartition(
+                                        partitionInfo.topic(), partitionInfo.partition())));
                 // if get offset,consume from offset; if not,consume from 0
                 if (partitionOffsets != null && partitionOffsets.length > 0) {
                     for (String partitionOffset : partitionOffsets) {
                         if (partitionOffset.contains(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)
                                 && partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[0]
-                                .equals(String.valueOf(partitionInfo.partition()))) {
-                            offset = Long.valueOf(partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[1]);
+                                        .equals(String.valueOf(partitionInfo.partition()))) {
+                            offset =
+                                    Long.valueOf(
+                                            partitionOffset
+                                                    .split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[
+                                                    1]);
                         }
                     }
                 }
                 LOGGER.info("kafka topic partition offset:{}", offset);
                 if (offset != null) {
                     // if offset not null,then consume from the offset
-                    partitonConsumer.seek(new TopicPartition(partitionInfo.topic(), partitionInfo.partition()), offset);
+                    partitonConsumer.seek(
+                            new TopicPartition(partitionInfo.topic(), partitionInfo.partition()),
+                            offset);
                 }
                 KafkaReader<String, byte[]> kafkaReader = new KafkaReader<>(partitonConsumer, map);
                 addValidator(filterPattern, kafkaReader);

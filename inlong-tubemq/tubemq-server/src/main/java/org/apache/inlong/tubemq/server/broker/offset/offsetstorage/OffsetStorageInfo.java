@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
 import java.io.Serializable;
@@ -36,29 +33,34 @@ public class OffsetStorageInfo implements Serializable {
     /**
      * Initial offset storage information
      *
-     * @param topic          the topic name
-     * @param brokerId       the broker id
-     * @param partitionId    the partition id
-     * @param offset         the offset
-     * @param messageId      the message id
+     * @param topic the topic name
+     * @param brokerId the broker id
+     * @param partitionId the partition id
+     * @param offset the offset
+     * @param messageId the message id
      */
-    public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId) {
+    public OffsetStorageInfo(
+            String topic, int brokerId, int partitionId, long offset, long messageId) {
         this(topic, brokerId, partitionId, offset, messageId, true);
     }
 
     /**
      * Initial offset storage information
      *
-     * @param topic          the topic name
-     * @param brokerId       the broker id
-     * @param partitionId    the partition id
-     * @param offset         the offset
-     * @param messageId      the message id
-     * @param firstCreate    whether is the first record creation
+     * @param topic the topic name
+     * @param brokerId the broker id
+     * @param partitionId the partition id
+     * @param offset the offset
+     * @param messageId the message id
+     * @param firstCreate whether is the first record creation
      */
-    public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId, boolean firstCreate) {
+    public OffsetStorageInfo(
+            String topic,
+            int brokerId,
+            int partitionId,
+            long offset,
+            long messageId,
+            boolean firstCreate) {
         this.topic = topic;
         this.brokerId = brokerId;
         this.partitionId = partitionId;
@@ -146,7 +148,6 @@ public class OffsetStorageInfo implements Serializable {
             return false;
         }
         return (offset.get() == that.offset.get());
-
     }
 
     @Override
@@ -163,13 +164,22 @@ public class OffsetStorageInfo implements Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder(512).append("OffsetStorageInfo [OffsetStoreKey=")
-                .append(topic).append(TokenConstants.HYPHEN).append(brokerId)
-                .append(TokenConstants.HYPHEN).append(partitionId)
-                .append(", offset=").append(offset.get())
-                .append(", messageId=").append(messageId)
-                .append(", modified=").append(modified)
-                .append(", firstCreate=").append(firstCreate)
-                .append("]").toString();
+        return new StringBuilder(512)
+                .append("OffsetStorageInfo [OffsetStoreKey=")
+                .append(topic)
+                .append(TokenConstants.HYPHEN)
+                .append(brokerId)
+                .append(TokenConstants.HYPHEN)
+                .append(partitionId)
+                .append(", offset=")
+                .append(offset.get())
+                .append(", messageId=")
+                .append(messageId)
+                .append(", modified=")
+                .append(modified)
+                .append(", firstCreate=")
+                .append(firstCreate)
+                .append("]")
+                .toString();
     }
 }

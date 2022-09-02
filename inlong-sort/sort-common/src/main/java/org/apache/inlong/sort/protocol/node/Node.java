@@ -17,11 +17,16 @@
 
 package org.apache.inlong.sort.protocol.node;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
@@ -32,7 +37,6 @@ import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
@@ -51,47 +55,37 @@ import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-/**
- * Base class for extract node \ load node \ transform node
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Base class for extract node \ load node \ transform node */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
-        @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
-        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
-        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
-        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
-        @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
-        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
-        @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
-        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
-        @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
-        @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
-        @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
-        @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
-        @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
-        @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
-        @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
-        @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad"),
-        @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
-        @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad"),
-        @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad"),
-        @JsonSubTypes.Type(value = TDSQLPostgresLoadNode.class, name = "tdsqlPostgresLoad"),
-        @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad"),
-        @JsonSubTypes.Type(value = IcebergLoadNode.class, name = "icebergLoad"),
-        @JsonSubTypes.Type(value = ElasticsearchLoadNode.class, name = "elasticsearchLoad"),
-        @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad"),
-        @JsonSubTypes.Type(value = GreenplumLoadNode.class, name = "greenplumLoad"),
-        @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad"),
-        @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad")
+    @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
+    @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
+    @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
+    @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
+    @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
+    @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
+    @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
+    @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
+    @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
+    @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
+    @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
+    @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
+    @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
+    @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
+    @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
+    @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
+    @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad"),
+    @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
+    @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad"),
+    @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad"),
+    @JsonSubTypes.Type(value = TDSQLPostgresLoadNode.class, name = "tdsqlPostgresLoad"),
+    @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad"),
+    @JsonSubTypes.Type(value = IcebergLoadNode.class, name = "icebergLoad"),
+    @JsonSubTypes.Type(value = ElasticsearchLoadNode.class, name = "elasticsearchLoad"),
+    @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad"),
+    @JsonSubTypes.Type(value = GreenplumLoadNode.class, name = "greenplumLoad"),
+    @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad"),
+    @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad")
 })
 public interface Node {
 
@@ -127,5 +121,4 @@ public interface Node {
     default List<FieldInfo> getPartitionFields() {
         return null;
     }
-
 }

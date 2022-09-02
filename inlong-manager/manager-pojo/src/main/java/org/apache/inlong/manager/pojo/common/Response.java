@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.pojo.common;
 
-/**
- * The response info of API
- */
+/** The response info of API */
 public class Response<T> {
 
     private boolean success;
     private String errMsg;
     private T data;
 
-    public Response() {
-    }
+    public Response() {}
 
     public Response(boolean success, String errMsg, T data) {
         this.success = success;

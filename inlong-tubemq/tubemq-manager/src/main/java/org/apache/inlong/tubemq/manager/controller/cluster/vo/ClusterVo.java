@@ -17,11 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster.vo;
 
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor

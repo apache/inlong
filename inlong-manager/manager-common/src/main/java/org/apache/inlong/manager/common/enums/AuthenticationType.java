@@ -17,11 +17,7 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * The type of authentication
- */
+/** The type of authentication */
 public enum AuthenticationType {
-
     MOCK
-
 }

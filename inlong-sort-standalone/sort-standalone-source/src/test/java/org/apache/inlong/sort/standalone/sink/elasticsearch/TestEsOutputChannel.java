@@ -1,26 +1,22 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.elasticsearch.action.ActionListener;
@@ -42,14 +38,16 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-/**
- * 
- * TestEsOutputChannel
- */
+/** TestEsOutputChannel */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
-@PrepareForTest({EsSinkFactory.class, RestHighLevelClient.class, ClusterClient.class, IndicesClient.class,
-        MetricRegister.class})
+@PrepareForTest({
+    EsSinkFactory.class,
+    RestHighLevelClient.class,
+    ClusterClient.class,
+    IndicesClient.class,
+    MetricRegister.class
+})
 public class TestEsOutputChannel {
 
     private RestHighLevelClient esClient;
@@ -73,7 +71,7 @@ public class TestEsOutputChannel {
 
     /**
      * before
-     * 
+     *
      * @throws Throwable
      */
     @SuppressWarnings("unchecked")
@@ -84,27 +82,36 @@ public class TestEsOutputChannel {
         PowerMockito.mockStatic(RestHighLevelClient.class);
         PowerMockito.when(EsSinkFactory.createRestHighLevelClient(any())).thenReturn(esClient);
         PowerMockito.doNothing().when(esClient).close();
-        PowerMockito.doNothing().when(esClient).bulkAsync(any(BulkRequest.class), any(RequestOptions.class),
-                any(ActionListener.class));
+        PowerMockito.doNothing()
+                .when(esClient)
+                .bulkAsync(
+                        any(BulkRequest.class),
+                        any(RequestOptions.class),
+                        any(ActionListener.class));
         PowerMockito.when(esClient.ping(any(RequestOptions.class))).thenReturn(false);
 
         // ClusterClient
         ClusterClient clusterClient = PowerMockito.mock(ClusterClient.class);
         PowerMockito.when(esClient, "cluster").thenReturn(clusterClient);
-        ClusterUpdateSettingsResponse clusterResponse = PowerMockito.mock(ClusterUpdateSettingsResponse.class);
-        PowerMockito.when(clusterClient.putSettings(any(ClusterUpdateSettingsRequest.class),
-                any(RequestOptions.class))).thenReturn(clusterResponse);
+        ClusterUpdateSettingsResponse clusterResponse =
+                PowerMockito.mock(ClusterUpdateSettingsResponse.class);
+        PowerMockito.when(
+                        clusterClient.putSettings(
+                                any(ClusterUpdateSettingsRequest.class), any(RequestOptions.class)))
+                .thenReturn(clusterResponse);
         // IndicesClient
         IndicesClient indicesClient = PowerMockito.mock(IndicesClient.class);
         PowerMockito.when(esClient, "indices").thenReturn(indicesClient);
         AcknowledgedResponse indicesResponse = PowerMockito.mock(AcknowledgedResponse.class);
-        PowerMockito.when(indicesClient.putSettings(any(UpdateSettingsRequest.class),
-                any(RequestOptions.class))).thenReturn(indicesResponse);
+        PowerMockito.when(
+                        indicesClient.putSettings(
+                                any(UpdateSettingsRequest.class), any(RequestOptions.class)))
+                .thenReturn(indicesResponse);
     }
 
     /**
      * test
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -119,5 +126,4 @@ public class TestEsOutputChannel {
         output.send();
         output.close();
     }
-
 }

@@ -49,16 +49,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Inlong cluster controller
- */
+/** Inlong cluster controller */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Inlong-Cluster-API")
 public class InlongClusterController {
 
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private InlongClusterService clusterService;
 
     @PostMapping(value = "/cluster/tag/save")
     @ApiOperation(value = "Save cluster tag")
@@ -71,7 +68,11 @@ public class InlongClusterController {
 
     @GetMapping(value = "/cluster/tag/get/{id}")
     @ApiOperation(value = "Get cluster tag by id")
-    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getTag(id, currentUser));
@@ -79,7 +80,8 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/tag/list")
     @ApiOperation(value = "List cluster tags")
-    public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
+    public Response<PageResult<ClusterTagResponse>> listTag(
+            @RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         return Response.success(clusterService.listTag(request));
     }
@@ -87,7 +89,8 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/tag/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster tag")
-    public Response<Boolean> updateTag(@Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
+    public Response<Boolean> updateTag(
+            @Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.updateTag(request, username));
     }
@@ -95,10 +98,15 @@ public class InlongClusterController {
     @DeleteMapping(value = "/cluster/tag/delete/{id}")
     @ApiOperation(value = "Delete cluster tag by id")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Cluster tag ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster tag ID",
+            dataTypeClass = Integer.class,
+            required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> deleteTag(@PathVariable Integer id) {
-        return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                clusterService.deleteTag(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/save")
@@ -112,7 +120,11 @@ public class InlongClusterController {
 
     @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
-    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.get(id, currentUser));
@@ -127,7 +139,8 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ClusterRequest request) {
+    public Response<Boolean> update(
+            @Validated(UpdateValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.update(request, username));
     }
@@ -143,7 +156,11 @@ public class InlongClusterController {
     @DeleteMapping(value = "/cluster/delete/{id}")
     @ApiOperation(value = "Delete cluster by id")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster ID",
+            dataTypeClass = Integer.class,
+            required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
@@ -159,7 +176,11 @@ public class InlongClusterController {
 
     @GetMapping(value = "/cluster/node/get/{id}")
     @ApiOperation(value = "Get cluster node by id")
-    @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster node ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.getNode(id, currentUser));
@@ -167,7 +188,8 @@ public class InlongClusterController {
 
     @PostMapping(value = "/cluster/node/list")
     @ApiOperation(value = "List cluster nodes")
-    public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
+    public Response<PageResult<ClusterNodeResponse>> listNode(
+            @RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.listNode(request, currentUser));
     }
@@ -175,7 +197,8 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster node")
-    public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
+    public Response<Boolean> updateNode(
+            @Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.updateNode(request, username));
     }
@@ -183,9 +206,13 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster node ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
-        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
-
 }

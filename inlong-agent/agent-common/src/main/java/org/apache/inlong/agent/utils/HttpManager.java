@@ -17,8 +17,16 @@
 
 package org.apache.inlong.agent.utils;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.concurrent.TimeUnit;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,18 +40,7 @@ import org.apache.inlong.common.util.BasicAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
-
-/**
- * Perform http operation
- */
+/** Perform http operation */
 public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
@@ -59,8 +56,11 @@ public class HttpManager {
     private final String secretKey;
 
     public HttpManager(AgentConfiguration conf) {
-        httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
-                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
+        httpClient =
+                constructHttpClient(
+                        conf.getInt(
+                                AGENT_MANAGER_REQUEST_TIMEOUT,
+                                DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
         secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
         secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
     }
@@ -76,9 +76,11 @@ public class HttpManager {
             return httpClient;
         }
         long timeoutInMs = TimeUnit.SECONDS.toMillis(timeout);
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout((int) timeoutInMs)
-                .setSocketTimeout((int) timeoutInMs).build();
+        RequestConfig requestConfig =
+                RequestConfig.custom()
+                        .setConnectTimeout((int) timeoutInMs)
+                        .setSocketTimeout((int) timeoutInMs)
+                        .build();
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
@@ -93,13 +95,16 @@ public class HttpManager {
     public String doSentPost(String url, Object dto) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            post.addHeader(
+                    BasicAuth.BASIC_AUTH_HEADER,
+                    BasicAuth.genBasicAuthCredential(secretId, secretKey));
             StringEntity stringEntity = new StringEntity(toJsonStr(dto));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             post.setEntity(stringEntity);
             CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
-            if (returnStr != null && !returnStr.isEmpty()
+            if (returnStr != null
+                    && !returnStr.isEmpty()
                     && response.getStatusLine().getStatusCode() == 200) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("request url {}, dto: {}, return str {}", url, dto, returnStr);
@@ -125,10 +130,13 @@ public class HttpManager {
     public String doSendPost(String url) {
         try {
             HttpPost post = getHttpPost(url);
-            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            post.addHeader(
+                    BasicAuth.BASIC_AUTH_HEADER,
+                    BasicAuth.genBasicAuthCredential(secretId, secretKey));
             CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
-            if (returnStr != null && !returnStr.isEmpty()
+            if (returnStr != null
+                    && !returnStr.isEmpty()
                     && response.getStatusLine().getStatusCode() == AGENT_HTTP_SUCCESS_CODE) {
                 return returnStr;
             }
@@ -139,18 +147,13 @@ public class HttpManager {
         return null;
     }
 
-    /**
-     * get http post, the tauth params should be passed
-     */
+    /** get http post, the tauth params should be passed */
     private HttpPost getHttpPost(String url) {
         return new HttpPost(url);
     }
 
-    /**
-     * get http get, the tauth params should be passed
-     */
+    /** get http get, the tauth params should be passed */
     private HttpGet getHttpGet(String url) {
         return new HttpGet(url);
     }
-
 }

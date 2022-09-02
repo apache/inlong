@@ -17,58 +17,50 @@
 
 package org.apache.inlong.manager.client.api;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Inlong stream.
- */
+/** Inlong stream. */
 public interface InlongStream {
 
-    /**
-     * Return name of stream.
-     */
+    /** Return name of stream. */
     String getInlongStreamId();
 
-    /**
-     * Return field definitions of stream.
-     */
+    /** Return field definitions of stream. */
     List<StreamField> getStreamFields();
 
     /**
-     * Return data sources defined in stream, key is source name which must be unique within one stream scope.
+     * Return data sources defined in stream, key is source name which must be unique within one
+     * stream scope.
      */
     Map<String, StreamSource> getSources();
 
     /**
-     * Return sinks defined in stream, key is sink name which must be unique within one stream scope.
+     * Return sinks defined in stream, key is sink name which must be unique within one stream
+     * scope.
      */
     Map<String, StreamSink> getSinks();
 
-    /**
-     * Get detail info of data sink by id.
-     */
+    /** Get detail info of data sink by id. */
     StreamSink getSinkInfoById(Integer sinkId);
 
-    /**
-     * Get detail info of data sink by name.
-     */
+    /** Get detail info of data sink by name. */
     StreamSink getSinkInfoByName(String sinkName);
 
     /**
-     * Return data transform node defined in stream(split, string replace etc.)
-     * key is transform name which must be unique within one stream scope.
+     * Return data transform node defined in stream(split, string replace etc.) key is transform
+     * name which must be unique within one stream scope.
      */
     Map<String, StreamTransform> getTransforms();
 
     /**
-     * Add data source to stream, this method will throw exception when source name already exists in stream.
+     * Add data source to stream, this method will throw exception when source name already exists
+     * in stream.
      */
     InlongStream addSource(StreamSource source);
 
@@ -78,50 +70,37 @@ public interface InlongStream {
     InlongStream addSink(StreamSink streamSink);
 
     /**
-     * Add data transform node to stream, this method will throw exception when transform name already exists in stream.
+     * Add data transform node to stream, this method will throw exception when transform name
+     * already exists in stream.
      */
     InlongStream addTransform(StreamTransform transform);
 
-    /**
-     * Delete data source by source name.
-     */
+    /** Delete data source by source name. */
     InlongStream deleteSource(String sourceName);
 
-    /**
-     * Delete data sink by sink name.
-     */
+    /** Delete data sink by sink name. */
     InlongStream deleteSink(String sinkName);
 
-    /**
-     * Delete data transform node by transform name.
-     */
+    /** Delete data transform node by transform name. */
     InlongStream deleteTransform(String transformName);
 
-    /**
-     * Update data source by source name, add new one if source name not exists.
-     */
+    /** Update data source by source name, add new one if source name not exists. */
     InlongStream updateSource(StreamSource source);
 
-    /**
-     * Update sink by sink name, add new one if sink name not exists.
-     */
+    /** Update sink by sink name, add new one if sink name not exists. */
     InlongStream updateSink(StreamSink streamSink);
 
-    /**
-     * Update data transform node by transform name, add new one if transform name not exists.
-     */
+    /** Update data transform node by transform name, add new one if transform name not exists. */
     InlongStream updateTransform(StreamTransform transform);
 
-    /**
-     * Create stream pipeline by sources, transforms, sinks defined in stream.
-     */
+    /** Create stream pipeline by sources, transforms, sinks defined in stream. */
     StreamPipeline createPipeline();
 
     /**
-     * Update stream definition in manager service, which must be invoked after add/delete/update source/sink/transform.
+     * Update stream definition in manager service, which must be invoked after add/delete/update
+     * source/sink/transform.
      */
     InlongStream update();
 
     StreamSource getSourceById(int sourceId);
-
 }

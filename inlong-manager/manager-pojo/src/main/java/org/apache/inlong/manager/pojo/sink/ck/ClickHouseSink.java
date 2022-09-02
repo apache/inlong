@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * ClickHouse sink info
- */
+/** ClickHouse sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -72,7 +70,8 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
     private String partitionStrategy;
 
-    @ApiModelProperty(value = "Partition files, separate with commas",
+    @ApiModelProperty(
+            value = "Partition files, separate with commas",
             notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
     private String partitionFields;
 
@@ -99,5 +98,4 @@ public class ClickHouseSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, ClickHouseSinkRequest::new);
     }
-
 }

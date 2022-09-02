@@ -20,9 +20,7 @@ package org.apache.inlong.agent.conf;
 import com.google.gson.Gson;
 import org.apache.inlong.agent.constant.JobConstants;
 
-/**
- * job profile which contains details describing properties of one job.
- */
+/** job profile which contains details describing properties of one job. */
 public class JobProfile extends AbstractConfiguration {
 
     private final Gson gson = new Gson();
@@ -69,9 +67,12 @@ public class JobProfile extends AbstractConfiguration {
      */
     @Override
     public boolean allRequiredKeyExist() {
-        return hasKey(JobConstants.JOB_ID) && hasKey(JobConstants.JOB_SOURCE_CLASS)
-                && hasKey(JobConstants.JOB_SINK) && hasKey(JobConstants.JOB_CHANNEL)
-                && hasKey(JobConstants.JOB_GROUP_ID) && hasKey(JobConstants.JOB_STREAM_ID);
+        return hasKey(JobConstants.JOB_ID)
+                && hasKey(JobConstants.JOB_SOURCE_CLASS)
+                && hasKey(JobConstants.JOB_SINK)
+                && hasKey(JobConstants.JOB_CHANNEL)
+                && hasKey(JobConstants.JOB_GROUP_ID)
+                && hasKey(JobConstants.JOB_STREAM_ID);
     }
 
     public String toJsonStr() {

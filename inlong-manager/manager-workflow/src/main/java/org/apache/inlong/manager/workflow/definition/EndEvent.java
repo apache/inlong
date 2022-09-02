@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-/**
- * End event
- */
+/** End event */
 public class EndEvent extends Element {
 
     public EndEvent() {

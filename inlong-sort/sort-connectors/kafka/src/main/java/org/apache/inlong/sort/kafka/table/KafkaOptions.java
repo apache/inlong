@@ -23,8 +23,7 @@ import org.apache.flink.configuration.ConfigOptions;
 
 /** Option utils for Kafka table source sink. */
 public class KafkaOptions {
-    private KafkaOptions() {
-    }
+    private KafkaOptions() {}
 
     // --------------------------------------------------------------------------------------------
     // Sink specific options
@@ -34,5 +33,4 @@ public class KafkaOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
-
 }

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.source.tubemq;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.TreeSet;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,11 +28,7 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-import java.util.TreeSet;
-
-/**
- * Request info of the TubeMQ source
- */
+/** Request info of the TubeMQ source */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -51,14 +48,11 @@ public class TubeMQSourceRequest extends SourceRequest {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
-    /**
-     * The TubeMQ consumers use this tid set to filter records reading from server.
-     */
+    /** The TubeMQ consumers use this tid set to filter records reading from server. */
     @ApiModelProperty("Tid of the TubeMQ")
     private TreeSet<String> tid;
 
     public TubeMQSourceRequest() {
         this.setSourceType(SourceType.TUBEMQ);
     }
-
 }

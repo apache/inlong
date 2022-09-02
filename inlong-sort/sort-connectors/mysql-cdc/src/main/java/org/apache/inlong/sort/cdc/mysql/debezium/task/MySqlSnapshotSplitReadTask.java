@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
+
 import io.debezium.DebeziumException;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -40,6 +42,14 @@ import io.debezium.util.Clock;
 import io.debezium.util.ColumnUtils;
 import io.debezium.util.Strings;
 import io.debezium.util.Threads;
+import java.io.UnsupportedEncodingException;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.Duration;
+import java.util.Calendar;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
 import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader;
@@ -49,17 +59,6 @@ import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.Duration;
-import java.util.Calendar;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
 
 /** Task to read snapshot split of table. */
 public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource {
@@ -278,7 +277,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
      * Read JDBC return value and deal special type like time, timestamp.
      *
      * <p>Note https://issues.redhat.com/browse/DBZ-3238 has fixed this issue, please remove this
-     * method once we bump Debezium version to 1.6</p>
+     * method once we bump Debezium version to 1.6
      */
     private Object readField(ResultSet rs, int fieldNo, Column actualColumn, Table actualTable)
             throws SQLException {

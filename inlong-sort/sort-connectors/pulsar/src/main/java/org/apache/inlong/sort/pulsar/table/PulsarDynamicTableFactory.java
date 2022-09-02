@@ -18,38 +18,6 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.catalog.CatalogTable;
-import org.apache.flink.table.catalog.ObjectIdentifier;
-import org.apache.flink.table.connector.format.DecodingFormat;
-import org.apache.flink.table.connector.format.EncodingFormat;
-import org.apache.flink.table.connector.format.Format;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.factories.DeserializationFormatFactory;
-import org.apache.flink.table.factories.DynamicTableSinkFactory;
-import org.apache.flink.table.factories.DynamicTableSourceFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.table.factories.SerializationFormatFactory;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.types.RowKind;
-import org.apache.pulsar.common.naming.TopicName;
-
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.ADMIN_URL;
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.GENERIC;
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FIELDS;
@@ -80,16 +48,46 @@ import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.pulsar.table.Constants.INLONG_METRIC;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.catalog.CatalogTable;
+import org.apache.flink.table.catalog.ObjectIdentifier;
+import org.apache.flink.table.connector.format.DecodingFormat;
+import org.apache.flink.table.connector.format.EncodingFormat;
+import org.apache.flink.table.connector.format.Format;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.DeserializationFormatFactory;
+import org.apache.flink.table.factories.DynamicTableSinkFactory;
+import org.apache.flink.table.factories.DynamicTableSourceFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.table.factories.SerializationFormatFactory;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.types.RowKind;
+import org.apache.pulsar.common.naming.TopicName;
+
 /**
  * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9
- * <p>
- * Factory for creating configured instances of
- * {@link org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableFactory}.
- * We modify PulsarDynamicTableFactory validate logic to support nested format.
+ *
+ * <p>Factory for creating configured instances of {@link
+ * org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableFactory}. We modify
+ * PulsarDynamicTableFactory validate logic to support nested format.
  */
-public class PulsarDynamicTableFactory implements
-        DynamicTableSourceFactory,
-        DynamicTableSinkFactory {
+public class PulsarDynamicTableFactory
+        implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "pulsar-inlong";
 
@@ -97,63 +95,71 @@ public class PulsarDynamicTableFactory implements
             FactoryUtil.TableFactoryHelper helper) {
         final Optional<DecodingFormat<DeserializationSchema<RowData>>> keyDecodingFormat =
                 helper.discoverOptionalDecodingFormat(
-                        DeserializationFormatFactory.class,
-                        KEY_FORMAT);
-        keyDecodingFormat.ifPresent(format -> {
-            if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
-                throw new ValidationException(
-                        String.format(
-                                "A key format should only deal with INSERT-only records. "
-                                        + "But %s has a changelog mode of %s.",
-                                helper.getOptions().get(KEY_FORMAT),
-                                format.getChangelogMode()));
-            }
-        });
+                        DeserializationFormatFactory.class, KEY_FORMAT);
+        keyDecodingFormat.ifPresent(
+                format -> {
+                    if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
+                        throw new ValidationException(
+                                String.format(
+                                        "A key format should only deal with INSERT-only records. "
+                                                + "But %s has a changelog mode of %s.",
+                                        helper.getOptions().get(KEY_FORMAT),
+                                        format.getChangelogMode()));
+                    }
+                });
         return keyDecodingFormat;
     }
 
     private static Optional<EncodingFormat<SerializationSchema<RowData>>> getKeyEncodingFormat(
             FactoryUtil.TableFactoryHelper helper) {
         final Optional<EncodingFormat<SerializationSchema<RowData>>> keyEncodingFormat =
-                helper.discoverOptionalEncodingFormat(
-                        SerializationFormatFactory.class,
-                        KEY_FORMAT);
-        keyEncodingFormat.ifPresent(format -> {
-            if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
-                throw new ValidationException(
-                        String.format(
-                                "A key format should only deal with INSERT-only records. "
-                                        + "But %s has a changelog mode of %s.",
-                                helper.getOptions().get(KEY_FORMAT),
-                                format.getChangelogMode()));
-            }
-        });
+                helper.discoverOptionalEncodingFormat(SerializationFormatFactory.class, KEY_FORMAT);
+        keyEncodingFormat.ifPresent(
+                format -> {
+                    if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
+                        throw new ValidationException(
+                                String.format(
+                                        "A key format should only deal with INSERT-only records. "
+                                                + "But %s has a changelog mode of %s.",
+                                        helper.getOptions().get(KEY_FORMAT),
+                                        format.getChangelogMode()));
+                    }
+                });
         return keyEncodingFormat;
     }
 
     private static DecodingFormat<DeserializationSchema<RowData>> getValueDecodingFormat(
             FactoryUtil.TableFactoryHelper helper) {
-        return helper.discoverOptionalDecodingFormat(DeserializationFormatFactory.class, FactoryUtil.FORMAT)
-                .orElseGet(() -> helper.discoverDecodingFormat(DeserializationFormatFactory.class, VALUE_FORMAT));
+        return helper.discoverOptionalDecodingFormat(
+                        DeserializationFormatFactory.class, FactoryUtil.FORMAT)
+                .orElseGet(
+                        () ->
+                                helper.discoverDecodingFormat(
+                                        DeserializationFormatFactory.class, VALUE_FORMAT));
     }
 
     private static EncodingFormat<SerializationSchema<RowData>> getValueEncodingFormat(
             FactoryUtil.TableFactoryHelper helper) {
-        return helper.discoverOptionalEncodingFormat(SerializationFormatFactory.class, FactoryUtil.FORMAT)
-                .orElseGet(() -> helper.discoverEncodingFormat(SerializationFormatFactory.class, VALUE_FORMAT));
+        return helper.discoverOptionalEncodingFormat(
+                        SerializationFormatFactory.class, FactoryUtil.FORMAT)
+                .orElseGet(
+                        () ->
+                                helper.discoverEncodingFormat(
+                                        SerializationFormatFactory.class, VALUE_FORMAT));
     }
 
-    private static void validatePKConstraints(ObjectIdentifier tableName, CatalogTable catalogTable, Format format) {
+    private static void validatePKConstraints(
+            ObjectIdentifier tableName, CatalogTable catalogTable, Format format) {
         if (catalogTable.getSchema().getPrimaryKey().isPresent()
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
-            String formatName = options.getOptional(FactoryUtil.FORMAT).orElse(options.get(VALUE_FORMAT));
-            throw new ValidationException(String.format(
-                    "The Pulsar table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
-                            + " on the table, because it can't guarantee the semantic of primary key.",
-                    tableName.asSummaryString(),
-                    formatName
-            ));
+            String formatName =
+                    options.getOptional(FactoryUtil.FORMAT).orElse(options.get(VALUE_FORMAT));
+            throw new ValidationException(
+                    String.format(
+                            "The Pulsar table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
+                                    + " on the table, because it can't guarantee the semantic of primary key.",
+                            tableName.asSummaryString(), formatName));
         }
     }
 
@@ -174,14 +180,17 @@ public class PulsarDynamicTableFactory implements
                 getValueEncodingFormat(helper);
 
         // Validate the option data type.
-        helper.validateExcept(PROPERTIES_PREFIX, "type", "table-default-partitions", "default-database");
+        helper.validateExcept(
+                PROPERTIES_PREFIX, "type", "table-default-partitions", "default-database");
         // Validate the option values.
         PulsarTableOptions.validateTableSinkOptions(tableOptions);
 
         Properties properties = getPulsarProperties(context.getCatalogTable().toProperties());
-        validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueEncodingFormat);
+        validatePKConstraints(
+                context.getObjectIdentifier(), context.getCatalogTable(), valueEncodingFormat);
 
-        final DataType physicalDataType = context.getCatalogTable().getSchema().toPhysicalRowDataType();
+        final DataType physicalDataType =
+                context.getCatalogTable().getSchema().toPhysicalRowDataType();
 
         final int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
 
@@ -191,23 +200,39 @@ public class PulsarDynamicTableFactory implements
 
         String adminUrl = tableOptions.get(ADMIN_URL);
         String serverUrl = tableOptions.get(SERVICE_URL);
-        return createPulsarTableSink(tableOptions, topics, adminUrl, serverUrl, keyEncodingFormat, valueEncodingFormat,
-                properties, physicalDataType, keyProjection, valueProjection, keyPrefix, context);
+        return createPulsarTableSink(
+                tableOptions,
+                topics,
+                adminUrl,
+                serverUrl,
+                keyEncodingFormat,
+                valueEncodingFormat,
+                properties,
+                physicalDataType,
+                keyProjection,
+                valueProjection,
+                keyPrefix,
+                context);
     }
 
     // --------------------------------------------------------------------------------------------
 
-    private PulsarDynamicTableSink createPulsarTableSink(ReadableConfig tableOptions, List<String> topics,
-                                                         String adminUrl, String serverUrl,
-                                                         Optional<EncodingFormat<SerializationSchema<RowData>>>
-                                                                 keyEncodingFormat,
-                                                         EncodingFormat<SerializationSchema<RowData>>
-                                                                 valueEncodingFormat,
-                                                         Properties properties, DataType physicalDataType,
-                                                         int[] keyProjection, int[] valueProjection,
-                                                         String keyPrefix, Context context) {
+    private PulsarDynamicTableSink createPulsarTableSink(
+            ReadableConfig tableOptions,
+            List<String> topics,
+            String adminUrl,
+            String serverUrl,
+            Optional<EncodingFormat<SerializationSchema<RowData>>> keyEncodingFormat,
+            EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat,
+            Properties properties,
+            DataType physicalDataType,
+            int[] keyProjection,
+            int[] valueProjection,
+            String keyPrefix,
+            Context context) {
 
-        final String formatType = tableOptions.getOptional(FORMAT).orElseGet(() -> tableOptions.get(VALUE_FORMAT));
+        final String formatType =
+                tableOptions.getOptional(FORMAT).orElseGet(() -> tableOptions.get(VALUE_FORMAT));
         final Integer parallelism = tableOptions.getOptional(SINK_PARALLELISM).orElse(null);
         return new PulsarDynamicTableSink(
                 serverUrl,
@@ -248,22 +273,28 @@ public class PulsarDynamicTableFactory implements
 
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
                 getValueDecodingFormat(helper);
-        final String valueFormatPrefix = tableOptions.getOptional(FORMAT)
-                .orElse(tableOptions.get(VALUE_FORMAT));
+        final String valueFormatPrefix =
+                tableOptions.getOptional(FORMAT).orElse(tableOptions.get(VALUE_FORMAT));
         // Validate the option data type.
-        helper.validateExcept(PROPERTIES_PREFIX,
-                "type", "table-default-partitions", "default-database", valueFormatPrefix);
+        helper.validateExcept(
+                PROPERTIES_PREFIX,
+                "type",
+                "table-default-partitions",
+                "default-database",
+                valueFormatPrefix);
         // Validate the option values.
         validateTableSourceOptions(tableOptions);
         validateSinkMessageRouter(tableOptions);
-        validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
+        validatePKConstraints(
+                context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
 
         Properties properties = getPulsarProperties(context.getCatalogTable().toProperties());
 
-        final PulsarTableOptions.StartupOptions startupOptions = PulsarTableOptions
-                .getStartupOptions(tableOptions);
+        final PulsarTableOptions.StartupOptions startupOptions =
+                PulsarTableOptions.getStartupOptions(tableOptions);
 
-        final DataType physicalDataType = context.getCatalogTable().getSchema().toPhysicalRowDataType();
+        final DataType physicalDataType =
+                context.getCatalogTable().getSchema().toPhysicalRowDataType();
 
         final int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
 

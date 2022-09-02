@@ -17,15 +17,14 @@
 
 package org.apache.inlong.common.heartbeat;
 
-/**
- * Manipulate heartbeat in components
- */
+/** Manipulate heartbeat in components */
 public interface AbstractHeartbeatManager {
 
     /**
      * Report the heartbeat information.
-     * <p/>
-     * If the node to which the heartbeat belongs does not exist, it will be registered with the Manager.
+     *
+     * <p>If the node to which the heartbeat belongs does not exist, it will be registered with the
+     * Manager.
      *
      * @param heartbeat heartbeat msg
      */

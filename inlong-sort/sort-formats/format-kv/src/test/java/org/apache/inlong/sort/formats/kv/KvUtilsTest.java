@@ -25,126 +25,137 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import org.junit.Test;
 
-/**
- * Unit tests for kv splitting and concating.
- */
+/** Unit tests for kv splitting and concating. */
 public class KvUtilsTest {
     @Test
     public void testSplitNormal() {
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("f1=a&f2=b&f3=c", '&', '=', null, null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("f1=a&f2=b&f3=c", '&', '=', null, null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("f1=&f2=b&f3=c", '&', '=', null, null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("f1=&f2=b&f3=c", '&', '=', null, null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a");
-                    put("f2", "b");
-                    put("f3", "");
-                }},
-                splitKv("f1=a&f2=b&f3=", '&', '=', null, null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a");
+                        put("f2", "b");
+                        put("f3", "");
+                    }
+                },
+                splitKv("f1=a&f2=b&f3=", '&', '=', null, null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("=f1", "a");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("\\=f1=a&f2=b&f3=c", '&', '=', '\\', null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("=f1", "a");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("\\=f1=a&f2=b&f3=c", '&', '=', '\\', null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("&f1", "a");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("\\&f1=a&f2=b&f3=c", '&', '=', '\\', null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("&f1", "a");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("\\&f1=a&f2=b&f3=c", '&', '=', '\\', null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("&f1", "a");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("\"&f1\"=a&f2=b&f3=c", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("&f1", "a");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("\"&f1\"=a&f2=b&f3=c", '&', '=', '\\', '\"'));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a&");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("f1=a\\&&f2=b&f3=c", '&', '=', '\\', null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a&");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("f1=a\\&&f2=b&f3=c", '&', '=', '\\', null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a\\");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("f1=a\\\\&f2=b&f3=c", '&', '=', '\\', null)
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a\\");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("f1=a\\\\&f2=b&f3=c", '&', '=', '\\', null));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a&f2=b");
-                    put("f3", "c");
-                    put("f4", "d");
-                }},
-                splitKv("f1=a\"&f2=\"b&f3=c&f4=d", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a&f2=b");
+                        put("f3", "c");
+                        put("f4", "d");
+                    }
+                },
+                splitKv("f1=a\"&f2=\"b&f3=c&f4=d", '&', '=', '\\', '\"'));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "atest\\test");
-                    put("f2", "b");
-                    put("f3", "c");
-                }},
-                splitKv("f1=a\"test\\test\"&f2=b&f3=c", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "atest\\test");
+                        put("f2", "b");
+                        put("f3", "c");
+                    }
+                },
+                splitKv("f1=a\"test\\test\"&f2=b&f3=c", '&', '=', '\\', '\"'));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "a");
-                    put("f2", "\"b");
-                    put("f3", "c\"");
-                    put("f4", "d");
-                }},
-                splitKv("f1=a&f2=\\\"b&f3=c\\\"&f4=d", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "a");
+                        put("f2", "\"b");
+                        put("f3", "c\"");
+                        put("f4", "d");
+                    }
+                },
+                splitKv("f1=a&f2=\\\"b&f3=c\\\"&f4=d", '&', '=', '\\', '\"'));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("f1", "b");
-                }},
-                splitKv("f1=a&f1=b", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("f1", "b");
+                    }
+                },
+                splitKv("f1=a&f1=b", '&', '=', '\\', '\"'));
 
         assertEquals(
-                new HashMap<String, String>() {{
-                    put("", "a");
-                    put("f", "");
-                }},
-                splitKv("=a&f=", '&', '=', '\\', '\"')
-        );
+                new HashMap<String, String>() {
+                    {
+                        put("", "a");
+                        put("f", "");
+                    }
+                },
+                splitKv("=a&f=", '&', '=', '\\', '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -177,57 +188,73 @@ public class KvUtilsTest {
         assertEquals(
                 "f1=a&f2=b&f3=c&f4=d",
                 concatKv(
-                        new String[]{"f1", "f2", "f3", "f4"},
-                        new String[]{"a", "b", "c", "d"},
-                        '&', '=', null, null)
-        );
+                        new String[] {"f1", "f2", "f3", "f4"},
+                        new String[] {"a", "b", "c", "d"},
+                        '&',
+                        '=',
+                        null,
+                        null));
 
         assertEquals(
                 "f1\\&=a&f2=\\&b&f3=c&f4=d",
                 concatKv(
-                        new String[]{"f1&", "f2", "f3", "f4"},
-                        new String[]{"a", "&b", "c", "d"},
-                        '&', '=', '\\', '\"')
-        );
+                        new String[] {"f1&", "f2", "f3", "f4"},
+                        new String[] {"a", "&b", "c", "d"},
+                        '&',
+                        '=',
+                        '\\',
+                        '\"'));
 
         assertEquals(
                 "f1=a&f2=\\\\b&f3=c&f4=d",
                 concatKv(
-                        new String[]{"f1", "f2", "f3", "f4"},
-                        new String[]{"a", "\\b", "c", "d"},
-                        '&', '=', '\\', '\"')
-        );
+                        new String[] {"f1", "f2", "f3", "f4"},
+                        new String[] {"a", "\\b", "c", "d"},
+                        '&',
+                        '=',
+                        '\\',
+                        '\"'));
 
         assertEquals(
                 "f1=a&f2=\\\"b&f3=c&f4=d",
                 concatKv(
-                        new String[]{"f1", "f2", "f3", "f4"},
-                        new String[]{"a", "\"b", "c", "d"},
-                        '&', '=', '\\', '\"')
-        );
+                        new String[] {"f1", "f2", "f3", "f4"},
+                        new String[] {"a", "\"b", "c", "d"},
+                        '&',
+                        '=',
+                        '\\',
+                        '\"'));
 
         assertEquals(
                 "f1\"&\"=a&f2=\"&\"b&f3=c&f4=d",
                 concatKv(
-                        new String[]{"f1&", "f2", "f3", "f4"},
-                        new String[]{"a", "&b", "c", "d"},
-                        '&', '=', null, '\"')
-        );
+                        new String[] {"f1&", "f2", "f3", "f4"},
+                        new String[] {"a", "&b", "c", "d"},
+                        '&',
+                        '=',
+                        null,
+                        '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConcatNoEscapingAndQuoting() {
         concatKv(
-                new String[]{"f1", "f2", "f3", "f4"},
-                new String[]{"&a", "&b", "&c", "&d"},
-                '&', '=', null, null);
+                new String[] {"f1", "f2", "f3", "f4"},
+                new String[] {"&a", "&b", "&c", "&d"},
+                '&',
+                '=',
+                null,
+                null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConcatNoEscaping() {
         concatKv(
-                new String[]{"f1", "f2", "f3", "f4"},
-                new String[]{"a", "\"b", "c", "d"},
-                '&', '=', null, '\"');
+                new String[] {"f1", "f2", "f3", "f4"},
+                new String[] {"a", "\"b", "c", "d"},
+                '&',
+                '=',
+                null,
+                '\"');
     }
 }

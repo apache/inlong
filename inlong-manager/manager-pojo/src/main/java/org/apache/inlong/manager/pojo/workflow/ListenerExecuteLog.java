@@ -18,16 +18,13 @@
 package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Workflow listener execution log
- */
+/** Workflow listener execution log */
 @Data
 @Builder
 @NoArgsConstructor
@@ -69,5 +66,4 @@ public class ListenerExecuteLog {
 
     @ApiModelProperty("Description")
     private String description;
-
 }

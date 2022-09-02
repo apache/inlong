@@ -18,6 +18,16 @@
 package org.apache.inlong.sort.parser.impl;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
@@ -54,20 +64,9 @@ import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- * Flink sql parse handler
- * It accepts a TableEnvironment and GroupInfo, and outputs the parsed FlinkSqlParseResult
+ * Flink sql parse handler It accepts a TableEnvironment and GroupInfo, and outputs the parsed
+ * FlinkSqlParseResult
  */
 public class FlinkSqlParser implements Parser {
 
@@ -104,11 +103,10 @@ public class FlinkSqlParser implements Parser {
         return new FlinkSqlParser(tableEnv, groupInfo);
     }
 
-    /**
-     * Register UDF
-     */
+    /** Register UDF */
     private void registerUDF() {
-        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
+        tableEnv.createTemporarySystemFunction(
+                "REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
         tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
@@ -152,19 +150,28 @@ public class FlinkSqlParser implements Parser {
         // Inject the `inlong.metric` for ExtractNode or LoadNode
         injectInlongMetric(streamInfo);
         Map<String, Node> nodeMap = new HashMap<>(streamInfo.getNodes().size());
-        streamInfo.getNodes().forEach(s -> {
-            Preconditions.checkNotNull(s.getId(), "node id is null");
-            nodeMap.put(s.getId(), s);
-        });
+        streamInfo
+                .getNodes()
+                .forEach(
+                        s -> {
+                            Preconditions.checkNotNull(s.getId(), "node id is null");
+                            nodeMap.put(s.getId(), s);
+                        });
         Map<String, NodeRelation> relationMap = new HashMap<>();
-        streamInfo.getRelations().forEach(r -> {
-            for (String output : r.getOutputs()) {
-                relationMap.put(output, r);
-            }
-        });
-        streamInfo.getRelations().forEach(r -> {
-            parseNodeRelation(r, nodeMap, relationMap);
-        });
+        streamInfo
+                .getRelations()
+                .forEach(
+                        r -> {
+                            for (String output : r.getOutputs()) {
+                                relationMap.put(output, r);
+                            }
+                        });
+        streamInfo
+                .getRelations()
+                .forEach(
+                        r -> {
+                            parseNodeRelation(r, nodeMap, relationMap);
+                        });
         log.info("parse stream success, streamId:{}", streamInfo.getStreamId());
     }
 
@@ -174,52 +181,67 @@ public class FlinkSqlParser implements Parser {
      * @param streamInfo The encapsulation of nodes and node relations
      */
     private void injectInlongMetric(StreamInfo streamInfo) {
-        streamInfo.getNodes().stream().filter(node -> node instanceof InlongMetric).forEach(node -> {
-            Map<String, String> properties = node.getProperties();
-            if (properties == null) {
-                properties = new LinkedHashMap<>();
-                if (node instanceof LoadNode) {
-                    ((LoadNode) node).setProperties(properties);
-                } else if (node instanceof ExtractNode) {
-                    ((ExtractNode) node).setProperties(properties);
-                } else {
-                    throw new UnsupportedOperationException(String.format("Unsupported inlong metric for: %s",
-                            node.getClass().getSimpleName()));
-                }
-            }
-            properties.put(InlongMetric.METRIC_KEY,
-                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
-                            streamInfo.getStreamId(), node.getId()));
-            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
-                properties.put(InlongMetric.AUDIT_KEY,
-                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
-            }
-        });
+        streamInfo.getNodes().stream()
+                .filter(node -> node instanceof InlongMetric)
+                .forEach(
+                        node -> {
+                            Map<String, String> properties = node.getProperties();
+                            if (properties == null) {
+                                properties = new LinkedHashMap<>();
+                                if (node instanceof LoadNode) {
+                                    ((LoadNode) node).setProperties(properties);
+                                } else if (node instanceof ExtractNode) {
+                                    ((ExtractNode) node).setProperties(properties);
+                                } else {
+                                    throw new UnsupportedOperationException(
+                                            String.format(
+                                                    "Unsupported inlong metric for: %s",
+                                                    node.getClass().getSimpleName()));
+                                }
+                            }
+                            properties.put(
+                                    InlongMetric.METRIC_KEY,
+                                    String.format(
+                                            InlongMetric.METRIC_VALUE_FORMAT,
+                                            groupInfo.getGroupId(),
+                                            streamInfo.getStreamId(),
+                                            node.getId()));
+                            if (StringUtils.isNotEmpty(
+                                    groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
+                                properties.put(
+                                        InlongMetric.AUDIT_KEY,
+                                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+                            }
+                        });
     }
 
     /**
-     * parse node relation
-     * Here we only parse the output node in the relation,
-     * and the input node parsing is achieved by parsing the dependent node parsing of the output node.
+     * parse node relation Here we only parse the output node in the relation, and the input node
+     * parsing is achieved by parsing the dependent node parsing of the output node.
      *
      * @param relation Define relations between nodes, it also shows the data flow
      * @param nodeMap Store the mapping relation between node id and node
      * @param relationMap Store the mapping relation between node id and relation
      */
-    private void parseNodeRelation(NodeRelation relation, Map<String, Node> nodeMap,
+    private void parseNodeRelation(
+            NodeRelation relation,
+            Map<String, Node> nodeMap,
             Map<String, NodeRelation> relationMap) {
         log.info("start parse node relation, relation:{}", relation);
         Preconditions.checkNotNull(relation, "relation is null");
-        Preconditions.checkState(relation.getInputs().size() > 0,
-                "relation must have at least one input node");
-        Preconditions.checkState(relation.getOutputs().size() > 0,
-                "relation must have at least one output node");
-        relation.getOutputs().forEach(s -> {
-            Preconditions.checkNotNull(s, "node id in outputs is null");
-            Node node = nodeMap.get(s);
-            Preconditions.checkNotNull(node, "can not find any node by node id " + s);
-            parseNode(node, relation, nodeMap, relationMap);
-        });
+        Preconditions.checkState(
+                relation.getInputs().size() > 0, "relation must have at least one input node");
+        Preconditions.checkState(
+                relation.getOutputs().size() > 0, "relation must have at least one output node");
+        relation.getOutputs()
+                .forEach(
+                        s -> {
+                            Preconditions.checkNotNull(s, "node id in outputs is null");
+                            Node node = nodeMap.get(s);
+                            Preconditions.checkNotNull(
+                                    node, "can not find any node by node id " + s);
+                            parseNode(node, relation, nodeMap, relationMap);
+                        });
         log.info("parse node relation success, relation:{}", relation);
     }
 
@@ -231,7 +253,8 @@ public class FlinkSqlParser implements Parser {
         } else if (node instanceof LoadNode) {
             loadTableSqls.add(sql);
         } else {
-            throw new UnsupportedOperationException("Only support [ExtractNode|TransformNode|LoadNode]");
+            throw new UnsupportedOperationException(
+                    "Only support [ExtractNode|TransformNode|LoadNode]");
         }
     }
 
@@ -243,7 +266,10 @@ public class FlinkSqlParser implements Parser {
      * @param nodeMap store the mapping relation between node id and node
      * @param relationMap Store the mapping relation between node id and relation
      */
-    private void parseNode(Node node, NodeRelation relation, Map<String, Node> nodeMap,
+    private void parseNode(
+            Node node,
+            NodeRelation relation,
+            Map<String, Node> nodeMap,
             Map<String, NodeRelation> relationMap) {
         if (hasParsedSet.contains(node.getId())) {
             log.warn("the node has already been parsed, node id:{}", node.getId());
@@ -260,8 +286,8 @@ public class FlinkSqlParser implements Parser {
             for (String upstreamNodeId : relation.getInputs()) {
                 if (!hasParsedSet.contains(upstreamNodeId)) {
                     Node upstreamNode = nodeMap.get(upstreamNodeId);
-                    Preconditions.checkNotNull(upstreamNode,
-                            "can not find any node by node id " + upstreamNodeId);
+                    Preconditions.checkNotNull(
+                            upstreamNode, "can not find any node by node id " + upstreamNodeId);
                     parseNode(upstreamNode, relationMap.get(upstreamNodeId), nodeMap, relationMap);
                 }
             }
@@ -276,10 +302,10 @@ public class FlinkSqlParser implements Parser {
                 hasParsedSet.add(node.getId());
             } else if (node instanceof TransformNode) {
                 TransformNode transformNode = (TransformNode) node;
-                Preconditions.checkNotNull(transformNode.getFieldRelations(),
-                        "field relations is null");
-                Preconditions.checkState(!transformNode.getFieldRelations().isEmpty(),
-                        "field relations is empty");
+                Preconditions.checkNotNull(
+                        transformNode.getFieldRelations(), "field relations is null");
+                Preconditions.checkState(
+                        !transformNode.getFieldRelations().isEmpty(), "field relations is empty");
                 String createSql = genCreateSql(node);
                 log.info("node id:{}, create table sql:\n{}", node.getId(), createSql);
                 String selectSql = genTransformSelectSql(transformNode, relation, nodeMap);
@@ -291,30 +317,52 @@ public class FlinkSqlParser implements Parser {
         log.info("parse node success, node id:{}", node.getId());
     }
 
-    private String genTransformSelectSql(TransformNode transformNode, NodeRelation relation,
-            Map<String, Node> nodeMap) {
+    private String genTransformSelectSql(
+            TransformNode transformNode, NodeRelation relation, Map<String, Node> nodeMap) {
         String selectSql;
         if (relation instanceof JoinRelation) {
             // parse join relation and generate the transform sql
             JoinRelation joinRelation = (JoinRelation) relation;
-            selectSql = genJoinSelectSql(transformNode, transformNode.getFieldRelations(), joinRelation,
-                    transformNode.getFilters(), transformNode.getFilterStrategy(), nodeMap);
+            selectSql =
+                    genJoinSelectSql(
+                            transformNode,
+                            transformNode.getFieldRelations(),
+                            joinRelation,
+                            transformNode.getFilters(),
+                            transformNode.getFilterStrategy(),
+                            nodeMap);
         } else if (relation instanceof UnionNodeRelation) {
             // parse union relation and generate the transform sql
-            Preconditions.checkState(transformNode.getFilters() == null
-                    || transformNode.getFilters().isEmpty(), "Filter is not supported when union");
-            Preconditions.checkState(transformNode.getClass() == TransformNode.class,
-                    String.format("union is not supported for %s", transformNode.getClass().getSimpleName()));
+            Preconditions.checkState(
+                    transformNode.getFilters() == null || transformNode.getFilters().isEmpty(),
+                    "Filter is not supported when union");
+            Preconditions.checkState(
+                    transformNode.getClass() == TransformNode.class,
+                    String.format(
+                            "union is not supported for %s",
+                            transformNode.getClass().getSimpleName()));
             UnionNodeRelation unionRelation = (UnionNodeRelation) relation;
-            selectSql = genUnionNodeSelectSql(transformNode, transformNode.getFieldRelations(), unionRelation, nodeMap);
+            selectSql =
+                    genUnionNodeSelectSql(
+                            transformNode,
+                            transformNode.getFieldRelations(),
+                            unionRelation,
+                            nodeMap);
         } else {
             // parse base relation that one to one and generate the transform sql
-            Preconditions.checkState(relation.getInputs().size() == 1,
+            Preconditions.checkState(
+                    relation.getInputs().size() == 1,
                     "simple transform only support one input node");
-            Preconditions.checkState(relation.getOutputs().size() == 1,
-                    "join node only support one output node");
-            selectSql = genSimpleSelectSql(transformNode, transformNode.getFieldRelations(), relation,
-                    transformNode.getFilters(), transformNode.getFilterStrategy(), nodeMap);
+            Preconditions.checkState(
+                    relation.getOutputs().size() == 1, "join node only support one output node");
+            selectSql =
+                    genSimpleSelectSql(
+                            transformNode,
+                            transformNode.getFieldRelations(),
+                            relation,
+                            transformNode.getFilters(),
+                            transformNode.getFilterStrategy(),
+                            nodeMap);
         }
         return selectSql;
     }
@@ -327,44 +375,72 @@ public class FlinkSqlParser implements Parser {
      * @param nodeMap Store the mapping relation between node id and node
      * @return Transform sql for this node logic
      */
-    private String genUnionNodeSelectSql(Node node, List<FieldRelation> fieldRelations,
-            UnionNodeRelation unionRelation, Map<String, Node> nodeMap) {
-        Preconditions.checkState(unionRelation.getInputs().size() > 1,
-                "union must have more than one input nodes");
-        Preconditions.checkState(unionRelation.getOutputs().size() == 1,
-                "union node only support one output node");
+    private String genUnionNodeSelectSql(
+            Node node,
+            List<FieldRelation> fieldRelations,
+            UnionNodeRelation unionRelation,
+            Map<String, Node> nodeMap) {
+        Preconditions.checkState(
+                unionRelation.getInputs().size() > 1, "union must have more than one input nodes");
+        Preconditions.checkState(
+                unionRelation.getOutputs().size() == 1, "union node only support one output node");
         // Get table name alias map by input nodes
-        Map<String, Map<String, FieldRelation>> fieldRelationMap = new HashMap<>(unionRelation.getInputs().size());
+        Map<String, Map<String, FieldRelation>> fieldRelationMap =
+                new HashMap<>(unionRelation.getInputs().size());
         // Generate mapping for output field to FieldRelation
-        fieldRelations.forEach(s -> {
-            // All field relations of input nodes will be the same if the node id of output field is blank.
-            // Currently, the node id in the output field is used to distinguish which field of the node in the
-            // upstream of the union the field comes from. A better way is through the upstream input field,
-            // but this abstraction does not yet have the ability to set node ids for all upstream input fields.
-            // todo optimize the implementation of this block in the future
-            String nodeId = s.getOutputField().getNodeId();
-            if (StringUtils.isBlank(nodeId)) {
-                nodeId = unionRelation.getInputs().get(0);
-            }
-            fieldRelationMap.computeIfAbsent(nodeId, k -> new HashMap<>()).put(s.getOutputField().getName(), s);
-        });
+        fieldRelations.forEach(
+                s -> {
+                    // All field relations of input nodes will be the same if the node id of output
+                    // field is blank.
+                    // Currently, the node id in the output field is used to distinguish which field
+                    // of the node in the
+                    // upstream of the union the field comes from. A better way is through the
+                    // upstream input field,
+                    // but this abstraction does not yet have the ability to set node ids for all
+                    // upstream input fields.
+                    // todo optimize the implementation of this block in the future
+                    String nodeId = s.getOutputField().getNodeId();
+                    if (StringUtils.isBlank(nodeId)) {
+                        nodeId = unionRelation.getInputs().get(0);
+                    }
+                    fieldRelationMap
+                            .computeIfAbsent(nodeId, k -> new HashMap<>())
+                            .put(s.getOutputField().getName(), s);
+                });
         StringBuilder sb = new StringBuilder();
-        sb.append(genUnionSingleSelectSql(unionRelation.getInputs().get(0),
-                nodeMap.get(unionRelation.getInputs().get(0)).genTableName(), node.getFields(),
-                fieldRelationMap, fieldRelationMap.get(unionRelation.getInputs().get(0)), node));
+        sb.append(
+                genUnionSingleSelectSql(
+                        unionRelation.getInputs().get(0),
+                        nodeMap.get(unionRelation.getInputs().get(0)).genTableName(),
+                        node.getFields(),
+                        fieldRelationMap,
+                        fieldRelationMap.get(unionRelation.getInputs().get(0)),
+                        node));
         String relationFormat = unionRelation.format();
         for (int i = 1; i < unionRelation.getInputs().size(); i++) {
             String inputId = unionRelation.getInputs().get(i);
-            sb.append("\n").append(relationFormat).append("\n")
-                    .append(genUnionSingleSelectSql(inputId, nodeMap.get(inputId).genTableName(), node.getFields(),
-                            fieldRelationMap, fieldRelationMap.get(unionRelation.getInputs().get(0)), node));
+            sb.append("\n")
+                    .append(relationFormat)
+                    .append("\n")
+                    .append(
+                            genUnionSingleSelectSql(
+                                    inputId,
+                                    nodeMap.get(inputId).genTableName(),
+                                    node.getFields(),
+                                    fieldRelationMap,
+                                    fieldRelationMap.get(unionRelation.getInputs().get(0)),
+                                    node));
         }
         return sb.toString();
     }
 
-    private String genUnionSingleSelectSql(String inputId, String tableName, List<FieldInfo> fields,
+    private String genUnionSingleSelectSql(
+            String inputId,
+            String tableName,
+            List<FieldInfo> fields,
             Map<String, Map<String, FieldRelation>> fieldRelationMap,
-            Map<String, FieldRelation> defaultFieldRelationMap, Node node) {
+            Map<String, FieldRelation> defaultFieldRelationMap,
+            Node node) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         Map<String, FieldRelation> fieldRelations = fieldRelationMap.get(inputId);
@@ -381,32 +457,43 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
-    private String genJoinSelectSql(Node node, List<FieldRelation> fieldRelations,
-            JoinRelation relation, List<FilterFunction> filters, FilterStrategy filterStrategy,
+    private String genJoinSelectSql(
+            Node node,
+            List<FieldRelation> fieldRelations,
+            JoinRelation relation,
+            List<FilterFunction> filters,
+            FilterStrategy filterStrategy,
             Map<String, Node> nodeMap) {
-        Preconditions.checkState(relation.getInputs().size() > 1,
-                "join must have more than one input nodes");
-        Preconditions.checkState(relation.getOutputs().size() == 1,
-                "join node only support one output node");
+        Preconditions.checkState(
+                relation.getInputs().size() > 1, "join must have more than one input nodes");
+        Preconditions.checkState(
+                relation.getOutputs().size() == 1, "join node only support one output node");
         // Get table name alias map by input nodes
         Map<String, String> tableNameAliasMap = new HashMap<>(relation.getInputs().size());
-        relation.getInputs().forEach(s -> {
-            Node inputNode = nodeMap.get(s);
-            Preconditions.checkNotNull(inputNode, String.format("input node is not found by id:%s", s));
-            tableNameAliasMap.put(s, String.format("t%s", s));
-        });
+        relation.getInputs()
+                .forEach(
+                        s -> {
+                            Node inputNode = nodeMap.get(s);
+                            Preconditions.checkNotNull(
+                                    inputNode,
+                                    String.format("input node is not found by id:%s", s));
+                            tableNameAliasMap.put(s, String.format("t%s", s));
+                        });
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         Map<String, FieldRelation> fieldRelationMap = new HashMap<>(fieldRelations.size());
         // Generate mapping for output field to FieldRelation
-        fieldRelations.forEach(s -> {
-            fillOutTableNameAlias(Collections.singletonList(s.getInputField()), tableNameAliasMap);
-            fieldRelationMap.put(s.getOutputField().getName(), s);
-        });
+        fieldRelations.forEach(
+                s -> {
+                    fillOutTableNameAlias(
+                            Collections.singletonList(s.getInputField()), tableNameAliasMap);
+                    fieldRelationMap.put(s.getOutputField().getName(), s);
+                });
 
         if (node instanceof HbaseLoadNode) {
             HbaseLoadNode hbaseLoadNode = (HbaseLoadNode) node;
-            parseHbaseLoadFieldRelation(hbaseLoadNode.getRowKey(), hbaseLoadNode.getFieldRelations(), sb);
+            parseHbaseLoadFieldRelation(
+                    hbaseLoadNode.getRowKey(), hbaseLoadNode.getFieldRelations(), sb);
         } else {
             parseFieldRelations(node.getFields(), fieldRelationMap, sb);
         }
@@ -419,19 +506,28 @@ public class FlinkSqlParser implements Parser {
             // Generate distinct sql, such as ROW_NUMBER()...
             genDistinctSql(distinctNode, sb);
         }
-        sb.append(" FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ")
+        sb.append(" FROM `")
+                .append(nodeMap.get(relation.getInputs().get(0)).genTableName())
+                .append("` ")
                 .append(tableNameAliasMap.get(relation.getInputs().get(0)));
         // Parse condition map of join and format condition to sql, such as on 1 = 1...
         Map<String, List<FilterFunction>> conditionMap = relation.getJoinConditionMap();
         if (relation instanceof TemporalJoinRelation) {
-            parseTemporalJoin((TemporalJoinRelation) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
+            parseTemporalJoin(
+                    (TemporalJoinRelation) relation, nodeMap, tableNameAliasMap, conditionMap, sb);
         } else if (relation instanceof IntervalJoinRelation) {
-            Preconditions.checkState(filters == null || filters.isEmpty(),
-                    String.format("filters must be empty for %s", relation.getClass().getSimpleName()));
+            Preconditions.checkState(
+                    filters == null || filters.isEmpty(),
+                    String.format(
+                            "filters must be empty for %s", relation.getClass().getSimpleName()));
             parseIntervalJoin((IntervalJoinRelation) relation, nodeMap, tableNameAliasMap, sb);
-            List<FilterFunction> conditions = conditionMap.values().stream().findFirst().orElse(null);
-            Preconditions.checkState(conditions != null && !conditions.isEmpty(),
-                    String.format("Join conditions must no be empty for %s", relation.getClass().getSimpleName()));
+            List<FilterFunction> conditions =
+                    conditionMap.values().stream().findFirst().orElse(null);
+            Preconditions.checkState(
+                    conditions != null && !conditions.isEmpty(),
+                    String.format(
+                            "Join conditions must no be empty for %s",
+                            relation.getClass().getSimpleName()));
             fillOutTableNameAlias(new ArrayList<>(conditions), tableNameAliasMap);
             parseFilterFields(FilterStrategy.RETAIN, conditions, sb);
         } else {
@@ -450,47 +546,73 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
-    private void parseIntervalJoin(IntervalJoinRelation relation, Map<String, Node> nodeMap,
-            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+    private void parseIntervalJoin(
+            IntervalJoinRelation relation,
+            Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap,
+            StringBuilder sb) {
         for (int i = 1; i < relation.getInputs().size(); i++) {
             String inputId = relation.getInputs().get(i);
-            sb.append(", ").append(nodeMap.get(inputId).genTableName())
-                    .append(" ").append(tableNameAliasMap.get(inputId));
+            sb.append(", ")
+                    .append(nodeMap.get(inputId).genTableName())
+                    .append(" ")
+                    .append(tableNameAliasMap.get(inputId));
         }
     }
 
-    private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
-            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+    private void parseRegularJoin(
+            JoinRelation relation,
+            Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap,
+            Map<String, List<FilterFunction>> conditionMap,
+            StringBuilder sb) {
         for (int i = 1; i < relation.getInputs().size(); i++) {
             String inputId = relation.getInputs().get(i);
-            sb.append("\n      ").append(relation.format()).append(" ")
-                    .append(nodeMap.get(inputId).genTableName()).append(" ")
-                    .append(tableNameAliasMap.get(inputId)).append("\n    ON ");
+            sb.append("\n      ")
+                    .append(relation.format())
+                    .append(" ")
+                    .append(nodeMap.get(inputId).genTableName())
+                    .append(" ")
+                    .append(tableNameAliasMap.get(inputId))
+                    .append("\n    ON ");
             parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
         }
     }
 
-    private void parseTemporalJoin(TemporalJoinRelation relation, Map<String, Node> nodeMap,
-            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+    private void parseTemporalJoin(
+            TemporalJoinRelation relation,
+            Map<String, Node> nodeMap,
+            Map<String, String> tableNameAliasMap,
+            Map<String, List<FilterFunction>> conditionMap,
+            StringBuilder sb) {
         if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
             relation.getSystemTime().setNodeId(relation.getInputs().get(0));
         }
-        relation.getSystemTime().setTableNameAlias(tableNameAliasMap.get(relation.getSystemTime().getNodeId()));
-        String systemTimeFormat = String.format("FOR SYSTEM_TIME AS OF %s ", relation.getSystemTime().format());
+        relation.getSystemTime()
+                .setTableNameAlias(tableNameAliasMap.get(relation.getSystemTime().getNodeId()));
+        String systemTimeFormat =
+                String.format("FOR SYSTEM_TIME AS OF %s ", relation.getSystemTime().format());
         for (int i = 1; i < relation.getInputs().size(); i++) {
             String inputId = relation.getInputs().get(i);
-            sb.append("\n      ").append(relation.format()).append(" ")
-                    .append(nodeMap.get(inputId).genTableName()).append(" ");
+            sb.append("\n      ")
+                    .append(relation.format())
+                    .append(" ")
+                    .append(nodeMap.get(inputId).genTableName())
+                    .append(" ");
             sb.append(systemTimeFormat);
             sb.append(tableNameAliasMap.get(inputId)).append("\n    ON ");
             parseJoinConditions(inputId, conditionMap, tableNameAliasMap, sb);
         }
     }
 
-    private void parseJoinConditions(String inputId, Map<String, List<FilterFunction>> conditionMap,
-            Map<String, String> tableNameAliasMap, StringBuilder sb) {
+    private void parseJoinConditions(
+            String inputId,
+            Map<String, List<FilterFunction>> conditionMap,
+            Map<String, String> tableNameAliasMap,
+            StringBuilder sb) {
         List<FilterFunction> conditions = conditionMap.get(inputId);
-        Preconditions.checkNotNull(conditions, String.format("join condition is null for node id:%s", inputId));
+        Preconditions.checkNotNull(
+                conditions, String.format("join condition is null for node id:%s", inputId));
         for (FilterFunction filter : conditions) {
             // Fill out the table name alias for param
             fillOutTableNameAlias(filter.getParams(), tableNameAliasMap);
@@ -502,20 +624,24 @@ public class FlinkSqlParser implements Parser {
      * Fill out the table name alias
      *
      * @param params The params used in filter, join condition, transform function etc.
-     * @param tableNameAliasMap The table name alias map, contains all table name alias used in this relation of
-     *         nodes
+     * @param tableNameAliasMap The table name alias map, contains all table name alias used in this
+     *     relation of nodes
      */
-    private void fillOutTableNameAlias(List<FunctionParam> params, Map<String, String> tableNameAliasMap) {
+    private void fillOutTableNameAlias(
+            List<FunctionParam> params, Map<String, String> tableNameAliasMap) {
         for (FunctionParam param : params) {
             if (param instanceof Function) {
                 fillOutTableNameAlias(((Function) param).getParams(), tableNameAliasMap);
             } else if (param instanceof FieldInfo) {
                 FieldInfo fieldParam = (FieldInfo) param;
-                Preconditions.checkNotNull(fieldParam.getNodeId(),
+                Preconditions.checkNotNull(
+                        fieldParam.getNodeId(),
                         "node id of field is null when exists more than two input nodes");
                 String tableNameAlias = tableNameAliasMap.get(fieldParam.getNodeId());
-                Preconditions.checkNotNull(tableNameAlias,
-                        String.format("can not find any node by node id:%s of field:%s",
+                Preconditions.checkNotNull(
+                        tableNameAlias,
+                        String.format(
+                                "can not find any node by node id:%s of field:%s",
                                 fieldParam.getNodeId(), fieldParam.getName()));
                 fieldParam.setTableNameAlias(tableNameAlias);
             }
@@ -535,7 +661,9 @@ public class FlinkSqlParser implements Parser {
         for (FieldInfo field : fields) {
             sb.append("\n    `").append(field.getName()).append("`,");
         }
-        sb.deleteCharAt(sb.length() - 1).append("\n    FROM (").append(subSql)
+        sb.deleteCharAt(sb.length() - 1)
+                .append("\n    FROM (")
+                .append(subSql)
                 .append(")\nWHERE row_num = 1");
         return sb;
     }
@@ -548,16 +676,19 @@ public class FlinkSqlParser implements Parser {
      */
     private void genDistinctSql(DistinctNode distinctNode, StringBuilder sb) {
         Preconditions.checkNotNull(distinctNode.getDistinctFields(), "distinctField is null");
-        Preconditions.checkState(!distinctNode.getDistinctFields().isEmpty(),
-                "distinctField is empty");
+        Preconditions.checkState(
+                !distinctNode.getDistinctFields().isEmpty(), "distinctField is empty");
         Preconditions.checkNotNull(distinctNode.getOrderField(), "orderField is null");
         sb.append(",\n    ROW_NUMBER() OVER (PARTITION BY ");
         for (FieldInfo distinctField : distinctNode.getDistinctFields()) {
             sb.append(distinctField.format()).append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
-        sb.append(" ORDER BY ").append(distinctNode.getOrderField().format()).append(" ")
-                .append(distinctNode.getOrderDirection().name()).append(") AS row_num");
+        sb.append(" ORDER BY ")
+                .append(distinctNode.getOrderField().format())
+                .append(" ")
+                .append(distinctNode.getOrderDirection().name())
+                .append(") AS row_num");
     }
 
     /**
@@ -571,25 +702,33 @@ public class FlinkSqlParser implements Parser {
      * @param nodeMap Store the mapping relation between node id and node
      * @return Select sql for this node logic
      */
-    private String genSimpleSelectSql(Node node, List<FieldRelation> fieldRelations,
-            NodeRelation relation, List<FilterFunction> filters, FilterStrategy filterStrategy,
+    private String genSimpleSelectSql(
+            Node node,
+            List<FieldRelation> fieldRelations,
+            NodeRelation relation,
+            List<FilterFunction> filters,
+            FilterStrategy filterStrategy,
             Map<String, Node> nodeMap) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         Map<String, FieldRelation> fieldRelationMap = new HashMap<>(fieldRelations.size());
-        fieldRelations.forEach(s -> {
-            fieldRelationMap.put(s.getOutputField().getName(), s);
-        });
+        fieldRelations.forEach(
+                s -> {
+                    fieldRelationMap.put(s.getOutputField().getName(), s);
+                });
         if (node instanceof HbaseLoadNode) {
             HbaseLoadNode hbaseLoadNode = (HbaseLoadNode) node;
-            parseHbaseLoadFieldRelation(hbaseLoadNode.getRowKey(), hbaseLoadNode.getFieldRelations(), sb);
+            parseHbaseLoadFieldRelation(
+                    hbaseLoadNode.getRowKey(), hbaseLoadNode.getFieldRelations(), sb);
         } else {
             parseFieldRelations(node.getFields(), fieldRelationMap, sb);
         }
         if (node instanceof DistinctNode) {
             genDistinctSql((DistinctNode) node, sb);
         }
-        sb.append("\n    FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ");
+        sb.append("\n    FROM `")
+                .append(nodeMap.get(relation.getInputs().get(0)).genTableName())
+                .append("` ");
         parseFilterFields(filterStrategy, filters, sb);
         if (node instanceof DistinctNode) {
             sb = genDistinctFilterSql(node.getFields(), sb);
@@ -600,15 +739,21 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse filter fields to generate filter sql like 'where 1=1...'
      *
-     * @param filterStrategy The filter strategy default[RETAIN], it decides whether to retain or remove
+     * @param filterStrategy The filter strategy default[RETAIN], it decides whether to retain or
+     *     remove
      * @param filters The filter functions
      * @param sb Container for storing sql
      */
-    private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
+    private void parseFilterFields(
+            FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
             sb.append("\nWHERE ");
-            String subSql = StringUtils
-                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), "\n    ");
+            String subSql =
+                    StringUtils.join(
+                            filters.stream()
+                                    .map(FunctionParam::format)
+                                    .collect(Collectors.toList()),
+                            "\n    ");
             if (filterStrategy == FilterStrategy.REMOVE) {
                 sb.append("not (").append(subSql).append(")");
             } else {
@@ -624,13 +769,18 @@ public class FlinkSqlParser implements Parser {
      * @param fieldRelationMap The field relation map
      * @param sb Container for storing sql
      */
-    private void parseFieldRelations(List<FieldInfo> fields,
-            Map<String, FieldRelation> fieldRelationMap, StringBuilder sb) {
+    private void parseFieldRelations(
+            List<FieldInfo> fields, Map<String, FieldRelation> fieldRelationMap, StringBuilder sb) {
         for (FieldInfo field : fields) {
             FieldRelation fieldRelation = fieldRelationMap.get(field.getName());
             if (fieldRelation == null) {
-                String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
-                sb.append("\n    CAST(NULL as ").append(targetType).append(") AS ").append(field.format()).append(",");
+                String targetType =
+                        TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
+                sb.append("\n    CAST(NULL as ")
+                        .append(targetType)
+                        .append(") AS ")
+                        .append(field.format())
+                        .append(",");
                 continue;
             }
             FunctionParam inputField = fieldRelation.getInputField();
@@ -638,21 +788,42 @@ public class FlinkSqlParser implements Parser {
                 FieldInfo fieldInfo = (FieldInfo) inputField;
                 FormatInfo formatInfo = fieldInfo.getFormatInfo();
                 FieldInfo outputField = fieldRelation.getOutputField();
-                boolean sameType = formatInfo != null
-                        && outputField != null
-                        && outputField.getFormatInfo() != null
-                        && outputField.getFormatInfo().getTypeInfo().equals(formatInfo.getTypeInfo());
+                boolean sameType =
+                        formatInfo != null
+                                && outputField != null
+                                && outputField.getFormatInfo() != null
+                                && outputField
+                                        .getFormatInfo()
+                                        .getTypeInfo()
+                                        .equals(formatInfo.getTypeInfo());
                 if (sameType || field.getFormatInfo() == null) {
-                    sb.append("\n    ").append(inputField.format()).append(" AS ").append(field.format()).append(",");
+                    sb.append("\n    ")
+                            .append(inputField.format())
+                            .append(" AS ")
+                            .append(field.format())
+                            .append(",");
                 } else {
-                    String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
-                    sb.append("\n    CAST(").append(inputField.format()).append(" as ")
-                            .append(targetType).append(") AS ").append(field.format()).append(",");
+                    String targetType =
+                            TableFormatUtils.deriveLogicalType(field.getFormatInfo())
+                                    .asSummaryString();
+                    sb.append("\n    CAST(")
+                            .append(inputField.format())
+                            .append(" as ")
+                            .append(targetType)
+                            .append(") AS ")
+                            .append(field.format())
+                            .append(",");
                 }
             } else {
-                String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
-                sb.append("\n    CAST(").append(inputField.format()).append(" as ")
-                        .append(targetType).append(") AS ").append(field.format()).append(",");
+                String targetType =
+                        TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
+                sb.append("\n    CAST(")
+                        .append(inputField.format())
+                        .append(" as ")
+                        .append(targetType)
+                        .append(") AS ")
+                        .append(field.format())
+                        .append(",");
             }
         }
         sb.deleteCharAt(sb.length() - 1);
@@ -666,52 +837,76 @@ public class FlinkSqlParser implements Parser {
      * @param nodeMap The node map
      * @return Insert sql
      */
-    private String genLoadNodeInsertSql(LoadNode loadNode, NodeRelation relation, Map<String, Node> nodeMap) {
+    private String genLoadNodeInsertSql(
+            LoadNode loadNode, NodeRelation relation, Map<String, Node> nodeMap) {
         Preconditions.checkNotNull(loadNode.getFieldRelations(), "field relations is null");
-        Preconditions.checkState(!loadNode.getFieldRelations().isEmpty(),
-                "field relations is empty");
+        Preconditions.checkState(
+                !loadNode.getFieldRelations().isEmpty(), "field relations is empty");
         String selectSql = genLoadSelectSql(loadNode, relation, nodeMap);
         return "INSERT INTO `" + loadNode.genTableName() + "`\n    " + selectSql;
     }
 
-    private String genLoadSelectSql(LoadNode loadNode, NodeRelation relation,
-            Map<String, Node> nodeMap) {
+    private String genLoadSelectSql(
+            LoadNode loadNode, NodeRelation relation, Map<String, Node> nodeMap) {
         String selectSql;
         if (relation instanceof JoinRelation) {
             // parse join relation and generate the select sql
             JoinRelation joinRelation = (JoinRelation) relation;
-            selectSql = genJoinSelectSql(loadNode, loadNode.getFieldRelations(), joinRelation,
-                    loadNode.getFilters(), loadNode.getFilterStrategy(), nodeMap);
+            selectSql =
+                    genJoinSelectSql(
+                            loadNode,
+                            loadNode.getFieldRelations(),
+                            joinRelation,
+                            loadNode.getFilters(),
+                            loadNode.getFilterStrategy(),
+                            nodeMap);
         } else if (relation instanceof UnionNodeRelation) {
             // parse union relation and generate the select sql
-            Preconditions.checkState(loadNode.getFilters() == null || loadNode.getFilters().isEmpty(),
+            Preconditions.checkState(
+                    loadNode.getFilters() == null || loadNode.getFilters().isEmpty(),
                     "Filter is not supported when union");
             UnionNodeRelation unionRelation = (UnionNodeRelation) relation;
-            selectSql = genUnionNodeSelectSql(loadNode, loadNode.getFieldRelations(), unionRelation, nodeMap);
+            selectSql =
+                    genUnionNodeSelectSql(
+                            loadNode, loadNode.getFieldRelations(), unionRelation, nodeMap);
         } else {
             // parse base relation that one to one and generate the select sql
-            Preconditions.checkState(relation.getInputs().size() == 1,
+            Preconditions.checkState(
+                    relation.getInputs().size() == 1,
                     "simple transform only support one input node");
-            Preconditions.checkState(relation.getOutputs().size() == 1,
-                    "join node only support one output node");
-            selectSql = genSimpleSelectSql(loadNode, loadNode.getFieldRelations(), relation,
-                    loadNode.getFilters(), loadNode.getFilterStrategy(), nodeMap);
+            Preconditions.checkState(
+                    relation.getOutputs().size() == 1, "join node only support one output node");
+            selectSql =
+                    genSimpleSelectSql(
+                            loadNode,
+                            loadNode.getFieldRelations(),
+                            relation,
+                            loadNode.getFilters(),
+                            loadNode.getFilterStrategy(),
+                            nodeMap);
         }
         return selectSql;
     }
 
-    private void parseHbaseLoadFieldRelation(String rowkey, Collection<FieldRelation> fieldRelations,
-            StringBuilder sb) {
+    private void parseHbaseLoadFieldRelation(
+            String rowkey, Collection<FieldRelation> fieldRelations, StringBuilder sb) {
         sb.append("CAST(").append(rowkey).append(" AS STRING) AS rowkey,\n");
-        Map<String, List<FieldRelation>> columnFamilyMapFields = genColumnFamilyMapFieldRelations(
-                fieldRelations);
+        Map<String, List<FieldRelation>> columnFamilyMapFields =
+                genColumnFamilyMapFieldRelations(fieldRelations);
         for (Map.Entry<String, List<FieldRelation>> entry : columnFamilyMapFields.entrySet()) {
             StringBuilder fieldAppend = new StringBuilder(" ROW(");
             for (FieldRelation fieldRelation : entry.getValue()) {
                 FieldInfo outputField = fieldRelation.getOutputField();
-                String targetType = TableFormatUtils.deriveLogicalType(outputField.getFormatInfo()).asSummaryString();
-                fieldAppend.append("CAST(").append(fieldRelation.getInputField().format()).append(" AS ")
-                        .append(targetType).append(")").append(", ");
+                String targetType =
+                        TableFormatUtils.deriveLogicalType(outputField.getFormatInfo())
+                                .asSummaryString();
+                fieldAppend
+                        .append("CAST(")
+                        .append(fieldRelation.getInputField().format())
+                        .append(" AS ")
+                        .append(targetType)
+                        .append(")")
+                        .append(", ");
             }
             if (fieldAppend.length() > 0) {
                 fieldAppend.delete(fieldAppend.lastIndexOf(","), fieldAppend.length());
@@ -747,30 +942,34 @@ public class FlinkSqlParser implements Parser {
         }
         sb.append(")");
         if (node.getPartitionFields() != null && !node.getPartitionFields().isEmpty()) {
-            sb.append(String.format("\nPARTITIONED BY (%s)",
-                    StringUtils.join(formatFields(node.getPartitionFields()), ",")));
+            sb.append(
+                    String.format(
+                            "\nPARTITIONED BY (%s)",
+                            StringUtils.join(formatFields(node.getPartitionFields()), ",")));
         }
         sb.append(parseOptions(node.tableOptions()));
         return sb.toString();
     }
 
-    /**
-     * Gen create table DDL for hbase load
-     */
+    /** Gen create table DDL for hbase load */
     private String genCreateHbaseLoadSql(HbaseLoadNode node) {
         StringBuilder sb = new StringBuilder("CREATE TABLE `");
         sb.append(node.genTableName()).append("`(\n");
         sb.append("rowkey STRING,\n");
 
-        Map<String, List<FieldRelation>> columnFamilyMapFields = genColumnFamilyMapFieldRelations(
-                node.getFieldRelations());
+        Map<String, List<FieldRelation>> columnFamilyMapFields =
+                genColumnFamilyMapFieldRelations(node.getFieldRelations());
         for (Map.Entry<String, List<FieldRelation>> entry : columnFamilyMapFields.entrySet()) {
             sb.append(entry.getKey());
             StringBuilder fieldsAppend = new StringBuilder(" Row<");
             for (FieldRelation fieldRelation : entry.getValue()) {
-                fieldsAppend.append(fieldRelation.getOutputField().getName().split(":")[1]).append(" ")
-                        .append(TableFormatUtils.deriveLogicalType(fieldRelation.getOutputField().getFormatInfo())
-                                .asSummaryString())
+                fieldsAppend
+                        .append(fieldRelation.getOutputField().getName().split(":")[1])
+                        .append(" ")
+                        .append(
+                                TableFormatUtils.deriveLogicalType(
+                                                fieldRelation.getOutputField().getFormatInfo())
+                                        .asSummaryString())
                         .append(",");
             }
             if (fieldsAppend.length() > 0) {
@@ -791,7 +990,8 @@ public class FlinkSqlParser implements Parser {
         for (FieldRelation fieldRelation : fieldRelations) {
             String columnFamily = fieldRelation.getOutputField().getName().split(":")[0];
             if (nameSet.add(fieldRelation.getOutputField().getName())) {
-                columnFamilyMapFields.computeIfAbsent(columnFamily, v -> new ArrayList<>())
+                columnFamilyMapFields
+                        .computeIfAbsent(columnFamily, v -> new ArrayList<>())
                         .add(fieldRelation);
             }
         }
@@ -805,7 +1005,8 @@ public class FlinkSqlParser implements Parser {
      * @return The creation sql of transform node
      */
     private String genCreateTransformSql(Node node) {
-        return String.format("CREATE VIEW `%s` (%s)",
+        return String.format(
+                "CREATE VIEW `%s` (%s)",
                 node.genTableName(), parseTransformNodeFields(node.getFields()));
     }
 
@@ -820,7 +1021,12 @@ public class FlinkSqlParser implements Parser {
         if (options != null && !options.isEmpty()) {
             sb.append("\n    WITH (");
             for (Map.Entry<String, String> kv : options.entrySet()) {
-                sb.append("\n    '").append(kv.getKey()).append("' = '").append(kv.getValue()).append("'").append(",");
+                sb.append("\n    '")
+                        .append(kv.getKey())
+                        .append("' = '")
+                        .append(kv.getValue())
+                        .append("'")
+                        .append(",");
             }
             if (sb.length() > 0) {
                 sb.delete(sb.lastIndexOf(","), sb.length());
@@ -860,18 +1066,25 @@ public class FlinkSqlParser implements Parser {
             sb.append("    `").append(field.getName()).append("` ");
             if (field instanceof MetaFieldInfo) {
                 if (!(node instanceof Metadata)) {
-                    throw new IllegalArgumentException(String.format("Node: %s is not instance of Metadata",
-                            node.getClass().getSimpleName()));
+                    throw new IllegalArgumentException(
+                            String.format(
+                                    "Node: %s is not instance of Metadata",
+                                    node.getClass().getSimpleName()));
                 }
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
                 Metadata metadataNode = (Metadata) node;
                 if (!metadataNode.supportedMetaFields().contains(metaFieldInfo.getMetaField())) {
-                    throw new UnsupportedOperationException(String.format("Unsupported meta field for %s: %s",
-                            metadataNode.getClass().getSimpleName(), metaFieldInfo.getMetaField()));
+                    throw new UnsupportedOperationException(
+                            String.format(
+                                    "Unsupported meta field for %s: %s",
+                                    metadataNode.getClass().getSimpleName(),
+                                    metaFieldInfo.getMetaField()));
                 }
                 sb.append(metadataNode.format(metaFieldInfo.getMetaField()));
             } else {
-                sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString());
+                sb.append(
+                        TableFormatUtils.deriveLogicalType(field.getFormatInfo())
+                                .asSummaryString());
             }
             sb.append(",\n");
         }
@@ -889,8 +1102,10 @@ public class FlinkSqlParser implements Parser {
      */
     private String genPrimaryKey(String primaryKey) {
         if (StringUtils.isNotBlank(primaryKey)) {
-            primaryKey = String.format("    PRIMARY KEY (%s) NOT ENFORCED,\n",
-                    StringUtils.join(formatFields(primaryKey.split(",")), ","));
+            primaryKey =
+                    String.format(
+                            "    PRIMARY KEY (%s) NOT ENFORCED,\n",
+                            StringUtils.join(formatFields(primaryKey.split(",")), ","));
         } else {
             primaryKey = "";
         }

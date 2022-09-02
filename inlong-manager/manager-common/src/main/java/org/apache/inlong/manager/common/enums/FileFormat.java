@@ -18,8 +18,10 @@
 package org.apache.inlong.manager.common.enums;
 
 public enum FileFormat {
-
-    TextFile, ORCFile, SequenceFile, Parquet;
+    TextFile,
+    ORCFile,
+    SequenceFile,
+    Parquet;
 
     public static FileFormat forName(String name) {
         for (FileFormat value : values()) {
@@ -29,5 +31,4 @@ public enum FileFormat {
         }
         throw new IllegalArgumentException(String.format("Unsupported file format for %s", name));
     }
-
 }

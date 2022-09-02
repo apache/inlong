@@ -22,7 +22,8 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
 /**
- * Runtime converter that responsible to convert between JDBC object and Flink internal object for ClickHouse.
+ * Runtime converter that responsible to convert between JDBC object and Flink internal object for
+ * ClickHouse.
  */
 public class ClickHouseRowConverter extends AbstractJdbcRowConverter {
 

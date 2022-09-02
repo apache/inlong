@@ -64,16 +64,13 @@ public class MetricReporterImpl implements MetricReporter {
         return true;
     }
 
-    /**
-     * close
-     */
+    /** close */
     @Override
-    public void close() {
-
-    }
+    public void close() {}
 
     private void initPrometheusMetricListener() {
-        sortSdkPrometheusMetricListener = new SortSdkPrometheusMetricListener(sortClientConfig.getSortTaskId());
+        sortSdkPrometheusMetricListener =
+                new SortSdkPrometheusMetricListener(sortClientConfig.getSortTaskId());
     }
 
     private Map<String, Long> getPrometheusMetricVals(long[] values) {
@@ -104,5 +101,4 @@ public class MetricReporterImpl implements MetricReporter {
         }
         return null;
     }
-
 }

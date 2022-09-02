@@ -23,10 +23,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
-/**
- * An interface to provide original Inlong Apis.
- * Not recommend to use
- */
+/** An interface to provide original Inlong Apis. Not recommend to use */
 public interface LowLevelInlongClient {
 
     /**
@@ -57,5 +54,4 @@ public interface LowLevelInlongClient {
      * @throws Exception the exception may throw
      */
     PageResult<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) throws Exception;
-
 }

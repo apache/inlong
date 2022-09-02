@@ -36,33 +36,40 @@ public interface InlongStreamApi {
     Call<Response<Integer>> createStream(@Body InlongStreamInfo stream);
 
     @GET("stream/exist/{groupId}/{streamId}")
-    Call<Response<Boolean>> isStreamExists(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> isStreamExists(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @POST("stream/update")
     Call<Response<Boolean>> updateStream(@Body InlongStreamInfo stream);
 
     @GET("stream/get")
-    Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
-            @Query("streamId") String streamId);
+    Call<Response<InlongStreamInfo>> getStream(
+            @Query("groupId") String groupId, @Query("streamId") String streamId);
 
     @POST("stream/list")
-    Call<Response<PageResult<InlongStreamBriefInfo>>> listByCondition(@Body InlongStreamPageRequest request);
+    Call<Response<PageResult<InlongStreamBriefInfo>>> listByCondition(
+            @Body InlongStreamPageRequest request);
 
     @POST("stream/listAll")
     Call<Response<PageResult<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
     @POST("stream/startProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> startProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> startProcess(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @POST("stream/suspendProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> suspendProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> suspendProcess(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @POST("stream/restartProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> restartProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> restartProcess(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @POST("stream/deleteProcess/{groupId}/{streamId}")
-    Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> deleteProcess(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @DELETE("stream/delete")
-    Call<Response<Boolean>> delete(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> delete(
+            @Path("groupId") String groupId, @Path("streamId") String streamId);
 }

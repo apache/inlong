@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.source.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -26,29 +28,22 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.SubSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
-import org.apache.inlong.manager.pojo.source.SubSourceDTO;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * File source operator, such as get or set file source info.
- */
+/** File source operator, such as get or set file source info. */
 @Service
 public class FileSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private StreamSourceEntityMapper sourceMapper;
+    @Autowired private StreamSourceEntityMapper sourceMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -68,7 +63,8 @@ public class FileSourceOperator extends AbstractSourceOperator {
             FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -87,13 +83,17 @@ public class FileSourceOperator extends AbstractSourceOperator {
         source.setFieldList(sourceFields);
 
         List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(entity.getId());
-        source.setSubSourceList(subSourceList.stream().map(subEntity -> SubSourceDTO.builder()
-                        .id(subEntity.getId())
-                        .templateId(entity.getId())
-                        .agentIp(subEntity.getAgentIp())
-                        .status(subEntity.getStatus()).build())
-                .collect(Collectors.toList()));
+        source.setSubSourceList(
+                subSourceList.stream()
+                        .map(
+                                subEntity ->
+                                        SubSourceDTO.builder()
+                                                .id(subEntity.getId())
+                                                .templateId(entity.getId())
+                                                .agentIp(subEntity.getAgentIp())
+                                                .status(subEntity.getStatus())
+                                                .build())
+                        .collect(Collectors.toList()));
         return source;
     }
-
 }

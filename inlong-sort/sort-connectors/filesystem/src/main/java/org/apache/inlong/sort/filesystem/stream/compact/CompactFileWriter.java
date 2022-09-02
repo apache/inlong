@@ -26,29 +26,26 @@ import org.apache.flink.table.filesystem.stream.compact.CompactMessages.EndCheck
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.InputFile;
 import org.apache.inlong.sort.filesystem.stream.AbstractStreamingWriter;
 
-/**
- * Writer for emitting {@link InputFile} and {@link EndCheckpoint} to downstream.
- */
-public class CompactFileWriter<T>
-        extends AbstractStreamingWriter<T, CoordinatorInput> {
+/** Writer for emitting {@link InputFile} and {@link EndCheckpoint} to downstream. */
+public class CompactFileWriter<T> extends AbstractStreamingWriter<T, CoordinatorInput> {
 
     private static final long serialVersionUID = 1L;
 
     public CompactFileWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+                            T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
+                    bucketsBuilder,
+            String inlongMetric,
+            String inlongAudit) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
     }
 
     @Override
-    protected void partitionCreated(String partition) {
-    }
+    protected void partitionCreated(String partition) {}
 
     @Override
-    protected void partitionInactive(String partition) {
-    }
+    protected void partitionInactive(String partition) {}
 
     @Override
     protected void onPartFileOpened(String partition, Path newPath) {

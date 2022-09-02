@@ -22,13 +22,10 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * IpUtils
- */
+/** IpUtils */
 public class IpUtils {
 
     public static final Logger LOG = LoggerFactory.getLogger(IpUtils.class);
@@ -38,9 +35,8 @@ public class IpUtils {
 
     /**
      * getLocalAddress
-     * 
-     * @return
      *
+     * @return
      * @throws Exception
      */
     public static String getLocalAddress() {
@@ -50,7 +46,8 @@ public class IpUtils {
 
         try {
             /* loop to Ethernet cards, find a valid ip */
-            final Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
+            final Enumeration<NetworkInterface> enumeration =
+                    NetworkInterface.getNetworkInterfaces();
             InetAddress ipv6Address = null;
             while (enumeration.hasMoreElements()) {
                 final NetworkInterface networkInterface = enumeration.nextElement();
@@ -73,9 +70,7 @@ public class IpUtils {
                             }
                         }
                     }
-
                 }
-
             }
 
             final InetAddress localHost = InetAddress.getLocalHost();
@@ -89,9 +84,8 @@ public class IpUtils {
 
     /**
      * getLocalAddressBytes
-     * 
-     * @return
      *
+     * @return
      * @throws Exception
      */
     public static byte[] getLocalAddressBytes() throws Exception {
@@ -133,8 +127,8 @@ public class IpUtils {
 
     /**
      * normalizeHostAddress
-     * 
-     * @param  localHost
+     *
+     * @param localHost
      * @return
      */
     public static String normalizeHostAddress(final InetAddress localHost) {
@@ -147,8 +141,8 @@ public class IpUtils {
 
     /**
      * toBytes
-     * 
-     * @param  ipAddr
+     *
+     * @param ipAddr
      * @return
      */
     public static byte[] toBytes(String ipAddr) {
@@ -167,8 +161,8 @@ public class IpUtils {
 
     /**
      * bytesToInt
-     * 
-     * @param  bytes
+     *
+     * @param bytes
      * @return
      */
     public static int bytesToInt(byte[] bytes) {
@@ -181,8 +175,8 @@ public class IpUtils {
 
     /**
      * ipToInt
-     * 
-     * @param  ipAddr
+     *
+     * @param ipAddr
      * @return
      */
     public static int ipToInt(String ipAddr) {
@@ -195,12 +189,19 @@ public class IpUtils {
 
     /**
      * intToIp
-     * 
-     * @param  ipInt
+     *
+     * @param ipInt
      * @return
      */
     public static String intToIp(int ipInt) {
-        return new StringBuilder().append(((ipInt >> 24) & 0xff)).append('.').append((ipInt >> 16) & 0xff).append('.')
-                .append((ipInt >> 8) & 0xff).append('.').append((ipInt & 0xff)).toString();
+        return new StringBuilder()
+                .append(((ipInt >> 24) & 0xff))
+                .append('.')
+                .append((ipInt >> 16) & 0xff)
+                .append('.')
+                .append((ipInt >> 8) & 0xff)
+                .append('.')
+                .append((ipInt & 0xff))
+                .toString();
     }
 }

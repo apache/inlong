@@ -64,7 +64,7 @@ public class SinkTask extends Thread {
 
     private SinkCounter sinkCounter;
 
-    private LoadingCache<String, Long>  agentIdCache;
+    private LoadingCache<String, Long> agentIdCache;
 
     private MQClusterConfig pulsarConfig;
 
@@ -74,9 +74,13 @@ public class SinkTask extends Thread {
      */
     private volatile boolean canSend = false;
 
-    public SinkTask(PulsarClientService pulsarClientService, PulsarSink pulsarSink,
+    public SinkTask(
+            PulsarClientService pulsarClientService,
+            PulsarSink pulsarSink,
             int eventQueueSize,
-            int badEventQueueSize, int poolIndex, boolean canSend) {
+            int badEventQueueSize,
+            int poolIndex,
+            boolean canSend) {
         this.pulsarClientService = pulsarClientService;
         this.pulsarSink = pulsarSink;
         this.poolIndex = poolIndex;
@@ -137,10 +141,10 @@ public class SinkTask extends Thread {
                          */
                         logCounter++;
                         if (logCounter == 1 || logCounter % 100000 == 0) {
-                            logger.info(getName()
-                                            + " currentInFlightCount={} resendQueue"
-                                            + ".size={}",
-                                    currentInFlightCount.get(), resendQueue.size());
+                            logger.info(
+                                    getName() + " currentInFlightCount={} resendQueue" + ".size={}",
+                                    currentInFlightCount.get(),
+                                    resendQueue.size());
                         }
                         if (logCounter > Long.MAX_VALUE - 10) {
                             logCounter = 0;
@@ -160,7 +164,9 @@ public class SinkTask extends Thread {
                 if (StringUtils.isEmpty(topic)) {
                     String groupId = event.getHeaders().get(AttributeConstants.GROUP_ID);
                     String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-                    topic = MessageUtils.getTopic(pulsarSink.getTopicsProperties(), groupId, streamId);
+                    topic =
+                            MessageUtils.getTopic(
+                                    pulsarSink.getTopicsProperties(), groupId, streamId);
                 }
 
                 if (event == null) {
@@ -169,8 +175,8 @@ public class SinkTask extends Thread {
                 }
 
                 if (topic == null || topic.equals("")) {
-                    pulsarSink.handleMessageSendException(topic, eventStat, new Exception("topic"
-                            + " info is null"));
+                    pulsarSink.handleMessageSendException(
+                            topic, eventStat, new Exception("topic" + " info is null"));
                     processToReTrySend(eventStat);
                     logger.warn("no topic specified, so will retry send!");
                     continue;
@@ -181,8 +187,11 @@ public class SinkTask extends Thread {
                 }
 
                 if (eventStat.getRetryCnt() > maxRetrySendCnt) {
-                    logger.warn("Message will be discard! send times reach to max retry cnt."
-                            + " topic = {}, max retry cnt = {}", topic, maxRetrySendCnt);
+                    logger.warn(
+                            "Message will be discard! send times reach to max retry cnt."
+                                    + " topic = {}, max retry cnt = {}",
+                            topic,
+                            maxRetrySendCnt);
                     continue;
                 }
 
@@ -196,15 +205,18 @@ public class SinkTask extends Thread {
                 if (pulsarConfig.getClientIdCache() && clientSeqId != null && hasSend) {
                     agentIdCache.put(clientSeqId, System.currentTimeMillis());
                     if (logPrinterA.shouldPrint()) {
-                        logger.info("{} agent package {} existed,just discard.",
-                                getName(), clientSeqId);
+                        logger.info(
+                                "{} agent package {} existed,just discard.",
+                                getName(),
+                                clientSeqId);
                     }
                 } else {
                     if (pulsarConfig.getClientIdCache() && clientSeqId != null) {
                         agentIdCache.put(clientSeqId, System.currentTimeMillis());
                     }
-                    boolean sendResult = pulsarClientService.sendMessage(poolIndex, topic,
-                            event, pulsarSink, eventStat);
+                    boolean sendResult =
+                            pulsarClientService.sendMessage(
+                                    poolIndex, topic, event, pulsarSink, eventStat);
                     if (!sendResult) {
                         /*
                          * only for order message
@@ -215,14 +227,15 @@ public class SinkTask extends Thread {
                     decrementFlag = true;
                 }
             } catch (InterruptedException e) {
-                logger.error("Thread {} has been interrupted!",
-                        Thread.currentThread().getName());
+                logger.error("Thread {} has been interrupted!", Thread.currentThread().getName());
                 return;
             } catch (Throwable t) {
                 if (t instanceof PulsarClientException) {
                     String message = t.getMessage();
-                    if (message != null && (message.contains("No available queue for topic")
-                            || message.contains("The brokers of topic are all forbidden"))) {
+                    if (message != null
+                            && (message.contains("No available queue for topic")
+                                    || message.contains(
+                                            "The brokers of topic are all forbidden"))) {
                         logger.info("IllegalTopicMap.put " + topic);
                         continue;
                     } else {
@@ -235,17 +248,19 @@ public class SinkTask extends Thread {
                              */
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
-                            //ignore..
+                            // ignore..
                         }
                     }
                 }
                 if (logPrinterA.shouldPrint()) {
-                    logger.error("Sink task fail to send the message, decrementFlag="
-                            + decrementFlag
-                            + ",sink.name="
-                            + Thread.currentThread().getName()
-                            + ",event.headers="
-                            + eventStat.getEvent().getHeaders(), t);
+                    logger.error(
+                            "Sink task fail to send the message, decrementFlag="
+                                    + decrementFlag
+                                    + ",sink.name="
+                                    + Thread.currentThread().getName()
+                                    + ",event.headers="
+                                    + eventStat.getEvent().getHeaders(),
+                            t);
                 }
                 /*
                  * producer.sendMessage is abnormal,

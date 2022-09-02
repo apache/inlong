@@ -18,31 +18,24 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.rowToArray;
+
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.TableId;
-import org.apache.flink.table.types.logical.RowType;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.flink.table.types.logical.RowType;
 
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.rowToArray;
-
-/**
- * Utils to prepare SQL statement.
- */
+/** Utils to prepare SQL statement. */
 public class StatementUtils {
 
-    private StatementUtils() {
+    private StatementUtils() {}
 
-    }
-
-    /**
-     * Query value of min and max.
-     */
+    /** Query value of min and max. */
     public static Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
             throws SQLException {
         final String minMaxQuery =
@@ -63,9 +56,7 @@ public class StatementUtils {
                 });
     }
 
-    /**
-     * Query approximate value.
-     */
+    /** Query approximate value. */
     public static long queryApproximateRowCnt(JdbcConnection jdbc, TableId tableId)
             throws SQLException {
         // The statement used to get approximate row count which is less
@@ -86,9 +77,7 @@ public class StatementUtils {
                 });
     }
 
-    /**
-     * Query value of min.
-     */
+    /** Query value of min. */
     public static Object queryMin(
             JdbcConnection jdbc, TableId tableId, String columnName, Object excludedLowerBound)
             throws SQLException {
@@ -110,9 +99,7 @@ public class StatementUtils {
                 });
     }
 
-    /**
-     * Query chunk of max.
-     */
+    /** Query chunk of max. */
     public static Object queryNextChunkMax(
             JdbcConnection jdbc,
             TableId tableId,
@@ -146,9 +133,7 @@ public class StatementUtils {
                 });
     }
 
-    /**
-     * Create split scan.
-     */
+    /** Create split scan. */
     public static String buildSplitScanQuery(
             TableId tableId, RowType pkRowType, boolean isFirstSplit, boolean isLastSplit) {
         return buildSplitQuery(tableId, pkRowType, isFirstSplit, isLastSplit, -1, true);
@@ -207,9 +192,7 @@ public class StatementUtils {
         }
     }
 
-    /**
-     * Get data statement of table.
-     */
+    /** Get data statement of table. */
     public static PreparedStatement readTableSplitDataStatement(
             JdbcConnection jdbc,
             String sql,
@@ -246,16 +229,12 @@ public class StatementUtils {
         }
     }
 
-    /**
-     * quote
-     */
+    /** quote */
     public static String quote(String dbOrTableName) {
         return "`" + dbOrTableName + "`";
     }
 
-    /**
-     * quote
-     */
+    /** quote */
     public static String quote(TableId tableId) {
         return tableId.toQuotedString('`');
     }
@@ -272,7 +251,7 @@ public class StatementUtils {
     private static void addPrimaryKeyColumnsToCondition(
             RowType pkRowType, StringBuilder sql, String predicate) {
         for (Iterator<String> fieldNamesIt = pkRowType.getFieldNames().iterator();
-             fieldNamesIt.hasNext(); ) {
+                fieldNamesIt.hasNext(); ) {
             sql.append(fieldNamesIt.next()).append(predicate);
             if (fieldNamesIt.hasNext()) {
                 sql.append(" AND ");
@@ -283,7 +262,7 @@ public class StatementUtils {
     private static String getPrimaryKeyColumnsProjection(RowType pkRowType) {
         StringBuilder sql = new StringBuilder();
         for (Iterator<String> fieldNamesIt = pkRowType.getFieldNames().iterator();
-             fieldNamesIt.hasNext(); ) {
+                fieldNamesIt.hasNext(); ) {
             sql.append(fieldNamesIt.next());
             if (fieldNamesIt.hasNext()) {
                 sql.append(" , ");
@@ -295,7 +274,7 @@ public class StatementUtils {
     private static String getMaxPrimaryKeyColumnsProjection(RowType pkRowType) {
         StringBuilder sql = new StringBuilder();
         for (Iterator<String> fieldNamesIt = pkRowType.getFieldNames().iterator();
-             fieldNamesIt.hasNext(); ) {
+                fieldNamesIt.hasNext(); ) {
             sql.append("MAX(" + fieldNamesIt.next() + ")");
             if (fieldNamesIt.hasNext()) {
                 sql.append(" , ");

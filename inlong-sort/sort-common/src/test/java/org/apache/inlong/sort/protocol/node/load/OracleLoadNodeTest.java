@@ -18,25 +18,29 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Collections;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-import java.util.Collections;
-
-/**
- * Test for {@link OracleLoadNode}
- */
+/** Test for {@link OracleLoadNode} */
 public class OracleLoadNodeTest extends SerializeBaseTest<OracleLoadNode> {
 
     @Override
     public OracleLoadNode getTestObject() {
-        return new OracleLoadNode("1", "mysql_output",
+        return new OracleLoadNode(
+                "1",
+                "mysql_output",
                 Collections.singletonList(new FieldInfo("NAME", new StringFormatInfo())),
-                Collections.singletonList(new FieldRelation(new FieldInfo("name",
-                        new StringFormatInfo()), new FieldInfo("NAME", new StringFormatInfo()))),
-                null, null, 1, null,
+                Collections.singletonList(
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("NAME", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
                 "jdbc:oracle:thin:@localhost:1521:xe",
                 "inlong",
                 "inlong",

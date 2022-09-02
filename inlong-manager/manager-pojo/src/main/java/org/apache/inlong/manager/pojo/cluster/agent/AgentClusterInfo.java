@@ -27,9 +27,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
-/**
- * Agent cluster info
- */
+/** Agent cluster info */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -45,5 +43,4 @@ public class AgentClusterInfo extends ClusterInfo {
     public ClusterRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, AgentClusterRequest::new);
     }
-
 }

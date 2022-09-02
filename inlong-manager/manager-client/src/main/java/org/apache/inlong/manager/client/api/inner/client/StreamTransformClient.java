@@ -17,52 +17,46 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamTransformApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.List;
-
-/**
- * Client for {@link StreamTransformApi}.
- */
+/** Client for {@link StreamTransformApi}. */
 public class StreamTransformClient {
 
     private final StreamTransformApi streamTransformApi;
 
     public StreamTransformClient(ClientConfiguration configuration) {
-        streamTransformApi = ClientUtils.createRetrofit(configuration).create(StreamTransformApi.class);
+        streamTransformApi =
+                ClientUtils.createRetrofit(configuration).create(StreamTransformApi.class);
     }
 
-    /**
-     * Create a conversion function info.
-     */
+    /** Create a conversion function info. */
     public Integer createTransform(TransformRequest transformRequest) {
-        Response<Integer> response = ClientUtils.executeHttpCall(streamTransformApi.createTransform(transformRequest));
+        Response<Integer> response =
+                ClientUtils.executeHttpCall(streamTransformApi.createTransform(transformRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 
-    /**
-     * Get all conversion function info.
-     */
+    /** Get all conversion function info. */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
-        Response<List<TransformResponse>> response = ClientUtils.executeHttpCall(
-                streamTransformApi.listTransform(groupId, streamId));
+        Response<List<TransformResponse>> response =
+                ClientUtils.executeHttpCall(streamTransformApi.listTransform(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 
-    /**
-     * Update conversion function info.
-     */
+    /** Update conversion function info. */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(streamTransformApi.updateTransform(transformRequest));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(streamTransformApi.updateTransform(transformRequest));
 
         if (response.getData() != null) {
             return Pair.of(response.getData(), response.getErrMsg());
@@ -71,17 +65,21 @@ public class StreamTransformClient {
         }
     }
 
-    /**
-     * Delete conversion function info.
-     */
+    /** Delete conversion function info. */
     public boolean deleteTransform(TransformRequest transformRequest) {
-        Preconditions.checkNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getTransformName(), "transformName should not be null");
+        Preconditions.checkNotEmpty(
+                transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
+        Preconditions.checkNotEmpty(
+                transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
+        Preconditions.checkNotEmpty(
+                transformRequest.getTransformName(), "transformName should not be null");
 
-        Response<Boolean> response = ClientUtils.executeHttpCall(
-                streamTransformApi.deleteTransform(transformRequest.getInlongGroupId(),
-                        transformRequest.getInlongStreamId(), transformRequest.getTransformName()));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(
+                        streamTransformApi.deleteTransform(
+                                transformRequest.getInlongGroupId(),
+                                transformRequest.getInlongStreamId(),
+                                transformRequest.getTransformName()));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

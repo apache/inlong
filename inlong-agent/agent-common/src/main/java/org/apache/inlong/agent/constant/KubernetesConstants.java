@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * k8s information
- */
+/** k8s information */
 public class KubernetesConstants {
 
     public static final String HTTPS = "https://";
@@ -41,5 +39,4 @@ public class KubernetesConstants {
     public static final String METADATA_POD_LABEL = "__pod_label__";
     public static final String DATA_CONTENT = "__content__";
     public static final String DATA_CONTENT_TIME = "__LogTime__";
-    
 }

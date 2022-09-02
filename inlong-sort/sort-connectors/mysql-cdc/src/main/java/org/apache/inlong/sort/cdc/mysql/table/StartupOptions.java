@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Objects;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** Debezium startup options. */
 public final class StartupOptions implements Serializable {
@@ -71,7 +71,7 @@ public final class StartupOptions implements Serializable {
      * read binlog from the specified timestamp.
      *
      * <p>The consumer will traverse the binlog from the beginning and ignore change events whose
-     * timestamp is smaller than the specified timestamp.</p>
+     * timestamp is smaller than the specified timestamp.
      *
      * @param startupTimestampMillis timestamp for the startup offsets, as milliseconds from epoch.
      */

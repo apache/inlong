@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import java.nio.charset.StandardCharsets;
-
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +31,18 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     private static final Logger logger = LoggerFactory.getLogger(ProtocolDecoder.class);
 
     @Override
-    protected void decode(ChannelHandlerContext ctx,
-            ByteBuf buffer, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out)
+            throws Exception {
         buffer.markReaderIndex();
         // totallen
         int totalLen = buffer.readInt();
         logger.debug("decode totalLen : {}", totalLen);
         if (totalLen != buffer.readableBytes()) {
-            logger.error("totalLen is not equal readableBytes.total:" + totalLen
-                    + ";readableBytes:" + buffer.readableBytes());
+            logger.error(
+                    "totalLen is not equal readableBytes.total:"
+                            + totalLen
+                            + ";readableBytes:"
+                            + buffer.readableBytes());
             buffer.resetReaderIndex();
             throw new Exception("totalLen is not equal readableBytes.total");
         }
@@ -54,8 +56,11 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             // bodylen
             int bodyLength = buffer.readInt();
             if (bodyLength >= totalLen) {
-                logger.error("bodyLen is greater than totalLen.totalLen:" + totalLen
-                        + ";bodyLen:" + bodyLength);
+                logger.error(
+                        "bodyLen is greater than totalLen.totalLen:"
+                                + totalLen
+                                + ";bodyLen:"
+                                + bodyLength);
                 buffer.resetReaderIndex();
                 throw new Exception("bodyLen is greater than totalLen.totalLen");
             }
@@ -72,8 +77,8 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 attrBytes = new byte[attrLength];
                 buffer.readBytes(attrBytes);
             }
-            EncodeObject object = new EncodeObject(bodyBytes, new String(attrBytes,
-                    StandardCharsets.UTF_8));
+            EncodeObject object =
+                    new EncodeObject(bodyBytes, new String(attrBytes, StandardCharsets.UTF_8));
             object.setMsgtype(5);
             out.add(object);
         } else if (msgType == 7) {

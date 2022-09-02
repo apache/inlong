@@ -29,7 +29,6 @@ import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * A {@link DatabaseHistory} implementation which store the latest table schema in Flink state.
  *
- * <p>It stores/recovers history using data offered by {@link MySqlSplitState}.</p>
+ * <p>It stores/recovers history using data offered by {@link MySqlSplitState}.
  */
 public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
 
@@ -73,9 +72,10 @@ public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
             DatabaseHistoryListener listener,
             boolean useCatalogBeforeSchema) {
         this.listener = listener;
-        this.storeOnlyMonitoredTablesDdl = config.getBoolean(
-                DatabaseHistory.STORE_ONLY_MONITORED_TABLES_DDL);
-        this.skipUnparseableDDL = config.getBoolean(DatabaseHistory.SKIP_UNPARSEABLE_DDL_STATEMENTS);
+        this.storeOnlyMonitoredTablesDdl =
+                config.getBoolean(DatabaseHistory.STORE_ONLY_MONITORED_TABLES_DDL);
+        this.skipUnparseableDDL =
+                config.getBoolean(DatabaseHistory.SKIP_UNPARSEABLE_DDL_STATEMENTS);
 
         // recover
         String instanceName = config.getString(DATABASE_HISTORY_INSTANCE_NAME);

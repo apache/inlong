@@ -18,19 +18,16 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.InlongStream;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Map;
-
-/**
- * InnerGroupContext.
- */
+/** InnerGroupContext. */
 @Data
 @NoArgsConstructor
 public class InnerGroupContext {
@@ -49,7 +46,8 @@ public class InnerGroupContext {
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {
-        Preconditions.checkTrue(streamContext != null && streamContext.getStreamInfo() != null,
+        Preconditions.checkTrue(
+                streamContext != null && streamContext.getStreamInfo() != null,
                 "stream context cannot be null");
         if (MapUtils.isEmpty(streamContextMap)) {
             streamContextMap = Maps.newHashMap();
@@ -64,5 +62,4 @@ public class InnerGroupContext {
         }
         streamMap.put(stream.getInlongStreamId(), stream);
     }
-
 }

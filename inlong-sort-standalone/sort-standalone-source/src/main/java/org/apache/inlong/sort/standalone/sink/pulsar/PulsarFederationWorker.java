@@ -1,22 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
@@ -28,12 +26,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.Map;
-
-/**
- * 
- * PulsarFederationWorker
- */
+/** PulsarFederationWorker */
 public class PulsarFederationWorker extends Thread {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PulsarFederationWorker.class);
@@ -46,12 +39,13 @@ public class PulsarFederationWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param workerIndex
      * @param context
      */
-    public PulsarFederationWorker(String sinkName, int workerIndex, PulsarFederationSinkContext context) {
+    public PulsarFederationWorker(
+            String sinkName, int workerIndex, PulsarFederationSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;
@@ -59,9 +53,7 @@ public class PulsarFederationWorker extends Thread {
         this.status = LifecycleState.IDLE;
     }
 
-    /**
-     * start
-     */
+    /** start */
     @Override
     public void start() {
         this.producerFederation.start();
@@ -69,19 +61,14 @@ public class PulsarFederationWorker extends Thread {
         super.start();
     }
 
-    /**
-     * 
-     * close
-     */
+    /** close */
     public void close() {
         // close all producers
         this.producerFederation.close();
         this.status = LifecycleState.STOP;
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         LOG.info(String.format("start PulsarSetWorker:%s", this.workerName));
@@ -127,7 +114,7 @@ public class PulsarFederationWorker extends Thread {
 
     /**
      * fillTopic
-     * 
+     *
      * @param currentRecord
      */
     private String fillTopic(Event currentRecord) {
@@ -143,9 +130,7 @@ public class PulsarFederationWorker extends Thread {
         return "-";
     }
 
-    /**
-     * sleepOneInterval
-     */
+    /** sleepOneInterval */
     private void sleepOneInterval() {
         try {
             Thread.sleep(context.getProcessInterval());

@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CacheClusterSet
- */
+/** CacheClusterSet */
 public class CacheClusterSetObject {
 
     private String setName;
@@ -101,5 +99,4 @@ public class CacheClusterSetObject {
     public void setTopics(List<CacheTopicObject> topics) {
         this.topics = topics;
     }
-
 }

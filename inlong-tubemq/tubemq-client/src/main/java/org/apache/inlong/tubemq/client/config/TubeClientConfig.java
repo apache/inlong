@@ -26,9 +26,7 @@ import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
-/**
- * Configuration of the Tube client.
- */
+/** Configuration of the Tube client. */
 public class TubeClientConfig {
     // Master information.
     private final MasterInfo masterInfo;
@@ -41,7 +39,8 @@ public class TubeClientConfig {
     // The size of the thread pool, which handles the call back response.
     private int rpcRspCallBackThreadCnt = RpcConstants.CFG_DEFAULT_RSP_CALLBACK_WORKER_COUNT;
     // High watermark of the netty write buffer.
-    private long nettyWriteBufferHighWaterMark = RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK;
+    private long nettyWriteBufferHighWaterMark =
+            RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK;
     // Low watermark of the netty write buffer.
     private long nettyWriteBufferLowWaterMark = RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK;
     // Max register retry times.
@@ -53,7 +52,8 @@ public class TubeClientConfig {
     // Heartbeat period in ms.
     private long heartbeatPeriodMs = TClientConstants.CFG_DEFAULT_HEARTBEAT_PERIOD_MS;
     // Heartbeat period after failure happened.
-    private long heartbeatPeriodAfterFail = TClientConstants.CFG_DEFAULT_HEARTBEAT_PERIOD_AFTER_RETRY_FAIL;
+    private long heartbeatPeriodAfterFail =
+            TClientConstants.CFG_DEFAULT_HEARTBEAT_PERIOD_AFTER_RETRY_FAIL;
     // Link statistic check duration in ms.
     private long linkStatsDurationMs = RpcConstants.CFG_LQ_STATS_DURATION_MS;
     // statistics setting
@@ -119,7 +119,8 @@ public class TubeClientConfig {
             throw new IllegalArgumentException("Illegal parameter: localHostIP is blank!");
         }
         if ("127.0.0.1".equals(localHostIP)) {
-            throw new IllegalArgumentException("Illegal parameter: localHostIP can't set to 127.0.0.1");
+            throw new IllegalArgumentException(
+                    "Illegal parameter: localHostIP can't set to 127.0.0.1");
         }
         if (masterInfo == null) {
             throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is null!");
@@ -220,8 +221,7 @@ public class TubeClientConfig {
             this.nettyWriteBufferHighWaterMark =
                     RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK;
         } else {
-            this.nettyWriteBufferHighWaterMark =
-                    nettyWriteBufferHighWaterMark;
+            this.nettyWriteBufferHighWaterMark = nettyWriteBufferHighWaterMark;
         }
     }
 
@@ -230,21 +230,18 @@ public class TubeClientConfig {
     }
 
     /**
-     * Set netty write buffer low water mark. Please notice this value must be between
-     * 0 and Integer.MAX_VALUE.
+     * Set netty write buffer low water mark. Please notice this value must be between 0 and
+     * Integer.MAX_VALUE.
      *
      * @param nettyWriteBufferLowWaterMark netty write buffer water mark.
      */
     public void setNettyWriteBufferLowWaterMark(long nettyWriteBufferLowWaterMark) {
         if (nettyWriteBufferLowWaterMark >= Integer.MAX_VALUE) {
-            this.nettyWriteBufferLowWaterMark =
-                    Integer.MAX_VALUE - 1;
+            this.nettyWriteBufferLowWaterMark = Integer.MAX_VALUE - 1;
         } else if (nettyWriteBufferLowWaterMark <= 0) {
-            this.nettyWriteBufferLowWaterMark =
-                    RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK;
+            this.nettyWriteBufferLowWaterMark = RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK;
         } else {
-            this.nettyWriteBufferLowWaterMark =
-                    nettyWriteBufferLowWaterMark;
+            this.nettyWriteBufferLowWaterMark = nettyWriteBufferLowWaterMark;
         }
     }
 
@@ -371,13 +368,11 @@ public class TubeClientConfig {
     /**
      * Set authenticate information
      *
-     * @param needAuthentic   enable or disable authentication
-     * @param usrName         the user name
-     * @param usrPassWord     the password
+     * @param needAuthentic enable or disable authentication
+     * @param usrName the user name
+     * @param usrPassWord the password
      */
-    public void setAuthenticInfo(boolean needAuthentic,
-                                 String usrName,
-                                 String usrPassWord) {
+    public void setAuthenticInfo(boolean needAuthentic, String usrName, String usrPassWord) {
         if (needAuthentic) {
             if (TStringUtils.isBlank(usrName)) {
                 throw new IllegalArgumentException("Illegal parameter: usrName is Blank!");
@@ -399,12 +394,13 @@ public class TubeClientConfig {
     /**
      * Set TLS information
      *
-     * @param trustStorePath        the trusted store path
-     * @param trustStorePassword    the trusted store password
+     * @param trustStorePath the trusted store path
+     * @param trustStorePassword the trusted store password
      */
     public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) {
         // public void setTLSEnableInfo(String trustStorePath, String trustStorePassword,
-        // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws Exception {
+        // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws
+        // Exception {
         if (TStringUtils.isBlank(trustStorePath)) {
             throw new IllegalArgumentException("Illegal parameter: trustStorePath is Blank!");
         }
@@ -470,10 +466,13 @@ public class TubeClientConfig {
         return this.statsConfig;
     }
 
-    public void setStatsConfig(StatsLevel statsLevel, boolean enableSelfPrint,
-                               long selfPrintPeriodMs, long forcedResetPeriodMs) {
-        this.statsConfig.updateStatsConfig(statsLevel,
-                enableSelfPrint, selfPrintPeriodMs, forcedResetPeriodMs);
+    public void setStatsConfig(
+            StatsLevel statsLevel,
+            boolean enableSelfPrint,
+            long selfPrintPeriodMs,
+            long forcedResetPeriodMs) {
+        this.statsConfig.updateStatsConfig(
+                statsLevel, enableSelfPrint, selfPrintPeriodMs, forcedResetPeriodMs);
     }
 
     @Override
@@ -577,7 +576,7 @@ public class TubeClientConfig {
     /**
      * Get the configured Json string information
      *
-     * @return    the configured Json string information
+     * @return the configured Json string information
      */
     public String toJsonString() {
         int num = 0;
@@ -595,35 +594,65 @@ public class TubeClientConfig {
             }
             sBuilder.append("\"").append(item).append("\"");
         }
-        return sBuilder.append("],\"rpcReadTimeoutMs\":").append(this.rpcReadTimeoutMs)
-                .append(",\"rpcConnProcessorCnt\":").append(this.rpcConnProcessorCnt)
-                .append(",\"rpcNettyWorkMemorySize\":").append(this.rpcNettyWorkMemorySize)
-                .append(",\"rpcRspCallBackThreadCnt\":").append(this.rpcRspCallBackThreadCnt)
-                .append(",\"nettyWriteBufferHighWaterMark\":").append(this.nettyWriteBufferHighWaterMark)
-                .append(",\"nettyWriteBufferLowWaterMark\":").append(this.nettyWriteBufferLowWaterMark)
-                .append(",\"maxRegisterRetryTimes\":").append(this.maxRegisterRetryTimes)
-                .append(",\"regFailWaitPeriodMs\":").append(this.regFailWaitPeriodMs)
-                .append(",\"maxHeartBeatRetryTimes\":").append(this.maxHeartBeatRetryTimes)
-                .append(",\"heartbeatPeriodMs\":").append(this.heartbeatPeriodMs)
-                .append(",\"heartbeatPeriodAfterFail\":").append(this.heartbeatPeriodAfterFail)
-                .append(",\"linkStatsDurationMs\":").append(this.linkStatsDurationMs)
-                .append(",\"linkStatsForbiddenDurationMs\":").append(this.linkStatsForbiddenDurationMs)
-                .append(",\"linkStatsMaxAllowedFailTimes\":").append(this.linkStatsMaxAllowedFailTimes)
-                .append(",\"linkStatsMaxForbiddenRate\":").append(this.linkStatsMaxForbiddenRate)
-                .append(",\"maxSentForbiddenRate\":").append(this.maxSentForbiddenRate)
-                .append(",\"maxForbiddenCheckDuration\":").append(this.maxForbiddenCheckDuration)
-                .append(",\"sessionStatisticCheckDuration\":").append(this.sessionStatisticCheckDuration)
-                .append(",\"sessionWarnForbiddenRate\":").append(this.sessionWarnForbiddenRate)
-                .append(",\"sessionWarnDelayedMsgCount\":").append(this.sessionWarnDelayedMsgCount)
-                .append(",\"linkMaxAllowedDelayedMsgCount\":").append(this.linkMaxAllowedDelayedMsgCount)
-                .append(",\"sessionMaxAllowedDelayedMsgCount\":").append(this.sessionMaxAllowedDelayedMsgCount)
-                .append(",\"unAvailableFbdDurationMs\":").append(this.unAvailableFbdDurationMs)
-                .append(",\"enableUserAuthentic\":").append(this.enableUserAuthentic)
-                .append(",").append(this.statsConfig.toString())
-                .append(",\"usrName\":\"").append(this.usrName)
-                .append("\",\"usrPassWord\":\"").append(this.usrPassWord)
-                .append("\",\"localAddress\":\"").append(localAddress)
-                .append("\",").append(this.tlsConfig.toString())
-                .append("}").toString();
+        return sBuilder.append("],\"rpcReadTimeoutMs\":")
+                .append(this.rpcReadTimeoutMs)
+                .append(",\"rpcConnProcessorCnt\":")
+                .append(this.rpcConnProcessorCnt)
+                .append(",\"rpcNettyWorkMemorySize\":")
+                .append(this.rpcNettyWorkMemorySize)
+                .append(",\"rpcRspCallBackThreadCnt\":")
+                .append(this.rpcRspCallBackThreadCnt)
+                .append(",\"nettyWriteBufferHighWaterMark\":")
+                .append(this.nettyWriteBufferHighWaterMark)
+                .append(",\"nettyWriteBufferLowWaterMark\":")
+                .append(this.nettyWriteBufferLowWaterMark)
+                .append(",\"maxRegisterRetryTimes\":")
+                .append(this.maxRegisterRetryTimes)
+                .append(",\"regFailWaitPeriodMs\":")
+                .append(this.regFailWaitPeriodMs)
+                .append(",\"maxHeartBeatRetryTimes\":")
+                .append(this.maxHeartBeatRetryTimes)
+                .append(",\"heartbeatPeriodMs\":")
+                .append(this.heartbeatPeriodMs)
+                .append(",\"heartbeatPeriodAfterFail\":")
+                .append(this.heartbeatPeriodAfterFail)
+                .append(",\"linkStatsDurationMs\":")
+                .append(this.linkStatsDurationMs)
+                .append(",\"linkStatsForbiddenDurationMs\":")
+                .append(this.linkStatsForbiddenDurationMs)
+                .append(",\"linkStatsMaxAllowedFailTimes\":")
+                .append(this.linkStatsMaxAllowedFailTimes)
+                .append(",\"linkStatsMaxForbiddenRate\":")
+                .append(this.linkStatsMaxForbiddenRate)
+                .append(",\"maxSentForbiddenRate\":")
+                .append(this.maxSentForbiddenRate)
+                .append(",\"maxForbiddenCheckDuration\":")
+                .append(this.maxForbiddenCheckDuration)
+                .append(",\"sessionStatisticCheckDuration\":")
+                .append(this.sessionStatisticCheckDuration)
+                .append(",\"sessionWarnForbiddenRate\":")
+                .append(this.sessionWarnForbiddenRate)
+                .append(",\"sessionWarnDelayedMsgCount\":")
+                .append(this.sessionWarnDelayedMsgCount)
+                .append(",\"linkMaxAllowedDelayedMsgCount\":")
+                .append(this.linkMaxAllowedDelayedMsgCount)
+                .append(",\"sessionMaxAllowedDelayedMsgCount\":")
+                .append(this.sessionMaxAllowedDelayedMsgCount)
+                .append(",\"unAvailableFbdDurationMs\":")
+                .append(this.unAvailableFbdDurationMs)
+                .append(",\"enableUserAuthentic\":")
+                .append(this.enableUserAuthentic)
+                .append(",")
+                .append(this.statsConfig.toString())
+                .append(",\"usrName\":\"")
+                .append(this.usrName)
+                .append("\",\"usrPassWord\":\"")
+                .append(this.usrPassWord)
+                .append("\",\"localAddress\":\"")
+                .append(localAddress)
+                .append("\",")
+                .append(this.tlsConfig.toString())
+                .append("}")
+                .toString();
     }
 }

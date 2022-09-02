@@ -21,33 +21,22 @@ package org.apache.inlong.sort.formats.common;
 import java.util.Arrays;
 import java.util.Collection;
 
-/**
- * Unit tests for {@link MapFormatInfo}.
- */
+/** Unit tests for {@link MapFormatInfo}. */
 public class MapFormatInfoTest extends FormatInfoTestBase {
 
     @Override
     Collection<FormatInfo> createFormatInfos() {
         MapFormatInfo formatInfo1 =
-                new MapFormatInfo(
-                        StringFormatInfo.INSTANCE,
-                        IntFormatInfo.INSTANCE
-                );
+                new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE);
 
         MapFormatInfo formatInfo2 =
                 new MapFormatInfo(
-                        new ArrayFormatInfo(IntFormatInfo.INSTANCE),
-                        new TimeFormatInfo("MILLIS")
-                );
+                        new ArrayFormatInfo(IntFormatInfo.INSTANCE), new TimeFormatInfo("MILLIS"));
 
         MapFormatInfo formatInfo3 =
                 new MapFormatInfo(
-                        new MapFormatInfo(
-                                StringFormatInfo.INSTANCE,
-                                FloatFormatInfo.INSTANCE
-                        ),
-                        new ArrayFormatInfo(BooleanFormatInfo.INSTANCE)
-                );
+                        new MapFormatInfo(StringFormatInfo.INSTANCE, FloatFormatInfo.INSTANCE),
+                        new ArrayFormatInfo(BooleanFormatInfo.INSTANCE));
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }

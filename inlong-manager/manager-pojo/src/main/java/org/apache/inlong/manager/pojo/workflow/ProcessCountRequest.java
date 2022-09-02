@@ -19,14 +19,11 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
-
-/**
- * Process count request
- */
+/** Process count request */
 @Data
 @ApiModel("Process count request")
 public class ProcessCountRequest {
@@ -61,5 +58,4 @@ public class ProcessCountRequest {
 
     @ApiModelProperty("Whether to hide")
     private Integer hidden = 0;
-
 }

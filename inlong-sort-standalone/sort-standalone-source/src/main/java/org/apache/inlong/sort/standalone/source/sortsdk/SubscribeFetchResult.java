@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import java.util.Map;
@@ -27,7 +24,8 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 
 /**
  * SubscribeFetchResult is the wrapper of {@link MessageRecord}.
- * <p> SubscribeFetchResult integrate message key, offset and message time in to the header map.</p>
+ *
+ * <p>SubscribeFetchResult integrate message key, offset and message time in to the header map.
  */
 public class SubscribeFetchResult {
 
@@ -42,27 +40,29 @@ public class SubscribeFetchResult {
 
     /**
      * Private constructor of SubscribeFetchResult.
-     * <p> The construction of SubscribeFetchResult should be initiated by {@link SubscribeFetchResult.Factory}.</p>
+     *
+     * <p>The construction of SubscribeFetchResult should be initiated by {@link
+     * SubscribeFetchResult.Factory}.
      *
      * @param sortId The sortId of fetched message.
      * @param message Message that fetched from upstream data storage.
      */
     @Deprecated
-    private SubscribeFetchResult(
-            final String sortId,
-            final MessageRecord message) {
+    private SubscribeFetchResult(final String sortId, final MessageRecord message) {
         this.sortId = sortId;
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, message.getMsgKey());
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, message.getOffset());
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(message.getRecTime()));
-        //TODO to fix here
+        // TODO to fix here
         this.headers.putAll(null);
         this.body = null;
     }
 
     /**
      * Private constructor of SubscribeFetchResult.
-     * <p> The construction of SubscribeFetchResult should be initiated by {@link SubscribeFetchResult.Factory}.</p>
+     *
+     * <p>The construction of SubscribeFetchResult should be initiated by {@link
+     * SubscribeFetchResult.Factory}.
      *
      * @param sortId String
      * @param msgKey String
@@ -73,7 +73,10 @@ public class SubscribeFetchResult {
      */
     private SubscribeFetchResult(
             final String sortId,
-            final String msgKey, final String offset, final Map<String, String> headers, final long recTime,
+            final String msgKey,
+            final String offset,
+            final Map<String, String> headers,
+            final long recTime,
             final byte[] body) {
         this.sortId = sortId;
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, msgKey);
@@ -111,14 +114,13 @@ public class SubscribeFetchResult {
         return sortId;
     }
 
-    /**
-     * The factory of {@link SubscribeFetchResult}.
-     */
+    /** The factory of {@link SubscribeFetchResult}. */
     public static class Factory {
 
         /**
          * Create one {@link SubscribeFetchResult}.
-         * <p> Validate sortId and message before the construction of SubscribeFetchResult.</p>
+         *
+         * <p>Validate sortId and message before the construction of SubscribeFetchResult.
          *
          * @param sortId The sortId of fetched message.
          * @param messageRecord Message that fetched from upstream data storage.
@@ -127,7 +129,8 @@ public class SubscribeFetchResult {
         @Deprecated
         public static SubscribeFetchResult create(
                 @NotBlank(message = "SortId should not be null or empty.") final String sortId,
-                @NotNull(message = "MessageRecord should not be null.") final MessageRecord messageRecord) {
+                @NotNull(message = "MessageRecord should not be null.")
+                        final MessageRecord messageRecord) {
             return new SubscribeFetchResult(sortId, messageRecord);
         }
 

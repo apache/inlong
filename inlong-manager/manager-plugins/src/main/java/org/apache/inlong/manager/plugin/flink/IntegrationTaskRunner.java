@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import static org.apache.flink.api.common.JobStatus.FINISHED;
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
@@ -24,12 +27,7 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 
-import static org.apache.flink.api.common.JobStatus.FINISHED;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
-
-/**
- * Integration task runner for start, restart or stop flink service.
- */
+/** Integration task runner for start, restart or stop flink service. */
 @Slf4j
 public class IntegrationTaskRunner implements Runnable {
 
@@ -39,7 +37,8 @@ public class IntegrationTaskRunner implements Runnable {
     private final FlinkInfo flinkInfo;
     private final Integer commitType;
 
-    public IntegrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo, Integer commitType) {
+    public IntegrationTaskRunner(
+            FlinkService flinkService, FlinkInfo flinkInfo, Integer commitType) {
         this.flinkService = flinkService;
         this.flinkInfo = flinkInfo;
         this.commitType = commitType;
@@ -58,8 +57,10 @@ public class IntegrationTaskRunner implements Runnable {
                     flinkInfo.setJobId(jobId);
                     log.info("Start job {} success in backend", jobId);
                 } catch (Exception e) {
-                    String msg = String.format("Start job %s failed in backend exception[%s]", flinkInfo.getJobId(),
-                            getExceptionStackMsg(e));
+                    String msg =
+                            String.format(
+                                    "Start job %s failed in backend exception[%s]",
+                                    flinkInfo.getJobId(), getExceptionStackMsg(e));
                     log.warn(msg);
                     flinkInfo.setException(true);
                     flinkInfo.setExceptionMsg(msg);
@@ -70,8 +71,10 @@ public class IntegrationTaskRunner implements Runnable {
                     String jobId = flinkService.restore(flinkInfo);
                     log.info("Restore job {} success in backend", jobId);
                 } catch (Exception e) {
-                    String msg = String.format("Restore job %s failed in backend exception[%s]", flinkInfo.getJobId(),
-                            getExceptionStackMsg(e));
+                    String msg =
+                            String.format(
+                                    "Restore job %s failed in backend exception[%s]",
+                                    flinkInfo.getJobId(), getExceptionStackMsg(e));
                     log.warn(msg);
                     flinkInfo.setException(true);
                     flinkInfo.setExceptionMsg(msg);
@@ -79,11 +82,14 @@ public class IntegrationTaskRunner implements Runnable {
                 break;
             case RESTART:
                 try {
-                    StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
+                    StopWithSavepointRequest stopWithSavepointRequest =
+                            new StopWithSavepointRequest();
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
                     stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
-                    stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
-                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
+                    stopWithSavepointRequest.setTargetDirectory(
+                            flinkConfig.getSavepointDirectory());
+                    String location =
+                            flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId: {} savepoint: {} ", flinkInfo.getJobId(), location);
                     int times = 0;
@@ -99,7 +105,10 @@ public class IntegrationTaskRunner implements Runnable {
                             }
                             break;
                         }
-                        log.info("Try start job  but the job {} is {}", flinkInfo.getJobId(), jobStatus.toString());
+                        log.info(
+                                "Try start job  but the job {} is {}",
+                                flinkInfo.getJobId(),
+                                jobStatus.toString());
                         try {
                             Thread.sleep(INTERVAL * 1000);
                         } catch (Exception e) {
@@ -109,8 +118,10 @@ public class IntegrationTaskRunner implements Runnable {
                     }
                     log.info("Restart job {} success in backend", flinkInfo.getJobId());
                 } catch (Exception e) {
-                    String msg = String.format("Restart job %s failed in backend exception[%s]", flinkInfo.getJobId(),
-                            getExceptionStackMsg(e));
+                    String msg =
+                            String.format(
+                                    "Restart job %s failed in backend exception[%s]",
+                                    flinkInfo.getJobId(), getExceptionStackMsg(e));
                     log.warn(msg);
                     flinkInfo.setException(true);
                     flinkInfo.setExceptionMsg(msg);
@@ -118,16 +129,21 @@ public class IntegrationTaskRunner implements Runnable {
                 break;
             case STOP:
                 try {
-                    StopWithSavepointRequest stopWithSavepointRequest = new StopWithSavepointRequest();
+                    StopWithSavepointRequest stopWithSavepointRequest =
+                            new StopWithSavepointRequest();
                     FlinkConfig flinkConfig = flinkService.getFlinkConfig();
                     stopWithSavepointRequest.setDrain(flinkConfig.isDrain());
-                    stopWithSavepointRequest.setTargetDirectory(flinkConfig.getSavepointDirectory());
-                    String location = flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
+                    stopWithSavepointRequest.setTargetDirectory(
+                            flinkConfig.getSavepointDirectory());
+                    String location =
+                            flinkService.stopJob(flinkInfo.getJobId(), stopWithSavepointRequest);
                     flinkInfo.setSavepointPath(location);
                     log.info("the jobId {} savepoint: {} ", flinkInfo.getJobId(), location);
                 } catch (Exception e) {
-                    String msg = String.format("stop job %s failed in backend exception[%s]", flinkInfo.getJobId(),
-                            getExceptionStackMsg(e));
+                    String msg =
+                            String.format(
+                                    "stop job %s failed in backend exception[%s]",
+                                    flinkInfo.getJobId(), getExceptionStackMsg(e));
                     log.warn(msg);
                     flinkInfo.setException(true);
                     flinkInfo.setExceptionMsg(msg);
@@ -144,8 +160,10 @@ public class IntegrationTaskRunner implements Runnable {
                         log.info("delete job {} failed in backend", flinkInfo.getJobId());
                     }
                 } catch (Exception e) {
-                    String msg = String.format("delete job %s failed in backend exception[%s]", flinkInfo.getJobId(),
-                            getExceptionStackMsg(e));
+                    String msg =
+                            String.format(
+                                    "delete job %s failed in backend exception[%s]",
+                                    flinkInfo.getJobId(), getExceptionStackMsg(e));
                     log.warn(msg);
                     flinkInfo.setException(true);
                     flinkInfo.setExceptionMsg(msg);

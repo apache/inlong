@@ -30,9 +30,7 @@ import org.apache.flink.table.descriptors.DescriptorValidator;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
 import org.junit.Test;
 
-/**
- * Tests for the {@link InLongMsgCsv} descriptor.
- */
+/** Tests for the {@link InLongMsgCsv} descriptor. */
 public class InLongMsgCsvTest extends DescriptorTestBase {
 
     private static final String TEST_SCHEMA =
@@ -67,8 +65,7 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
                     .ignoreErrors();
 
     private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA =
-            new InLongMsgCsv()
-                    .deriveSchema();
+            new InLongMsgCsv().deriveSchema();
 
     @Test(expected = ValidationException.class)
     public void testInvalidIgnoreParseErrors() {
@@ -83,11 +80,7 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
     @Test(expected = ValidationException.class)
     public void testDuplicateSchema() {
         // we add an additional schema
-        addPropertyAndVerify(
-                MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
-                "format.schema",
-                TEST_SCHEMA
-        );
+        addPropertyAndVerify(MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA, "format.schema", TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

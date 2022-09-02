@@ -31,12 +31,15 @@ public class TestAgentThreadFactory {
 
     @Test
     public void testThreadRename() throws Exception {
-        ExecutorService executor = Executors
-                .newSingleThreadExecutor(new AgentThreadFactory("test"));
-        Future<?> result = executor.submit(() -> {
-            Assert.assertEquals("test-running-thread-1", Thread.currentThread().getName());
-            LOGGER.info("thread finished");
-        });
+        ExecutorService executor =
+                Executors.newSingleThreadExecutor(new AgentThreadFactory("test"));
+        Future<?> result =
+                executor.submit(
+                        () -> {
+                            Assert.assertEquals(
+                                    "test-running-thread-1", Thread.currentThread().getName());
+                            LOGGER.info("thread finished");
+                        });
         result.get();
     }
 }

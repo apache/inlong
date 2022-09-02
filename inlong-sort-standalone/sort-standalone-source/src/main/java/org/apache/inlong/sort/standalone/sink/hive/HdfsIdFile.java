@@ -1,26 +1,22 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.hive;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
@@ -28,10 +24,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-/**
- * 
- * HdfsIdFile
- */
+/** HdfsIdFile */
 public class HdfsIdFile {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(HiveSink.class);
@@ -59,13 +52,14 @@ public class HdfsIdFile {
 
     /**
      * Constructor
-     * 
-     * @param  context
-     * @param  idConfig
-     * @param  strIdRootPath
+     *
+     * @param context
+     * @param idConfig
+     * @param strIdRootPath
      * @throws IOException
      */
-    public HdfsIdFile(HiveSinkContext context, HdfsIdConfig idConfig, String strIdRootPath) throws IOException {
+    public HdfsIdFile(HiveSinkContext context, HdfsIdConfig idConfig, String strIdRootPath)
+            throws IOException {
         this.context = context;
         this.idConfig = idConfig;
         this.strIdRootPath = strIdRootPath;
@@ -94,9 +88,9 @@ public class HdfsIdFile {
 
     /**
      * getFileName
-     * 
-     * @param  context
-     * @param  fileTime
+     *
+     * @param context
+     * @param fileTime
      * @return
      */
     public static String getFileName(HiveSinkContext context, long fileTime) {
@@ -106,7 +100,7 @@ public class HdfsIdFile {
 
     /**
      * close
-     * 
+     *
      * @throws IOException
      */
     public void close() {
@@ -130,7 +124,7 @@ public class HdfsIdFile {
 
     /**
      * get modifiedTime
-     * 
+     *
      * @return the modifiedTime
      */
     public long getModifiedTime() {
@@ -139,7 +133,7 @@ public class HdfsIdFile {
 
     /**
      * set modifiedTime
-     * 
+     *
      * @param modifiedTime the modifiedTime to set
      */
     public void setModifiedTime(long modifiedTime) {
@@ -148,7 +142,7 @@ public class HdfsIdFile {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public HiveSinkContext getContext() {
@@ -157,7 +151,7 @@ public class HdfsIdFile {
 
     /**
      * get idConfig
-     * 
+     *
      * @return the idConfig
      */
     public HdfsIdConfig getIdConfig() {
@@ -166,7 +160,7 @@ public class HdfsIdFile {
 
     /**
      * get strIdRootPath
-     * 
+     *
      * @return the strIdRootPath
      */
     public String getStrIdRootPath() {
@@ -175,7 +169,7 @@ public class HdfsIdFile {
 
     /**
      * get intmpPath
-     * 
+     *
      * @return the intmpPath
      */
     public Path getIntmpPath() {
@@ -184,7 +178,7 @@ public class HdfsIdFile {
 
     /**
      * get inPath
-     * 
+     *
      * @return the inPath
      */
     public Path getInPath() {
@@ -193,7 +187,7 @@ public class HdfsIdFile {
 
     /**
      * get outPath
-     * 
+     *
      * @return the outPath
      */
     public Path getOutPath() {
@@ -202,7 +196,7 @@ public class HdfsIdFile {
 
     /**
      * get intmpFilePath
-     * 
+     *
      * @return the intmpFilePath
      */
     public Path getIntmpFilePath() {
@@ -211,7 +205,7 @@ public class HdfsIdFile {
 
     /**
      * get intmpOutput
-     * 
+     *
      * @return the intmpOutput
      */
     public FSDataOutputStream getIntmpOutput() {
@@ -220,7 +214,7 @@ public class HdfsIdFile {
 
     /**
      * get createTime
-     * 
+     *
      * @return the createTime
      */
     public long getCreateTime() {
@@ -229,7 +223,7 @@ public class HdfsIdFile {
 
     /**
      * get fs
-     * 
+     *
      * @return the fs
      */
     public DistributedFileSystem getFs() {
@@ -238,7 +232,7 @@ public class HdfsIdFile {
 
     /**
      * get strIntmpFile
-     * 
+     *
      * @return the strIntmpFile
      */
     public String getStrIntmpFile() {
@@ -247,11 +241,10 @@ public class HdfsIdFile {
 
     /**
      * get isOpen
-     * 
+     *
      * @return the isOpen
      */
     public boolean isOpen() {
         return isOpen;
     }
-
 }

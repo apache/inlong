@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc;
 
 import java.lang.reflect.InvocationHandler;
@@ -30,9 +27,8 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
     protected RpcConfig conf;
     protected int requestTimeout;
 
-    protected AbstractServiceInvoker(ClientFactory clientFactory,
-                                     Class serviceClass,
-                                     RpcConfig conf) {
+    protected AbstractServiceInvoker(
+            ClientFactory clientFactory, Class serviceClass, RpcConfig conf) {
         this.clientFactory = clientFactory;
         this.serviceClass = serviceClass;
         this.conf = conf;
@@ -56,8 +52,8 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
         return callMethod(finalInterfaceName, finalMethodName, finalArg, callback);
     }
 
-    public abstract Object callMethod(String targetInterface, String method,
-                                      Object arg, Callback callback) throws Throwable;
+    public abstract Object callMethod(
+            String targetInterface, String method, Object arg, Callback callback) throws Throwable;
 
     public void destroy() {
         // client.close();
@@ -79,9 +75,12 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
                 if (wrapper.isSuccess()) {
                     chainedCallback.handleResult(wrapper.getResponseData());
                 } else {
-                    String errMsg = new StringBuilder(512)
-                            .append(wrapper.getErrMsg() == null ? "" : wrapper.getErrMsg())
-                            .append("#").append(wrapper.getStackTrace()).toString();
+                    String errMsg =
+                            new StringBuilder(512)
+                                    .append(wrapper.getErrMsg() == null ? "" : wrapper.getErrMsg())
+                                    .append("#")
+                                    .append(wrapper.getStackTrace())
+                                    .toString();
                     handleError(MixUtils.unwrapException(errMsg));
                 }
             }

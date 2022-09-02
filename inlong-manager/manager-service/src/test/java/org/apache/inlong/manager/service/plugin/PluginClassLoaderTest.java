@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.plugin;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
@@ -25,21 +27,19 @@ import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-import java.util.Objects;
-
-/**
- * Test class for load plugin.
- */
+/** Test class for load plugin. */
 public class PluginClassLoaderTest {
 
     @Test
     public void testLoadPlugin() {
 
-        String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getPath();
-        PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
-                Thread.currentThread().getContextClassLoader());
-        Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
+        String path =
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getPath();
+        PluginClassLoader pluginClassLoader =
+                PluginClassLoader.getFromPluginUrl(
+                        path + "plugins", Thread.currentThread().getContextClassLoader());
+        Map<String, PluginDefinition> pluginDefinitionMap =
+                pluginClassLoader.getPluginDefinitions();
         Assertions.assertEquals(1, pluginDefinitionMap.size());
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
         Assertions.assertNotNull(pluginDefinition);
@@ -54,5 +54,4 @@ public class PluginClassLoaderTest {
             Assertions.fail();
         }
     }
-
 }

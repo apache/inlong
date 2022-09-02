@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -28,15 +33,7 @@ import org.apache.inlong.sort.protocol.constant.DorisConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * doris extract node using doris flink-doris-connector-1.13.5_2.11
- */
+/** doris extract node using doris flink-doris-connector-1.13.5_2.11 */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("dorisExtract")
 @Data
@@ -61,20 +58,22 @@ public class DorisExtractNode extends ExtractNode implements Serializable {
     private String tableIdentifier;
 
     @JsonCreator
-    public DorisExtractNode(@JsonProperty("id") String id,
-                            @JsonProperty("name") String name,
-                            @JsonProperty("fields") List<FieldInfo> fields,
-                            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
-                            @JsonProperty("properties") Map<String, String> properties,
-                            @JsonProperty("feNodes") @Nonnull String feNodes,
-                            @JsonProperty("username") String userName,
-                            @JsonProperty("password") String password,
-                            @JsonProperty("tableIdentifier") String tableIdentifier) {
+    public DorisExtractNode(
+            @JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("feNodes") @Nonnull String feNodes,
+            @JsonProperty("username") String userName,
+            @JsonProperty("password") String password,
+            @JsonProperty("tableIdentifier") String tableIdentifier) {
         super(id, name, fields, waterMarkField, properties);
         this.feNodes = Preconditions.checkNotNull(feNodes, "feNodes is null");
         this.userName = Preconditions.checkNotNull(userName, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.tableIdentifier = Preconditions.checkNotNull(tableIdentifier, "tableIdentifier is null");
+        this.tableIdentifier =
+                Preconditions.checkNotNull(tableIdentifier, "tableIdentifier is null");
     }
 
     @Override
@@ -93,5 +92,4 @@ public class DorisExtractNode extends ExtractNode implements Serializable {
     public String genTableName() {
         return String.format("table_%s", super.getId());
     }
-
 }

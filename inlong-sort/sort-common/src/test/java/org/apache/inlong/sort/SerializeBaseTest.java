@@ -17,14 +17,14 @@
 
 package org.apache.inlong.sort;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.common.base.Preconditions;
 import lombok.Getter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test serialize base class
@@ -44,9 +44,7 @@ public abstract class SerializeBaseTest<T> {
      */
     public abstract T getTestObject();
 
-    /**
-     * Init the test object
-     */
+    /** Init the test object */
     @Before
     public void init() {
         this.testObject = Preconditions.checkNotNull(getTestObject());

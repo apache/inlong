@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * User role entity, including username, role code, etc.
- */
+/** User role entity, including username, role code, etc. */
 @Data
 public class UserRoleEntity implements Serializable {
 
@@ -40,5 +37,4 @@ public class UserRoleEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer version;
-
 }

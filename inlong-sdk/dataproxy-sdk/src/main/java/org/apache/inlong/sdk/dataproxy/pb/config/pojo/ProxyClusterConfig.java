@@ -1,35 +1,27 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.config.pojo;
 
+import com.alibaba.fastjson.JSON;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.alibaba.fastjson.JSON;
-
-/**
- * 
- * ProxyClusterConfig
- */
+/** ProxyClusterConfig */
 public class ProxyClusterConfig {
 
     private String clusterId;
@@ -40,7 +32,7 @@ public class ProxyClusterConfig {
 
     /**
      * get clusterId
-     * 
+     *
      * @return the clusterId
      */
     public String getClusterId() {
@@ -49,7 +41,7 @@ public class ProxyClusterConfig {
 
     /**
      * set clusterId
-     * 
+     *
      * @param clusterId the clusterId to set
      */
     public void setClusterId(String clusterId) {
@@ -58,7 +50,7 @@ public class ProxyClusterConfig {
 
     /**
      * get regionId
-     * 
+     *
      * @return the regionId
      */
     public String getRegionId() {
@@ -67,7 +59,7 @@ public class ProxyClusterConfig {
 
     /**
      * set regionId
-     * 
+     *
      * @param regionId the regionId to set
      */
     public void setRegionId(String regionId) {
@@ -76,7 +68,7 @@ public class ProxyClusterConfig {
 
     /**
      * get inlongStreamList
-     * 
+     *
      * @return the inlongStreamList
      */
     public List<InlongStreamConfig> getInlongStreamList() {
@@ -85,7 +77,7 @@ public class ProxyClusterConfig {
 
     /**
      * set inlongStreamList
-     * 
+     *
      * @param inlongStreamList the inlongStreamList to set
      */
     public void setInlongStreamList(List<InlongStreamConfig> inlongStreamList) {
@@ -94,7 +86,7 @@ public class ProxyClusterConfig {
 
     /**
      * get nodeList
-     * 
+     *
      * @return the nodeList
      */
     public List<ProxyNodeInfo> getNodeList() {
@@ -103,7 +95,7 @@ public class ProxyClusterConfig {
 
     /**
      * set nodeList
-     * 
+     *
      * @param nodeList the nodeList to set
      */
     public void setNodeList(List<ProxyNodeInfo> nodeList) {
@@ -112,7 +104,7 @@ public class ProxyClusterConfig {
 
     /**
      * get proxyParams
-     * 
+     *
      * @return the proxyParams
      */
     public Map<String, String> getProxyParams() {
@@ -121,7 +113,7 @@ public class ProxyClusterConfig {
 
     /**
      * set proxyParams
-     * 
+     *
      * @param proxyParams the proxyParams to set
      */
     public void setProxyParams(Map<String, String> proxyParams) {
@@ -130,7 +122,7 @@ public class ProxyClusterConfig {
 
     /**
      * getExample
-     * 
+     *
      * @return
      */
     public static ProxyClusterConfig getExample() {
@@ -156,8 +148,8 @@ public class ProxyClusterConfig {
 
     /**
      * generateMd5
-     * 
-     * @param  config
+     *
+     * @param config
      * @return
      */
     public static String generateMd5(ProxyClusterConfig config) {
@@ -166,12 +158,11 @@ public class ProxyClusterConfig {
 
     /**
      * generateMd5
-     * 
-     * @param  configList
+     *
+     * @param configList
      * @return
      */
     public static String generateMd5(List<ProxyClusterConfig> configList) {
         return DigestUtils.md5Hex(JSON.toJSONString(configList));
     }
-
 }

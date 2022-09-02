@@ -19,19 +19,16 @@ package org.apache.inlong.manager.pojo.workflow.form.process;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Apply inlong group process form
- */
+/** Apply inlong group process form */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ApplyGroupProcessForm extends BaseProcessForm {
@@ -41,7 +38,8 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
     @ApiModelProperty(value = "Inlong group info", required = true)
     private InlongGroupInfo groupInfo;
 
-    @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
+    @ApiModelProperty(
+            value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamBriefInfo> streamInfoList;
 
     @Override

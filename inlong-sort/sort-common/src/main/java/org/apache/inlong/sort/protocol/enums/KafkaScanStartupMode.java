@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.enums;
 
 import java.util.Locale;
 
-/**
- * kafka consumer scan startup mode enum
- */
+/** kafka consumer scan startup mode enum */
 public enum KafkaScanStartupMode {
     EARLIEST_OFFSET("earliest-offset"),
     LATEST_OFFSET("latest-offset"),
@@ -44,7 +42,7 @@ public enum KafkaScanStartupMode {
                 return startupMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported KafkaScanStartupMode=%s for Inlong", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupported KafkaScanStartupMode=%s for Inlong", name));
     }
-
 }

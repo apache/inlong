@@ -18,17 +18,14 @@
 package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
-
-/**
- * Workflow task execution log
- */
+/** Workflow task execution log */
 @Data
 @Builder
 @NoArgsConstructor
@@ -41,8 +38,9 @@ public class WorkflowExecuteLog {
     @ApiModelProperty("Process name")
     private String processDisplayName;
 
-    @ApiModelProperty("Process status: same task status, such as processing: PROCESSING, "
-            + "completed: COMPLETED, rejected: REJECTED, cancelled: CANCELED, terminated: TERMINATED")
+    @ApiModelProperty(
+            "Process status: same task status, such as processing: PROCESSING, "
+                    + "completed: COMPLETED, rejected: REJECTED, cancelled: CANCELED, terminated: TERMINATED")
     private String status;
 
     @ApiModelProperty("Start time")
@@ -53,5 +51,4 @@ public class WorkflowExecuteLog {
 
     @ApiModelProperty("Task execution logs")
     private List<TaskExecuteLog> taskExecuteLogs;
-
 }

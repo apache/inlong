@@ -26,5 +26,4 @@ public class LocalZonedTimestampFormatInfoTest extends FormatInfoTestBase {
     Collection<FormatInfo> createFormatInfos() {
         return Collections.singleton(new LocalZonedTimestampFormatInfo());
     }
-
 }

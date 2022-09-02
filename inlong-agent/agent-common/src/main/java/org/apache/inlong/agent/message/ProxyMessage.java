@@ -17,17 +17,14 @@
 
 package org.apache.inlong.agent.message;
 
-import org.apache.inlong.agent.plugin.Message;
-
-import java.util.Map;
-
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
-/**
- * Bus message with body, header, inlongGroupId and inlongStreamId.
- */
+import java.util.Map;
+import org.apache.inlong.agent.plugin.Message;
+
+/** Bus message with body, header, inlongGroupId and inlongStreamId. */
 public class ProxyMessage implements Message {
 
     private static final String DEFAULT_INLONG_STREAM_ID = "__";

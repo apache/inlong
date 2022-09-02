@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,15 +31,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
-import javax.annotation.Nonnull;
-import java.io.Serializable;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-
-/**
- * The feature version of flink is greater than or equal to 1.16.x for stream table
- */
+/** The feature version of flink is greater than or equal to 1.16.x for stream table */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("fileSystemExtract")
 @Data
@@ -85,5 +82,4 @@ public class FileSystemExtractNode extends ExtractNode implements Serializable {
     public String genTableName() {
         return "node_" + super.getId() + "_" + name;
     }
-
 }

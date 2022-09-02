@@ -17,12 +17,9 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import com.google.common.base.Splitter;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIST;
 
+import com.google.common.base.Splitter;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -30,13 +27,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIST;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ConfigHolder {
 
-    public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR)
-            .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+    public static final Splitter.MapSplitter MAP_SPLITTER =
+            Splitter.on(AttributeConstants.SEPARATOR)
+                    .trimResults()
+                    .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
     private static final Logger LOG = LoggerFactory.getLogger(ConfigHolder.class);
     private final String fileName;
     private final AtomicBoolean fileChanged = new AtomicBoolean(false);
@@ -64,18 +65,14 @@ public abstract class ConfigHolder {
         callbackList.add(callback);
     }
 
-    /**
-     * execute callbacks
-     */
+    /** execute callbacks */
     public void executeCallbacks() {
         for (ConfigUpdateCallback callback : callbackList) {
             callback.update();
         }
     }
 
-    /**
-     * load from file to holder
-     */
+    /** load from file to holder */
     public abstract void loadFromFileToHolder();
 
     /**
@@ -111,9 +108,7 @@ public abstract class ConfigHolder {
         return getFilePath() + "." + dateStr;
     }
 
-    /**
-     * file name with base path.
-     */
+    /** file name with base path. */
     public String getFilePath() {
         return filePath;
     }
@@ -123,8 +118,10 @@ public abstract class ConfigHolder {
         if (url != null) {
             this.filePath = url.getPath();
             this.configFile = new File(this.filePath);
-            LOG.info("set file path lastTime: {}, currentTime: {}",
-                    lastModifyTime, configFile.lastModified());
+            LOG.info(
+                    "set file path lastTime: {}, currentTime: {}",
+                    lastModifyTime,
+                    configFile.lastModified());
         }
     }
 

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
@@ -31,24 +32,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-/**
- * Agent controller.
- */
+/** Agent controller. */
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Open-Agent-API")
 public class AgentController {
 
-    @Autowired
-    private AgentService agentService;
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private AgentService agentService;
+    @Autowired private InlongClusterService clusterService;
 
-    /**
-     * Currently not used.
-     */
+    /** Currently not used. */
     @PostMapping("/agent/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
@@ -67,5 +60,4 @@ public class AgentController {
         agentService.report(request);
         return Response.success(agentService.getTaskResult(request));
     }
-
 }

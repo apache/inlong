@@ -19,6 +19,8 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -48,12 +50,7 @@ import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Default inlong stream builder.
- */
+/** Default inlong stream builder. */
 @Slf4j
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
@@ -65,7 +62,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     private final StreamSinkClient sinkClient;
     private final StreamTransformClient transformClient;
 
-    public DefaultInlongStreamBuilder(InlongStreamInfo streamInfo, InnerGroupContext groupContext,
+    public DefaultInlongStreamBuilder(
+            InlongStreamInfo streamInfo,
+            InnerGroupContext groupContext,
             ClientConfiguration configuration) {
 
         ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
@@ -86,7 +85,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
 
-        this.inlongStream = new InlongStreamImpl(groupId, streamInfo.getInlongStreamId(), configuration);
+        this.inlongStream =
+                new InlongStreamImpl(groupId, streamInfo.getInlongStreamId(), configuration);
         if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
             this.inlongStream.setStreamFields(streamInfo.getFieldList());
         }
@@ -123,8 +123,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     @Override
     public InlongStreamBuilder transform(StreamTransform streamTransform) {
         inlongStream.addTransform(streamTransform);
-        TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(streamTransform,
-                streamContext.getStreamInfo());
+        TransformRequest transformRequest =
+                StreamTransformTransfer.createTransformRequest(
+                        streamTransform, streamContext.getStreamInfo());
         streamContext.setTransformRequest(transformRequest);
         return this;
     }
@@ -136,17 +137,20 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         streamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
         streamInfo.setId(streamClient.createStreamInfo(streamInfo));
         // Create source and update index
-        List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
+        List<SourceRequest> sourceRequests =
+                Lists.newArrayList(streamContext.getSourceRequests().values());
         for (SourceRequest sourceRequest : sourceRequests) {
             sourceRequest.setId(sourceClient.createSource(sourceRequest));
         }
         // Create sink and update index
-        List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
+        List<SinkRequest> sinkRequests =
+                Lists.newArrayList(streamContext.getSinkRequests().values());
         for (SinkRequest sinkRequest : sinkRequests) {
             sinkRequest.setId(sinkClient.createSink(sinkRequest));
         }
         // Create transform and update index
-        List<TransformRequest> transformRequests = Lists.newArrayList(streamContext.getTransformRequests().values());
+        List<TransformRequest> transformRequests =
+                Lists.newArrayList(streamContext.getTransformRequests().values());
         for (TransformRequest transformRequest : transformRequests) {
             transformRequest.setId(transformClient.createTransform(transformRequest));
         }
@@ -163,7 +167,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             dataStreamInfo.setVersion(existStreamInfo.getVersion());
             Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(dataStreamInfo);
             if (!updateMsg.getKey()) {
-                throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
+                throw new RuntimeException(
+                        String.format("Update data stream failed:%s", updateMsg.getValue()));
             }
             initOrUpdateTransform();
             initOrUpdateSource();
@@ -179,20 +184,25 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId);
+        List<TransformResponse> transformResponses =
+                transformClient.listTransform(groupId, streamId);
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
-            StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);
+            StreamTransform transform =
+                    StreamTransformTransfer.parseStreamTransform(transformResponse);
             final String transformName = transform.getTransformName();
             final int id = transformResponse.getId();
             if (transformRequests.get(transformName) != null) {
                 TransformRequest transformRequest = transformRequests.get(transformName);
                 transformRequest.setId(id);
                 transformRequest.setVersion(transformResponse.getVersion());
-                Pair<Boolean, String> updateState = transformClient.updateTransform(transformRequest);
+                Pair<Boolean, String> updateState =
+                        transformClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
-                    throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
-                            updateState.getValue()));
+                    throw new RuntimeException(
+                            String.format(
+                                    "Update transform=%s failed with err=%s",
+                                    transformRequest, updateState.getValue()));
                 }
                 transformRequest.setId(transformResponse.getId());
                 updateTransformNames.add(transformName);
@@ -227,8 +237,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                     sourceRequest.setVersion(source.getVersion());
                     Pair<Boolean, String> updateState = sourceClient.updateSource(sourceRequest);
                     if (!updateState.getKey()) {
-                        throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
-                                updateState.getValue()));
+                        throw new RuntimeException(
+                                String.format(
+                                        "Update source=%s failed with err=%s",
+                                        sourceRequest, updateState.getValue()));
                     }
                     updateSourceNames.add(sourceName);
                     sourceRequest.setId(source.getId());
@@ -263,8 +275,10 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 sinkRequest.setVersion(sink.getVersion());
                 Pair<Boolean, String> updateState = sinkClient.updateSink(sinkRequest);
                 if (!updateState.getKey()) {
-                    throw new RuntimeException(String.format("Update sink=%s failed with err=%s", sinkRequest,
-                            updateState.getValue()));
+                    throw new RuntimeException(
+                            String.format(
+                                    "Update sink=%s failed with err=%s",
+                                    sinkRequest, updateState.getValue()));
                 }
                 updateSinkNames.add(sinkName);
                 sinkRequest.setId(sink.getId());

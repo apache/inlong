@@ -23,27 +23,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Function test base class
- */
+/** Function test base class */
 public abstract class FunctionBaseTest extends SerializeBaseTest<Function> {
 
     private String expectFormat;
 
     public abstract String getExpectFormat();
 
-    /**
-     * Init the expectFormat, function instance
-     */
+    /** Init the expectFormat, function instance */
     @Before
     public void init() {
         super.init();
         this.expectFormat = Preconditions.checkNotNull(getExpectFormat());
     }
 
-    /**
-     * Test format in standard sql
-     */
+    /** Test format in standard sql */
     @Test
     public void testFormat() {
         Assert.assertEquals(expectFormat, getTestObject().format());

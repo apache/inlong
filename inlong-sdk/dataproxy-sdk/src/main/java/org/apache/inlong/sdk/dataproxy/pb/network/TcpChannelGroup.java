@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.network;
 
 import java.util.ArrayList;
@@ -26,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -39,10 +35,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * TcpChannelGroup
- */
+/** TcpChannelGroup */
 public class TcpChannelGroup {
 
     public static final Logger LOG = LoggerFactory.getLogger(TcpChannelGroup.class);
@@ -62,30 +55,35 @@ public class TcpChannelGroup {
 
     /**
      * Constructor
-     * 
+     *
      * @param bid
      * @param senderThreadNum
      * @param decoder
      * @param clientHandler
      */
-    public TcpChannelGroup(String bid, int senderThreadNum, ChannelUpstreamHandler decoder,
+    public TcpChannelGroup(
+            String bid,
+            int senderThreadNum,
+            ChannelUpstreamHandler decoder,
             SimpleChannelHandler clientHandler) {
         this.bid = bid;
         this.senderThreadNum = senderThreadNum;
         LOG.info("TcpChannelGroup netty thread pool size is " + senderThreadNum);
 
-        client.setFactory(new NioClientSocketChannelFactory(
-                Executors.newCachedThreadPool(),
-                Executors.newCachedThreadPool(),
-                this.senderThreadNum));
+        client.setFactory(
+                new NioClientSocketChannelFactory(
+                        Executors.newCachedThreadPool(),
+                        Executors.newCachedThreadPool(),
+                        this.senderThreadNum));
 
-        client.setPipelineFactory(() -> {
-            ChannelPipeline pipeline = Channels.pipeline();
-            pipeline.addLast("decoder", decoder);
-            pipeline.addLast("encoder", new ByteArrayToBinaryEncoder());
-            pipeline.addLast("handler", clientHandler);
-            return pipeline;
-        });
+        client.setPipelineFactory(
+                () -> {
+                    ChannelPipeline pipeline = Channels.pipeline();
+                    pipeline.addLast("decoder", decoder);
+                    pipeline.addLast("encoder", new ByteArrayToBinaryEncoder());
+                    pipeline.addLast("handler", clientHandler);
+                    return pipeline;
+                });
         client.setOption("tcpNoDelay", false);
         client.setOption("child.tcpNoDelay", false);
         client.setOption("keepAlive", true);
@@ -100,18 +98,25 @@ public class TcpChannelGroup {
 
     /**
      * updateConfig
-     * 
+     *
      * @param ipList
      */
     public void updateConfig(Set<IpPort> ipList) {
         boolean hasIpChange = !currentIpLists.equals(ipList);
-        LOG.info("TcpChannelGroup updateConfig bid:{},hasIpChange:{},currentIpLists:{},ipLists:{}",
-                bid, hasIpChange, currentIpLists, ipList);
+        LOG.info(
+                "TcpChannelGroup updateConfig bid:{},hasIpChange:{},currentIpLists:{},ipLists:{}",
+                bid,
+                hasIpChange,
+                currentIpLists,
+                ipList);
         // clear old channel
         int oldIndex = mIndex ^ 0x01;
         this.channelQueues.get(oldIndex).clear();
         for (TcpChannel tcpChannel : this.channelLists.get(oldIndex)) {
-            LOG.info(String.format("TcpChannelGroup updateConfig bid:%s,disconnect and close:%s", bid, tcpChannel));
+            LOG.info(
+                    String.format(
+                            "TcpChannelGroup updateConfig bid:%s,disconnect and close:%s",
+                            bid, tcpChannel));
             this.channelMap.remove(tcpChannel.getChannel().getAttachment());
             tcpChannel.close();
         }
@@ -121,8 +126,9 @@ public class TcpChannelGroup {
         if (!hasIpChange) {
             // reset status
             for (Entry<Object, TcpChannel> entry : this.channelMap.entrySet()) {
-                LOG.info("TcpChannelGroup channel status index:{},"
-                        + "isConnected:{},isHasException:{},isReconnectFail:{},availablePermits:{}",
+                LOG.info(
+                        "TcpChannelGroup channel status index:{},"
+                                + "isConnected:{},isHasException:{},isReconnectFail:{},availablePermits:{}",
                         entry.getValue().getChannel().getAttachment(),
                         entry.getValue().getChannel().isConnected(),
                         entry.getValue().isHasException(),
@@ -150,7 +156,10 @@ public class TcpChannelGroup {
                 newChannelList.add(tcpChannel);
                 this.channelMap.put(newChannelId, tcpChannel);
             } catch (Throwable ex) {
-                LOG.error(String.format("bid:%s,ipPort:%s,connect failed:%s", bid, ipPortObj, ex.getMessage()),
+                LOG.error(
+                        String.format(
+                                "bid:%s,ipPort:%s,connect failed:%s",
+                                bid, ipPortObj, ex.getMessage()),
                         ex);
             }
         }
@@ -160,8 +169,8 @@ public class TcpChannelGroup {
 
     /**
      * send
-     * 
-     * @param  dataBuf
+     *
+     * @param dataBuf
      * @return
      */
     public TcpResult send(ChannelBuffer dataBuf) {
@@ -181,7 +190,8 @@ public class TcpChannelGroup {
                 tcpChannel.setHasException(true);
                 channelQueue.offer(tcpChannel);
                 // print error log
-                String errorMessage = (t.getCause() != null) ? t.getCause().getMessage() : "write fail";
+                String errorMessage =
+                        (t.getCause() != null) ? t.getCause().getMessage() : "write fail";
                 LOG.error(String.format("bid:%s,write failed:%s", bid, errorMessage), t.getCause());
                 return new TcpResult(tcpChannel.getIpPort(), false, errorMessage);
             }
@@ -200,7 +210,7 @@ public class TcpChannelGroup {
 
     /**
      * getTcpChannel
-     * 
+     *
      * @return
      */
     private TcpChannel getTcpChannel(LinkedBlockingQueue<TcpChannel> channelQueue) {
@@ -241,7 +251,7 @@ public class TcpChannelGroup {
 
     /**
      * reconnect
-     * 
+     *
      * @param tcpChannel
      */
     private void reconnect(TcpChannel tcpChannel) {
@@ -268,16 +278,14 @@ public class TcpChannelGroup {
 
     /**
      * get bid
-     * 
+     *
      * @return the bid
      */
     public String getBid() {
         return bid;
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         //
         for (LinkedBlockingQueue<TcpChannel> channelQueue : this.channelQueues) {
@@ -297,7 +305,7 @@ public class TcpChannelGroup {
 
     /**
      * mark exception channel
-     * 
+     *
      * @param channel
      */
     public void exceptionChannel(Channel channel) {
@@ -309,7 +317,7 @@ public class TcpChannelGroup {
 
     /**
      * releaseChannel
-     * 
+     *
      * @param channel
      */
     public void releaseChannel(Channel channel) {
@@ -318,31 +326,31 @@ public class TcpChannelGroup {
             tcpChannel.release();
         }
     }
-//    public static void main(String[] args) {
-//        String[] data = new String[]{"10.56.81.205:46801",
-//            "10.56.81.211:46801",
-//            "10.56.20.85:46801",
-//            "10.56.20.21:46801",
-//            "10.56.83.143:46801",
-//            "10.56.82.37:46801",
-//            "10.56.83.80:46801",
-//            "10.56.82.11:46801",
-//            "10.56.15.221:46801",
-//            "10.56.21.85:46801",
-//            "10.56.16.20:46801",
-//            "10.56.21.17:46801",
-//            "10.56.21.79:46801",
-//            "10.56.15.195:46801",
-//            "10.56.16.38:46801",
-//            "10.56.20.80:46801",
-//            "10.56.82.38:46801",
-//            "10.56.209.205:46801",
-//            "10.56.84.17:46801",
-//            "10.56.15.230:46801",
-//            "10.56.82.12:46801",
-//            "10.56.15.220:46801",
-//            "10.56.21.20:46801",
-//            "10.56.82.40:46801",
-//            "10.56.15.212:46801"};
-//    }
+    //    public static void main(String[] args) {
+    //        String[] data = new String[]{"10.56.81.205:46801",
+    //            "10.56.81.211:46801",
+    //            "10.56.20.85:46801",
+    //            "10.56.20.21:46801",
+    //            "10.56.83.143:46801",
+    //            "10.56.82.37:46801",
+    //            "10.56.83.80:46801",
+    //            "10.56.82.11:46801",
+    //            "10.56.15.221:46801",
+    //            "10.56.21.85:46801",
+    //            "10.56.16.20:46801",
+    //            "10.56.21.17:46801",
+    //            "10.56.21.79:46801",
+    //            "10.56.15.195:46801",
+    //            "10.56.16.38:46801",
+    //            "10.56.20.80:46801",
+    //            "10.56.82.38:46801",
+    //            "10.56.209.205:46801",
+    //            "10.56.84.17:46801",
+    //            "10.56.15.230:46801",
+    //            "10.56.82.12:46801",
+    //            "10.56.15.220:46801",
+    //            "10.56.21.20:46801",
+    //            "10.56.82.40:46801",
+    //            "10.56.15.212:46801"};
+    //    }
 }

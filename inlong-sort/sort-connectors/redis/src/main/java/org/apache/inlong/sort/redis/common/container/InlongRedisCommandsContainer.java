@@ -19,15 +19,13 @@ package org.apache.inlong.sort.redis.common.container;
 
 import org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainer;
 
-/**
- * The container interface expand from {@link RedisCommandsContainer}
- */
+/** The container interface expand from {@link RedisCommandsContainer} */
 public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
 
     /**
      * Delete value from specified key.
      *
-     * @param key the key  to be delete
+     * @param key the key to be delete
      */
     void del(String key);
 
@@ -73,5 +71,4 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
      * @return The value of specified key with member
      */
     Long zrevrank(String key, String member);
-
 }

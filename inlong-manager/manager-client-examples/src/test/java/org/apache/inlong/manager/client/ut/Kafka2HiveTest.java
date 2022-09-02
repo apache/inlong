@@ -17,7 +17,17 @@
 
 package org.apache.inlong.manager.client.ut;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static org.apache.inlong.manager.common.enums.ProcessStatus.PROCESSING;
+
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
@@ -45,69 +55,42 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static org.apache.inlong.manager.common.enums.ProcessStatus.PROCESSING;
-
 class Kafka2HiveTest extends BaseTest {
 
     @BeforeAll
     static void createStub() {
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/group/exist/test_group009.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/group/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success("test_group009")))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success("test_group009")))));
 
         stubFor(
-                get(urlMatching(MANAGER_URL_PREFIX + "/stream/exist/test_group009/test_stream009.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                get(urlMatching(
+                                MANAGER_URL_PREFIX
+                                        + "/stream/exist/test_group009/test_stream009.*"))
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
-                get(urlMatching(MANAGER_URL_PREFIX + "/stream/exist/test_group009/test_stream009.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                get(urlMatching(
+                                MANAGER_URL_PREFIX
+                                        + "/stream/exist/test_group009/test_stream009.*"))
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/save.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/source/save.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/sink/save.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                        .willReturn(okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         WorkflowResult initWorkflowResult = new WorkflowResult();
         initWorkflowResult.setProcessInfo(
@@ -119,30 +102,29 @@ class Kafka2HiveTest extends BaseTest {
                         .applicant("admin")
                         .status(PROCESSING)
                         .startTime(new Date())
-                        .formData(JsonUtils.parseTree(
-                                "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
-                                        + "\"inlongGroupId\":\"test_group009\",\"name\":null,\"description\":null,"
-                                        + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,"
-                                        + "\"enableCreateResource\":1,\"lightweight\":1,"
-                                        + "\"inlongClusterTag\":\"default_cluster\",\"dailyRecords\":10000000,"
-                                        + "\"dailyStorage\":10000,\"peakRecords\":100000,\"maxLength\":10000,"
-                                        + "\"inCharges\":\"test_inCharges,admin\",\"followers\":null,\"status\":101,"
-                                        + "\"creator\":\"admin\",\"modifier\":\"admin\","
-                                        + "\"createTime\":\"2022-06-06 09:59:10\","
-                                        + "\"modifyTime\":\"2022-06-06 02:24:50\",\"extList\":[],\"tenant\":null,"
-                                        + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"PARALLEL\","
-                                        + "\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,\"ackQuorum\":2,"
-                                        + "\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
-                                        + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,"
-                                        + "\"retentionSizeUnit\":\"MB\"},\"streamInfoList\":[{\"id\":6,"
-                                        + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
-                                        + "\"name\":\"test_stream009\",\"sinkList\":[{\"id\":6,"
-                                        + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
-                                        + "\"sinkType\":\"HIVE\",\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,"
-                                        + "\"clusterUrl\":null}],\"modifyTime\":\"2022-06-06 02:11:03\"}]}"
-                        ))
-                        .build()
-        );
+                        .formData(
+                                JsonUtils.parseTree(
+                                        "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
+                                                + "\"inlongGroupId\":\"test_group009\",\"name\":null,\"description\":null,"
+                                                + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,"
+                                                + "\"enableCreateResource\":1,\"lightweight\":1,"
+                                                + "\"inlongClusterTag\":\"default_cluster\",\"dailyRecords\":10000000,"
+                                                + "\"dailyStorage\":10000,\"peakRecords\":100000,\"maxLength\":10000,"
+                                                + "\"inCharges\":\"test_inCharges,admin\",\"followers\":null,\"status\":101,"
+                                                + "\"creator\":\"admin\",\"modifier\":\"admin\","
+                                                + "\"createTime\":\"2022-06-06 09:59:10\","
+                                                + "\"modifyTime\":\"2022-06-06 02:24:50\",\"extList\":[],\"tenant\":null,"
+                                                + "\"adminUrl\":null,\"serviceUrl\":null,\"queueModule\":\"PARALLEL\","
+                                                + "\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,\"ackQuorum\":2,"
+                                                + "\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
+                                                + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,"
+                                                + "\"retentionSizeUnit\":\"MB\"},\"streamInfoList\":[{\"id\":6,"
+                                                + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
+                                                + "\"name\":\"test_stream009\",\"sinkList\":[{\"id\":6,"
+                                                + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
+                                                + "\"sinkType\":\"HIVE\",\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,"
+                                                + "\"clusterUrl\":null}],\"modifyTime\":\"2022-06-06 02:11:03\"}]}"))
+                        .build());
         initWorkflowResult.setNewTasks(
                 Lists.newArrayList(
                         TaskResponse.builder()
@@ -157,15 +139,13 @@ class Kafka2HiveTest extends BaseTest {
                                 .approvers(Lists.newArrayList("admin"))
                                 .status(TaskStatus.PENDING)
                                 .startTime(new Date())
-                                .build()
-                )
-        );
+                                .build()));
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/group/startProcess/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(initWorkflowResult)))
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(initWorkflowResult)))));
 
         WorkflowResult startWorkflowResult = new WorkflowResult();
         startWorkflowResult.setProcessInfo(
@@ -178,209 +158,210 @@ class Kafka2HiveTest extends BaseTest {
                         .status(ProcessStatus.COMPLETED)
                         .startTime(new Date())
                         .endTime(new Date())
-                        .formData("{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
-                                + "\"id\":8,\"inlongGroupId\":\"test_group011\",\"name\":null,\"description\":null,"
-                                + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,\"enableCreateResource\":1,"
-                                + "\"lightweight\":1,\"inlongClusterTag\":\"default_cluster\","
-                                + "\"dailyRecords\":10000000,\"dailyStorage\":10000,\"peakRecords\":100000,"
-                                + "\"maxLength\":10000,\"inCharges\":\"test_inCharges,admin\",\"followers\":null,"
-                                + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
-                                + "\"createTime\":\"2022-06-06 16:36:35\",\"modifyTime\":\"2022-06-06 08:37:04\","
-                                + "\"extList\":[],\"tenant\":null,\"adminUrl\":null,\"serviceUrl\":null,"
-                                + "\"queueModule\":\"PARALLEL\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
-                                + "\"ackQuorum\":2,\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
-                                + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,\"retentionSizeUnit\":\"MB\"},"
-                                + "\"streamInfoList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
-                                + "\"inlongStreamId\":\"test_stream011\",\"name\":\"test_stream011\","
-                                + "\"sinkList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
-                                + "\"inlongStreamId\":\"test_stream011\",\"sinkType\":\"HIVE\","
-                                + "\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,\"clusterUrl\":null}],"
-                                + "\"modifyTime\":\"2022-06-06 08:36:38\"}]}")
-                        .build()
-        );
+                        .formData(
+                                "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
+                                        + "\"id\":8,\"inlongGroupId\":\"test_group011\",\"name\":null,\"description\":null,"
+                                        + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,\"enableCreateResource\":1,"
+                                        + "\"lightweight\":1,\"inlongClusterTag\":\"default_cluster\","
+                                        + "\"dailyRecords\":10000000,\"dailyStorage\":10000,\"peakRecords\":100000,"
+                                        + "\"maxLength\":10000,\"inCharges\":\"test_inCharges,admin\",\"followers\":null,"
+                                        + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
+                                        + "\"createTime\":\"2022-06-06 16:36:35\",\"modifyTime\":\"2022-06-06 08:37:04\","
+                                        + "\"extList\":[],\"tenant\":null,\"adminUrl\":null,\"serviceUrl\":null,"
+                                        + "\"queueModule\":\"PARALLEL\",\"partitionNum\":3,\"ensemble\":3,\"writeQuorum\":3,"
+                                        + "\"ackQuorum\":2,\"ttl\":24,\"ttlUnit\":\"hours\",\"retentionTime\":72,"
+                                        + "\"retentionTimeUnit\":\"hours\",\"retentionSize\":-1,\"retentionSizeUnit\":\"MB\"},"
+                                        + "\"streamInfoList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
+                                        + "\"inlongStreamId\":\"test_stream011\",\"name\":\"test_stream011\","
+                                        + "\"sinkList\":[{\"id\":8,\"inlongGroupId\":\"test_group011\","
+                                        + "\"inlongStreamId\":\"test_stream011\",\"sinkType\":\"HIVE\","
+                                        + "\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,\"clusterUrl\":null}],"
+                                        + "\"modifyTime\":\"2022-06-06 08:36:38\"}]}")
+                        .build());
         startWorkflowResult.setNewTasks(new ArrayList<>());
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/workflow/approve/12.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(startWorkflowResult)))
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(startWorkflowResult)))));
 
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/group/get/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(
-                                        InlongPulsarInfo.builder()
-                                                .id(8)
-                                                .inlongGroupId("test_group009")
-                                                .mqType("PULSAR")
-                                                .mqResource("test_namespace")
-                                                .enableZookeeper(0)
-                                                .enableCreateResource(1)
-                                                .lightweight(1)
-                                                .inlongClusterTag("default_cluster")
-                                                .inCharges("test_inCharges,admin")
-                                                .dailyRecords(10000000)
-                                                .dailyStorage(10000)
-                                                .peakRecords(100000)
-                                                .maxLength(10000)
-                                                .status(120)
-                                                .creator("admin")
-                                                .modifier("admin")
-                                                .createTime(new Date())
-                                                .modifyTime(new Date())
-                                                .extList(new ArrayList<>())
-                                                .queueModule("PARALLEL")
-                                                .partitionNum(3)
-                                                .ensemble(3)
-                                                .writeQuorum(3)
-                                                .ttl(24)
-                                                .ttlUnit("hours")
-                                                .retentionTime(72)
-                                                .retentionTimeUnit("hours")
-                                                .retentionSize(-1)
-                                                .retentionSizeUnit("MB")
-                                                .build()
-                                )))
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(
+                                                        InlongPulsarInfo.builder()
+                                                                .id(8)
+                                                                .inlongGroupId("test_group009")
+                                                                .mqType("PULSAR")
+                                                                .mqResource("test_namespace")
+                                                                .enableZookeeper(0)
+                                                                .enableCreateResource(1)
+                                                                .lightweight(1)
+                                                                .inlongClusterTag("default_cluster")
+                                                                .inCharges("test_inCharges,admin")
+                                                                .dailyRecords(10000000)
+                                                                .dailyStorage(10000)
+                                                                .peakRecords(100000)
+                                                                .maxLength(10000)
+                                                                .status(120)
+                                                                .creator("admin")
+                                                                .modifier("admin")
+                                                                .createTime(new Date())
+                                                                .modifyTime(new Date())
+                                                                .extList(new ArrayList<>())
+                                                                .queueModule("PARALLEL")
+                                                                .partitionNum(3)
+                                                                .ensemble(3)
+                                                                .writeQuorum(3)
+                                                                .ttl(24)
+                                                                .ttlUnit("hours")
+                                                                .retentionTime(72)
+                                                                .retentionTimeUnit("hours")
+                                                                .retentionSize(-1)
+                                                                .retentionSizeUnit("MB")
+                                                                .build())))));
 
-        InlongStreamInfo streamInfo = InlongStreamInfo.builder()
-                .id(8)
-                .inlongGroupId(GROUP_ID)
-                .inlongStreamId(STREAM_ID)
-                .name(STREAM_ID)
-                .mqResource("test_topic")
-                .dataEncoding("UTF-8")
-                .dataSeparator("|")
-                .syncSend(1)
-                .dailyRecords(10)
-                .dailyStorage(10)
-                .peakRecords(1000)
-                .maxLength(10240)
-                .storagePeriod(1)
-                .status(120)
-                .creator("admin")
-                .modifier("admin")
-                .createTime(new Date())
-                .modifyTime(new Date())
-                .fieldList(createStreamFields())
-                .build();
-
-        ArrayList<StreamSource> kafkaSources = Lists.newArrayList(
-                KafkaSource.builder()
-                        .id(6)
-                        .topic(TOPIC)
-                        .bootstrapServers("{kafka.bootstrap}")
+        InlongStreamInfo streamInfo =
+                InlongStreamInfo.builder()
+                        .id(8)
                         .inlongGroupId(GROUP_ID)
                         .inlongStreamId(STREAM_ID)
-                        .sourceType("KAFKA")
-                        .sourceName("{kafka.source.name}")
-                        .serializationType("json")
-                        .version(1)
-                        .status(110)
+                        .name(STREAM_ID)
+                        .mqResource("test_topic")
+                        .dataEncoding("UTF-8")
+                        .dataSeparator("|")
+                        .syncSend(1)
+                        .dailyRecords(10)
+                        .dailyStorage(10)
+                        .peakRecords(1000)
+                        .maxLength(10240)
+                        .storagePeriod(1)
+                        .status(120)
                         .creator("admin")
                         .modifier("admin")
                         .createTime(new Date())
                         .modifyTime(new Date())
-                        .build()
-        );
+                        .fieldList(createStreamFields())
+                        .build();
 
-        ArrayList<StreamSink> hiveSinks = Lists.newArrayList(
-                HiveSink.builder()
-                        .id(6)
-                        .inlongStreamId(STREAM_ID)
-                        .inlongGroupId(GROUP_ID)
-                        .jdbcUrl("jdbc:hive2://{ip:port}")
-                        .dbName("test_db")
-                        .tableName("test_table")
-                        .dataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}")
-                        .fileFormat("TextFile")
-                        .dataEncoding("UTF-8")
-                        .dataSeparator("|")
-                        .sinkType("HIVE")
-                        .sinkName("sink_name")
-                        .enableCreateResource(1)
-                        .status(110)
-                        .creator("admin")
-                        .modifier("admin")
-                        .dataFormat(DataFormat.NONE)
-                        .sinkFieldList(Lists.newArrayList(
-                                SinkField.builder()
-                                        .id(17)
-                                        .fieldName("age")
-                                        .fieldType("INT")
-                                        .fieldComment("age")
-                                        .sourceFieldName("age")
-                                        .sourceFieldType("INT")
-                                        .build(),
-                                SinkField.builder()
-                                        .id(18)
-                                        .fieldName("name")
-                                        .fieldType("STRING")
-                                        .fieldComment("name")
-                                        .sourceFieldName("name")
-                                        .sourceFieldType("STRING")
-                                        .build()
-                        ))
-                        .build());
+        ArrayList<StreamSource> kafkaSources =
+                Lists.newArrayList(
+                        KafkaSource.builder()
+                                .id(6)
+                                .topic(TOPIC)
+                                .bootstrapServers("{kafka.bootstrap}")
+                                .inlongGroupId(GROUP_ID)
+                                .inlongStreamId(STREAM_ID)
+                                .sourceType("KAFKA")
+                                .sourceName("{kafka.source.name}")
+                                .serializationType("json")
+                                .version(1)
+                                .status(110)
+                                .creator("admin")
+                                .modifier("admin")
+                                .createTime(new Date())
+                                .modifyTime(new Date())
+                                .build());
+
+        ArrayList<StreamSink> hiveSinks =
+                Lists.newArrayList(
+                        HiveSink.builder()
+                                .id(6)
+                                .inlongStreamId(STREAM_ID)
+                                .inlongGroupId(GROUP_ID)
+                                .jdbcUrl("jdbc:hive2://{ip:port}")
+                                .dbName("test_db")
+                                .tableName("test_table")
+                                .dataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}")
+                                .fileFormat("TextFile")
+                                .dataEncoding("UTF-8")
+                                .dataSeparator("|")
+                                .sinkType("HIVE")
+                                .sinkName("sink_name")
+                                .enableCreateResource(1)
+                                .status(110)
+                                .creator("admin")
+                                .modifier("admin")
+                                .dataFormat(DataFormat.NONE)
+                                .sinkFieldList(
+                                        Lists.newArrayList(
+                                                SinkField.builder()
+                                                        .id(17)
+                                                        .fieldName("age")
+                                                        .fieldType("INT")
+                                                        .fieldComment("age")
+                                                        .sourceFieldName("age")
+                                                        .sourceFieldType("INT")
+                                                        .build(),
+                                                SinkField.builder()
+                                                        .id(18)
+                                                        .fieldName("name")
+                                                        .fieldType("STRING")
+                                                        .fieldComment("name")
+                                                        .sourceFieldName("name")
+                                                        .sourceFieldType("STRING")
+                                                        .build()))
+                                .build());
         streamInfo.setSourceList(kafkaSources);
         streamInfo.setSinkList(hiveSinks);
 
-        Response<PageResult<InlongStreamInfo>> fullStreamResponsePage = Response.success(
-                new PageResult<>(Lists.newArrayList(streamInfo))
-        );
+        Response<PageResult<InlongStreamInfo>> fullStreamResponsePage =
+                Response.success(new PageResult<>(Lists.newArrayList(streamInfo)));
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/listAll.*"))
-                        .willReturn(
-                                okJson(JsonUtils.toJsonString(fullStreamResponsePage))
-                        )
-        );
+                        .willReturn(okJson(JsonUtils.toJsonString(fullStreamResponsePage))));
 
-        EventLogResponse eventLogView1 = EventLogResponse.builder()
-                .id(38)
-                .processId(12)
-                .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
-                .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
-                .inlongGroupId(GROUP_ID)
-                .taskId(12)
-                .elementName("InitSort")
-                .elementDisplayName("Group-InitSort")
-                .eventType("ProcessEvent")
-                .event("FAIL")
-                .listener("InitGroupFailedListener")
-                .status(-1)
-                .ip("127.0.0.1")
-                .build();
-        EventLogResponse eventLogView2 = EventLogResponse.builder()
-                .id(39)
-                .processId(12)
-                .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
-                .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
-                .inlongGroupId(GROUP_ID)
-                .taskId(12)
-                .elementName("InitSort")
-                .elementDisplayName("Group-InitSort")
-                .eventType("TaskEvent")
-                .event("COMPLETE")
-                .listener("InitGroupListener")
-                .ip("127.0.0.1")
-                .build();
+        EventLogResponse eventLogView1 =
+                EventLogResponse.builder()
+                        .id(38)
+                        .processId(12)
+                        .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
+                        .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
+                        .inlongGroupId(GROUP_ID)
+                        .taskId(12)
+                        .elementName("InitSort")
+                        .elementDisplayName("Group-InitSort")
+                        .eventType("ProcessEvent")
+                        .event("FAIL")
+                        .listener("InitGroupFailedListener")
+                        .status(-1)
+                        .ip("127.0.0.1")
+                        .build();
+        EventLogResponse eventLogView2 =
+                EventLogResponse.builder()
+                        .id(39)
+                        .processId(12)
+                        .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
+                        .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
+                        .inlongGroupId(GROUP_ID)
+                        .taskId(12)
+                        .elementName("InitSort")
+                        .elementDisplayName("Group-InitSort")
+                        .eventType("TaskEvent")
+                        .event("COMPLETE")
+                        .listener("InitGroupListener")
+                        .ip("127.0.0.1")
+                        .build();
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/workflow/event/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(
-                                        Lists.newArrayList(eventLogView1, eventLogView2)
-                                ))))
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(
+                                                        new PageResult<>(
+                                                                Lists.newArrayList(
+                                                                        eventLogView1,
+                                                                        eventLogView2)))))));
 
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/stream/config/log/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>())))
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(new PageResult<>())))));
     }
 
     private static KafkaSource createKafkaSource() {
@@ -395,23 +376,22 @@ class Kafka2HiveTest extends BaseTest {
     private static List<StreamField> createStreamFields() {
         return Lists.newArrayList(
                 new StreamField(0, FieldType.STRING.toString(), "name", null, null),
-                new StreamField(1, FieldType.INT.toString(), "age", null, null)
-        );
+                new StreamField(1, FieldType.INT.toString(), "age", null, null));
     }
 
     @Test
     void testCreateGroupForHive() {
-        Assertions.assertDoesNotThrow(() -> {
-            InlongGroup group = inlongClient.forGroup(groupInfo);
-            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
-            streamBuilder.fields(createStreamFields());
-            streamBuilder.source(createKafkaSource());
-            streamBuilder.sink(createHiveSink());
-            streamBuilder.initOrUpdate();
-            // start group
-            InlongGroupContext inlongGroupContext = group.init();
-            Assertions.assertNotNull(inlongGroupContext);
-        });
-
+        Assertions.assertDoesNotThrow(
+                () -> {
+                    InlongGroup group = inlongClient.forGroup(groupInfo);
+                    InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
+                    streamBuilder.fields(createStreamFields());
+                    streamBuilder.source(createKafkaSource());
+                    streamBuilder.sink(createHiveSink());
+                    streamBuilder.initOrUpdate();
+                    // start group
+                    InlongGroupContext inlongGroupContext = group.init();
+                    Assertions.assertNotNull(inlongGroupContext);
+                });
     }
 }

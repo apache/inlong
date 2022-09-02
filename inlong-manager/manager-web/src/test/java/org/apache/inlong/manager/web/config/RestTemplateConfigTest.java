@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Test class for rest template config.
- */
+/** Test class for rest template config. */
 public class RestTemplateConfigTest extends WebBaseTest {
 
     private final int maxTotal = 5000;
@@ -34,17 +32,17 @@ public class RestTemplateConfigTest extends WebBaseTest {
     private final int readTimeout = 10000;
     private final int connectionRequestTimeout = 3000;
 
-    @Autowired
-    private RestTemplateConfig restTemplateConfig;
+    @Autowired private RestTemplateConfig restTemplateConfig;
 
     @Test
     public void configValue() {
         Assertions.assertEquals(maxTotal, restTemplateConfig.getMaxTotal());
         Assertions.assertEquals(defaultMaxPerRoute, restTemplateConfig.getDefaultMaxPerRoute());
-        Assertions.assertEquals(validateAfterInactivity, restTemplateConfig.getValidateAfterInactivity());
+        Assertions.assertEquals(
+                validateAfterInactivity, restTemplateConfig.getValidateAfterInactivity());
         Assertions.assertEquals(connectionTimeout, restTemplateConfig.getConnectionTimeout());
         Assertions.assertEquals(readTimeout, restTemplateConfig.getReadTimeout());
-        Assertions.assertEquals(connectionRequestTimeout, restTemplateConfig.getConnectionRequestTimeout());
+        Assertions.assertEquals(
+                connectionRequestTimeout, restTemplateConfig.getConnectionRequestTimeout());
     }
-
 }

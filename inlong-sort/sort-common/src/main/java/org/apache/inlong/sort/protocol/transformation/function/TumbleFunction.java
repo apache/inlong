@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,17 +31,11 @@ import org.apache.inlong.sort.protocol.transformation.GroupTimeWindowFunction;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 
-import java.util.Arrays;
-import java.util.List;
-
-
 /**
- * A tumbling windows assigner assigns each element to a window of a
- * specified window size. Tumbling windows have a fixed size and
- * do not overlap. For example, if you specify a tumbling window
- * with a size of 5 minutes, the current window will be evaluated
- * and a new window will be started every five minutes
- * as illustrated by the following figure.
+ * A tumbling windows assigner assigns each element to a window of a specified window size. Tumbling
+ * windows have a fixed size and do not overlap. For example, if you specify a tumbling window with
+ * a size of 5 minutes, the current window will be evaluated and a new window will be started every
+ * five minutes as illustrated by the following figure.
  */
 @JsonTypeName("tumble")
 @Data
@@ -48,13 +44,16 @@ public class TumbleFunction implements GroupTimeWindowFunction {
 
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
+
     @JsonProperty("interval")
     private StringConstantParam interval;
+
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
-    public TumbleFunction(@JsonProperty("timeAttr") FieldInfo timeAttr,
+    public TumbleFunction(
+            @JsonProperty("timeAttr") FieldInfo timeAttr,
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
@@ -64,8 +63,9 @@ public class TumbleFunction implements GroupTimeWindowFunction {
 
     @Override
     public String format() {
-        return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+        return String.format(
+                "%s(%s, INTERVAL %s %s)",
+                getName(), timeAttr.format(), interval.format(), timeUnit.format());
     }
 
     @Override
@@ -77,5 +77,4 @@ public class TumbleFunction implements GroupTimeWindowFunction {
     public String getName() {
         return "TUMBLE";
     }
-
 }

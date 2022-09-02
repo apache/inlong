@@ -17,12 +17,6 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.dataproxy.config.ConfigHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +28,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.dataproxy.config.ConfigHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * properties to map
- */
+/** properties to map */
 public class PropertiesConfigHolder extends ConfigHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesConfigHolder.class);
@@ -60,9 +57,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
         }
     }
 
-    /**
-     * holder
-     */
+    /** holder */
     public Map<String, String> forkHolder() {
         Map<String, String> tmpHolder = new HashMap<>();
         if (holder != null) {
@@ -79,9 +74,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
         return result;
     }
 
-    /**
-     * load from holder
-     */
+    /** load from holder */
     public boolean loadFromHolderToFile(Map<String, String> tmpHolder) {
         readWriteLock.writeLock().lock();
         boolean isSuccess = false;

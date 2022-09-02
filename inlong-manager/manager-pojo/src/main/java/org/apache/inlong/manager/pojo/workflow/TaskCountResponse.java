@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Task count response
- */
+/** Task count response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -45,5 +43,4 @@ public class TaskCountResponse {
 
     @ApiModelProperty(value = "Count of transfers")
     private Integer totalTransferCount;
-
 }

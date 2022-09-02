@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.node.transform;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,20 +36,11 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Base class for transform node, such as a distinct node
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Base class for transform node, such as a distinct node */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
-        @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct")
+    @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
+    @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct")
 })
 @Data
 @NoArgsConstructor
@@ -56,21 +50,27 @@ public class TransformNode implements Node, Serializable {
 
     @JsonProperty("id")
     private String id;
+
     @JsonProperty("name")
     private String name;
+
     @JsonProperty("fields")
     private List<FieldInfo> fields;
+
     @JsonProperty("fieldRelations")
     private List<FieldRelation> fieldRelations;
+
     @JsonProperty("filters")
     @JsonInclude(Include.NON_NULL)
     private List<FilterFunction> filters;
+
     @JsonProperty("filterStrategy")
     @JsonInclude(Include.NON_NULL)
     private FilterStrategy filterStrategy;
 
     @JsonCreator
-    public TransformNode(@JsonProperty("id") String id,
+    public TransformNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -80,8 +80,7 @@ public class TransformNode implements Node, Serializable {
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");
         Preconditions.checkState(!fields.isEmpty(), "fields is empty");
-        this.fieldRelations = Preconditions.checkNotNull(fieldRelations,
-                "fieldRelations is null");
+        this.fieldRelations = Preconditions.checkNotNull(fieldRelations, "fieldRelations is null");
         Preconditions.checkState(!fieldRelations.isEmpty(), "fieldRelations is empty");
         this.filters = filters;
         this.filterStrategy = filterStrategy;

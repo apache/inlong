@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.common.util;
 
-import org.apache.commons.codec.binary.Base64;
-
-import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -29,10 +26,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.Map;
+import javax.crypto.Cipher;
+import org.apache.commons.codec.binary.Base64;
 
-/**
- * RSA encryption and decryption utils.
- */
+/** RSA encryption and decryption utils. */
 public class RSAUtils {
 
     public static final String PUBLIC_KEY = "RSAPublicKey";
@@ -51,9 +48,7 @@ public class RSAUtils {
         }
     }
 
-    /**
-     * Generate RSA key pairs
-     */
+    /** Generate RSA key pairs */
     public static Map<String, String> generateRSAKeyPairs() throws NoSuchAlgorithmException {
         Map<String, String> keyPairMap = new HashMap<>();
         KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_ALGORITHM);
@@ -66,9 +61,7 @@ public class RSAUtils {
         return keyPairMap;
     }
 
-    /**
-     * Encryption by public key
-     */
+    /** Encryption by public key */
     public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -93,10 +86,9 @@ public class RSAUtils {
         return encryptedData;
     }
 
-    /**
-     * Decryption by private key
-     */
-    public static byte[] decryptByPrivateKey(byte[] encryptedData, RSAPrivateKey privateKey) throws Exception {
+    /** Decryption by private key */
+    public static byte[] decryptByPrivateKey(byte[] encryptedData, RSAPrivateKey privateKey)
+            throws Exception {
         Cipher cipher = Cipher.getInstance(KEY_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         int inputLen = encryptedData.length;

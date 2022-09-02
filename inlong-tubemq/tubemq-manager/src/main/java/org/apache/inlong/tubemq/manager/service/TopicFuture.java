@@ -17,43 +17,33 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
+import java.util.concurrent.CompletableFuture;
 import lombok.Getter;
 import org.apache.inlong.tubemq.manager.entry.TopicEntry;
 
-import java.util.concurrent.CompletableFuture;
-
-/**
- * topic business with future.
- */
+/** topic business with future. */
 public class TopicFuture {
-    @Getter
-    private int retryTime = 0;
-    @Getter
-    private final TopicEntry entry;
-    @Getter
-    private final CompletableFuture<TopicEntry> future;
+    @Getter private int retryTime = 0;
+    @Getter private final TopicEntry entry;
+    @Getter private final CompletableFuture<TopicEntry> future;
 
     public TopicFuture(TopicEntry entry, CompletableFuture<TopicEntry> future) {
         this.entry = entry;
         this.future = future;
     }
 
-    /**
-     * record retry time.
-     */
+    /** record retry time. */
     public void increaseRetryTime() {
         retryTime += 1;
     }
 
-    /**
-     * when topic operation finished, complete it.
-     */
+    /** when topic operation finished, complete it. */
     public void complete() {
         this.future.complete(this.entry);
     }
 
     public void completeExceptional() {
-        this.future.completeExceptionally(new RuntimeException("exceed max retry "
-                + retryTime + " adding"));
+        this.future.completeExceptionally(
+                new RuntimeException("exceed max retry " + retryTime + " adding"));
     }
 }

@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.debezium.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
@@ -29,6 +31,19 @@ import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
 import io.debezium.time.ZonedTimestamp;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -51,22 +66,6 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
  * RowData}.
@@ -74,7 +73,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 public final class RowDataDebeziumDeserializeSchema
         implements DebeziumDeserializationSchema<RowData> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
 
     private static final long serialVersionUID = 2L;
 
@@ -82,33 +82,25 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
-    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter timestampFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    /**
-     * TypeInformation of the produced {@link RowData}. *
-     */
+    /** TypeInformation of the produced {@link RowData}. * */
     private final TypeInformation<RowData> resultTypeInfo;
     /**
      * Runtime converter that converts Kafka {@link SourceRecord}s into {@link RowData} consisted of
      * physical column values.
      */
     private final DeserializationRuntimeConverter physicalConverter;
-    /**
-     * Whether the deserializer needs to handle metadata columns.
-     */
+    /** Whether the deserializer needs to handle metadata columns. */
     private final boolean hasMetadata;
-    /**
-     * Whether works append source.
-     */
+    /** Whether works append source. */
     private final boolean appendSource;
     /**
      * A wrapped output collector which is used to append metadata columns after physical columns.
      */
     private final AppendMetadataCollector appendMetadataCollector;
-    /**
-     * Validator to validate the row value.
-     */
+    /** Validator to validate the row value. */
     private final ValueValidator validator;
 
     private boolean migrateAll;
@@ -138,9 +130,7 @@ public final class RowDataDebeziumDeserializeSchema
         this.appendSource = checkNotNull(appendSource);
     }
 
-    /**
-     * Returns a builder to build {@link RowDataDebeziumDeserializeSchema}.
-     */
+    /** Returns a builder to build {@link RowDataDebeziumDeserializeSchema}. */
     public static Builder newBuilder() {
         return new Builder();
     }
@@ -436,9 +426,7 @@ public final class RowDataDebeziumDeserializeSchema
         };
     }
 
-    /**
-     * Creates a runtime converter which is null safe.
-     */
+    /** Creates a runtime converter which is null safe. */
     private DeserializationRuntimeConverter createConverter(
             LogicalType type,
             ZoneId serverTimeZone,
@@ -447,9 +435,7 @@ public final class RowDataDebeziumDeserializeSchema
                 createNotNullConverter(type, serverTimeZone, userDefinedConverterFactory));
     }
 
-    /**
-     * Creates a runtime converter which assuming input object is not null.
-     */
+    /** Creates a runtime converter which assuming input object is not null. */
     public DeserializationRuntimeConverter createNotNullConverter(
             LogicalType type,
             ZoneId serverTimeZone,
@@ -633,13 +619,17 @@ public final class RowDataDebeziumDeserializeSchema
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime
-                        .withZoneSameInstant(serverTimeZone).toLocalDateTime());
+                fieldValue =
+                        timestampFormatter.format(
+                                zonedDateTime
+                                        .withZoneSameInstant(serverTimeZone)
+                                        .toLocalDateTime());
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
+                fieldValue =
+                        timestampFormatter.format(
+                                LocalDateTime.ofInstant(instantTime, serverTimeZone));
                 break;
             default:
                 LOG.error("parse schema {} error", schemaName);
@@ -653,8 +643,7 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     @Override
-    public void deserialize(SourceRecord record, Collector<RowData> out,
-                            TableChange tableSchema)
+    public void deserialize(SourceRecord record, Collector<RowData> out, TableChange tableSchema)
             throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
@@ -696,9 +685,11 @@ public final class RowDataDebeziumDeserializeSchema
         return (GenericRowData) physicalConverter.convert(before, beforeSchema);
     }
 
-    private void emit(SourceRecord inRecord, RowData physicalRow,
-                      TableChange tableChange, Collector<RowData> collector
-    ) {
+    private void emit(
+            SourceRecord inRecord,
+            RowData physicalRow,
+            TableChange tableChange,
+            Collector<RowData> collector) {
         if (appendSource) {
             physicalRow.setRowKind(RowKind.INSERT);
         }
@@ -717,24 +708,19 @@ public final class RowDataDebeziumDeserializeSchema
         return resultTypeInfo;
     }
 
-    /**
-     * Custom validator to validate the row value.
-     */
+    /** Custom validator to validate the row value. */
     public interface ValueValidator extends Serializable {
 
         void validate(RowData rowData, RowKind rowKind) throws Exception;
     }
 
-    /**
-     * Builder of {@link RowDataDebeziumDeserializeSchema}.
-     */
+    /** Builder of {@link RowDataDebeziumDeserializeSchema}. */
     public static class Builder {
 
         private RowType physicalRowType;
         private TypeInformation<RowData> resultTypeInfo;
         private MetadataConverter[] metadataConverters = new MetadataConverter[0];
-        private ValueValidator validator = (rowData, rowKind) -> {
-        };
+        private ValueValidator validator = (rowData, rowKind) -> {};
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private boolean appendSource = false;
         private boolean migrateAll = false;

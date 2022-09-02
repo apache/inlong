@@ -20,9 +20,7 @@ package org.apache.inlong.manager.client.api.inner.client;
 import lombok.Getter;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 
-/**
- * Factory for {@link org.apache.inlong.manager.client.api.inner.client}.
- */
+/** Factory for {@link org.apache.inlong.manager.client.api.inner.client}. */
 @Getter
 public class ClientFactory {
 

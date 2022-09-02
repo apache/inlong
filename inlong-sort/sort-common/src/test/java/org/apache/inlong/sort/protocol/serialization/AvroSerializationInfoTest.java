@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.serialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link AvroSerializationInfo}
- */
+/** Test for {@link AvroSerializationInfo} */
 public class AvroSerializationInfoTest extends SerializeBaseTest<AvroSerializationInfo> {
 
     @Override

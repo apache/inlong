@@ -17,13 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Repository
 public interface WorkflowEventLogEntityMapper {
@@ -36,5 +35,4 @@ public interface WorkflowEventLogEntityMapper {
     List<WorkflowEventLogEntity> selectByCondition(EventLogRequest request);
 
     int update(WorkflowEventLogEntity record);
-
 }

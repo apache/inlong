@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * Constants of job fetcher snapshot mode
- */
+/** Constants of job fetcher snapshot mode */
 public class SnapshotModeConstants {
 
     public static final String INITIAL = "initial";

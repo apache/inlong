@@ -1,24 +1,30 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.hive;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -37,21 +43,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
-/**
- * 
- * HiveSinkContext
- */
+/** HiveSinkContext */
 public class HiveSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(HiveSinkContext.class);
@@ -100,12 +92,15 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param context
      * @param channel
      */
-    public HiveSinkContext(String sinkName, Context context, Channel channel,
+    public HiveSinkContext(
+            String sinkName,
+            Context context,
+            Channel channel,
             LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.parentContext = context;
@@ -113,8 +108,9 @@ public class HiveSinkContext extends SinkContext {
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, NetworkUtils.getLocalIp());
         this.outputPool = Executors.newFixedThreadPool(this.getMaxThreads());
         this.partitionCreatePool = Executors.newFixedThreadPool(this.getMaxThreads());
-        String eventFormatHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_FORMAT_HANDLER,
-                DefaultEventFormatHandler.class.getName());
+        String eventFormatHandlerClass =
+                CommonPropertiesHolder.getString(
+                        KEY_EVENT_FORMAT_HANDLER, DefaultEventFormatHandler.class.getName());
         try {
             Class<?> handlerClass = ClassUtils.getClass(eventFormatHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
@@ -122,18 +118,20 @@ public class HiveSinkContext extends SinkContext {
                 this.eventFormatHandler = (IEventFormatHandler) handlerObject;
             }
         } catch (Throwable t) {
-            LOG.error("Fail to init IEventFormatHandler,handlerClass:{},error:{}",
-                    eventFormatHandlerClass, t.getMessage());
+            LOG.error(
+                    "Fail to init IEventFormatHandler,handlerClass:{},error:{}",
+                    eventFormatHandlerClass,
+                    t.getMessage());
         }
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            LOG.info("start to get SortTaskConfig:taskName:{}:config:{}", taskName,
+            LOG.info(
+                    "start to get SortTaskConfig:taskName:{}:config:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newSortTaskConfig));
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
                 return;
@@ -156,17 +154,22 @@ public class HiveSinkContext extends SinkContext {
             this.idConfigMap = newIdConfigMap;
             // hdfs config
             this.hdfsPath = parentContext.getString(KEY_HDFS_PATH);
-            this.maxFileOpenDelayMinute = parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, DEFAULT_MAX_FILE_OPEN_DELAY);
+            this.maxFileOpenDelayMinute =
+                    parentContext.getLong(KEY_MAX_FILE_OPEN_DELAY, DEFAULT_MAX_FILE_OPEN_DELAY);
             this.fileArchiveDelayMinute = maxFileOpenDelayMinute + 1;
-            this.tokenOvertimeMinute = parentContext.getLong(KEY_TOKEN_OVERTIME, DEFAULT_TOKEN_OVERTIME);
-            this.maxOutputFileSizeGb = parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, DEFAULT_MAX_OUTPUT_FILE_SIZE);
+            this.tokenOvertimeMinute =
+                    parentContext.getLong(KEY_TOKEN_OVERTIME, DEFAULT_TOKEN_OVERTIME);
+            this.maxOutputFileSizeGb =
+                    parentContext.getLong(KEY_MAX_OUTPUT_FILE_SIZE, DEFAULT_MAX_OUTPUT_FILE_SIZE);
             // hive config
             this.hiveJdbcUrl = parentContext.getString(KEY_HIVE_JDBC_URL);
             this.hiveDatabase = parentContext.getString(KEY_HIVE_DATABASE);
             this.hiveUsername = parentContext.getString(KEY_HIVE_USERNAME);
             this.hivePassword = parentContext.getString(KEY_HIVE_PASSWORD);
             Class.forName("org.apache.hive.jdbc.HiveDriver");
-            LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
+            LOG.info(
+                    "end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newIdConfigMap));
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
@@ -175,7 +178,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      */
@@ -195,13 +198,12 @@ public class HiveSinkContext extends SinkContext {
         long size = currentRecord.getSize();
         metricItem.sendCount.addAndGet(count);
         metricItem.sendSize.addAndGet(size);
-//        LOG.info("addSendMetric,bid:{},count:{},metric:{}",
-//                bid, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+        //        LOG.info("addSendMetric,bid:{},count:{},metric:{}",
+        //                bid, currentRecord.getCount(),
+        // JSON.toJSONString(metricItemSet.getItemMap()));
     }
 
-    /**
-     * addReadFailMetric
-     */
+    /** addReadFailMetric */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
@@ -215,7 +217,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * fillInlongId
-     * 
+     *
      * @param currentRecord
      * @param dimensions
      */
@@ -230,13 +232,14 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * addSendResultMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      * @param result
      * @param sendTime
      */
-    public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
+    public void addSendResultMetric(
+            DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
@@ -253,32 +256,40 @@ public class HiveSinkContext extends SinkContext {
         if (result) {
             metricItem.sendSuccessCount.addAndGet(count);
             metricItem.sendSuccessSize.addAndGet(size);
-            currentRecord.getEvents().forEach((event) -> {
-                AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, event);
-            });
+            currentRecord
+                    .getEvents()
+                    .forEach(
+                            (event) -> {
+                                AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, event);
+                            });
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                long nodeDuration =
+                        currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
                 long wholeDuration = currentTime - msgTime;
                 metricItem.sinkDuration.addAndGet(sinkDuration * count);
                 metricItem.nodeDuration.addAndGet(nodeDuration * count);
                 metricItem.wholeDuration.addAndGet(wholeDuration * count);
             }
-//            LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            //
+            // LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            //                    bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         } else {
             metricItem.sendFailCount.addAndGet(count);
             metricItem.sendFailSize.addAndGet(size);
-//            LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            //
+            // LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            //                    bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         }
     }
 
     /**
      * getHiveConnection
-     * 
-     * @return                        Connection
+     *
+     * @return Connection
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -294,7 +305,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get hiveDatabase
-     * 
+     *
      * @return the hiveDatabase
      */
     public String getHiveDatabase() {
@@ -303,7 +314,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get producerContext
-     * 
+     *
      * @return the producerContext
      */
     public Context getProducerContext() {
@@ -312,7 +323,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get dispatchQueue
-     * 
+     *
      * @return the dispatchQueue
      */
     public LinkedBlockingQueue<DispatchProfile> getDispatchQueue() {
@@ -321,8 +332,8 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * getTopic
-     * 
-     * @param  uid
+     *
+     * @param uid
      * @return
      */
     public HdfsIdConfig getIdConfig(String uid) {
@@ -331,7 +342,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get hdfsPath
-     * 
+     *
      * @return the hdfsPath
      */
     public String getHdfsPath() {
@@ -340,7 +351,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get nodeId
-     * 
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -349,7 +360,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get maxFileOpenDelayMinute
-     * 
+     *
      * @return the maxFileOpenDelayMinute
      */
     public long getMaxFileOpenDelayMinute() {
@@ -358,7 +369,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get fileArchiveDelayMinute
-     * 
+     *
      * @return the fileArchiveDelayMinute
      */
     public long getFileArchiveDelayMinute() {
@@ -367,7 +378,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get tokenOvertimeMinute
-     * 
+     *
      * @return the tokenOvertimeMinute
      */
     public long getTokenOvertimeMinute() {
@@ -376,7 +387,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get maxOutputFileSizeGb
-     * 
+     *
      * @return the maxOutputFileSizeGb
      */
     public long getMaxOutputFileSizeGb() {
@@ -385,7 +396,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get idConfigMap
-     * 
+     *
      * @return the idConfigMap
      */
     public Map<String, HdfsIdConfig> getIdConfigMap() {
@@ -394,7 +405,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get outputPool
-     * 
+     *
      * @return the outputPool
      */
     public ExecutorService getOutputPool() {
@@ -403,7 +414,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get partitionCreatePool
-     * 
+     *
      * @return the partitionCreatePool
      */
     public ExecutorService getPartitionCreatePool() {
@@ -412,7 +423,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get eventFormatHandler
-     * 
+     *
      * @return the eventFormatHandler
      */
     public IEventFormatHandler getEventFormatHandler() {
@@ -421,7 +432,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get hiveJdbcUrl
-     * 
+     *
      * @return the hiveJdbcUrl
      */
     public String getHiveJdbcUrl() {
@@ -430,7 +441,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * set hiveJdbcUrl
-     * 
+     *
      * @param hiveJdbcUrl the hiveJdbcUrl to set
      */
     public void setHiveJdbcUrl(String hiveJdbcUrl) {
@@ -439,7 +450,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get hiveUsername
-     * 
+     *
      * @return the hiveUsername
      */
     public String getHiveUsername() {
@@ -448,7 +459,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * set hiveUsername
-     * 
+     *
      * @param hiveUsername the hiveUsername to set
      */
     public void setHiveUsername(String hiveUsername) {
@@ -457,7 +468,7 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * get hivePassword
-     * 
+     *
      * @return the hivePassword
      */
     public String getHivePassword() {
@@ -466,11 +477,10 @@ public class HiveSinkContext extends SinkContext {
 
     /**
      * set hivePassword
-     * 
+     *
      * @param hivePassword the hivePassword to set
      */
     public void setHivePassword(String hivePassword) {
         this.hivePassword = hivePassword;
     }
-
 }

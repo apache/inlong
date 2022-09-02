@@ -20,9 +20,7 @@ package org.apache.inlong.sort.hive;
 import org.apache.flink.table.descriptors.ConnectorDescriptorValidator;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
-/**
- * hive validator for hive properties
- */
+/** hive validator for hive properties */
 public class HiveValidator extends ConnectorDescriptorValidator {
 
     public static final String CONNECTOR_TYPE_VALUE_HIVE = "hive";
@@ -45,5 +43,4 @@ public class HiveValidator extends ConnectorDescriptorValidator {
         properties.validateString(CONNECTOR_HIVE_DATABASE, false, 1);
         properties.validateString(CONNECTOR_HIVE_VERSION, false, 1);
     }
-
 }

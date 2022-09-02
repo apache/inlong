@@ -20,7 +20,16 @@ package org.apache.inlong.audit.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.audit.config.ElasticsearchConfig;
 import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
@@ -45,17 +54,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
 @Service
 public class ElasticsearchService implements InsertData, AutoCloseable {
 
@@ -64,37 +62,45 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
     private static ScheduledExecutorService timerService = Executors.newScheduledThreadPool(1);
     private final Semaphore semaphore = new Semaphore(1);
     private List<ESDataPo> datalist = new ArrayList<>();
+
     @Autowired
     @Qualifier("restClient")
     private RestHighLevelClient client;
 
-    @Autowired
-    private ElasticsearchConfig esConfig;
+    @Autowired private ElasticsearchConfig esConfig;
 
     public void startTimerRoutine() {
-        timerService.scheduleAtFixedRate((new Runnable() {
+        timerService.scheduleAtFixedRate(
+                (new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    deleteTimeoutIndices();
-                } catch (IOException e) {
-                    LOG.error("deleteTimeoutIndices has err: ", e);
-                }
-            }
-        }), 1, 1, TimeUnit.DAYS);
+                    @Override
+                    public void run() {
+                        try {
+                            deleteTimeoutIndices();
+                        } catch (IOException e) {
+                            LOG.error("deleteTimeoutIndices has err: ", e);
+                        }
+                    }
+                }),
+                1,
+                1,
+                TimeUnit.DAYS);
 
-        timerService.scheduleWithFixedDelay((new Runnable() {
+        timerService.scheduleWithFixedDelay(
+                (new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    bulkInsert();
-                } catch (IOException e) {
-                    LOG.error("bulkInsert has err: ", e);
-                }
-            }
-        }), esConfig.getBulkInterval(), esConfig.getBulkInterval(), TimeUnit.SECONDS);
+                    @Override
+                    public void run() {
+                        try {
+                            bulkInsert();
+                        } catch (IOException e) {
+                            LOG.error("bulkInsert has err: ", e);
+                        }
+                    }
+                }),
+                esConfig.getBulkInterval(),
+                esConfig.getBulkInterval(),
+                TimeUnit.SECONDS);
     }
 
     public void insertData(ESDataPo data) {
@@ -123,10 +129,13 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
             return true;
         }
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
-        createIndexRequest.settings(Settings.builder().put("index.number_of_shards", esConfig.getShardsNum())
-                .put("index.number_of_replicas", esConfig.getReplicaNum()));
+        createIndexRequest.settings(
+                Settings.builder()
+                        .put("index.number_of_shards", esConfig.getShardsNum())
+                        .put("index.number_of_replicas", esConfig.getReplicaNum()));
         createIndexRequest.mapping("_doc", generateBuilder());
-        CreateIndexResponse response = client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+        CreateIndexResponse response =
+                client.indices().create(createIndexRequest, RequestOptions.DEFAULT);
         boolean res = response.isAcknowledged();
         if (res) {
             LOG.info("success creating index {}", index);
@@ -153,7 +162,8 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
                 String index = formatter.format(esDataPo.getLogTs()) + "_" + esDataPo.getAuditId();
                 GsonBuilder gsonBuilder = new GsonBuilder();
-                gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                gsonBuilder
+                        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                         .setDateFormat("yyyy-MM-dd HH:mm:ss");
                 Gson gson = gsonBuilder.create();
                 String esJson = gson.toJson(esDataPo);
@@ -163,10 +173,14 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
                 }
                 IndexRequest indexRequest;
                 if (esConfig.isEnableCustomDocId()) {
-                    indexRequest = new IndexRequest(index).type("_doc").id(esDataPo.getDocId())
-                            .source(esJson, XContentType.JSON);
+                    indexRequest =
+                            new IndexRequest(index)
+                                    .type("_doc")
+                                    .id(esDataPo.getDocId())
+                                    .source(esJson, XContentType.JSON);
                 } else {
-                    indexRequest = new IndexRequest(index).type("_doc").source(esJson, XContentType.JSON);
+                    indexRequest =
+                            new IndexRequest(index).type("_doc").source(esJson, XContentType.JSON);
                 }
                 bulkRequest.add(indexRequest);
             }
@@ -194,7 +208,6 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
             String index = preIndex + "_" + auditId;
             deleteSingleIndex(index);
         }
-
     }
 
     protected boolean deleteSingleIndex(String index) throws IOException {
@@ -202,7 +215,8 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
             return true;
         }
         DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(index);
-        AcknowledgedResponse deleteIndexResponse = client.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
+        AcknowledgedResponse deleteIndexResponse =
+                client.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
         boolean res = deleteIndexResponse.isAcknowledged();
         if (res) {
             LOG.info("success deleting index {}", index);
@@ -319,6 +333,7 @@ public class ElasticsearchService implements InsertData, AutoCloseable {
 
     /**
      * insert
+     *
      * @param msgBody
      */
     @Override

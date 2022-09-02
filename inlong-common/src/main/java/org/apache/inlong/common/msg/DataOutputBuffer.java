@@ -26,19 +26,14 @@ import java.io.OutputStream;
 /**
  * A reusable {@link java.io.DataOutput} implementation that writes to an in-memory buffer.
  *
- * This saves memory over creating a new DataOutputStream and
- * ByteArrayOutputStream each time data is written.
+ * <p>This saves memory over creating a new DataOutputStream and ByteArrayOutputStream each time
+ * data is written.
  *
- * Typical usage is something like the following:
+ * <p>Typical usage is something like the following:
  *
- * DataOutputBuffer buffer = new DataOutputBuffer();
- * while (... loop condition ...) {
- *   buffer.reset();
- *   ... write buffer using DataOutput methods ...
- *   byte[] data = buffer.getData();
- *   int dataLength = buffer.getLength();
- *   ... write data to its ultimate destination ...
- * }
+ * <p>DataOutputBuffer buffer = new DataOutputBuffer(); while (... loop condition ...) {
+ * buffer.reset(); ... write buffer using DataOutput methods ... byte[] data = buffer.getData(); int
+ * dataLength = buffer.getLength(); ... write data to its ultimate destination ... }
  */
 public class DataOutputBuffer extends DataOutputStream {
 
@@ -74,9 +69,7 @@ public class DataOutputBuffer extends DataOutputStream {
 
     private Buffer buffer;
 
-    /**
-     * Constructs a new empty buffer.
-     */
+    /** Constructs a new empty buffer. */
     public DataOutputBuffer() {
         this(new Buffer());
     }
@@ -90,40 +83,29 @@ public class DataOutputBuffer extends DataOutputStream {
         this.buffer = buffer;
     }
 
-    /**
-     * Returns the current contents of the buffer.
-     * Data is only valid to {@link #getLength()}.
-     */
+    /** Returns the current contents of the buffer. Data is only valid to {@link #getLength()}. */
     public byte[] getData() {
         return buffer.getData();
     }
 
-    /**
-     * Returns the length of the valid data currently in the buffer.
-     */
+    /** Returns the length of the valid data currently in the buffer. */
     public int getLength() {
         return buffer.getLength();
     }
 
-    /**
-     * Resets the buffer to empty.
-     */
+    /** Resets the buffer to empty. */
     public DataOutputBuffer reset() {
         this.written = 0;
         buffer.reset();
         return this;
     }
 
-    /**
-     * Writes bytes from a DataInput directly into the buffer.
-     */
+    /** Writes bytes from a DataInput directly into the buffer. */
     public void write(DataInput in, int length) throws IOException {
         buffer.write(in, length);
     }
 
-    /**
-     * Write to a file stream
-     */
+    /** Write to a file stream */
     public void writeTo(OutputStream out) throws IOException {
         buffer.writeTo(out);
     }

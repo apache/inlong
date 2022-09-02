@@ -26,9 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link TimeFormatInfo}.
- */
+/** Unit tests for {@link TimeFormatInfo}. */
 public class TimeFormatInfoTest extends FormatInfoTestBase {
 
     @Override

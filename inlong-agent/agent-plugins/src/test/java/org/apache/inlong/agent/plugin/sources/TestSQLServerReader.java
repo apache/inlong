@@ -17,6 +17,29 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.field;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -36,33 +59,7 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.field;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-
-/**
- * Test cases for {@link SQLServerReader}.
- */
+/** Test cases for {@link SQLServerReader}. */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AgentDbUtils.class, AuditUtils.class, SQLServerReader.class})
 @PowerMockIgnore({"javax.management.*"})
@@ -70,26 +67,19 @@ public class TestSQLServerReader {
 
     private SQLServerReader reader;
 
-    @Mock
-    private JobProfile jobProfile;
+    @Mock private JobProfile jobProfile;
 
-    @Mock
-    private Connection conn;
+    @Mock private Connection conn;
 
-    @Mock
-    private PreparedStatement preparedStatement;
+    @Mock private PreparedStatement preparedStatement;
 
-    @Mock
-    private ResultSet resultSet;
+    @Mock private ResultSet resultSet;
 
-    @Mock
-    private ResultSetMetaData metaData;
+    @Mock private ResultSetMetaData metaData;
 
-    @Mock
-    private AgentMetricItemSet agentMetricItemSet;
+    @Mock private AgentMetricItemSet agentMetricItemSet;
 
-    @Mock
-    private AgentMetricItem agentMetricItem;
+    @Mock private AgentMetricItem agentMetricItem;
 
     private AtomicLong atomicLong;
 
@@ -110,24 +100,30 @@ public class TestSQLServerReader {
 
         sql = "select * from dbo.test01";
 
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn(groupId);
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn(streamId);
+        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString()))
+                .thenReturn(groupId);
+        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString()))
+                .thenReturn(streamId);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_USER))).thenReturn(username);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_PASSWORD))).thenReturn(password);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_HOSTNAME))).thenReturn(hostname);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_PORT))).thenReturn(port);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DBNAME))).thenReturn(dbname);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DRIVER_CLASS), anyString())).thenReturn(
-                SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS);
-        when(jobProfile.getInt(eq(SQLServerReader.JOB_DATABASE_BATCH_SIZE), anyInt())).thenReturn(
-                SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_TYPE), anyString())).thenReturn(
-                SQLServerReader.SQLSERVER);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_SEPARATOR), anyString())).thenReturn(
-                SQLServerReader.STD_FIELD_SEPARATOR_SHORT);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DRIVER_CLASS), anyString()))
+                .thenReturn(SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS);
+        when(jobProfile.getInt(eq(SQLServerReader.JOB_DATABASE_BATCH_SIZE), anyInt()))
+                .thenReturn(SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_TYPE), anyString()))
+                .thenReturn(SQLServerReader.SQLSERVER);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_SEPARATOR), anyString()))
+                .thenReturn(SQLServerReader.STD_FIELD_SEPARATOR_SHORT);
         mockStatic(AgentDbUtils.class);
-        when(AgentDbUtils.getConnectionFailover(eq(SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS), anyString(),
-                eq(username), eq(password))).thenReturn(conn);
+        when(AgentDbUtils.getConnectionFailover(
+                        eq(SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS),
+                        anyString(),
+                        eq(username),
+                        eq(password)))
+                .thenReturn(conn);
         when(conn.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.getMetaData()).thenReturn(metaData);
@@ -139,18 +135,16 @@ public class TestSQLServerReader {
         when(metaData.getColumnTypeName(1)).thenReturn(typeName1);
         when(metaData.getColumnTypeName(2)).thenReturn(typeName2);
 
-        //mock metrics
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
 
-        //init method
+        // init method
         (reader = new SQLServerReader(sql)).init(jobProfile);
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#read()}.
-     */
+    /** Test cases for {@link SQLServerReader#read()}. */
     @Test
     public void testRead() throws Exception {
         final String v11 = "11";
@@ -166,15 +160,14 @@ public class TestSQLServerReader {
         when(resultSet.getString(2)).thenReturn(v12, v22);
         Message message1 = reader.read();
         assertEquals(msg1, message1.toString());
-        verify(preparedStatement, times(1)).setFetchSize(SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
+        verify(preparedStatement, times(1))
+                .setFetchSize(SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
         Message message2 = reader.read();
         assertEquals(msg2, message2.toString());
         assertEquals(2L, atomicLong.get());
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#destroy()}.
-     */
+    /** Test cases for {@link SQLServerReader#destroy()}. */
     @Test
     public void testDestroy() throws Exception {
         assertFalse(reader.isFinished());
@@ -185,9 +178,7 @@ public class TestSQLServerReader {
         assertTrue(reader.isFinished());
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#finishRead()}.
-     */
+    /** Test cases for {@link SQLServerReader#finishRead()}. */
     @Test
     public void testFinishRead() throws Exception {
         assertFalse(reader.isFinished());
@@ -198,33 +189,25 @@ public class TestSQLServerReader {
         assertTrue(reader.isFinished());
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#isSourceExist()}.
-     */
+    /** Test cases for {@link SQLServerReader#isSourceExist()}. */
     @Test
     public void testIsSourceExist() {
         assertTrue(reader.isSourceExist());
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#getSnapshot()}.
-     */
+    /** Test cases for {@link SQLServerReader#getSnapshot()}. */
     @Test
     public void testGetSnapshot() {
         assertEquals(StringUtils.EMPTY, reader.getSnapshot());
     }
 
-    /**
-     * Test cases for {@link SQLServerReader#getReadSource()}.
-     */
+    /** Test cases for {@link SQLServerReader#getReadSource()}. */
     @Test
     public void testGetReadSource() {
         assertEquals(sql, reader.getReadSource());
     }
 
-    /**
-     * Just using in local test.
-     */
+    /** Just using in local test. */
     @Ignore
     public void testSQLServerReader() {
         JobProfile jobProfile = JobProfile.parseJsonStr("{}");

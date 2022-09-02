@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.offset;
 
 import java.util.Map;
@@ -28,13 +25,9 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * History offset service
- *
- */
+/** History offset service */
 public class OffsetRecordService extends AbstractDaemonService {
-    private static final Logger logger =
-            LoggerFactory.getLogger(OffsetRecordService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OffsetRecordService.class);
     private final TubeBroker broker;
     // tube broker's store manager
     private final MessageStoreManager storeManager;
@@ -85,21 +78,23 @@ public class OffsetRecordService extends AbstractDaemonService {
             return;
         }
         // check topic writable status
-        TopicMetadata topicMetadata = storeManager.getMetadataManager()
-                .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
+        TopicMetadata topicMetadata =
+                storeManager
+                        .getMetadataManager()
+                        .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
         if (!topicMetadata.isAcceptPublish()) {
             return;
         }
         // get group offset information
-        Map<String, OffsetRecordInfo> groupOffsetMap =
-                offsetManager.getOnlineGroupOffsetInfo();
+        Map<String, OffsetRecordInfo> groupOffsetMap = offsetManager.getOnlineGroupOffsetInfo();
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
             return;
         }
         // get topic's publish information
         storeManager.getTopicPublishInfos(groupOffsetMap);
         // store group offset records to offset storage topic
-        broker.getBrokerServiceServer().appendGroupOffsetInfo(groupOffsetMap,
-                brokerAddrId, System.currentTimeMillis(), 10, 3, strBuff);
+        broker.getBrokerServiceServer()
+                .appendGroupOffsetInfo(
+                        groupOffsetMap, brokerAddrId, System.currentTimeMillis(), 10, 3, strBuff);
     }
 }

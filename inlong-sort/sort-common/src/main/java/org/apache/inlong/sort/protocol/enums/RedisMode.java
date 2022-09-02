@@ -17,22 +17,14 @@
 
 package org.apache.inlong.sort.protocol.enums;
 
-/**
- * This class defines redis deploy mode
- */
+/** This class defines redis deploy mode */
 public enum RedisMode {
 
-    /**
-     * Standalone mode
-     */
+    /** Standalone mode */
     STANDALONE("standalone"),
-    /**
-     * Cluster mode
-     */
+    /** Cluster mode */
     CLUSTER("cluster"),
-    /**
-     * Sentinel mode
-     */
+    /** Sentinel mode */
     SENTINEL("sentinel");
 
     private final String value;
@@ -47,7 +39,8 @@ public enum RedisMode {
                 return redisMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported redis-mode=%s for Inlong", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupported redis-mode=%s for Inlong", name));
     }
 
     public String getValue() {

@@ -17,19 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
-import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.Sink;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
@@ -39,15 +26,25 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_I
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 
-/**
- * abstract sink: sink data to remote data center
- */
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.plugin.MessageFilter;
+import org.apache.inlong.agent.plugin.Sink;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** abstract sink: sink data to remote data center */
 public abstract class AbstractSink implements Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSink.class);
     protected String inlongGroupId;
     protected String inlongStreamId;
-    //metric
+    // metric
     protected AgentMetricItemSet metricItemSet;
     protected AgentMetricItem sinkMetric;
     protected Map<String, String> dimensions;
@@ -57,8 +54,10 @@ public abstract class AbstractSink implements Sink {
     public MessageFilter initMessageFilter(JobProfile jobConf) {
         if (jobConf.hasKey(AGENT_MESSAGE_FILTER_CLASSNAME)) {
             try {
-                return (MessageFilter) Class.forName(jobConf.get(AGENT_MESSAGE_FILTER_CLASSNAME))
-                        .getDeclaredConstructor().newInstance();
+                return (MessageFilter)
+                        Class.forName(jobConf.get(AGENT_MESSAGE_FILTER_CLASSNAME))
+                                .getDeclaredConstructor()
+                                .newInstance();
             } catch (Exception e) {
                 LOGGER.error("init message filter error", e);
             }
@@ -75,8 +74,11 @@ public abstract class AbstractSink implements Sink {
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
-        String metricName = String.join("-", this.getClass().getSimpleName(),
-                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        String metricName =
+                String.join(
+                        "-",
+                        this.getClass().getSimpleName(),
+                        String.valueOf(METRIC_INDEX.incrementAndGet()));
         this.metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
         sinkMetric = metricItemSet.findMetricItem(dimensions);

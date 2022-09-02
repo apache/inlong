@@ -17,10 +17,10 @@
 
 package org.apache.inlong.audit.util;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 public class IpPortTest {
     private IpPort test = new IpPort("127.0.0.1", 80);

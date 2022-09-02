@@ -23,9 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * A {@link ConcurrentHashMap}-backed {@link Set}.
- */
+/** A {@link ConcurrentHashMap}-backed {@link Set}. */
 public class ConcurrentHashSet<E> extends MapBackedSet<E> {
 
     private static final long serialVersionUID = 8518578988740277828L;

@@ -17,25 +17,22 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * MySQL sink service test
- */
+/** MySQL sink service test */
 public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1_mysql";
@@ -45,14 +42,10 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
     private static final String fieldType = "mysql_type";
     private static final Integer fieldId = 1;
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
@@ -78,9 +71,7 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -108,5 +99,4 @@ public class MySQLStreamSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 }

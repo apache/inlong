@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -31,19 +32,13 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
-/**
- * The listener that rejects to apply for InlongGroup.
- */
+/** The listener that rejects to apply for InlongGroup. */
 @Slf4j
 @Component
 public class RejectApplyProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
@@ -62,7 +57,8 @@ public class RejectApplyProcessListener implements ProcessEventListener {
             throw new WorkflowListenerException("inlong group not found with groupId=" + groupId);
         }
         if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("current status was not allowed to reject inlong group");
+            throw new WorkflowListenerException(
+                    "current status was not allowed to reject inlong group");
         }
 
         // after reject, update InlongGroup status to [APPROVE_REJECTED]
@@ -70,5 +66,4 @@ public class RejectApplyProcessListener implements ProcessEventListener {
         groupService.updateStatus(groupId, GroupStatus.APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();
     }
-
 }

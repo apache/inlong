@@ -22,9 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * DataProxySource
- */
+/** DataProxySource */
 public class ProxySource {
 
     private String name;
@@ -122,5 +120,4 @@ public class ProxySource {
     public void setParams(Map<String, String> params) {
         this.params = params;
     }
-
 }

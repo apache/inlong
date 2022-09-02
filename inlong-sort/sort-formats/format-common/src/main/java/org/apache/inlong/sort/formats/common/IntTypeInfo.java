@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for integers.
- */
+/** The type information for integers. */
 public class IntTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

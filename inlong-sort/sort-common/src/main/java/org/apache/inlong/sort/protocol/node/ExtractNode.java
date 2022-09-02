@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.node;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,6 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
@@ -37,32 +41,22 @@ import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.DorisExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * extract node extracts data from external system
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** extract node extracts data from external system */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
-        @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
-        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
-        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
-        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
-        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
-        @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
-        @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
-        @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
-        @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
-        @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract")
+    @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
+    @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
+    @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
+    @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
+    @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
+    @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
+    @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
+    @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
+    @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
+    @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
+    @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract")
 })
 @Data
 @NoArgsConstructor
@@ -70,22 +64,27 @@ public abstract class ExtractNode implements Node {
 
     @JsonProperty("id")
     private String id;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("name")
     private String name;
+
     @JsonProperty("fields")
     private List<FieldInfo> fields;
+
     @Nullable
     @JsonProperty("watermarkField")
     @JsonInclude(Include.NON_NULL)
     private WatermarkField watermarkField;
+
     @Nullable
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("properties")
     private Map<String, String> properties;
 
     @JsonCreator
-    public ExtractNode(@JsonProperty("id") String id,
+    public ExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,

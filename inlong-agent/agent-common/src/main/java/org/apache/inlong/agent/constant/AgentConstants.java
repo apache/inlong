@@ -19,9 +19,7 @@ package org.apache.inlong.agent.constant;
 
 import org.apache.inlong.agent.utils.AgentUtils;
 
-/**
- * Configuration constants of agent.
- */
+/** Configuration constants of agent. */
 public class AgentConstants {
 
     public static final String AGENT_HOME = "agent.home";
@@ -31,9 +29,7 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_LOCAL_CACHE = ".local";
 
     public static final String AGENT_LOCAL_CACHE_TIMEOUT = "agent.local.cache.timeout";
-    /**
-     * cache timeout in minutes.
-     **/
+    /** cache timeout in minutes. */
     public static final int DEFAULT_AGENT_LOCAL_CACHE_TIMEOUT = 30;
 
     public static final String AGENT_LOCAL_STORE_PATH = "agent.localStore.path";
@@ -91,7 +87,8 @@ public class AgentConstants {
     public static final String AGENT_FETCH_CENTER_INTERVAL_SECONDS = "agent.fetchCenter.interval";
     public static final int DEFAULT_AGENT_FETCH_CENTER_INTERVAL_SECONDS = 5;
 
-    public static final String AGENT_TRIGGER_CHECK_INTERVAL_SECONDS = "agent.trigger.check.interval";
+    public static final String AGENT_TRIGGER_CHECK_INTERVAL_SECONDS =
+            "agent.trigger.check.interval";
     public static final int DEFAULT_AGENT_TRIGGER_CHECK_INTERVAL_SECONDS = 1;
 
     public static final String THREAD_POOL_AWAIT_TIME = "thread.pool.await.time";

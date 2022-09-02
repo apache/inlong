@@ -18,10 +18,21 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
@@ -30,25 +41,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.security.SecureRandom;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
-
 public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(ProtocolEncoder.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtocolEncoder.class);
 
-    protected void encode(ChannelHandlerContext ctx,
-            EncodeObject message, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, EncodeObject message, List<Object> out)
+            throws Exception {
         ByteBuf buf = null;
         try {
             EncodeObject object = message;
@@ -85,11 +83,25 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     endAttr = endAttr + "&";
                 }
                 long timestamp = System.currentTimeMillis();
-                int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
-                endAttr = endAttr + "_userName=" + object.getUserName() + "&_clientIP=" + Utils.getLocalIp()
-                        + "&_signature=" + Utils.generateSignature(object.getUserName(),
-                        timestamp, nonce, object.getSecretKey())
-                        + "&_timeStamp=" + timestamp + "&_nonce=" + nonce;
+                int nonce =
+                        new SecureRandom(String.valueOf(timestamp).getBytes())
+                                .nextInt(Integer.MAX_VALUE);
+                endAttr =
+                        endAttr
+                                + "_userName="
+                                + object.getUserName()
+                                + "&_clientIP="
+                                + Utils.getLocalIp()
+                                + "&_signature="
+                                + Utils.generateSignature(
+                                        object.getUserName(),
+                                        timestamp,
+                                        nonce,
+                                        object.getSecretKey())
+                                + "&_timeStamp="
+                                + timestamp
+                                + "&_nonce="
+                                + nonce;
             }
             if (Utils.isNotBlank(object.getMsgUUID())) {
                 if (Utils.isNotBlank(endAttr)) {
@@ -119,8 +131,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
         return buf;
     }
 
-    private ByteBuf constructBody(byte[] body, EncodeObject object,
-            int totalLength, int cnt) throws UnsupportedEncodingException {
+    private ByteBuf constructBody(byte[] body, EncodeObject object, int totalLength, int cnt)
+            throws UnsupportedEncodingException {
         ByteBuf buf = null;
         if (body != null) {
             if (object.isCompress()) {
@@ -134,9 +146,14 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         endAttr = endAttr + "&";
                     }
                     EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
-                    endAttr = endAttr + "_userName=" + object.getUserName()
-                            + "&_encyVersion=" + encryptInfo.getVersion()
-                            + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                    endAttr =
+                            endAttr
+                                    + "_userName="
+                                    + object.getUserName()
+                                    + "&_encyVersion="
+                                    + encryptInfo.getVersion()
+                                    + "&_encyAesKey="
+                                    + encryptInfo.getRsaEncryptedKey();
                     body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                 }
             }
@@ -144,7 +161,12 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 if (Utils.isNotBlank(endAttr)) {
                     endAttr = endAttr + "&";
                 }
-                endAttr = (endAttr + "groupId=" + object.getGroupId() + "&streamId=" + object.getStreamId());
+                endAttr =
+                        (endAttr
+                                + "groupId="
+                                + object.getGroupId()
+                                + "&streamId="
+                                + object.getStreamId());
             }
             if (Utils.isNotBlank(object.getMsgUUID())) {
                 if (Utils.isNotBlank(endAttr)) {
@@ -228,7 +250,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -252,7 +274,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
 
-            //send multiple  messages one time
+            // send multiple  messages one time
             if (object.getBodylist() != null && object.getBodylist().size() != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Iterator<byte[]> iter = object.getBodylist().iterator();
@@ -265,7 +287,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(4);
@@ -286,9 +308,14 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                             msgAttrs = msgAttrs + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
-                        msgAttrs = msgAttrs + "_userName=" + object.getUserName()
-                                + "&_encyVersion=" + encryptInfo.getVersion()
-                                + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                        msgAttrs =
+                                msgAttrs
+                                        + "_userName="
+                                        + object.getUserName()
+                                        + "&_encyVersion="
+                                        + encryptInfo.getVersion()
+                                        + "&_encyAesKey="
+                                        + encryptInfo.getRsaEncryptedKey();
                         body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
@@ -349,7 +376,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
 
-            //send multiple  messages one time
+            // send multiple  messages one time
             if (object.getBodylist() != null && object.getBodylist().size() != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Iterator<byte[]> iter = object.getBodylist().iterator();
@@ -360,7 +387,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 body = object.getBodyBytes();
             }
@@ -376,9 +403,14 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                             msgAttrs = msgAttrs + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
-                        msgAttrs = msgAttrs + "_userName=" + object.getUserName()
-                                + "&_encyVersion=" + encryptInfo.getVersion()
-                                + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                        msgAttrs =
+                                msgAttrs
+                                        + "_userName="
+                                        + object.getUserName()
+                                        + "&_encyVersion="
+                                        + encryptInfo.getVersion()
+                                        + "&_encyAesKey="
+                                        + encryptInfo.getRsaEncryptedKey();
                         body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
@@ -415,8 +447,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             out.write(body);
             int guessLen = Snappy.maxCompressedLength(out.size());
             byte[] tmpData = new byte[guessLen];
-            int len = Snappy.compress(out.toByteArray(), 0, out.size(),
-                    tmpData, 0);
+            int len = Snappy.compress(out.toByteArray(), 0, out.size(), tmpData, 0);
             body = new byte[len];
             System.arraycopy(tmpData, 0, body, 0, len);
         } catch (IOException e) {

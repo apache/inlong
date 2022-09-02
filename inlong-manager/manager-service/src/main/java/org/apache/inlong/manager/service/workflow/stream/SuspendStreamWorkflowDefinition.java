@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamCompleteListener;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamFailedListener;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamListener;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -33,21 +33,15 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Suspend inlong stream process definition
- */
+/** Suspend inlong stream process definition */
 @Slf4j
 @Component
 public class SuspendStreamWorkflowDefinition implements WorkflowDefinition {
 
-    @Autowired
-    private UpdateStreamListener updateStreamListener;
-    @Autowired
-    private UpdateStreamCompleteListener updateStreamCompleteListener;
-    @Autowired
-    private UpdateStreamFailedListener updateStreamFailedListener;
-    @Autowired
-    private StreamTaskListenerFactory streamTaskListenerFactory;
+    @Autowired private UpdateStreamListener updateStreamListener;
+    @Autowired private UpdateStreamCompleteListener updateStreamCompleteListener;
+    @Autowired private UpdateStreamFailedListener updateStreamFailedListener;
+    @Autowired private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {

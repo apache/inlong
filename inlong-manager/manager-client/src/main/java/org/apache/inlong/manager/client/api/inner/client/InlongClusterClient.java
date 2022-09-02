@@ -33,9 +33,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 
-/**
- * Client for {@link InlongClusterApi}.
- */
+/** Client for {@link InlongClusterApi}. */
 public class InlongClusterClient {
 
     private final InlongClusterApi inlongClusterApi;
@@ -64,7 +62,8 @@ public class InlongClusterClient {
      */
     public ClusterTagResponse getTag(Integer id) {
         Preconditions.checkNotNull(id, "cluster id should not be empty");
-        Response<ClusterTagResponse> response = ClientUtils.executeHttpCall(inlongClusterApi.getTag(id));
+        Response<ClusterTagResponse> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.getTag(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -76,8 +75,8 @@ public class InlongClusterClient {
      * @return cluster tag list
      */
     public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
-        Response<PageResult<ClusterTagResponse>> response = ClientUtils.executeHttpCall(
-                inlongClusterApi.listTag(request));
+        Response<PageResult<ClusterTagResponse>> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.listTag(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -89,7 +88,8 @@ public class InlongClusterClient {
      * @return whether succeed
      */
     public Boolean updateTag(ClusterTagRequest request) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.updateTag(request));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.updateTag(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -117,7 +117,8 @@ public class InlongClusterClient {
         Preconditions.checkNotEmpty(request.getName(), "cluster name should not be empty");
         Preconditions.checkNotEmpty(request.getType(), "cluster type should not be empty");
         Preconditions.checkNotEmpty(request.getClusterTags(), "cluster tags should not be empty");
-        Response<Integer> clusterIndexResponse = ClientUtils.executeHttpCall(inlongClusterApi.save(request));
+        Response<Integer> clusterIndexResponse =
+                ClientUtils.executeHttpCall(inlongClusterApi.save(request));
         ClientUtils.assertRespSuccess(clusterIndexResponse);
         return clusterIndexResponse.getData();
     }
@@ -130,7 +131,8 @@ public class InlongClusterClient {
      */
     public ClusterInfo get(Integer id) {
         Preconditions.checkNotNull(id, "cluster id should not be empty");
-        Response<ClusterInfo> clusterInfoResponse = ClientUtils.executeHttpCall(inlongClusterApi.get(id));
+        Response<ClusterInfo> clusterInfoResponse =
+                ClientUtils.executeHttpCall(inlongClusterApi.get(id));
         ClientUtils.assertRespSuccess(clusterInfoResponse);
         return clusterInfoResponse.getData();
     }
@@ -142,7 +144,8 @@ public class InlongClusterClient {
      * @return cluster list
      */
     public ClusterInfo list(ClusterPageRequest request) {
-        Response<ClusterInfo> clusterInfoResponse = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
+        Response<ClusterInfo> clusterInfoResponse =
+                ClientUtils.executeHttpCall(inlongClusterApi.list(request));
         ClientUtils.assertRespSuccess(clusterInfoResponse);
         return clusterInfoResponse.getData();
     }
@@ -191,7 +194,8 @@ public class InlongClusterClient {
      * @return id after saving
      */
     public Integer saveNode(ClusterNodeRequest request) {
-        Response<Integer> response = ClientUtils.executeHttpCall(inlongClusterApi.saveNode(request));
+        Response<Integer> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.saveNode(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -204,7 +208,8 @@ public class InlongClusterClient {
      */
     public ClusterNodeResponse getNode(Integer id) {
         Preconditions.checkNotNull(id, "cluster id should not be empty");
-        Response<ClusterNodeResponse> response = ClientUtils.executeHttpCall(inlongClusterApi.getNode(id));
+        Response<ClusterNodeResponse> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.getNode(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -216,8 +221,8 @@ public class InlongClusterClient {
      * @return cluster node list
      */
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
-        Response<PageResult<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
-                inlongClusterApi.listNode(request));
+        Response<PageResult<ClusterNodeResponse>> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.listNode(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -229,7 +234,8 @@ public class InlongClusterClient {
      * @return whether succeed
      */
     public Boolean updateNode(ClusterNodeRequest request) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.updateNode(request));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongClusterApi.updateNode(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

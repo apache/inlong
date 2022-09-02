@@ -17,11 +17,6 @@
 
 package org.apache.inlong.agent.conf;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,10 +24,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.io.FileUtils;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * agent configuration. Only one instance in the process.
- * Basically it use properties file to store configurations.
+ * agent configuration. Only one instance in the process. Basically it use properties file to store
+ * configurations.
  */
 public class AgentConfiguration extends AbstractConfiguration {
 
@@ -50,9 +49,7 @@ public class AgentConfiguration extends AbstractConfiguration {
         LOCAL_RESOURCES.add(DEFAULT_CONFIG_FILE);
     }
 
-    /**
-     * load config from agent file.
-     */
+    /** load config from agent file. */
     private AgentConfiguration() {
         for (String fileName : LOCAL_RESOURCES) {
             super.loadPropertiesResource(fileName);
@@ -81,15 +78,13 @@ public class AgentConfiguration extends AbstractConfiguration {
         return DEFAULT_CONFIG_FILE + "." + dateStr;
     }
 
-    /**
-     * flush config to local files.
-     */
+    /** flush config to local files. */
     public void flushToLocalPropertiesFile() {
         LOCK.writeLock().lock();
         // TODO: flush to local file as properties file.
         try {
-            String agentConfParent = get(
-                    AgentConstants.AGENT_CONF_PARENT, AgentConstants.DEFAULT_AGENT_CONF_PARENT);
+            String agentConfParent =
+                    get(AgentConstants.AGENT_CONF_PARENT, AgentConstants.DEFAULT_AGENT_CONF_PARENT);
             File sourceFile = new File(agentConfParent, DEFAULT_CONFIG_FILE);
             File targetFile = new File(agentConfParent, getNextBackupFileName());
             File tmpFile = new File(agentConfParent, TMP_CONFIG_FILE);
@@ -109,7 +104,6 @@ public class AgentConfiguration extends AbstractConfiguration {
         } finally {
             LOCK.writeLock().unlock();
         }
-
     }
 
     @Override

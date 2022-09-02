@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link FloatFormatInfo}.
- */
+/** Unit tests for {@link FloatFormatInfo}. */
 public class FloatFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -36,17 +34,11 @@ public class FloatFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testSerialize() {
-        assertEquals(
-                "123.123",
-                FloatFormatInfo.INSTANCE.serialize(123.123f)
-        );
+        assertEquals("123.123", FloatFormatInfo.INSTANCE.serialize(123.123f));
     }
 
     @Test
     public void testDeserialize() {
-        assertEquals(
-                Float.valueOf(123.123f),
-                FloatFormatInfo.INSTANCE.deserialize("123.123")
-        );
+        assertEquals(Float.valueOf(123.123f), FloatFormatInfo.INSTANCE.deserialize("123.123"));
     }
 }

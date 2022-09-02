@@ -20,20 +20,19 @@ package org.apache.inlong.sort.base.util;
 
 import org.apache.flink.table.api.ValidationException;
 
-/**
- * validate option tool
- */
+/** validate option tool */
 public class ValidateMetricOptionUtils {
 
     /**
      * validate inlong metric when set inlong audit
+     *
      * @param inlongMetric inlong.metric option value
      * @param inlongAudit inlong.audit option value
      */
-    public static void validateInlongMetricIfSetInlongAudit(String inlongMetric, String inlongAudit) {
+    public static void validateInlongMetricIfSetInlongAudit(
+            String inlongMetric, String inlongAudit) {
         if (inlongAudit != null && inlongMetric == null) {
             throw new ValidationException("inlong metric is necessary when set inlong audit");
         }
     }
-
 }

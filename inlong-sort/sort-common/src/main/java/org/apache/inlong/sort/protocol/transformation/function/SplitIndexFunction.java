@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,13 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * SplitIndexFunction class is the logic encapsulation of String delimiting
- */
+/** SplitIndexFunction class is the logic encapsulation of String delimiting */
 @JsonTypeName("splitIndex")
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -44,8 +41,10 @@ public class SplitIndexFunction implements Function, Serializable {
 
     @JsonProperty("field")
     private FieldInfo field;
+
     @JsonProperty("separator")
     private StringConstantParam separator;
+
     @JsonProperty("index")
     private ConstantParam index;
 
@@ -56,7 +55,8 @@ public class SplitIndexFunction implements Function, Serializable {
      * @param separator the delimiting expression
      * @param index which value to take after delimitted
      */
-    public SplitIndexFunction(@JsonProperty("field") FieldInfo field,
+    public SplitIndexFunction(
+            @JsonProperty("field") FieldInfo field,
             @JsonProperty("separator") StringConstantParam separator,
             @JsonProperty("index") ConstantParam index) {
         this.field = Preconditions.checkNotNull(field, "field is null");
@@ -76,6 +76,7 @@ public class SplitIndexFunction implements Function, Serializable {
 
     @Override
     public String format() {
-        return String.format("%s(%s, %s, %s)", getName(), field.format(), separator.format(), index.format());
+        return String.format(
+                "%s(%s, %s, %s)", getName(), field.format(), separator.format(), index.format());
     }
 }

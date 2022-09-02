@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.Date;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -24,15 +25,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-
-/**
- * Inlong group entity mapper test for {@link InlongGroupEntityMapper}
- */
+/** Inlong group entity mapper test for {@link InlongGroupEntityMapper} */
 public class InlongGroupEntityMapperTest extends DaoBaseTest {
 
-    @Autowired
-    private InlongGroupEntityMapper groupEntityMapper;
+    @Autowired private InlongGroupEntityMapper groupEntityMapper;
 
     @Test
     public void deleteByPrimaryKey() {
@@ -63,5 +59,4 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
         entity.setVersion(InlongConstants.INITIAL_VERSION);
         return entity;
     }
-
 }

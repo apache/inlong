@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link ByteFormatInfo}.
- */
+/** Unit tests for {@link ByteFormatInfo}. */
 public class ByteFormatInfoTest extends FormatInfoTestBase {
 
     @Override

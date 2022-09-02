@@ -17,10 +17,7 @@
 
 package org.apache.inlong.common.metric;
 
-/**
- * 
- * MetricValue
- */
+/** MetricValue */
 public class MetricValue {
 
     public String name;
@@ -28,7 +25,7 @@ public class MetricValue {
 
     /**
      * Constructor
-     * 
+     *
      * @param value
      */
     private MetricValue(String name, long value) {
@@ -38,8 +35,8 @@ public class MetricValue {
 
     /**
      * of
-     * 
-     * @param  value
+     *
+     * @param value
      * @return
      */
     public static MetricValue of(String name, long value) {

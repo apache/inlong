@@ -21,6 +21,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -54,36 +61,21 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-/**
- * Implementation of sink service interface
- */
+/** Implementation of sink service interface */
 @Service
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
 
-    @Autowired
-    private SinkOperatorFactory operatorFactory;
-    @Autowired
-    private GroupCheckService groupCheckService;
-    @Autowired
-    private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private StreamSinkEntityMapper sinkMapper;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
-    @Autowired
-    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    @Autowired private SinkOperatorFactory operatorFactory;
+    @Autowired private GroupCheckService groupCheckService;
+    @Autowired private InlongStreamEntityMapper streamMapper;
+    @Autowired private StreamSinkEntityMapper sinkMapper;
+    @Autowired private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired private AutowireCapableBeanFactory autowireCapableBeanFactory;
 
-    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
+    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by
+    // AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
 
     @Override
@@ -161,19 +153,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         List<SinkBriefInfo> summaryList = sinkMapper.selectSummary(groupId, streamId);
-        LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
+        LOGGER.debug(
+                "success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         return summaryList;
     }
 
     @Override
-    public Map<String, List<StreamSink>> getSinksMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos) {
+    public Map<String, List<StreamSink>> getSinksMap(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos) {
         String groupId = groupInfo.getInlongGroupId();
         LOGGER.debug("begin to get sink map for groupId={}", groupId);
 
         List<StreamSink> streamSinks = this.listSink(groupId, null);
-        Map<String, List<StreamSink>> result = streamSinks.stream()
-                .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
-                        Collectors.toCollection(ArrayList::new)));
+        Map<String, List<StreamSink>> result =
+                streamSinks.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        StreamSink::getInlongStreamId,
+                                        HashMap::new,
+                                        Collectors.toCollection(ArrayList::new)));
 
         LOGGER.debug("success to get sink map, size={}, groupInfo={}", result.size(), groupInfo);
         return result;
@@ -181,7 +179,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request) {
-        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(
+                request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
@@ -197,7 +196,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
             responseList.addAll(pageInfo.getList());
         }
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
+        // Encapsulate the paging query results into the PageInfo object to obtain related paging
+        // information
         PageResult<StreamSink> pageResult = new PageResult<>(responseList);
 
         LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
@@ -225,21 +225,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity entity : sinkList) {
             Integer sinkId = entity.getId();
-            if (!Objects.equals(request.getId(), sinkId) && Objects.equals(entity.getSinkName(), sinkName)) {
+            if (!Objects.equals(request.getId(), sinkId)
+                    && Objects.equals(entity.getSinkName(), sinkName)) {
                 String err = "sink name=%s already exists with the groupId=%s streamId=%s";
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
 
         SinkStatus nextStatus = null;
-        boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
-        if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
+        boolean streamSuccess =
+                StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
+        if (streamSuccess
+                || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
             nextStatus = SinkStatus.CONFIG_ING;
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
 
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the
+        // [CREATE_STREAM_RESOURCE] process
         if (streamSuccess) {
             // To work around the circular reference check we manually instantiate and wire
             if (streamProcessOperation == null) {
@@ -280,7 +284,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
-        LOGGER.info("begin to logic delete all sink info by groupId={}, streamId={}", groupId, streamId);
+        LOGGER.info(
+                "begin to logic delete all sink info by groupId={}, streamId={}",
+                groupId,
+                streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
@@ -289,24 +296,29 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
-            entityList.forEach(entity -> {
-                Integer id = entity.getId();
-                entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(InlongConstants.DELETED_STATUS);
-                entity.setIsDeleted(id);
-                entity.setModifier(operator);
-                int rowCount = sinkMapper.updateByIdSelective(entity);
-                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                    LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
-                            entity.getVersion());
-                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-                }
-                sinkFieldMapper.logicDeleteAll(id);
-            });
+            entityList.forEach(
+                    entity -> {
+                        Integer id = entity.getId();
+                        entity.setPreviousStatus(entity.getStatus());
+                        entity.setStatus(InlongConstants.DELETED_STATUS);
+                        entity.setIsDeleted(id);
+                        entity.setModifier(operator);
+                        int rowCount = sinkMapper.updateByIdSelective(entity);
+                        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                            LOGGER.error(
+                                    "sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                                    entity.getInlongGroupId(),
+                                    entity.getInlongStreamId(),
+                                    entity.getSinkName(),
+                                    entity.getVersion());
+                            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                        }
+                        sinkFieldMapper.logicDeleteAll(id);
+                    });
         }
 
-        LOGGER.info("success to logic delete all sink by groupId={}, streamId={}", groupId, streamId);
+        LOGGER.info(
+                "success to logic delete all sink by groupId={}, streamId={}", groupId, streamId);
         return true;
     }
 
@@ -322,10 +334,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
-            entityList.forEach(entity -> {
-                sinkMapper.deleteByPrimaryKey(entity.getId());
-                sinkFieldMapper.deleteAll(entity.getId());
-            });
+            entityList.forEach(
+                    entity -> {
+                        sinkMapper.deleteByPrimaryKey(entity.getId());
+                        sinkFieldMapper.deleteAll(entity.getId());
+                    });
         }
 
         LOGGER.info("success to delete all sink by groupId={}, streamId={}", groupId, streamId);
@@ -333,8 +346,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<String> getExistsStreamIdList(String groupId, String sinkType, List<String> streamIdList) {
-        LOGGER.debug("begin to filter stream by groupId={}, type={}, streamId={}", groupId, sinkType, streamIdList);
+    public List<String> getExistsStreamIdList(
+            String groupId, String sinkType, List<String> streamIdList) {
+        LOGGER.debug(
+                "begin to filter stream by groupId={}, type={}, streamId={}",
+                groupId,
+                sinkType,
+                streamIdList);
         if (StringUtils.isEmpty(sinkType) || CollectionUtils.isEmpty(streamIdList)) {
             return Collections.emptyList();
         }
@@ -351,7 +369,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         List<String> resultList = sinkMapper.selectSinkType(groupId, streamId);
-        LOGGER.debug("success to get sink type by groupId={}, streamId={}, result={}", groupId, streamId, resultList);
+        LOGGER.debug(
+                "success to get sink type by groupId={}, streamId={}, result={}",
+                groupId,
+                streamId,
+                resultList);
         return resultList;
     }
 
@@ -369,14 +391,18 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
             StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(dto.getId());
 
-            int status = (dto.getStatus() == null) ? SinkStatus.CONFIG_ING.getCode() : dto.getStatus();
+            int status =
+                    (dto.getStatus() == null) ? SinkStatus.CONFIG_ING.getCode() : dto.getStatus();
             entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(status);
             entity.setModifier(operator);
             int rowCount = sinkMapper.updateByIdSelective(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                        entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
+                LOGGER.error(
+                        "sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                        entity.getInlongGroupId(),
+                        entity.getInlongStreamId(),
+                        entity.getSinkName(),
                         entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }

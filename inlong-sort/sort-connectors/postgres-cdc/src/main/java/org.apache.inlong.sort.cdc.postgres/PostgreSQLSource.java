@@ -18,14 +18,13 @@
 
 package org.apache.inlong.sort.cdc.postgres;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.connector.postgresql.PostgresConnector;
-
 import java.time.Duration;
 import java.util.Properties;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume binlog for
@@ -189,7 +188,12 @@ public class PostgreSQLSource {
                 props.putAll(dbzProperties);
             }
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric, inlongAudit);
+                    deserializer,
+                    props,
+                    null,
+                    Validator.getDefaultValidator(),
+                    inlongMetric,
+                    inlongAudit);
         }
     }
 }

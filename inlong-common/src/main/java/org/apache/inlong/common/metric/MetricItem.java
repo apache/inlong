@@ -17,9 +17,6 @@
 
 package org.apache.inlong.common.metric;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,10 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * MetricItem
- */
+/** MetricItem */
 public abstract class MetricItem implements MetricItemMBean {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MetricItem.class);
@@ -41,9 +38,7 @@ public abstract class MetricItem implements MetricItemMBean {
     private Map<String, AtomicLong> countMetrics;
     private Map<String, AtomicLong> gaugeMetrics;
 
-    /**
-     * Get declare fields.
-     */
+    /** Get declare fields. */
     public static List<Field> getDeclaredFieldsIncludingInherited(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
         // check whether parent exists
@@ -54,9 +49,7 @@ public abstract class MetricItem implements MetricItemMBean {
         return fields;
     }
 
-    /**
-     * getDimensionsKey
-     */
+    /** getDimensionsKey */
     @Override
     public String getDimensionsKey() {
         if (key != null) {
@@ -67,9 +60,7 @@ public abstract class MetricItem implements MetricItemMBean {
         return key;
     }
 
-    /**
-     * getDimensions
-     */
+    /** getDimensions */
     @Override
     public Map<String, String> getDimensions() {
         if (dimensions != null) {
@@ -112,9 +103,7 @@ public abstract class MetricItem implements MetricItemMBean {
         this.dimensions.putAll(dimensions);
     }
 
-    /**
-     * snapshot
-     */
+    /** snapshot */
     @Override
     public Map<String, MetricValue> snapshot() {
         if (this.countMetrics == null || this.gaugeMetrics == null) {
@@ -122,18 +111,18 @@ public abstract class MetricItem implements MetricItemMBean {
         }
         //
         Map<String, MetricValue> metrics = new HashMap<>();
-        this.countMetrics.forEach((key, value) -> {
-            metrics.put(key, MetricValue.of(key, value.getAndSet(0)));
-        });
-        this.gaugeMetrics.forEach((key, value) -> {
-            metrics.put(key, MetricValue.of(key, value.get()));
-        });
+        this.countMetrics.forEach(
+                (key, value) -> {
+                    metrics.put(key, MetricValue.of(key, value.getAndSet(0)));
+                });
+        this.gaugeMetrics.forEach(
+                (key, value) -> {
+                    metrics.put(key, MetricValue.of(key, value.get()));
+                });
         return metrics;
     }
 
-    /**
-     * initMetricField
-     */
+    /** initMetricField */
     protected void initMetricField() {
         this.countMetrics = new HashMap<>();
         this.gaugeMetrics = new HashMap<>();

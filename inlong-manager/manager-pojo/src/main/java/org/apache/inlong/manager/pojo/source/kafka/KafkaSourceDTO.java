@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.source.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * kafka source information data transfer object.
- */
+/** kafka source information data transfer object. */
 @Data
 @Builder
 @AllArgsConstructor
@@ -50,25 +47,31 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
     private String bootstrapServers;
 
-    @ApiModelProperty(value = "Limit the amount of data read per second",
+    @ApiModelProperty(
+            value = "Limit the amount of data read per second",
             notes = "Greater than or equal to 0, equal to zero means no limit")
     private String recordSpeedLimit;
 
-    @ApiModelProperty(value = "Limit the number of bytes read per second",
+    @ApiModelProperty(
+            value = "Limit the number of bytes read per second",
             notes = "Greater than or equal to 0, equal to zero means no limit")
     private String byteSpeedLimit;
 
-    @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
-                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    @ApiModelProperty(
+            value = "Topic partition offset",
+            notes =
+                    "For example,'partition:0,offset:42;partition:1,offset:300' "
+                            + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
     /**
      * The strategy of auto offset reset.
      *
-     * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
+     * @see <a
+     *     href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
      */
-    @ApiModelProperty(value = "The strategy of auto offset reset",
+    @ApiModelProperty(
+            value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
@@ -81,7 +84,8 @@ public class KafkaSourceDTO {
     @ApiModelProperty("table pattern used for filter in canal format")
     private String tablePattern;
 
-    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    @ApiModelProperty(
+            "ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
     private boolean ignoreParseErrors;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
@@ -102,9 +106,7 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Properties for Kafka")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static KafkaSourceDTO getFromRequest(KafkaSourceRequest request) {
         return KafkaSourceDTO.builder()
                 .topic(request.getTopic())
@@ -129,7 +131,8 @@ public class KafkaSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, KafkaSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

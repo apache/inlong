@@ -17,12 +17,15 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
+
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -38,12 +41,7 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
 
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
-
-/**
- * Client for {@link InlongGroupApi}.
- */
+/** Client for {@link InlongGroupApi}. */
 public class InlongGroupClient {
 
     private final InlongGroupApi inlongGroupApi;
@@ -52,13 +50,12 @@ public class InlongGroupClient {
         inlongGroupApi = ClientUtils.createRetrofit(configuration).create(InlongGroupApi.class);
     }
 
-    /**
-     * Check whether a group exists based on the group ID.
-     */
+    /** Check whether a group exists based on the group ID. */
     public Boolean isGroupExists(String inlongGroupId) {
         Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -76,18 +73,18 @@ public class InlongGroupClient {
         return null;
     }
 
-    /**
-     * Get info of group.
-     */
+    /** Get info of group. */
     @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
         Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
-        Response<Object> responseBody = ClientUtils.executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
+        Response<Object> responseBody =
+                ClientUtils.executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {
-            JSONObject groupInfoJson = JsonUtils.parseObject(
-                    JsonUtils.toJsonString(JsonUtils.toJsonString(responseBody.getData())),
-                    JSONObject.class);
+            JSONObject groupInfoJson =
+                    JsonUtils.parseObject(
+                            JsonUtils.toJsonString(JsonUtils.toJsonString(responseBody.getData())),
+                            JSONObject.class);
             assert groupInfoJson != null;
             if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
                 groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
@@ -102,19 +99,16 @@ public class InlongGroupClient {
         }
     }
 
-    /**
-     * Get inlong group list.
-     */
-    public PageResult<InlongGroupBriefInfo> listGroups(String keyword, int status, int pageNum, int pageSize) {
-        InlongGroupPageRequest request = InlongGroupPageRequest.builder()
-                .keyword(keyword)
-                .status(status)
-                .build();
+    /** Get inlong group list. */
+    public PageResult<InlongGroupBriefInfo> listGroups(
+            String keyword, int status, int pageNum, int pageSize) {
+        InlongGroupPageRequest request =
+                InlongGroupPageRequest.builder().keyword(keyword).status(status).build();
         request.setPageNum(pageNum <= 0 ? 1 : pageNum);
         request.setPageSize(pageSize);
 
-        Response<PageResult<InlongGroupBriefInfo>> pageInfoResponse = ClientUtils.executeHttpCall(
-                inlongGroupApi.listGroups(request));
+        Response<PageResult<InlongGroupBriefInfo>> pageInfoResponse =
+                ClientUtils.executeHttpCall(inlongGroupApi.listGroups(request));
         if (pageInfoResponse.isSuccess()) {
             return pageInfoResponse.getData();
         }
@@ -132,17 +126,16 @@ public class InlongGroupClient {
      * @return Response encapsulate of inlong group list
      */
     public PageResult<InlongGroupBriefInfo> listGroups(InlongGroupPageRequest pageRequest) {
-        Response<PageResult<InlongGroupBriefInfo>> response = ClientUtils.executeHttpCall(
-                inlongGroupApi.listGroups(pageRequest));
+        Response<PageResult<InlongGroupBriefInfo>> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.listGroups(pageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 
-    /**
-     * Create an inlong group
-     */
+    /** Create an inlong group */
     public String createGroup(InlongGroupRequest groupInfo) {
-        Response<String> response = ClientUtils.executeHttpCall(inlongGroupApi.createGroup(groupInfo));
+        Response<String> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.createGroup(groupInfo));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -153,22 +146,23 @@ public class InlongGroupClient {
      * @return groupId && errMsg
      */
     public Pair<String, String> updateGroup(InlongGroupRequest groupRequest) {
-        Response<String> response = ClientUtils.executeHttpCall(inlongGroupApi.updateGroup(groupRequest));
+        Response<String> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.updateGroup(groupRequest));
         return Pair.of(response.getData(), response.getErrMsg());
     }
 
-    /**
-     * Reset inlong group info
-     */
+    /** Reset inlong group info */
     public boolean resetGroup(InlongGroupResetRequest resetRequest) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.resetGroup(resetRequest));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.resetGroup(resetRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 
     public WorkflowResult initInlongGroup(InlongGroupRequest groupInfo) {
-        Response<WorkflowResult> responseBody = ClientUtils.executeHttpCall(
-                inlongGroupApi.initInlongGroup(groupInfo.getInlongGroupId()));
+        Response<WorkflowResult> responseBody =
+                ClientUtils.executeHttpCall(
+                        inlongGroupApi.initInlongGroup(groupInfo.getInlongGroupId()));
         ClientUtils.assertRespSuccess(responseBody);
         return responseBody.getData();
     }
@@ -192,15 +186,14 @@ public class InlongGroupClient {
                 responseCall = inlongGroupApi.restartProcess(groupId);
             }
         } else {
-            throw new IllegalArgumentException(String.format("Unsupported inlong group status: %s", status));
+            throw new IllegalArgumentException(
+                    String.format("Unsupported inlong group status: %s", status));
         }
 
         Response<String> responseBody = ClientUtils.executeHttpCall(responseCall);
 
         String errMsg = responseBody.getErrMsg();
-        return responseBody.isSuccess()
-                || errMsg == null
-                || !errMsg.contains("not allowed");
+        return responseBody.isSuccess() || errMsg == null || !errMsg.contains("not allowed");
     }
 
     public boolean deleteInlongGroup(String groupId) {
@@ -209,11 +202,13 @@ public class InlongGroupClient {
 
     public boolean deleteInlongGroup(String groupId, boolean async) {
         if (async) {
-            Response<String> response = ClientUtils.executeHttpCall(inlongGroupApi.deleteGroupAsync(groupId));
+            Response<String> response =
+                    ClientUtils.executeHttpCall(inlongGroupApi.deleteGroupAsync(groupId));
             ClientUtils.assertRespSuccess(response);
             return groupId.equals(response.getData());
         } else {
-            Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.deleteGroup(groupId));
+            Response<Boolean> response =
+                    ClientUtils.executeHttpCall(inlongGroupApi.deleteGroup(groupId));
             ClientUtils.assertRespSuccess(response);
             return response.getData();
         }
@@ -222,8 +217,8 @@ public class InlongGroupClient {
     public InlongGroupCountResponse countGroupByUser() {
         Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.countGroupByUser());
         if (response.isSuccess()) {
-            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
-                    InlongGroupCountResponse.class);
+            return JsonUtils.parseObject(
+                    JsonUtils.toJsonString(response.getData()), InlongGroupCountResponse.class);
         } else if (response.getErrMsg().contains("not exist")) {
             return null;
         } else {
@@ -234,8 +229,8 @@ public class InlongGroupClient {
     public InlongGroupTopicInfo getTopic(String id) {
         Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.getTopic(id));
         if (response.isSuccess()) {
-            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
-                    InlongGroupTopicInfo.class);
+            return JsonUtils.parseObject(
+                    JsonUtils.toJsonString(response.getData()), InlongGroupTopicInfo.class);
         } else if (response.getErrMsg().contains("not exist")) {
             return null;
         } else {

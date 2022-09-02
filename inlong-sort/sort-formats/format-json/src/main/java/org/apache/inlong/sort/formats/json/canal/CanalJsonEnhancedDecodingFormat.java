@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -33,27 +40,18 @@ import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDeserializationSchema.MetadataConverter;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
- * {@link DecodingFormat} for Canal using JSON encoding.
- * different from flink:1.13.5. This support more metadata.
+ * {@link DecodingFormat} for Canal using JSON encoding. different from flink:1.13.5. This support
+ * more metadata.
  */
-public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
+public class CanalJsonEnhancedDecodingFormat
+        implements DecodingFormat<DeserializationSchema<RowData>> {
 
     // --------------------------------------------------------------------------------------------
     // Canal-specific attributes
     // --------------------------------------------------------------------------------------------
-    @Nullable
-    private final String database;
-    @Nullable
-    private final String table;
+    @Nullable private final String database;
+    @Nullable private final String table;
     private final boolean ignoreParseErrors;
     private final TimestampFormat timestampFormat;
 
@@ -77,18 +75,25 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     @Override
     public DeserializationSchema<RowData> createRuntimeDecoder(
             DynamicTableSource.Context context, DataType physicalDataType) {
-        final List<ReadableMetadata> readableMetadata = metadataKeys.stream()
-                .map(k -> Stream.of(ReadableMetadata.values())
-                        .filter(rm -> rm.key.equals(k))
-                        .findFirst()
-                        .orElseThrow(IllegalStateException::new))
-                .collect(Collectors.toList());
-        final List<DataTypes.Field> metadataFields = readableMetadata.stream()
-                .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                .collect(Collectors.toList());
-        final DataType producedDataType = DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
-        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(producedDataType);
-        return CanalJsonEnhancedDeserializationSchema.builder(physicalDataType, readableMetadata, producedTypeInfo)
+        final List<ReadableMetadata> readableMetadata =
+                metadataKeys.stream()
+                        .map(
+                                k ->
+                                        Stream.of(ReadableMetadata.values())
+                                                .filter(rm -> rm.key.equals(k))
+                                                .findFirst()
+                                                .orElseThrow(IllegalStateException::new))
+                        .collect(Collectors.toList());
+        final List<DataTypes.Field> metadataFields =
+                readableMetadata.stream()
+                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                        .collect(Collectors.toList());
+        final DataType producedDataType =
+                DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
+        final TypeInformation<RowData> producedTypeInfo =
+                context.createTypeInformation(producedDataType);
+        return CanalJsonEnhancedDeserializationSchema.builder(
+                        physicalDataType, readableMetadata, producedTypeInfo)
                 .setDatabase(database)
                 .setTable(table)
                 .setIgnoreParseErrors(ignoreParseErrors)
@@ -123,9 +128,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    /**
-     * List of metadata that can be read with this format.
-     */
+    /** List of metadata that can be read with this format. */
     public enum ReadableMetadata {
         DATABASE(
                 "database",
@@ -258,7 +261,8 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
 
         MYSQL_TYPE(
                 "mysql-type",
-                DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
+                DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable())
+                        .nullable(),
                 DataTypes.FIELD("mysqlType", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
@@ -289,13 +293,14 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
         UPDATE_BEFORE(
                 "update-before",
                 DataTypes.ARRAY(
-                        DataTypes.MAP(
-                                DataTypes.STRING().nullable(),
-                                DataTypes.STRING().nullable())
-                                .nullable())
+                                DataTypes.MAP(
+                                                DataTypes.STRING().nullable(),
+                                                DataTypes.STRING().nullable())
+                                        .nullable())
                         .nullable(),
-                DataTypes.FIELD("updateBefore", DataTypes.ARRAY(
-                        DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
+                DataTypes.FIELD(
+                        "updateBefore",
+                        DataTypes.ARRAY(DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
 

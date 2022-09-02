@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
@@ -54,26 +53,19 @@ public class TaskServiceImpl implements TaskService {
 
     public static final Integer MAX_RELOAD_TIMES = 500;
 
-    @Autowired
-    TopicTaskRepository topicTaskRepository;
+    @Autowired TopicTaskRepository topicTaskRepository;
 
-    @Autowired
-    ClusterService clusterService;
+    @Autowired ClusterService clusterService;
 
-    @Autowired
-    AddTopicExecutor addTopicExecutor;
+    @Autowired AddTopicExecutor addTopicExecutor;
 
-    @Autowired
-    NodeService nodeService;
+    @Autowired NodeService nodeService;
 
-    @Autowired
-    MasterRepository masterRepository;
+    @Autowired MasterRepository masterRepository;
 
-    @Autowired
-    TopicService topicService;
+    @Autowired TopicService topicService;
 
-    @Autowired
-    MasterService masterService;
+    @Autowired MasterService masterService;
 
     @Override
     @Transactional
@@ -82,17 +74,17 @@ public class TaskServiceImpl implements TaskService {
             List<TopicTaskEntry> topicTaskEntries = new ArrayList<>(64);
             Set<String> existTopicNames = findExistTopics(clusterId, topicNames);
             if (!existTopicNames.isEmpty()) {
-                return TubeMQResult.errorResult("There are topic tasks "
-                        + existTopicNames + " already in adding status", ErrorCode.TASK_EXIST.getCode());
+                return TubeMQResult.errorResult(
+                        "There are topic tasks " + existTopicNames + " already in adding status",
+                        ErrorCode.TASK_EXIST.getCode());
             }
             topicNames.forEach(
-                topicName -> {
-                    TopicTaskEntry entry = new TopicTaskEntry();
-                    entry.setClusterId(clusterId);
-                    entry.setTopicName(topicName);
-                    topicTaskEntries.add(entry);
-                }
-            );
+                    topicName -> {
+                        TopicTaskEntry entry = new TopicTaskEntry();
+                        entry.setClusterId(clusterId);
+                        entry.setTopicName(topicName);
+                        topicTaskEntries.add(entry);
+                    });
             topicTaskRepository.saveAll(topicTaskEntries);
         } catch (Exception e) {
             log.error("save topic tasks to db fail, topics : {}", topicNames, e);
@@ -102,15 +94,22 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Set<String> findExistTopics(Long clusterId, Set<String> topicNames) {
-        Set<String> existTopicName = topicNames.stream().filter(topicName ->
-                hasAlreadyExistTopicTask(clusterId, topicName, TaskStatusEnum.ADDING
-                        .getCode())).collect(Collectors.toSet());
+        Set<String> existTopicName =
+                topicNames.stream()
+                        .filter(
+                                topicName ->
+                                        hasAlreadyExistTopicTask(
+                                                clusterId,
+                                                topicName,
+                                                TaskStatusEnum.ADDING.getCode()))
+                        .collect(Collectors.toSet());
         return existTopicName;
     }
 
     public boolean hasAlreadyExistTopicTask(Long clusterId, String topicName, Integer status) {
-        TopicTaskEntry taskEntry = topicTaskRepository
-                .findTopicTaskEntryByClusterIdAndStatusAndTopicName(clusterId, status, topicName);
+        TopicTaskEntry taskEntry =
+                topicTaskRepository.findTopicTaskEntryByClusterIdAndStatusAndTopicName(
+                        clusterId, status, topicName);
         return taskEntry != null;
     }
 
@@ -120,8 +119,8 @@ public class TaskServiceImpl implements TaskService {
         for (ClusterEntry cluster : allClusters) {
             long clusterId = cluster.getClusterId();
             List<TopicTaskEntry> topicTasks =
-                    topicTaskRepository
-                            .findTopicTaskEntriesByClusterIdAndStatus(clusterId, TaskStatusEnum.ADDING.getCode());
+                    topicTaskRepository.findTopicTaskEntriesByClusterIdAndStatus(
+                            clusterId, TaskStatusEnum.ADDING.getCode());
             addTopicExecutor.addTopicConfig(clusterId, topicTasks);
         }
     }
@@ -135,8 +134,7 @@ public class TaskServiceImpl implements TaskService {
             if (ValidateUtils.isNull(masterEntry)) {
                 continue;
             }
-            TubeHttpBrokerInfoList brokerInfoList = nodeService
-                    .requestBrokerStatus(masterEntry);
+            TubeHttpBrokerInfoList brokerInfoList = nodeService.requestBrokerStatus(masterEntry);
             if (ValidateUtils.isNull(brokerInfoList)) {
                 continue;
             }
@@ -145,9 +143,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Async("asyncExecutor")
-    public void doReloadBrokers(long clusterId, MasterEntry masterEntry,
-                                TubeHttpBrokerInfoList brokerInfoList, ClusterEntry clusterEntry) {
-        nodeService.handleReloadBroker(masterEntry, brokerInfoList.getNeedReloadList(), clusterEntry);
+    public void doReloadBrokers(
+            long clusterId,
+            MasterEntry masterEntry,
+            TubeHttpBrokerInfoList brokerInfoList,
+            ClusterEntry clusterEntry) {
+        nodeService.handleReloadBroker(
+                masterEntry, brokerInfoList.getNeedReloadList(), clusterEntry);
         updateCreateTopicTaskStatus(clusterId);
     }
 
@@ -158,17 +160,20 @@ public class TaskServiceImpl implements TaskService {
      */
     @Transactional(rollbackOn = Exception.class)
     public void updateCreateTopicTaskStatus(long clusterId) {
-        List<TopicTaskEntry> topicTasks = topicTaskRepository
-                .findTopicTaskEntriesByClusterIdAndStatus(clusterId,
-                        TaskStatusEnum.ADDING.getCode());
-        TopicView topicView = topicService
-                .requestTopicViewInfo(clusterId, null);
+        List<TopicTaskEntry> topicTasks =
+                topicTaskRepository.findTopicTaskEntriesByClusterIdAndStatus(
+                        clusterId, TaskStatusEnum.ADDING.getCode());
+        TopicView topicView = topicService.requestTopicViewInfo(clusterId, null);
         if (topicView == null || topicView.getData() == null) {
             return;
         }
         List<TopicView.TopicViewInfo> topicViews = topicView.getData();
-        Map<String, TopicView.TopicViewInfo> topicViewMap = topicViews.stream()
-                .collect(Collectors.toMap(TopicView.TopicViewInfo::getTopicName, topicViewInfo -> topicViewInfo));
+        Map<String, TopicView.TopicViewInfo> topicViewMap =
+                topicViews.stream()
+                        .collect(
+                                Collectors.toMap(
+                                        TopicView.TopicViewInfo::getTopicName,
+                                        topicViewInfo -> topicViewInfo));
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
         TubeHttpBrokerInfoList brokerInfoList = nodeService.requestBrokerStatus(masterNode);
         if (ValidateUtils.isNull(brokerInfoList)) {
@@ -177,9 +182,10 @@ public class TaskServiceImpl implements TaskService {
         updateTaskRepo(topicTasks, topicViewMap, brokerInfoList);
     }
 
-    private void updateTaskRepo(List<TopicTaskEntry> topicTasks,
-                                Map<String, TopicView.TopicViewInfo> topicViewMap,
-                                TubeHttpBrokerInfoList brokerInfoList) {
+    private void updateTaskRepo(
+            List<TopicTaskEntry> topicTasks,
+            Map<String, TopicView.TopicViewInfo> topicViewMap,
+            TubeHttpBrokerInfoList brokerInfoList) {
         int size = brokerInfoList.getAllBrokerIdList().size();
         for (TopicTaskEntry topicTask : topicTasks) {
             TopicView.TopicViewInfo topicViewInfo = topicViewMap.get(topicTask.getTopicName());
@@ -187,7 +193,8 @@ public class TaskServiceImpl implements TaskService {
                 continue;
             }
             if (size == topicViewInfo.getTotalCfgBrokerCnt()
-                    && topicViewInfo.getTotalCfgNumPart() == topicViewInfo.getTotalRunNumPartCount()) {
+                    && topicViewInfo.getTotalCfgNumPart()
+                            == topicViewInfo.getTotalRunNumPartCount()) {
                 topicTask.setStatus(TaskStatusEnum.SUCCESS.getCode());
             } else {
                 Integer reloadRetryTimes = topicTask.getReloadRetryTimes();
@@ -199,5 +206,4 @@ public class TaskServiceImpl implements TaskService {
         }
         topicTaskRepository.saveAll(topicTasks);
     }
-
 }

@@ -19,6 +19,8 @@
 package org.apache.inlong.sort.cdc.debezium;
 
 import io.debezium.relational.history.TableChanges.TableChange;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Collector;
@@ -27,9 +29,6 @@ import org.apache.kafka.connect.json.JsonConverterConfig;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.storage.ConverterConfig;
 import org.apache.kafka.connect.storage.ConverterType;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A JSON format implementation of {@link DebeziumDeserializationSchema} which deserializes the
@@ -76,9 +75,7 @@ public class JsonDebeziumDeserializationSchema implements DebeziumDeserializatio
 
     @Override
     public void deserialize(SourceRecord record, Collector<String> out, TableChange tableChange)
-        throws Exception {
-
-    }
+            throws Exception {}
 
     /** Initialize {@link JsonConverter} with given configs. */
     private void initializeJsonConverter() {

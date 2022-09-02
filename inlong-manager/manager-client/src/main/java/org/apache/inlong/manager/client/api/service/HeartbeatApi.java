@@ -28,13 +28,12 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
-/**
- * API for HeartbeatController in manager-web
- */
+/** API for HeartbeatController in manager-web */
 public interface HeartbeatApi {
 
     @POST(value = "heartbeat/component/get")
-    Call<Response<ComponentHeartbeatResponse>> getComponentHeartbeat(@Body HeartbeatQueryRequest request);
+    Call<Response<ComponentHeartbeatResponse>> getComponentHeartbeat(
+            @Body HeartbeatQueryRequest request);
 
     @POST(value = "heartbeat/group/get")
     Call<Response<GroupHeartbeatResponse>> getGroupHeartbeat(@Body HeartbeatQueryRequest request);
@@ -43,11 +42,14 @@ public interface HeartbeatApi {
     Call<Response<StreamHeartbeatResponse>> getStreamHeartbeat(@Body HeartbeatQueryRequest request);
 
     @POST(value = "heartbeat/component/list")
-    Call<Response<PageResult<ComponentHeartbeatResponse>>> listComponentHeartbeat(@Body HeartbeatPageRequest request);
+    Call<Response<PageResult<ComponentHeartbeatResponse>>> listComponentHeartbeat(
+            @Body HeartbeatPageRequest request);
 
     @POST(value = "heartbeat/group/list")
-    Call<Response<PageResult<GroupHeartbeatResponse>>> listGroupHeartbeat(@Body HeartbeatPageRequest request);
+    Call<Response<PageResult<GroupHeartbeatResponse>>> listGroupHeartbeat(
+            @Body HeartbeatPageRequest request);
 
     @POST(value = "heartbeat/stream/list")
-    Call<Response<PageResult<StreamHeartbeatResponse>>> listStreamHeartbeat(@Body HeartbeatPageRequest request);
+    Call<Response<PageResult<StreamHeartbeatResponse>>> listStreamHeartbeat(
+            @Body HeartbeatPageRequest request);
 }

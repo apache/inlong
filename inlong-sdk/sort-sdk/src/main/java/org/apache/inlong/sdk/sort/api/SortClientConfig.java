@@ -17,12 +17,11 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 
 public class SortClientConfig implements Serializable {
 
@@ -60,8 +59,12 @@ public class SortClientConfig implements Serializable {
     private int emptyPollTimes = 10;
     private int cleanOldConsumerIntervalSec = 60;
 
-    public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
-            ConsumeStrategy consumeStrategy, String localIp) {
+    public SortClientConfig(
+            String sortTaskId,
+            String sortClusterName,
+            InLongTopicChangeListener assignmentsListener,
+            ConsumeStrategy consumeStrategy,
+            String localIp) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
         this.assignmentsListener = assignmentsListener;
@@ -86,9 +89,7 @@ public class SortClientConfig implements Serializable {
     }
 
     public InLongTopicChangeListener getAssignmentsListener() {
-        return (assignmentsListener == null
-                ? EmptyListener.EMPTY_LISTENER
-                : assignmentsListener);
+        return (assignmentsListener == null ? EmptyListener.EMPTY_LISTENER : assignmentsListener);
     }
 
     public void setAssignmentsListener(InLongTopicChangeListener assignmentsListener) {
@@ -105,6 +106,7 @@ public class SortClientConfig implements Serializable {
 
     /**
      * get the type of topic manager
+     *
      * @return
      */
     public TopicType getTopicType() {
@@ -113,6 +115,7 @@ public class SortClientConfig implements Serializable {
 
     /**
      * Set type of topic manager
+     *
      * @param topicType
      */
     public void setTopicManagerType(TopicType topicType) {
@@ -323,9 +326,7 @@ public class SortClientConfig implements Serializable {
         this.cleanOldConsumerIntervalSec = cleanOldConsumerIntervalSec;
     }
 
-    /**
-     * ConsumeStrategy
-     */
+    /** ConsumeStrategy */
     public enum ConsumeStrategy {
         // consume from last ack position,if not exists then consume from earliest
         earliest,
@@ -346,16 +347,22 @@ public class SortClientConfig implements Serializable {
 
     /**
      * setParameters
+     *
      * @param sortSdkParams
      */
     public void setParameters(Map<String, String> sortSdkParams) {
-        this.callbackQueueSize = NumberUtils.toInt(sortSdkParams.get("callbackQueueSize"), callbackQueueSize);
-        this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get("pulsarReceiveQueueSize"),
-                pulsarReceiveQueueSize);
-        this.kafkaFetchWaitMs = NumberUtils.toInt(sortSdkParams.get("kafkaFetchWaitMs"), kafkaFetchWaitMs);
-        this.kafkaFetchSizeBytes = NumberUtils.toInt(sortSdkParams.get("kafkaFetchSizeBytes"), kafkaFetchSizeBytes);
-        this.kafkaSocketRecvBufferSize = NumberUtils.toInt(sortSdkParams.get("kafkaSocketRecvBufferSize"),
-                kafkaSocketRecvBufferSize);
+        this.callbackQueueSize =
+                NumberUtils.toInt(sortSdkParams.get("callbackQueueSize"), callbackQueueSize);
+        this.pulsarReceiveQueueSize =
+                NumberUtils.toInt(
+                        sortSdkParams.get("pulsarReceiveQueueSize"), pulsarReceiveQueueSize);
+        this.kafkaFetchWaitMs =
+                NumberUtils.toInt(sortSdkParams.get("kafkaFetchWaitMs"), kafkaFetchWaitMs);
+        this.kafkaFetchSizeBytes =
+                NumberUtils.toInt(sortSdkParams.get("kafkaFetchSizeBytes"), kafkaFetchSizeBytes);
+        this.kafkaSocketRecvBufferSize =
+                NumberUtils.toInt(
+                        sortSdkParams.get("kafkaSocketRecvBufferSize"), kafkaSocketRecvBufferSize);
 
         this.localIp = sortSdkParams.getOrDefault("localIp", localIp);
         this.appName = sortSdkParams.getOrDefault("appName", appName);
@@ -365,25 +372,36 @@ public class SortClientConfig implements Serializable {
         this.env = sortSdkParams.getOrDefault("env", env);
         this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
-        String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
-        String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
-                TopicType.SINGLE_TOPIC.toString());
+        String strConsumeStrategy =
+                sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
+        String strManagerType =
+                sortSdkParams.getOrDefault("topicManagerType", TopicType.SINGLE_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
         this.topicType = TopicType.valueOf(strManagerType);
 
-        this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
-                reportStatisticIntervalSec);
-        this.updateMetaDataIntervalSec = NumberUtils.toInt(sortSdkParams.get("updateMetaDataIntervalSec"),
-                updateMetaDataIntervalSec);
+        this.reportStatisticIntervalSec =
+                NumberUtils.toInt(
+                        sortSdkParams.get("reportStatisticIntervalSec"),
+                        reportStatisticIntervalSec);
+        this.updateMetaDataIntervalSec =
+                NumberUtils.toInt(
+                        sortSdkParams.get("updateMetaDataIntervalSec"), updateMetaDataIntervalSec);
         this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get("ackTimeoutSec"), ackTimeoutSec);
-        this.cleanOldConsumerIntervalSec = NumberUtils.toInt(sortSdkParams.get("cleanOldConsumerIntervalSec"),
-                cleanOldConsumerIntervalSec);
+        this.cleanOldConsumerIntervalSec =
+                NumberUtils.toInt(
+                        sortSdkParams.get("cleanOldConsumerIntervalSec"),
+                        cleanOldConsumerIntervalSec);
 
-        String strPrometheusEnabled = sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
-        this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
+        String strPrometheusEnabled =
+                sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
+        this.isPrometheusEnabled =
+                StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
 
-        this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
-        this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
-        this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
+        this.emptyPollSleepStepMs =
+                NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
+        this.maxEmptyPollSleepMs =
+                NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
+        this.emptyPollTimes =
+                NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
     }
 }

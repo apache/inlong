@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * Collection type of file data
- */
+/** Collection type of file data */
 public class FileCollectType {
 
     public static final String INCREMENT = "INCREMENT";

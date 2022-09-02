@@ -20,9 +20,9 @@ package org.apache.inlong.audit.source;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
@@ -37,8 +37,11 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         }
         int totalLen = cb.readableBytes();
         if (ConfigConstants.MSG_MAX_LENGTH_BYTES < totalLen) {
-            throw new Exception(new Throwable("err msg, ConfigConstants.MSG_MAX_LENGTH_BYTES "
-                    + "< totalLen, and  totalLen=" + totalLen));
+            throw new Exception(
+                    new Throwable(
+                            "err msg, ConfigConstants.MSG_MAX_LENGTH_BYTES "
+                                    + "< totalLen, and  totalLen="
+                                    + totalLen));
         }
         cb.markReaderIndex();
         BaseCommand cmd = null;

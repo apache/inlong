@@ -37,5 +37,4 @@ public class SortClusterResponse {
     int code;
     String md5;
     SortClusterConfig data;
-
 }

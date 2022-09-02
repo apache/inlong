@@ -29,14 +29,11 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * The listener for the update InlongStream.
- */
+/** The listener for the update InlongStream. */
 @Service
 public class UpdateStreamListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -53,18 +50,20 @@ public class UpdateStreamListener implements ProcessEventListener {
         final String streamId = streamInfo.getInlongStreamId();
         switch (operateType) {
             case SUSPEND:
-                streamService.updateStatus(groupId, streamId, StreamStatus.SUSPENDING.getCode(), operator);
+                streamService.updateStatus(
+                        groupId, streamId, StreamStatus.SUSPENDING.getCode(), operator);
                 break;
             case RESTART:
-                streamService.updateStatus(groupId, streamId, StreamStatus.RESTARTING.getCode(), operator);
+                streamService.updateStatus(
+                        groupId, streamId, StreamStatus.RESTARTING.getCode(), operator);
                 break;
             case DELETE:
-                streamService.updateStatus(groupId, streamId, StreamStatus.DELETING.getCode(), operator);
+                streamService.updateStatus(
+                        groupId, streamId, StreamStatus.DELETING.getCode(), operator);
                 break;
             default:
                 break;
         }
         return ListenerResult.success();
     }
-
 }

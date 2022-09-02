@@ -36,19 +36,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Data proxy controller.
- */
+/** Data proxy controller. */
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Open-DataProxy-API")
 public class DataProxyController {
 
-    @Autowired
-    @Lazy
-    private InlongClusterService clusterService;
-    @Autowired
-    private DataProxyConfigRepository dataProxyConfigRepository;
+    @Autowired @Lazy private InlongClusterService clusterService;
+    @Autowired private DataProxyConfigRepository dataProxyConfigRepository;
 
     @PostMapping(value = "/dataproxy/getIpList/{inlongGroupId}")
     @ApiOperation(value = "Get data proxy IP list by InlongGroupId")
@@ -59,9 +54,13 @@ public class DataProxyController {
     @PostMapping("/dataproxy/getConfig")
     @ApiOperation(value = "Get data proxy topic list")
     public Response<DataProxyConfig> getConfig(@RequestBody DataProxyConfigRequest request) {
-        DataProxyConfig config = clusterService.getDataProxyConfig(request.getClusterTag(), request.getClusterName());
-        if (CollectionUtils.isEmpty(config.getMqClusterList()) || CollectionUtils.isEmpty(config.getTopicList())) {
-            return Response.fail("Failed to get MQ Cluster or Topic, make sure Cluster registered or Topic existed.");
+        DataProxyConfig config =
+                clusterService.getDataProxyConfig(
+                        request.getClusterTag(), request.getClusterName());
+        if (CollectionUtils.isEmpty(config.getMqClusterList())
+                || CollectionUtils.isEmpty(config.getTopicList())) {
+            return Response.fail(
+                    "Failed to get MQ Cluster or Topic, make sure Cluster registered or Topic existed.");
         }
         return Response.success(config);
     }
@@ -74,9 +73,12 @@ public class DataProxyController {
 
     @RequestMapping(value = "/changeClusterTag", method = RequestMethod.PUT)
     @ApiOperation(value = "Change cluster tag and topic for inlong group id")
-    public Response<String> changeClusterTag(@RequestParam String inlongGroupId, @RequestParam String clusterTag,
+    public Response<String> changeClusterTag(
+            @RequestParam String inlongGroupId,
+            @RequestParam String clusterTag,
             @RequestParam String topic) {
-        String result = dataProxyConfigRepository.changeClusterTag(inlongGroupId, clusterTag, topic);
+        String result =
+                dataProxyConfigRepository.changeClusterTag(inlongGroupId, clusterTag, topic);
         return Response.success(result);
     }
 
@@ -86,5 +88,4 @@ public class DataProxyController {
         String result = dataProxyConfigRepository.removeBackupClusterTag(inlongGroupId);
         return Response.success(result);
     }
-
 }

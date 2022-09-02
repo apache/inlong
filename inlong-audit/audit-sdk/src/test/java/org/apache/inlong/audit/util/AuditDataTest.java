@@ -17,10 +17,10 @@
 
 package org.apache.inlong.audit.util;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class AuditDataTest {
     @Test
@@ -37,29 +37,30 @@ public class AuditDataTest {
 
     @Test
     public void getDataByte() {
-        AuditApi.AuditMessageHeader.Builder headerBuilder = AuditApi.AuditMessageHeader.newBuilder();
-        headerBuilder.setPacketId(1)
-                .setSdkTs(0)
-                .setThreadId("")
-                .setIp("")
-                .setDockerId("");
+        AuditApi.AuditMessageHeader.Builder headerBuilder =
+                AuditApi.AuditMessageHeader.newBuilder();
+        headerBuilder.setPacketId(1).setSdkTs(0).setThreadId("").setIp("").setDockerId("");
         AuditApi.AuditMessageBody.Builder bodyBuilder = AuditApi.AuditMessageBody.newBuilder();
-        bodyBuilder.setAuditId("")
+        bodyBuilder
+                .setAuditId("")
                 .setInlongGroupId("")
                 .setInlongStreamId("")
                 .setLogTs(0)
                 .setCount(0)
                 .setSize(0)
                 .setDelay(0);
-        AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(headerBuilder.build())
-                .addMsgBody(bodyBuilder.build()).build();
-        AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
+        AuditApi.AuditRequest request =
+                AuditApi.AuditRequest.newBuilder()
+                        .setMsgHeader(headerBuilder.build())
+                        .addMsgBody(bodyBuilder.build())
+                        .build();
+        AuditApi.BaseCommand baseCommand =
+                AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
         AuditData test = new AuditData(System.currentTimeMillis(), baseCommand);
         byte[] data = test.getDataByte();
         assertTrue(data.length > 0);
     }
 
     @Test
-    public void addBytes() {
-    }
+    public void addBytes() {}
 }

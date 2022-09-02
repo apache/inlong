@@ -18,7 +18,7 @@
 
 package org.apache.inlong.sort.tests.utils;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,12 +32,9 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Test util for test container.
- */
+/** Test util for test container. */
 public class TestUtils {
     private static final ParameterProperty<Path> MODULE_DIRECTORY =
             new ParameterProperty<>("moduleDir", Paths::get);
@@ -89,7 +86,9 @@ public class TestUtils {
     }
 
     /**
-     * A simple system properties value getter with default value when could not find the system property.
+     * A simple system properties value getter with default value when could not find the system
+     * property.
+     *
      * @param <V>
      */
     static class ParameterProperty<V> {

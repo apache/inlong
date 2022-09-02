@@ -18,6 +18,27 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import static org.apache.flink.util.Preconditions.checkState;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Deadline;
@@ -44,31 +65,9 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.stream.Stream;
-
-import static org.apache.flink.util.Preconditions.checkState;
-
 /**
- * End to end base test environment for test sort-connectors.
- * Every link : MySQL -> Xxx (Test connector) -> MySQL
+ * End to end base test environment for test sort-connectors. Every link : MySQL -> Xxx (Test
+ * connector) -> MySQL
  */
 public abstract class FlinkContainerTestEnv extends TestLogger {
     private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
@@ -85,46 +84,47 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     private static final String FLINK_BIN = "bin";
     private static final String INTER_CONTAINER_JM_ALIAS = "jobmanager";
     private static final String INTER_CONTAINER_TM_ALIAS = "taskmanager";
-    private static final String FLINK_PROPERTIES = String.join("\n", Arrays.asList(
-            "jobmanager.rpc.address: jobmanager",
-            "taskmanager.numberOfTaskSlots: 10",
-            "parallelism.default: 4",
-            "env.java.opts.jobmanager: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000",
-            "env.java.opts.taskmanager: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000",
-            // this is needed for oracle-cdc tests.
-            // see https://stackoverflow.com/a/47062742/4915129
-            "env.java.opts: -Doracle.jdbc.timezoneAsRegion=false"));
+    private static final String FLINK_PROPERTIES =
+            String.join(
+                    "\n",
+                    Arrays.asList(
+                            "jobmanager.rpc.address: jobmanager",
+                            "taskmanager.numberOfTaskSlots: 10",
+                            "parallelism.default: 4",
+                            "env.java.opts.jobmanager: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000",
+                            "env.java.opts.taskmanager: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000",
+                            // this is needed for oracle-cdc tests.
+                            // see https://stackoverflow.com/a/47062742/4915129
+                            "env.java.opts: -Doracle.jdbc.timezoneAsRegion=false"));
 
-    @ClassRule
-    public static final Network NETWORK = Network.newNetwork();
+    @ClassRule public static final Network NETWORK = Network.newNetwork();
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Nullable
-    private static RestClusterClient<StandaloneClusterId> restClusterClient;
+    @Nullable private static RestClusterClient<StandaloneClusterId> restClusterClient;
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-
 
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
     // ----------------------------------------------------------------------------------------
     protected static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
     private static final String INTER_CONTAINER_MYSQL_ALIAS = "mysql";
+
     @ClassRule
     public static final MySqlContainer MYSQL =
-            (MySqlContainer) new MySqlContainer()
-                    .withConfigurationOverride("docker/mysql/my.cnf")
-                    .withSetupSQL("docker/mysql/setup.sql")
-                    .withDatabaseName("test")
-                    .withUsername("flinkuser")
-                    .withPassword("flinkpw")
-                    .withUrlParam("allowMultiQueries", "true")
-                    .withNetwork(NETWORK)
-                    .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
-                    .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
+            (MySqlContainer)
+                    new MySqlContainer()
+                            .withConfigurationOverride("docker/mysql/my.cnf")
+                            .withSetupSQL("docker/mysql/setup.sql")
+                            .withDatabaseName("test")
+                            .withUsername("flinkuser")
+                            .withPassword("flinkpw")
+                            .withUrlParam("allowMultiQueries", "true")
+                            .withNetwork(NETWORK)
+                            .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
+                            .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
 
     @BeforeClass
     public static void before() {
@@ -239,6 +239,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     /**
      * Polling to detect task status until the task successfully into {@link JobStatus.RUNNING}
+     *
      * @param timeout
      */
     public void waitUntilJobRunning(Duration timeout) {
@@ -270,25 +271,25 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     }
 
     /**
-     * Copy all other dependencies into user jar 'lib/' entry.
-     * Flink per-job mode only support upload one jar to cluster.
+     * Copy all other dependencies into user jar 'lib/' entry. Flink per-job mode only support
+     * upload one jar to cluster.
      */
     private String constructDistJar(Path... jars) throws IOException {
 
         File newJar = temporaryFolder.newFile("sort-dist.jar");
-        try (
-                JarFile jarFile = new JarFile(SORT_DIST_JAR.toFile());
-                JarOutputStream jos = new JarOutputStream(new FileOutputStream(newJar))
-            ) {
-            jarFile.stream().forEach(entry -> {
-                try (InputStream is = jarFile.getInputStream(entry)) {
-                    jos.putNextEntry(entry);
-                    jos.write(IOUtils.toByteArray(is));
-                    jos.closeEntry();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        try (JarFile jarFile = new JarFile(SORT_DIST_JAR.toFile());
+                JarOutputStream jos = new JarOutputStream(new FileOutputStream(newJar))) {
+            jarFile.stream()
+                    .forEach(
+                            entry -> {
+                                try (InputStream is = jarFile.getInputStream(entry)) {
+                                    jos.putNextEntry(entry);
+                                    jos.write(IOUtils.toByteArray(is));
+                                    jos.closeEntry();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
 
             for (Path jar : jars) {
                 try (InputStream is = new FileInputStream(jar.toFile())) {
@@ -299,16 +300,16 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                     throw new RuntimeException(e);
                 }
             }
-
         }
         return newJar.getAbsolutePath();
     }
 
     // Should not a big file, all file data will load into memory, then copy to container.
-    private String copyToContainerTmpPath(GenericContainer<?> container, String filePath) throws IOException {
+    private String copyToContainerTmpPath(GenericContainer<?> container, String filePath)
+            throws IOException {
         Path path = Paths.get(filePath);
         byte[] fileData = Files.readAllBytes(path);
-            String containerPath = "/tmp/" + path.getFileName();
+        String containerPath = "/tmp/" + path.getFileName();
         container.copyFileToContainer(Transferable.of(fileData), containerPath);
         return containerPath;
     }

@@ -22,14 +22,12 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.REBALANCE_GROUP;
 
 import com.google.gson.Gson;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,8 +71,7 @@ public class ConvertUtils {
                 } else {
                     value = o.toString();
                 }
-                queryList.add(field.getName() + "=" + URLEncoder.encode(
-                        value, UTF_8.toString()));
+                queryList.add(field.getName() + "=" + URLEncoder.encode(value, UTF_8.toString()));
             }
         }
     }
@@ -89,7 +86,8 @@ public class ConvertUtils {
         return fieldsList;
     }
 
-    public static RebalanceConsumerReq convertToRebalanceConsumerReq(RebalanceGroupReq req, String consumerId) {
+    public static RebalanceConsumerReq convertToRebalanceConsumerReq(
+            RebalanceGroupReq req, String consumerId) {
         RebalanceConsumerReq consumerReq = new RebalanceConsumerReq();
         consumerReq.setConsumerId(consumerId);
         consumerReq.setConfModAuthToken(req.getConfModAuthToken());
@@ -105,14 +103,14 @@ public class ConvertUtils {
         List<String> queryList = new ArrayList<>();
 
         for (Map.Entry<String, String> entry : requestMap.entrySet()) {
-            queryList.add(entry.getKey() + "=" + URLEncoder.encode(
-                    entry.getValue(), UTF_8.toString()));
+            queryList.add(
+                    entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), UTF_8.toString()));
         }
         return StringUtils.join(queryList, "&");
     }
 
-    public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
-                                               List<MasterEntry> masterEntries, ClusterVo clusterVo) {
+    public static ClusterVo convertToClusterVo(
+            ClusterEntry clusterEntry, List<MasterEntry> masterEntries, ClusterVo clusterVo) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
         cluster.setMasterEntries(masterEntries);
@@ -126,5 +124,4 @@ public class ConvertUtils {
         cluster.setStoreCount(clusterVo.getStoreCount());
         return cluster;
     }
-
 }

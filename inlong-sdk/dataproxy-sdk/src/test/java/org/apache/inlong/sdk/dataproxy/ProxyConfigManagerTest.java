@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Objects;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
@@ -24,22 +27,22 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.Objects;
-
 public class ProxyConfigManagerTest {
 
-    private final String localFile = Paths.get(
-            Objects.requireNonNull(this.getClass().getClassLoader().getResource("proxylist.json")).toURI())
-            .toString();
+    private final String localFile =
+            Paths.get(
+                            Objects.requireNonNull(
+                                            this.getClass()
+                                                    .getClassLoader()
+                                                    .getResource("proxylist.json"))
+                                    .toURI())
+                    .toString();
     private final ProxyClientConfig clientConfig = PowerMockito.mock(ProxyClientConfig.class);
     private final ClientMgr clientMgr = PowerMockito.mock(ClientMgr.class);
-    private final ProxyConfigManager proxyConfigManager = new ProxyConfigManager(clientConfig, "127.0.0.1",
-            clientMgr);
+    private final ProxyConfigManager proxyConfigManager =
+            new ProxyConfigManager(clientConfig, "127.0.0.1", clientMgr);
 
-    public ProxyConfigManagerTest() throws URISyntaxException {
-    }
+    public ProxyConfigManagerTest() throws URISyntaxException {}
 
     @Test
     public void testProxyConfigParse() throws Exception {
@@ -51,5 +54,4 @@ public class ProxyConfigManagerTest {
         Assert.assertEquals(proxyEntry.getHostMap().containsKey("127.0.0.1:46801"), true);
         Assert.assertEquals(proxyEntry.getHostMap().containsKey("127.0.0.1:8080"), false);
     }
-
 }

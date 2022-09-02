@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
 // message deduplication handler
 public class MsgDedupHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(MsgDedupHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MsgDedupHandler.class);
     private static final int DEF_MAX_SURVIVE_CNT_SIZE = 5000000;
     private static final int DEF_MAX_SURVIVE_TIME_MS = 30000;
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -53,23 +52,31 @@ public class MsgDedupHandler {
                 if (maxSurviveSize < 0) {
                     maxSurviveSize = DEF_MAX_SURVIVE_CNT_SIZE;
                 }
-                msgSeqIdCache = CacheBuilder
-                        .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000)
-                        .expireAfterAccess(maxSurviveTime, TimeUnit.MILLISECONDS)
-                        .maximumSize(maxSurviveSize)
-                        .build(new CacheLoader<String, Long>() {
-                            @Override
-                            public Long load(String key) {
-                                return System.currentTimeMillis();
-                            }
-                        });
+                msgSeqIdCache =
+                        CacheBuilder.newBuilder()
+                                .concurrencyLevel(4 * 8)
+                                .initialCapacity(5000000)
+                                .expireAfterAccess(maxSurviveTime, TimeUnit.MILLISECONDS)
+                                .maximumSize(maxSurviveSize)
+                                .build(
+                                        new CacheLoader<String, Long>() {
+                                            @Override
+                                            public Long load(String key) {
+                                                return System.currentTimeMillis();
+                                            }
+                                        });
             }
-            logger.info("Initial message deduplication handler, enable = "
-                    + this.enableDataDedup + ", configured survived-time = "
-                    + cfgMaxSurviveTime + ", valid survived-time = "
-                    + maxSurviveTime + ", configured survived-size = "
-                    + cfgMaxSurviveSize + ", valid survived-size = "
-                    + maxSurviveSize);
+            logger.info(
+                    "Initial message deduplication handler, enable = "
+                            + this.enableDataDedup
+                            + ", configured survived-time = "
+                            + cfgMaxSurviveTime
+                            + ", valid survived-time = "
+                            + maxSurviveTime
+                            + ", configured survived-size = "
+                            + cfgMaxSurviveSize
+                            + ", valid survived-size = "
+                            + maxSurviveSize);
         }
     }
 

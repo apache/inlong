@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -25,14 +28,9 @@ import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.NextableElement;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Non-terminal element processor
- */
-public abstract class AbstractNextableElementProcessor<T extends NextableElement> implements ElementProcessor<T> {
+/** Non-terminal element processor */
+public abstract class AbstractNextableElementProcessor<T extends NextableElement>
+        implements ElementProcessor<T> {
 
     @Override
     public List<Element> next(T element, WorkflowContext context) {
@@ -40,25 +38,23 @@ public abstract class AbstractNextableElementProcessor<T extends NextableElement
         List<Element> nextElements = element.getNextList(actionContext.getAction(), context);
         Preconditions.checkNotEmpty(nextElements, "not found next element ");
 
-        Element endEvent = nextElements
-                .stream()
-                .filter(EndEvent.class::isInstance)
-                .findFirst()
-                .orElse(null);
+        Element endEvent =
+                nextElements.stream().filter(EndEvent.class::isInstance).findFirst().orElse(null);
 
         if (endEvent == null) {
             return nextElements;
         }
 
-        List<Element> notEndEventElements = nextElements.stream()
-                .filter(ele -> !(ele instanceof EndEvent))
-                .collect(Collectors.toList());
+        List<Element> notEndEventElements =
+                nextElements.stream()
+                        .filter(ele -> !(ele instanceof EndEvent))
+                        .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(notEndEventElements)) {
             return Collections.singletonList(endEvent);
         }
 
-        throw new WorkflowException("process definition error, find endEvent and not endEvent at the same time");
+        throw new WorkflowException(
+                "process definition error, find endEvent and not endEvent at the same time");
     }
-
 }

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.web;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getRegisteredWebMethod;
@@ -25,7 +22,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.WebApiRegInfo;
@@ -39,8 +35,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req,
-            HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         doPost(req, resp);
     }
 
@@ -49,8 +44,7 @@ public abstract class AbstractWebHandler extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req,
-            HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String method = null;
         StringBuilder sBuffer = new StringBuilder(1024);
         long startTime = System.currentTimeMillis();
@@ -63,7 +57,9 @@ public abstract class AbstractWebHandler extends HttpServlet {
                 WebApiRegInfo webApiRegInfo = getWebApiRegInfo(method);
                 if (webApiRegInfo == null) {
                     sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                            .append("Unsupported method ").append(method).append("\"}");
+                            .append("Unsupported method ")
+                            .append(method)
+                            .append("\"}");
                 } else {
                     webApiRegInfo.method.invoke(webApiRegInfo.webHandler, req, sBuffer);
                 }
@@ -84,11 +80,8 @@ public abstract class AbstractWebHandler extends HttpServlet {
 
     public abstract void registerWebApiMethod();
 
-    protected void innRegisterWebMethod(String webMethodName,
-            String clsMethodName,
-            boolean needAuthToken) {
-        registerWebMethod(webMethodName, clsMethodName,
-                false, needAuthToken, this);
+    protected void innRegisterWebMethod(
+            String webMethodName, String clsMethodName, boolean needAuthToken) {
+        registerWebMethod(webMethodName, clsMethodName, false, needAuthToken, this);
     }
-
 }

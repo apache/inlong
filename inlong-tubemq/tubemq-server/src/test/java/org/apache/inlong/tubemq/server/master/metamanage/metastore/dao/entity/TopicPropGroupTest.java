@@ -1,28 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
 import org.junit.Assert;
 import org.junit.Test;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TopicPropGroupTest {
 
@@ -35,8 +32,10 @@ public class TopicPropGroupTest {
         Assert.assertEquals(propsCase1.getUnflushThreshold(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(propsCase1.getUnflushInterval(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(propsCase1.getUnflushDataHold(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(propsCase1.getMemCacheMsgSizeInMB(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(propsCase1.getMemCacheFlushIntvl(), TBaseConstants.META_VALUE_UNDEFINED);
+        Assert.assertEquals(
+                propsCase1.getMemCacheMsgSizeInMB(), TBaseConstants.META_VALUE_UNDEFINED);
+        Assert.assertEquals(
+                propsCase1.getMemCacheFlushIntvl(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(propsCase1.getMemCacheMsgCntInK(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertTrue((propsCase1.getAcceptPublish() == null));
         Assert.assertTrue((propsCase1.getAcceptSubscribe() == null));
@@ -58,10 +57,20 @@ public class TopicPropGroupTest {
         int dataStoreType = 9;
         String dataPath = "test\\test";
         TopicPropGroup propsCase2 =
-                new TopicPropGroup(numTopicStores, numPartitions, unflushThreshold,
-                        unflushInterval, unflushDataHold, memCacheMsgSizeInMB,
-                        memCacheMsgCntInK, memCacheFlushIntvl, acceptPublish,
-                        acceptSubscribe, deletePolicy, dataStoreType, dataPath);
+                new TopicPropGroup(
+                        numTopicStores,
+                        numPartitions,
+                        unflushThreshold,
+                        unflushInterval,
+                        unflushDataHold,
+                        memCacheMsgSizeInMB,
+                        memCacheMsgCntInK,
+                        memCacheFlushIntvl,
+                        acceptPublish,
+                        acceptSubscribe,
+                        deletePolicy,
+                        dataStoreType,
+                        dataPath);
         Assert.assertEquals(propsCase2.getNumTopicStores(), numTopicStores);
         Assert.assertEquals(propsCase2.getNumPartitions(), numPartitions);
         Assert.assertEquals(propsCase2.getUnflushThreshold(), unflushThreshold);
@@ -117,15 +126,18 @@ public class TopicPropGroupTest {
         propsCase3.setMemCacheMsgSizeInMB(newMemCacheMsgSizeInMB);
         Assert.assertEquals(propsCase3.getMemCacheMsgSizeInMB(), newMemCacheMsgSizeInMB);
         Assert.assertNotEquals(propsCase3.getMemCacheMsgSizeInMB(), memCacheMsgSizeInMB);
-        Assert.assertNotEquals(propsCase3.getMemCacheMsgSizeInMB(), propsCase2.getMemCacheMsgSizeInMB());
+        Assert.assertNotEquals(
+                propsCase3.getMemCacheMsgSizeInMB(), propsCase2.getMemCacheMsgSizeInMB());
         propsCase3.setMemCacheMsgCntInK(newMemCacheMsgCntInK);
         Assert.assertEquals(propsCase3.getMemCacheMsgCntInK(), newMemCacheMsgCntInK);
         Assert.assertNotEquals(propsCase3.getMemCacheMsgCntInK(), memCacheMsgCntInK);
-        Assert.assertNotEquals(propsCase3.getMemCacheMsgCntInK(), propsCase2.getMemCacheMsgCntInK());
+        Assert.assertNotEquals(
+                propsCase3.getMemCacheMsgCntInK(), propsCase2.getMemCacheMsgCntInK());
         propsCase3.setMemCacheFlushIntvl(newMemCacheFlushIntvl);
         Assert.assertEquals(propsCase3.getMemCacheFlushIntvl(), newMemCacheFlushIntvl);
         Assert.assertNotEquals(propsCase3.getMemCacheFlushIntvl(), memCacheFlushIntvl);
-        Assert.assertNotEquals(propsCase3.getMemCacheFlushIntvl(), propsCase2.getMemCacheFlushIntvl());
+        Assert.assertNotEquals(
+                propsCase3.getMemCacheFlushIntvl(), propsCase2.getMemCacheFlushIntvl());
         propsCase3.setAcceptPublish(newAcceptPublish);
         Assert.assertEquals(propsCase3.getAcceptPublish(), newAcceptPublish);
         Assert.assertNotEquals(propsCase3.getAcceptPublish(), acceptPublish);
@@ -160,10 +172,8 @@ public class TopicPropGroupTest {
         Assert.assertEquals(paramMap.size(), 0);
         paramMap.clear();
         // case 2
-        TopicPropGroup entity2 = new TopicPropGroup(1, 2,
-                3, 4, 5, 6,
-                7, 8, true, false,
-                "delete,22h", 9, "aaa");
+        TopicPropGroup entity2 =
+                new TopicPropGroup(1, 2, 3, 4, 5, 6, 7, 8, true, false, "delete,22h", 9, "aaa");
         entity2.getConfigureInfo(paramMap, true);
         Assert.assertEquals(paramMap.size(), 13);
         Assert.assertEquals(paramMap.get("numTopicStores"), String.valueOf(1));

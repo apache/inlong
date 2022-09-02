@@ -19,6 +19,12 @@
 
 package org.apache.inlong.sort.iceberg;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.catalog.CatalogTable;
@@ -34,13 +40,6 @@ import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.inlong.sort.iceberg.sink.FlinkSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
 
@@ -60,7 +59,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.catalogTable = toCopy.catalogTable;
     }
 
-    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
+    public IcebergTableSink(
+            TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.catalogTable = catalogTable;
@@ -68,34 +68,50 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
-        Preconditions.checkState(!overwrite || context.isBounded(),
+        Preconditions.checkState(
+                !overwrite || context.isBounded(),
                 "Unbounded data stream doesn't support overwrite operation.");
 
-        List<String> equalityColumns = tableSchema.getPrimaryKey()
-                .map(UniqueConstraint::getColumns)
-                .orElseGet(ImmutableList::of);
+        List<String> equalityColumns =
+                tableSchema
+                        .getPrimaryKey()
+                        .map(UniqueConstraint::getColumns)
+                        .orElseGet(ImmutableList::of);
 
-        return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
-                .tableLoader(tableLoader)
-                .tableSchema(tableSchema)
-                .equalityFieldColumns(equalityColumns)
-                .overwrite(overwrite)
-                .metric(catalogTable.getOptions().getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()),
-                        catalogTable.getOptions().getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
-                .append();
+        return (DataStreamSinkProvider)
+                dataStream ->
+                        FlinkSink.forRowData(dataStream)
+                                .tableLoader(tableLoader)
+                                .tableSchema(tableSchema)
+                                .equalityFieldColumns(equalityColumns)
+                                .overwrite(overwrite)
+                                .metric(
+                                        catalogTable
+                                                .getOptions()
+                                                .getOrDefault(
+                                                        INLONG_METRIC.key(),
+                                                        INLONG_METRIC.defaultValue()),
+                                        catalogTable
+                                                .getOptions()
+                                                .getOrDefault(
+                                                        INLONG_AUDIT.key(),
+                                                        INLONG_AUDIT.defaultValue()))
+                                .append();
     }
 
     @Override
     public void applyStaticPartition(Map<String, String> partition) {
-        // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
+        // The flink's PartitionFanoutWriter will handle the static partition write policy
+        // automatically.
     }
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
         if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
                 .get(ICEBERG_IGNORE_ALL_CHANGELOG)) {
-            LOG.warn("Iceberg sink receive all changelog record. "
-                    + "Regard any other record as insert-only record.");
+            LOG.warn(
+                    "Iceberg sink receive all changelog record. "
+                            + "Regard any other record as insert-only record.");
             return ChangelogMode.all();
         } else {
             ChangelogMode.Builder builder = ChangelogMode.newBuilder();

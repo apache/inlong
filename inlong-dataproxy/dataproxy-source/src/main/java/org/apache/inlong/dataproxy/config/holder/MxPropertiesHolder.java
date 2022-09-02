@@ -17,15 +17,12 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * value is map
- */
+/** value is map */
 public class MxPropertiesHolder extends PropertiesConfigHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(MxPropertiesHolder.class);
@@ -36,9 +33,7 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
         super(fileName);
     }
 
-    /**
-     * load m from file
-     */
+    /** load m from file */
     @Override
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();

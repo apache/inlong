@@ -23,9 +23,9 @@ import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -33,15 +33,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Added data consumption process cancellation event listener
- */
+/** Added data consumption process cancellation event listener */
 @Slf4j
 @Component
 public class ConsumptionCancelProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private ConsumptionEntityMapper consumptionEntityMapper;
+    @Autowired private ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
     public ConsumptionCancelProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
@@ -55,17 +52,21 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        ApplyConsumptionProcessForm processForm = (ApplyConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumptionProcessForm processForm =
+                (ApplyConsumptionProcessForm) context.getProcessForm();
 
-        ConsumptionEntity update = consumptionEntityMapper.selectByPrimaryKey(processForm.getConsumptionInfo().getId());
+        ConsumptionEntity update =
+                consumptionEntityMapper.selectByPrimaryKey(
+                        processForm.getConsumptionInfo().getId());
         update.setStatus(ConsumptionStatus.CANCELED.getStatus());
         int rowCount = consumptionEntityMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            log.error("consumption information has already updated, id={}, curVersion={}",
-                    update.getId(), update.getVersion());
+            log.error(
+                    "consumption information has already updated, id={}, curVersion={}",
+                    update.getId(),
+                    update.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         return ListenerResult.success("Application process is cancelled");
     }
-
 }

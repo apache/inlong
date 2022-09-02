@@ -18,6 +18,20 @@
 
 package org.apache.inlong.sort.kafka;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
@@ -42,25 +56,10 @@ import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
-
 /**
  * A version-agnostic Kafka {@link DynamicTableSink}.
  *
- * Add an option `inlong.metric` to support metrics.
+ * <p>Add an option `inlong.metric` to support metrics.
  */
 @Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
@@ -75,87 +74,51 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     // Format attributes
     // --------------------------------------------------------------------------------------------
     private static final String VALUE_METADATA_PREFIX = "value.";
-    /**
-     * Data type to configure the formats.
-     */
+    /** Data type to configure the formats. */
     protected final DataType physicalDataType;
-    /**
-     * Optional format for encoding keys to Kafka.
-     */
+    /** Optional format for encoding keys to Kafka. */
     protected final @Nullable EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat;
-    /**
-     * Format for encoding values to Kafka.
-     */
+    /** Format for encoding values to Kafka. */
     protected final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat;
-    /**
-     * Indices that determine the key fields and the source position in the consumed row.
-     */
+    /** Indices that determine the key fields and the source position in the consumed row. */
     protected final int[] keyProjection;
-    /**
-     * Indices that determine the value fields and the source position in the consumed row.
-     */
+    /** Indices that determine the value fields and the source position in the consumed row. */
     protected final int[] valueProjection;
-    /**
-     * Prefix that needs to be removed from fields when constructing the physical data type.
-     */
+    /** Prefix that needs to be removed from fields when constructing the physical data type. */
     protected final @Nullable String keyPrefix;
-    /**
-     * The Kafka topic to write to.
-     */
+    /** The Kafka topic to write to. */
     protected final String topic;
-    /**
-     * Properties for the Kafka producer.
-     */
+    /** Properties for the Kafka producer. */
     protected final Properties properties;
-    /**
-     * Partitioner to select Kafka partition for each item.
-     */
+    /** Partitioner to select Kafka partition for each item. */
     protected final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
 
     // --------------------------------------------------------------------------------------------
     // Kafka-specific attributes
     // --------------------------------------------------------------------------------------------
-    /**
-     * Sink commit semantic.
-     */
+    /** Sink commit semantic. */
     protected final KafkaSinkSemantic semantic;
     /**
      * Flag to determine sink mode. In upsert mode sink transforms the delete/update-before message
      * to tombstone message.
      */
     protected final boolean upsertMode;
-    /**
-     * Sink buffer flush config which only supported in upsert mode now.
-     */
+    /** Sink buffer flush config which only supported in upsert mode now. */
     protected final SinkBufferFlushMode flushMode;
-    /**
-     * Parallelism of the physical Kafka producer. *
-     */
+    /** Parallelism of the physical Kafka producer. * */
     protected final @Nullable Integer parallelism;
-    /**
-     * CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG
-     */
+    /** CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG */
     private final CatalogTable catalogTable;
-    /**
-     * Metric for inLong
-     */
+    /** Metric for inLong */
     private final String inLongMetric;
-    /**
-     * audit host and ports
-     */
+    /** audit host and ports */
     private final String auditHostAndPorts;
-    /**
-     * Metadata that is appended at the end of a physical sink row.
-     */
+    /** Metadata that is appended at the end of a physical sink row. */
     protected List<String> metadataKeys;
-    /**
-     * Data type of consumed data type.
-     */
+    /** Data type of consumed data type. */
     protected DataType consumedDataType;
 
-    /**
-     * Constructor of KafkaDynamicSink.
-     */
+    /** Constructor of KafkaDynamicSink. */
     public KafkaDynamicSink(
             DataType consumedDataType,
             DataType physicalDataType,
@@ -208,8 +171,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
         if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
                 .get(KAFKA_IGNORE_ALL_CHANGELOG)) {
-            LOG.warn("Kafka sink receive all changelog record. "
-                    + "Regard any other record as insert-only record.");
+            LOG.warn(
+                    "Kafka sink receive all changelog record. "
+                            + "Regard any other record as insert-only record.");
             return ChangelogMode.all();
         }
         return valueEncodingFormat.getChangelogMode();

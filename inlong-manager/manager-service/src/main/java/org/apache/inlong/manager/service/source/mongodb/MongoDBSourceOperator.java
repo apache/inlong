@@ -18,31 +18,27 @@
 package org.apache.inlong.manager.service.source.mongodb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceDTO;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * MongoDB source operator
- */
+/** MongoDB source operator */
 @Service
 public class MongoDBSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -62,7 +58,8 @@ public class MongoDBSourceOperator extends AbstractSourceOperator {
             MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -81,5 +78,4 @@ public class MongoDBSourceOperator extends AbstractSourceOperator {
         source.setFieldList(sourceFields);
         return source;
     }
-
 }

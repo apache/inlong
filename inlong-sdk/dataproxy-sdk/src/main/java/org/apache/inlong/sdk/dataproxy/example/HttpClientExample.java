@@ -18,13 +18,12 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
-import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
+import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 public class HttpClientExample {
 
@@ -55,23 +54,42 @@ public class HttpClientExample {
         String netTag = "";
         String messageBody = "inlong message body!";
 
-        HttpProxySender sender = getMessageSender(localIP, inLongManagerAddr,
-                inLongManagerPort, netTag, dataProxyGroup, false, false,
-                configBasePath);
+        HttpProxySender sender =
+                getMessageSender(
+                        localIP,
+                        inLongManagerAddr,
+                        inLongManagerPort,
+                        netTag,
+                        dataProxyGroup,
+                        false,
+                        false,
+                        configBasePath);
 
         sendHttpMessage(sender, inlongGroupId, inlongStreamId, messageBody);
     }
 
-    public static HttpProxySender getMessageSender(String localIP, String inLongManagerAddr,
-            String inLongManagerPort, String netTag, String dataProxyGroup,
-            boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+    public static HttpProxySender getMessageSender(
+            String localIP,
+            String inLongManagerAddr,
+            String inLongManagerPort,
+            String netTag,
+            String dataProxyGroup,
+            boolean isLocalVisit,
+            boolean isReadProxyIPFromLocal,
             String configBasePath) {
         ProxyClientConfig proxyConfig = null;
         HttpProxySender sender = null;
         try {
-            proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort),
-                    dataProxyGroup, netTag, "test", "123456");
+            proxyConfig =
+                    new ProxyClientConfig(
+                            localIP,
+                            isLocalVisit,
+                            inLongManagerAddr,
+                            Integer.valueOf(inLongManagerPort),
+                            dataProxyGroup,
+                            netTag,
+                            "test",
+                            "123456");
             proxyConfig.setGroupId(dataProxyGroup);
             proxyConfig.setConfStoreBasePath(configBasePath);
             proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
@@ -85,11 +103,20 @@ public class HttpClientExample {
         return sender;
     }
 
-    public static void sendHttpMessage(HttpProxySender sender, String inlongGroupId,
-            String inlongStreamId, String messageBody) {
+    public static void sendHttpMessage(
+            HttpProxySender sender,
+            String inlongGroupId,
+            String inlongStreamId,
+            String messageBody) {
         List<String> bodyList = new ArrayList<>();
         bodyList.add(messageBody);
-        sender.asyncSendMessage(bodyList, inlongGroupId, inlongStreamId, System.currentTimeMillis(),
-                20, TimeUnit.SECONDS, new MyMessageCallBack());
+        sender.asyncSendMessage(
+                bodyList,
+                inlongGroupId,
+                inlongStreamId,
+                System.currentTimeMillis(),
+                20,
+                TimeUnit.SECONDS,
+                new MyMessageCallBack());
     }
 }

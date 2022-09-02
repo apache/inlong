@@ -19,14 +19,11 @@ package org.apache.inlong.manager.pojo.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 
-import java.util.List;
-
-/**
- * Inlong group and topic info
- */
+/** Inlong group and topic info */
 @Data
 @ApiModel("Inlong group and topic info")
 public class InlongGroupTopicInfo {
@@ -40,8 +37,10 @@ public class InlongGroupTopicInfo {
     @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
     private String mqResource;
 
-    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
-            + "Pulsar corresponds to inlong stream, there are multiple topics")
+    @ApiModelProperty(
+            value =
+                    "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
+                            + "Pulsar corresponds to inlong stream, there are multiple topics")
     private List<InlongStreamBriefInfo> streamTopics;
 
     @ApiModelProperty(value = "TubeMQ master URL")
@@ -52,5 +51,4 @@ public class InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Pulsar admin URL")
     private String pulsarAdminUrl;
-
 }

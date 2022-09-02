@@ -17,13 +17,12 @@
 
 package org.apache.inlong.agent.plugin;
 
-/**
- * filter for source split
- */
+/** filter for source split */
 public interface Filter {
 
     /**
      * whether reader is legal.
+     *
      * @return true if reader is legal else false.
      */
     boolean match();

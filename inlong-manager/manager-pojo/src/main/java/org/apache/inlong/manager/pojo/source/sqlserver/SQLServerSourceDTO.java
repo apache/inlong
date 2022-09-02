@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.source.sqlserver;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * SQLServer source info
- */
+/** SQLServer source info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -74,9 +71,7 @@ public class SQLServerSourceDTO {
     @ApiModelProperty("Properties for SQLServer")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static SQLServerSourceDTO getFromRequest(SQLServerSourceRequest request) {
         return SQLServerSourceDTO.builder()
                 .username(request.getUsername())
@@ -93,16 +88,14 @@ public class SQLServerSourceDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the JSON string
-     */
+    /** Get the dto instance from the JSON string */
     public static SQLServerSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, SQLServerSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

@@ -20,9 +20,7 @@ package org.apache.inlong.manager.pojo.sink;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
-/**
- * Sink info - with stream
- */
+/** Sink info - with stream */
 @Data
 @ApiModel("Sink info - with stream")
 public class SinkInfo {
@@ -43,5 +41,4 @@ public class SinkInfo {
     private String dataType;
     private String sourceSeparator; // Source separator configured in the stream info
     private String dataEscapeChar;
-
 }

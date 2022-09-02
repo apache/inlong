@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
 
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.ExceptionProxy;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
@@ -36,16 +41,10 @@ import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.internal.ReaderThread}
- * Actual working thread that read a specific Pulsar topic.
+ * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From {@link
+ * org.apache.flink.streaming.connectors.pulsar.internal.ReaderThread} Actual working thread that
+ * read a specific Pulsar topic.
  *
  * @param <T> the record type that read from each Pulsar message.
  */
@@ -111,7 +110,11 @@ public class ReaderThread<T> extends Thread {
 
     @Override
     public void run() {
-        log.info("Starting to fetch from {} at {}, failOnDataLoss {}", topicRange, startMessageId, failOnDataLoss);
+        log.info(
+                "Starting to fetch from {} at {}, failOnDataLoss {}",
+                topicRange,
+                startMessageId,
+                failOnDataLoss);
 
         try {
             createActualReader();
@@ -137,13 +140,17 @@ public class ReaderThread<T> extends Thread {
     }
 
     protected void createActualReader() throws PulsarClientException {
-        ReaderBuilder<T> readerBuilder = CachedPulsarClient.getOrCreate(clientConf)
-                .newReader(deserializer.getSchema())
-                .topic(topicRange.getTopic())
-                .startMessageId(startMessageId)
-                .loadConf(readerConf);
-        log.info("Create a reader at topic {} starting from message {} (inclusive) : config = {}",
-                topicRange, startMessageId, readerConf);
+        ReaderBuilder<T> readerBuilder =
+                CachedPulsarClient.getOrCreate(clientConf)
+                        .newReader(deserializer.getSchema())
+                        .topic(topicRange.getTopic())
+                        .startMessageId(startMessageId)
+                        .loadConf(readerConf);
+        log.info(
+                "Create a reader at topic {} starting from message {} (inclusive) : config = {}",
+                topicRange,
+                startMessageId,
+                readerConf);
         if (!excludeMessageId) {
             readerBuilder.startMessageIdInclusive();
         }
@@ -158,7 +165,8 @@ public class ReaderThread<T> extends Thread {
         MessageId messageId = message.getMessageId();
         deserializer.deserialize(message, pulsarCollector);
 
-        owner.emitRecordsWithTimestamps(pulsarCollector.getRecords(), state, messageId, message.getEventTime());
+        owner.emitRecordsWithTimestamps(
+                pulsarCollector.getRecords(), state, messageId, message.getEventTime());
         if (pulsarCollector.isEndOfStreamSignalled()) {
             // end of stream signaled
             running = false;
@@ -195,12 +203,13 @@ public class ReaderThread<T> extends Thread {
     private void reportDataLoss(String message) {
         running = false;
         exceptionProxy.reportError(
-                new IllegalStateException(message + PulsarOptions.INSTRUCTION_FOR_FAIL_ON_DATA_LOSS_TRUE));
+                new IllegalStateException(
+                        message + PulsarOptions.INSTRUCTION_FOR_FAIL_ON_DATA_LOSS_TRUE));
     }
 
-    /** used to check whether starting position and current message we got actually are equal
-     * we neglect the potential batchIdx deliberately while seeking to MessageIdImpl for batch entry.
-     *
+    /**
+     * used to check whether starting position and current message we got actually are equal we
+     * neglect the potential batchIdx deliberately while seeking to MessageIdImpl for batch entry.
      */
     public static boolean messageIdRoughEquals(MessageId l, MessageId r) {
         if (l == null || r == null) {
@@ -211,18 +220,19 @@ public class ReaderThread<T> extends Thread {
             return l.equals(r);
         } else if (l instanceof MessageIdImpl && r instanceof BatchMessageIdImpl) {
             BatchMessageIdImpl rb = (BatchMessageIdImpl) r;
-            return l.equals(new MessageIdImpl(rb.getLedgerId(), rb.getEntryId(), rb.getPartitionIndex()));
+            return l.equals(
+                    new MessageIdImpl(rb.getLedgerId(), rb.getEntryId(), rb.getPartitionIndex()));
         } else if (r instanceof MessageIdImpl && l instanceof BatchMessageIdImpl) {
             BatchMessageIdImpl lb = (BatchMessageIdImpl) l;
-            return r.equals(new MessageIdImpl(lb.getLedgerId(), lb.getEntryId(), lb.getPartitionIndex()));
+            return r.equals(
+                    new MessageIdImpl(lb.getLedgerId(), lb.getEntryId(), lb.getPartitionIndex()));
         } else if (l instanceof MessageIdImpl && r instanceof MessageIdImpl) {
             return l.equals(r);
         } else {
             throw new IllegalStateException(
                     String.format(
                             "comparing messageIds of type %s, %s",
-                            l.getClass().toString(),
-                            r.getClass().toString()));
+                            l.getClass().toString(), r.getClass().toString()));
         }
     }
 
@@ -250,7 +260,6 @@ public class ReaderThread<T> extends Thread {
         }
 
         @Override
-        public void close() {
-        }
+        public void close() {}
     }
 }

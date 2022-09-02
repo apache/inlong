@@ -17,7 +17,14 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -32,35 +39,26 @@ import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessFor
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-
 public class WorkflowClientTest extends ClientFactoryTest {
 
     private static final WorkflowClient workflowClient = clientFactory.getWorkflowClient();
 
     @Test
     void testWorkflowStart() {
-        WorkflowResult workflowResult = WorkflowResult.builder()
-                .processInfo(ProcessResponse.builder()
-                        .id(1)
-                        .name(ProcessName.APPLY_GROUP_PROCESS.getDisplayName())
-                        .applicant("test_user").build())
-                .build();
+        WorkflowResult workflowResult =
+                WorkflowResult.builder()
+                        .processInfo(
+                                ProcessResponse.builder()
+                                        .id(1)
+                                        .name(ProcessName.APPLY_GROUP_PROCESS.getDisplayName())
+                                        .applicant("test_user")
+                                        .build())
+                        .build();
 
         stubFor(
                 post(urlMatching("/inlong/manager/api/workflow/start.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(
-                                        Response.success(workflowResult))
-                                )
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(workflowResult)))));
         WorkflowOperationRequest request = new WorkflowOperationRequest();
         request.setName(ProcessName.APPLY_GROUP_PROCESS);
         request.setApplicant("test_user");
@@ -69,31 +67,28 @@ public class WorkflowClientTest extends ClientFactoryTest {
         request.setForm(form);
 
         WorkflowResult workflowInfo = workflowClient.start(request);
-        Assertions.assertEquals(request.getName().getDisplayName(), workflowInfo.getProcessInfo().getName());
-        Assertions.assertEquals(request.getApplicant(), workflowInfo.getProcessInfo().getApplicant());
+        Assertions.assertEquals(
+                request.getName().getDisplayName(), workflowInfo.getProcessInfo().getName());
+        Assertions.assertEquals(
+                request.getApplicant(), workflowInfo.getProcessInfo().getApplicant());
     }
 
     @Test
     void testListProcess() {
-        List<ProcessResponse> responses = Lists.newArrayList(
-                ProcessResponse.builder()
-                        .id(1)
-                        .name("test_process")
-                        .build()
-        );
+        List<ProcessResponse> responses =
+                Lists.newArrayList(ProcessResponse.builder().id(1).name("test_process").build());
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/workflow/listProcess.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(responses)))
-                                )
-                        )
-        );
+                                okJson(
+                                        JsonUtils.toJsonString(
+                                                Response.success(new PageResult<>(responses))))));
 
         ProcessRequest request = new ProcessRequest();
         request.setId(1);
         PageResult<ProcessResponse> pageInfo = workflowClient.listProcess(request);
-        Assertions.assertEquals(JsonUtils.toJsonString(pageInfo.getList()), JsonUtils.toJsonString(responses));
+        Assertions.assertEquals(
+                JsonUtils.toJsonString(pageInfo.getList()), JsonUtils.toJsonString(responses));
     }
 }

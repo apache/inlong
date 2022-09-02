@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.workflow.event;
 
+import java.util.Date;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EventStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -27,19 +29,16 @@ import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 
-import java.util.Date;
-import java.util.Optional;
-
-/**
- * Event listener with logging function
- */
+/** Event listener with logging function */
 @Slf4j
-public abstract class LogableEventListener<EventType extends WorkflowEvent> implements EventListener<EventType> {
+public abstract class LogableEventListener<EventType extends WorkflowEvent>
+        implements EventListener<EventType> {
 
     private final EventListener<EventType> eventListener;
     private final WorkflowEventLogEntityMapper eventLogMapper;
 
-    public LogableEventListener(EventListener<EventType> eventListener, WorkflowEventLogEntityMapper eventLogMapper) {
+    public LogableEventListener(
+            EventListener<EventType> eventListener, WorkflowEventLogEntityMapper eventLogMapper) {
         this.eventListener = eventListener;
         this.eventLogMapper = eventLogMapper;
     }
@@ -76,10 +75,14 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         try {
             result = eventListener.listen(context);
             logEntity.setStatus(
-                    result.isSuccess() ? EventStatus.SUCCESS.getStatus() : EventStatus.FAILED.getStatus());
+                    result.isSuccess()
+                            ? EventStatus.SUCCESS.getStatus()
+                            : EventStatus.FAILED.getStatus());
             logEntity.setRemark(result.getRemark());
             logEntity.setException(
-                    Optional.ofNullable(result.getException()).map(Exception::getMessage).orElse(null));
+                    Optional.ofNullable(result.getException())
+                            .map(Exception::getMessage)
+                            .orElse(null));
         } catch (Exception e) {
             logEntity.setStatus(EventStatus.FAILED.getStatus());
             logEntity.setException(e.getMessage());
@@ -92,9 +95,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         return result;
     }
 
-    /**
-     * Build event log.
-     */
+    /** Build event log. */
     protected WorkflowEventLogEntity buildEventLog(WorkflowContext context) {
         WorkflowProcessEntity workflowProcessEntity = context.getProcessEntity();
         Element currentElement = context.getCurrentElement();
@@ -117,5 +118,4 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
 
         return logEntity;
     }
-
 }

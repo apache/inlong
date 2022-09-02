@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc;
 
 import java.lang.reflect.Proxy;
@@ -40,48 +37,34 @@ import org.apache.inlong.tubemq.corerpc.server.ServiceRpcServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Tube Rpc Service Factory used by all tube service process
- */
+/** Tube Rpc Service Factory used by all tube service process */
 public class RpcServiceFactory {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(RpcServiceFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(RpcServiceFactory.class);
     private static final int DEFAULT_IDLE_TIME = 10 * 60 * 1000;
     private static final AtomicInteger threadIdGen = new AtomicInteger(0);
     private final ClientFactory clientFactory;
-    private final ConcurrentHashMap<Integer, ServiceRpcServer> servers =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, ServiceRpcServer> servers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ServiceHolder> servicesCache =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* addr */, RemoteConErrStats> remoteAddrMap =
+    private final ConcurrentHashMap<String /* addr */, RemoteConErrStats> remoteAddrMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* addr */, Long> forbiddenAddrMap =
+    private final ConcurrentHashMap<String /* addr */, Long> forbiddenAddrMap =
             new ConcurrentHashMap<>();
     private final ConnectionManager connectionManager;
-    private final ConcurrentHashMap<String, ConnectionNode> brokerQueue =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Long> updateTime =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ConnectionNode> brokerQueue = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> updateTime = new ConcurrentHashMap<>();
     // Temporary invalid broker map
-    private final ConcurrentHashMap<Integer, Long> brokerUnavailableMap =
-            new ConcurrentHashMap<>();
-    private long unAvailableFbdDurationMs =
-        RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
+    private final ConcurrentHashMap<Integer, Long> brokerUnavailableMap = new ConcurrentHashMap<>();
+    private long unAvailableFbdDurationMs = RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
     private final AtomicLong lastLogPrintTime = new AtomicLong(0);
     private final AtomicLong lastCheckTime = new AtomicLong(0);
-    private long linkStatsDurationMs =
-            RpcConstants.CFG_LQ_STATS_DURATION_MS;
-    private long linkStatsForbiddenDurMs =
-            RpcConstants.CFG_LQ_FORBIDDEN_DURATION_MS;
-    private int linkStatsMaxAllowedFailCount =
-            RpcConstants.CFG_LQ_MAX_ALLOWED_FAIL_COUNT;
-    private double linkStatsMaxAllowedForbiddenRate =
-            RpcConstants.CFG_LQ_MAX_FAIL_FORBIDDEN_RATE;
+    private long linkStatsDurationMs = RpcConstants.CFG_LQ_STATS_DURATION_MS;
+    private long linkStatsForbiddenDurMs = RpcConstants.CFG_LQ_FORBIDDEN_DURATION_MS;
+    private int linkStatsMaxAllowedFailCount = RpcConstants.CFG_LQ_MAX_ALLOWED_FAIL_COUNT;
+    private double linkStatsMaxAllowedForbiddenRate = RpcConstants.CFG_LQ_MAX_FAIL_FORBIDDEN_RATE;
 
-    /**
-     * initial an empty server factory
-     */
+    /** initial an empty server factory */
     public RpcServiceFactory() {
         this.clientFactory = null;
         this.connectionManager = null;
@@ -90,7 +73,7 @@ public class RpcServiceFactory {
     /**
      * initial with an tube clientFactory
      *
-     * @param clientFactory    the client factory
+     * @param clientFactory the client factory
      */
     public RpcServiceFactory(final ClientFactory clientFactory) {
         this.clientFactory = clientFactory;
@@ -100,38 +83,44 @@ public class RpcServiceFactory {
     /**
      * initial with an tube clientFactory and rpc config
      *
-     * @param clientFactory  the client factory
-     * @param config         the configure information
+     * @param clientFactory the client factory
+     * @param config the configure information
      */
     public RpcServiceFactory(final ClientFactory clientFactory, final RpcConfig config) {
         this.clientFactory = clientFactory;
         this.linkStatsDurationMs =
-                config.getLong(RpcConstants.RPC_LQ_STATS_DURATION,
-                        RpcConstants.CFG_LQ_STATS_DURATION_MS);
+                config.getLong(
+                        RpcConstants.RPC_LQ_STATS_DURATION, RpcConstants.CFG_LQ_STATS_DURATION_MS);
         this.linkStatsForbiddenDurMs =
-                config.getLong(RpcConstants.RPC_LQ_FORBIDDEN_DURATION,
+                config.getLong(
+                        RpcConstants.RPC_LQ_FORBIDDEN_DURATION,
                         RpcConstants.CFG_LQ_FORBIDDEN_DURATION_MS);
         this.linkStatsMaxAllowedFailCount =
-                config.getInt(RpcConstants.RPC_LQ_MAX_ALLOWED_FAIL_COUNT,
+                config.getInt(
+                        RpcConstants.RPC_LQ_MAX_ALLOWED_FAIL_COUNT,
                         RpcConstants.CFG_LQ_MAX_ALLOWED_FAIL_COUNT);
         this.linkStatsMaxAllowedForbiddenRate =
-                config.getDouble(RpcConstants.RPC_LQ_MAX_FAIL_FORBIDDEN_RATE,
+                config.getDouble(
+                        RpcConstants.RPC_LQ_MAX_FAIL_FORBIDDEN_RATE,
                         RpcConstants.CFG_LQ_MAX_FAIL_FORBIDDEN_RATE);
         this.unAvailableFbdDurationMs =
-            config.getLong(RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
-                RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS);
+                config.getLong(
+                        RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
+                        RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS);
         connectionManager = new ConnectionManager();
-        connectionManager.setName(new StringBuilder(256)
-                .append("rpcFactory-Thread-")
-                .append(threadIdGen.getAndIncrement()).toString());
+        connectionManager.setName(
+                new StringBuilder(256)
+                        .append("rpcFactory-Thread-")
+                        .append(threadIdGen.getAndIncrement())
+                        .toString());
         connectionManager.start();
     }
 
     /**
      * check if the remote address is forbidden or not
      *
-     * @param remoteAddr   the remote address
-     * @return             whether is forbidden
+     * @param remoteAddr the remote address
+     * @return whether is forbidden
      */
     public boolean isRemoteAddrForbidden(String remoteAddr) {
         Long forbiddenTime = forbiddenAddrMap.get(remoteAddr);
@@ -149,7 +138,7 @@ public class RpcServiceFactory {
     /**
      * get all Link abnormal Forbidden Address
      *
-     * @return  the forbidden address map
+     * @return the forbidden address map
      */
     public ConcurrentHashMap<String, Long> getForbiddenAddrMap() {
         return forbiddenAddrMap;
@@ -158,7 +147,7 @@ public class RpcServiceFactory {
     /**
      * get all service abnormal Forbidden brokerIds
      *
-     * @return   the unavailable broker map
+     * @return the unavailable broker map
      */
     public ConcurrentHashMap<Integer, Long> getUnavailableBrokerMap() {
         return brokerUnavailableMap;
@@ -167,12 +156,11 @@ public class RpcServiceFactory {
     /**
      * Remove the remote address from forbidden address map
      *
-     * @param remoteAddr   the remote address need to removed
+     * @param remoteAddr the remote address need to removed
      */
     public void resetRmtAddrErrCount(String remoteAddr) {
         forbiddenAddrMap.remove(remoteAddr);
-        RemoteConErrStats rmtConErrStats =
-                remoteAddrMap.get(remoteAddr);
+        RemoteConErrStats rmtConErrStats = remoteAddrMap.get(remoteAddr);
         if (rmtConErrStats == null) {
             RemoteConErrStats newErrStatistic =
                     new RemoteConErrStats(linkStatsDurationMs, linkStatsMaxAllowedFailCount);
@@ -187,7 +175,7 @@ public class RpcServiceFactory {
     /**
      * Accumulate a error count for the remote address
      *
-     * @param remoteAddr    the remote address
+     * @param remoteAddr the remote address
      */
     public void addRmtAddrErrCount(String remoteAddr) {
         RemoteConErrStats rmtConErrStats = remoteAddrMap.get(remoteAddr);
@@ -239,21 +227,19 @@ public class RpcServiceFactory {
                 isAdded = true;
             }
             long curLastPrintTime = lastLogPrintTime.get();
-            if ((isAdded)
-                    && (System.currentTimeMillis() - curLastPrintTime > 120000)) {
+            if ((isAdded) && (System.currentTimeMillis() - curLastPrintTime > 120000)) {
                 if (lastLogPrintTime.compareAndSet(curLastPrintTime, System.currentTimeMillis())) {
-                    logger.info(new StringBuilder(512)
-                            .append("[Remote Address] forbidden list : ")
-                            .append(forbiddenAddrMap.toString()).toString());
+                    logger.info(
+                            new StringBuilder(512)
+                                    .append("[Remote Address] forbidden list : ")
+                                    .append(forbiddenAddrMap.toString())
+                                    .toString());
                 }
             }
         }
     }
 
-    /**
-     * Remove expired records
-     * All forbidden records will be removed after the specified time
-     */
+    /** Remove expired records All forbidden records will be removed after the specified time */
     public void rmvAllExpiredRecords() {
         long curTime = System.currentTimeMillis();
         Set<String> expiredAddrs = new HashSet<>();
@@ -267,8 +253,7 @@ public class RpcServiceFactory {
         }
         if (!expiredAddrs.isEmpty()) {
             for (String tmpAddr : expiredAddrs) {
-                RemoteConErrStats rmtConErrStats =
-                        remoteAddrMap.get(tmpAddr);
+                RemoteConErrStats rmtConErrStats = remoteAddrMap.get(tmpAddr);
                 if (rmtConErrStats == null) {
                     continue;
                 }
@@ -305,8 +290,7 @@ public class RpcServiceFactory {
     }
 
     /**
-     * Remove unavailable records
-     * All unavailable records will be removed after the specified time
+     * Remove unavailable records All unavailable records will be removed after the specified time
      */
     public void rmvExpiredUnavailableBrokers() {
         long curTime = System.currentTimeMillis();
@@ -335,14 +319,12 @@ public class RpcServiceFactory {
     /**
      * Get broker's service
      *
-     * @param clazz        the class object
-     * @param brokerInfo   the broker object
-     * @param config       the configure
-     * @return             the service instance for the broker
+     * @param clazz the class object
+     * @param brokerInfo the broker object
+     * @param config the configure
+     * @return the service instance for the broker
      */
-    public synchronized <T> T getService(Class<T> clazz,
-                                         BrokerInfo brokerInfo,
-                                         RpcConfig config) {
+    public synchronized <T> T getService(Class<T> clazz, BrokerInfo brokerInfo, RpcConfig config) {
         String serviceKey = getServiceKey(brokerInfo.getBrokerAddr(), clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -350,10 +332,16 @@ public class RpcServiceFactory {
             return (T) h.getService();
         }
         RpcServiceInvoker invoker =
-                new RpcServiceInvoker(clientFactory, clazz, config,
-                        new NodeAddrInfo(brokerInfo.getHost(), brokerInfo.getPort(), brokerInfo.getBrokerAddr()));
+                new RpcServiceInvoker(
+                        clientFactory,
+                        clazz,
+                        config,
+                        new NodeAddrInfo(
+                                brokerInfo.getHost(),
+                                brokerInfo.getPort(),
+                                brokerInfo.getBrokerAddr()));
         Object service =
-                Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, invoker);
+                Proxy.newProxyInstance(clazz.getClassLoader(), new Class[] {clazz}, invoker);
         servicesCache.put(serviceKey, new ServiceHolder(service, invoker));
         updateTime.put(serviceKey, System.currentTimeMillis());
         return (T) service;
@@ -368,9 +356,7 @@ public class RpcServiceFactory {
         return servicesCache.isEmpty();
     }
 
-    public <T> T getOrCreateService(Class<T> clazz,
-                                    BrokerInfo brokerInfo,
-                                    RpcConfig config) {
+    public <T> T getOrCreateService(Class<T> clazz, BrokerInfo brokerInfo, RpcConfig config) {
         String serviceKey = getServiceKey(brokerInfo.getBrokerAddr(), clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -379,18 +365,23 @@ public class RpcServiceFactory {
             if (!isRemoteAddrForbidden(brokerInfo.getBrokerAddr())) {
                 ConnectionNode curNode = brokerQueue.get(serviceKey);
                 if (curNode == null) {
-                    brokerQueue.putIfAbsent(serviceKey,
-                            new ConnectionNode(clazz, new NodeAddrInfo(brokerInfo.getHost(),
-                                    brokerInfo.getPort(), brokerInfo.getBrokerAddr()), config));
+                    brokerQueue.putIfAbsent(
+                            serviceKey,
+                            new ConnectionNode(
+                                    clazz,
+                                    new NodeAddrInfo(
+                                            brokerInfo.getHost(),
+                                            brokerInfo.getPort(),
+                                            brokerInfo.getBrokerAddr()),
+                                    config));
                 }
             }
             return null;
         }
     }
 
-    public synchronized <T> T getFailoverService(Class<T> clazz,
-                                                 MasterInfo masterInfo,
-                                                 RpcConfig config) {
+    public synchronized <T> T getFailoverService(
+            Class<T> clazz, MasterInfo masterInfo, RpcConfig config) {
         String serviceKey = getFailoverServiceKey(masterInfo, clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -399,7 +390,7 @@ public class RpcServiceFactory {
         RpcServiceFailoverInvoker invoker =
                 new RpcServiceFailoverInvoker(clientFactory, clazz, config, masterInfo);
         Object service =
-                Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, invoker);
+                Proxy.newProxyInstance(clazz.getClassLoader(), new Class[] {clazz}, invoker);
         servicesCache.put(serviceKey, new ServiceHolder(service, invoker));
         return (T) service;
     }
@@ -416,24 +407,29 @@ public class RpcServiceFactory {
         }
     }
 
-    public synchronized void publishService(Class clazz, Object serviceInstance,
-                                            int listenPort, RpcConfig config) throws Exception {
+    public synchronized void publishService(
+            Class clazz, Object serviceInstance, int listenPort, RpcConfig config)
+            throws Exception {
         publishService(clazz, serviceInstance, listenPort, null, config);
     }
 
     /**
      * start an tube netty server
      *
-     * @param clazz             the class object
-     * @param serviceInstance   the service instance
-     * @param listenPort        the listen port
-     * @param threadPool        the thread pool
-     * @param config            the configure
-     * @throws Exception        the excepition while processing
+     * @param clazz the class object
+     * @param serviceInstance the service instance
+     * @param listenPort the listen port
+     * @param threadPool the thread pool
+     * @param config the configure
+     * @throws Exception the excepition while processing
      */
-    public synchronized void publishService(Class clazz, Object serviceInstance,
-                                            int listenPort, ExecutorService threadPool,
-                                            RpcConfig config) throws Exception {
+    public synchronized void publishService(
+            Class clazz,
+            Object serviceInstance,
+            int listenPort,
+            ExecutorService threadPool,
+            RpcConfig config)
+            throws Exception {
         ServiceRpcServer server = servers.get(listenPort);
         if (server == null) {
             server = new NettyRpcServer(config);
@@ -477,14 +473,19 @@ public class RpcServiceFactory {
     }
 
     private String getServiceKey(String targetAddress, String serviceName) {
-        return new StringBuilder(256).append(serviceName)
-                .append("@").append(targetAddress).toString();
+        return new StringBuilder(256)
+                .append(serviceName)
+                .append("@")
+                .append(targetAddress)
+                .toString();
     }
 
     private String getFailoverServiceKey(MasterInfo masterInfo, String serviceName) {
-        return new StringBuilder(256).append(serviceName)
+        return new StringBuilder(256)
+                .append(serviceName)
                 .append(TokenConstants.GROUP_SEP)
-                .append(masterInfo.getMasterClusterStr()).toString();
+                .append(masterInfo.getMasterClusterStr())
+                .toString();
     }
 
     private static class ServiceHolder<T> implements Shutdownable {
@@ -511,9 +512,7 @@ public class RpcServiceFactory {
         private NodeAddrInfo addressInfo;
         private RpcConfig config;
 
-        public ConnectionNode(Class clazzType,
-                              NodeAddrInfo nodeAddrInfo,
-                              RpcConfig config) {
+        public ConnectionNode(Class clazzType, NodeAddrInfo nodeAddrInfo, RpcConfig config) {
             this.clazzType = clazzType;
             this.addressInfo = nodeAddrInfo;
             this.config = config;
@@ -536,10 +535,7 @@ public class RpcServiceFactory {
         }
     }
 
-    /**
-     * ConnectionManager
-     * Manage and recycle network connection resources
-     */
+    /** ConnectionManager Manage and recycle network connection resources */
     private class ConnectionManager extends Thread {
         boolean isRunning = true;
 
@@ -561,11 +557,16 @@ public class RpcServiceFactory {
                                 continue;
                             }
                             RpcServiceInvoker invoker =
-                                    new RpcServiceInvoker(clientFactory, node.clazzType,
-                                            node.getConfig(), node.getAddressInfo());
+                                    new RpcServiceInvoker(
+                                            clientFactory,
+                                            node.clazzType,
+                                            node.getConfig(),
+                                            node.getAddressInfo());
                             Object service =
-                                    Proxy.newProxyInstance(node.clazzType.getClassLoader(),
-                                            new Class[]{node.clazzType}, invoker);
+                                    Proxy.newProxyInstance(
+                                            node.clazzType.getClassLoader(),
+                                            new Class[] {node.clazzType},
+                                            invoker);
                             try {
                                 invoker.getClientOnce();
                                 resetRmtAddrErrCount(node.getHostAndPortStr());
@@ -576,7 +577,8 @@ public class RpcServiceFactory {
                                 brokerQueue.remove(serviceKey);
                                 continue;
                             }
-                            servicesCache.putIfAbsent(serviceKey, new ServiceHolder(service, invoker));
+                            servicesCache.putIfAbsent(
+                                    serviceKey, new ServiceHolder(service, invoker));
                             updateTime.put(serviceKey, System.currentTimeMillis());
                             brokerQueue.remove(serviceKey);
                         }

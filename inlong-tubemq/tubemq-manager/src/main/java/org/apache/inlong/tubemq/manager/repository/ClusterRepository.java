@@ -40,6 +40,7 @@ public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
 
     /**
      * find clusterEntry by clusterName
+     *
      * @param clusterName
      * @return
      */

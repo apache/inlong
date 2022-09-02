@@ -22,11 +22,8 @@ import java.util.List;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 
-/**
- * The service interface for audit.
- */
+/** The service interface for audit. */
 public interface AuditService {
-
 
     /**
      * Query audit data for list by condition
@@ -35,5 +32,4 @@ public interface AuditService {
      * @return The result of query
      */
     List<AuditVO> listByCondition(AuditRequest request) throws IOException;
-
 }

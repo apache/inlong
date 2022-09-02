@@ -110,6 +110,4 @@ public class CanalJson {
     public void setPkNames(List<String> pkNames) {
         this.pkNames = pkNames;
     }
-
 }
-

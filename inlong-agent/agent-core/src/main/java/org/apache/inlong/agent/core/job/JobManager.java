@@ -17,6 +17,26 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -33,30 +53,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
-
-/**
- * JobManager maintains lots of jobs, and communicate between server and task manager.
- */
+/** JobManager maintains lots of jobs, and communicate between server and task manager. */
 public class JobManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobManager.class);
@@ -87,19 +84,24 @@ public class JobManager extends AbstractDaemon {
         this.jobProfileDb = jobProfileDb;
         this.agentManager = agentManager;
         // job thread pool for running
-        this.runningPool = new ThreadPoolExecutor(
-                0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(),
-                new AgentThreadFactory("job"));
+        this.runningPool =
+                new ThreadPoolExecutor(
+                        0,
+                        Integer.MAX_VALUE,
+                        60L,
+                        TimeUnit.SECONDS,
+                        new SynchronousQueue<>(),
+                        new AgentThreadFactory("job"));
         this.jobs = new ConcurrentHashMap<>();
         this.pendingJobs = new ConcurrentHashMap<>();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        this.monitorInterval = conf
-                .getInt(
-                        AgentConstants.JOB_MONITOR_INTERVAL, AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
+        this.monitorInterval =
+                conf.getInt(
+                        AgentConstants.JOB_MONITOR_INTERVAL,
+                        AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
         this.jobDbCacheTime = conf.getLong(JOB_DB_CACHE_TIME, DEFAULT_JOB_DB_CACHE_TIME);
-        this.jobDbCacheCheckInterval = conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
+        this.jobDbCacheCheckInterval =
+                conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
         this.jobMaxSize = conf.getLong(JOB_NUMBER_LIMIT, DEFAULT_JOB_NUMBER_LIMIT);
 
         this.dimensions = new HashMap<>();
@@ -117,10 +119,12 @@ public class JobManager extends AbstractDaemon {
         try {
             JobWrapper jobWrapper = new JobWrapper(agentManager, job);
             this.runningPool.execute(jobWrapper);
-            JobWrapper jobWrapperRet = jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
+            JobWrapper jobWrapperRet =
+                    jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
             if (jobWrapperRet != null) {
-                LOGGER.warn("{} has been added to running pool, "
-                        + "cannot be added repeatedly", job.getJobInstanceId());
+                LOGGER.warn(
+                        "{} has been added to running pool, " + "cannot be added repeatedly",
+                        job.getJobInstanceId());
             } else {
                 getJobMetric().jobRunningCount.incrementAndGet();
             }
@@ -154,7 +158,9 @@ public class JobManager extends AbstractDaemon {
         if (singleJob) {
             profile.set(JOB_INSTANCE_ID, AgentUtils.getSingleJobId(JOB_ID_PREFIX, jobId));
         } else {
-            profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
+            profile.set(
+                    JOB_INSTANCE_ID,
+                    AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
         }
         LOGGER.info("submit job profile {}", profile.toJsonStr());
         getJobConfDb().storeJobFirstTime(profile);
@@ -164,8 +170,9 @@ public class JobManager extends AbstractDaemon {
 
     private boolean isJobValid(JobProfile profile) {
         if (profile == null || !profile.allRequiredKeyExist()) {
-            LOGGER.error("profile is null or not all required key exists {}", profile == null ? null
-                    : profile.toJsonStr());
+            LOGGER.error(
+                    "profile is null or not all required key exists {}",
+                    profile == null ? null : profile.toJsonStr());
             return false;
         }
         if (isJobOverLimit()) {
@@ -175,9 +182,7 @@ public class JobManager extends AbstractDaemon {
         return true;
     }
 
-    /**
-     * whether job size exceeds maxSize
-     */
+    /** whether job size exceeds maxSize */
     public boolean isJobOverLimit() {
         return jobs.size() >= jobMaxSize;
     }
@@ -199,9 +204,7 @@ public class JobManager extends AbstractDaemon {
         return false;
     }
 
-    /**
-     * start all accepted jobs.
-     */
+    /** start all accepted jobs. */
     private void startJobs() {
         List<JobProfile> profileList = getJobConfDb().getRestartJobs();
         for (JobProfile profile : profileList) {
@@ -210,9 +213,7 @@ public class JobManager extends AbstractDaemon {
         }
     }
 
-    /**
-     * check pending jobs and submit them
-     */
+    /** check pending jobs and submit them */
     public Runnable jobStateCheckThread() {
         return () -> {
             while (isRunnable()) {
@@ -233,9 +234,7 @@ public class JobManager extends AbstractDaemon {
         };
     }
 
-    /**
-     * check local db and delete old tasks.
-     */
+    /** check local db and delete old tasks. */
     public Runnable dbStorageCheckThread() {
         return () -> {
             while (isRunnable()) {
@@ -289,16 +288,12 @@ public class JobManager extends AbstractDaemon {
         return jobProfileDb;
     }
 
-    /**
-     * check job existence using job file name
-     */
+    /** check job existence using job file name */
     public boolean checkJobExsit(String fileName) {
         return jobProfileDb.getJobByFileName(fileName) != null;
     }
 
-    /**
-     * get sql job existence
-     */
+    /** get sql job existence */
     public boolean sqlJobExsit() {
         return jobProfileDb.getJobById(SQL_JOB_ID) != null;
     }

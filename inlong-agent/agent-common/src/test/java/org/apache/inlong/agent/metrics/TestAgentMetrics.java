@@ -17,6 +17,15 @@
 
 package org.apache.inlong.agent.metrics;
 
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricObserver;
@@ -28,20 +37,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
-
 public class TestAgentMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAgentMetrics.class);
-    //metric
+    // metric
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     protected static AgentMetricItemSet metricItemSet;
     protected static Map<String, String> dimensions;
@@ -56,8 +55,11 @@ public class TestAgentMetrics {
         dimensions.put(KEY_PLUGIN_ID, TestAgentMetrics.class.getSimpleName());
         dimensions.put(KEY_INLONG_GROUP_ID, groupId1);
         dimensions.put(KEY_INLONG_STREAM_ID, streamId);
-        String metricName = String.join("-", TestAgentMetrics.class.getSimpleName(),
-                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        String metricName =
+                String.join(
+                        "-",
+                        TestAgentMetrics.class.getSimpleName(),
+                        String.valueOf(METRIC_INDEX.incrementAndGet()));
         metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
         Assert.assertEquals(metricItemSet.getName(), "TestAgentMetrics-1");
@@ -90,7 +92,8 @@ public class TestAgentMetrics {
         newDimension.put(KEY_INLONG_GROUP_ID, groupId2);
         newDimension.put(KEY_INLONG_STREAM_ID, streamId);
         AgentMetricItem newItem = metricItemSet.findMetricItem(newDimension);
-        Assert.assertEquals(newDimension.get(KEY_PLUGIN_ID), TestAgentMetrics.class.getSimpleName());
+        Assert.assertEquals(
+                newDimension.get(KEY_PLUGIN_ID), TestAgentMetrics.class.getSimpleName());
         newItem.taskRunningCount.addAndGet(5);
         newItem.taskRunningCount.decrementAndGet();
         Assert.assertEquals(metricItemSet.findMetricItem(newDimension).taskRunningCount.get(), 4);
@@ -98,8 +101,11 @@ public class TestAgentMetrics {
 
     @Test
     public void testMultipleRegister() {
-        String metricName = String.join("-", TestAgentMetrics.class.getSimpleName(),
-                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        String metricName =
+                String.join(
+                        "-",
+                        TestAgentMetrics.class.getSimpleName(),
+                        String.valueOf(METRIC_INDEX.incrementAndGet()));
         AgentMetricItemSet newItems = new AgentMetricItemSet(metricName);
         MetricRegister.register(newItems);
         Assert.assertEquals(newItems.getName(), "TestAgentMetrics-2");
@@ -109,5 +115,4 @@ public class TestAgentMetrics {
     public void testMetricObserverInit() {
         MetricObserver.init(AgentConfiguration.getAgentConf().getConfigProperties());
     }
-
 }

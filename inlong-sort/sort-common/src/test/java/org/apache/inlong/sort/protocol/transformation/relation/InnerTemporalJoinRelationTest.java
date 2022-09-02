@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -29,28 +33,29 @@ import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-/**
- * Tests for {@link InnerTemporalJoinRelation}
- */
+/** Tests for {@link InnerTemporalJoinRelation} */
 public class InnerTemporalJoinRelationTest extends SerializeBaseTest<InnerTemporalJoinRelation> {
 
     @Override
     public InnerTemporalJoinRelation getTestObject() {
         LinkedHashMap<String, List<FilterFunction>> joinConditionMap = new LinkedHashMap<>();
-        joinConditionMap.put("2", Arrays.asList(
-                new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        EqualOperator.getInstance(), new FieldInfo("name", "2",
-                        new StringFormatInfo())),
-                new SingleValueFilterFunction(AndOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        return new InnerTemporalJoinRelation(Arrays.asList("1", "2", "3"),
-                Collections.singletonList("4"), joinConditionMap, new FieldInfo("ts", new TimestampFormatInfo()));
+        joinConditionMap.put(
+                "2",
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                EqualOperator.getInstance(),
+                                new FieldInfo("name", "2", new StringFormatInfo())),
+                        new SingleValueFilterFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                NotEqualOperator.getInstance(),
+                                new ConstantParam("test"))));
+        return new InnerTemporalJoinRelation(
+                Arrays.asList("1", "2", "3"),
+                Collections.singletonList("4"),
+                joinConditionMap,
+                new FieldInfo("ts", new TimestampFormatInfo()));
     }
 }

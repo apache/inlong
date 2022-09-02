@@ -31,14 +31,12 @@ public class OpsSyncInfo {
     private String defFlowControlInfo = "";
     private String groupFlowControlInfo = "";
 
-    public OpsSyncInfo() {
-
-    }
+    public OpsSyncInfo() {}
 
     /**
      * Update Ops task information
      *
-     * @param opsTaskInfo   the ops task information sent from Master
+     * @param opsTaskInfo the ops task information sent from Master
      */
     public void updOpsSyncInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
         if (opsTaskInfo == null) {
@@ -56,8 +54,7 @@ public class OpsSyncInfo {
             this.qryPriorityId = opsTaskInfo.getQryPriorityId();
             this.updated = true;
         }
-        if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId()
-                && opsTaskInfo.getCsmFrmMaxOffsetCtrlId() >= 0) {
+        if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId() && opsTaskInfo.getCsmFrmMaxOffsetCtrlId() >= 0) {
             this.csmFrmMaxOffsetCtrlId = opsTaskInfo.getCsmFrmMaxOffsetCtrlId();
             this.updated = true;
         }

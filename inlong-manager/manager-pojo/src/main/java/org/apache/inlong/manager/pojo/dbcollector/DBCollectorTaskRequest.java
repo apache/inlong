@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * db collector operation
- */
+/** db collector operation */
 @Data
 @ApiModel("db collector request")
 public class DBCollectorTaskRequest {
@@ -33,5 +31,4 @@ public class DBCollectorTaskRequest {
 
     @ApiModelProperty(value = "md5")
     private String md5;
-
 }

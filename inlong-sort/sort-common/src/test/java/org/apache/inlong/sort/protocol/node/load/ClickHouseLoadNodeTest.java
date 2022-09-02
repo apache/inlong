@@ -18,25 +18,26 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-import java.util.Arrays;
-
-/**
- * Test for {@link ClickHouseLoadNode} Serialization/Deserialization.
- */
+/** Test for {@link ClickHouseLoadNode} Serialization/Deserialization. */
 public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
     @Override
     public Node getTestObject() {
 
-        return new ClickHouseLoadNode("2", "test_clickhouse",
+        return new ClickHouseLoadNode(
+                "2",
+                "test_clickhouse",
                 Arrays.asList(new FieldInfo("id", new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
-                        new FieldInfo("id", new StringFormatInfo()))),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new StringFormatInfo()),
+                                new FieldInfo("id", new StringFormatInfo()))),
                 null,
                 null,
                 1,
@@ -45,7 +46,6 @@ public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
                 "jdbc:clickhouse://localhost:8023/default",
                 "root",
                 "root",
-                ""
-        );
+                "");
     }
 }

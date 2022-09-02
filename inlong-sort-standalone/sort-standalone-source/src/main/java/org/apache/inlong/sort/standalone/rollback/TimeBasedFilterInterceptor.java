@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.standalone.rollback;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -26,18 +32,11 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
- * Interceptor that filters events selectively based on a configured time interval.
- * Usually, it's used to roll back data in a certain time interval.
- * It supports config either one of start, stop time or both of them.
- * Multiple TimeBasedFilterInterceptor can be chained together to create more complex time intervals.
+ * Interceptor that filters events selectively based on a configured time interval. Usually, it's
+ * used to roll back data in a certain time interval. It supports config either one of start, stop
+ * time or both of them. Multiple TimeBasedFilterInterceptor can be chained together to create more
+ * complex time intervals.
  */
 public class TimeBasedFilterInterceptor implements Interceptor {
 
@@ -63,8 +62,10 @@ public class TimeBasedFilterInterceptor implements Interceptor {
             ProfileEvent profile = (ProfileEvent) event;
             logTime = profile.getRawLogTime();
         } else {
-            logTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                    System.currentTimeMillis());
+            logTime =
+                    NumberUtils.toLong(
+                            event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                            System.currentTimeMillis());
         }
 
         if (logTime > stopTime || logTime < startTime) {
@@ -86,13 +87,11 @@ public class TimeBasedFilterInterceptor implements Interceptor {
         // no-op
     }
 
-    /**
-     * Builder of {@link TimeBasedFilterInterceptor}.
-     * Should be configured before build called.
-     */
-    public static class Builder implements Interceptor.Builder  {
+    /** Builder of {@link TimeBasedFilterInterceptor}. Should be configured before build called. */
+    public static class Builder implements Interceptor.Builder {
 
-        private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        private static final SimpleDateFormat DATE_FORMAT =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         private static final String START_TIME = "start-time";
         private static final long DEFAULT_START_TIME = 0L;
         private static final String STOP_TIME = "stop-time";
@@ -108,30 +107,41 @@ public class TimeBasedFilterInterceptor implements Interceptor {
 
         @Override
         public void configure(Context context) {
-             startTime = Optional.ofNullable(context.getString(START_TIME))
-                    .map(s -> {
-                        logger.info("config TimeBasedFilterInterceptor, start time is {}", s);
-                        try {
-                            return DATE_FORMAT.parse(s).getTime();
-                        } catch (ParseException e) {
-                            logger.error("parse start time failed, plz check the format of start time : {}", s);
-                        }
-                        return DEFAULT_START_TIME;
-                    })
-                    .orElse(DEFAULT_START_TIME);
+            startTime =
+                    Optional.ofNullable(context.getString(START_TIME))
+                            .map(
+                                    s -> {
+                                        logger.info(
+                                                "config TimeBasedFilterInterceptor, start time is {}",
+                                                s);
+                                        try {
+                                            return DATE_FORMAT.parse(s).getTime();
+                                        } catch (ParseException e) {
+                                            logger.error(
+                                                    "parse start time failed, plz check the format of start time : {}",
+                                                    s);
+                                        }
+                                        return DEFAULT_START_TIME;
+                                    })
+                            .orElse(DEFAULT_START_TIME);
 
-             stopTime = Optional.ofNullable(context.getString(STOP_TIME))
-                    .map(s -> {
-                        logger.info("config TimeBasedFilterInterceptor, stop time is {}", s);
-                        try {
-                            return DATE_FORMAT.parse(s).getTime();
-                        } catch (ParseException e) {
-                            logger.error("parse stop time failed, plz check the format of stop time : {}", s);
-                        }
-                        return DEFAULT_STOP_TIME;
-                    })
-                    .orElse(DEFAULT_STOP_TIME);
+            stopTime =
+                    Optional.ofNullable(context.getString(STOP_TIME))
+                            .map(
+                                    s -> {
+                                        logger.info(
+                                                "config TimeBasedFilterInterceptor, stop time is {}",
+                                                s);
+                                        try {
+                                            return DATE_FORMAT.parse(s).getTime();
+                                        } catch (ParseException e) {
+                                            logger.error(
+                                                    "parse stop time failed, plz check the format of stop time : {}",
+                                                    s);
+                                        }
+                                        return DEFAULT_STOP_TIME;
+                                    })
+                            .orElse(DEFAULT_STOP_TIME);
         }
     }
-
 }

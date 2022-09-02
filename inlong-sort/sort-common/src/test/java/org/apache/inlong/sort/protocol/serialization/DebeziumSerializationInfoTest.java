@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.serialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link DebeziumSerializationInfo}
- */
+/** Test for {@link DebeziumSerializationInfo} */
 public class DebeziumSerializationInfoTest extends SerializeBaseTest<DebeziumSerializationInfo> {
 
     @Override

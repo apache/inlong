@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -34,26 +36,17 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
-
-/**
- * MySQL sink service test.
- */
+/** MySQL sink service test. */
 public class MySQLSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
     private static final String globalStreamId = "stream1";
     private static final String globalOperator = "admin";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     private Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
@@ -72,9 +65,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -103,9 +94,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
-    /**
-     * Just using in local test.
-     */
+    /** Just using in local test. */
     @Disabled
     public void testDbResource() {
         final String url = "jdbc:mysql://localhost:3306/test01";
@@ -120,8 +109,10 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
             MySQLJdbcUtils.createTable(connection, tableInfo);
             List<MySQLColumnInfo> addColumns = buildAddColumns();
             MySQLJdbcUtils.addColumns(connection, dbName, tableName, addColumns);
-            List<MySQLColumnInfo> columns = MySQLJdbcUtils.getColumns(connection, dbName, tableName);
-            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+            List<MySQLColumnInfo> columns =
+                    MySQLJdbcUtils.getColumns(connection, dbName, tableName);
+            Assertions.assertEquals(
+                    columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
             // print to local consoleS
             e.printStackTrace();
@@ -134,10 +125,10 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<MySQLColumnInfo> buildAddColumns() {
-        List<MySQLColumnInfo> list = Lists.newArrayList(
-                new MySQLColumnInfo("add_column1", "int(12)", ""),
-                new MySQLColumnInfo("add_column2", "varchar(22)", "")
-        );
+        List<MySQLColumnInfo> list =
+                Lists.newArrayList(
+                        new MySQLColumnInfo("add_column1", "int(12)", ""),
+                        new MySQLColumnInfo("add_column2", "varchar(22)", ""));
         return list;
     }
 
@@ -149,13 +140,13 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * @return {@link MySQLTableInfo}
      */
     private MySQLTableInfo bulidTestMySQLTableInfo(final String dbName, final String tableName) {
-        List<MySQLColumnInfo> columnInfoList = Lists.newArrayList(
-                new MySQLColumnInfo("id", "int(12)", "id"),
-                new MySQLColumnInfo("age", "int(12)", "age"),
-                new MySQLColumnInfo("cell", "varchar(20)", "cell"),
-                new MySQLColumnInfo("name", "varchar(40)", "name"),
-                new MySQLColumnInfo("create_time", "datetime", "create time")
-        );
+        List<MySQLColumnInfo> columnInfoList =
+                Lists.newArrayList(
+                        new MySQLColumnInfo("id", "int(12)", "id"),
+                        new MySQLColumnInfo("age", "int(12)", "age"),
+                        new MySQLColumnInfo("cell", "varchar(20)", "cell"),
+                        new MySQLColumnInfo("name", "varchar(40)", "name"),
+                        new MySQLColumnInfo("create_time", "datetime", "create time"));
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();
         tableInfo.setColumns(columnInfoList);
@@ -164,5 +155,4 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
         tableInfo.setPrimaryKey("id");
         return tableInfo;
     }
-
 }

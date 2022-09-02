@@ -23,14 +23,13 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-/**
- * Test for {@link RegexpReplaceFunction}
- */
+/** Test for {@link RegexpReplaceFunction} */
 public class RegexpReplaceFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new RegexpReplaceFunction(new FieldInfo("replace_field", new StringFormatInfo()),
+        return new RegexpReplaceFunction(
+                new FieldInfo("replace_field", new StringFormatInfo()),
                 new StringConstantParam("replace_str"),
                 new StringConstantParam("target_str"));
     }

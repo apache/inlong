@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -53,9 +52,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Inlong manager that maintain the single topic fetchers.
- * It is suitable to the cases that each topic has its own configurations.
- * And each consumer only consume the very one topic.
+ * Inlong manager that maintain the single topic fetchers. It is suitable to the cases that each
+ * topic has its own configurations. And each consumer only consume the very one topic.
  */
 public class InlongSingleTopicManager extends TopicManager {
 
@@ -63,17 +61,22 @@ public class InlongSingleTopicManager extends TopicManager {
 
     private final ConcurrentHashMap<String, TopicFetcher> fetchers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, TubeConsumerCreator> tubeFactories =
+            new ConcurrentHashMap<>();
 
     private final PeriodicTask updateMetaDataWorker;
     private boolean stopAssign = false;
 
     public InlongSingleTopicManager(ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         super(context, queryConsumeConfig);
-        updateMetaDataWorker = new UpdateMetaDataThread(context.getConfig().getUpdateMetaDataIntervalSec(),
-                TimeUnit.SECONDS);
-        String threadName = "sortsdk_single_topic_manager_" + context.getConfig().getSortTaskId()
-                + "_" + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+        updateMetaDataWorker =
+                new UpdateMetaDataThread(
+                        context.getConfig().getUpdateMetaDataIntervalSec(), TimeUnit.SECONDS);
+        String threadName =
+                "sortsdk_single_topic_manager_"
+                        + context.getConfig().getSortTaskId()
+                        + "_"
+                        + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
         updateMetaDataWorker.start(threadName);
     }
 
@@ -161,9 +164,7 @@ public class InlongSingleTopicManager extends TopicManager {
         return fetchers.values();
     }
 
-    /**
-     * offline all inlong topic
-     */
+    /** offline all inlong topic */
     @Override
     public void offlineAllTopicsAndPartitions() {
         String subscribeId = context.getConfig().getSortTaskId();
@@ -243,7 +244,8 @@ public class InlongSingleTopicManager extends TopicManager {
 
     private void closeTubeSessionFactory() {
         for (Map.Entry<String, TubeConsumerCreator> entry : tubeFactories.entrySet()) {
-            MessageSessionFactory tubeMessageSessionFactory = entry.getValue().getMessageSessionFactory();
+            MessageSessionFactory tubeMessageSessionFactory =
+                    entry.getValue().getMessageSessionFactory();
             String key = entry.getKey();
             try {
                 if (tubeMessageSessionFactory != null) {
@@ -262,35 +264,35 @@ public class InlongSingleTopicManager extends TopicManager {
             return;
         }
 
-        List<String> newTopics = assignedTopics.stream()
-                .map(InLongTopic::getTopicKey)
-                .collect(Collectors.toList());
+        List<String> newTopics =
+                assignedTopics.stream().map(InLongTopic::getTopicKey).collect(Collectors.toList());
         LOGGER.debug("assignedTopics name: {}", Arrays.toString(newTopics.toArray()));
 
         List<String> oldTopics = new ArrayList<>(fetchers.keySet());
         LOGGER.debug("oldTopics :{}", Arrays.toString(oldTopics.toArray()));
-        //get need be offline topics
+        // get need be offline topics
         oldTopics.removeAll(newTopics);
         LOGGER.debug("removed oldTopics: {}", Arrays.toString(oldTopics.toArray()));
 
-        //get new topics
+        // get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
         LOGGER.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
-        //offline need be offlined topics
+        // offline need be offlined topics
         offlineRemovedTopic(oldTopics);
-        //online new topics
+        // online new topics
         onlineNewTopic(assignedTopics, newTopics);
         // update remain topics
         updateRemainTopics(assignedTopics);
     }
 
     private void updateRemainTopics(List<InLongTopic> topics) {
-        topics.forEach(topic -> {
-            TopicFetcher fetcher = fetchers.get(topic.getTopicKey());
-            if (!Objects.isNull(fetcher)) {
-                fetcher.updateTopics(Collections.singletonList(topic));
-            }
-        });
+        topics.forEach(
+                topic -> {
+                    TopicFetcher fetcher = fetchers.get(topic.getTopicKey());
+                    if (!Objects.isNull(fetcher)) {
+                        fetcher.updateTopics(Collections.singletonList(topic));
+                    }
+                });
     }
 
     /**
@@ -310,7 +312,8 @@ public class InlongSingleTopicManager extends TopicManager {
             if (context != null && context.getStatManager() != null && topic != null) {
                 context.getStateCounterByTopic(topic).addTopicOfflineTimes(1);
             } else {
-                LOGGER.error("context == null or context.getStatManager() == null or inLongTopic == null :{}",
+                LOGGER.error(
+                        "context == null or context.getStatManager() == null or inLongTopic == null :{}",
                         topic);
             }
         }
@@ -322,7 +325,8 @@ public class InlongSingleTopicManager extends TopicManager {
      * @param newSubscribedInLongTopics List
      * @param reallyNewTopic List
      */
-    private void onlineNewTopic(List<InLongTopic> newSubscribedInLongTopics, List<String> reallyNewTopic) {
+    private void onlineNewTopic(
+            List<InLongTopic> newSubscribedInLongTopics, List<String> reallyNewTopic) {
         for (InLongTopic topic : newSubscribedInLongTopics) {
             if (!reallyNewTopic.contains(topic.getTopicKey())) {
                 LOGGER.debug("!reallyNewTopic.contains(inLongTopic.getTopicKey())");
@@ -359,15 +363,21 @@ public class InlongSingleTopicManager extends TopicManager {
         if (!pulsarClients.containsKey(topic.getInLongCluster().getClusterId())) {
             if (topic.getInLongCluster().getBootstraps() != null) {
                 try {
-                    PulsarClient pulsarClient = PulsarClient.builder()
-                            .serviceUrl(topic.getInLongCluster().getBootstraps())
-                            .authentication(AuthenticationFactory.token(topic.getInLongCluster().getToken()))
-                            .build();
+                    PulsarClient pulsarClient =
+                            PulsarClient.builder()
+                                    .serviceUrl(topic.getInLongCluster().getBootstraps())
+                                    .authentication(
+                                            AuthenticationFactory.token(
+                                                    topic.getInLongCluster().getToken()))
+                                    .build();
                     pulsarClients.put(topic.getInLongCluster().getClusterId(), pulsarClient);
-                    LOGGER.debug("create pulsar client succ {}",
-                            new String[]{topic.getInLongCluster().getClusterId(),
-                                    topic.getInLongCluster().getBootstraps(),
-                                    topic.getInLongCluster().getToken()});
+                    LOGGER.debug(
+                            "create pulsar client succ {}",
+                            new String[] {
+                                topic.getInLongCluster().getClusterId(),
+                                topic.getInLongCluster().getBootstraps(),
+                                topic.getInLongCluster().getToken()
+                            });
                 } catch (Exception e) {
                     LOGGER.error("create pulsar client error {}", topic);
                     LOGGER.error(e.getMessage(), e);
@@ -386,16 +396,22 @@ public class InlongSingleTopicManager extends TopicManager {
         if (!tubeFactories.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
             if (inLongTopic.getInLongCluster().getBootstraps() != null) {
                 try {
-                    //create MessageSessionFactory
-                    TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
-                    MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
-                    TubeConsumerCreator tubeConsumerCreator = new TubeConsumerCreator(messageSessionFactory,
-                            tubeConfig);
-                    tubeFactories.put(inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreator);
-                    LOGGER.debug("create tube client succ {} {} {}",
-                            new String[]{inLongTopic.getInLongCluster().getClusterId(),
-                                    inLongTopic.getInLongCluster().getBootstraps(),
-                                    inLongTopic.getInLongCluster().getToken()});
+                    // create MessageSessionFactory
+                    TubeClientConfig tubeConfig =
+                            new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
+                    MessageSessionFactory messageSessionFactory =
+                            new TubeSingleSessionFactory(tubeConfig);
+                    TubeConsumerCreator tubeConsumerCreator =
+                            new TubeConsumerCreator(messageSessionFactory, tubeConfig);
+                    tubeFactories.put(
+                            inLongTopic.getInLongCluster().getClusterId(), tubeConsumerCreator);
+                    LOGGER.debug(
+                            "create tube client succ {} {} {}",
+                            new String[] {
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getInLongCluster().getBootstraps(),
+                                inLongTopic.getInLongCluster().getToken()
+                            });
                 } catch (Exception e) {
                     LOGGER.error("create tube client error {}", inLongTopic);
                     LOGGER.error(e.getMessage(), e);
@@ -451,13 +467,15 @@ public class InlongSingleTopicManager extends TopicManager {
                 logger.warn("assign is stoped");
                 return;
             }
-            //get sortTask conf from manager
+            // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
                 context.getDefaultStateCounter().addRequestManagerTimes(1);
-                ConsumeConfig consumeConfig = queryConsumeConfig
-                        .queryCurrentConsumeConfig(context.getConfig().getSortTaskId());
-                context.getDefaultStateCounter().addRequestManagerTimeCost(System.currentTimeMillis() - start);
+                ConsumeConfig consumeConfig =
+                        queryConsumeConfig.queryCurrentConsumeConfig(
+                                context.getConfig().getSortTaskId());
+                context.getDefaultStateCounter()
+                        .addRequestManagerTimeCost(System.currentTimeMillis() - start);
 
                 if (consumeConfig != null) {
                     handleUpdatedConsumeConfig(consumeConfig.getTopics());

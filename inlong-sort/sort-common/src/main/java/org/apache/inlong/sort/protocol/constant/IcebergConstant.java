@@ -18,30 +18,18 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * Iceberg option constant
- */
+/** Iceberg option constant */
 public class IcebergConstant {
-    /**
-     * Iceberg supported catalog type
-     */
+    /** Iceberg supported catalog type */
     public enum CatalogType {
-        /**
-         * Data stored in hive metastore.
-         */
+        /** Data stored in hive metastore. */
         HIVE,
-        /**
-         * Data stored in hadoop filesystem.
-         */
+        /** Data stored in hadoop filesystem. */
         HADOOP,
-        /**
-         * Data stored in hybris metastore.
-         */
+        /** Data stored in hybris metastore. */
         HYBRIS;
 
-        /**
-         * get catalogType from name
-         */
+        /** get catalogType from name */
         public static CatalogType forName(String name) {
             for (CatalogType value : values()) {
                 if (value.name().equals(name)) {

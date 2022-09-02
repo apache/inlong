@@ -17,20 +17,15 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-/**
- * Interface of the message queue resource operator
- */
+/** Interface of the message queue resource operator */
 public interface QueueResourceOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     boolean accept(String mqType);
 
     /**
@@ -39,8 +34,8 @@ public interface QueueResourceOperator {
      * @param groupInfo inlong group info
      * @param operator operator name
      */
-    default void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
-    }
+    default void createQueueForGroup(
+            @NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {}
 
     /**
      * Delete message queue resource for Inlong Group.
@@ -48,8 +43,7 @@ public interface QueueResourceOperator {
      * @param groupInfo inlong group info
      * @param operator operator name
      */
-    default void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-    }
+    default void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {}
 
     /**
      * Create message queue resource for Inlong Stream.
@@ -58,8 +52,8 @@ public interface QueueResourceOperator {
      * @param streamInfo inlong stream info
      * @param operator operator name
      */
-    default void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-    }
+    default void createQueueForStream(
+            InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {}
 
     /**
      * Delete message queue resource for Inlong Stream.
@@ -68,7 +62,6 @@ public interface QueueResourceOperator {
      * @param streamInfo inlong stream info
      * @param operator operator name
      */
-    default void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-    }
-
+    default void deleteQueueForStream(
+            InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {}
 }

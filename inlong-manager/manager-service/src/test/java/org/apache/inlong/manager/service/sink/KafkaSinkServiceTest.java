@@ -29,23 +29,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Kafka sink service test
- */
+/** Kafka sink service test */
 public class KafkaSinkServiceTest extends ServiceBaseTest {
 
     private static final String bootstrapServers = "127.0.0.1:9092";
     private static final String serializationType = "Json";
     private static final String topicName = "kafka_topic_name";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
         KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
@@ -60,9 +54,7 @@ public class KafkaSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
@@ -90,5 +82,4 @@ public class KafkaSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 }

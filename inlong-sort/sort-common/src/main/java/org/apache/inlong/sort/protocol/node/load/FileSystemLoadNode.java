@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -29,12 +34,6 @@ import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("fileSystemLoad")
@@ -69,7 +68,8 @@ public class FileSystemLoadNode extends LoadNode implements InlongMetric, Serial
     private String serverTimeZone;
 
     @JsonCreator
-    public FileSystemLoadNode(@JsonProperty("id") String id,
+    public FileSystemLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -122,5 +122,4 @@ public class FileSystemLoadNode extends LoadNode implements InlongMetric, Serial
     public String genTableName() {
         return "node_" + super.getId() + "_" + tempTableName;
     }
-
 }

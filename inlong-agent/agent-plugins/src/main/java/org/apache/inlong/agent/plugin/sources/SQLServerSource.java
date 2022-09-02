@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -26,30 +30,24 @@ import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-/**
- * SQLServer SQL source, split SQLServer SQL source job into multi readers
- */
+/** SQLServer SQL source, split SQLServer SQL source job into multi readers */
 public class SQLServerSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
 
     public static final String JOB_DATABASE_SQL = "job.sql.command";
 
-    public SQLServerSource() {
-    }
+    public SQLServerSource() {}
 
     private List<Reader> splitSqlJob(String sqlPattern) {
         final List<Reader> result = new ArrayList<>();
         String[] sqlList = AgentDbUtils.replaceDynamicSeq(sqlPattern);
         if (Objects.nonNull(sqlList)) {
-            Arrays.stream(sqlList).forEach(sql -> {
-                result.add(new SQLServerReader(sql));
-            });
+            Arrays.stream(sqlList)
+                    .forEach(
+                            sql -> {
+                                result.add(new SQLServerReader(sql));
+                            });
         }
         return result;
     }

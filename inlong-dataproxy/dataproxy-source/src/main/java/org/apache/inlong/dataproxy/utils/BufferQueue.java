@@ -1,28 +1,23 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.utils;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * BufferQueue
- */
+/** BufferQueue */
 public class BufferQueue<A> {
 
     private final LinkedBlockingQueue<A> queue;
@@ -33,7 +28,7 @@ public class BufferQueue<A> {
 
     /**
      * Constructor
-     * 
+     *
      * @param maxSizeKb
      */
     public BufferQueue(int maxSizeKb) {
@@ -43,7 +38,7 @@ public class BufferQueue<A> {
 
     /**
      * Constructor
-     * 
+     *
      * @param maxSizeKb
      * @param globalTokens
      */
@@ -52,18 +47,14 @@ public class BufferQueue<A> {
         this.globalTokens = globalTokens;
     }
 
-    /**
-     * pollRecord
-     */
+    /** pollRecord */
     public A pollRecord() {
         A record = queue.poll();
         this.pollCount.getAndIncrement();
         return record;
     }
 
-    /**
-     * offer
-     */
+    /** offer */
     public void offer(A record) {
         if (record == null) {
             return;
@@ -72,45 +63,33 @@ public class BufferQueue<A> {
         this.offerCount.incrementAndGet();
     }
 
-    /**
-     * queue size
-     */
+    /** queue size */
     public int size() {
         return queue.size();
     }
 
-    /**
-     * small change
-     */
+    /** small change */
     public int leftKb() {
         return currentTokens.leftSemaphore();
     }
 
-    /**
-     * availablePermits
-     */
+    /** availablePermits */
     public int availablePermits() {
         return currentTokens.availablePermits();
     }
 
-    /**
-     * maxSizeKb
-     */
+    /** maxSizeKb */
     public int maxSizeKb() {
         return currentTokens.maxSize();
     }
 
-    /**
-     * getIdleRate
-     */
+    /** getIdleRate */
     public double getIdleRate() {
         double remaining = currentTokens.availablePermits();
         return remaining * 100.0 / currentTokens.maxSize();
     }
 
-    /**
-     * tryAcquire
-     */
+    /** tryAcquire */
     public boolean tryAcquire(long sizeInByte) {
         boolean cidResult = currentTokens.tryAcquire(sizeInByte);
         if (!cidResult) {
@@ -127,9 +106,7 @@ public class BufferQueue<A> {
         return false;
     }
 
-    /**
-     * acquire
-     */
+    /** acquire */
     public void acquire(long sizeInByte) {
         currentTokens.acquire(sizeInByte);
         if (this.globalTokens != null) {
@@ -137,9 +114,7 @@ public class BufferQueue<A> {
         }
     }
 
-    /**
-     * release
-     */
+    /** release */
     public void release(long sizeInByte) {
         if (this.globalTokens != null) {
             this.globalTokens.release(sizeInByte);
@@ -149,7 +124,7 @@ public class BufferQueue<A> {
 
     /**
      * get offerCount
-     * 
+     *
      * @return the offerCount
      */
     public long getOfferCount() {
@@ -158,7 +133,7 @@ public class BufferQueue<A> {
 
     /**
      * get pollCount
-     * 
+     *
      * @return the pollCount
      */
     public long getPollCount() {

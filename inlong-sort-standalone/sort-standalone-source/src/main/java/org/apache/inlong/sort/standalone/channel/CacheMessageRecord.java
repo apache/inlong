@@ -1,36 +1,29 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.channel;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.config.holder.AckPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * 
- * CacheMessageRecord
- */
+/** CacheMessageRecord */
 public class CacheMessageRecord {
 
     public static final Logger LOG = LoggerFactory.getLogger(CacheMessageRecord.class);
@@ -43,7 +36,7 @@ public class CacheMessageRecord {
 
     /**
      * Constructor
-     * 
+     *
      * @param msgRecord
      * @param client
      */
@@ -63,6 +56,7 @@ public class CacheMessageRecord {
 
     /**
      * getToken
+     *
      * @return
      */
     public Integer getToken() {
@@ -74,6 +68,7 @@ public class CacheMessageRecord {
 
     /**
      * ackMessage
+     *
      * @param ackToken ackToken
      */
     public void ackMessage(int ackToken) {
@@ -84,9 +79,7 @@ public class CacheMessageRecord {
         this.ackMessageByCount();
     }
 
-    /**
-     * ackMessageByCount
-     */
+    /** ackMessageByCount */
     private void ackMessageByCount() {
         int result = this.ackCount.decrementAndGet();
         if (result == 0 && client != null) {
@@ -100,6 +93,7 @@ public class CacheMessageRecord {
 
     /**
      * ackMessageByToken
+     *
      * @param ackToken ackToken
      */
     private void ackMessageByToken(int ackToken) {

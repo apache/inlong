@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * It represents KV format of InLongMsg(m=5).
- */
+/** It represents KV format of InLongMsg(m=5). */
 public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = 8431516458466278968L;
@@ -33,8 +31,7 @@ public class InLongMsgKvDeserializationInfo extends InLongMsgDeserializationInfo
     public InLongMsgKvDeserializationInfo(
             @JsonProperty("tid") String tid,
             @JsonProperty("entry_delimiter") char entryDelimiter,
-            @JsonProperty("kv_delimiter") char kvDelimiter
-    ) {
+            @JsonProperty("kv_delimiter") char kvDelimiter) {
         super(tid);
         this.entryDelimiter = entryDelimiter;
         this.kvDelimiter = kvDelimiter;

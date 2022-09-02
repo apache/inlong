@@ -33,64 +33,36 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 
-/**
- * The deserializer for the records in InLongMsgCsv format.
- */
+/** The deserializer for the records in InLongMsgCsv format. */
 public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Format information describing the result type.
-     */
-    @Nonnull
-    private final RowFormatInfo rowFormatInfo;
+    /** Format information describing the result type. */
+    @Nonnull private final RowFormatInfo rowFormatInfo;
 
-    /**
-     * The name of the time field.
-     */
-    @Nonnull
-    private final String timeFieldName;
+    /** The name of the time field. */
+    @Nonnull private final String timeFieldName;
 
-    /**
-     * The name of the attributes field.
-     */
-    @Nonnull
-    private final String attributesFieldName;
+    /** The name of the attributes field. */
+    @Nonnull private final String attributesFieldName;
 
-    /**
-     * The charset of the text.
-     */
-    @Nonnull
-    private final String charset;
+    /** The charset of the text. */
+    @Nonnull private final String charset;
 
-    /**
-     * The delimiter between fields.
-     */
-    @Nonnull
-    private final Character delimiter;
+    /** The delimiter between fields. */
+    @Nonnull private final Character delimiter;
 
-    /**
-     * Escape character. Null if escaping is disabled.
-     */
-    @Nullable
-    private final Character escapeChar;
+    /** Escape character. Null if escaping is disabled. */
+    @Nullable private final Character escapeChar;
 
-    /**
-     * Quote character. Null if quoting is disabled.
-     */
-    @Nullable
-    private final Character quoteChar;
+    /** Quote character. Null if quoting is disabled. */
+    @Nullable private final Character quoteChar;
 
-    /**
-     * The literal represented null values, default "".
-     */
-    @Nullable
-    private final String nullLiteral;
+    /** The literal represented null values, default "". */
+    @Nullable private final String nullLiteral;
 
-    /**
-     * True if the head delimiter should be removed.
-     */
+    /** True if the head delimiter should be removed. */
     private final boolean deleteHeadDelimiter;
 
     public InLongMsgCsvFormatDeserializer(
@@ -103,8 +75,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
             boolean deleteHeadDelimiter,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         super(ignoreErrors);
 
         this.rowFormatInfo = rowFormatInfo;
@@ -118,9 +89,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
         this.deleteHeadDelimiter = deleteHeadDelimiter;
     }
 
-    public InLongMsgCsvFormatDeserializer(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+    public InLongMsgCsvFormatDeserializer(@Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 DEFAULT_TIME_FIELD_NAME,
@@ -131,8 +100,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 null,
                 null,
                 InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
-                TableFormatConstants.DEFAULT_IGNORE_ERRORS
-        );
+                TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
@@ -148,13 +116,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
     @Override
     protected InLongMsgBody parseBody(byte[] bytes) {
         return InLongMsgCsvUtils.parseBody(
-                bytes,
-                charset,
-                delimiter,
-                escapeChar,
-                quoteChar,
-                deleteHeadDelimiter
-        );
+                bytes, charset, delimiter, escapeChar, quoteChar, deleteHeadDelimiter);
     }
 
     @Override
@@ -165,8 +127,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 head.getTime(),
                 head.getAttributes(),
                 head.getPredefinedFields(),
-                body.getFields()
-        );
+                body.getFields());
     }
 
     @Override
@@ -185,20 +146,28 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
 
         InLongMsgCsvFormatDeserializer that = (InLongMsgCsvFormatDeserializer) o;
         return deleteHeadDelimiter == that.deleteHeadDelimiter
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && charset.equals(that.charset)
-                       && delimiter.equals(that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && charset.equals(that.charset)
+                && delimiter.equals(that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), rowFormatInfo, timeFieldName,
-                attributesFieldName, charset, delimiter, escapeChar, quoteChar,
-                nullLiteral, deleteHeadDelimiter);
+        return Objects.hash(
+                super.hashCode(),
+                rowFormatInfo,
+                timeFieldName,
+                attributesFieldName,
+                charset,
+                delimiter,
+                escapeChar,
+                quoteChar,
+                nullLiteral,
+                deleteHeadDelimiter);
     }
 }

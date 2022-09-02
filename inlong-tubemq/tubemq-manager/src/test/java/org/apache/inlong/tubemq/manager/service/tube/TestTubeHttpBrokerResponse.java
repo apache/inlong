@@ -29,13 +29,14 @@ public class TestTubeHttpBrokerResponse {
 
     @Test
     public void testJsonStr() {
-        String jsonStr = "{\"code\":0,\"errMsg\":\"OK\",\"data\":"
-                + "[{\"brokerId\":136,\"brokerIp\":\"127.0.0.1\","
-                + "\"brokerPort\":8123,\"manageStatus\":\"online\","
-                + "\"runStatus\":\"notRegister\",\"subStatus\":\"processing_event\","
-                + "\"stepOp\":32,\"isConfChanged\":\"true\",\"isConfLoaded\":\"false\","
-                + "\"isBrokerOnline\":\"false\",\"brokerVersion\":\"-\","
-                + "\"acceptPublish\":\"false\",\"acceptSubscribe\":\"false\"}]}";
+        String jsonStr =
+                "{\"code\":0,\"errMsg\":\"OK\",\"data\":"
+                        + "[{\"brokerId\":136,\"brokerIp\":\"127.0.0.1\","
+                        + "\"brokerPort\":8123,\"manageStatus\":\"online\","
+                        + "\"runStatus\":\"notRegister\",\"subStatus\":\"processing_event\","
+                        + "\"stepOp\":32,\"isConfChanged\":\"true\",\"isConfLoaded\":\"false\","
+                        + "\"isBrokerOnline\":\"false\",\"brokerVersion\":\"-\","
+                        + "\"acceptPublish\":\"false\",\"acceptSubscribe\":\"false\"}]}";
         TubeHttpBrokerInfoList brokerInfoList =
                 gson.fromJson(jsonStr, TubeHttpBrokerInfoList.class);
         Assert.assertEquals(1, brokerInfoList.getData().size());

@@ -23,6 +23,11 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -37,19 +42,9 @@ import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Defines the supported metadata columns for {@link MySqlTableSource}.
- */
+/** Defines the supported metadata columns for {@link MySqlTableSource}. */
 public enum MySqlReadableMetadata {
-    /**
-     * Name of the table that contain the row.
-     */
+    /** Name of the table that contain the row. */
     TABLE_NAME(
             "table_name",
             DataTypes.STRING().notNull(),
@@ -58,13 +53,12 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
+                    return StringData.fromString(
+                            getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
 
-    /**
-     * Name of the database that contain the row.
-     */
+    /** Name of the database that contain the row. */
     DATABASE_NAME(
             "database_name",
             DataTypes.STRING().notNull(),
@@ -73,7 +67,8 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
+                    return StringData.fromString(
+                            getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
                 }
             }),
 
@@ -113,8 +108,10 @@ public enum MySqlReadableMetadata {
                 }
 
                 @Override
-                public Object read(SourceRecord record,
-                                   @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                public Object read(
+                        SourceRecord record,
+                        @Nullable TableChanges.TableChange tableSchema,
+                        RowData rowData) {
                     // construct canal json
                     Struct messageStruct = (Struct) record.value();
                     Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
@@ -132,11 +129,19 @@ public enum MySqlReadableMetadata {
                     List<Map<String, Object>> dataList = new ArrayList<>();
                     dataList.add(field);
 
-                    CanalJson canalJson = CanalJson.builder()
-                            .data(dataList).database(databaseName)
-                            .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                            .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-                            .type(getOpType(record)).build();
+                    CanalJson canalJson =
+                            CanalJson.builder()
+                                    .data(dataList)
+                                    .database(databaseName)
+                                    .sql("")
+                                    .es(opTs)
+                                    .isDdl(false)
+                                    .pkNames(getPkNames(tableSchema))
+                                    .mysqlType(getMysqlType(tableSchema))
+                                    .table(tableName)
+                                    .ts(ts)
+                                    .type(getOpType(record))
+                                    .build();
 
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
@@ -147,9 +152,7 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-    /**
-     * Name of the table that contain the row. .
-     */
+    /** Name of the table that contain the row. . */
     META_TABLE_NAME(
             "meta.table_name",
             DataTypes.STRING().notNull(),
@@ -158,13 +161,12 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
+                    return StringData.fromString(
+                            getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
 
-    /**
-     * Name of the database that contain the row.
-     */
+    /** Name of the database that contain the row. */
     META_DATABASE_NAME(
             "meta.database_name",
             DataTypes.STRING().notNull(),
@@ -173,7 +175,8 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
+                    return StringData.fromString(
+                            getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
                 }
             }),
 
@@ -196,9 +199,7 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-    /**
-     * Operation type, INSERT/UPDATE/DELETE.
-     */
+    /** Operation type, INSERT/UPDATE/DELETE. */
     OP_TYPE(
             "meta.op_type",
             DataTypes.STRING().notNull(),
@@ -211,9 +212,7 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-    /**
-     * Not important, a simple increment counter.
-     */
+    /** Not important, a simple increment counter. */
     BATCH_ID(
             "meta.batch_id",
             DataTypes.BIGINT().nullable(),
@@ -228,9 +227,7 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-    /**
-     * Source does not emit ddl data.
-     */
+    /** Source does not emit ddl data. */
     IS_DDL(
             "meta.is_ddl",
             DataTypes.BOOLEAN().notNull(),
@@ -243,9 +240,7 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-    /**
-     * The update-before data for UPDATE record.
-     */
+    /** The update-before data for UPDATE record. */
     OLD(
             "meta.update_before",
             DataTypes.ARRAY(
@@ -424,10 +419,7 @@ public enum MySqlReadableMetadata {
                         column -> {
                             mysqlType.put(
                                     column.name(),
-                                    String.format(
-                                            "%s(%d)",
-                                            column.typeName(),
-                                            column.length()));
+                                    String.format("%s(%d)", column.typeName(), column.length()));
                         });
         return mysqlType;
     }

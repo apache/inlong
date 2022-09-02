@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.base;
 
-/**
- * Common constants used in various formats.
- */
+/** Common constants used in various formats. */
 public class TableFormatConstants {
 
     public static final String FORMAT_SCHEMA = "format.schema";

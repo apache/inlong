@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSourceApi;
@@ -27,11 +28,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.List;
-
-/**
- * Client for {@link StreamSourceApi}.
- */
+/** Client for {@link StreamSourceApi}. */
 public class StreamSourceClient {
 
     private final StreamSourceApi streamSourceApi;
@@ -40,37 +37,32 @@ public class StreamSourceClient {
         streamSourceApi = ClientUtils.createRetrofit(configuration).create(StreamSourceApi.class);
     }
 
-    /**
-     * Create an inlong stream source.
-     */
+    /** Create an inlong stream source. */
     public Integer createSource(SourceRequest request) {
-        Response<Integer> response = ClientUtils.executeHttpCall(streamSourceApi.createSource(request));
+        Response<Integer> response =
+                ClientUtils.executeHttpCall(streamSourceApi.createSource(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
 
-    /**
-     * List stream sources by the given groupId and streamId.
-     */
+    /** List stream sources by the given groupId and streamId. */
     public List<StreamSource> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
     }
 
-    /**
-     * List stream sources by the specified source type.
-     */
+    /** List stream sources by the specified source type. */
     public List<StreamSource> listSources(String groupId, String streamId, String sourceType) {
-        Response<PageResult<StreamSource>> response = ClientUtils.executeHttpCall(
-                streamSourceApi.listSources(groupId, streamId, sourceType));
+        Response<PageResult<StreamSource>> response =
+                ClientUtils.executeHttpCall(
+                        streamSourceApi.listSources(groupId, streamId, sourceType));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();
     }
 
-    /**
-     * Update the stream source info.
-     */
+    /** Update the stream source info. */
     public Pair<Boolean, String> updateSource(SourceRequest request) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.updateSource(request));
+        Response<Boolean> response =
+                ClientUtils.executeHttpCall(streamSourceApi.updateSource(request));
         if (response.getData() != null) {
             return Pair.of(response.getData(), response.getErrMsg());
         } else {
@@ -78,9 +70,7 @@ public class StreamSourceClient {
         }
     }
 
-    /**
-     * Delete data source information by id.
-     */
+    /** Delete data source information by id. */
     public boolean deleteSource(int id) {
         Preconditions.checkTrue(id > 0, "sourceId is illegal");
         Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.deleteSource(id));

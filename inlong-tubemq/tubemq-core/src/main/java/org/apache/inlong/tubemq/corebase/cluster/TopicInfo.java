@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase.cluster;
 
 import java.io.Serializable;
@@ -33,9 +30,13 @@ public class TopicInfo implements Serializable {
     private boolean acceptPublish;
     private boolean acceptSubscribe;
 
-    public TopicInfo(final BrokerInfo broker, final String topic,
-                     final int partitionNum, final int topicStoreNum,
-                     final boolean acceptPublish, final boolean acceptSubscribe) {
+    public TopicInfo(
+            final BrokerInfo broker,
+            final String topic,
+            final int partitionNum,
+            final int topicStoreNum,
+            final boolean acceptPublish,
+            final boolean acceptSubscribe) {
         this.broker = broker;
         this.topic = topic;
         this.partitionNum = partitionNum;
@@ -84,8 +85,10 @@ public class TopicInfo implements Serializable {
             isChanged = true;
             this.acceptSubscribe = newTopicInfo.acceptSubscribe;
         }
-        return new Tuple2<>(isChanged, (this.partitionNum != newTopicInfo.partitionNum
-                || this.topicStoreNum != newTopicInfo.topicStoreNum));
+        return new Tuple2<>(
+                isChanged,
+                (this.partitionNum != newTopicInfo.partitionNum
+                        || this.topicStoreNum != newTopicInfo.topicStoreNum));
     }
 
     public int getTopicStoreNum() {
@@ -97,11 +100,16 @@ public class TopicInfo implements Serializable {
     }
 
     public StringBuilder toStrBuilderString(final StringBuilder sBuilder) {
-        return sBuilder.append(broker.toString()).append(TokenConstants.SEGMENT_SEP)
-                .append(this.topic).append(TokenConstants.ATTR_SEP)
-                .append(this.partitionNum).append(TokenConstants.ATTR_SEP)
-                .append(this.acceptPublish).append(TokenConstants.ATTR_SEP)
-                .append(this.acceptSubscribe).append(TokenConstants.ATTR_SEP)
+        return sBuilder.append(broker.toString())
+                .append(TokenConstants.SEGMENT_SEP)
+                .append(this.topic)
+                .append(TokenConstants.ATTR_SEP)
+                .append(this.partitionNum)
+                .append(TokenConstants.ATTR_SEP)
+                .append(this.acceptPublish)
+                .append(TokenConstants.ATTR_SEP)
+                .append(this.acceptSubscribe)
+                .append(TokenConstants.ATTR_SEP)
                 .append(this.topicStoreNum);
     }
 
@@ -158,18 +166,33 @@ public class TopicInfo implements Serializable {
 
     @Override
     public TopicInfo clone() {
-        return new TopicInfo(this.broker, this.topic, this.partitionNum,
-                this.topicStoreNum, this.acceptPublish, this.acceptSubscribe);
+        return new TopicInfo(
+                this.broker,
+                this.topic,
+                this.partitionNum,
+                this.topicStoreNum,
+                this.acceptPublish,
+                this.acceptSubscribe);
     }
 
     private void builderTopicStr() {
         StringBuilder sBuilder = new StringBuilder(256);
-        this.simpleTopicInfo = sBuilder.append(broker.getBrokerId()).append(TokenConstants.SEGMENT_SEP)
-                .append(this.topic).append(TokenConstants.ATTR_SEP).append(this.partitionNum)
-                .append(TokenConstants.ATTR_SEP).append(this.topicStoreNum).toString();
+        this.simpleTopicInfo =
+                sBuilder.append(broker.getBrokerId())
+                        .append(TokenConstants.SEGMENT_SEP)
+                        .append(this.topic)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.partitionNum)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.topicStoreNum)
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.simpleValue = sBuilder.append(broker.getBrokerId()).append(TokenConstants.ATTR_SEP)
-                .append(this.partitionNum).append(TokenConstants.ATTR_SEP)
-                .append(this.topicStoreNum).toString();
+        this.simpleValue =
+                sBuilder.append(broker.getBrokerId())
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.partitionNum)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.topicStoreNum)
+                        .toString();
     }
 }

@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface ComponentHeartbeatEntityMapper {
@@ -33,10 +32,11 @@ public interface ComponentHeartbeatEntityMapper {
 
     ComponentHeartbeatEntity selectByPrimaryKey(Integer id);
 
-    ComponentHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance);
+    ComponentHeartbeatEntity selectByKey(
+            @Param("component") String component, @Param("instance") String instance);
 
-    List<ComponentHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
+    List<ComponentHeartbeatEntity> selectByCondition(
+            @Param("request") HeartbeatPageRequest request);
 
     int deleteByPrimaryKey(Integer id);
-
 }

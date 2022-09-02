@@ -17,20 +17,20 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The Debezium format
  *
- * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/debezium">
- *         Debezium Format</a>
+ * @see <a
+ *     href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/debezium">
+ *     Debezium Format</a>
  */
 @JsonTypeName("debeziumJsonFormat")
 @Data
@@ -40,23 +40,32 @@ public class DebeziumJsonFormat implements Format {
 
     @JsonProperty(value = "schemaInclude", defaultValue = "false")
     private Boolean schemaInclude;
+
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
     private Boolean ignoreParseErrors;
+
     @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
     private String timestampFormatStandard;
+
     @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP")
     private String mapNullKeyMode;
+
     @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
     private String mapNullKeyLiteral;
+
     @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
     private Boolean encodeDecimalAsPlainNumber;
 
     @JsonCreator
-    public DebeziumJsonFormat(@JsonProperty(value = "schemaInclude", defaultValue = "false") Boolean schemaInclude,
-            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
-            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
+    public DebeziumJsonFormat(
+            @JsonProperty(value = "schemaInclude", defaultValue = "false") Boolean schemaInclude,
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
+                    Boolean ignoreParseErrors,
+            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
+                    String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
-            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
+            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
+                    String mapNullKeyLiteral,
             @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
                     Boolean encodeDecimalAsPlainNumber) {
         this.schemaInclude = schemaInclude;
@@ -102,7 +111,9 @@ public class DebeziumJsonFormat implements Format {
         options.put("debezium-json.map-null-key.mode", this.mapNullKeyMode);
         options.put("debezium-json.map-null-key.literal", this.mapNullKeyLiteral);
         if (this.encodeDecimalAsPlainNumber != null) {
-            options.put("debezium-json.encode.decimal-as-plain-number", this.encodeDecimalAsPlainNumber.toString());
+            options.put(
+                    "debezium-json.encode.decimal-as-plain-number",
+                    this.encodeDecimalAsPlainNumber.toString());
         }
         return options;
     }

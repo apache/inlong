@@ -36,9 +36,12 @@ public class TestCompletableFuture {
     @Test
     public void testFuture() throws Exception {
         ExecutorService service = Executors.newSingleThreadExecutor();
-        CompletableFuture<?> future = CompletableFuture.runAsync(() -> {
-            LOGGER.info("start run async");
-        }, service);
+        CompletableFuture<?> future =
+                CompletableFuture.runAsync(
+                        () -> {
+                            LOGGER.info("start run async");
+                        },
+                        service);
         future.join();
         service.shutdown();
     }
@@ -47,24 +50,30 @@ public class TestCompletableFuture {
     public void testFutureException() throws Exception {
         ExecutorService service = Executors.newCachedThreadPool();
         List<CompletableFuture<?>> result = new ArrayList<>();
-        result.add(CompletableFuture.runAsync(() -> {
-            try {
-                LOGGER.info("test future1");
-                TimeUnit.SECONDS.sleep(1);
-                throw new RuntimeException("test exception1");
-            } catch (InterruptedException ex) {
-                LOGGER.error("ignore exception {}", ex.getMessage());
-            }
-        }, service));
-        result.add(CompletableFuture.runAsync(() -> {
-            try {
-                LOGGER.info("test future2");
-                TimeUnit.MILLISECONDS.sleep(200);
-                throw new RuntimeException("test exception2");
-            } catch (InterruptedException ex) {
-                LOGGER.error("ignore exception {}", ex.getMessage());
-            }
-        }, service));
+        result.add(
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                LOGGER.info("test future1");
+                                TimeUnit.SECONDS.sleep(1);
+                                throw new RuntimeException("test exception1");
+                            } catch (InterruptedException ex) {
+                                LOGGER.error("ignore exception {}", ex.getMessage());
+                            }
+                        },
+                        service));
+        result.add(
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                LOGGER.info("test future2");
+                                TimeUnit.MILLISECONDS.sleep(200);
+                                throw new RuntimeException("test exception2");
+                            } catch (InterruptedException ex) {
+                                LOGGER.error("ignore exception {}", ex.getMessage());
+                            }
+                        },
+                        service));
         try {
             CompletableFuture.allOf(result.toArray(new CompletableFuture[0])).join();
             Assert.fail("future should fail");
@@ -78,35 +87,47 @@ public class TestCompletableFuture {
     @Test
     public void testFutureComplete() throws Exception {
         ExecutorService service = Executors.newCachedThreadPool();
-        CompletableFuture<?> reader = CompletableFuture.runAsync(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-                throw new RuntimeException("test exception1");
-            } catch (InterruptedException ex) {
-                LOGGER.error("ignore exception {}", ex.getMessage());
-            }
-        }, service);
+        CompletableFuture<?> reader =
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                TimeUnit.SECONDS.sleep(1);
+                                throw new RuntimeException("test exception1");
+                            } catch (InterruptedException ex) {
+                                LOGGER.error("ignore exception {}", ex.getMessage());
+                            }
+                        },
+                        service);
 
-        CompletableFuture<?> writer = CompletableFuture.runAsync(() -> {
-            try {
-                int count = 0;
-                while (count < 10) {
-                    LOGGER.info("test writer");
-                    count += 1;
-                    TimeUnit.MILLISECONDS.sleep(200);
-                }
+        CompletableFuture<?> writer =
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                int count = 0;
+                                while (count < 10) {
+                                    LOGGER.info("test writer");
+                                    count += 1;
+                                    TimeUnit.MILLISECONDS.sleep(200);
+                                }
 
-            } catch (InterruptedException ex) {
-                LOGGER.error("ignore exception {}", ex.getMessage());
-            }
-        }, service);
+                            } catch (InterruptedException ex) {
+                                LOGGER.error("ignore exception {}", ex.getMessage());
+                            }
+                        },
+                        service);
 
-        CompletableFuture.anyOf(reader, writer).exceptionally(ex -> {
-            Assert.assertTrue(ex.getMessage().contains("test exception1"));
-            Arrays.asList(reader, writer).forEach(future -> future.completeExceptionally(
-                    new RuntimeException("all exception")));
-            return null;
-        }).join();
+        CompletableFuture.anyOf(reader, writer)
+                .exceptionally(
+                        ex -> {
+                            Assert.assertTrue(ex.getMessage().contains("test exception1"));
+                            Arrays.asList(reader, writer)
+                                    .forEach(
+                                            future ->
+                                                    future.completeExceptionally(
+                                                            new RuntimeException("all exception")));
+                            return null;
+                        })
+                .join();
         Assert.assertTrue(reader.isCompletedExceptionally());
         Assert.assertTrue(writer.isCompletedExceptionally());
         service.shutdown();

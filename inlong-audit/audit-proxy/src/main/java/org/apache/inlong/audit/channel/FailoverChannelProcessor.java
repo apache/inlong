@@ -40,8 +40,7 @@ import org.apache.inlong.audit.utils.LogCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FailoverChannelProcessor
-        extends ChannelProcessor {
+public class FailoverChannelProcessor extends ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
 
@@ -133,16 +132,18 @@ public class FailoverChannelProcessor
             List<Channel> reqChannels = selector.getRequiredChannels(event);
 
             for (Channel ch : reqChannels) {
-                List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                List<Event> eventQueue =
+                        reqChannelQueue.computeIfAbsent(
+                                ch, k -> new ArrayList<Event>()); // reqChannelQueue
                 eventQueue.add(event);
             }
 
             List<Channel> optChannels = selector.getOptionalChannels(event);
 
             for (Channel ch : optChannels) {
-                List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                List<Event> eventQueue =
+                        optChannelQueue.computeIfAbsent(
+                                ch, k -> new ArrayList<Event>()); // optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -231,8 +232,11 @@ public class FailoverChannelProcessor
 
             } catch (Throwable t) {
                 if (logPrinter.shouldPrint()) {
-                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: {}"
-                            + ",exception = {}", reqChannel.getName(), t);
+                    LOG.error(
+                            "FailoverChannelProcessor Unable to put event on required channel: {}"
+                                    + ",exception = {}",
+                            reqChannel.getName(),
+                            t);
                 }
 
                 success = false;
@@ -271,21 +275,27 @@ public class FailoverChannelProcessor
                             tx.rollback();
                         } catch (Throwable e) {
                             if (logPrinter.shouldPrint()) {
-                                LOG.error("FailoverChannelProcessor Transaction rollback exception",
+                                LOG.error(
+                                        "FailoverChannelProcessor Transaction rollback exception",
                                         e);
                             }
                         }
                     }
                     if (t instanceof Error) {
                         if (logPrinter.shouldPrint()) {
-                            LOG.error("FailoverChannelProcessor Error while writing event to "
-                                    + "optionalChannels: " + optChannel, t);
+                            LOG.error(
+                                    "FailoverChannelProcessor Error while writing event to "
+                                            + "optionalChannels: "
+                                            + optChannel,
+                                    t);
                         }
                         throw (Error) t;
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: "
+                                        + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

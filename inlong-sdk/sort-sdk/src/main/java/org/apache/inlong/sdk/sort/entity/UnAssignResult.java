@@ -35,8 +35,7 @@ public class UnAssignResult {
         this.errorMsg = errorMsg;
     }
 
-    public UnAssignResult(boolean succ, long costTime, String errorMsg,
-            long lastCommitOffset) {
+    public UnAssignResult(boolean succ, long costTime, String errorMsg, long lastCommitOffset) {
         this.succ = succ;
         this.costTime = costTime;
         this.errorMsg = errorMsg;
@@ -46,12 +45,16 @@ public class UnAssignResult {
     @Override
     public String toString() {
         return "UnAssignResult ["
-                + "succ=" + succ
-                + ", costTime=" + costTime
-                + ", errorMsg=" + errorMsg
-                + ", lastCommitOffset=" + lastCommitOffset
-                + ", callListenerSucc=" + callListenerSucc
+                + "succ="
+                + succ
+                + ", costTime="
+                + costTime
+                + ", errorMsg="
+                + errorMsg
+                + ", lastCommitOffset="
+                + lastCommitOffset
+                + ", callListenerSucc="
+                + callListenerSucc
                 + "]";
     }
-
 }

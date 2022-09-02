@@ -17,30 +17,29 @@
 
 package org.apache.inlong.manager.service.node;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Factory for {@link DataNodeOperator}.
- */
+/** Factory for {@link DataNodeOperator}. */
 @Service
 public class DataNodeOperatorFactory {
 
-    @Autowired
-    private List<DataNodeOperator> dataNodeOperatorList;
+    @Autowired private List<DataNodeOperator> dataNodeOperatorList;
 
-    /**
-     * Get a cluster operator instance via the given type
-     */
+    /** Get a cluster operator instance via the given type */
     public DataNodeOperator getInstance(String type) {
         return dataNodeOperatorList.stream()
                 .filter(inst -> inst.accept(type))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(
-                        String.format(ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED.getMessage(), type)));
+                .orElseThrow(
+                        () ->
+                                new BusinessException(
+                                        String.format(
+                                                ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED
+                                                        .getMessage(),
+                                                type)));
     }
 }

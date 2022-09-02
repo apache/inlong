@@ -24,7 +24,7 @@ import org.junit.Test;
 public class Elasticsearch7SqlParseTest extends ElasticsearchSqlParseTest {
 
     @Test
-    public void testMysqlToElasticsearch7() throws  Exception {
+    public void testMysqlToElasticsearch7() throws Exception {
         Node outputNode = this.buildElasticsearchLoadNode(7);
         this.testMysqlToElasticsearch(outputNode);
     }

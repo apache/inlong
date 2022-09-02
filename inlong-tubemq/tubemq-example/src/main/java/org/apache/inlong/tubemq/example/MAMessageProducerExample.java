@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.example;
 
 import java.util.HashMap;
@@ -40,15 +37,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This demo shows how to use the multi-connected {@link TubeMultiSessionFactory} in the sample single process.
- * With {@link TubeMultiSessionFactory}, a single process can establish concurrent physical request connections
- * to improve throughput from client to broker.
+ * This demo shows how to use the multi-connected {@link TubeMultiSessionFactory} in the sample
+ * single process. With {@link TubeMultiSessionFactory}, a single process can establish concurrent
+ * physical request connections to improve throughput from client to broker.
  */
 public class MAMessageProducerExample {
-    private static final Logger logger =
-            LoggerFactory.getLogger(MAMessageProducerExample.class);
-    private static final MsgSendReceiveStats msgSendStats =
-            new MsgSendReceiveStats(true);
+    private static final Logger logger = LoggerFactory.getLogger(MAMessageProducerExample.class);
+    private static final MsgSendReceiveStats msgSendStats = new MsgSendReceiveStats(true);
     private static final Map<Integer, Tuple2<MessageSessionFactory, Set<MessageProducer>>>
             sessionFactoryProducerMap = new HashMap<>();
     private static final AtomicLong totalSentCnt = new AtomicLong(0);
@@ -57,15 +52,14 @@ public class MAMessageProducerExample {
     /**
      * Produce messages through multi-session factory instances.
      *
-     * @param args   Startup parameter array, including the following parts:
-     *               The 1st parameter masterServers is the master address(es) to connect to,
-     *                       format is master1_ip:port[,master2_ip:port];
-     *               The 2nd parameter pubTopicAndFilterItems is the topic(s) (and filter condition set) to publish to,
-     *                       format is topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]];
-     *               The 3rd parameter msgCount is the message amount that needs to be sent;
-     *               The 4th parameter pkgSize is the message's body size that needs to be sent;
-     *               The 5th parameter clientCount is the amount of producer;
-     *               The 6th parameter sessionFactoryCnt is the amount of session factory.
+     * @param args Startup parameter array, including the following parts: The 1st parameter
+     *     masterServers is the master address(es) to connect to, format is
+     *     master1_ip:port[,master2_ip:port]; The 2nd parameter pubTopicAndFilterItems is the
+     *     topic(s) (and filter condition set) to publish to, format is
+     *     topic_1[[:filterCond_1.1[;filterCond_1.2]][,topic_2]]; The 3rd parameter msgCount is the
+     *     message amount that needs to be sent; The 4th parameter pkgSize is the message's body
+     *     size that needs to be sent; The 5th parameter clientCount is the amount of producer; The
+     *     6th parameter sessionFactoryCnt is the amount of session factory.
      */
     public static void main(String[] args) throws Throwable {
         // 1. get call parameters
@@ -90,28 +84,28 @@ public class MAMessageProducerExample {
         // 2. build multi-session factory
         TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
         for (int i = 0; i < sessionFactoryCnt; i++) {
-            sessionFactoryProducerMap.put(i,
-                    new Tuple2<>(new TubeMultiSessionFactory(clientConfig), new HashSet<>()));
+            sessionFactoryProducerMap.put(
+                    i, new Tuple2<>(new TubeMultiSessionFactory(clientConfig), new HashSet<>()));
         }
 
         // 3. build multi-thread message sender
         sendExecutorService =
-                Executors.newFixedThreadPool(clientCnt, new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable runnable) {
-                        return new Thread(runnable);
-                    }
-                });
+                Executors.newFixedThreadPool(
+                        clientCnt,
+                        new ThreadFactory() {
+                            @Override
+                            public Thread newThread(Runnable runnable) {
+                                return new Thread(runnable);
+                            }
+                        });
 
         // 4. initial and statistic thread
-        Thread statisticThread =
-                new Thread(msgSendStats, "Sent Statistic Thread");
+        Thread statisticThread = new Thread(msgSendStats, "Sent Statistic Thread");
         statisticThread.start();
 
         // 5. build the content of the message to be sent
         //    include message body, attributes, and time information template
-        final byte[] bodyData =
-                MixedUtils.buildTestData(pkgSize);
+        final byte[] bodyData = MixedUtils.buildTestData(pkgSize);
         List<Tuple2<String, String>> buildTopicFilterTuples =
                 MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
 
@@ -128,8 +122,8 @@ public class MAMessageProducerExample {
             MessageProducer producer = sessionProducerMap.getF0().createProducer();
             producer.publish(topicAndFiltersMap.keySet());
             sessionProducerMap.getF1().add(producer);
-            sendExecutorService.submit(new Sender(indexId,
-                    producer, bodyData, buildTopicFilterTuples, msgCount));
+            sendExecutorService.submit(
+                    new Sender(indexId, producer, bodyData, buildTopicFilterTuples, msgCount));
         }
 
         // 7. wait all tasks finished
@@ -137,8 +131,10 @@ public class MAMessageProducerExample {
             // wait util sent message's count reachs required count
             long needSentCnt = msgCount * clientCnt;
             while (totalSentCnt.get() < needSentCnt) {
-                logger.info("Sending task is running, total = {}, finished = {}",
-                        needSentCnt, totalSentCnt.get());
+                logger.info(
+                        "Sending task is running, total = {}, finished = {}",
+                        needSentCnt,
+                        totalSentCnt.get());
                 Thread.sleep(30000);
             }
         } catch (Throwable e) {
@@ -161,8 +157,12 @@ public class MAMessageProducerExample {
         private final long msgCount;
         private final List<Tuple2<String, String>> topicFilterTuples;
 
-        public Sender(int indexId, MessageProducer producer, byte[] bodyData,
-                      List<Tuple2<String, String>> topicFilterTuples, long msgCount) {
+        public Sender(
+                int indexId,
+                MessageProducer producer,
+                byte[] bodyData,
+                List<Tuple2<String, String>> topicFilterTuples,
+                long msgCount) {
             this.indexId = indexId;
             this.producer = producer;
             this.bodyData = bodyData;
@@ -184,8 +184,10 @@ public class MAMessageProducerExample {
                 // 2 send message
                 try {
                     // 2.1 Send data asynchronously, recommended
-                    producer.sendMessage(MixedUtils.buildMessage(target.getF0(),
-                            target.getF1(), bodyData, sentCount), new DefaultSendCallback());
+                    producer.sendMessage(
+                            MixedUtils.buildMessage(
+                                    target.getF0(), target.getF1(), bodyData, sentCount),
+                            new DefaultSendCallback());
                     // Or
                     // 2.2 Send message synchronous, not recommended
                     // MessageSentResult result = producer.sendMessage(message);

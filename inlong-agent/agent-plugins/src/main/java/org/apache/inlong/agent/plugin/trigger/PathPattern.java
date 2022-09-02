@@ -17,13 +17,6 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
-import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,10 +26,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
+import org.apache.inlong.agent.utils.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * path pattern for file filter.
- */
+/** path pattern for file filter. */
 public class PathPattern {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PathPattern.class);
@@ -61,9 +58,7 @@ public class PathPattern {
         dateFormatRegex = DateFormatRegex.ofRegex(watchDir).withOffset(offset);
     }
 
-    /**
-     * find last existing path by pattern.
-     */
+    /** find last existing path by pattern. */
     private String findRoot(String watchDir) {
         Path currentPath = Paths.get(watchDir);
         if (!Files.exists(currentPath)) {
@@ -78,11 +73,9 @@ public class PathPattern {
         return currentPath.getParent().toString();
     }
 
-    /**
-     * walk all suitable files under directory.
-     */
-    private void walkAllSuitableFiles(File dirPath, final Collection<File> collectResult,
-            int maxNum) throws IOException {
+    /** walk all suitable files under directory. */
+    private void walkAllSuitableFiles(
+            File dirPath, final Collection<File> collectResult, int maxNum) throws IOException {
         if (collectResult.size() > maxNum) {
             LOGGER.warn("max num of files is {}, please check", maxNum);
             return;
@@ -91,33 +84,31 @@ public class PathPattern {
             collectResult.add(dirPath);
         } else if (dirPath.isDirectory()) {
             try (final Stream<Path> pathStream = Files.list(dirPath.toPath())) {
-                pathStream.forEach(path -> {
-                    try {
-                        walkAllSuitableFiles(path.toFile(), collectResult, maxNum);
-                    } catch (IOException ex) {
-                        LOGGER.warn("cannot add {}, please check it", path, ex);
-                    }
-                });
+                pathStream.forEach(
+                        path -> {
+                            try {
+                                walkAllSuitableFiles(path.toFile(), collectResult, maxNum);
+                            } catch (IOException ex) {
+                                LOGGER.warn("cannot add {}, please check it", path, ex);
+                            }
+                        });
             } catch (Exception e) {
                 LOGGER.error("exception caught", e);
             } catch (Throwable t) {
                 ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-
             }
         }
     }
 
-    /**
-     * walk root directory
-     */
-    public void walkAllSuitableFiles(final Collection<File> collectResult,
-            int maxNum) throws IOException {
+    /** walk root directory */
+    public void walkAllSuitableFiles(final Collection<File> collectResult, int maxNum)
+            throws IOException {
         walkAllSuitableFiles(new File(rootDir), collectResult, maxNum);
     }
 
     /**
-     * cleanup local cache, subDirs is only used to filter duplicated directories
-     * in one term watch key check.
+     * cleanup local cache, subDirs is only used to filter duplicated directories in one term watch
+     * key check.
      */
     public void cleanup() {
         subDirs.clear();
@@ -145,16 +136,12 @@ public class PathPattern {
         return matched;
     }
 
-    /**
-     * when a new file is found, update regex since time may change.
-     */
+    /** when a new file is found, update regex since time may change. */
     public void updateDateFormatRegex() {
         dateFormatRegex.setRegexWithCurrentTime(this.watchDir);
     }
 
-    /**
-     * when job is retry job, the time for searching file should be specified.
-     */
+    /** when job is retry job, the time for searching file should be specified. */
     public void updateDateFormatRegex(String time) {
         dateFormatRegex.setRegexWithTime(this.watchDir, time);
     }

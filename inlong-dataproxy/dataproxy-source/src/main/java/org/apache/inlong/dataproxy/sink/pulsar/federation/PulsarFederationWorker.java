@@ -1,25 +1,21 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -31,10 +27,7 @@ import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * PulsarSetWorker
- */
+/** PulsarSetWorker */
 public class PulsarFederationWorker extends Thread {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarFederationWorker.class);
@@ -48,12 +41,13 @@ public class PulsarFederationWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param workerIndex
      * @param context
      */
-    public PulsarFederationWorker(String sinkName, int workerIndex, PulsarFederationSinkContext context) {
+    public PulsarFederationWorker(
+            String sinkName, int workerIndex, PulsarFederationSinkContext context) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;
@@ -64,9 +58,7 @@ public class PulsarFederationWorker extends Thread {
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, sinkName);
     }
 
-    /**
-     * start
-     */
+    /** start */
     @Override
     public void start() {
         this.producerFederation.start();
@@ -74,19 +66,14 @@ public class PulsarFederationWorker extends Thread {
         super.start();
     }
 
-    /**
-     * 
-     * close
-     */
+    /** close */
     public void close() {
         // close all producers
         this.producerFederation.close();
         this.status = LifecycleState.STOP;
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         LOG.info(String.format("start PulsarSetWorker:%s", this.workerName));
@@ -101,13 +88,19 @@ public class PulsarFederationWorker extends Thread {
                 this.fillTopic(currentRecord);
                 // metric
                 DataProxyMetricItem.fillInlongId(currentRecord, dimensions);
-                this.dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                this.dimensions.put(
+                        DataProxyMetricItem.KEY_SINK_DATA_ID,
                         currentRecord.getHeaders().get(Constants.TOPIC));
-                long msgTime = NumberUtils.toLong(currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                        System.currentTimeMillis());
-                long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-                dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-                DataProxyMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
+                long msgTime =
+                        NumberUtils.toLong(
+                                currentRecord.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                                System.currentTimeMillis());
+                long auditFormatTime =
+                        msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+                dimensions.put(
+                        DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+                DataProxyMetricItem metricItem =
+                        this.context.getMetricItemSet().findMetricItem(dimensions);
                 metricItem.sendCount.incrementAndGet();
                 metricItem.sendSize.addAndGet(currentRecord.getBody().length);
                 // send
@@ -121,7 +114,7 @@ public class PulsarFederationWorker extends Thread {
 
     /**
      * fillTopic
-     * 
+     *
      * @param currentRecord
      */
     private void fillTopic(Event currentRecord) {
@@ -135,9 +128,7 @@ public class PulsarFederationWorker extends Thread {
         }
     }
 
-    /**
-     * sleepOneInterval
-     */
+    /** sleepOneInterval */
     private void sleepOneInterval() {
         try {
             Thread.sleep(context.getProcessInterval());

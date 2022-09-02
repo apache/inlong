@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.transform.joiner;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,17 +27,14 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
-import java.util.List;
-
-/**
- * A class to define operations to join two streamNode in one with relation defined.
- */
+/** A class to define operations to join two streamNode in one with relation defined. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder
 public class JoinerDefinition extends TransformDefinition {
 
-    public JoinerDefinition(StreamNode leftNode,
+    public JoinerDefinition(
+            StreamNode leftNode,
             StreamNode rightNode,
             List<StreamField> leftJoinFields,
             List<StreamField> rightJoinFields,
@@ -49,33 +47,25 @@ public class JoinerDefinition extends TransformDefinition {
         this.joinMode = joinMode;
     }
 
-    /**
-     * Left node for join
-     */
+    /** Left node for join */
     private StreamNode leftNode;
 
-    /**
-     * Right node for join
-     */
+    /** Right node for join */
     private StreamNode rightNode;
 
-    /**
-     * Join streamFields from left node
-     */
+    /** Join streamFields from left node */
     private List<StreamField> leftJoinFields;
 
-    /**
-     * Join streamFields from right node
-     */
+    /** Join streamFields from right node */
     private List<StreamField> rightJoinFields;
 
     @JsonFormat
     public enum JoinMode {
-        LEFT_JOIN, RIGHT_JOIN, INNER_JOIN
+        LEFT_JOIN,
+        RIGHT_JOIN,
+        INNER_JOIN
     }
 
-    /**
-     * Join mode for join transform
-     */
+    /** Join mode for join transform */
     private JoinMode joinMode;
 }

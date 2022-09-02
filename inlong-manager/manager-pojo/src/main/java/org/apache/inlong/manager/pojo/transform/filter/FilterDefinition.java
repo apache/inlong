@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.transform.filter;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,24 +26,19 @@ import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
-import java.util.List;
-
 /**
- * A class to define operation to filter stream records by different modes.
- * Rule mode is more recommended than script mode.
+ * A class to define operation to filter stream records by different modes. Rule mode is more
+ * recommended than script mode.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class FilterDefinition extends TransformDefinition {
 
-    /**
-     * Strategy for Filter transform
-     */
+    /** Strategy for Filter transform */
     private FilterStrategy filterStrategy;
-    /**
-     * Mode for Filter transform
-     */
+    /** Mode for Filter transform */
     private FilterMode filterMode;
+
     private List<FilterRule> filterRules;
     private ScriptBase scriptBase;
 
@@ -62,21 +58,21 @@ public class FilterDefinition extends TransformDefinition {
 
     @JsonFormat
     public enum FilterStrategy {
-        RETAIN, REMOVE
+        RETAIN,
+        REMOVE
     }
 
     @JsonFormat
     public enum FilterMode {
-        RULE, SCRIPT
+        RULE,
+        SCRIPT
     }
 
     @Data
     @AllArgsConstructor
     public static class TargetValue {
 
-        /**
-         * If target value is constant, set targetConstant, or set targetField if not;
-         */
+        /** If target value is constant, set targetConstant, or set targetField if not; */
         private boolean constant;
 
         private StreamField targetField;
@@ -85,8 +81,8 @@ public class FilterDefinition extends TransformDefinition {
     }
 
     /**
-     * Filter rule is about relation between sourceField and targetValue.
-     * Such as 'a >= b' or 'a were not null'
+     * Filter rule is about relation between sourceField and targetValue. Such as 'a >= b' or 'a
+     * were not null'
      */
     @Data
     @AllArgsConstructor

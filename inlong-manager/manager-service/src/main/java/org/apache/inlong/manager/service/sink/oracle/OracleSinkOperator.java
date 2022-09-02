@@ -18,36 +18,32 @@
 package org.apache.inlong.manager.service.sink.oracle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkDTO;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Oracle sink operator
- */
+/** Oracle sink operator */
 @Service
 public class OracleSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OracleSinkOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -61,7 +57,8 @@ public class OracleSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
+        Preconditions.checkTrue(
+                this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         OracleSinkRequest sinkRequest = (OracleSinkRequest) request;
         try {
@@ -87,6 +84,4 @@ public class OracleSinkOperator extends AbstractSinkOperator {
         sink.setSinkFieldList(sinkFields);
         return sink;
     }
-
 }
-

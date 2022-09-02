@@ -23,9 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Base heartbeat page request
- */
+/** Base heartbeat page request */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Base heartbeat page request")
@@ -42,5 +40,4 @@ public class HeartbeatPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
-
 }

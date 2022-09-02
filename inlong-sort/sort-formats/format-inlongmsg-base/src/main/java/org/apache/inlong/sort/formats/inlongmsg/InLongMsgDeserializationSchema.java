@@ -20,6 +20,13 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import com.esotericsoftware.minlog.Log;
 import com.google.common.base.Objects;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -28,18 +35,12 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.common.msg.InLongMsg;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class InLongMsgDeserializationSchema implements DeserializationSchema<RowData> {
 
-    /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
-     *  data buffer message */
+    /**
+     * Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged data
+     * buffer message
+     */
     private final DeserializationSchema<RowData> deserializationSchema;
 
     /** {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}. */
@@ -110,7 +111,6 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                 list.stream().forEach(rowdata -> emitRow(head, (GenericRowData) rowdata, out));
             }
         }
-
     }
 
     @Override
@@ -133,7 +133,8 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
         }
         InLongMsgDeserializationSchema that = (InLongMsgDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
-                && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
+                && Objects.equal(
+                        Arrays.stream(metadataConverters).collect(Collectors.toList()),
                         Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
@@ -141,7 +142,8 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
+        return Objects.hashCode(
+                deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
 
     interface MetadataConverter extends Serializable {

@@ -18,23 +18,20 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
-import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
-import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
+import javax.annotation.Nullable;
+import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
+import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
-/**
- * A MySql Source configuration which is used by {@link MySqlSource}.
- */
+/** A MySql Source configuration which is used by {@link MySqlSource}. */
 public class MySqlSourceConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -44,8 +41,7 @@ public class MySqlSourceConfig implements Serializable {
     private final String password;
     private final List<String> databaseList;
     private final List<String> tableList;
-    @Nullable
-    private final ServerIdRange serverIdRange;
+    @Nullable private final ServerIdRange serverIdRange;
     private final StartupOptions startupOptions;
     private final int splitSize;
     private final int splitMetaGroupSize;

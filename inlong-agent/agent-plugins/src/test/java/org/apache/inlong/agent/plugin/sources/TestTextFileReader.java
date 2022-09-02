@@ -17,6 +17,28 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+
+import java.io.BufferedReader;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileCollectType;
@@ -35,31 +57,14 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-
-@PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
-        "org.w3c.*"})
+@PowerMockIgnore({
+    "javax.management.*",
+    "javax.script.*",
+    "com.sun.org.apache.xerces.*",
+    "javax.xml.*",
+    "org.xml.*",
+    "org.w3c.*"
+})
 @PrepareForTest({MetricRegister.class})
 public class TestTextFileReader {
 
@@ -80,8 +85,11 @@ public class TestTextFileReader {
 
     @Test
     public void testStreamClose() throws Exception {
-        Path uri = Paths.get(Objects.requireNonNull(
-                getClass().getClassLoader().getResource("agent.properties")).toURI());
+        Path uri =
+                Paths.get(
+                        Objects.requireNonNull(
+                                        getClass().getClassLoader().getResource("agent.properties"))
+                                .toURI());
         Stream<String> stream = null;
         BufferedReader reader = null;
         try {
@@ -105,8 +113,8 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[2].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(
+                JOB_DIR_FILTER_PATTERN, Paths.get(mainPath, "[2].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -120,22 +128,20 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
-            Assert.assertTrue(message.toString().contains("hello")
-                    || message.toString().contains("world"));
+            Assert.assertTrue(
+                    message.toString().contains("hello") || message.toString().contains("world"));
             LOGGER.info("message is {}", message.toString());
         }
     }
 
-    /**
-     * Custom line end character.
-     */
+    /** Custom line end character. */
     @Test
     public void testLineEnd() throws Exception {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(
+                JOB_DIR_FILTER_PATTERN, Paths.get(mainPath, "[1].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -152,22 +158,21 @@ public class TestTextFileReader {
                 break;
             }
             Assert.assertTrue(
-                    message.toString().equalsIgnoreCase("hello") || message.toString().equalsIgnoreCase("aa world")
+                    message.toString().equalsIgnoreCase("hello")
+                            || message.toString().equalsIgnoreCase("aa world")
                             || message.toString().equalsIgnoreCase("agent"));
             LOGGER.info("message is {}", message.toString());
         }
     }
 
-    /**
-     * increment of file data
-     */
+    /** increment of file data */
     @Test
     public void testIncrementData() throws Exception {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(
+                JOB_DIR_FILTER_PATTERN, Paths.get(mainPath, "[1].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -210,7 +215,6 @@ public class TestTextFileReader {
         fileReaderOperator.init(jobProfile);
 
         Assert.assertEquals("world", new String(fileReaderOperator.read().getBody()));
-
     }
 
     @Test
@@ -226,17 +230,24 @@ public class TestTextFileReader {
         }
         localPath.toFile().createNewFile();
         reader.init(jobProfile);
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-            try {
-                List<String> beforeList = new ArrayList<>();
-                for (int i = 0; i < 1000; i++) {
-                    beforeList.add("hello, this is a new line for testTextSeekReader");
-                }
-                Files.write(localPath, beforeList, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            } catch (Exception ignored) {
-                LOGGER.info("ignored Exception ", ignored);
-            }
-        });
+        CompletableFuture<Void> future =
+                CompletableFuture.runAsync(
+                        () -> {
+                            try {
+                                List<String> beforeList = new ArrayList<>();
+                                for (int i = 0; i < 1000; i++) {
+                                    beforeList.add(
+                                            "hello, this is a new line for testTextSeekReader");
+                                }
+                                Files.write(
+                                        localPath,
+                                        beforeList,
+                                        StandardOpenOption.CREATE,
+                                        StandardOpenOption.APPEND);
+                            } catch (Exception ignored) {
+                                LOGGER.info("ignored Exception ", ignored);
+                            }
+                        });
         TimeUnit.SECONDS.sleep(5);
         int count = 0;
         while (!reader.isFinished() && count < 1000) {

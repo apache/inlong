@@ -22,9 +22,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-/**
- * Data node service layer interface
- */
+/** Data node service layer interface */
 public interface DataNodeService {
 
     /**
@@ -77,5 +75,4 @@ public interface DataNodeService {
      * @return true or false
      */
     Boolean testConnection(DataNodeRequest request);
-
 }

@@ -18,36 +18,32 @@
 package org.apache.inlong.manager.service.sink.greenplum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkDTO;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Greenplum sink operator
- */
+/** Greenplum sink operator */
 @Service
 public class GreenplumSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreenplumSinkOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -61,7 +57,8 @@ public class GreenplumSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
+        Preconditions.checkTrue(
+                this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         GreenplumSinkRequest sinkRequest = (GreenplumSinkRequest) request;
         try {
@@ -87,5 +84,4 @@ public class GreenplumSinkOperator extends AbstractSinkOperator {
         sink.setSinkFieldList(sinkFields);
         return sink;
     }
-
 }

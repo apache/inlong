@@ -1,24 +1,23 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.lang3.ClassUtils;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.loader.ClassResourceCommonPropertiesLoader;
@@ -26,12 +25,7 @@ import org.apache.inlong.dataproxy.config.loader.CommonPropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-/**
- * CommonPropertiesHolder
- */
+/** CommonPropertiesHolder */
 public class CommonPropertiesHolder {
 
     public static final Logger LOG = LoggerFactory.getLogger(CommonPropertiesHolder.class);
@@ -49,9 +43,7 @@ public class CommonPropertiesHolder {
     private static boolean isResponseAfterSave = DEFAULT_RESPONSE_AFTER_SAVE;
     private static long maxResponseTimeout = DEFAULT_MAX_RESPONSE_TIMEOUT_MS;
 
-    /**
-     * init
-     */
+    /** init */
     private static void init() {
         synchronized (KEY_COMMON_PROPERTIES) {
             if (props == null) {
@@ -65,19 +57,25 @@ public class CommonPropertiesHolder {
                         CommonPropertiesLoader loader = (CommonPropertiesLoader) loaderObject;
                         props.putAll(loader.load());
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
-                        auditFormatInterval = NumberUtils
-                                .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
-                        isResponseAfterSave = BooleanUtils
-                                .toBoolean(CommonPropertiesHolder.getString(KEY_RESPONSE_AFTER_SAVE));
-                        maxResponseTimeout = CommonPropertiesHolder.getLong(KEY_MAX_RESPONSE_TIMEOUT_MS,
-                                DEFAULT_MAX_RESPONSE_TIMEOUT_MS);
+                        auditFormatInterval =
+                                NumberUtils.toLong(
+                                        CommonPropertiesHolder.getString("auditFormatInterval"),
+                                        60000L);
+                        isResponseAfterSave =
+                                BooleanUtils.toBoolean(
+                                        CommonPropertiesHolder.getString(KEY_RESPONSE_AFTER_SAVE));
+                        maxResponseTimeout =
+                                CommonPropertiesHolder.getLong(
+                                        KEY_MAX_RESPONSE_TIMEOUT_MS,
+                                        DEFAULT_MAX_RESPONSE_TIMEOUT_MS);
                     }
                 } catch (Throwable t) {
-                    LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
-                            loaderClassName, t.getMessage());
+                    LOG.error(
+                            "Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
+                            loaderClassName,
+                            t.getMessage());
                     LOG.error(t.getMessage(), t);
                 }
-
             }
         }
     }
@@ -147,11 +145,11 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning null if unmapped.
-     * <p>
-     * Note that this method returns an object as opposed to a primitive. The configuration key requested may not be
-     * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
-     * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
-     * </p>
+     *
+     * <p>Note that this method returns an object as opposed to a primitive. The configuration key
+     * requested may not be mapped to a value and by returning the primitive object wrapper we can
+     * return null. If the key does not exist the return value of this method is assigned directly
+     * to a primitive, a {@link NullPointerException} will be thrown.
      *
      * @param key to be found
      * @return value associated with key or null if unmapped
@@ -177,11 +175,11 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning null if unmapped.
-     * <p>
-     * Note that this method returns an object as opposed to a primitive. The configuration key requested may not be
-     * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
-     * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
-     * </p>
+     *
+     * <p>Note that this method returns an object as opposed to a primitive. The configuration key
+     * requested may not be mapped to a value and by returning the primitive object wrapper we can
+     * return null. If the key does not exist the return value of this method is assigned directly
+     * to a primitive, a {@link NullPointerException} will be thrown.
      *
      * @param key to be found
      * @return value associated with key or null if unmapped
@@ -216,5 +214,4 @@ public class CommonPropertiesHolder {
     public static long getMaxResponseTimeout() {
         return maxResponseTimeout;
     }
-
 }

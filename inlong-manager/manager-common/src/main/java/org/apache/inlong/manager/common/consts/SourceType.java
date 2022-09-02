@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.common.consts;
 
-import org.apache.inlong.common.enums.TaskTypeEnum;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 
-/**
- * Constants of source type.
- */
+/** Constants of source type. */
 public class SourceType {
 
     public static final String AUTO_PUSH = "AUTO_PUSH";
@@ -40,22 +37,21 @@ public class SourceType {
     public static final String SQLSERVER = "SQLSERVER";
     public static final String MONGODB = "MONGODB";
 
-    public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP = new HashMap<String, TaskTypeEnum>() {
-        {
-            put(AUTO_PUSH, null);
-            put(TUBEMQ, TaskTypeEnum.TUBEMQ);
-            put(PULSAR, TaskTypeEnum.PULSAR);
-            put(KAFKA, TaskTypeEnum.KAFKA);
+    public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP =
+            new HashMap<String, TaskTypeEnum>() {
+                {
+                    put(AUTO_PUSH, null);
+                    put(TUBEMQ, TaskTypeEnum.TUBEMQ);
+                    put(PULSAR, TaskTypeEnum.PULSAR);
+                    put(KAFKA, TaskTypeEnum.KAFKA);
 
-            put(FILE, TaskTypeEnum.FILE);
-            put(MYSQL_SQL, TaskTypeEnum.SQL);
-            put(MYSQL_BINLOG, TaskTypeEnum.BINLOG);
-            put(POSTGRESQL, TaskTypeEnum.POSTGRES);
-            put(ORACLE, TaskTypeEnum.ORACLE);
-            put(SQLSERVER, TaskTypeEnum.SQLSERVER);
-            put(MONGODB, TaskTypeEnum.MONGODB);
-
-        }
-    };
-
+                    put(FILE, TaskTypeEnum.FILE);
+                    put(MYSQL_SQL, TaskTypeEnum.SQL);
+                    put(MYSQL_BINLOG, TaskTypeEnum.BINLOG);
+                    put(POSTGRESQL, TaskTypeEnum.POSTGRES);
+                    put(ORACLE, TaskTypeEnum.ORACLE);
+                    put(SQLSERVER, TaskTypeEnum.SQLSERVER);
+                    put(MONGODB, TaskTypeEnum.MONGODB);
+                }
+            };
 }

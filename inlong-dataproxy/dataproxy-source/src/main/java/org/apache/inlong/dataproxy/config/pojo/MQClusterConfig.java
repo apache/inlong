@@ -17,12 +17,11 @@
 
 package org.apache.inlong.dataproxy.config.pojo;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flume.Context;
 import org.apache.pulsar.shade.io.netty.util.NettyRuntime;
 import org.apache.pulsar.shade.io.netty.util.internal.SystemPropertyUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MQClusterConfig extends Context {
 
@@ -45,7 +44,8 @@ public class MQClusterConfig extends Context {
     private static final String MAX_PENDING_MESSAGES = "max_pending_messages";
     private static final int DEFAULT_MAX_PENDING_MESSAGES = 10000;
 
-    private static final String MAX_PENDING_MESSAGES_ACROSS_PARTITIONS = "max_pending_messages_across_partitions";
+    private static final String MAX_PENDING_MESSAGES_ACROSS_PARTITIONS =
+            "max_pending_messages_across_partitions";
     private static final int DEFAULT_MAX_PENDING_MESSAGES_ACROSS_PARTITIONS = 500000;
 
     private static final String COMPRESSION_TYPE = "compression_type";
@@ -57,10 +57,12 @@ public class MQClusterConfig extends Context {
     private static final String MAX_BATCHING_BYTES = "max_batching_bytes";
     private static final int DEFAULT_MAX_BATCHING_BYTES = 128 * 1024;
 
-    private static final String MAX_BATCHING_PUBLISH_DELAY_MILLIS = "max_batching_publish_delay_millis";
+    private static final String MAX_BATCHING_PUBLISH_DELAY_MILLIS =
+            "max_batching_publish_delay_millis";
     private static final long DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS = 1L;
 
-    private static final String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = "retry_interval_when_send_error_ms";
+    private static final String RETRY_INTERVAL_WHEN_SEND_ERROR_MILL =
+            "retry_interval_when_send_error_ms";
     private static final long DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL = 30 * 1000L;
 
     private static final String SLA_METRIC_SINK = "sla_metric_sink";
@@ -88,23 +90,27 @@ public class MQClusterConfig extends Context {
     private static final String TUBE_REQUEST_TIMEOUT = "tube_request_timeout";
     private static final long DEFAULT_TUBE_REQUEST_TIMEOUT = 20000L;
 
-    private static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = "link_max_allowed_delayed_msg_count";
+    private static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT =
+            "link_max_allowed_delayed_msg_count";
     private static final long DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = 80000L;
 
     private static final String SESSION_WARN_DELAYED_MSG_COUNT = "session_warn_delayed_msg_count";
     private static final long DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT = 2000000L;
 
-    private static final String SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = "session_max_allowed_delayed_msg_count";
+    private static final String SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT =
+            "session_max_allowed_delayed_msg_count";
     private static final long DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = 4000000L;
 
-    private static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK = "netty_write_buffer_high_water_mark";
+    private static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK =
+            "netty_write_buffer_high_water_mark";
     private static final long DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK = 15 * 1024 * 1024L;
 
     private static final String HEARTBEAT_C2M_PERIOD_MS_MARK = "tube_heartbeat_period_ms";
     private static final long DEFAULT_HEARTBEAT_C2M_PERIOD_MS = 15000L;
 
     private static final String RECOVER_THREAD_COUNT = "recover_thread_count";
-    private static final int DEFAULT_RECOVER_THREAD_COUNT = Runtime.getRuntime().availableProcessors() + 1;
+    private static final int DEFAULT_RECOVER_THREAD_COUNT =
+            Runtime.getRuntime().availableProcessors() + 1;
 
     // log params
     private static final String LOG_TOPIC = "proxy_log_topic";
@@ -130,8 +136,11 @@ public class MQClusterConfig extends Context {
     private static final String DISK_IO_RATE_PER_SEC = "disk_io_rate_per_sec";
     private static final long DEFAULT_DISK_IO_RATE_PER_SEC = 0L;
     private static final String PULSAR_IO_THREADS = "pulsar_io_threads";
-    private static final int DEFAULT_PULSAR_IO_THREADS = Math.max(1, SystemPropertyUtil
-            .getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+    private static final int DEFAULT_PULSAR_IO_THREADS =
+            Math.max(
+                    1,
+                    SystemPropertyUtil.getInt(
+                            "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
     private static final String PULSAR_CONNECTIONS_PRE_BROKER = "connections_pre_broker";
     private static final int DEFAULT_CONNECTIONS_PRE_BROKER = 1;
     private static final String EVENT_QUEUE_SIZE = "event_queue_size";
@@ -147,7 +156,8 @@ public class MQClusterConfig extends Context {
     private Map<String, String> url2token = new HashMap<>();
 
     public long getLinkMaxAllowedDelayedMsgCount() {
-        return getLong(LINK_MAX_ALLOWED_DELAYED_MSG_COUNT, DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        return getLong(
+                LINK_MAX_ALLOWED_DELAYED_MSG_COUNT, DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
     }
 
     public long getSessionWarnDelayedMsgCount() {
@@ -155,11 +165,14 @@ public class MQClusterConfig extends Context {
     }
 
     public long getSessionMaxAllowedDelayedMsgCount() {
-        return getLong(SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT, DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        return getLong(
+                SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
+                DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
     }
 
     public long getNettyWriteBufferHighWaterMark() {
-        return getLong(NETTY_WRITE_BUFFER_HIGH_WATER_MARK, DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
+        return getLong(
+                NETTY_WRITE_BUFFER_HIGH_WATER_MARK, DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
     }
 
     public long getTubeHeartbeatPeriodMs() {
@@ -211,7 +224,8 @@ public class MQClusterConfig extends Context {
     }
 
     public long getMaxBatchingPublishDelayMillis() {
-        return getLong(MAX_BATCHING_PUBLISH_DELAY_MILLIS, DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS);
+        return getLong(
+                MAX_BATCHING_PUBLISH_DELAY_MILLIS, DEFAULT_MAX_BATCHING_PUBLISH_DELAY_MILLIS);
     }
 
     public boolean getEnableBatch() {
@@ -227,7 +241,8 @@ public class MQClusterConfig extends Context {
     }
 
     public int getMaxPendingMessagesAcrossPartitions() {
-        return getInteger(MAX_PENDING_MESSAGES_ACROSS_PARTITIONS,
+        return getInteger(
+                MAX_PENDING_MESSAGES_ACROSS_PARTITIONS,
                 DEFAULT_MAX_PENDING_MESSAGES_ACROSS_PARTITIONS);
     }
 
@@ -240,7 +255,8 @@ public class MQClusterConfig extends Context {
     }
 
     public long getRetryIntervalWhenSendErrorMs() {
-        return getLong(RETRY_INTERVAL_WHEN_SEND_ERROR_MILL, DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
+        return getLong(
+                RETRY_INTERVAL_WHEN_SEND_ERROR_MILL, DEFAULT_RETRY_INTERVAL_WHEN_SEND_ERROR_MILL);
     }
 
     public int getMaxRetryCnt() {

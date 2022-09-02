@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * Elasticsearch sink info
- */
+/** Elasticsearch sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -86,5 +84,4 @@ public class ElasticsearchSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, ElasticsearchSinkRequest::new);
     }
-
 }

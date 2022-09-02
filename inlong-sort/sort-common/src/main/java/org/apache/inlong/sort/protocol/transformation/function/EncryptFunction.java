@@ -32,9 +32,7 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-/**
- * EncryptFunction class is the logic encapsulation of String encryption
- */
+/** EncryptFunction class is the logic encapsulation of String encryption */
 @JsonTypeName("encrypt")
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -44,8 +42,10 @@ public class EncryptFunction implements CascadeFunction, Serializable {
 
     @JsonProperty("field")
     private FieldInfo field;
+
     @JsonProperty("key")
     private StringConstantParam key;
+
     @JsonProperty("encrypt")
     private StringConstantParam encrypt;
 
@@ -57,7 +57,8 @@ public class EncryptFunction implements CascadeFunction, Serializable {
      * @param encrypt encryption algorithm
      */
     @JsonCreator
-    public EncryptFunction(@JsonProperty("field") FieldInfo field,
+    public EncryptFunction(
+            @JsonProperty("field") FieldInfo field,
             @JsonProperty("key") StringConstantParam key,
             @JsonProperty("encrypt") StringConstantParam encrypt) {
         this.field = Preconditions.checkNotNull(field, "field is null");
@@ -77,13 +78,16 @@ public class EncryptFunction implements CascadeFunction, Serializable {
 
     @Override
     public String format() {
-        return String.format("%s(CAST(%s AS STRING), %s, %s)",
+        return String.format(
+                "%s(CAST(%s AS STRING), %s, %s)",
                 getName(), field.format(), key.format(), encrypt.format());
     }
 
     @Override
     public ConstantParam apply(ConstantParam constantParam) {
-        return new ConstantParam(String.format("%s(%s, %s, %s)", getName(),
-                constantParam.format(), key.format(), encrypt.format()));
+        return new ConstantParam(
+                String.format(
+                        "%s(%s, %s, %s)",
+                        getName(), constantParam.format(), key.format(), encrypt.format()));
     }
 }

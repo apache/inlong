@@ -18,8 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.reader;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 
 /** Reader to read split of table, the split is either snapshot split or binlog split. */
 public interface DebeziumReader<T, Split> {

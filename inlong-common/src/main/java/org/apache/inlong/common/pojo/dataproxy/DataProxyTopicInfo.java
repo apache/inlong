@@ -17,29 +17,19 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-/**
- * Topic info for DataProxy, includes the topic name and the inlongGroupId to which it belongs.
- */
+/** Topic info for DataProxy, includes the topic name and the inlongGroupId to which it belongs. */
 public class DataProxyTopicInfo {
 
-    /**
-     * The topic name that needs to send data
-     */
+    /** The topic name that needs to send data */
     private String topic;
 
-    /**
-     * The inlongGroupId to which the topic belongs
-     */
+    /** The inlongGroupId to which the topic belongs */
     private String inlongGroupId;
 
-    /**
-     * The data format, will deprecate in the future
-     */
-    @Deprecated
-    private String m;
+    /** The data format, will deprecate in the future */
+    @Deprecated private String m;
 
-    public DataProxyTopicInfo() {
-    }
+    public DataProxyTopicInfo() {}
 
     public DataProxyTopicInfo(String topic, String inlongGroupId) {
         this(topic, inlongGroupId, null);
@@ -53,9 +43,15 @@ public class DataProxyTopicInfo {
 
     @Override
     public String toString() {
-        return "DataProxyTopicInfo{topic='" + topic + '\''
-                + ", inlongGroupId='" + inlongGroupId + '\''
-                + ", m='" + m + '\''
+        return "DataProxyTopicInfo{topic='"
+                + topic
+                + '\''
+                + ", inlongGroupId='"
+                + inlongGroupId
+                + '\''
+                + ", m='"
+                + m
+                + '\''
                 + '}';
     }
 
@@ -82,5 +78,4 @@ public class DataProxyTopicInfo {
     public void setM(String m) {
         this.m = m;
     }
-
 }

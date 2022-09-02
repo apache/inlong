@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.tools.cli;
 
 import java.util.ArrayList;
@@ -49,13 +46,10 @@ import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class is use to process CLI Consumer process for script #{bin/tubemq-consumer-test.sh}.
- */
+/** This class is use to process CLI Consumer process for script #{bin/tubemq-consumer-test.sh}. */
 public class CliConsumer extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliConsumer.class);
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
     private static final ConcurrentHashMap<String, AtomicLong> TOPIC_COUNT_MAP =
@@ -68,14 +62,12 @@ public class CliConsumer extends CliAbstractBase {
     // cli parameters
     private String masterServers;
     private String groupName = "test_consume";
-    private ConsumePosition consumePos =
-            ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
+    private ConsumePosition consumePos = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
     private long msgCount = TBaseConstants.META_VALUE_UNDEFINED;
     private long rpcTimeoutMs = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean reuseConn = false;
     private int clientCount = 1;
-    private int fetchThreadCnt =
-            Runtime.getRuntime().availableProcessors();
+    private int fetchThreadCnt = Runtime.getRuntime().availableProcessors();
     private long printIntervalMs = 5000;
     private boolean isPushConsume = false;
 
@@ -86,9 +78,7 @@ public class CliConsumer extends CliAbstractBase {
         initCommandOptions();
     }
 
-    /**
-     * Init command options
-     */
+    /** Init command options */
     @Override
     protected void initCommandOptions() {
         // add the cli required parameters
@@ -154,9 +144,8 @@ public class CliConsumer extends CliAbstractBase {
         if (TStringUtils.isNotBlank(printIntMsStr)) {
             printIntervalMs = Long.parseLong(printIntMsStr);
             if (printIntervalMs < 5000) {
-                throw new Exception("Invalid "
-                        + CliArgDef.OUTPUTINTERVAL.longOpt
-                        + " parameter value!");
+                throw new Exception(
+                        "Invalid " + CliArgDef.OUTPUTINTERVAL.longOpt + " parameter value!");
             }
         }
         String consumePosStr = cli.getOptionValue(CliArgDef.CONSUMEPOS.longOpt);
@@ -182,21 +171,17 @@ public class CliConsumer extends CliAbstractBase {
         return true;
     }
 
-    /**
-     * Initializes the TubeMQ consumer client(s) with the specified requirements.
-     */
+    /** Initializes the TubeMQ consumer client(s) with the specified requirements. */
     public void initTask() throws Exception {
         // initial consumer configure
-        ConsumerConfig consumerConfig =
-                new ConsumerConfig(masterServers, groupName);
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterServers, groupName);
         consumerConfig.setRpcTimeoutMs(rpcTimeoutMs);
         consumerConfig.setPushFetchThreadCnt(fetchThreadCnt);
         consumerConfig.setConsumePosition(consumePos);
         startTime = System.currentTimeMillis();
         // initial consumer object
         if (isPushConsume) {
-            DefaultMessageListener msgListener =
-                    new DefaultMessageListener();
+            DefaultMessageListener msgListener = new DefaultMessageListener();
             if (reuseConn) {
                 // if reuse connection, need use TubeSingleSessionFactory class
                 MessageSessionFactory msgSessionFactory =
@@ -205,8 +190,7 @@ public class CliConsumer extends CliAbstractBase {
                 for (int i = 0; i < clientCount; i++) {
                     PushMessageConsumer consumer1 =
                             msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -220,8 +204,7 @@ public class CliConsumer extends CliAbstractBase {
                     this.sessionFactoryList.add(msgSessionFactory);
                     PushMessageConsumer consumer1 =
                             msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -237,14 +220,12 @@ public class CliConsumer extends CliAbstractBase {
                 for (int i = 0; i < clientCount; i++) {
                     PullMessageConsumer consumer2 =
                             msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer2.completeSubscribe();
-                    consumerMap.put(consumer2,
-                            new TupleValue(consumer2, msgCount, fetchThreadCnt));
+                    consumerMap.put(consumer2, new TupleValue(consumer2, msgCount, fetchThreadCnt));
                 }
             } else {
                 for (int i = 0; i < clientCount; i++) {
@@ -253,14 +234,12 @@ public class CliConsumer extends CliAbstractBase {
                     this.sessionFactoryList.add(msgSessionFactory);
                     PullMessageConsumer consumer2 =
                             msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
                     consumer2.completeSubscribe();
-                    consumerMap.put(consumer2,
-                            new TupleValue(consumer2, msgCount, fetchThreadCnt));
+                    consumerMap.put(consumer2, new TupleValue(consumer2, msgCount, fetchThreadCnt));
                 }
             }
         }
@@ -296,8 +275,7 @@ public class CliConsumer extends CliAbstractBase {
     // for push consumer callback process
     private static class DefaultMessageListener implements MessageListener {
 
-        public DefaultMessageListener() {
-        }
+        public DefaultMessageListener() {}
 
         @Override
         public void receiveMessages(PeerInfo peerInfo, List<Message> messages) {
@@ -316,8 +294,7 @@ public class CliConsumer extends CliAbstractBase {
         }
 
         @Override
-        public void stop() {
-        }
+        public void stop() {}
     }
 
     // for push consumer process
@@ -341,8 +318,7 @@ public class CliConsumer extends CliAbstractBase {
                         if (messageList != null && !messageList.isEmpty()) {
                             int msgCnt = messageList.size();
                             TOTAL_COUNTER.addAndGet(msgCnt);
-                            AtomicLong accCount =
-                                    TOPIC_COUNT_MAP.get(result.getTopicName());
+                            AtomicLong accCount = TOPIC_COUNT_MAP.get(result.getTopicName());
                             accCount.addAndGet(msgCnt);
                         }
                         messageConsumer.confirmConsume(result.getConfirmContext(), true);
@@ -371,8 +347,9 @@ public class CliConsumer extends CliAbstractBase {
 
     /**
      * Consume messages called by the tubemq-consumer-test.sh script.
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     *
+     * @param args Call parameter array, the relevant parameters are dynamic mode, which is parsed
+     *     by CommandLine.
      */
     public static void main(String[] args) {
         CliConsumer cliConsumer = new CliConsumer();
@@ -386,32 +363,34 @@ public class CliConsumer extends CliAbstractBase {
             while (cliConsumer.msgCount < 0
                     || TOTAL_COUNTER.get() < cliConsumer.msgCount * cliConsumer.clientCount) {
                 ThreadUtils.sleep(cliConsumer.printIntervalMs);
-                System.out.println("Continue, cost time: "
-                        + (System.currentTimeMillis() - cliConsumer.startTime)
-                        + " ms, required count VS received count = "
-                        + (cliConsumer.msgCount * cliConsumer.clientCount)
-                        + " : " + TOTAL_COUNTER.get());
+                System.out.println(
+                        "Continue, cost time: "
+                                + (System.currentTimeMillis() - cliConsumer.startTime)
+                                + " ms, required count VS received count = "
+                                + (cliConsumer.msgCount * cliConsumer.clientCount)
+                                + " : "
+                                + TOTAL_COUNTER.get());
                 for (Map.Entry<String, AtomicLong> entry : TOPIC_COUNT_MAP.entrySet()) {
-                    System.out.println("Topic Name = " + entry.getKey()
-                            + ", count=" + entry.getValue().get());
+                    System.out.println(
+                            "Topic Name = " + entry.getKey() + ", count=" + entry.getValue().get());
                 }
             }
             cliConsumer.shutdown();
-            System.out.println("Finished, cost time: "
-                    + (System.currentTimeMillis() - cliConsumer.startTime)
-                    + " ms, required count VS received count = "
-                    + (cliConsumer.msgCount * cliConsumer.clientCount)
-                    + " : " + TOTAL_COUNTER.get());
+            System.out.println(
+                    "Finished, cost time: "
+                            + (System.currentTimeMillis() - cliConsumer.startTime)
+                            + " ms, required count VS received count = "
+                            + (cliConsumer.msgCount * cliConsumer.clientCount)
+                            + " : "
+                            + TOTAL_COUNTER.get());
             for (Map.Entry<String, AtomicLong> entry : TOPIC_COUNT_MAP.entrySet()) {
-                System.out.println("Topic Name = " + entry.getKey()
-                        + ", count=" + entry.getValue().get());
+                System.out.println(
+                        "Topic Name = " + entry.getKey() + ", count=" + entry.getValue().get());
             }
         } catch (Throwable ex) {
             ex.printStackTrace();
             logger.error(ex.getMessage());
             cliConsumer.help();
         }
-
     }
-
 }

@@ -21,39 +21,25 @@ package org.apache.flink.connectors.tubemq;
 import org.apache.flink.table.descriptors.ConnectorDescriptorValidator;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
-/**
- * The validator for {@link Tubemq}.
- */
+/** The validator for {@link Tubemq}. */
 public class TubemqValidator extends ConnectorDescriptorValidator {
 
-    /**
-     * The type of connector.
-     */
+    /** The type of connector. */
     public static final String CONNECTOR_TYPE_VALUE_TUBEMQ = "tubemq";
 
-    /**
-     * The address of tubemq master.
-     */
+    /** The address of tubemq master. */
     public static final String CONNECTOR_MASTER = "connector.master";
 
-    /**
-     * The tubemq topic name.
-     */
+    /** The tubemq topic name. */
     public static final String CONNECTOR_TOPIC = "connector.topic";
 
-    /**
-     * The tubemq (consumer or producer) group name.
-     */
+    /** The tubemq (consumer or producer) group name. */
     public static final String CONNECTOR_GROUP = "connector.group";
 
-    /**
-     * The tubemq consumers use these tids to filter records reading from server.
-     */
+    /** The tubemq consumers use these tids to filter records reading from server. */
     public static final String CONNECTOR_TIDS = "connector.tids";
 
-    /**
-     * The prefix of tubemq properties (optional).
-     */
+    /** The prefix of tubemq properties (optional). */
     public static final String CONNECTOR_PROPERTIES = "connector.properties";
 
     @Override

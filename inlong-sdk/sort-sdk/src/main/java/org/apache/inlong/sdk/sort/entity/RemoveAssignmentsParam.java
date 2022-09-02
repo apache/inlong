@@ -36,11 +36,14 @@ public class RemoveAssignmentsParam {
     @Override
     public String toString() {
         return "RemoveAssignmentsParam ["
-                + "taskId=" + taskId
-                + ", inLongTopic=" + inLongTopic
-                + ", callListener=" + callListener
-                + ", callListenerTimeoutMs=" + callListenerTimeoutMs
+                + "taskId="
+                + taskId
+                + ", inLongTopic="
+                + inLongTopic
+                + ", callListener="
+                + callListener
+                + ", callListenerTimeoutMs="
+                + callListenerTimeoutMs
                 + "]";
     }
-
 }

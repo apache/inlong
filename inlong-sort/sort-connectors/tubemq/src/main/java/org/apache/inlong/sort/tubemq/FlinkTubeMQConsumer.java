@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.tubemq;
 
+import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.LONG_TYPE_INFO;
+import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.STRING_TYPE_INFO;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.flink.util.TimeUtils.parseDuration;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.state.ListState;
@@ -44,19 +56,6 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
-import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.LONG_TYPE_INFO;
-import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.STRING_TYPE_INFO;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.flink.util.TimeUtils.parseDuration;
-
 /**
  * The Flink TubeMQ Consumer.
  *
@@ -70,77 +69,49 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     private static final String SPLIT_COMMA = ",";
     private static final String SPLIT_COLON = ":";
 
-    /**
-     * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
-     */
+    /** The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715. */
     private final String masterAddress;
 
-    /**
-     * The topic name.
-     */
+    /** The topic name. */
     private final String topic;
 
-    /**
-     * The tubemq consumers use this tid set to filter records reading from server.
-     */
+    /** The tubemq consumers use this tid set to filter records reading from server. */
     private final TreeSet<String> tidSet;
 
-    /**
-     * The consumer group name.
-     */
+    /** The consumer group name. */
     private final String consumerGroup;
 
-    /**
-     * The deserializer for records.
-     */
+    /** The deserializer for records. */
     private final DeserializationSchema<T> deserializationSchema;
 
-    /**
-     * The random key for TubeMQ consumer group when startup.
-     */
+    /** The random key for TubeMQ consumer group when startup. */
     private final String sessionKey;
 
-    /**
-     * True if consuming message from max offset.
-     */
+    /** True if consuming message from max offset. */
     private final boolean consumeFromMax;
 
-    /**
-     * The time to wait if tubemq broker returns message not found.
-     */
+    /** The time to wait if tubemq broker returns message not found. */
     private final Duration messageNotFoundWaitPeriod;
 
-    /**
-     * The max time to marked source idle.
-     */
+    /** The max time to marked source idle. */
     private final Duration maxIdleTime;
-    /**
-     * The InLong inner format.
-     */
+    /** The InLong inner format. */
     private final boolean innerFormat;
-    /**
-     * Flag indicating whether the consumer is still running.
-     **/
+    /** Flag indicating whether the consumer is still running. */
     private volatile boolean running;
-    /**
-     * The state for the offsets of queues.
-     */
+    /** The state for the offsets of queues. */
     private transient ListState<Tuple2<String, Long>> offsetsState;
     /**
-     * The current offsets of partitions which are stored in {@link #offsetsState}
-     * once a checkpoint is triggered.
+     * The current offsets of partitions which are stored in {@link #offsetsState} once a checkpoint
+     * is triggered.
      *
-     * NOTE: The offsets are populated in the main thread and saved in the
-     * checkpoint thread. Its usage must be guarded by the checkpoint lock.</p>
+     * <p>NOTE: The offsets are populated in the main thread and saved in the checkpoint thread. Its
+     * usage must be guarded by the checkpoint lock.
      */
     private transient Map<String, Long> currentOffsets;
-    /**
-     * The TubeMQ session factory.
-     */
+    /** The TubeMQ session factory. */
     private transient TubeSingleSessionFactory messageSessionFactory;
-    /**
-     * The TubeMQ pull consumer.
-     */
+    /** The TubeMQ pull consumer. */
     private transient PullMessageConsumer messagePullConsumer;
 
     /**
@@ -148,7 +119,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
      *
      * @param masterAddress the master address of TubeMQ
      * @param topic the topic name
-     * @param tidSet the  topic's filter condition items
+     * @param tidSet the topic's filter condition items
      * @param consumerGroup the consumer group name
      * @param deserializationSchema the deserialize schema
      * @param configuration the configure
@@ -162,8 +133,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             DeserializationSchema<T> deserializationSchema,
             Configuration configuration,
             String sessionKey,
-            Boolean innerFormat
-    ) {
+            Boolean innerFormat) {
         checkNotNull(masterAddress, "The master address must not be null.");
         checkNotNull(topic, "The topic must not be null.");
         checkNotNull(tidSet, "The tid set must not be null.");
@@ -178,12 +148,12 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         this.deserializationSchema = deserializationSchema;
         this.sessionKey = sessionKey;
 
-        //those param set default
+        // those param set default
         this.consumeFromMax = configuration.getBoolean(TubeMQOptions.BOOTSTRAP_FROM_MAX);
-        this.messageNotFoundWaitPeriod = parseDuration(configuration.getString(
-                TubeMQOptions.MESSAGE_NOT_FOUND_WAIT_PERIOD));
-        this.maxIdleTime = parseDuration(configuration.getString(
-                TubeMQOptions.SOURCE_MAX_IDLE_TIME));
+        this.messageNotFoundWaitPeriod =
+                parseDuration(configuration.getString(TubeMQOptions.MESSAGE_NOT_FOUND_WAIT_PERIOD));
+        this.maxIdleTime =
+                parseDuration(configuration.getString(TubeMQOptions.SOURCE_MAX_IDLE_TIME));
         this.innerFormat = innerFormat;
     }
 
@@ -210,9 +180,10 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
     @Override
     public void open(Configuration parameters) throws Exception {
         ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
-        consumerConfig.setConsumePosition(consumeFromMax
-                ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
-                : ConsumePosition.CONSUMER_FROM_FIRST_OFFSET);
+        consumerConfig.setConsumePosition(
+                consumeFromMax
+                        ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
+                        : ConsumePosition.CONSUMER_FROM_FIRST_OFFSET);
 
         consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
 
@@ -239,7 +210,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                         || consumeResult.getErrCode() == TErrCodeConstants.NO_PARTITION_ASSIGNED
                         || consumeResult.getErrCode() == TErrCodeConstants.ALL_PARTITION_WAITING
                         || consumeResult.getErrCode() == TErrCodeConstants.ALL_PARTITION_INUSE)) {
-                    LOG.info("Could not consume messages from tubemq (errcode: {},errmsg: {}).",
+                    LOG.info(
+                            "Could not consume messages from tubemq (errcode: {},errmsg: {}).",
                             consumeResult.getErrCode(),
                             consumeResult.getErrMsg());
                 }
@@ -259,18 +231,14 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             lastConsumeInstant = getRecords(lastConsumeInstant, messageList, records);
 
             synchronized (ctx.getCheckpointLock()) {
-
                 for (T record : records) {
                     ctx.collect(record);
                 }
-                currentOffsets.put(
-                        consumeResult.getPartitionKey(),
-                        consumeResult.getCurrOffset()
-                );
+                currentOffsets.put(consumeResult.getPartitionKey(), consumeResult.getCurrOffset());
             }
 
-            ConsumerResult confirmResult = messagePullConsumer
-                    .confirmConsume(consumeResult.getConfirmContext(), true);
+            ConsumerResult confirmResult =
+                    messagePullConsumer.confirmConsume(consumeResult.getConfirmContext(), true);
             if (!confirmResult.isSuccess()) {
                 if (!(confirmResult.getErrCode() == TErrCodeConstants.BAD_REQUEST
                         || confirmResult.getErrCode() == TErrCodeConstants.NOT_FOUND
@@ -278,7 +246,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                         || confirmResult.getErrCode() == TErrCodeConstants.NO_PARTITION_ASSIGNED
                         || confirmResult.getErrCode() == TErrCodeConstants.ALL_PARTITION_WAITING
                         || confirmResult.getErrCode() == TErrCodeConstants.ALL_PARTITION_INUSE)) {
-                    LOG.warn("Could not confirm messages to tubemq (errcode: {},errmsg: {}).",
+                    LOG.warn(
+                            "Could not confirm messages to tubemq (errcode: {},errmsg: {}).",
                             confirmResult.getErrCode(),
                             confirmResult.getErrMsg());
                 }
@@ -286,7 +255,8 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         }
     }
 
-    private Instant getRecords(Instant lastConsumeInstant, List<Message> messageList, List<T> records)
+    private Instant getRecords(
+            Instant lastConsumeInstant, List<Message> messageList, List<T> records)
             throws Exception {
         if (messageList != null) {
             lastConsumeInstant = Instant.now();
@@ -315,8 +285,10 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             offsetsState.add(new Tuple2<>(entry.getKey(), entry.getValue()));
         }
 
-        LOG.info("Successfully save the offsets in checkpoint {}: {}.",
-                context.getCheckpointId(), currentOffsets);
+        LOG.info(
+                "Successfully save the offsets in checkpoint {}: {}.",
+                context.getCheckpointId(),
+                currentOffsets);
     }
 
     @Override

@@ -20,6 +20,9 @@ package org.apache.inlong.sort.cdc.mysql;
 
 import io.debezium.config.Configuration;
 import io.debezium.jdbc.JdbcConnection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Properties;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.util.FlinkRuntimeException;
@@ -28,10 +31,6 @@ import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Properties;
 
 /**
  * The validator for MySql: it only cares about the version of the database is larger than or equal
@@ -113,9 +112,7 @@ public class MySqlValidator implements Validator {
         }
     }
 
-    /**
-     * Check whether the binlog format is ROW.
-     */
+    /** Check whether the binlog format is ROW. */
     private void checkBinlogFormat(JdbcConnection connection) throws SQLException {
         String mode =
                 connection
@@ -134,9 +131,7 @@ public class MySqlValidator implements Validator {
         }
     }
 
-    /**
-     * Check whether the binlog row image is FULL.
-     */
+    /** Check whether the binlog row image is FULL. */
     private void checkBinlogRowImage(JdbcConnection connection) throws SQLException {
         String rowImage =
                 connection

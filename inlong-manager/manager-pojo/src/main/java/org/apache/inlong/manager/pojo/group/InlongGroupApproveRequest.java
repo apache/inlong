@@ -19,13 +19,10 @@ package org.apache.inlong.manager.pojo.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-
-/**
- * Inlong group approval info
- */
+/** Inlong group approval info */
 @Data
 @ApiModel("Inlong group approval request")
 public class InlongGroupApproveRequest {
@@ -44,7 +41,8 @@ public class InlongGroupApproveRequest {
     @ApiModelProperty(value = "MQ resource, for TubeMQ, it is Topic, for Pulsar, it is Namespace")
     private String mqResource;
 
-    @ApiModelProperty(value = "Inlong cluster tag, inlong group will be associated with the cluster")
+    @ApiModelProperty(
+            value = "Inlong cluster tag, inlong group will be associated with the cluster")
     private String inlongClusterTag;
 
     @ApiModelProperty(value = "The partition num of Pulsar topic, between 1-20")
@@ -76,5 +74,4 @@ public class InlongGroupApproveRequest {
 
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit;
-
 }

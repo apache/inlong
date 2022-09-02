@@ -20,20 +20,12 @@ package org.apache.inlong.manager.workflow.core;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 
-/**
- * Workflow processor execution
- */
+/** Workflow processor execution */
 public interface ProcessorExecutor {
 
-    /**
-     * Execute the start operate for the element
-     */
+    /** Execute the start operate for the element */
     void executeStart(Element element, WorkflowContext context);
 
-    /**
-     * Execute the complete operate for the element
-     */
+    /** Execute the complete operate for the element */
     void executeComplete(Element element, WorkflowContext context);
-
 }
-

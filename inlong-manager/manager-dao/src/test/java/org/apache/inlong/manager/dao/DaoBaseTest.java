@@ -27,6 +27,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Rollback
 @SpringBootApplication
 @SpringBootTest(classes = DaoBaseTest.class)
-public abstract class DaoBaseTest extends BaseTest {
-
-}
+public abstract class DaoBaseTest extends BaseTest {}

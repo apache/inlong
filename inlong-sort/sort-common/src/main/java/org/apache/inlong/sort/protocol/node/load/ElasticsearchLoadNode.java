@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,15 +36,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * elasticSearch load node
- */
+/** elasticSearch load node */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("elasticsearchLoadNode")
 @Data
@@ -74,22 +71,31 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
     private int version;
 
     @JsonCreator
-    public ElasticsearchLoadNode(@JsonProperty("id") String id,
-        @JsonProperty("name") String name,
-        @JsonProperty("fields") List<FieldInfo> fields,
-        @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
-        @JsonProperty("filters") List<FilterFunction> filters,
-        @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
-        @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-        @JsonProperty("properties") Map<String, String> properties,
-        @Nonnull @JsonProperty("index") String index,
-        @Nonnull @JsonProperty("hosts") String hosts,
-        @Nonnull @JsonProperty("username") String username,
-        @Nonnull @JsonProperty("password") String password,
-        @Nonnull @JsonProperty("documentType") String documentType,
-        @Nonnull @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("version") int version) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+    public ElasticsearchLoadNode(
+            @JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("index") String index,
+            @Nonnull @JsonProperty("hosts") String hosts,
+            @Nonnull @JsonProperty("username") String username,
+            @Nonnull @JsonProperty("password") String password,
+            @Nonnull @JsonProperty("documentType") String documentType,
+            @Nonnull @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("version") int version) {
+        super(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.hosts = Preconditions.checkNotNull(hosts, "hosts is null");
@@ -99,9 +105,7 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
         this.version = version;
     }
 
-    /**
-     * if you want to set field routing, set the routing.field-name
-     */
+    /** if you want to set field routing, set the routing.field-name */
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
@@ -126,5 +130,4 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
     public String getPrimaryKey() {
         return primaryKey;
     }
-
 }

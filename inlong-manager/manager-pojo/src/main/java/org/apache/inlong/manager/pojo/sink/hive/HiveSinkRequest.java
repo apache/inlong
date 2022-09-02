@@ -19,22 +19,19 @@ package org.apache.inlong.manager.pojo.sink.hive;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
-import javax.validation.constraints.NotBlank;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-/**
- * Hive sink request.
- */
+/** Hive sink request. */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -73,7 +70,8 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
+    @ApiModelProperty(
+            "File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat = FileFormat.TextFile.name();
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
@@ -85,7 +83,7 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
+    @ApiModelProperty(
+            "Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
-
 }

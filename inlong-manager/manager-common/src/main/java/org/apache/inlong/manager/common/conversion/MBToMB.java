@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.conversion;
 
-/**
- * Convert MB to MB.
- */
+/** Convert MB to MB. */
 public class MBToMB implements ConversionStrategy {
 
     @Override

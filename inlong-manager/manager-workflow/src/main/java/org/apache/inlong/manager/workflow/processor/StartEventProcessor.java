@@ -18,12 +18,13 @@
 package org.apache.inlong.manager.workflow.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -34,20 +35,13 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
-/**
- * Start event handler
- */
+/** Start event handler */
 @Service
 public class StartEventProcessor extends AbstractNextableElementProcessor<StartEvent> {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private ProcessEventNotifier processEventNotifier;
-    @Autowired
-    private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private ProcessEventNotifier processEventNotifier;
+    @Autowired private WorkflowProcessEntityMapper processEntityMapper;
 
     @Override
     public Class<StartEvent> watch() {
@@ -61,7 +55,8 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         ProcessForm form = context.getProcessForm();
         if (process.getFormClass() != null) {
             Preconditions.checkNotNull(form, "form cannot be null");
-            Preconditions.checkTrue(form.getClass().isAssignableFrom(process.getFormClass()),
+            Preconditions.checkTrue(
+                    form.getClass().isAssignableFrom(process.getFormClass()),
                     "form type not match, should be class " + process.getFormClass());
             form.validate();
         } else {
@@ -69,7 +64,8 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         }
         WorkflowProcessEntity processEntity = saveProcessEntity(applicant, process, form);
         context.setProcessEntity(processEntity);
-        context.setActionContext(new WorkflowContext.ActionContext().setAction(WorkflowAction.START));
+        context.setActionContext(
+                new WorkflowContext.ActionContext().setAction(WorkflowAction.START));
         return true;
     }
 
@@ -84,7 +80,8 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         return listenerResult.isSuccess();
     }
 
-    private WorkflowProcessEntity saveProcessEntity(String applicant, WorkflowProcess process, ProcessForm form) {
+    private WorkflowProcessEntity saveProcessEntity(
+            String applicant, WorkflowProcess process, ProcessForm form) {
         WorkflowProcessEntity processEntity = new WorkflowProcessEntity();
         processEntity.setName(process.getName());
         processEntity.setDisplayName(process.getDisplayName());

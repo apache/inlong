@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.workflow.event.process;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -27,25 +29,20 @@ import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * WorkflowProcess event notifier
- */
+/** WorkflowProcess event notifier */
 @Slf4j
 @Service
 public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent> {
 
-    @Autowired
-    private WorkflowEventLogEntityMapper eventLogMapper;
+    @Autowired private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override
     public ListenerResult notify(ProcessEvent event, WorkflowContext context) {
         WorkflowProcess process = context.getProcess();
-        List<LogableProcessEventListener> logableListeners = process.listeners(event).stream()
-                .map(listener -> logableEventListener(listener))
-                .collect(Collectors.toList());
+        List<LogableProcessEventListener> logableListeners =
+                process.listeners(event).stream()
+                        .map(listener -> logableEventListener(listener))
+                        .collect(Collectors.toList());
         for (LogableProcessEventListener listener : logableListeners) {
             ListenerResult result = listener.listen(context);
             if (!result.isSuccess()) {
@@ -71,5 +68,4 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
         }
         return new LogableProcessEventListener(listener, eventLogMapper);
     }
-
 }

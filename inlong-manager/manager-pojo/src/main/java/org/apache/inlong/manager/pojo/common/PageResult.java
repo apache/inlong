@@ -20,11 +20,10 @@ package org.apache.inlong.manager.pojo.common;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,7 +33,9 @@ public final class PageResult<T> implements Serializable {
     @ApiModelProperty(value = "data record", required = true)
     private List<T> list;
 
-    @ApiModelProperty(value = "The total number of items matching the filter criteria", required = true)
+    @ApiModelProperty(
+            value = "The total number of items matching the filter criteria",
+            required = true)
     private Long total;
 
     @ApiModelProperty(value = "pageSize", required = true)
@@ -43,8 +44,7 @@ public final class PageResult<T> implements Serializable {
     @ApiModelProperty(value = "pageNum", required = true)
     private Integer pageNum;
 
-    public PageResult() {
-    }
+    public PageResult() {}
 
     public PageResult(List<T> list, Long total) {
         this.list = list;
@@ -75,5 +75,4 @@ public final class PageResult<T> implements Serializable {
     public static <T> PageResult<T> empty(Long total) {
         return new PageResult<>(total);
     }
-
 }

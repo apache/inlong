@@ -18,12 +18,21 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.ververica.cdc.connectors.oracle.table.OracleDeserializationConverterFactory;
 import com.ververica.cdc.connectors.oracle.table.OracleReadableMetaData;
 import com.ververica.cdc.connectors.oracle.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.MetadataConverter;
 import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -37,16 +46,6 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.cdc.oracle.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.oracle.OracleSource;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a Oracle binlog from a logical

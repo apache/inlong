@@ -1,22 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.sink.kafkazone;
 
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -33,16 +36,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
-/**
- * KafkaClusterProducer
- */
+/** KafkaClusterProducer */
 public class KafkaClusterProducer implements LifecycleAware {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaClusterProducer.class);
@@ -59,12 +53,13 @@ public class KafkaClusterProducer implements LifecycleAware {
 
     /**
      * Constructor
-     * 
+     *
      * @param workerName
      * @param config
      * @param context
      */
-    public KafkaClusterProducer(String workerName, CacheClusterConfig config, KafkaZoneSinkContext context) {
+    public KafkaClusterProducer(
+            String workerName, CacheClusterConfig config, KafkaZoneSinkContext context) {
         this.workerName = workerName;
         this.config = config;
         this.sinkContext = context;
@@ -73,9 +68,7 @@ public class KafkaClusterProducer implements LifecycleAware {
         this.cacheClusterName = config.getClusterName();
     }
 
-    /**
-     * start
-     */
+    /** start */
     @Override
     public void start() {
         this.state = LifecycleState.START;
@@ -86,16 +79,15 @@ public class KafkaClusterProducer implements LifecycleAware {
             props.putAll(this.producerContext.getParameters());
             props.putAll(config.getParams());
             LOG.info("try to create kafka client:{}", props);
-            producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+            producer =
+                    new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             LOG.info("create new producer success:{}", producer);
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * stop
-     */
+    /** stop */
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
@@ -105,7 +97,7 @@ public class KafkaClusterProducer implements LifecycleAware {
 
     /**
      * getLifecycleState
-     * 
+     *
      * @return
      */
     @Override
@@ -115,7 +107,7 @@ public class KafkaClusterProducer implements LifecycleAware {
 
     /**
      * send
-     * 
+     *
      * @param event
      */
     public boolean send(DispatchProfile event) {
@@ -134,36 +126,40 @@ public class KafkaClusterProducer implements LifecycleAware {
             // headers
             Map<String, String> headers = this.encodeCacheMessageHeaders(event);
             // compress
-            byte[] bodyBytes = EventUtils.encodeCacheMessageBody(sinkContext.getCompressType(), event.getEvents());
+            byte[] bodyBytes =
+                    EventUtils.encodeCacheMessageBody(
+                            sinkContext.getCompressType(), event.getEvents());
             // sendAsync
             long sendTime = System.currentTimeMillis();
 
             // prepare ProducerRecord
             ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
             // add headers
-            headers.forEach((key, value) -> {
-                producerRecord.headers().add(key, value.getBytes());
-            });
+            headers.forEach(
+                    (key, value) -> {
+                        producerRecord.headers().add(key, value.getBytes());
+                    });
 
             // callback
-            Callback callback = new Callback() {
+            Callback callback =
+                    new Callback() {
 
-                @Override
-                public void onCompletion(RecordMetadata arg0, Exception ex) {
-                    if (ex != null) {
-                        LOG.error("Send fail:{}", ex.getMessage());
-                        LOG.error(ex.getMessage(), ex);
-                        if (event.isResend()) {
-                            sinkContext.processSendFail(event, topic, sendTime);
-                        } else {
-                            event.fail();
+                        @Override
+                        public void onCompletion(RecordMetadata arg0, Exception ex) {
+                            if (ex != null) {
+                                LOG.error("Send fail:{}", ex.getMessage());
+                                LOG.error(ex.getMessage(), ex);
+                                if (event.isResend()) {
+                                    sinkContext.processSendFail(event, topic, sendTime);
+                                } else {
+                                    event.fail();
+                                }
+                            } else {
+                                sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                                event.ack();
+                            }
                         }
-                    } else {
-                        sinkContext.addSendResultMetric(event, topic, true, sendTime);
-                        event.ack();
-                    }
-                }
-            };
+                    };
             producer.send(producerRecord, callback);
             return true;
         } catch (Exception e) {
@@ -175,9 +171,9 @@ public class KafkaClusterProducer implements LifecycleAware {
 
     /**
      * encodeCacheMessageHeaders
-     * 
-     * @param  event
-     * @return       Map
+     *
+     * @param event
+     * @return Map
      */
     public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
         Map<String, String> headers = new HashMap<>();
@@ -190,7 +186,8 @@ public class KafkaClusterProducer implements LifecycleAware {
         // proxyName string proxy node id, IP or conainer name
         headers.put(EventConstants.HEADER_KEY_PROXY_NAME, sinkContext.getNodeId());
         // packTime int64 pack time, milliseconds
-        headers.put(EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
+        headers.put(
+                EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
         // msgCount int32 message count
         headers.put(EventConstants.HEADER_KEY_MSG_COUNT, String.valueOf(event.getEvents().size()));
         // srcLength int32 total length of raw messages body
@@ -200,7 +197,8 @@ public class KafkaClusterProducer implements LifecycleAware {
         // INLONG_NO_COMPRESS = 0,
         // INLONG_GZ = 1,
         // INLONG_SNAPPY = 2
-        headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
+        headers.put(
+                EventConstants.HEADER_KEY_COMPRESS_TYPE,
                 String.valueOf(sinkContext.getCompressType().getNumber()));
         // messageKey string partition hash key, optional
         return headers;
@@ -208,11 +206,10 @@ public class KafkaClusterProducer implements LifecycleAware {
 
     /**
      * get cacheClusterName
-     * 
+     *
      * @return the cacheClusterName
      */
     public String getCacheClusterName() {
         return cacheClusterName;
     }
-
 }

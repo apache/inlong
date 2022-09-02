@@ -22,9 +22,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.common.enums.MetaField;
 
-/**
- * Meta field info.
- */
+/** Meta field info. */
 @Getter
 public class MetaFieldInfo extends FieldInfo {
 
@@ -43,8 +41,7 @@ public class MetaFieldInfo extends FieldInfo {
     }
 
     public MetaFieldInfo(
-            @JsonProperty("name") String name,
-            @JsonProperty("metaField") MetaField metaField) {
+            @JsonProperty("name") String name, @JsonProperty("metaField") MetaField metaField) {
         super(name);
         this.metaField = metaField;
     }
@@ -61,7 +58,6 @@ public class MetaFieldInfo extends FieldInfo {
             return false;
         }
         MetaFieldInfo that = (MetaFieldInfo) o;
-        return metaField == that.metaField
-                && super.equals(that);
+        return metaField == that.metaField && super.equals(that);
     }
 }

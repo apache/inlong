@@ -23,18 +23,18 @@ import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSeeker;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.pulsar.client.api.Consumer;
 
-/**
- * Factory that create configured seeker
- */
+/** Factory that create configured seeker */
 public class SeekerFactory {
 
-    public static PulsarSeeker createPulsarSeeker(Consumer<byte[]> consumer, InLongTopic inLongTopic) {
+    public static PulsarSeeker createPulsarSeeker(
+            Consumer<byte[]> consumer, InLongTopic inLongTopic) {
         PulsarSeeker seeker = new PulsarSeeker(consumer);
         seeker.configure(inLongTopic);
         return seeker;
     }
 
-    public static KafkaSeeker createKafkaSeeker(KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
+    public static KafkaSeeker createKafkaSeeker(
+            KafkaConsumer<byte[], byte[]> consumer, InLongTopic inLongTopic) {
         KafkaSeeker seeker = new KafkaSeeker(consumer);
         seeker.configure(inLongTopic);
         return seeker;

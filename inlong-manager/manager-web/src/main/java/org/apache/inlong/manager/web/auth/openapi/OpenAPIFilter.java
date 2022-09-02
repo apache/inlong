@@ -17,6 +17,16 @@
 
 package org.apache.inlong.manager.web.auth.openapi;
 
+import java.io.IOException;
+import java.util.Base64;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -26,35 +36,21 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Base64;
-
-/**
- * Filter of open api authentication.
- */
+/** Filter of open api authentication. */
 @Slf4j
 public class OpenAPIFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIFilter.class);
 
-    public OpenAPIFilter() {
-    }
+    public OpenAPIFilter() {}
 
     @Override
-    public void init(FilterConfig filterConfig) {
-    }
+    public void init(FilterConfig filterConfig) {}
 
     @SneakyThrows
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+    public void doFilter(
+            ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         Subject subject = SecurityUtils.getSubject();
@@ -63,12 +59,15 @@ public class OpenAPIFilter implements Filter {
             subject.login(token);
         } catch (Exception ex) {
             LOGGER.error("login error, msg: {}", ex.getMessage());
-            ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
+            ((HttpServletResponse) servletResponse)
+                    .sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
             return;
         }
 
         if (!subject.isAuthenticated()) {
-            log.error("Access denied for anonymous user:{}, path:{} ", subject.getPrincipal(),
+            log.error(
+                    "Access denied for anonymous user:{}, path:{} ",
+                    subject.getPrincipal(),
                     httpServletRequest.getServletPath());
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
@@ -112,7 +111,5 @@ public class OpenAPIFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-
-    }
+    public void destroy() {}
 }

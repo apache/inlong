@@ -18,17 +18,15 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import java.util.Optional;
 import org.apache.flink.connector.jdbc.dialect.PostgresDialect;
 
-import java.util.Optional;
-
-/**
- * JDBC dialect for Greenplum.
- */
+/** JDBC dialect for Greenplum. */
 public class GreenplumDialect extends PostgresDialect {
 
     @Override
-    public Optional<String> getUpsertStatement(String tableName, String[] fieldNames, String[] uniqueKeyFields) {
+    public Optional<String> getUpsertStatement(
+            String tableName, String[] fieldNames, String[] uniqueKeyFields) {
         return Optional.empty();
     }
 }

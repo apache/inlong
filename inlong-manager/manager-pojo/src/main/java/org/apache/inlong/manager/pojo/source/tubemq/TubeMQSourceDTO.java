@@ -21,6 +21,9 @@ package org.apache.inlong.manager.pojo.source.tubemq;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import java.util.TreeSet;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,13 +31,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-import java.util.TreeSet;
-
-/**
- * TubeMQ source info
- */
+/** TubeMQ source info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -58,18 +55,14 @@ public class TubeMQSourceDTO {
     @ApiModelProperty("Session key of the TubeMQ")
     private String sessionKey;
 
-    /**
-     * The tubemq consumers use this tid set to filter records reading from server.
-     */
+    /** The tubemq consumers use this tid set to filter records reading from server. */
     @ApiModelProperty("Tid of the TubeMQ")
     private TreeSet<String> tid;
 
     @ApiModelProperty("Properties for TubeMQ")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static TubeMQSourceDTO getFromRequest(TubeMQSourceRequest request) {
         return TubeMQSourceDTO.builder()
                 .masterRpc(request.getMasterRpc())
@@ -82,15 +75,14 @@ public class TubeMQSourceDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the JSON string
-     */
+    /** Get the dto instance from the JSON string */
     public static TubeMQSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, TubeMQSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

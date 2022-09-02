@@ -1,25 +1,21 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.metrics;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.flume.Event;
 import org.apache.inlong.common.metric.CountMetric;
 import org.apache.inlong.common.metric.Dimension;
@@ -30,10 +26,7 @@ import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
-/**
- * 
- * DataProxyMetricItem
- */
+/** DataProxyMetricItem */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItem extends MetricItem {
 
@@ -61,48 +54,33 @@ public class DataProxyMetricItem extends MetricItem {
     public static final String M_NODE_DURATION = "nodeDuration";
     public static final String M_WHOLE_DURATION = "wholeDuration";
 
-    @Dimension
-    public String clusterId;
-    @Dimension
-    public String sourceId;
-    @Dimension
-    public String sourceDataId;
-    @Dimension
-    public String inlongGroupId;
-    @Dimension
-    public String inlongStreamId;
-    @Dimension
-    public String sinkId;
-    @Dimension
-    public String sinkDataId;
-    @Dimension
-    public String msgTime = String.valueOf(0);
-    @CountMetric
-    public AtomicLong readSuccessCount = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong readSuccessSize = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong readFailCount = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong readFailSize = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendCount = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendSize = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendSuccessCount = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendSuccessSize = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendFailCount = new AtomicLong(0);
-    @CountMetric
-    public AtomicLong sendFailSize = new AtomicLong(0);
+    @Dimension public String clusterId;
+    @Dimension public String sourceId;
+    @Dimension public String sourceDataId;
+    @Dimension public String inlongGroupId;
+    @Dimension public String inlongStreamId;
+    @Dimension public String sinkId;
+    @Dimension public String sinkDataId;
+    @Dimension public String msgTime = String.valueOf(0);
+    @CountMetric public AtomicLong readSuccessCount = new AtomicLong(0);
+    @CountMetric public AtomicLong readSuccessSize = new AtomicLong(0);
+    @CountMetric public AtomicLong readFailCount = new AtomicLong(0);
+    @CountMetric public AtomicLong readFailSize = new AtomicLong(0);
+    @CountMetric public AtomicLong sendCount = new AtomicLong(0);
+    @CountMetric public AtomicLong sendSize = new AtomicLong(0);
+    @CountMetric public AtomicLong sendSuccessCount = new AtomicLong(0);
+    @CountMetric public AtomicLong sendSuccessSize = new AtomicLong(0);
+    @CountMetric public AtomicLong sendFailCount = new AtomicLong(0);
+    @CountMetric public AtomicLong sendFailSize = new AtomicLong(0);
+
     @CountMetric
     // sinkCallbackTime - sinkBeginTime(milliseconds)
     public AtomicLong sinkDuration = new AtomicLong(0);
+
     @CountMetric
     // sinkCallbackTime - sourceReceiveTime(milliseconds)
     public AtomicLong nodeDuration = new AtomicLong(0);
+
     @CountMetric
     // sinkCallbackTime - eventCreateTime(milliseconds)
     public AtomicLong wholeDuration = new AtomicLong(0);
@@ -126,7 +104,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * fillAuditFormatTime
-     * 
+     *
      * @param event
      * @param dimensions
      */
@@ -138,8 +116,8 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * getInlongGroupId
-     * 
-     * @param  headers
+     *
+     * @param headers
      * @return
      */
     public static String getInlongGroupId(Map<String, String> headers) {
@@ -152,8 +130,8 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * getInlongStreamId
-     * 
-     * @param  headers
+     *
+     * @param headers
      * @return
      */
     public static String getInlongStreamId(Map<String, String> headers) {
@@ -301,5 +279,4 @@ public class DataProxyMetricItem extends MetricItem {
         }
         return wholeDuration.get() / longSendSuccessCount;
     }
-
 }

@@ -29,29 +29,23 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
 
-/**
- * interface for all the window functions appeared in flink
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** interface for all the window functions appeared in flink */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
-        @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
-        @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
-        @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
-        @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
-        @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
-        @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
-        @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
-        @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
-        @JsonSubTypes.Type(value = HopFunction.class, name = "hop")
+    @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
+    @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
+    @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
+    @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
+    @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
+    @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
+    @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
+    @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
+    @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
+    @JsonSubTypes.Type(value = HopFunction.class, name = "hop")
 })
 public interface TimeWindowFunction extends Function {
 
     TimeUnitConstantParam getTimeUnit();
 
     ConstantParam getInterval();
-
 }

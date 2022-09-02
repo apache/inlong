@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Inlong group extension information
- */
+/** Inlong group extension information */
 @Data
 @Builder
 @NoArgsConstructor
@@ -45,5 +43,4 @@ public class InlongGroupExtInfo {
 
     @ApiModelProperty(value = "property value")
     private String keyValue;
-
 }

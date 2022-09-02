@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * Postgres options constant
- */
+/** Postgres options constant */
 public class PostgresConstant {
 
     public static final String CONNECTOR = "connector";
@@ -52,5 +50,4 @@ public class PostgresConstant {
     public static final String JDBC_INLONG = "jdbc-inlong";
 
     public static final String JDBC = "jdbc";
-
 }

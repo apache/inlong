@@ -18,18 +18,16 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}. {@link ActionRequest

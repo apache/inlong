@@ -55,19 +55,22 @@ public class MonitorIndexExt {
 
     /**
      * incrementAndGet
+     *
      * @param key
      */
     public void incrementAndGet(String key) {
         try {
             if (counterMap.size() < maxCnt) {
-                counterMap.compute(key, (s, atomicLong) -> {
-                    if (atomicLong != null) {
-                        atomicLong.incrementAndGet();
-                    } else {
-                        atomicLong = new AtomicLong(1);
-                    }
-                    return atomicLong;
-                });
+                counterMap.compute(
+                        key,
+                        (s, atomicLong) -> {
+                            if (atomicLong != null) {
+                                atomicLong.incrementAndGet();
+                            } else {
+                                atomicLong = new AtomicLong(1);
+                            }
+                            return atomicLong;
+                        });
             } else if (logPrinter.shouldPrint()) {
                 logger.error(this.name + "exceed monitorExt's max size");
             }
@@ -90,8 +93,7 @@ public class MonitorIndexExt {
         this.maxCnt = maxCnt;
     }
 
-    private class IndexCollectThread
-            extends Thread {
+    private class IndexCollectThread extends Thread {
 
         private boolean bShutDown = false;
 
@@ -110,17 +112,20 @@ public class MonitorIndexExt {
                 try {
                     Thread.sleep(intervalSec * 1000L);
                     for (String str : counterMap.keySet()) {
-                        counterMap.computeIfPresent(str, (s, atomicLong) -> {
-                            long cnt = atomicLong.get();
-                            counterExt.put(str, cnt);
-                            atomicLong.set(0L);
-                            return atomicLong;
-                        });
+                        counterMap.computeIfPresent(
+                                str,
+                                (s, atomicLong) -> {
+                                    long cnt = atomicLong.get();
+                                    counterExt.put(str, cnt);
+                                    atomicLong.set(0L);
+                                    return atomicLong;
+                                });
                     }
 
                     for (Map.Entry<String, Long> entrys : counterExt.entrySet()) {
-                        logger.info("{}#{}#{}",
-                                new Object[]{name, entrys.getKey(), entrys.getValue()});
+                        logger.info(
+                                "{}#{}#{}",
+                                new Object[] {name, entrys.getKey(), entrys.getValue()});
                     }
                     counterExt.clear();
 
@@ -131,4 +136,3 @@ public class MonitorIndexExt {
         }
     }
 }
-

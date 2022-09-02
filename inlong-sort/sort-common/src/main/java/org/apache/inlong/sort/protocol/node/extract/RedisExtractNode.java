@@ -18,6 +18,11 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,15 +38,7 @@ import org.apache.inlong.sort.protocol.enums.RedisMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Redis extract node for extract data from redis
- */
+/** Redis extract node for extract data from redis */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("redisExtract")
 @JsonInclude(Include.NON_NULL)
@@ -49,102 +46,74 @@ import java.util.Map;
 public class RedisExtractNode extends ExtractNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * The redis deploy mode connect to redis see also {@link RedisMode}
-     */
+    /** The redis deploy mode connect to redis see also {@link RedisMode} */
     @Nonnull
     @JsonProperty("redisMode")
     private RedisMode redisMode;
-    /**
-     * The redis command connect to redis see also {@link RedisCommand}
-     */
+    /** The redis command connect to redis see also {@link RedisCommand} */
     @Nonnull
     @JsonProperty("command")
     private RedisCommand command;
-    /**
-     * The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
-     */
+    /** The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER} */
     @Nullable
     @JsonProperty("clusterNodes")
     private String clusterNodes;
-    /**
-     * The master name connect to redis only used for {@link RedisMode#SENTINEL}
-     */
+    /** The master name connect to redis only used for {@link RedisMode#SENTINEL} */
     @Nullable
     @JsonProperty("masterName")
     private String masterName;
-    /**
-     * The sentinels connect to redis info used for {@link RedisMode#SENTINEL}
-     */
+    /** The sentinels connect to redis info used for {@link RedisMode#SENTINEL} */
     @Nullable
     @JsonProperty("sentinelsInfo")
     private String sentinelsInfo;
-    /**
-     * The host connect to redis only used for {@link RedisMode#STANDALONE}
-     */
+    /** The host connect to redis only used for {@link RedisMode#STANDALONE} */
     @Nullable
     @JsonProperty("host")
     private String host;
-    /**
-     * The port connect to redis only used for {@link RedisMode#STANDALONE}
-     */
+    /** The port connect to redis only used for {@link RedisMode#STANDALONE} */
     @Nullable
     @JsonProperty("port")
     private Integer port;
-    /**
-     * The password connect to redis
-     */
+    /** The password connect to redis */
     @Nullable
     @JsonProperty("password")
     private String password;
-    /**
-     * The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     */
+    /** The additional key connect to redis only used for [Hash|Sorted-Set] data type */
     @Nullable
     @JsonProperty("additionalKey")
     private String additionalKey;
     /**
-     * The database connect to redis used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * The database connect to redis used for {@link RedisMode#STANDALONE} and {@link
+     * RedisMode#SENTINEL}
      */
     @Nullable
     @JsonProperty("database")
     private Integer database;
-    /**
-     * The timeout connect to redis
-     */
+    /** The timeout connect to redis */
     @Nullable
     @JsonProperty("timeout")
     private Integer timeout;
-    /**
-     * The soTimeout connect to redis
-     */
+    /** The soTimeout connect to redis */
     @Nullable
     @JsonProperty("soTimeout")
     private Integer soTimeout;
-    /**
-     * The maxTotal connect to redis
-     */
+    /** The maxTotal connect to redis */
     @Nullable
     @JsonProperty("maxTotal")
     private Integer maxTotal;
-    /**
-     * The maxIdle connect to redis
-     */
+    /** The maxIdle connect to redis */
     @Nullable
     @JsonProperty("maxIdle")
     private Integer maxIdle;
-    /**
-     * The minIdle connect to redis
-     */
+    /** The minIdle connect to redis */
     @Nullable
     @JsonProperty("minIdle")
     private Integer minIdle;
+
     @Nullable
     @JsonProperty("primaryKey")
     private String primaryKey;
-    /**
-     * The lookup options for connector redis see also {@link LookupOptions}
-     */
+    /** The lookup options for connector redis see also {@link LookupOptions} */
     @Nullable
     @JsonProperty("lookupOptions")
     private LookupOptions lookupOptions;
@@ -162,9 +131,10 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
      * @param host The host connect to redis only used for {@link RedisMode#STANDALONE}
      * @param port The port connect to redis only used for {@link RedisMode#STANDALONE}
      * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data
+     *     type
+     * @param database The database connect to redis used for {@link RedisMode#STANDALONE} and
+     *     {@link RedisMode#SENTINEL}
      * @param timeout The timeout connect to redis
      * @param soTimeout The soTimeout connect to redis
      * @param maxTotal The maxTotal connect to redis
@@ -191,10 +161,29 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
             @Nullable @JsonProperty("maxIdle") Integer maxIdle,
             @Nullable @JsonProperty("minIdle") Integer minIdle,
             @Nullable @JsonProperty("lookupOptions") LookupOptions lookupOptions) {
-        this(id, name, fields, watermarkField, properties, primaryKey, RedisMode.STANDALONE, command,
-                null, null, null, host, port, password,
-                additionalKey, database, timeout, soTimeout, maxTotal, maxIdle,
-                minIdle, lookupOptions);
+        this(
+                id,
+                name,
+                fields,
+                watermarkField,
+                properties,
+                primaryKey,
+                RedisMode.STANDALONE,
+                command,
+                null,
+                null,
+                null,
+                host,
+                port,
+                password,
+                additionalKey,
+                database,
+                timeout,
+                soTimeout,
+                maxTotal,
+                maxIdle,
+                minIdle,
+                lookupOptions);
     }
 
     /**
@@ -207,11 +196,13 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
      * @param properties The custom properties of extract node
      * @param primaryKey The primary key of extract node
      * @param command The redis command connect to redis
-     * @param clusterNodes The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
+     * @param clusterNodes The cluster node infos connect to redis only used for {@link
+     *     RedisMode#CLUSTER}
      * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data
+     *     type
+     * @param database The database connect to redis used for {@link RedisMode#STANDALONE} and
+     *     {@link RedisMode#SENTINEL}
      * @param timeout The timeout connect to redis
      * @param soTimeout The soTimeout connect to redis
      * @param maxTotal The maxTotal connect to redis
@@ -237,9 +228,29 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
             @Nullable @JsonProperty("maxIdle") Integer maxIdle,
             @Nullable @JsonProperty("minIdle") Integer minIdle,
             @Nullable @JsonProperty("lookupOptions") LookupOptions lookupOptions) {
-        this(id, name, fields, watermarkField, properties, primaryKey, RedisMode.CLUSTER, command,
-                null, null, null, null, null, password, additionalKey,
-                database, timeout, soTimeout, maxTotal, maxIdle, minIdle, lookupOptions);
+        this(
+                id,
+                name,
+                fields,
+                watermarkField,
+                properties,
+                primaryKey,
+                RedisMode.CLUSTER,
+                command,
+                null,
+                null,
+                null,
+                null,
+                null,
+                password,
+                additionalKey,
+                database,
+                timeout,
+                soTimeout,
+                maxTotal,
+                maxIdle,
+                minIdle,
+                lookupOptions);
     }
 
     /**
@@ -253,11 +264,13 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
      * @param primaryKey The primary key of extract node
      * @param command The redis command connect to redis
      * @param masterName The master name connect to redis only used for {@link RedisMode#SENTINEL}
-     * @param sentinelsInfo The sentinels connect to redis info only used for {@link RedisMode#SENTINEL}
+     * @param sentinelsInfo The sentinels connect to redis info only used for {@link
+     *     RedisMode#SENTINEL}
      * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data
+     *     type
+     * @param database The database connect to redis used for {@link RedisMode#STANDALONE} and
+     *     {@link RedisMode#SENTINEL}
      * @param timeout The timeout connect to redis
      * @param soTimeout The soTimeout connect to redis
      * @param maxTotal The maxTotal connect to redis
@@ -284,9 +297,29 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
             @Nullable @JsonProperty("maxIdle") Integer maxIdle,
             @Nullable @JsonProperty("minIdle") Integer minIdle,
             @Nullable @JsonProperty("lookupOptions") LookupOptions lookupOptions) {
-        this(id, name, fields, watermarkField, properties, primaryKey, RedisMode.SENTINEL, command,
-                null, masterName, sentinelsInfo, null, null, password, additionalKey,
-                database, timeout, soTimeout, maxTotal, maxIdle, minIdle, lookupOptions);
+        this(
+                id,
+                name,
+                fields,
+                watermarkField,
+                properties,
+                primaryKey,
+                RedisMode.SENTINEL,
+                command,
+                null,
+                masterName,
+                sentinelsInfo,
+                null,
+                null,
+                password,
+                additionalKey,
+                database,
+                timeout,
+                soTimeout,
+                maxTotal,
+                maxIdle,
+                minIdle,
+                lookupOptions);
     }
 
     /**
@@ -300,15 +333,17 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
      * @param primaryKey The primary key of extract node
      * @param redisMode The redis deploy mode connect to redis
      * @param command The redis command connect to redis
-     * @param clusterNodes The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
+     * @param clusterNodes The cluster node infos connect to redis only used for {@link
+     *     RedisMode#CLUSTER}
      * @param masterName The master name connect to redis only used for {@link RedisMode#SENTINEL}
      * @param sentinelsInfo The sentinels connect to redis info used for {@link RedisMode#SENTINEL}
      * @param host The host connect to redis only used for {@link RedisMode#STANDALONE}
      * @param port The port connect to redis only used for {@link RedisMode#STANDALONE}
      * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data
+     *     type
+     * @param database The database connect to redis used for {@link RedisMode#STANDALONE} and
+     *     {@link RedisMode#SENTINEL}
      * @param timeout The timeout connect to redis
      * @param soTimeout The soTimeout connect to redis
      * @param maxTotal The maxTotal connect to redis
@@ -368,13 +403,16 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
         options.put(RedisConstant.REDIS_MODE, redisMode.getValue());
         switch (redisMode) {
             case CLUSTER:
-                options.put(RedisConstant.CLUSTER_NODES,
+                options.put(
+                        RedisConstant.CLUSTER_NODES,
                         Preconditions.checkNotNull(clusterNodes, "clusterNodes is null"));
                 break;
             case SENTINEL:
-                options.put(RedisConstant.MASTER_NAME, Preconditions.checkNotNull(masterName,
-                        "masterName is null"));
-                options.put(RedisConstant.SENTINELS_INFO,
+                options.put(
+                        RedisConstant.MASTER_NAME,
+                        Preconditions.checkNotNull(masterName, "masterName is null"));
+                options.put(
+                        RedisConstant.SENTINELS_INFO,
                         Preconditions.checkNotNull(sentinelsInfo, "sentinelsInfo is null"));
                 if (database != null) {
                     options.put(RedisConstant.DATABASE, database.toString());
@@ -391,8 +429,11 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
                 break;
             default:
         }
-        if (command == RedisCommand.HGET || command == RedisCommand.ZREVRANK || command == RedisCommand.ZSCORE) {
-            options.put(RedisConstant.ADDITIONAL_KEY,
+        if (command == RedisCommand.HGET
+                || command == RedisCommand.ZREVRANK
+                || command == RedisCommand.ZSCORE) {
+            options.put(
+                    RedisConstant.ADDITIONAL_KEY,
                     Preconditions.checkNotNull(additionalKey, "additionalKey is null"));
         }
         if (password != null) {
@@ -415,13 +456,19 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
         }
         if (lookupOptions != null) {
             if (lookupOptions.getLookupCacheMaxRows() != null) {
-                options.put(RedisConstant.LOOKUP_CACHE_MAX_ROWS, lookupOptions.getLookupCacheMaxRows().toString());
+                options.put(
+                        RedisConstant.LOOKUP_CACHE_MAX_ROWS,
+                        lookupOptions.getLookupCacheMaxRows().toString());
             }
             if (lookupOptions.getLookupCacheTtl() != null) {
-                options.put(RedisConstant.LOOKUP_CACHE_TTL, lookupOptions.getLookupCacheTtl().toString());
+                options.put(
+                        RedisConstant.LOOKUP_CACHE_TTL,
+                        lookupOptions.getLookupCacheTtl().toString());
             }
             if (lookupOptions.getLookupMaxRetries() != null) {
-                options.put(RedisConstant.LOOKUP_MAX_RETRIES, lookupOptions.getLookupMaxRetries().toString());
+                options.put(
+                        RedisConstant.LOOKUP_MAX_RETRIES,
+                        lookupOptions.getLookupMaxRetries().toString());
             }
         }
         return options;

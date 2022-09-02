@@ -18,6 +18,11 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Maps;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -32,20 +37,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Heartbeat service test.
- */
+/** Heartbeat service test. */
 @EnableAutoConfiguration
 public class HeartbeatServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private HeartbeatService heartbeatService;
+    @Autowired private HeartbeatService heartbeatService;
 
     @Test
     public void testReportHeartbeat() {
@@ -84,5 +80,4 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
         StreamHeartbeatResponse response = heartbeatService.getStreamHeartbeat(request);
         Assertions.assertEquals("127.0.0.1", response.getInstance());
     }
-
 }

@@ -44,10 +44,11 @@ public class HighPriorityThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(this.group, r, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
+        Thread t =
+                new Thread(
+                        this.group, r, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
         t.setDaemon(this.isDaemon);
         t.setPriority(10);
         return t;
     }
 }
-

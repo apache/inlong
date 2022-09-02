@@ -20,13 +20,12 @@ package org.apache.inlong.manager.workflow.event.process;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 
-/**
- * Listener of logable process event
- */
-public class LogableProcessEventListener extends LogableEventListener<ProcessEvent> implements ProcessEventListener {
+/** Listener of logable process event */
+public class LogableProcessEventListener extends LogableEventListener<ProcessEvent>
+        implements ProcessEventListener {
 
-    public LogableProcessEventListener(ProcessEventListener eventListener, WorkflowEventLogEntityMapper logMapper) {
+    public LogableProcessEventListener(
+            ProcessEventListener eventListener, WorkflowEventLogEntityMapper logMapper) {
         super(eventListener, logMapper);
     }
-
 }

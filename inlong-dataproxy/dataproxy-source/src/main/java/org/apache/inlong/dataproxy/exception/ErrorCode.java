@@ -18,9 +18,7 @@
 package org.apache.inlong.dataproxy.exception;
 
 public enum ErrorCode {
-    /**
-     * attr error
-     */
+    /** attr error */
     ATTR_ERROR(1),
     DT_ERROR(2),
     COMPRESS_ERROR(3),
@@ -38,10 +36,8 @@ public enum ErrorCode {
     }
 
     public byte[] intToByteArray() {
-        return new byte[]{
-                (byte) (value >>> 24),
-                (byte) (value >>> 16),
-                (byte) (value >>> 8),
-                (byte) value};
+        return new byte[] {
+            (byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8), (byte) value
+        };
     }
 }

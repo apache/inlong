@@ -17,10 +17,9 @@
 
 package org.apache.inlong.agent.pojo;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+import lombok.Data;
 
 @Data
 public class FileJob {
@@ -35,7 +34,7 @@ public class FileJob {
     private String collectType;
     private Line line;
 
-    // INCREMENT 
+    // INCREMENT
     // FULL
     private String contentCollectType;
 
@@ -91,7 +90,7 @@ public class FileJob {
         // '1d' means one day after, '-1d' means one day before
         // Null means from current timestamp
         private String timeOffset;
-        //For example: a=b&c=b&e=f
+        // For example: a=b&c=b&e=f
         private String additionalAttr;
 
         private String collectType;
@@ -108,10 +107,10 @@ public class FileJob {
         private List<Map<String, String>> metaFields;
         // Type of data result for column separator
         // CSV format, set this parameter to a custom separator: , | :
-        // Json format, set this parameter to json 
+        // Json format, set this parameter to json
         private String dataContentStyle;
 
-        // Column separator of data source 
+        // Column separator of data source
         private String dataSeparator;
 
         // Metadata filters by label, special parameters for K8S
@@ -125,10 +124,8 @@ public class FileJob {
 
         // Monitor switch, 1 true and 0 false
         private Integer monitorStatus;
-        
+
         // Monitor expire time and the time in milliseconds
         private Long monitorExpire;
-
     }
-
 }

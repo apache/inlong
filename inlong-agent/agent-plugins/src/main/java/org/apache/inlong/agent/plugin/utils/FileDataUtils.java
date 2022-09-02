@@ -20,24 +20,19 @@ package org.apache.inlong.agent.plugin.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * File job utils
- */
+/** File job utils */
 public class FileDataUtils {
 
     public static final String KUBERNETES_LOG = "log";
 
     private static final Gson GSON = new Gson();
 
-    /**
-     * Get standard log for k8s
-     */
+    /** Get standard log for k8s */
     public static String getK8sJsonLog(String log, Boolean isJson) {
         if (!StringUtils.isNoneBlank(log)) {
             return null;
@@ -45,15 +40,12 @@ public class FileDataUtils {
         if (!isJson) {
             return log;
         }
-        Type type = new TypeToken<HashMap<Integer, String>>() {
-        }.getType();
+        Type type = new TypeToken<HashMap<Integer, String>>() {}.getType();
         Map<String, String> logJson = GSON.fromJson(log, type);
         return logJson.getOrDefault(KUBERNETES_LOG, log);
     }
 
-    /**
-     * To judge json
-     */
+    /** To judge json */
     public static boolean isJSON(String json) {
         boolean isJson;
         try {
@@ -64,5 +56,4 @@ public class FileDataUtils {
         }
         return isJson;
     }
-
 }

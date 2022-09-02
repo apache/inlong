@@ -26,9 +26,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
-/**
- * Client for {@link UserApi}.
- */
+/** Client for {@link UserApi}. */
 public class UserClient {
 
     private final UserApi userApi;
@@ -86,7 +84,8 @@ public class UserClient {
     public PageResult<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
 
-        Response<PageResult<UserInfo>> response = ClientUtils.executeHttpCall(userApi.list(request));
+        Response<PageResult<UserInfo>> response =
+                ClientUtils.executeHttpCall(userApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

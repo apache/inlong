@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
+import static com.ververica.cdc.connectors.mongodb.MongoDBSource.ERROR_TOLERANCE_NONE;
+import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_AWAIT_TIME_MILLIS_DEFAULT;
+import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_MAX_BATCH_SIZE_DEFAULT;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -29,20 +39,7 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
-import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.ververica.cdc.connectors.mongodb.MongoDBSource.ERROR_TOLERANCE_NONE;
-import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_AWAIT_TIME_MILLIS_DEFAULT;
-import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_MAX_BATCH_SIZE_DEFAULT;
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-
-/**
- * Factory for creating configured instance of {@link MongoDBTableSource}.
- */
+/** Factory for creating configured instance of {@link MongoDBTableSource}. */
 public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "mongodb-cdc-inlong";
@@ -216,8 +213,10 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
 
         final Boolean copyExisting = config.get(COPY_EXISTING);
         final String copyExistingPipeline = config.getOptional(COPY_EXISTING_PIPELINE).orElse(null);
-        final Integer copyExistingMaxThreads = config.getOptional(COPY_EXISTING_MAX_THREADS).orElse(null);
-        final Integer copyExistingQueueSize = config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
+        final Integer copyExistingMaxThreads =
+                config.getOptional(COPY_EXISTING_MAX_THREADS).orElse(null);
+        final Integer copyExistingQueueSize =
+                config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
 
         final String zoneId = context.getConfiguration().get(TableConfigOptions.LOCAL_TIME_ZONE);
         final ZoneId localTimeZone =

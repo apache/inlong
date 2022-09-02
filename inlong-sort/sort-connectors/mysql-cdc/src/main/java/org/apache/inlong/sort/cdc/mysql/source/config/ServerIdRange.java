@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
+
+import java.io.Serializable;
+import javax.annotation.Nullable;
 
 /**
  * This class defines a range of server id. The boundaries of the range are inclusive.

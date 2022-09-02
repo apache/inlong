@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.sink.greenplum;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +30,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Greenplum sink info
- */
+/** Greenplum sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -60,9 +57,7 @@ public class GreenplumSinkDTO {
     @ApiModelProperty("Properties for greenplum")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static GreenplumSinkDTO getFromRequest(GreenplumSinkRequest request) {
         return GreenplumSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -74,15 +69,14 @@ public class GreenplumSinkDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the json
-     */
+    /** Get the dto instance from the json */
     public static GreenplumSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, GreenplumSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -93,8 +87,8 @@ public class GreenplumSinkDTO {
      * @param columnList Greenplum column info list,{@link GreenplumColumnInfo}
      * @return {@link GreenplumTableInfo}
      */
-    public static GreenplumTableInfo getTableInfo(GreenplumSinkDTO greenplumSink,
-            List<GreenplumColumnInfo> columnList) {
+    public static GreenplumTableInfo getTableInfo(
+            GreenplumSinkDTO greenplumSink, List<GreenplumColumnInfo> columnList) {
         GreenplumTableInfo tableInfo = new GreenplumTableInfo();
         tableInfo.setTableName(greenplumSink.getTableName());
         tableInfo.setPrimaryKey(greenplumSink.getPrimaryKey());
@@ -103,4 +97,3 @@ public class GreenplumSinkDTO {
         return tableInfo;
     }
 }
-

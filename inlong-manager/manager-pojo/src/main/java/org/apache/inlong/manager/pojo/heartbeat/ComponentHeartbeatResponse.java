@@ -20,16 +20,13 @@ package org.apache.inlong.manager.pojo.heartbeat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Component heartbeat response
- */
+/** Component heartbeat response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -54,5 +51,4 @@ public class ComponentHeartbeatResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-
 }

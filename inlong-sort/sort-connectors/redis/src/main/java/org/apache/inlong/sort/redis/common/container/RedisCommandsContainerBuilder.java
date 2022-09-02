@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.redis.common.container;
 
+import java.util.Objects;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisClusterConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
@@ -27,11 +28,9 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
-import java.util.Objects;
-
 /**
- * The redis command container builder and
- * copy from {@link org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainerBuilder}
+ * The redis command container builder and copy from {@link
+ * org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainerBuilder}
  */
 public class RedisCommandsContainerBuilder {
 
@@ -39,18 +38,20 @@ public class RedisCommandsContainerBuilder {
      * Initialize the {@link InlongRedisCommandsContainer} based on the instance type.
      *
      * @param flinkJedisConfigBase configuration base
-     * @return @throws IllegalArgumentException if jedisPoolConfig, jedisClusterConfig and jedisSentinelConfig are all
-     *         null
+     * @return @throws IllegalArgumentException if jedisPoolConfig, jedisClusterConfig and
+     *     jedisSentinelConfig are all null
      */
     public static InlongRedisCommandsContainer build(FlinkJedisConfigBase flinkJedisConfigBase) {
         if (flinkJedisConfigBase instanceof FlinkJedisPoolConfig) {
             FlinkJedisPoolConfig flinkJedisPoolConfig = (FlinkJedisPoolConfig) flinkJedisConfigBase;
             return RedisCommandsContainerBuilder.build(flinkJedisPoolConfig);
         } else if (flinkJedisConfigBase instanceof FlinkJedisClusterConfig) {
-            FlinkJedisClusterConfig flinkJedisClusterConfig = (FlinkJedisClusterConfig) flinkJedisConfigBase;
+            FlinkJedisClusterConfig flinkJedisClusterConfig =
+                    (FlinkJedisClusterConfig) flinkJedisConfigBase;
             return RedisCommandsContainerBuilder.build(flinkJedisClusterConfig);
         } else if (flinkJedisConfigBase instanceof FlinkJedisSentinelConfig) {
-            FlinkJedisSentinelConfig flinkJedisSentinelConfig = (FlinkJedisSentinelConfig) flinkJedisConfigBase;
+            FlinkJedisSentinelConfig flinkJedisSentinelConfig =
+                    (FlinkJedisSentinelConfig) flinkJedisConfigBase;
             return RedisCommandsContainerBuilder.build(flinkJedisSentinelConfig);
         } else {
             throw new IllegalArgumentException("Jedis configuration not found");
@@ -67,11 +68,17 @@ public class RedisCommandsContainerBuilder {
     public static InlongRedisCommandsContainer build(FlinkJedisPoolConfig jedisPoolConfig) {
         Objects.requireNonNull(jedisPoolConfig, "Redis pool config should not be Null");
 
-        GenericObjectPoolConfig genericObjectPoolConfig = getGenericObjectPoolConfig(jedisPoolConfig);
+        GenericObjectPoolConfig genericObjectPoolConfig =
+                getGenericObjectPoolConfig(jedisPoolConfig);
 
-        JedisPool jedisPool = new JedisPool(genericObjectPoolConfig, jedisPoolConfig.getHost(),
-                jedisPoolConfig.getPort(), jedisPoolConfig.getConnectionTimeout(), jedisPoolConfig.getPassword(),
-                jedisPoolConfig.getDatabase());
+        JedisPool jedisPool =
+                new JedisPool(
+                        genericObjectPoolConfig,
+                        jedisPoolConfig.getHost(),
+                        jedisPoolConfig.getPort(),
+                        jedisPoolConfig.getConnectionTimeout(),
+                        jedisPoolConfig.getPassword(),
+                        jedisPoolConfig.getDatabase());
         return new InlongRedisContainer(jedisPool);
     }
 
@@ -85,14 +92,17 @@ public class RedisCommandsContainerBuilder {
     public static InlongRedisCommandsContainer build(FlinkJedisClusterConfig jedisClusterConfig) {
         Objects.requireNonNull(jedisClusterConfig, "Redis cluster config should not be Null");
 
-        GenericObjectPoolConfig genericObjectPoolConfig = getGenericObjectPoolConfig(jedisClusterConfig);
+        GenericObjectPoolConfig genericObjectPoolConfig =
+                getGenericObjectPoolConfig(jedisClusterConfig);
 
-        JedisCluster jedisCluster = new JedisCluster(jedisClusterConfig.getNodes(),
-                jedisClusterConfig.getConnectionTimeout(),
-                jedisClusterConfig.getConnectionTimeout(),
-                jedisClusterConfig.getMaxRedirections(),
-                jedisClusterConfig.getPassword(),
-                genericObjectPoolConfig);
+        JedisCluster jedisCluster =
+                new JedisCluster(
+                        jedisClusterConfig.getNodes(),
+                        jedisClusterConfig.getConnectionTimeout(),
+                        jedisClusterConfig.getConnectionTimeout(),
+                        jedisClusterConfig.getMaxRedirections(),
+                        jedisClusterConfig.getPassword(),
+                        genericObjectPoolConfig);
         return new InlongRedisClusterContainer(jedisCluster);
     }
 
@@ -106,18 +116,27 @@ public class RedisCommandsContainerBuilder {
     public static InlongRedisCommandsContainer build(FlinkJedisSentinelConfig jedisSentinelConfig) {
         Objects.requireNonNull(jedisSentinelConfig, "Redis sentinel config should not be Null");
 
-        GenericObjectPoolConfig genericObjectPoolConfig = getGenericObjectPoolConfig(jedisSentinelConfig);
+        GenericObjectPoolConfig genericObjectPoolConfig =
+                getGenericObjectPoolConfig(jedisSentinelConfig);
 
-        JedisSentinelPool jedisSentinelPool = new JedisSentinelPool(jedisSentinelConfig.getMasterName(),
-                jedisSentinelConfig.getSentinels(), genericObjectPoolConfig,
-                jedisSentinelConfig.getConnectionTimeout(), jedisSentinelConfig.getSoTimeout(),
-                jedisSentinelConfig.getPassword(), jedisSentinelConfig.getDatabase());
+        JedisSentinelPool jedisSentinelPool =
+                new JedisSentinelPool(
+                        jedisSentinelConfig.getMasterName(),
+                        jedisSentinelConfig.getSentinels(),
+                        genericObjectPoolConfig,
+                        jedisSentinelConfig.getConnectionTimeout(),
+                        jedisSentinelConfig.getSoTimeout(),
+                        jedisSentinelConfig.getPassword(),
+                        jedisSentinelConfig.getDatabase());
         return new InlongRedisContainer(jedisSentinelPool);
     }
 
-    public static GenericObjectPoolConfig getGenericObjectPoolConfig(FlinkJedisConfigBase jedisConfig) {
+    public static GenericObjectPoolConfig getGenericObjectPoolConfig(
+            FlinkJedisConfigBase jedisConfig) {
         GenericObjectPoolConfig genericObjectPoolConfig =
-                jedisConfig.getTestWhileIdle() ? new JedisPoolConfig() : new GenericObjectPoolConfig();
+                jedisConfig.getTestWhileIdle()
+                        ? new JedisPoolConfig()
+                        : new GenericObjectPoolConfig();
         genericObjectPoolConfig.setMaxIdle(jedisConfig.getMaxIdle());
         genericObjectPoolConfig.setMaxTotal(jedisConfig.getMaxTotal());
         genericObjectPoolConfig.setMinIdle(jedisConfig.getMinIdle());

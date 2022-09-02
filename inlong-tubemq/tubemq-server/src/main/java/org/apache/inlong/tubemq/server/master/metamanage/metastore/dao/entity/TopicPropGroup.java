@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.io.Serializable;
@@ -33,33 +30,39 @@ import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
  */
 public class TopicPropGroup implements Serializable, Cloneable {
 
-    private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;        //store num
-    private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;        //partition num
-    private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED;     //flush threshold
-    private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED;      //flush interval
-    private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED;      // flush dataSize
-    private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;  // cache block size
-    private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;    // cache max count
-    private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;   // cache max interval
-    private Boolean acceptPublish = null;    //enable publish
-    private Boolean acceptSubscribe = null;  //enable subscribe
-    private int dataStoreType = TBaseConstants.META_VALUE_UNDEFINED;  // type
-    private String dataPath = "";   //data path
-    private String deletePolicy = "";        // delete policy
+    private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED; // store num
+    private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED; // partition num
+    private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED; // flush threshold
+    private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED; // flush interval
+    private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED; // flush dataSize
+    private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED; // cache block size
+    private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED; // cache max count
+    private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED; // cache max interval
+    private Boolean acceptPublish = null; // enable publish
+    private Boolean acceptSubscribe = null; // enable subscribe
+    private int dataStoreType = TBaseConstants.META_VALUE_UNDEFINED; // type
+    private String dataPath = ""; // data path
+    private String deletePolicy = ""; // delete policy
     // Retention period, unit ms
     private CleanPolType cleanPolicyType = CleanPolType.CLEAN_POL_DELETE;
     private long retPeriodInMs = TBaseConstants.META_VALUE_UNDEFINED;
 
-    public TopicPropGroup() {
+    public TopicPropGroup() {}
 
-    }
-
-    public TopicPropGroup(int numTopicStores, int numPartitions,
-                          int unflushThreshold, int unflushInterval,
-                          int unflushDataHold, int memCacheMsgSizeInMB,
-                          int memCacheMsgCntInK, int memCacheFlushIntvl,
-                          boolean acceptPublish, boolean acceptSubscribe,
-                          String deletePolicy, int dataStoreType, String dataPath) {
+    public TopicPropGroup(
+            int numTopicStores,
+            int numPartitions,
+            int unflushThreshold,
+            int unflushInterval,
+            int unflushDataHold,
+            int memCacheMsgSizeInMB,
+            int memCacheMsgCntInK,
+            int memCacheFlushIntvl,
+            boolean acceptPublish,
+            boolean acceptSubscribe,
+            String deletePolicy,
+            int dataStoreType,
+            String dataPath) {
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
         this.unflushThreshold = unflushThreshold;
@@ -200,10 +203,10 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   numTopicStores, numPartitions, unflushThreshold, unflushInterval, unflushDataHold,
-     *   memCacheMsgSizeInMB, memCacheMsgCntInK, memCacheFlushIntvl, deletePolicy
+     * Check whether the specified query item value matches Allowed query items: numTopicStores,
+     * numPartitions, unflushThreshold, unflushInterval, unflushDataHold, memCacheMsgSizeInMB,
+     * memCacheMsgCntInK, memCacheFlushIntvl, deletePolicy
+     *
      * @return true: matched, false: not match
      */
     public boolean isMatched(TopicPropGroup target) {
@@ -211,65 +214,95 @@ public class TopicPropGroup implements Serializable, Cloneable {
             return true;
         }
         return (target.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getNumTopicStores() == this.numTopicStores)
+                        || target.getNumTopicStores() == this.numTopicStores)
                 && (target.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getNumPartitions() == this.numPartitions)
+                        || target.getNumPartitions() == this.numPartitions)
                 && (target.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushThreshold() == this.unflushThreshold)
+                        || target.getUnflushThreshold() == this.unflushThreshold)
                 && (target.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushInterval() == this.unflushInterval)
+                        || target.getUnflushInterval() == this.unflushInterval)
                 && (target.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushDataHold() == this.unflushDataHold)
+                        || target.getUnflushDataHold() == this.unflushDataHold)
                 && (target.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheMsgSizeInMB() == this.memCacheMsgSizeInMB)
+                        || target.getMemCacheMsgSizeInMB() == this.memCacheMsgSizeInMB)
                 && (target.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheMsgCntInK() == this.memCacheMsgCntInK)
+                        || target.getMemCacheMsgCntInK() == this.memCacheMsgCntInK)
                 && (target.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
+                        || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
                 && (target.getAcceptPublish() == null
-                || Objects.equals(target.getAcceptPublish(), this.acceptPublish))
+                        || Objects.equals(target.getAcceptPublish(), this.acceptPublish))
                 && (target.getAcceptSubscribe() == null
-                || Objects.equals(target.getAcceptSubscribe(), this.acceptSubscribe))
+                        || Objects.equals(target.getAcceptSubscribe(), this.acceptSubscribe))
                 && (TStringUtils.isBlank(target.getDeletePolicy())
-                || target.getDeletePolicy().equals(this.deletePolicy));
+                        || target.getDeletePolicy().equals(this.deletePolicy));
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuilder    string buffer
-     * @param isLongName  whether long field name
-     * @return            process result
+     * @param sBuilder string buffer
+     * @param isLongName whether long field name
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
-            sBuilder.append(",\"numTopicStores\":").append(numTopicStores)
-                    .append(",\"numPartitions\":").append(numPartitions)
-                    .append(",\"unflushThreshold\":").append(unflushThreshold)
-                    .append(",\"unflushInterval\":").append(unflushInterval)
-                    .append(",\"unflushDataHold\":").append(unflushDataHold)
-                    .append(",\"memCacheMsgSizeInMB\":").append(memCacheMsgSizeInMB)
-                    .append(",\"memCacheMsgCntInK\":").append(memCacheMsgCntInK)
-                    .append(",\"memCacheFlushIntvl\":").append(memCacheFlushIntvl)
-                    .append(",\"acceptPublish\":").append(acceptPublish)
-                    .append(",\"acceptSubscribe\":").append(acceptSubscribe)
-                    .append(",\"deletePolicy\":\"").append(deletePolicy).append("\"")
-                    .append(",\"dataStoreType\":").append(dataStoreType)
-                    .append(",\"dataPath\":\"").append(dataPath).append("\"");
+            sBuilder.append(",\"numTopicStores\":")
+                    .append(numTopicStores)
+                    .append(",\"numPartitions\":")
+                    .append(numPartitions)
+                    .append(",\"unflushThreshold\":")
+                    .append(unflushThreshold)
+                    .append(",\"unflushInterval\":")
+                    .append(unflushInterval)
+                    .append(",\"unflushDataHold\":")
+                    .append(unflushDataHold)
+                    .append(",\"memCacheMsgSizeInMB\":")
+                    .append(memCacheMsgSizeInMB)
+                    .append(",\"memCacheMsgCntInK\":")
+                    .append(memCacheMsgCntInK)
+                    .append(",\"memCacheFlushIntvl\":")
+                    .append(memCacheFlushIntvl)
+                    .append(",\"acceptPublish\":")
+                    .append(acceptPublish)
+                    .append(",\"acceptSubscribe\":")
+                    .append(acceptSubscribe)
+                    .append(",\"deletePolicy\":\"")
+                    .append(deletePolicy)
+                    .append("\"")
+                    .append(",\"dataStoreType\":")
+                    .append(dataStoreType)
+                    .append(",\"dataPath\":\"")
+                    .append(dataPath)
+                    .append("\"");
         } else {
-            sBuilder.append(",\"numStore\":").append(numTopicStores)
-                    .append(",\"numPart\":").append(numPartitions)
-                    .append(",\"unfDskMsgCnt\":").append(unflushThreshold)
-                    .append(",\"unfDskInt\":").append(unflushInterval)
-                    .append(",\"unfDskDataSz\":").append(unflushDataHold)
-                    .append(",\"cacheInMB\":").append(memCacheMsgSizeInMB)
-                    .append(",\"unfMemMsgCnt\":").append(memCacheMsgCntInK)
-                    .append(",\"unfMemInt\":").append(memCacheFlushIntvl)
-                    .append(",\"accPub\":").append(acceptPublish)
-                    .append(",\"accSub\":").append(acceptSubscribe)
-                    .append(",\"delPol\":\"").append(deletePolicy).append("\"")
-                    .append(",\"dStType\":").append(dataStoreType)
-                    .append(",\"dPath\":\"").append(dataPath).append("\"");
+            sBuilder.append(",\"numStore\":")
+                    .append(numTopicStores)
+                    .append(",\"numPart\":")
+                    .append(numPartitions)
+                    .append(",\"unfDskMsgCnt\":")
+                    .append(unflushThreshold)
+                    .append(",\"unfDskInt\":")
+                    .append(unflushInterval)
+                    .append(",\"unfDskDataSz\":")
+                    .append(unflushDataHold)
+                    .append(",\"cacheInMB\":")
+                    .append(memCacheMsgSizeInMB)
+                    .append(",\"unfMemMsgCnt\":")
+                    .append(memCacheMsgCntInK)
+                    .append(",\"unfMemInt\":")
+                    .append(memCacheFlushIntvl)
+                    .append(",\"accPub\":")
+                    .append(acceptPublish)
+                    .append(",\"accSub\":")
+                    .append(acceptSubscribe)
+                    .append(",\"delPol\":\"")
+                    .append(deletePolicy)
+                    .append("\"")
+                    .append(",\"dStType\":")
+                    .append(dataStoreType)
+                    .append(",\"dPath\":\"")
+                    .append(dataPath)
+                    .append("\"");
         }
         return sBuilder;
     }
@@ -277,57 +310,59 @@ public class TopicPropGroup implements Serializable, Cloneable {
     /**
      * Get field value in key and value format
      *
-     * @param paramMap    the value container
-     * @param isLongName  whether long field name
+     * @param paramMap the value container
+     * @param isLongName whether long field name
      */
-    public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+    public void getConfigureInfo(Map<String, String> paramMap, boolean isLongName) {
         if (numTopicStores != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "numTopicStores" : "numStore"),
-                    String.valueOf(numTopicStores));
+            paramMap.put(
+                    (isLongName ? "numTopicStores" : "numStore"), String.valueOf(numTopicStores));
         }
         if (numPartitions != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "numPartitions" : "numPart"),
-                    String.valueOf(numPartitions));
+            paramMap.put((isLongName ? "numPartitions" : "numPart"), String.valueOf(numPartitions));
         }
         if (unflushThreshold != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "unflushThreshold" : "unfDskMsgCnt"),
+            paramMap.put(
+                    (isLongName ? "unflushThreshold" : "unfDskMsgCnt"),
                     String.valueOf(unflushThreshold));
         }
         if (unflushInterval != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "unflushInterval" : "unfDskInt"),
+            paramMap.put(
+                    (isLongName ? "unflushInterval" : "unfDskInt"),
                     String.valueOf(unflushInterval));
         }
         if (unflushDataHold != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "unflushDataHold" : "unfDskDataSz"),
+            paramMap.put(
+                    (isLongName ? "unflushDataHold" : "unfDskDataSz"),
                     String.valueOf(unflushDataHold));
         }
         if (memCacheMsgSizeInMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "memCacheMsgSizeInMB" : "cacheInMB"),
+            paramMap.put(
+                    (isLongName ? "memCacheMsgSizeInMB" : "cacheInMB"),
                     String.valueOf(memCacheMsgSizeInMB));
         }
         if (memCacheMsgCntInK != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "memCacheMsgCntInK" : "unfMemMsgCnt"),
+            paramMap.put(
+                    (isLongName ? "memCacheMsgCntInK" : "unfMemMsgCnt"),
                     String.valueOf(memCacheMsgCntInK));
         }
         if (memCacheFlushIntvl != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "memCacheFlushIntvl" : "unfMemInt"),
+            paramMap.put(
+                    (isLongName ? "memCacheFlushIntvl" : "unfMemInt"),
                     String.valueOf(memCacheFlushIntvl));
         }
         if (acceptPublish != null) {
-            paramMap.put((isLongName ? "acceptPublish" : "accPub"),
-                    String.valueOf(acceptPublish));
+            paramMap.put((isLongName ? "acceptPublish" : "accPub"), String.valueOf(acceptPublish));
         }
         if (acceptSubscribe != null) {
-            paramMap.put((isLongName ? "acceptSubscribe" : "accSub"),
-                    String.valueOf(acceptSubscribe));
+            paramMap.put(
+                    (isLongName ? "acceptSubscribe" : "accSub"), String.valueOf(acceptSubscribe));
         }
         if (TStringUtils.isNotBlank(deletePolicy)) {
             paramMap.put((isLongName ? "deletePolicy" : "delPol"), deletePolicy);
         }
         if (dataStoreType != TBaseConstants.META_VALUE_UNDEFINED) {
-            paramMap.put((isLongName ? "dataStoreType" : "dStType"),
-                    String.valueOf(dataStoreType));
+            paramMap.put((isLongName ? "dataStoreType" : "dStType"), String.valueOf(dataStoreType));
         }
         if (TStringUtils.isNotBlank(dataPath)) {
             paramMap.put((isLongName ? "dataPath" : "dPath"), dataPath);
@@ -358,7 +393,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other check object
      * @return if equals
      */
     public boolean isDataEquals(TopicPropGroup other) {
@@ -382,8 +417,8 @@ public class TopicPropGroup implements Serializable, Cloneable {
     /**
      * update subclass field values
      *
-     * @param other   need update information
-     * @return  true is changed, false is not
+     * @param other need update information
+     * @return true is changed, false is not
      */
     public boolean updModifyInfo(TopicPropGroup other) {
         boolean changed = false;
@@ -482,10 +517,22 @@ public class TopicPropGroup implements Serializable, Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(numTopicStores, numPartitions, unflushThreshold,
-                unflushInterval, unflushDataHold, memCacheMsgSizeInMB, memCacheMsgCntInK,
-                memCacheFlushIntvl, acceptPublish, acceptSubscribe, dataStoreType,
-                dataPath, deletePolicy, cleanPolicyType, retPeriodInMs);
+        return Objects.hash(
+                numTopicStores,
+                numPartitions,
+                unflushThreshold,
+                unflushInterval,
+                unflushDataHold,
+                memCacheMsgSizeInMB,
+                memCacheMsgCntInK,
+                memCacheFlushIntvl,
+                acceptPublish,
+                acceptSubscribe,
+                dataStoreType,
+                dataPath,
+                deletePolicy,
+                cleanPolicyType,
+                retPeriodInMs);
     }
 
     @Override
@@ -508,15 +555,17 @@ public class TopicPropGroup implements Serializable, Cloneable {
         String validValStr = tmpStrs[1];
         String timeUnit = validValStr.substring(validValStr.length() - 1).toLowerCase();
         if (timeUnit.endsWith("s")) {
-            validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
+            validDuration =
+                    Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 1000;
         } else if (timeUnit.endsWith("m")) {
-            validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
+            validDuration =
+                    Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 60000;
         } else if (timeUnit.endsWith("h")) {
-            validDuration = Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
+            validDuration =
+                    Long.parseLong(validValStr.substring(0, validValStr.length() - 1)) * 3600000;
         } else {
             validDuration = Long.parseLong(validValStr) * 3600000;
         }
         return new Tuple2<>(CleanPolType.CLEAN_POL_DELETE, validDuration);
     }
-
 }

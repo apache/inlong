@@ -18,14 +18,11 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import java.math.BigDecimal;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
-
-/**
- * The format information for decimals.
- */
+/** The format information for decimals. */
 public class DecimalFormatInfo implements BasicFormatInfo<BigDecimal> {
 
     public static final DecimalFormatInfo INSTANCE = new DecimalFormatInfo();
@@ -35,6 +32,7 @@ public class DecimalFormatInfo implements BasicFormatInfo<BigDecimal> {
     public static final int DEFAULT_SCALE = 0;
 
     private static final long serialVersionUID = 1L;
+
     @JsonProperty("precision")
     private int precision;
 
@@ -50,7 +48,8 @@ public class DecimalFormatInfo implements BasicFormatInfo<BigDecimal> {
     }
 
     @JsonCreator
-    public DecimalFormatInfo(@JsonProperty("precision") int precision, @JsonProperty("scale") int scale) {
+    public DecimalFormatInfo(
+            @JsonProperty("precision") int precision, @JsonProperty("scale") int scale) {
         this.precision = precision;
         this.scale = scale;
     }

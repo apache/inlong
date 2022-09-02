@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -39,160 +45,197 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode} SQL parser.
- */
+/** Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode} SQL parser. */
 public class SqlServerNodeSqlParseTest extends AbstractTestBase {
 
-    /**
-     * Build mysql extract node.
-     */
+    /** Build mysql extract node. */
     private MySqlExtractNode buildMySQLExtractNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()));
         // if you hope hive load mode of append,please add this config.
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
-        return new MySqlExtractNode(id, "mysql", fields,
-                null, map, "id",
-                Collections.singletonList("work1"), "localhost", "root", "password",
-                "inlong", null, null,
-                null, null);
+        return new MySqlExtractNode(
+                id,
+                "mysql",
+                fields,
+                null,
+                map,
+                "id",
+                Collections.singletonList("work1"),
+                "localhost",
+                "root",
+                "password",
+                "inlong",
+                null,
+                null,
+                null,
+                null);
     }
 
-    /**
-     * Build sqlserver extract node.
-     */
+    /** Build sqlserver extract node. */
     private SqlServerExtractNode buildSqlServerExtractNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("val_char", new StringFormatInfo()),
-                new FieldInfo("proctime", new TimestampFormatInfo()),
-                new FieldInfo("database_name", new StringFormatInfo()),
-                new FieldInfo("table_name", new StringFormatInfo()),
-                new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
-        return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
-                null, "localhost", 1433, "SA", "INLONG*123",
-                "column_type_test", "dbo", "full_types", null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("val_char", new StringFormatInfo()),
+                        new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldInfo("table_name", new StringFormatInfo()),
+                        new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("schema_name", new StringFormatInfo()));
+        return new SqlServerExtractNode(
+                id,
+                "sqlserver_out",
+                fields,
+                null,
+                null,
+                null,
+                "localhost",
+                1433,
+                "SA",
+                "INLONG*123",
+                "column_type_test",
+                "dbo",
+                "full_types",
+                null);
     }
 
-    /**
-     * Build kafka load node.
-     */
+    /** Build kafka load node. */
     private KafkaLoadNode buildKafkaNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("val_char", new StringFormatInfo()),
-                new FieldInfo("proctime", new TimestampFormatInfo()),
-                new FieldInfo("database_name", new StringFormatInfo()),
-                new FieldInfo("table_name", new StringFormatInfo()),
-                new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
-        List<FieldRelation> relations = Arrays.asList(
-                new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelation(new FieldInfo("val_char", new StringFormatInfo()),
-                        new FieldInfo("val_char", new StringFormatInfo())),
-                new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
-                        new FieldInfo("proctime", new TimestampFormatInfo())),
-                new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
-                        new FieldInfo("database_name", new StringFormatInfo())),
-                new FieldRelation(new FieldInfo("table_name", new StringFormatInfo()),
-                        new FieldInfo("table_name", new StringFormatInfo())),
-                new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
-                        new FieldInfo("op_ts", new TimestampFormatInfo())),
-                new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                        new FieldInfo("schema_name", new StringFormatInfo()))
-
-        );
-        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
-                "sqlserver", "localhost:9092",
-                new JsonFormat(), null,
-                null, "id");
-    }
-
-    /**
-     * Build sqlserver load node.
-     */
-    private SqlServerLoadNode buildSqlServerLoadNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("val_char", new StringFormatInfo()),
+                        new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldInfo("table_name", new StringFormatInfo()),
+                        new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("schema_name", new StringFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                );
-        return new SqlServerLoadNode(id, "sqlserver_out", fields, relations, null, null, 1,
-                null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
-                "INLONG*123", "dbo", "work1", "id");
+                        new FieldRelation(
+                                new FieldInfo("val_char", new StringFormatInfo()),
+                                new FieldInfo("val_char", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("proctime", new TimestampFormatInfo()),
+                                new FieldInfo("proctime", new TimestampFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("database_name", new StringFormatInfo()),
+                                new FieldInfo("database_name", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("table_name", new StringFormatInfo()),
+                                new FieldInfo("table_name", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("op_ts", new TimestampFormatInfo()),
+                                new FieldInfo("op_ts", new TimestampFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("schema_name", new StringFormatInfo()),
+                                new FieldInfo("schema_name", new StringFormatInfo())));
+
+        return new KafkaLoadNode(
+                id,
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "sqlserver",
+                "localhost:9092",
+                new JsonFormat(),
+                null,
+                null,
+                "id");
     }
 
-    /**
-     * Build node relation.
-     */
+    /** Build sqlserver load node. */
+    private SqlServerLoadNode buildSqlServerLoadNode(String id) {
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())));
+        return new SqlServerLoadNode(
+                id,
+                "sqlserver_out",
+                fields,
+                relations,
+                null,
+                null,
+                1,
+                null,
+                "jdbc:sqlserver://localhost:1433;databaseName=column_type_test",
+                "SA",
+                "INLONG*123",
+                "dbo",
+                "work1",
+                "id");
+    }
+
+    /** Build node relation. */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         return new NodeRelation(inputIds, outputIds);
     }
 
-    /**
-     * Test extract data from mysql and load data to sqlserver.
-     */
+    /** Test extract data from mysql and load data to sqlserver. */
     @Test
     public void testSqlServerLoad() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mySqlExtractNode = buildMySQLExtractNode("1");
         Node sqlServerLoadNode = buildSqlServerLoadNode("2");
-        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(mySqlExtractNode),
-                        Collections.singletonList(sqlServerLoadNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1L",
+                        Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(mySqlExtractNode),
+                                        Collections.singletonList(sqlServerLoadNode))));
         GroupInfo groupInf = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInf);
         Assert.assertTrue(parser.parse().tryExecute());
     }
 
-    /**
-     * Test extract data from sqlserver and load data to kafka.
-     */
+    /** Test extract data from sqlserver and load data to kafka. */
     @Test
     public void testSqlServerExtract() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node sqlServerExtractNode = buildSqlServerExtractNode("1");
         Node kafkaLoadNode = buildKafkaNode("2");
-        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(sqlServerExtractNode),
-                        Collections.singletonList(kafkaLoadNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1L",
+                        Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(sqlServerExtractNode),
+                                        Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         Assert.assertTrue(parser.parse().tryExecute());
     }
-
 }

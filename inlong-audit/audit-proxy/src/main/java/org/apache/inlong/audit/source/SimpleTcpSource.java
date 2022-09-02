@@ -45,10 +45,7 @@ import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Simple tcp source
- *
- */
+/** Simple tcp source */
 public class SimpleTcpSource extends AbstractSource implements Configurable, EventDrivenSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
@@ -109,8 +106,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
     public SimpleTcpSource() {
         super();
-        allChannels = new DefaultChannelGroup("DefaultAuditChannelGroup",
-                GlobalEventExecutor.INSTANCE);
+        allChannels =
+                new DefaultChannelGroup("DefaultAuditChannelGroup", GlobalEventExecutor.INSTANCE);
     }
 
     @Override
@@ -127,11 +124,13 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
         acceptorThreadFactory = new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup");
 
-        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(
-                acceptorThreads, false, acceptorThreadFactory);
+        this.acceptorGroup =
+                EventLoopUtil.newEventLoopGroup(acceptorThreads, false, acceptorThreadFactory);
 
-        this.workerGroup = EventLoopUtil
-                .newEventLoopGroup(maxThreads, enableBusyWait,
+        this.workerGroup =
+                EventLoopUtil.newEventLoopGroup(
+                        maxThreads,
+                        enableBusyWait,
                         new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
 
         bootstrap = new ServerBootstrap();
@@ -146,8 +145,11 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         EventLoopUtil.enableTriggeredMode(bootstrap);
         bootstrap.group(acceptorGroup, workerGroup);
 
-        logger.info("load msgFactory=" + msgFactoryName + " and serviceDecoderName="
-                + serviceDecoderName);
+        logger.info(
+                "load msgFactory="
+                        + msgFactoryName
+                        + " and serviceDecoderName="
+                        + serviceDecoderName);
         ChannelInitializer fac = null;
 
         try {
@@ -156,18 +158,31 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
             Class<? extends ChannelInitializer> clazz =
                     (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
             Constructor ctor =
-                    clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
-                            ServiceDecoder.class, String.class,
-                            Integer.class, Integer.class, String.class);
+                    clazz.getConstructor(
+                            AbstractSource.class,
+                            ChannelGroup.class,
+                            ServiceDecoder.class,
+                            String.class,
+                            Integer.class,
+                            Integer.class,
+                            String.class);
             logger.info("Using channel processor:{}", this.getClass().getName());
-            fac = (ChannelInitializer) ctor
-                    .newInstance(this, allChannels, serviceDecoder,
-                            messageHandlerName, maxMsgLength, maxConnections, this.getName());
+            fac =
+                    (ChannelInitializer)
+                            ctor.newInstance(
+                                    this,
+                                    allChannels,
+                                    serviceDecoder,
+                                    messageHandlerName,
+                                    maxMsgLength,
+                                    maxConnections,
+                                    this.getName());
 
         } catch (Exception e) {
             logger.error(
                     "Simple Tcp Source start error, fail to construct ChannelPipelineFactory with name {}, ex {}",
-                    msgFactoryName, e);
+                    msgFactoryName,
+                    e);
             stop();
             throw new FlumeException(e.getMessage());
         }
@@ -180,8 +195,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
                 channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
-            logger.error("Simple TCP Source error bind host {} port {},program will exit!", host,
-                    port);
+            logger.error(
+                    "Simple TCP Source error bind host {} port {},program will exit!", host, port);
             System.exit(-1);
         }
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
@@ -215,60 +230,70 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         tcpNoDelay = context.getBoolean(ConfigConstants.TCP_NO_DELAY, true);
 
         keepAlive = context.getBoolean(ConfigConstants.KEEP_ALIVE, true);
-        highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK,
-                HIGH_WATER_MARK_DEFAULT_VALUE);
-        receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE,
-                RECEIVE_BUFFER_DEFAULT_SIZE);
+        highWaterMark =
+                context.getInteger(ConfigConstants.HIGH_WATER_MARK, HIGH_WATER_MARK_DEFAULT_VALUE);
+        receiveBufferSize =
+                context.getInteger(
+                        ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
         if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
             receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
-                "receiveBufferSize must be > 0");
+        Preconditions.checkArgument(
+                receiveBufferSize > BUFFER_SIZE_MUST_THAN, "receiveBufferSize must be > 0");
 
-        sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
+        sendBufferSize =
+                context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
         if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
             sendBufferSize = SEND_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
-                "sendBufferSize must be > 0");
+        Preconditions.checkArgument(
+                sendBufferSize > BUFFER_SIZE_MUST_THAN, "sendBufferSize must be > 0");
 
         try {
             maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, DEFAULT_MAX_THREADS);
         } catch (NumberFormatException e) {
-            logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
+            logger.warn(
+                    "Simple TCP Source max-threads property must specify an integer value. {}",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
 
         try {
             maxConnections = context.getInteger(CONNECTIONS, DEFAULT_MAX_CONNECTIONS);
         } catch (NumberFormatException e) {
-            logger.warn("BaseSource\'s \"connections\" property must specify an integer value.",
+            logger.warn(
+                    "BaseSource\'s \"connections\" property must specify an integer value.",
                     context.getString(CONNECTIONS));
         }
 
-        msgFactoryName = context.getString(ConfigConstants.MSG_FACTORY_NAME,
-                "org.apache.inlong.audit.source.ServerMessageFactory");
+        msgFactoryName =
+                context.getString(
+                        ConfigConstants.MSG_FACTORY_NAME,
+                        "org.apache.inlong.audit.source.ServerMessageFactory");
         msgFactoryName = msgFactoryName.trim();
-        Preconditions
-                .checkArgument(StringUtils.isNotBlank(msgFactoryName), "msgFactoryName is empty");
+        Preconditions.checkArgument(
+                StringUtils.isNotBlank(msgFactoryName), "msgFactoryName is empty");
 
-        serviceDecoderName = context.getString(ConfigConstants.SERVICE_PROCESSOR_NAME,
-                "org.apache.inlong.audit.source.DefaultServiceDecoder");
+        serviceDecoderName =
+                context.getString(
+                        ConfigConstants.SERVICE_PROCESSOR_NAME,
+                        "org.apache.inlong.audit.source.DefaultServiceDecoder");
         serviceDecoderName = serviceDecoderName.trim();
-        Preconditions.checkArgument(StringUtils.isNotBlank(serviceDecoderName),
-                "serviceProcessorName is empty");
+        Preconditions.checkArgument(
+                StringUtils.isNotBlank(serviceDecoderName), "serviceProcessorName is empty");
 
-        messageHandlerName = context.getString(ConfigConstants.MESSAGE_HANDLER_NAME,
-                "org.apache.inlong.audit.source.ServerMessageHandler");
+        messageHandlerName =
+                context.getString(
+                        ConfigConstants.MESSAGE_HANDLER_NAME,
+                        "org.apache.inlong.audit.source.ServerMessageHandler");
         messageHandlerName = messageHandlerName.trim();
-        Preconditions.checkArgument(StringUtils.isNotBlank(messageHandlerName),
-                "messageHandlerName is empty");
+        Preconditions.checkArgument(
+                StringUtils.isNotBlank(messageHandlerName), "messageHandlerName is empty");
 
         maxMsgLength = context.getInteger(ConfigConstants.MAX_MSG_LENGTH, MAX_MSG_LENGTH);
         Preconditions.checkArgument(
-                (maxMsgLength >= MIN_MSG_LENGTH && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
+                (maxMsgLength >= MIN_MSG_LENGTH
+                        && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
                 "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
-        this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR,
-                false);
+        this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
     }
 }

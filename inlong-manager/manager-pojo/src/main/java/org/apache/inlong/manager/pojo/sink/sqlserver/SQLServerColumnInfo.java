@@ -21,9 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * SQLServer column info.
- */
+/** SQLServer column info. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

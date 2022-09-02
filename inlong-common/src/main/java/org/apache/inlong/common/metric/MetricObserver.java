@@ -20,11 +20,6 @@ package org.apache.inlong.common.metric;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,19 +29,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * MetricObserver
- */
+/** MetricObserver */
 public class MetricObserver {
 
     public static final Logger LOG = LoggerFactory.getLogger(MetricObserver.class);
     private static final AtomicBoolean isInited = new AtomicBoolean(false);
     private static ScheduledExecutorService statExecutor = Executors.newScheduledThreadPool(5);
 
-    /**
-     * init
-     */
+    /** init */
     public static void init(Map<String, String> commonProperties) {
         if (!isInited.compareAndSet(false, true)) {
             return;
@@ -60,27 +55,33 @@ public class MetricObserver {
         String[] domains = metricDomains.split("\\s+");
         for (String domain : domains) {
             // get domain parameters
-            Map<String, String> domainMap = getSubProperties(commonProperties,
-                    MetricListener.KEY_METRIC_DOMAINS + "." + domain + ".");
+            Map<String, String> domainMap =
+                    getSubProperties(
+                            commonProperties,
+                            MetricListener.KEY_METRIC_DOMAINS + "." + domain + ".");
             List<MetricListener> listenerList = parseDomain(domainMap);
             // no listener
             if (listenerList == null || listenerList.size() <= 0) {
                 continue;
             }
             // get snapshot interval
-            long snapshotInterval = Long.parseLong(
-                    domainMap.getOrDefault(MetricListener.KEY_SNAPSHOT_INTERVAL, "60000"));
-            LOG.info("begin to register domain:{}, MetricListeners:{}, snapshotInterval:{}",
-                    domain, listenerList, snapshotInterval);
-            statExecutor.scheduleWithFixedDelay(new MetricListenerRunnable(domain, listenerList), snapshotInterval,
-                    snapshotInterval, TimeUnit.MILLISECONDS);
+            long snapshotInterval =
+                    Long.parseLong(
+                            domainMap.getOrDefault(MetricListener.KEY_SNAPSHOT_INTERVAL, "60000"));
+            LOG.info(
+                    "begin to register domain:{}, MetricListeners:{}, snapshotInterval:{}",
+                    domain,
+                    listenerList,
+                    snapshotInterval);
+            statExecutor.scheduleWithFixedDelay(
+                    new MetricListenerRunnable(domain, listenerList),
+                    snapshotInterval,
+                    snapshotInterval,
+                    TimeUnit.MILLISECONDS);
         }
-
     }
 
-    /**
-     * parseDomain
-     */
+    /** parseDomain */
     private static List<MetricListener> parseDomain(Map<String, String> domainMap) {
         String listeners = domainMap.get(MetricListener.KEY_DOMAIN_LISTENERS);
         if (StringUtils.isBlank(listeners)) {
@@ -100,21 +101,18 @@ public class MetricObserver {
                 final MetricListener listener = (MetricListener) listenerObject;
                 listenerList.add(listener);
             } catch (Throwable t) {
-                LOG.error("Fail to init MetricListener:{},error:{}",
-                        listenerType, t.getMessage());
+                LOG.error("Fail to init MetricListener:{},error:{}", listenerType, t.getMessage());
             }
         }
         return listenerList;
     }
 
-    /**
-     * Get properties.
-     */
-    public static ImmutableMap<String, String> getSubProperties(Map<String, String> commonProperties,
-            String prefix) {
-        Preconditions
-                .checkArgument(prefix.endsWith("."),
-                        "The given prefix does not end with a period (" + prefix + ")");
+    /** Get properties. */
+    public static ImmutableMap<String, String> getSubProperties(
+            Map<String, String> commonProperties, String prefix) {
+        Preconditions.checkArgument(
+                prefix.endsWith("."),
+                "The given prefix does not end with a period (" + prefix + ")");
         Map<String, String> result = Maps.newHashMap();
         synchronized (commonProperties) {
             Iterator var4 = commonProperties.entrySet().iterator();

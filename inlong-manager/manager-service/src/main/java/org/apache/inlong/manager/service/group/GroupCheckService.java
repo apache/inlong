@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -26,17 +28,11 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Service of inlong group check.
- */
+/** Service of inlong group check. */
 @Service
 public class GroupCheckService {
 
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongGroupEntityMapper groupMapper;
 
     /**
      * Check whether the inlong group status is temporary
@@ -47,19 +43,21 @@ public class GroupCheckService {
     public InlongGroupEntity checkGroupStatus(String groupId, String operator) {
         InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         if (inlongGroupEntity == null) {
-            throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+            throw new BusinessException(
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
 
         List<String> managers = Arrays.asList(inlongGroupEntity.getInCharges().split(","));
-        Preconditions.checkTrue(managers.contains(operator),
+        Preconditions.checkTrue(
+                managers.contains(operator),
                 String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
 
         GroupStatus status = GroupStatus.forCode(inlongGroupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+            throw new BusinessException(
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
 
         return inlongGroupEntity;
     }
-
 }

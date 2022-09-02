@@ -25,6 +25,7 @@ import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TIDS;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TOPIC;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TYPE_VALUE_TUBEMQ;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -32,28 +33,20 @@ import javax.annotation.Nullable;
 import org.apache.flink.table.descriptors.ConnectorDescriptor;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
-/**
- * The {@link ConnectorDescriptor} for tubemq sources and sinks.
- */
+/** The {@link ConnectorDescriptor} for tubemq sources and sinks. */
 public class Tubemq extends ConnectorDescriptor {
 
-    @Nullable
-    private boolean consumerRole = true;
+    @Nullable private boolean consumerRole = true;
 
-    @Nullable
-    private String topic;
+    @Nullable private String topic;
 
-    @Nullable
-    private String master;
+    @Nullable private String master;
 
-    @Nullable
-    private String group;
+    @Nullable private String group;
 
-    @Nullable
-    private String tids;
+    @Nullable private String tids;
 
-    @Nonnull
-    private Map<String, String> properties;
+    @Nonnull private Map<String, String> properties;
 
     public Tubemq() {
         super(CONNECTOR_TYPE_VALUE_TUBEMQ, 1, true);
@@ -121,7 +114,7 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the tubemq property.
      *
-     * @param key   The key of the property.
+     * @param key The key of the property.
      * @param value The value of the property.
      */
     public Tubemq property(String key, String value) {

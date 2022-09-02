@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -37,26 +47,13 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
 import org.apache.inlong.sdk.commons.utils.GzipUtils;
-import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.MetadataConverter;
 import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.InLongPbMsgDecompressor;
+import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.MetadataConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-/**
- * InLongMsg pb format decoding format.
- */
+/** InLongMsg pb format decoding format. */
 public class InLongMsgPbDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     private static final Logger log = LoggerFactory.getLogger(InLongMsgPbDecodingFormat.class);
@@ -80,7 +77,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
             boolean ignoreTrailingUnmappable,
             String decompressType) {
         this.innerDecodingFormat = innerDecodingFormat;
-        this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
+        this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
         this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
@@ -88,11 +85,13 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     }
 
     @Override
-    public DeserializationSchema<RowData> createRuntimeDecoder(Context context, DataType physicalDataType) {
-        final MetadataConverter[] metadataConverters = Arrays.stream(ReadableMetadata.values())
-                .filter(metadata -> metadataKeys.contains(metadata.key))
-                .map(metadata -> metadata.converter)
-                .toArray(MetadataConverter[]::new);
+    public DeserializationSchema<RowData> createRuntimeDecoder(
+            Context context, DataType physicalDataType) {
+        final MetadataConverter[] metadataConverters =
+                Arrays.stream(ReadableMetadata.values())
+                        .filter(metadata -> metadataKeys.contains(metadata.key))
+                        .map(metadata -> metadata.converter)
+                        .toArray(MetadataConverter[]::new);
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
@@ -118,11 +117,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
             this.makeCsvInnerFormatIgnoreTrailingUnmappable(innerSchema);
         }
         return new InLongMsgPbDeserializationSchema(
-                innerSchema,
-                metadataConverters,
-                producedTypeInfo,
-                decompressor,
-                ignoreErrors);
+                innerSchema, metadataConverters, producedTypeInfo, decompressor, ignoreErrors);
     }
 
     @Override
@@ -132,7 +127,9 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
         // add inner format metadata with prefix
         innerDecodingFormat
                 .listReadableMetadata()
-                .forEach((key, value) -> metadataMap.putIfAbsent(innerFormatMetaPrefix + key, value));
+                .forEach(
+                        (key, value) ->
+                                metadataMap.putIfAbsent(innerFormatMetaPrefix + key, value));
 
         // add format metadata
         Stream.of(ReadableMetadata.values())
@@ -181,12 +178,12 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
         }
     }
 
-    /**
-     * Use reflection to make csv format ignore tailing unmappable.
-     */
-    private void makeCsvInnerFormatIgnoreTrailingUnmappable(DeserializationSchema<RowData> innerSchema) {
+    /** Use reflection to make csv format ignore tailing unmappable. */
+    private void makeCsvInnerFormatIgnoreTrailingUnmappable(
+            DeserializationSchema<RowData> innerSchema) {
         try {
-            Field readerField = CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
+            Field readerField =
+                    CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
             readerField.setAccessible(true);
             ObjectReader oldReader = (ObjectReader) readerField.get(innerSchema);
 
@@ -194,10 +191,11 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
             schemaField.setAccessible(true);
             CsvSchema oldSchema = (CsvSchema) schemaField.get(oldReader);
 
-            ObjectReader newReader = new CsvMapper()
-                    .enable(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE)
-                    .readerFor(JsonNode.class)
-                    .with(oldSchema);
+            ObjectReader newReader =
+                    new CsvMapper()
+                            .enable(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE)
+                            .readerFor(JsonNode.class)
+                            .with(oldSchema);
             readerField.set(innerSchema, newReader);
         } catch (Throwable t) {
             log.error("failed to make csv inner format to ignore trailing unmappable, ex is ", t);

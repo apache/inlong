@@ -19,11 +19,10 @@ package org.apache.inlong.tubemq.manager.service;
 
 public class TubeConst {
 
-    /**
-     * default urls
-     */
+    /** default urls */
     public static final String BROKER_RUN_STATUS =
             "/webapi.htm?type=op_query&method=admin_query_broker_run_status";
+
     public static final String TOPIC_CONFIG_INFO =
             "/webapi.htm?type=op_query&method=admin_query_topic_info";
     public static final String QUERY_GROUP_DETAIL_INFO =
@@ -39,10 +38,9 @@ public class TubeConst {
     public static final String QUERY_CONSUMER_INFO =
             "/webapi.htm?type=op_query&method=admin_query_sub_info";
 
-    /**
-     * http method type
-     */
+    /** http method type */
     public static final String ONLINE = "online";
+
     public static final String RELOAD = "reload";
     public static final String OFFLINE = "offline";
     public static final String MODIFY = "modify";
@@ -64,35 +62,31 @@ public class TubeConst {
     public static final String FLOW_CONTROL = "flowControl";
     public static final String BATCH_DELETE = "batchDelete";
 
-
-    /**
-     * status code
-     */
+    /** status code */
     public static final Integer SUCCESS_CODE = 0;
+
     public static final Integer DELETE_FAIL = 0;
     public static final Long DEFAULT_REGION = 0L;
     public static final String TUBEADMIN = "tubeAdmin";
 
-    /**
-     * tube master method name
-     */
-    public static final String BATCH_ADD_GROUP_METHOD = "admin_bath_add_authorized_consumergroup_info";
+    /** tube master method name */
+    public static final String BATCH_ADD_GROUP_METHOD =
+            "admin_bath_add_authorized_consumergroup_info";
+
     public static final String BATCH_ADD_TOPIC = "admin_add_new_topic_record";
     public static final String REBALANCE_GROUP = "admin_rebalance_group_allocate";
     public static final String BATCH_ADD_BROKER = "admin_bath_add_broker_configure";
     public static final String QUERY_BROKER_CONFIG = "admin_query_broker_configure";
     public static final String SET_AUTH_CONTROL = "admin_set_topic_authorize_control";
 
-    /**
-     * tube master op type
-     */
+    /** tube master op type */
     public static final String OP_QUERY = "op_query";
+
     public static final String OP_MODIFY = "op_modify";
 
-    /**
-     * tube http const for url format
-     */
+    /** tube http const for url format */
     public static final String CONF_MOD_AUTH_TOKEN = "&confModAuthToken=";
+
     public static final String BROKER_ID = "&brokerId=";
     public static final String MODIFY_USER = "&modifyUser=";
     public static final String TOPIC_NAME = "&topicName=";
@@ -101,5 +95,4 @@ public class TubeConst {
     public static final String SCHEMA = "http://";
     public static final String WEB_API = "webapi";
     public static final String TUBE_REQUEST_PATH = "webapi.htm";
-
 }

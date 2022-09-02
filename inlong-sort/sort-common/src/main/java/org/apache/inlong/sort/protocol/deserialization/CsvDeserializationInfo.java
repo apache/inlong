@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.deserialization;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Csv deserialization info
- */
+/** Csv deserialization info */
 public class CsvDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = -5035426390567887081L;
@@ -32,8 +30,7 @@ public class CsvDeserializationInfo implements DeserializationInfo {
     // TODO: support mapping index to field
 
     @JsonCreator
-    public CsvDeserializationInfo(
-            @JsonProperty("splitter") char splitter) {
+    public CsvDeserializationInfo(@JsonProperty("splitter") char splitter) {
         this.splitter = splitter;
     }
 

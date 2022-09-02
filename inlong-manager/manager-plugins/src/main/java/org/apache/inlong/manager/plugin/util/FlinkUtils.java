@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.plugin.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -35,20 +30,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Util of flink.
- */
+/** Util of flink. */
 @Slf4j
 public class FlinkUtils {
 
     public static final String BASE_DIRECTORY = "config";
 
-    public static final List<String> FLINK_VERSION_COLLECTION = Collections.singletonList("Flink-1.13");
+    public static final List<String> FLINK_VERSION_COLLECTION =
+            Collections.singletonList("Flink-1.13");
 
-    /**
-     * getLatestFlinkVersion
-     */
+    /** getLatestFlinkVersion */
     public static String getLatestFlinkVersion(String[] supportedFlink) {
         if (Objects.isNull(supportedFlink)) {
             return null;
@@ -56,8 +52,11 @@ public class FlinkUtils {
         Arrays.sort(supportedFlink, Collections.reverseOrder());
         String latestFinkVersion = null;
         for (String flinkVersion : supportedFlink) {
-            latestFinkVersion = FLINK_VERSION_COLLECTION.stream()
-                    .filter(v -> v.equals(flinkVersion)).findFirst().orElse(null);
+            latestFinkVersion =
+                    FLINK_VERSION_COLLECTION.stream()
+                            .filter(v -> v.equals(flinkVersion))
+                            .findFirst()
+                            .orElse(null);
             if (Objects.nonNull(latestFinkVersion)) {
                 return latestFinkVersion;
             }
@@ -65,9 +64,7 @@ public class FlinkUtils {
         return latestFinkVersion;
     }
 
-    /**
-     * print exception
-     */
+    /** print exception */
     public static String getExceptionStackMsg(Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter, true));
@@ -127,9 +124,7 @@ public class FlinkUtils {
         return result;
     }
 
-    /**
-     * get value
-     */
+    /** get value */
     public static String getValue(String key, String defaultValue) {
         return StringUtils.isNotEmpty(key) ? key : defaultValue;
     }
@@ -152,7 +147,8 @@ public class FlinkUtils {
      * @param content contents of the file to be written
      * @return whether success
      */
-    public static boolean writeConfigToFile(String configJobDirectory, String configFileName, String content) {
+    public static boolean writeConfigToFile(
+            String configJobDirectory, String configFileName, String content) {
         File file = new File(configJobDirectory);
         if (!file.exists()) {
             file.mkdirs();

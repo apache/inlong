@@ -18,6 +18,10 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.Page;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -26,19 +30,10 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 
-import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Interface of the source operator
- */
+/** Interface of the source operator */
 public interface StreamSourceOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String sourceType);
 
     /**
@@ -76,8 +71,10 @@ public interface StreamSourceOperator {
      * @return map of StreamSource list, key-inlongStreamId, value-StreamSourceList
      * @apiNote The MQ source which was used in InlongGroup must implement the method.
      */
-    default Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
+    default Map<String, List<StreamSource>> getSourcesMap(
+            InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
         return new HashMap<>();
     }
 
@@ -113,5 +110,4 @@ public interface StreamSourceOperator {
      * @param operator name of operator
      */
     void restartOpt(SourceRequest request, String operator);
-
 }

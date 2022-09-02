@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * TubeMQ option constant.
- */
+/** TubeMQ option constant. */
 public class TubeMQConstant {
 
     public static final String TOPIC = "topic";
@@ -37,11 +35,8 @@ public class TubeMQConstant {
 
     public static final String SESSION_KEY = "session.key";
 
-    /**
-     * The tubemq consumers use this tid set to filter records reading from server.
-     */
+    /** The tubemq consumers use this tid set to filter records reading from server. */
     public static final String TID = "tid";
 
     public static final String CONSUMER_STARTUP_MODE = "consumer.startup.mode";
-
 }

@@ -1,34 +1,27 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.channel;
 
+import java.util.Map;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
-import java.util.Map;
-
-/**
- * 
- * ProfileEvent
- */
+/** ProfileEvent */
 public class ProfileEvent extends SimpleEvent {
 
     private final String inlongGroupId;
@@ -43,6 +36,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * Constructor
+     *
      * @param headers
      * @param body
      */
@@ -60,7 +54,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * Constructor
-     * 
+     *
      * @param sdkMessage
      * @param cacheRecord
      */
@@ -79,7 +73,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -88,7 +82,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -97,7 +91,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get rawLogTime
-     * 
+     *
      * @return the rawLogTime
      */
     public long getRawLogTime() {
@@ -106,6 +100,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get sourceIp
+     *
      * @return the sourceIp
      */
     public String getSourceIp() {
@@ -114,7 +109,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get fetchTime
-     * 
+     *
      * @return the fetchTime
      */
     public long getFetchTime() {
@@ -123,7 +118,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get uid
-     * 
+     *
      * @return the uid
      */
     public String getUid() {
@@ -132,16 +127,14 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get cacheRecord
-     * 
+     *
      * @return the cacheRecord
      */
     public CacheMessageRecord getCacheRecord() {
         return cacheRecord;
     }
 
-    /**
-     * ack
-     */
+    /** ack */
     public void ack() {
         if (cacheRecord != null) {
             cacheRecord.ackMessage(ackToken);

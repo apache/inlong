@@ -20,12 +20,17 @@ package org.apache.inlong.manager.common.enums;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The simple group status, more readable for users
- */
+/** The simple group status, more readable for users */
 public enum SimpleGroupStatus {
-
-    CREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED;
+    CREATE,
+    REJECTED,
+    INITIALIZING,
+    OPERATING,
+    STARTED,
+    FAILED,
+    STOPPED,
+    FINISHED,
+    DELETED;
 
     /**
      * Parse SimpleGroupStatus from the status code
@@ -61,7 +66,8 @@ public enum SimpleGroupStatus {
             case DELETED:
                 return DELETED;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported status %s for group", code));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported status %s for group", code));
         }
     }
 
@@ -75,7 +81,8 @@ public enum SimpleGroupStatus {
         try {
             groupStatus = SimpleGroupStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(String.format("Unsupported status %s for group", status));
+            throw new IllegalArgumentException(
+                    String.format("Unsupported status %s for group", status));
         }
 
         List<Integer> statusList = new ArrayList<>();
@@ -114,9 +121,8 @@ public enum SimpleGroupStatus {
                 statusList.add(GroupStatus.DELETED.getCode());
                 return statusList;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported status %s for group", status));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported status %s for group", status));
         }
     }
-
 }
-

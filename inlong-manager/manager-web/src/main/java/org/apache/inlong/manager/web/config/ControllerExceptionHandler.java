@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.web.config;
 
+import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -33,14 +37,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.Set;
-
-/**
- * Handler of controller exception.
- */
+/** Handler of controller exception. */
 @Slf4j
 @RestControllerAdvice
 public class ControllerExceptionHandler {
@@ -48,8 +45,8 @@ public class ControllerExceptionHandler {
     private static final String ERROR_MSG = "failed to handle request on path: %s by user: %s";
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public Response<String> handleConstraintViolationException(HttpServletRequest request,
-            ConstraintViolationException e) {
+    public Response<String> handleConstraintViolationException(
+            HttpServletRequest request, ConstraintViolationException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
@@ -64,28 +61,34 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
-            MethodArgumentNotValidException e) {
+    public Response<String> handleMethodArgumentNotValidException(
+            HttpServletRequest request, MethodArgumentNotValidException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
         BindingResult result = e.getBindingResult();
-        result.getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(": ")
-                        .append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+        result.getFieldErrors()
+                .forEach(
+                        error ->
+                                builder.append(error.getField())
+                                        .append(": ")
+                                        .append(error.getDefaultMessage())
+                                        .append(System.lineSeparator()));
 
-        result.getGlobalErrors().forEach(
-                error -> builder.append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+        result.getGlobalErrors()
+                .forEach(
+                        error ->
+                                builder.append(error.getDefaultMessage())
+                                        .append(System.lineSeparator()));
 
         return Response.fail(builder.toString());
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
-    public Response<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
+    public Response<String> handleIllegalArgumentException(
+            HttpServletRequest request, IllegalArgumentException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
@@ -93,22 +96,27 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(value = BindException.class)
-    public Response<String> handleBindExceptionHandler(HttpServletRequest request, BindException e) {
+    public Response<String> handleBindExceptionHandler(
+            HttpServletRequest request, BindException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
-        e.getBindingResult().getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(": ")
-                        .append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+        e.getBindingResult()
+                .getFieldErrors()
+                .forEach(
+                        error ->
+                                builder.append(error.getField())
+                                        .append(": ")
+                                        .append(error.getDefaultMessage())
+                                        .append(System.lineSeparator()));
         return Response.fail(builder.toString());
     }
 
     @ExceptionHandler(value = HttpMessageConversionException.class)
-    public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
-            HttpMessageConversionException e) {
+    public Response<String> handleHttpMessageConversionExceptionHandler(
+            HttpServletRequest request, HttpMessageConversionException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
@@ -116,7 +124,8 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(value = WorkflowException.class)
-    public Response<String> handleWorkflowException(HttpServletRequest request, WorkflowException e) {
+    public Response<String> handleWorkflowException(
+            HttpServletRequest request, WorkflowException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
@@ -124,7 +133,8 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(value = BusinessException.class)
-    public Response<String> handleBusinessExceptionHandler(HttpServletRequest request, BusinessException e) {
+    public Response<String> handleBusinessExceptionHandler(
+            HttpServletRequest request, BusinessException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
@@ -132,18 +142,22 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
-    public Response<String> handleAuthenticationException(HttpServletRequest request, AuthenticationException e) {
+    public Response<String> handleAuthenticationException(
+            HttpServletRequest request, AuthenticationException e) {
         log.error(String.format(ERROR_MSG, request.getRequestURI(), ""), e);
         return Response.fail("Username or password was incorrect, or the account has expired");
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
-    public Response<String> handleUnauthorizedException(HttpServletRequest request, AuthorizationException e) {
+    public Response<String> handleUnauthorizedException(
+            HttpServletRequest request, AuthorizationException e) {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
-        return Response.fail(String.format("Current user [%s] has no permission to access URL",
-                (userInfo != null ? userInfo.getName() : "")));
+        return Response.fail(
+                String.format(
+                        "Current user [%s] has no permission to access URL",
+                        (userInfo != null ? userInfo.getName() : "")));
     }
 
     @ExceptionHandler(Exception.class)
@@ -151,8 +165,9 @@ public class ControllerExceptionHandler {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         String username = userInfo != null ? userInfo.getName() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
-        return Response.fail("There was an error in the service..."
-                + "Please try again later! "
-                + "If there are still problems, please contact the administrator");
+        return Response.fail(
+                "There was an error in the service..."
+                        + "Please try again later! "
+                        + "If there are still problems, please contact the administrator");
     }
 }

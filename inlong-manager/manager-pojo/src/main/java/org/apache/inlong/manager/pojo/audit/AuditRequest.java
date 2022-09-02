@@ -19,17 +19,14 @@ package org.apache.inlong.manager.pojo.audit;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
-
-/**
- * The request info of audit.
- */
+/** The request info of audit. */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Audit query request")
@@ -38,21 +35,26 @@ public class AuditRequest {
     @NotBlank(message = "inlongGroupId not be blank")
     @ApiModelProperty(value = "inlong group id", required = true)
     private String inlongGroupId;
+
     @NotBlank(message = "inlongStreamId not be blank")
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
+
     @NotEmpty(message = "auditIds not be empty")
     @ApiModelProperty(value = "audit id list", required = true)
     private List<String> auditIds;
 
-    @ApiModelProperty(value = "query date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
+    @ApiModelProperty(
+            value = "query date, format by 'yyyy-MM-dd'",
+            required = true,
+            example = "2022-01-01")
     @NotBlank(message = "dt not be blank")
     private String dt;
 
-    /**
-     * Time statics dim such as MINUTE, HOUR, DAY
-     */
-    @ApiModelProperty(value = "time statics dim, default MINUTE", required = true, example = "MINUTE")
+    /** Time statics dim such as MINUTE, HOUR, DAY */
+    @ApiModelProperty(
+            value = "time statics dim, default MINUTE",
+            required = true,
+            example = "MINUTE")
     private TimeStaticsDim timeStaticsDim = TimeStaticsDim.MINUTE;
-
 }

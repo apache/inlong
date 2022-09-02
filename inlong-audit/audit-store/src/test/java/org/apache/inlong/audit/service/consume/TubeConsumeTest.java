@@ -17,6 +17,11 @@
 
 package org.apache.inlong.audit.service.consume;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
@@ -30,12 +35,6 @@ import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TubeConsumeTest {
 
@@ -62,19 +61,24 @@ public class TubeConsumeTest {
 
     /**
      * testConsume
+     *
      * @throws InterruptedException
      */
     @Test
     public void testConsume() throws InterruptedException {
         List<InsertData> insertServiceList = this.getInsertServiceList();
-        Thread consumeFetch = new Thread(new TubeConsume(insertServiceList, storeConfig, mqConfig).new Fetcher(
-                pullMessageConsumer, topic), "fetch thread");
+        Thread consumeFetch =
+                new Thread(
+                        new TubeConsume(insertServiceList, storeConfig, mqConfig)
+                        .new Fetcher(pullMessageConsumer, topic),
+                        "fetch thread");
         consumeFetch.start();
         consumeFetch.interrupt();
     }
 
     /**
      * getInsertServiceList
+     *
      * @return
      */
     private List<InsertData> getInsertServiceList() {

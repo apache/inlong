@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.relation;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -28,20 +31,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Temporal join relation base class
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Temporal join relation base class */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InnerTemporalJoinRelation.class, name = "innerTemporalJoin"),
-        @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelation.class, name = "leftOuterTemporalJoin")
+    @JsonSubTypes.Type(value = InnerTemporalJoinRelation.class, name = "innerTemporalJoin"),
+    @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelation.class, name = "leftOuterTemporalJoin")
 })
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -56,9 +50,9 @@ public abstract class TemporalJoinRelation extends JoinRelation {
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
-     * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     * @param joinConditionMap The joinConditionMap is a map of join conditions the key of
+     *     joinConditionMap is the node id of join node the value of joinConditionMap is a list of
+     *     join contidition
      * @param systemTime The system time for temporal join
      */
     @JsonCreator

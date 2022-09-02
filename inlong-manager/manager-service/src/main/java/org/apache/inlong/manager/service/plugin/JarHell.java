@@ -18,44 +18,39 @@
 package org.apache.inlong.manager.service.plugin;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Class for deal with jar hell.
- */
+/** Class for deal with jar hell. */
 public class JarHell {
 
-    public static final JavaVersion CURRENT_VERSION = new JavaVersion(Lists.newArrayList(1, 8), null);
+    public static final JavaVersion CURRENT_VERSION =
+            new JavaVersion(Lists.newArrayList(1, 8), null);
 
-    private JarHell() {
-    }
+    private JarHell() {}
 
-    /**
-     * Check the validation for java version
-     */
+    /** Check the validation for java version */
     public static void checkJavaVersion(String resource, String javaVersion) {
         JavaVersion version = parse(javaVersion);
         if (CURRENT_VERSION.compareTo(version) < 0) {
             throw new IllegalArgumentException(
-                    String.format("%s requires Java %s:, your system: %s", resource, CURRENT_VERSION,
-                            javaVersion));
+                    String.format(
+                            "%s requires Java %s:, your system: %s",
+                            resource, CURRENT_VERSION, javaVersion));
         }
     }
 
-    /**
-     * Parse the java version from the given value
-     */
+    /** Parse the java version from the given value */
     public static JavaVersion parse(String value) {
         Objects.requireNonNull(value);
         String prePart = null;
         if (!isValid(value)) {
-            throw new IllegalArgumentException("Java version string [" + value + "] could not be parsed.");
+            throw new IllegalArgumentException(
+                    "Java version string [" + value + "] could not be parsed.");
         }
         List<Integer> version = new ArrayList<>();
         String[] parts = value.split("-");
@@ -66,7 +61,8 @@ public class JarHell {
             numericComponents = parts[0].split("\\.");
             prePart = parts[1];
         } else {
-            throw new IllegalArgumentException("Java version string [" + value + "] could not be parsed.");
+            throw new IllegalArgumentException(
+                    "Java version string [" + value + "] could not be parsed.");
         }
 
         for (String component : numericComponents) {
@@ -75,16 +71,12 @@ public class JarHell {
         return new JavaVersion(version, prePart);
     }
 
-    /**
-     * Check the string if is vaild.
-     */
+    /** Check the string if is vaild. */
     public static boolean isValid(String value) {
         return value.matches("^0*[0-9]+(\\.[0-9]+)*(-[a-zA-Z0-9]+)?$");
     }
 
-    /**
-     * Java version class
-     */
+    /** Java version class */
     public static class JavaVersion {
 
         private final List<Integer> version;
@@ -108,9 +100,7 @@ public class JarHell {
             return StringUtils.join(version, '.') + "-" + prePart;
         }
 
-        /**
-         * Compare to other version
-         */
+        /** Compare to other version */
         public int compareTo(JavaVersion o) {
             int len = Math.max(version.size(), o.version.size());
             for (int i = 0; i < len; i++) {
@@ -136,10 +126,10 @@ public class JarHell {
         private int comparePrePart(String prePart, String otherPrePart) {
             if (prePart.matches("\\d+")) {
                 return otherPrePart.matches("\\d+")
-                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart)) : -1;
+                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart))
+                        : -1;
             } else {
-                return otherPrePart.matches("\\d+")
-                        ? 1 : prePart.compareTo(otherPrePart);
+                return otherPrePart.matches("\\d+") ? 1 : prePart.compareTo(otherPrePart);
             }
         }
     }

@@ -22,15 +22,11 @@ import javax.validation.groups.Default;
 /**
  * Used for validate update request fields group
  *
- * <p/>
- * In general, the request body of save and update can be shared,
- * but we need to verify the parameters of the two requests separately
+ * <p>In general, the request body of save and update can be shared, but we need to verify the
+ * parameters of the two requests separately
  *
- * <p/>
- * For example, the request body save and update only have the difference in id,
- * and this id must be carried when updating, we can use it like this
- * <code>org.apache.inlong.manager.pojo.node.DataNodeRequest</code>
+ * <p>For example, the request body save and update only have the difference in id, and this id must
+ * be carried when updating, we can use it like this <code>
+ * org.apache.inlong.manager.pojo.node.DataNodeRequest</code>
  */
-public interface UpdateValidation extends Default {
-
-}
+public interface UpdateValidation extends Default {}

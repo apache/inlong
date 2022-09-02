@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link BooleanFormatInfo}.
- */
+/** Unit tests for {@link BooleanFormatInfo}. */
 public class BooleanFormatInfoTest extends FormatInfoTestBase {
 
     @Override

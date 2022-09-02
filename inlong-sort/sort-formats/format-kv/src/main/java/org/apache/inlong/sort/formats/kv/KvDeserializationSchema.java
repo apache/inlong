@@ -45,47 +45,26 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Format information describing the result type.
-     */
-    @Nonnull
-    private final RowFormatInfo rowFormatInfo;
+    /** Format information describing the result type. */
+    @Nonnull private final RowFormatInfo rowFormatInfo;
 
-    /**
-     * The charset of the text.
-     */
-    @Nonnull
-    private final String charset;
+    /** The charset of the text. */
+    @Nonnull private final String charset;
 
-    /**
-     * The delimiter between entries.
-     */
-    @Nonnull
-    private final Character entryDelimiter;
+    /** The delimiter between entries. */
+    @Nonnull private final Character entryDelimiter;
 
-    /**
-     * The delimiter between key and value.
-     */
-    @Nonnull
-    private final Character kvDelimiter;
+    /** The delimiter between key and value. */
+    @Nonnull private final Character kvDelimiter;
 
-    /**
-     * Escape character. Null if escaping is disabled.
-     */
-    @Nullable
-    private final Character escapeChar;
+    /** Escape character. Null if escaping is disabled. */
+    @Nullable private final Character escapeChar;
 
-    /**
-     * Quote character. Null if quoting is disabled.
-     */
-    @Nullable
-    private final Character quoteChar;
+    /** Quote character. Null if quoting is disabled. */
+    @Nullable private final Character quoteChar;
 
-    /**
-     * The literal represented null values, default "".
-     */
-    @Nullable
-    private final String nullLiteral;
+    /** The literal represented null values, default "". */
+    @Nullable private final String nullLiteral;
 
     public KvDeserializationSchema(
             @Nonnull RowFormatInfo rowFormatInfo,
@@ -94,8 +73,7 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.entryDelimiter = entryDelimiter;
         this.kvDelimiter = kvDelimiter;
@@ -105,9 +83,7 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
         this.nullLiteral = nullLiteral;
     }
 
-    public KvDeserializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+    public KvDeserializationSchema(@Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
@@ -115,8 +91,7 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
                 TableFormatConstants.DEFAULT_KV_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @SuppressWarnings("unchecked")
@@ -152,11 +127,7 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
 
             Object field =
                     TableFormatUtils.deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral
-                    );
+                            fieldName, fieldFormatInfo, fieldText, nullLiteral);
             row.setField(i, field);
         }
 
@@ -175,23 +146,27 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
 
         KvDeserializationSchema that = (KvDeserializationSchema) o;
         return rowFormatInfo.equals(that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(entryDelimiter, that.entryDelimiter)
-                       && Objects.equals(kvDelimiter, that.kvDelimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(entryDelimiter, that.entryDelimiter)
+                && Objects.equals(kvDelimiter, that.kvDelimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rowFormatInfo, charset, entryDelimiter, kvDelimiter,
-                escapeChar, quoteChar, nullLiteral);
+        return Objects.hash(
+                rowFormatInfo,
+                charset,
+                entryDelimiter,
+                kvDelimiter,
+                escapeChar,
+                quoteChar,
+                nullLiteral);
     }
 
-    /**
-     * Builder for {@link KvDeserializationSchema}.
-     */
+    /** Builder for {@link KvDeserializationSchema}. */
     public static class Builder {
 
         private final RowFormatInfo rowFormatInfo;
@@ -250,8 +225,7 @@ public final class KvDeserializationSchema implements DeserializationSchema<Row>
                     kvDelimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 }

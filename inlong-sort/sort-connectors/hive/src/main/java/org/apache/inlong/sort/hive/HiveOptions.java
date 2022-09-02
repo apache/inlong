@@ -17,14 +17,12 @@
 
 package org.apache.inlong.sort.hive;
 
+import static org.apache.flink.configuration.ConfigOptions.key;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-import static org.apache.flink.configuration.ConfigOptions.key;
-
-/**
- * This class holds configuration constants used by hive connector.
- */
+/** This class holds configuration constants used by hive connector. */
 public class HiveOptions {
 
     public static final ConfigOption<String> HIVE_DATABASE =
@@ -32,7 +30,6 @@ public class HiveOptions {
                     .stringType()
                     .noDefaultValue()
                     .withDescription("The name of hive database to connect.");
-
 
     public static final ConfigOption<Boolean> TABLE_EXEC_HIVE_FALLBACK_MAPRED_READER =
             key("table.exec.hive.fallback-mapred-reader")

@@ -1,31 +1,24 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.dispatch;
-
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
-/**
- * 
- * DispatchProfile
- */
+/** DispatchProfile */
 public class DispatchProfile {
 
     private final String inlongGroupId;
@@ -39,13 +32,14 @@ public class DispatchProfile {
 
     /**
      * Constructor
-     * 
+     *
      * @param uid
      * @param inlongGroupId
      * @param inlongStreamId
      * @param dispatchTime
      */
-    public DispatchProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
+    public DispatchProfile(
+            String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         this.uid = uid;
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
@@ -54,10 +48,10 @@ public class DispatchProfile {
 
     /**
      * addEvent
-     * 
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
+     *
+     * @param event
+     * @param maxPackCount
+     * @param maxPackSize
      * @return
      */
     public boolean addEvent(ProfileEvent event, long maxPackCount, long maxPackSize) {
@@ -73,8 +67,8 @@ public class DispatchProfile {
 
     /**
      * isTimeout
-     * 
-     * @param  createThreshold
+     *
+     * @param createThreshold
      * @return
      */
     public boolean isTimeout(long createThreshold) {
@@ -83,7 +77,7 @@ public class DispatchProfile {
 
     /**
      * get uid
-     * 
+     *
      * @return the uid
      */
     public String getUid() {
@@ -92,7 +86,7 @@ public class DispatchProfile {
 
     /**
      * get events
-     * 
+     *
      * @return the events
      */
     public List<ProfileEvent> getEvents() {
@@ -101,7 +95,7 @@ public class DispatchProfile {
 
     /**
      * set events
-     * 
+     *
      * @param events the events to set
      */
     public void setEvents(List<ProfileEvent> events) {
@@ -110,7 +104,7 @@ public class DispatchProfile {
 
     /**
      * get count
-     * 
+     *
      * @return the count
      */
     public long getCount() {
@@ -119,7 +113,7 @@ public class DispatchProfile {
 
     /**
      * set count
-     * 
+     *
      * @param count the count to set
      */
     public void setCount(long count) {
@@ -128,7 +122,7 @@ public class DispatchProfile {
 
     /**
      * get size
-     * 
+     *
      * @return the size
      */
     public long getSize() {
@@ -137,7 +131,7 @@ public class DispatchProfile {
 
     /**
      * set size
-     * 
+     *
      * @param size the size to set
      */
     public void setSize(long size) {
@@ -146,7 +140,7 @@ public class DispatchProfile {
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -155,7 +149,7 @@ public class DispatchProfile {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -164,26 +158,23 @@ public class DispatchProfile {
 
     /**
      * getDispatchTime
-     * 
+     *
      * @return
      */
     public long getDispatchTime() {
         return dispatchTime;
     }
 
-    /**
-     * set DispatchTime
-     */
+    /** set DispatchTime */
     public void setDispatchTime(long dispatchTime) {
         this.dispatchTime = dispatchTime;
     }
 
-    /**
-     * ack
-     */
+    /** ack */
     public void ack() {
-        this.events.forEach((event) -> {
-            event.ack();
-        });
+        this.events.forEach(
+                (event) -> {
+                    event.ack();
+                });
     }
 }

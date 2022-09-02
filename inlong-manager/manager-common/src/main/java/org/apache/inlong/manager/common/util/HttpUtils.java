@@ -19,6 +19,11 @@ package org.apache.inlong.manager.common.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -30,15 +35,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-/**
- * HTTP utils
- */
+/** HTTP utils */
 @Slf4j
 public class HttpUtils {
 
@@ -53,14 +50,17 @@ public class HttpUtils {
      * @param timeUnit time unit of timeout
      * @return true if connect successfully, false if connect failed
      */
-    public static boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
+    public static boolean checkConnectivity(
+            String host, int port, int connectTimeout, TimeUnit timeUnit) {
         InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
         try {
             socket.connect(socketAddress, (int) timeUnit.toMillis(connectTimeout));
             return socket.isConnected();
         } catch (IOException e) {
-            log.error(String.format("%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
+            log.error(
+                    String.format(
+                            "%s:%s connected failed with err msg:%s", host, port, e.getMessage()));
             return false;
         } finally {
             try {
@@ -71,11 +71,15 @@ public class HttpUtils {
         }
     }
 
-    /**
-     * Send an HTTP request by the given rest template.
-     */
-    public static <T> T request(RestTemplate restTemplate, String url, HttpMethod method,
-            String param, HttpHeaders header, Class<T> cls) throws Exception {
+    /** Send an HTTP request by the given rest template. */
+    public static <T> T request(
+            RestTemplate restTemplate,
+            String url,
+            HttpMethod method,
+            String param,
+            HttpHeaders header,
+            Class<T> cls)
+            throws Exception {
         ResponseEntity<String> exchange;
         try {
             HttpEntity<String> request = new HttpEntity<>(param, header);
@@ -95,43 +99,59 @@ public class HttpUtils {
         }
     }
 
-    /**
-     * Send an HTTP request
-     */
-    public static <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
-            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
+    /** Send an HTTP request */
+    public static <T> T request(
+            RestTemplate restTemplate,
+            String url,
+            HttpMethod httpMethod,
+            Object requestBody,
+            HttpHeaders header,
+            ParameterizedTypeReference<T> typeReference) {
         if (log.isDebugEnabled()) {
             log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         }
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
-        ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
+        ResponseEntity<T> response =
+                restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
         log.debug("success request to {}, status code {}", url, response.getStatusCode());
         Preconditions.checkTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
         return response.getBody();
     }
 
-    /**
-     * Send GET request to the specified URL.
-     */
-    public static <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params,
-            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
-        return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
+    /** Send GET request to the specified URL. */
+    public static <T> T getRequest(
+            RestTemplate restTemplate,
+            String url,
+            Map<String, Object> params,
+            HttpHeaders header,
+            ParameterizedTypeReference<T> typeReference) {
+        return request(
+                restTemplate,
+                buildUrlWithQueryParam(url, params),
+                HttpMethod.GET,
+                null,
+                header,
+                typeReference);
     }
 
-    /**
-     * Send PUT request to the specified URL.
-     */
-    public static <T> T putRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+    /** Send PUT request to the specified URL. */
+    public static <T> T putRequest(
+            RestTemplate restTemplate,
+            String url,
+            Object params,
+            HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.PUT, params, header, typeReference);
     }
 
-    /**
-     * Send POST request to the specified URL.
-     */
-    public static <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
+    /** Send POST request to the specified URL. */
+    public static <T> T postRequest(
+            RestTemplate restTemplate,
+            String url,
+            Object params,
+            HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
         return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
     }
@@ -141,9 +161,9 @@ public class HttpUtils {
             return url;
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
-        params.entrySet().stream().filter(e -> e.getValue() != null)
+        params.entrySet().stream()
+                .filter(e -> e.getValue() != null)
                 .forEach(e -> builder.queryParam(e.getKey(), e.getValue()));
         return builder.build(false).toUriString();
     }
-
 }

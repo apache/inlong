@@ -18,14 +18,11 @@
 package org.apache.inlong.manager.client.cli.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
 import lombok.Data;
 import org.apache.inlong.manager.client.cli.util.ParseStatus;
 
-import java.util.Date;
-
-/**
- * Sink info, including sink type, sink name, etc.
- */
+/** Sink info, including sink type, sink name, etc. */
 @Data
 public class SinkInfo {
 
@@ -35,8 +32,8 @@ public class SinkInfo {
     private String sinkType;
     private String sinkName;
 
-    @ParseStatus
-    private String status;
+    @ParseStatus private String status;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 }

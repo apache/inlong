@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,16 +31,12 @@ import org.apache.inlong.sort.protocol.transformation.GroupTimeWindowFunction;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * The HOP function assigns elements to windows of fixed length.
- * Like a TUMBLE windowing function, the size of the windows is configured by the window size
- * parameter. An additional window slide parameter controls how frequently a hopping
- * window is started. Hence, hopping windows can be overlapping if the slide is smaller
- * than the window size. In this case, elements are assigned to multiple windows.
- * Hopping windows are also known as “sliding windows”.
+ * The HOP function assigns elements to windows of fixed length. Like a TUMBLE windowing function,
+ * the size of the windows is configured by the window size parameter. An additional window slide
+ * parameter controls how frequently a hopping window is started. Hence, hopping windows can be
+ * overlapping if the slide is smaller than the window size. In this case, elements are assigned to
+ * multiple windows. Hopping windows are also known as “sliding windows”.
  */
 @JsonTypeName("hop")
 @Data
@@ -47,13 +45,16 @@ public class HopFunction implements GroupTimeWindowFunction {
 
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
+
     @JsonProperty("interval")
     private StringConstantParam interval;
+
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
-    public HopFunction(@JsonProperty("timeAttr") FieldInfo timeAttr,
+    public HopFunction(
+            @JsonProperty("timeAttr") FieldInfo timeAttr,
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
@@ -63,8 +64,9 @@ public class HopFunction implements GroupTimeWindowFunction {
 
     @Override
     public String format() {
-        return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+        return String.format(
+                "%s(%s, INTERVAL %s %s)",
+                getName(), timeAttr.format(), interval.format(), timeUnit.format());
     }
 
     @Override
@@ -76,5 +78,4 @@ public class HopFunction implements GroupTimeWindowFunction {
     public String getName() {
         return "HOP";
     }
-
 }

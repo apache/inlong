@@ -24,6 +24,4 @@ import javax.validation.groups.Default;
  *
  * @see UpdateValidation
  */
-public interface SaveValidation extends Default {
-
-}
+public interface SaveValidation extends Default {}

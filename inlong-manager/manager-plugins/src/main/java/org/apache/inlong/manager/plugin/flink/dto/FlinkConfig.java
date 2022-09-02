@@ -19,9 +19,7 @@ package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 
-/**
- * Flink config, including address, port, job manager port, etc.
- */
+/** Flink config, including address, port, job manager port, etc. */
 @Data
 public class FlinkConfig {
 
@@ -38,5 +36,4 @@ public class FlinkConfig {
     private boolean drain;
 
     private String auditProxyHosts;
-
 }

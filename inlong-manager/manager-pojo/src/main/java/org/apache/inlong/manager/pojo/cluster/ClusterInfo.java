@@ -21,16 +21,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
-
-/**
- * Inlong cluster info
- */
+/** Inlong cluster info */
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -91,5 +88,4 @@ public abstract class ClusterInfo {
     private Integer version;
 
     public abstract ClusterRequest genRequest();
-
 }

@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.reader;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.normalizedSplitRecords;
+
 import io.debezium.config.Configuration;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -28,6 +30,14 @@ import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.pipeline.source.spi.ChangeEventSource;
 import io.debezium.pipeline.spi.SnapshotResult;
 import io.debezium.util.SchemaNameAdjuster;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
@@ -42,17 +52,6 @@ import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.normalizedSplitRecords;
 
 /**
  * A snapshot reader that reads data from Table in split level, the split is assigned by primary key

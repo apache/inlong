@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -26,25 +30,30 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Test for {@link SqlServerExtractNode} serialize
- */
+/** Test for {@link SqlServerExtractNode} serialize */
 public class SqlServerExtractNodeTest extends SerializeBaseTest<SqlServerExtractNode> {
 
     @Override
     public SqlServerExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("val_char", new StringFormatInfo()));
-        return new SqlServerExtractNode("1", "sqlserver_out", fields,
-                null, null, null,
-                "localhost", 1433, "SA",
-                "INLONG*123", "column_type_test",
-                "dbo", "full_types", null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("val_char", new StringFormatInfo()));
+        return new SqlServerExtractNode(
+                "1",
+                "sqlserver_out",
+                fields,
+                null,
+                null,
+                null,
+                "localhost",
+                1433,
+                "SA",
+                "INLONG*123",
+                "column_type_test",
+                "dbo",
+                "full_types",
+                null);
     }
 
     @Test

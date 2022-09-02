@@ -28,22 +28,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-/**
- * Global config.
- */
+/** Global config. */
 @Configuration
 public class InlongGlobalConfig {
 
-    /**
-     * Create a global ObjectMapper, and register JSON subtype
-     */
+    /** Create a global ObjectMapper, and register JSON subtype */
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule());
+        ObjectMapper objectMapper =
+                new ObjectMapper()
+                        .registerModule(new ParameterNamesModule())
+                        .registerModule(new Jdk8Module())
+                        .registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -51,5 +48,4 @@ public class InlongGlobalConfig {
         JsonUtils.initJsonTypeDefine(objectMapper);
         return objectMapper;
     }
-
 }

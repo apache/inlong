@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Hive partition field info
- */
+/** Hive partition field info */
 @Data
 @ApiModel("Hive partition field")
 public class HivePartitionField {
@@ -34,8 +32,8 @@ public class HivePartitionField {
     @ApiModelProperty("Field type")
     private String fieldType;
 
-    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    @ApiModelProperty(
+            "Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+                    + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
-
 }

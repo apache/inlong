@@ -59,5 +59,4 @@ public class BinaryFormatInfo implements BasicFormatInfo<byte[]> {
     public String toString() {
         return "BinaryFormatInfo";
     }
-
 }

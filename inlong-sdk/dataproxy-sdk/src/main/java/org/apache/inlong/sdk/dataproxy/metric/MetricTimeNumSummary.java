@@ -51,15 +51,10 @@ public class MetricTimeNumSummary {
     }
 
     /**
-     * record time
-     * 1. [-, 10)
-     * 2. [10, 100)
-     * 3. [100, 500)
-     * 4. [500, 1000)
-     * 5. [100, -)
+     * record time 1. [-, 10) 2. [10, 100) 3. [100, 500) 4. [500, 1000) 5. [100, -)
      *
      * @param sendTimeInMs - send time
-     * @param sendNum      - send num
+     * @param sendNum - send num
      */
     public void recordSuccessSendTime(long sendTimeInMs, int sendNum) {
         if (sendTimeInMs < 10) {
@@ -97,9 +92,15 @@ public class MetricTimeNumSummary {
     }
 
     public String getTimeString() {
-        return send10msBelow.get() + "#" + sendBetween10msAnd100ms.get()
-                + "#" + sendBetween100msAnd500ms.get() + "#"
-                + sendBetween500msAnd1s.get() + "#" + send1sAbove.get();
+        return send10msBelow.get()
+                + "#"
+                + sendBetween10msAnd100ms.get()
+                + "#"
+                + sendBetween100msAnd500ms.get()
+                + "#"
+                + sendBetween500msAnd1s.get()
+                + "#"
+                + send1sAbove.get();
     }
 
     public long getStartCalculateTime() {

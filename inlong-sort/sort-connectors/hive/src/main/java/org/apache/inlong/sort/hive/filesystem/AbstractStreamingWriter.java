@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.hive.filesystem;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
+import javax.annotation.Nullable;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.state.StateInitializationContext;
 import org.apache.flink.runtime.state.StateSnapshotContext;
@@ -34,9 +37,6 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
-import javax.annotation.Nullable;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * Operator for file system sink. It is a operator version of {@link StreamingFileSink}. It can send
@@ -52,14 +52,12 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     private final long bucketCheckInterval;
 
     private final StreamingFileSink.BucketsBuilder<
-            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
             bucketsBuilder;
 
-    @Nullable
-    private String inLongMetric;
+    @Nullable private String inLongMetric;
 
-    @Nullable
-    private String auditHostAndPorts;
+    @Nullable private String auditHostAndPorts;
 
     // --------------------------- runtime fields -----------------------------
 
@@ -69,13 +67,12 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     private transient long currentWatermark;
 
-    @Nullable
-    private transient SinkMetricData metricData;
+    @Nullable private transient SinkMetricData metricData;
 
     public AbstractStreamingWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
                     bucketsBuilder,
             String inLongMetric,
             String auditHostAndPorts) {
@@ -116,8 +113,13 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             String inLongGroupId = inLongMetricArray[0];
             String inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData = new SinkMetricData(
-                    inLongGroupId, inLongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
+            metricData =
+                    new SinkMetricData(
+                            inLongGroupId,
+                            inLongStreamId,
+                            nodeId,
+                            getRuntimeContext().getMetricGroup(),
+                            auditHostAndPorts);
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
@@ -206,4 +208,3 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         }
     }
 }
-

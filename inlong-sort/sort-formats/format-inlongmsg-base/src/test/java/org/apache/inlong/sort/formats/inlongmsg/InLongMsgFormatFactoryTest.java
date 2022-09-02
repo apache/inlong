@@ -18,6 +18,17 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import static org.apache.flink.table.factories.utils.FactoryMocks.PHYSICAL_TYPE;
+import static org.apache.flink.table.factories.utils.FactoryMocks.SCHEMA;
+import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
+import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSource;
+import static org.junit.Assert.assertEquals;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -36,41 +47,42 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-
-import static org.apache.flink.table.factories.utils.FactoryMocks.PHYSICAL_TYPE;
-import static org.apache.flink.table.factories.utils.FactoryMocks.SCHEMA;
-import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
-import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSource;
-import static org.junit.Assert.assertEquals;
-
 public class InLongMsgFormatFactoryTest {
 
     @Test
     public void testUserDefinedOptions()
-            throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+            throws NoSuchMethodException, InvocationTargetException, InstantiationException,
+                    IllegalAccessException {
         final Map<String, String> tableOptions =
-                getModifiedOptions(opts -> {
-                    opts.put("inlong-msg.inner.format", "csv");
-                    opts.put("inlong-msg.ignore-parse-errors", "true");
-                });
+                getModifiedOptions(
+                        opts -> {
+                            opts.put("inlong-msg.inner.format", "csv");
+                            opts.put("inlong-msg.ignore-parse-errors", "true");
+                        });
 
         // test Deser
-        Constructor[] constructors = CsvRowDataDeserializationSchema.class.getDeclaredConstructors();
-        Constructor constructor = CsvRowDataDeserializationSchema.class.getDeclaredConstructor(
-                RowType.class, TypeInformation.class, CsvSchema.class, boolean.class);
+        Constructor[] constructors =
+                CsvRowDataDeserializationSchema.class.getDeclaredConstructors();
+        Constructor constructor =
+                CsvRowDataDeserializationSchema.class.getDeclaredConstructor(
+                        RowType.class, TypeInformation.class, CsvSchema.class, boolean.class);
         constructor.setAccessible(true);
-        DeserializationSchema<RowData> deserializationSchema = (DeserializationSchema<RowData>) constructor.newInstance(
-                PHYSICAL_TYPE, InternalTypeInfo.of(PHYSICAL_TYPE),
-                CsvRowSchemaConverter.convert(PHYSICAL_TYPE), false);
+        DeserializationSchema<RowData> deserializationSchema =
+                (DeserializationSchema<RowData>)
+                        constructor.newInstance(
+                                PHYSICAL_TYPE,
+                                InternalTypeInfo.of(PHYSICAL_TYPE),
+                                CsvRowSchemaConverter.convert(PHYSICAL_TYPE),
+                                false);
 
-        InLongMsgDeserializationSchema expectedDeser = new InLongMsgDeserializationSchema(
-                deserializationSchema, new MetadataConverter[0], InternalTypeInfo.of(PHYSICAL_TYPE), true);
-        DeserializationSchema<RowData> actualDeser = createDeserializationSchema(tableOptions, SCHEMA);
+        InLongMsgDeserializationSchema expectedDeser =
+                new InLongMsgDeserializationSchema(
+                        deserializationSchema,
+                        new MetadataConverter[0],
+                        InternalTypeInfo.of(PHYSICAL_TYPE),
+                        true);
+        DeserializationSchema<RowData> actualDeser =
+                createDeserializationSchema(tableOptions, SCHEMA);
         assertEquals(expectedDeser, actualDeser);
     }
 
@@ -106,7 +118,8 @@ public class InLongMsgFormatFactoryTest {
      *
      * @param optionModifier Consumer to modify the options
      */
-    public static Map<String, String> getModifiedOptions(Consumer<Map<String, String>> optionModifier) {
+    public static Map<String, String> getModifiedOptions(
+            Consumer<Map<String, String>> optionModifier) {
         Map<String, String> options = getAllOptions();
         optionModifier.accept(options);
         return options;
@@ -120,5 +133,4 @@ public class InLongMsgFormatFactoryTest {
         options.put("format", "inlong-msg");
         return options;
     }
-
 }

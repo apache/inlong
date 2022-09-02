@@ -18,16 +18,13 @@
 package org.apache.inlong.manager.common.validation;
 
 import com.google.common.base.Joiner;
-import org.apache.inlong.manager.common.enums.StringListValuable;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Collections;
 import java.util.List;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.inlong.manager.common.enums.StringListValuable;
 
-/**
- * Check whether the incoming String type parameter is in the corresponding enum value
- */
+/** Check whether the incoming String type parameter is in the corresponding enum value */
 public class InEnumStringValidator implements ConstraintValidator<InEnumString, String> {
 
     private List<String> values;
@@ -51,12 +48,9 @@ public class InEnumStringValidator implements ConstraintValidator<InEnumString, 
         // disable default msg
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(
-                context.getDefaultConstraintMessageTemplate()
-                        .replace("{value}", Joiner.on(",").join(values))
-                )
+                        context.getDefaultConstraintMessageTemplate()
+                                .replace("{value}", Joiner.on(",").join(values)))
                 .addConstraintViolation();
         return false;
     }
-
 }
-

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,12 +32,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
-import java.util.Date;
-import java.util.List;
-
-/**
- * Inlong group info
- */
+/** Inlong group info */
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -63,7 +60,8 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource",
+    @ApiModelProperty(
+            value = "MQ resource",
             notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
@@ -127,5 +125,4 @@ public abstract class InlongGroupInfo {
     private Integer version;
 
     public abstract InlongGroupRequest genRequest();
-
 }

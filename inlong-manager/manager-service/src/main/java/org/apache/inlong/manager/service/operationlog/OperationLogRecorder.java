@@ -19,6 +19,9 @@ package org.apache.inlong.manager.service.operationlog;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.Date;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.OperationType;
@@ -31,30 +34,24 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.Optional;
-
-/**
- * Operation of log aspect
- */
+/** Operation of log aspect */
 @Slf4j
 public class OperationLogRecorder {
 
     private static final String ANONYMOUS_USER = "AnonymousUser";
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
-    /**
-     * Save operation logs of all Controller
-     */
-    public static Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
+    /** Save operation logs of all Controller */
+    public static Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog)
+            throws Throwable {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes == null) {
             return joinPoint.proceed();
         }
 
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        UserInfo userInfo = Optional.ofNullable(LoginUserUtils.getLoginUser()).orElseGet(UserInfo::new);
+        UserInfo userInfo =
+                Optional.ofNullable(LoginUserUtils.getLoginUser()).orElseGet(UserInfo::new);
         String operator = userInfo.getName();
         operator = StringUtils.isBlank(operator) ? ANONYMOUS_USER : operator;
 

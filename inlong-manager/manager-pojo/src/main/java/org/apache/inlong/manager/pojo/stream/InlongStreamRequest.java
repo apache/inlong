@@ -19,18 +19,15 @@ package org.apache.inlong.manager.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-/**
- * Inlong stream request.
- */
+/** Inlong stream request. */
 @Data
 @ApiModel("Inlong stream request")
 public class InlongStreamRequest {
@@ -44,7 +41,8 @@ public class InlongStreamRequest {
 
     @NotBlank(message = "inlongStreamId cannot be blank")
     @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
+    @Pattern(
+            regexp = "^[a-z0-9_-]{4,100}$",
             message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
@@ -70,9 +68,11 @@ public class InlongStreamRequest {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
-            notes = "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
+    @ApiModelProperty(
+            value = "Whether to send synchronously, 0: no, 1: yes",
+            notes =
+                    "Each task under this stream sends data synchronously, "
+                            + "which will affect the throughput of data collection, please choose carefully")
     private Integer syncSend = 0;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
@@ -101,5 +101,4 @@ public class InlongStreamRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.consts;
 
-/**
- * Constants of data node.
- */
+/** Constants of data node. */
 public class DataNodeType {
 
     public static final String HIVE = "HIVE";
@@ -27,5 +25,4 @@ public class DataNodeType {
     public static final String ICEBERG = "ICEBERG";
     public static final String CLICKHOUSE = "CLICKHOUSE";
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
-
 }

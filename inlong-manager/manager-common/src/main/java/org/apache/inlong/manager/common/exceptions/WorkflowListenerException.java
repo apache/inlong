@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Workflow event listener exception
- */
+/** Workflow event listener exception */
 public class WorkflowListenerException extends WorkflowException {
 
     public WorkflowListenerException() {
@@ -38,7 +36,10 @@ public class WorkflowListenerException extends WorkflowException {
         super(cause);
     }
 
-    protected WorkflowListenerException(String message, Throwable cause, boolean enableSuppression,
+    protected WorkflowListenerException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

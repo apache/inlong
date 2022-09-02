@@ -20,9 +20,8 @@ package org.apache.inlong.agent.plugin;
 import java.util.Map;
 
 /**
- * Message used in inner-data transfer, message is divided into
- * two parts, header and body. header is the attributes of message
- * and body is the content of message.
+ * Message used in inner-data transfer, message is divided into two parts, header and body. header
+ * is the attributes of message and body is the content of message.
  */
 public interface Message {
 

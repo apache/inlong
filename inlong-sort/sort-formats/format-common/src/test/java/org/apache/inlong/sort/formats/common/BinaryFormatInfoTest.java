@@ -18,14 +18,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class BinaryFormatInfoTest extends FormatInfoTestBase {
 
@@ -38,16 +37,13 @@ public class BinaryFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() throws Exception {
         assertEquals(
                 "testString",
-                BinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8))
-        );
+                BinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8)));
     }
 
     @Test
     public void testDeserialize() throws Exception {
         assertArrayEquals(
                 "testString".getBytes(StandardCharsets.UTF_8),
-                BinaryFormatInfo.INSTANCE.deserialize("testString")
-        );
+                BinaryFormatInfo.INSTANCE.deserialize("testString"));
     }
-
 }

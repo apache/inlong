@@ -17,13 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface ConsumptionEntityMapper {
@@ -36,7 +35,9 @@ public interface ConsumptionEntityMapper {
 
     ConsumptionEntity selectByPrimaryKey(Integer id);
 
-    ConsumptionEntity selectConsumptionExists(@Param("groupId") String groupId, @Param("topic") String topic,
+    ConsumptionEntity selectConsumptionExists(
+            @Param("groupId") String groupId,
+            @Param("topic") String topic,
             @Param("consumerGroup") String consumerGroup);
 
     int updateByPrimaryKeySelective(ConsumptionEntity record);
@@ -46,5 +47,4 @@ public interface ConsumptionEntityMapper {
     List<ConsumptionEntity> listByQuery(ConsumptionQuery consumptionQuery);
 
     List<CountInfo> countByQuery(ConsumptionQuery consumptionQuery);
-
 }

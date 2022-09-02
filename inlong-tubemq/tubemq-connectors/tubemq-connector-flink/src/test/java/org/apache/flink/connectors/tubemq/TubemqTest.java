@@ -28,32 +28,27 @@ import org.apache.flink.table.descriptors.DescriptorTestBase;
 import org.apache.flink.table.descriptors.DescriptorValidator;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link Tubemq}.
- */
+/** Unit tests for {@link Tubemq}. */
 public class TubemqTest extends DescriptorTestBase {
 
     @Override
     protected List<Descriptor> descriptors() {
         final Descriptor descriptor1 =
-            new Tubemq()
-                .topic("test-topic-1")
-                .master("localhost:9001")
-                .group("test-group-1");
+                new Tubemq().topic("test-topic-1").master("localhost:9001").group("test-group-1");
 
         final Descriptor descriptor2 =
-            new Tubemq()
-                .topic("test-topic-2")
-                .master("localhost:9001")
-                .group("test-group-2")
-                .property("bootstrap.from.max", "true");
+                new Tubemq()
+                        .topic("test-topic-2")
+                        .master("localhost:9001")
+                        .group("test-group-2")
+                        .property("bootstrap.from.max", "true");
 
         final Descriptor descriptor3 =
-            new Tubemq()
-                .topic("test-topic-3")
-                .master("localhost:9001")
-                .group("test-group-3")
-                .tids("test-tid-1,test-tid-2");
+                new Tubemq()
+                        .topic("test-topic-3")
+                        .master("localhost:9001")
+                        .group("test-group-3")
+                        .tids("test-tid-1,test-tid-2");
 
         return Arrays.asList(descriptor1, descriptor2, descriptor3);
     }

@@ -18,14 +18,14 @@
 package org.apache.inlong.tubemq.manager.repository;
 
 import java.util.List;
-
 import org.apache.inlong.tubemq.manager.entry.BrokerEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BrokerRepository extends JpaRepository<BrokerEntry, Long> {
 
-    List<BrokerEntry> findBrokerEntryByBrokerIdInAndClusterIdEquals(List<Long> brokerIds, Long clusterId);
+    List<BrokerEntry> findBrokerEntryByBrokerIdInAndClusterIdEquals(
+            List<Long> brokerIds, Long clusterId);
 
-    List<BrokerEntry> findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(Long regionId, Long clusterId);
-
+    List<BrokerEntry> findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(
+            Long regionId, Long clusterId);
 }

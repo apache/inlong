@@ -20,9 +20,7 @@ package org.apache.inlong.dataproxy.config.remote;
 import java.util.List;
 import java.util.Map;
 
-/**
- * json str to java
- */
+/** json str to java */
 public class RequestContent {
 
     private String requestType;

@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.pojo.common;
 
-/**
- * The order field enumeration.
- */
+/** The order field enumeration. */
 public enum OrderFieldEnum {
-
     CREATE_TIME,
 
     MODIFY_TIME;
@@ -35,5 +32,4 @@ public enum OrderFieldEnum {
         }
         pageRequest.setOrderField(CREATE_TIME.name().toLowerCase());
     }
-
 }

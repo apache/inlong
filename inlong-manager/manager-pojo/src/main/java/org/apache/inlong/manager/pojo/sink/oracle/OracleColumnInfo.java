@@ -21,9 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Oracle column info.
- */
+/** Oracle column info. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

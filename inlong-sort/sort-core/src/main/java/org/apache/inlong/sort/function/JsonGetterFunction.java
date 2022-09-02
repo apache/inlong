@@ -22,9 +22,7 @@ import org.apache.flink.table.functions.ScalarFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * json getter function, used to get a field value from a json string
- */
+/** json getter function, used to get a field value from a json string */
 public class JsonGetterFunction extends ScalarFunction {
 
     private static final long serialVersionUID = -7185622027483662395L;
@@ -47,5 +45,4 @@ public class JsonGetterFunction extends ScalarFunction {
             return null;
         }
     }
-
 }

@@ -25,7 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import lombok.Data;
 import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,10 +32,11 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "region", uniqueConstraints =
-        {
-                @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
-                @UniqueConstraint(columnNames = {"id"})
+@Table(
+        name = "region",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
+            @UniqueConstraint(columnNames = {"id"})
         })
 @Data
 @EntityListeners(AuditingEntityListener.class)
@@ -49,11 +49,9 @@ public class RegionEntry {
 
     private String name;
 
-    @CreatedDate
-    private Date createDate;
+    @CreatedDate private Date createDate;
 
-    @LastModifiedDate
-    private Date modifyDate;
+    @LastModifiedDate private Date modifyDate;
 
     private String createUser;
 

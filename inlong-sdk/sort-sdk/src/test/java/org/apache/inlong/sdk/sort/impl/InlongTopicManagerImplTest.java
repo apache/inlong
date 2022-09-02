@@ -56,7 +56,8 @@ public class InlongTopicManagerImplTest {
         inLongTopic.setTopicType("pulsar");
         inLongTopic.setProperties(new HashMap<>());
 
-        CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
+        CacheZoneCluster cacheZoneCluster =
+                new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
 
         clientContext = PowerMockito.mock(ClientContextImpl.class);
@@ -71,7 +72,8 @@ public class InlongTopicManagerImplTest {
 
     @Test
     public void testAddFetcher() {
-        InlongTopicManager inLongTopicManager = new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
+        InlongTopicManager inLongTopicManager =
+                new InlongTopicManagerImpl(clientContext, queryConsumeConfig);
 
         InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.addFetcher(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
@@ -91,7 +93,6 @@ public class InlongTopicManagerImplTest {
 
         inLongTopicFetcher = inLongTopicManager.removeFetcher(inLongTopic, true);
         Assert.assertNotNull(inLongTopicFetcher);
-
     }
 
     @Test
@@ -106,7 +107,6 @@ public class InlongTopicManagerImplTest {
 
         fetcher = inLongTopicManager.getFetcher(inLongTopic.getTopicKey());
         Assert.assertNotNull(fetcher);
-
     }
 
     @Test
@@ -120,7 +120,6 @@ public class InlongTopicManagerImplTest {
         Whitebox.setInternalState(inLongTopicManager, "fetchers", fetchers);
         managedInLongTopics = inLongTopicManager.getManagedInLongTopics();
         Assert.assertEquals(1, managedInLongTopics.size());
-
     }
 
     @Test

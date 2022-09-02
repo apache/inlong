@@ -22,14 +22,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricListenerRunnable;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.metric.MetricUtils;
 import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.dataproxy.utils.MockUtils;
-import org.apache.inlong.common.metric.MetricItemValue;
-import org.apache.inlong.common.metric.MetricListener;
-import org.apache.inlong.common.metric.MetricListenerRunnable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -38,10 +37,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * TestMetricItemSetMBean
- */
+/** TestMetricItemSetMBean */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({MetricRegister.class})
@@ -69,7 +65,7 @@ public class TestMetricListenerRunnable {
 
     /**
      * testResult
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -121,36 +117,37 @@ public class TestMetricListenerRunnable {
         item.sendFailSize.addAndGet(2000);
         keySink2 = MetricUtils.getDimensionsKey(dimSink);
         // report
-        MetricListener listener = new MetricListener() {
+        MetricListener listener =
+                new MetricListener() {
 
-            @Override
-            public void snapshot(String domain, List<MetricItemValue> itemValues) {
-                assertEquals("DataProxy", domain);
-                for (MetricItemValue itemValue : itemValues) {
-                    String key = itemValue.getKey();
-                    Map<String, MetricValue> metricMap = itemValue.getMetrics();
-                    if (keySource1.equals(itemValue.getKey())) {
-                        assertEquals(1, metricMap.get("readSuccessCount").value);
-                        assertEquals(100, metricMap.get("readSuccessSize").value);
-                    } else if (keySource2.equals(key)) {
-                        assertEquals(20, metricMap.get("readFailCount").value);
-                        assertEquals(2000, metricMap.get("readFailSize").value);
-                    } else if (keySink1.equals(key)) {
-                        assertEquals(1, metricMap.get("sendCount").value);
-                        assertEquals(100, metricMap.get("sendSize").value);
-                        assertEquals(1, metricMap.get("sendSuccessCount").value);
-                        assertEquals(100, metricMap.get("sendSuccessSize").value);
-                    } else if (keySink2.equals(key)) {
-                        assertEquals(20, metricMap.get("sendCount").value);
-                        assertEquals(2000, metricMap.get("sendSize").value);
-                        assertEquals(20, metricMap.get("sendFailCount").value);
-                        assertEquals(2000, metricMap.get("sendFailSize").value);
-                    } else {
-                        System.out.println("bad MetricItem:" + key);
+                    @Override
+                    public void snapshot(String domain, List<MetricItemValue> itemValues) {
+                        assertEquals("DataProxy", domain);
+                        for (MetricItemValue itemValue : itemValues) {
+                            String key = itemValue.getKey();
+                            Map<String, MetricValue> metricMap = itemValue.getMetrics();
+                            if (keySource1.equals(itemValue.getKey())) {
+                                assertEquals(1, metricMap.get("readSuccessCount").value);
+                                assertEquals(100, metricMap.get("readSuccessSize").value);
+                            } else if (keySource2.equals(key)) {
+                                assertEquals(20, metricMap.get("readFailCount").value);
+                                assertEquals(2000, metricMap.get("readFailSize").value);
+                            } else if (keySink1.equals(key)) {
+                                assertEquals(1, metricMap.get("sendCount").value);
+                                assertEquals(100, metricMap.get("sendSize").value);
+                                assertEquals(1, metricMap.get("sendSuccessCount").value);
+                                assertEquals(100, metricMap.get("sendSuccessSize").value);
+                            } else if (keySink2.equals(key)) {
+                                assertEquals(20, metricMap.get("sendCount").value);
+                                assertEquals(2000, metricMap.get("sendSize").value);
+                                assertEquals(20, metricMap.get("sendFailCount").value);
+                                assertEquals(2000, metricMap.get("sendFailSize").value);
+                            } else {
+                                System.out.println("bad MetricItem:" + key);
+                            }
+                        }
                     }
-                }
-            }
-        };
+                };
         List<MetricListener> listeners = new ArrayList<>();
         listeners.add(listener);
         MetricListenerRunnable runnable = new MetricListenerRunnable("DataProxy", listeners);

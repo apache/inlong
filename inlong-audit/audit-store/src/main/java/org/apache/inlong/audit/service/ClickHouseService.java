@@ -17,12 +17,6 @@
 
 package org.apache.inlong.audit.service;
 
-import org.apache.inlong.audit.config.ClickHouseConfig;
-import org.apache.inlong.audit.db.entities.ClickHouseDataPo;
-import org.apache.inlong.audit.protocol.AuditData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -34,19 +28,23 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.inlong.audit.config.ClickHouseConfig;
+import org.apache.inlong.audit.db.entities.ClickHouseDataPo;
+import org.apache.inlong.audit.protocol.AuditData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * ClickHouseService
- */
+/** ClickHouseService */
 public class ClickHouseService implements InsertData, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseService.class);
-    public static final String INSERT_SQL = "insert into audit_data (ip, docker_id, thread_id,\r\n"
-            + "      sdk_ts, packet_id, log_ts,\r\n"
-            + "      inlong_group_id, inlong_stream_id, audit_id,\r\n"
-            + "      count, size, delay, \r\n"
-            + "      update_time)\r\n"
-            + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public static final String INSERT_SQL =
+            "insert into audit_data (ip, docker_id, thread_id,\r\n"
+                    + "      sdk_ts, packet_id, log_ts,\r\n"
+                    + "      inlong_group_id, inlong_stream_id, audit_id,\r\n"
+                    + "      count, size, delay, \r\n"
+                    + "      update_time)\r\n"
+                    + "    values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private ClickHouseConfig chConfig;
 
@@ -59,19 +57,21 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * Constructor
+     *
      * @param chConfig ClickHouse service config, such as jdbc url, jdbc username, jdbc password.
      */
     public ClickHouseService(ClickHouseConfig chConfig) {
         this.chConfig = chConfig;
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         // queue
-        this.batchQueue = new LinkedBlockingQueue<>(
-                chConfig.getBatchThreshold() * chConfig.getBatchIntervalMs() / chConfig.getProcessIntervalMs());
+        this.batchQueue =
+                new LinkedBlockingQueue<>(
+                        chConfig.getBatchThreshold()
+                                * chConfig.getBatchIntervalMs()
+                                / chConfig.getProcessIntervalMs());
         // connection
         try {
             Class.forName(chConfig.getDriver());
@@ -82,18 +82,20 @@ public class ClickHouseService implements InsertData, AutoCloseable {
         // timer
         long currentTime = System.currentTimeMillis();
         // batch output interval
-        timerService.scheduleWithFixedDelay(() -> needBatchOutput.compareAndSet(false, true),
+        timerService.scheduleWithFixedDelay(
+                () -> needBatchOutput.compareAndSet(false, true),
                 currentTime + chConfig.getBatchIntervalMs(),
-                chConfig.getBatchIntervalMs(), TimeUnit.MILLISECONDS);
+                chConfig.getBatchIntervalMs(),
+                TimeUnit.MILLISECONDS);
         // batch output process
-        timerService.scheduleWithFixedDelay(() -> processOutput(),
+        timerService.scheduleWithFixedDelay(
+                () -> processOutput(),
                 currentTime + chConfig.getProcessIntervalMs(),
-                chConfig.getProcessIntervalMs(), TimeUnit.MILLISECONDS);
+                chConfig.getProcessIntervalMs(),
+                TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * processOutput
-     */
+    /** processOutput */
     private void processOutput() {
         if (!this.needBatchOutput.get()) {
             return;
@@ -143,6 +145,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * reconnect
+     *
      * @throws SQLException Exception when creating connection.
      */
     private void reconnect() throws SQLException {
@@ -154,14 +157,16 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             }
             this.conn = null;
         }
-        this.conn = DriverManager.getConnection(chConfig.getUrl(), chConfig.getUsername(),
-                chConfig.getPassword());
+        this.conn =
+                DriverManager.getConnection(
+                        chConfig.getUrl(), chConfig.getUsername(), chConfig.getPassword());
         this.conn.setAutoCommit(false);
     }
 
     /**
      * insert
-     * @param msgBody audit data reading from Pulsar or other MessageQueue. 
+     *
+     * @param msgBody audit data reading from Pulsar or other MessageQueue.
      */
     @Override
     public void insert(AuditData msgBody) {
@@ -192,6 +197,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * close
+     *
      * @throws Exception Exception when closing ClickHouse connection.
      */
     @Override

@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AuditEntityMapper {
@@ -37,7 +36,8 @@ public interface AuditEntityMapper {
      * @param format The format such as '%Y-%m-%d %H:%i:00'
      * @return The result of query
      */
-    List<Map<String, Object>> sumByLogTs(@Param(value = "groupId") String groupId,
+    List<Map<String, Object>> sumByLogTs(
+            @Param(value = "groupId") String groupId,
             @Param(value = "streamId") String streamId,
             @Param(value = "auditId") String auditId,
             @Param(value = "sDate") String sDate,

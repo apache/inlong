@@ -21,9 +21,5 @@ package org.apache.inlong.sort.formats.base;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.types.Row;
 
-/**
- * The serializer for a given format.
- */
-public interface TableFormatSerializer extends FlatMapFunction<Row, byte[]> {
-
-}
+/** The serializer for a given format. */
+public interface TableFormatSerializer extends FlatMapFunction<Row, byte[]> {}

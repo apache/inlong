@@ -17,30 +17,25 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClientException;
 
-import java.util.List;
-
-/**
- * Pulsar connection utils
- */
+/** Pulsar connection utils */
 @Slf4j
 public class PulsarUtils {
 
-    private PulsarUtils() {
-    }
+    private PulsarUtils() {}
 
-    /**
-     * Get pulsar admin info
-     */
-    public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
+    /** Get pulsar admin info */
+    public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarCluster)
+            throws PulsarClientException {
         Preconditions.checkNotNull(pulsarCluster.getAdminUrl(), "Pulsar adminUrl cannot be empty");
         PulsarAdmin pulsarAdmin;
         if (StringUtils.isEmpty(pulsarCluster.getToken())) {
@@ -62,28 +57,28 @@ public class PulsarUtils {
 
     /**
      * Get the pulsar admin from the given service URL and token.
-     * <p/>
-     * Currently only token is supported as an authentication type.
+     *
+     * <p>Currently only token is supported as an authentication type.
      *
      * @apiNote It must be closed after use.
      */
-    private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token) throws PulsarClientException {
-        return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl)
-                .authentication(AuthenticationFactory.token(token)).build();
+    private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String token)
+            throws PulsarClientException {
+        return PulsarAdmin.builder()
+                .serviceHttpUrl(serviceHttpUrl)
+                .authentication(AuthenticationFactory.token(token))
+                .build();
     }
 
-    /**
-     * Get pulsar cluster info list.
-     */
-    public static List<String> getPulsarClusters(PulsarAdmin pulsarAdmin) throws PulsarAdminException {
+    /** Get pulsar cluster info list. */
+    public static List<String> getPulsarClusters(PulsarAdmin pulsarAdmin)
+            throws PulsarAdminException {
         return pulsarAdmin.clusters().getClusters();
     }
 
-    /**
-     * Get pulsar cluster service url.
-     */
-    public static String getServiceUrl(PulsarAdmin pulsarAdmin, String pulsarCluster) throws PulsarAdminException {
+    /** Get pulsar cluster service url. */
+    public static String getServiceUrl(PulsarAdmin pulsarAdmin, String pulsarCluster)
+            throws PulsarAdminException {
         return pulsarAdmin.clusters().getCluster(pulsarCluster).getServiceUrl();
     }
-
 }

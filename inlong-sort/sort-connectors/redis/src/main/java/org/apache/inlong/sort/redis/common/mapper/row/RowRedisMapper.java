@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.redis.common.mapper.row;
 
+import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_COMMAND;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.redis.common.handler.RedisMapperHandler;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
@@ -25,15 +31,9 @@ import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_COMMAND;
-
 /**
- * Base row redis mapper implement.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.mapper.row.RowRedisMapper}
+ * Base row redis mapper implement. Copy from {@link
+ * org.apache.flink.streaming.connectors.redis.common.mapper.row.RowRedisMapper}
  */
 public abstract class RowRedisMapper implements RedisMapper<RowData>, RedisMapperHandler {
 
@@ -45,8 +45,7 @@ public abstract class RowRedisMapper implements RedisMapper<RowData>, RedisMappe
 
     private String additionalKey;
 
-    public RowRedisMapper() {
-    }
+    public RowRedisMapper() {}
 
     public RowRedisMapper(Integer ttl, RedisCommand redisCommand) {
         this(ttl, null, redisCommand);

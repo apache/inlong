@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.source.mysql;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * Binlog source info
- */
+/** Binlog source info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -60,13 +57,17 @@ public class MySQLBinlogSourceDTO {
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 
-    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "seperated by ',', for example: db1,test_db*",
+    @ApiModelProperty(
+            value =
+                    "List of DBs to be collected, supporting regular expressions, "
+                            + "seperated by ',', for example: db1,test_db*",
             notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
     private String databaseWhiteList;
 
-    @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
-            + "seperated by ',', for example: tb1,user*",
+    @ApiModelProperty(
+            value =
+                    "List of tables to be collected, supporting regular expressions, "
+                            + "seperated by ',', for example: tb1,user*",
             notes = "Tables not in this list are excluded. By default, all tables are monitored")
     private String tableWhiteList;
 
@@ -78,20 +79,22 @@ public class MySQLBinlogSourceDTO {
 
     /**
      * <code>initial</code>: Default mode, do a snapshot when no offset is found.
-     * <p/>
-     * <code>when_needed</code>: Similar to initial, do a snapshot when the binlog position
-     * has been purged on the DB server.
-     * <p/>
-     * <code>never</code>: Do not snapshot.
-     * <p/>
-     * <code>schema_only</code>: All tables' column name will be taken, but the table data will not be exported,
-     * and it will only be consumed from the end of the binlog at the task is started.
-     * So it is very suitable for not caring about historical data, but only about recent changes. the
-     * <p/>
-     * <code>schema_only_recovery</code>: When <code>schema_only</code> mode fails, use this mode to recover, which is
-     * generally not used.
+     *
+     * <p><code>when_needed</code>: Similar to initial, do a snapshot when the binlog position has
+     * been purged on the DB server.
+     *
+     * <p><code>never</code>: Do not snapshot.
+     *
+     * <p><code>schema_only</code>: All tables' column name will be taken, but the table data will
+     * not be exported, and it will only be consumed from the end of the binlog at the task is
+     * started. So it is very suitable for not caring about historical data, but only about recent
+     * changes. the
+     *
+     * <p><code>schema_only_recovery</code>: When <code>schema_only</code> mode fails, use this mode
+     * to recover, which is generally not used.
      */
-    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    @ApiModelProperty(
+            "Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
     private String snapshotMode;
 
     @ApiModelProperty("The file path to store offset info")
@@ -122,9 +125,7 @@ public class MySQLBinlogSourceDTO {
     @ApiModelProperty("Properties for MySQL")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static MySQLBinlogSourceDTO getFromRequest(MySQLBinlogSourceRequest request) {
         return MySQLBinlogSourceDTO.builder()
                 .user(request.getUser())
@@ -154,8 +155,8 @@ public class MySQLBinlogSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, MySQLBinlogSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

@@ -26,9 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Inlong stream paging query conditions
- */
+/** Inlong stream paging query conditions */
 @Data
 @Builder
 @NoArgsConstructor
@@ -54,5 +52,4 @@ public class InlongStreamPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong group in charges", hidden = true)
     private String inCharges;
-
 }

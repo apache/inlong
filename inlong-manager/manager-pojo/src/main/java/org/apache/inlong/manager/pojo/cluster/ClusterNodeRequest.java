@@ -19,15 +19,12 @@ package org.apache.inlong.manager.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-/**
- * Inlong cluster node request
- */
+/** Inlong cluster node request */
 @Data
 @ApiModel("Cluster node request")
 public class ClusterNodeRequest {
@@ -60,5 +57,4 @@ public class ClusterNodeRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

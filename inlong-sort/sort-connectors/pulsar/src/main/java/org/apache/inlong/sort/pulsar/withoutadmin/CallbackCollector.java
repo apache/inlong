@@ -20,9 +20,7 @@ package org.apache.inlong.sort.pulsar.withoutadmin;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.function.ThrowingConsumer;
 
-/**
- * A collector supporting callback.
- */
+/** A collector supporting callback. */
 public class CallbackCollector<T> implements Collector<T> {
 
     private final ThrowingConsumer<T, Exception> callback;
@@ -41,7 +39,5 @@ public class CallbackCollector<T> implements Collector<T> {
     }
 
     @Override
-    public void close() {
-
-    }
+    public void close() {}
 }

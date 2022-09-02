@@ -21,9 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
-/**
- * Sort configuration for inlong group.
- */
+/** Sort configuration for inlong group. */
 @Data
 @ApiModel("Sort configuration for inlong group")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sortType")
@@ -58,6 +56,5 @@ public abstract class BaseSortConf {
         public String getType() {
             return this.type;
         }
-
     }
 }

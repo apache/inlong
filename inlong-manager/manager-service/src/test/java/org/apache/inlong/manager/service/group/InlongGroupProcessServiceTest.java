@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
@@ -31,20 +31,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Inlong group process operation service test.
- */
+/** Inlong group process operation service test. */
 public class InlongGroupProcessServiceTest extends ServiceBaseTest {
 
     private static final String GROUP_ID = "test_group_process";
     private static final String OPERATOR = "operator";
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupProcessService groupProcessOperation;
-    @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongGroupProcessService groupProcessOperation;
+    @Autowired private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Test
     public void testAllProcess() {
@@ -100,6 +95,4 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
         Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.RESTARTED.getCode());
     }
-
 }
-

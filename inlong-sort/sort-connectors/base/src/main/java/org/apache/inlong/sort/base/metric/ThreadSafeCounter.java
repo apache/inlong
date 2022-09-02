@@ -18,13 +18,10 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flink.metrics.Counter;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * A thread-safe implementation of {@link Counter}.
- */
+/** A thread-safe implementation of {@link Counter}. */
 public class ThreadSafeCounter implements Counter {
 
     private final AtomicLong count;

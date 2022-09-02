@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
@@ -64,15 +63,22 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
         TubeConsumerCreator tubeConsumerCreator = (TubeConsumerCreator) object;
         TubeClientConfig tubeClientConfig = tubeConsumerCreator.getTubeClientConfig();
         try {
-            ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
-                    context.getConfig().getSortTaskId());
+            ConsumerConfig consumerConfig =
+                    new ConsumerConfig(
+                            tubeClientConfig.getMasterInfo(), context.getConfig().getSortTaskId());
 
-            messageConsumer = tubeConsumerCreator.getMessageSessionFactory().createPullConsumer(consumerConfig);
+            messageConsumer =
+                    tubeConsumerCreator
+                            .getMessageSessionFactory()
+                            .createPullConsumer(consumerConfig);
             if (messageConsumer != null) {
                 TreeSet<String> filters = null;
-                if (inLongTopic.getProperties() != null && inLongTopic.getProperties().containsKey(
-                        SysConstants.TUBE_TOPIC_FILTER_KEY)) {
-                    String filterStr = inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                if (inLongTopic.getProperties() != null
+                        && inLongTopic
+                                .getProperties()
+                                .containsKey(SysConstants.TUBE_TOPIC_FILTER_KEY)) {
+                    String filterStr =
+                            inLongTopic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
                     String[] filterArray = filterStr.split(" ");
                     filters = new TreeSet<>(Arrays.asList(filterArray));
                 }
@@ -97,8 +103,10 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
         if (!StringUtils.isEmpty(msgOffset)) {
             if (messageConsumer == null) {
                 context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                        .getStatistics(
+                                context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getTopic())
                         .addAckFailTimes(1L);
                 LOG.warn("consumer == null");
                 return;
@@ -109,18 +117,26 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                 int errCode = consumerResult.getErrCode();
                 if (TErrCodeConstants.SUCCESS != errCode) {
                     context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .getStatistics(
+                                    context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(),
+                                    inLongTopic.getTopic())
                             .addAckFailTimes(1L);
                 } else {
                     context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .getStatistics(
+                                    context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(),
+                                    inLongTopic.getTopic())
                             .addAckSuccTimes(1L);
                 }
             } catch (Exception e) {
-                context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic()).addAckFailTimes(1L);
+                context.getStatManager()
+                        .getStatistics(
+                                context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getTopic())
+                        .addAckFailTimes(1L);
                 LOG.error(e.getMessage(), e);
                 throw e;
             }
@@ -196,18 +212,27 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
             long start = System.currentTimeMillis();
             try {
                 context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                        .getStatistics(
+                                context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getTopic())
                         .addCallbackTimes(1L);
-                context.getConfig().getCallback().onFinishedBatch(Collections.singletonList(messageRecord));
+                context.getConfig()
+                        .getCallback()
+                        .onFinishedBatch(Collections.singletonList(messageRecord));
                 context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                        .getStatistics(
+                                context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getTopic())
+                        .addCallbackTimeCost(System.currentTimeMillis() - start)
+                        .addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                        .getStatistics(
+                                context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(),
+                                inLongTopic.getTopic())
                         .addCallbackErrorTimes(1L);
                 e.printStackTrace();
             }
@@ -221,7 +246,8 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
          * @param entrySplitterStr String
          * @return {@link Map}
          */
-        private Map<String, String> parseAttr(Splitter splitter, String attr, String entrySplitterStr) {
+        private Map<String, String> parseAttr(
+                Splitter splitter, String attr, String entrySplitterStr) {
             Map<String, String> map = new HashMap<>();
             for (String s : splitter.split(attr)) {
                 int idx = s.indexOf(entrySplitterStr);
@@ -259,21 +285,29 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                     context.acquireRequestPermit();
                     hasPermit = true;
                     context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                            .addMsgCount(1L).addFetchTimes(1L);
+                            .getStatistics(
+                                    context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(),
+                                    inLongTopic.getTopic())
+                            .addMsgCount(1L)
+                            .addFetchTimes(1L);
 
                     long startFetchTime = System.currentTimeMillis();
                     ConsumerResult message = messageConsumer.getMessage();
                     context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .getStatistics(
+                                    context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(),
+                                    inLongTopic.getTopic())
                             .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != message && TErrCodeConstants.SUCCESS == message.getErrCode()) {
                         for (Message msg : message.getMessageList()) {
                             List<InLongMessage> msgs = new ArrayList<>();
-                            List<InLongMessage> deserialize = deserializer
-                                    .deserialize(context, inLongTopic, getAttributeMap(msg.getAttribute()),
+                            List<InLongMessage> deserialize =
+                                    deserializer.deserialize(
+                                            context,
+                                            inLongTopic,
+                                            getAttributeMap(msg.getAttribute()),
                                             msg.getData());
                             deserialize = interceptor.intercept(deserialize);
                             if (deserialize.isEmpty()) {
@@ -281,30 +315,44 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                             }
                             msgs.addAll(deserialize);
                             context.getStatManager()
-                                    .getStatistics(context.getConfig().getSortTaskId(),
-                                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                                    .addMsgCount(deserialize.size()).addConsumeSize(msg.getData().length);
-                            handleAndCallbackMsg(new MessageRecord(inLongTopic.getTopicKey(), msgs,
-                                    message.getConfirmContext(), System.currentTimeMillis()));
+                                    .getStatistics(
+                                            context.getConfig().getSortTaskId(),
+                                            inLongTopic.getInLongCluster().getClusterId(),
+                                            inLongTopic.getTopic())
+                                    .addMsgCount(deserialize.size())
+                                    .addConsumeSize(msg.getData().length);
+                            handleAndCallbackMsg(
+                                    new MessageRecord(
+                                            inLongTopic.getTopicKey(),
+                                            msgs,
+                                            message.getConfirmContext(),
+                                            System.currentTimeMillis()));
                         }
 
                         sleepTime = 0L;
                     } else {
                         context.getStatManager()
-                                .getStatistics(context.getConfig().getSortTaskId(),
-                                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                .getStatistics(
+                                        context.getConfig().getSortTaskId(),
+                                        inLongTopic.getInLongCluster().getClusterId(),
+                                        inLongTopic.getTopic())
                                 .addEmptyFetchTimes(1L);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                            sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                                    context.getConfig().getMaxEmptyPollSleepMs());
+                            sleepTime =
+                                    Math.min(
+                                            (sleepTime +=
+                                                    context.getConfig().getEmptyPollSleepStepMs()),
+                                            context.getConfig().getMaxEmptyPollSleepMs());
                             emptyFetchTimes = 0;
                         }
                     }
                 } catch (Exception e) {
                     context.getStatManager()
-                            .getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            .getStatistics(
+                                    context.getConfig().getSortTaskId(),
+                                    inLongTopic.getInLongCluster().getClusterId(),
+                                    inLongTopic.getTopic())
                             .addFetchErrorTimes(1L);
                     LOG.error(e.getMessage(), e);
                 } finally {

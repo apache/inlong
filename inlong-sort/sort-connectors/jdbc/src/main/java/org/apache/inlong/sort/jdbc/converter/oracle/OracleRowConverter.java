@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.jdbc.converter.oracle;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import oracle.jdbc.internal.OracleBlob;
 import oracle.jdbc.internal.OracleClob;
 import oracle.sql.BINARY_DOUBLE;
@@ -36,15 +42,9 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.ZonedDateTime;
-
 /**
- * Runtime converter that responsible to convert between JDBC object and Flink internal object for Oracle.
+ * Runtime converter that responsible to convert between JDBC object and Flink internal object for
+ * Oracle.
  */
 public class OracleRowConverter extends AbstractJdbcRowConverter {
 
@@ -66,19 +66,19 @@ public class OracleRowConverter extends AbstractJdbcRowConverter {
                         val instanceof NUMBER
                                 ? ((NUMBER) val).floatValue()
                                 : val instanceof BINARY_FLOAT
-                                ? ((BINARY_FLOAT) val).floatValue()
-                                : val instanceof BigDecimal
-                                ? ((BigDecimal) val).floatValue()
-                                : val;
+                                        ? ((BINARY_FLOAT) val).floatValue()
+                                        : val instanceof BigDecimal
+                                                ? ((BigDecimal) val).floatValue()
+                                                : val;
             case DOUBLE:
                 return val ->
                         val instanceof NUMBER
                                 ? ((NUMBER) val).doubleValue()
                                 : val instanceof BINARY_DOUBLE
-                                ? ((BINARY_DOUBLE) val).doubleValue()
-                                : val instanceof BigDecimal
-                                ? ((BigDecimal) val).doubleValue()
-                                : val;
+                                        ? ((BINARY_DOUBLE) val).doubleValue()
+                                        : val instanceof BigDecimal
+                                                ? ((BigDecimal) val).doubleValue()
+                                                : val;
             case TINYINT:
                 return val ->
                         val instanceof NUMBER
@@ -105,7 +105,7 @@ public class OracleRowConverter extends AbstractJdbcRowConverter {
                 return val ->
                         val instanceof BigInteger
                                 ? DecimalData.fromBigDecimal(
-                                new BigDecimal((BigInteger) val, 0), precision, scale)
+                                        new BigDecimal((BigInteger) val, 0), precision, scale)
                                 : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case CHAR:
             case VARCHAR:
@@ -113,8 +113,8 @@ public class OracleRowConverter extends AbstractJdbcRowConverter {
                         (val instanceof CHAR)
                                 ? StringData.fromString(((CHAR) val).getString())
                                 : (val instanceof OracleClob)
-                                ? StringData.fromString(((OracleClob) val).stringValue())
-                                : StringData.fromString((String) val);
+                                        ? StringData.fromString(((OracleClob) val).stringValue())
+                                        : StringData.fromString((String) val);
             case BINARY:
             case VARBINARY:
             case RAW:
@@ -122,9 +122,9 @@ public class OracleRowConverter extends AbstractJdbcRowConverter {
                         val instanceof RAW
                                 ? ((RAW) val).getBytes()
                                 : val instanceof OracleBlob
-                                ? ((OracleBlob) val)
-                                .getBytes(1, (int) ((OracleBlob) val).length())
-                                : val.toString().getBytes();
+                                        ? ((OracleBlob) val)
+                                                .getBytes(1, (int) ((OracleBlob) val).length())
+                                        : val.toString().getBytes();
 
             case INTERVAL_YEAR_MONTH:
             case INTERVAL_DAY_TIME:
@@ -134,18 +134,18 @@ public class OracleRowConverter extends AbstractJdbcRowConverter {
                         val instanceof DATE
                                 ? (int) (((DATE) val).dateValue().toLocalDate().toEpochDay())
                                 : val instanceof Timestamp
-                                ? (int)
-                                (((Timestamp) val)
-                                        .toLocalDateTime()
-                                        .toLocalDate()
-                                        .toEpochDay())
-                                : (int) (((Date) val).toLocalDate().toEpochDay());
+                                        ? (int)
+                                                (((Timestamp) val)
+                                                        .toLocalDateTime()
+                                                        .toLocalDate()
+                                                        .toEpochDay())
+                                        : (int) (((Date) val).toLocalDate().toEpochDay());
             case TIME_WITHOUT_TIME_ZONE:
                 return val ->
                         val instanceof DATE
                                 ? (int)
-                                (((DATE) val).timeValue().toLocalTime().toNanoOfDay()
-                                        / 1_000_000L)
+                                        (((DATE) val).timeValue().toLocalTime().toNanoOfDay()
+                                                / 1_000_000L)
                                 : (int) (((Time) val).toLocalTime().toNanoOfDay() / 1_000_000L);
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 return val ->

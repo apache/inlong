@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.common;
 
-/**
- * Service lifecycle interface.
- */
+/** Service lifecycle interface. */
 public interface Service {
 
     /**

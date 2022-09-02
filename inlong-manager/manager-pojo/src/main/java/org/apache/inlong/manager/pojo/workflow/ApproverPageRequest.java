@@ -26,9 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Workflow approver query request
- */
+/** Workflow approver query request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -52,7 +50,8 @@ public class ApproverPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
-    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
+    @ApiModelProperty(
+            value = "Whether the current user is in the administrator role",
+            hidden = true)
     private Boolean isAdminRole;
-
 }

@@ -22,5 +22,4 @@ public class Constants {
     public static final String DATE_AND_TIME_STANDARD_SQL = "SQL";
 
     public static final String DATE_AND_TIME_STANDARD_ISO_8601 = "ISO_8601";
-
 }

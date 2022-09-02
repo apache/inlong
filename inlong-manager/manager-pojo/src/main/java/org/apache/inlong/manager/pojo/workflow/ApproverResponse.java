@@ -20,16 +20,13 @@ package org.apache.inlong.manager.pojo.workflow;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Workflow approver response
- */
+/** Workflow approver response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -63,5 +60,4 @@ public class ApproverResponse {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

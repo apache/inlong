@@ -19,24 +19,16 @@ package org.apache.inlong.manager.common.enums;
 
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 
-/**
- * Logging event status
- */
+/** Logging event status */
 public enum EventStatus {
 
-    /**
-     * Executing
-     */
+    /** Executing */
     EXECUTING(0),
 
-    /**
-     * Success
-     */
+    /** Success */
     SUCCESS(1),
 
-    /**
-     * Failed
-     */
+    /** Failed */
     FAILED(-1);
 
     int status;

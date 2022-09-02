@@ -20,6 +20,12 @@ package org.apache.inlong.manager.workflow.definition;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -30,21 +36,13 @@ import org.apache.inlong.manager.workflow.event.EventListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-/**
- * Service task workflow
- */
+/** Service task workflow */
 @Slf4j
 public class ServiceTask extends WorkflowTask {
 
-    private static final Set<WorkflowAction> SUPPORTED_ACTIONS = ImmutableSet
-            .of(WorkflowAction.COMPLETE, WorkflowAction.CANCEL, WorkflowAction.TERMINATE);
+    private static final Set<WorkflowAction> SUPPORTED_ACTIONS =
+            ImmutableSet.of(
+                    WorkflowAction.COMPLETE, WorkflowAction.CANCEL, WorkflowAction.TERMINATE);
 
     private final AtomicBoolean isInit = new AtomicBoolean(false);
     private TaskListenerFactory listenerFactory;
@@ -62,7 +60,8 @@ public class ServiceTask extends WorkflowTask {
 
     @Override
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        Preconditions.checkTrue(supportedActions().contains(action),
+        Preconditions.checkTrue(
+                supportedActions().contains(action),
                 "not support workflow action " + action + ", it in one of " + supportedActions());
         switch (action) {
             case COMPLETE:
@@ -95,49 +94,55 @@ public class ServiceTask extends WorkflowTask {
         serviceTask.setDisplayName(this.getDisplayName());
         serviceTask.setServiceTaskType(this.taskType);
         serviceTask.setListenerFactory(this.listenerFactory);
-        Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap = Maps.newHashMap();
-        this.getActionToNextElementMap().forEach(
-                (k, v) -> cloneActionToNextElementMap.put(k, v.stream().map(ele -> {
-                    try {
-                        return (ConditionNextElement) ele.clone();
-                    } catch (CloneNotSupportedException e) {
-                        log.error("clone service task error: ", e);
-                    }
-                    return null;
-                }).collect(Collectors.toList())));
+        Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap =
+                Maps.newHashMap();
+        this.getActionToNextElementMap()
+                .forEach(
+                        (k, v) ->
+                                cloneActionToNextElementMap.put(
+                                        k,
+                                        v.stream()
+                                                .map(
+                                                        ele -> {
+                                                            try {
+                                                                return (ConditionNextElement)
+                                                                        ele.clone();
+                                                            } catch (CloneNotSupportedException e) {
+                                                                log.error(
+                                                                        "clone service task error: ",
+                                                                        e);
+                                                            }
+                                                            return null;
+                                                        })
+                                                .collect(Collectors.toList())));
         serviceTask.setActionToNextElementMap(cloneActionToNextElementMap);
         return serviceTask;
     }
 
-    /**
-     * Set the listener factory for the Service Task.
-     */
+    /** Set the listener factory for the Service Task. */
     public void setListenerFactory(TaskListenerFactory factory) {
         this.listenerFactory = factory;
     }
 
-    /**
-     * Set the task type for the Service Task.
-     */
+    /** Set the task type for the Service Task. */
     public void setServiceTaskType(ServiceTaskType type) {
         this.taskType = type;
     }
 
-    /**
-     * Init the listeners for current Service Task.
-     */
+    /** Init the listeners for current Service Task. */
     public void initListeners(WorkflowContext workflowContext) {
         if (isInit.compareAndSet(false, true)) {
             if (listenerFactory == null || taskType == null) {
                 return;
             }
-            List<TaskEventListener> listeners = Lists.newArrayList(listenerFactory.get(workflowContext, taskType));
-            List<String> listenerNames = listeners.stream().map(EventListener::name).collect(Collectors.toList());
+            List<TaskEventListener> listeners =
+                    Lists.newArrayList(listenerFactory.get(workflowContext, taskType));
+            List<String> listenerNames =
+                    listeners.stream().map(EventListener::name).collect(Collectors.toList());
             log.info("ServiceTask: [{}] is init for listeners: {}", getName(), listenerNames);
             addListeners(listeners);
         } else {
             log.warn("ServiceTask [{}] was already init", getName());
         }
     }
-
 }

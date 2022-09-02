@@ -17,12 +17,23 @@
 
 package org.apache.inlong.manager.web;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
 import lombok.SneakyThrows;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.test.BaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
@@ -39,37 +50,20 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @Transactional
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(classes = InlongManagerMain.class)
 public abstract class WebBaseTest extends BaseTest {
 
     public MockMvc mockMvc;
-    @Resource
-    private ObjectMapper objectMapper;
-    @Resource
-    private WebApplicationContext context;
+    @Resource private ObjectMapper objectMapper;
+    @Resource private WebApplicationContext context;
 
     @BeforeAll
     void baseSetup() {
         SecurityUtils.setSecurityManager(context.getBean(SecurityManager.class));
 
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .alwaysDo(print())
-                .build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).alwaysDo(print()).build();
     }
 
     @BeforeEach
@@ -87,14 +81,14 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setUsername("admin");
         loginUser.setPassword("inlong");
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/login")
+                                        .content(JsonUtils.toJsonString(loginUser))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         String resBodyObj = getResBodyObj(mvcResult, String.class);
         Assertions.assertNotNull(resBodyObj);
@@ -108,8 +102,7 @@ public abstract class WebBaseTest extends BaseTest {
                         post(url)
                                 .content(JsonUtils.toJsonString(body))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -119,8 +112,7 @@ public abstract class WebBaseTest extends BaseTest {
         return mockMvc.perform(
                         get(url, pathVariable)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -130,8 +122,7 @@ public abstract class WebBaseTest extends BaseTest {
         return mockMvc.perform(
                         delete(url, pathVariable)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -141,14 +132,14 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setUsername("operator");
         loginUser.setPassword("inlong");
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/login")
+                                        .content(JsonUtils.toJsonString(loginUser))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         String resBodyObj = getResBodyObj(mvcResult, String.class);
         Assertions.assertNotNull(resBodyObj);
@@ -157,11 +148,9 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     public <T> Response<T> getResBody(MvcResult mvcResult, Class<T> t) throws Exception {
-        return objectMapper
-                .readValue(
-                        mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
-                        objectMapper.getTypeFactory().constructParametricType(Response.class, t)
-                );
+        return objectMapper.readValue(
+                mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
+                objectMapper.getTypeFactory().constructParametricType(Response.class, t));
     }
 
     public <T> T getResBodyObj(MvcResult mvcResult, Class<T> t) throws Exception {
@@ -171,39 +160,44 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     public <T> List<T> getResBodyList(MvcResult mvcResult, Class<T> t) throws Exception {
-        JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
-        return objectMapper
-                .readValue(
-                        jsonNode.get("data").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+        JsonNode jsonNode =
+                objectMapper.readTree(
+                        mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+        return objectMapper.readValue(
+                jsonNode.get("data").toString(),
+                objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 
-    public <T, R> Map<T, R> getResBodyMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType) throws Exception {
-        JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
-        return objectMapper
-                .readValue(
-                        jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
-    }
-
-    public <T, R> Map<T, R> getResBodyListMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType)
+    public <T, R> Map<T, R> getResBodyMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType)
             throws Exception {
-        JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
-        return objectMapper
-                .readValue(
-                        jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
+        JsonNode jsonNode =
+                objectMapper.readTree(
+                        mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+        return objectMapper.readValue(
+                jsonNode.get("data").toString(),
+                this.objectMapper
+                        .getTypeFactory()
+                        .constructParametricType(HashMap.class, keyType, valueType));
+    }
+
+    public <T, R> Map<T, R> getResBodyListMap(
+            MvcResult mvcResult, Class<T> keyType, Class<R> valueType) throws Exception {
+        JsonNode jsonNode =
+                objectMapper.readTree(
+                        mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+        return objectMapper.readValue(
+                jsonNode.get("data").toString(),
+                this.objectMapper
+                        .getTypeFactory()
+                        .constructParametricType(HashMap.class, keyType, valueType));
     }
 
     public <T> List<T> getResBodyPageList(MvcResult mvcResult, Class<T> t) throws Exception {
-        JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
-        return objectMapper
-                .readValue(
-                        jsonNode.get("data").get("records").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+        JsonNode jsonNode =
+                objectMapper.readTree(
+                        mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
+        return objectMapper.readValue(
+                jsonNode.get("data").get("records").toString(),
+                objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 }

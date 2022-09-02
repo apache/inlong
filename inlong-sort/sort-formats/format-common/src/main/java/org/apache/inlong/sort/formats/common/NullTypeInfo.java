@@ -42,5 +42,4 @@ public class NullTypeInfo implements TypeInfo {
     public String toString() {
         return "NullTypeInfo";
     }
-
 }

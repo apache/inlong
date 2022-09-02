@@ -18,15 +18,13 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import java.io.Serializable;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentType;
-
-import java.io.Serializable;
 
 /** For version-agnostic creating of {@link ActionRequest}s. */
 public interface RequestFactory extends Serializable {

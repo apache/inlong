@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.formats.base;
 
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
+import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -90,23 +98,11 @@ import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
-import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
-
-/**
- * A utility class for table formats.
- */
+/** A utility class for table formats. */
 public class TableFormatUtils {
 
     /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
+     * Returns the {@link DeserializationSchema} described by the given properties.
      *
      * @param properties The properties describing the deserializer.
      * @param classLoader The class loader for the deserializer.
@@ -114,22 +110,17 @@ public class TableFormatUtils {
      * @return The {@link DeserializationSchema} described by the properties.
      */
     public static <T> DeserializationSchema<T> getDeserializationSchema(
-            final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final DeserializationSchemaFactory<T> deserializationSchemaFactory =
+            final Map<String, String> properties, final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final DeserializationSchemaFactory<T> deserializationSchemaFactory =
                 TableFactoryService.find(
-                        DeserializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+                        DeserializationSchemaFactory.class, properties, classLoader);
 
         return deserializationSchemaFactory.createDeserializationSchema(properties);
     }
 
     /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
+     * Returns the {@link SerializationSchema} described by the given properties.
      *
      * @param properties The properties describing the serializer.
      * @param classLoader The class loader for the serializer.
@@ -137,22 +128,16 @@ public class TableFormatUtils {
      * @return The {@link SerializationSchema} described by the properties.
      */
     public static <T> SerializationSchema<T> getSerializationSchema(
-            final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final SerializationSchemaFactory<T> serializationSchemaFactory =
-                TableFactoryService.find(
-                        SerializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+            final Map<String, String> properties, final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final SerializationSchemaFactory<T> serializationSchemaFactory =
+                TableFactoryService.find(SerializationSchemaFactory.class, properties, classLoader);
 
         return serializationSchemaFactory.createSerializationSchema(properties);
     }
 
     /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
+     * Returns the {@link DeserializationSchema} described by the given properties.
      *
      * @param properties The properties describing the deserializer.
      * @param fields The fields to project.
@@ -163,22 +148,17 @@ public class TableFormatUtils {
     public static <T> DeserializationSchema<Row> getProjectedDeserializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final ProjectedDeserializationSchemaFactory deserializationSchemaFactory =
                 TableFactoryService.find(
-                        ProjectedDeserializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+                        ProjectedDeserializationSchemaFactory.class, properties, classLoader);
 
-        return deserializationSchemaFactory
-                .createProjectedDeserializationSchema(properties, fields);
+        return deserializationSchemaFactory.createProjectedDeserializationSchema(
+                properties, fields);
     }
 
     /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
+     * Returns the {@link SerializationSchema} described by the given properties.
      *
      * @param properties The properties describing the serializer.
      * @param fields The fields to project.
@@ -188,63 +168,44 @@ public class TableFormatUtils {
     public static SerializationSchema<Row> getProjectedSerializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final ProjectedSerializationSchemaFactory serializationSchemaFactory =
                 TableFactoryService.find(
-                        ProjectedSerializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+                        ProjectedSerializationSchemaFactory.class, properties, classLoader);
 
-        return serializationSchemaFactory
-                .createProjectedSerializationSchema(properties, fields);
+        return serializationSchemaFactory.createProjectedSerializationSchema(properties, fields);
     }
 
     /**
-     * Returns the {@link TableFormatSerializer} described by the given
-     * properties.
+     * Returns the {@link TableFormatSerializer} described by the given properties.
      *
      * @param properties The properties describing the serializer.
      * @param classLoader The class loader for the serializer.
      * @return The {@link TableFormatSerializer} described by the properties.
      */
     public static TableFormatSerializer getTableFormatSerializer(
-            final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
+            final Map<String, String> properties, final ClassLoader classLoader) {
         final TableFormatSerializerFactory tableFormatSerializerFactory =
                 TableFactoryService.find(
-                        TableFormatSerializerFactory.class,
-                        properties,
-                        classLoader
-                );
+                        TableFormatSerializerFactory.class, properties, classLoader);
 
-        return tableFormatSerializerFactory
-                .createFormatSerializer(properties);
+        return tableFormatSerializerFactory.createFormatSerializer(properties);
     }
 
     /**
-     * Returns the {@link TableFormatDeserializer} described by the
-     * given properties.
+     * Returns the {@link TableFormatDeserializer} described by the given properties.
      *
      * @param properties The properties describing the deserializer.
      * @param classLoader The class loader for the deserializer.
      * @return The {@link TableFormatDeserializer} described by the properties.
      */
     public static TableFormatDeserializer getTableFormatDeserializer(
-            final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
+            final Map<String, String> properties, final ClassLoader classLoader) {
         final TableFormatDeserializerFactory tableFormatDeserializerFactory =
                 TableFactoryService.find(
-                        TableFormatDeserializerFactory.class,
-                        properties,
-                        classLoader
-                );
+                        TableFormatDeserializerFactory.class, properties, classLoader);
 
-        return tableFormatDeserializerFactory
-                .createFormatDeserializer(properties);
+        return tableFormatDeserializerFactory.createFormatDeserializer(properties);
     }
 
     /**
@@ -316,14 +277,14 @@ public class TableFormatUtils {
         } else if (logicalType instanceof NullType) {
             return NullFormatInfo.INSTANCE;
         } else {
-            throw new IllegalArgumentException(String.format("not found logicalType %s",
-                    logicalType == null ? "null" : logicalType.toString()));
+            throw new IllegalArgumentException(
+                    String.format(
+                            "not found logicalType %s",
+                            logicalType == null ? "null" : logicalType.toString()));
         }
     }
 
-    /**
-     * Derive the LogicalType for the given FormatInfo.
-     */
+    /** Derive the LogicalType for the given FormatInfo. */
     public static LogicalType deriveLogicalType(FormatInfo formatInfo) {
         if (formatInfo instanceof StringFormatInfo) {
             return new VarCharType(VarCharType.MAX_LENGTH);
@@ -353,7 +314,8 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof TimestampFormatInfo) {
             return new TimestampType(((TimestampFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof LocalZonedTimestampFormatInfo) {
-            return new LocalZonedTimestampType(((LocalZonedTimestampFormatInfo) formatInfo).getPrecision());
+            return new LocalZonedTimestampType(
+                    ((LocalZonedTimestampFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));
@@ -361,7 +323,8 @@ public class TableFormatUtils {
             MapFormatInfo mapFormatInfo = (MapFormatInfo) formatInfo;
             FormatInfo keyFormatInfo = mapFormatInfo.getKeyFormatInfo();
             FormatInfo valueFormatInfo = mapFormatInfo.getValueFormatInfo();
-            return new MapType(deriveLogicalType(keyFormatInfo), deriveLogicalType(valueFormatInfo));
+            return new MapType(
+                    deriveLogicalType(keyFormatInfo), deriveLogicalType(valueFormatInfo));
         } else if (formatInfo instanceof RowFormatInfo) {
             RowFormatInfo rowFormatInfo = (RowFormatInfo) formatInfo;
             FormatInfo[] formatInfos = rowFormatInfo.getFieldFormatInfos();
@@ -377,8 +340,10 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof NullFormatInfo) {
             return new NullType();
         } else {
-            throw new IllegalArgumentException(String.format("not found formatInfo %s",
-                    formatInfo == null ? "null" : formatInfo.toString()));
+            throw new IllegalArgumentException(
+                    String.format(
+                            "not found formatInfo %s",
+                            formatInfo == null ? "null" : formatInfo.toString()));
         }
     }
 
@@ -419,8 +384,7 @@ public class TableFormatUtils {
             return Types.PRIMITIVE_ARRAY(Types.BYTE);
         } else if (typeInfo instanceof ArrayTypeInfo) {
             ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) typeInfo;
-            TypeInfo elementTypeInfo =
-                    arrayTypeInfo.getElementTypeInfo();
+            TypeInfo elementTypeInfo = arrayTypeInfo.getElementTypeInfo();
             TypeInformation<?> elementType = getType(elementTypeInfo);
 
             return Types.OBJECT_ARRAY(elementType);
@@ -456,8 +420,7 @@ public class TableFormatUtils {
      * @return The basic row format defined in the descriptor.
      */
     public static RowFormatInfo deserializeRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         try {
             String schema = descriptorProperties.getString(FORMAT_SCHEMA);
 
@@ -478,11 +441,8 @@ public class TableFormatUtils {
      * @param descriptorProperties The properties of the descriptor.
      * @return The format derived from the schema in the descriptor.
      */
-    public static RowFormatInfo deriveRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
-        TableSchema tableSchema =
-                deriveSchema(descriptorProperties.asMap());
+    public static RowFormatInfo deriveRowFormatInfo(DescriptorProperties descriptorProperties) {
+        TableSchema tableSchema = deriveSchema(descriptorProperties.asMap());
 
         int numFields = tableSchema.getFieldCount();
         String[] fieldNames = tableSchema.getFieldNames();
@@ -503,9 +463,7 @@ public class TableFormatUtils {
      * @param descriptorProperties The properties of the descriptor.
      * @return The schema in the properties.
      */
-    public static RowFormatInfo getRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+    public static RowFormatInfo getRowFormatInfo(DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(FORMAT_SCHEMA)) {
             return deserializeRowFormatInfo(descriptorProperties);
         } else {
@@ -519,10 +477,7 @@ public class TableFormatUtils {
      * @param rowFormatInfo The schema to be projected.
      * @return The projected schema in the properties.
      */
-    public static RowFormatInfo projectRowFormatInfo(
-            RowFormatInfo rowFormatInfo,
-            int[] fields
-    ) {
+    public static RowFormatInfo projectRowFormatInfo(RowFormatInfo rowFormatInfo, int[] fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -547,27 +502,23 @@ public class TableFormatUtils {
         final boolean deriveSchema = descriptorProperties.containsKey(FORMAT_DERIVE_SCHEMA);
 
         if (defineSchema && deriveSchema) {
-            throw new ValidationException("Format cannot define a schema and "
-                    + "derive from the table's schema at the same time.");
+            throw new ValidationException(
+                    "Format cannot define a schema and "
+                            + "derive from the table's schema at the same time.");
         } else if (defineSchema) {
             descriptorProperties.validateString(FORMAT_SCHEMA, false);
         } else if (deriveSchema) {
             descriptorProperties.validateBoolean(FORMAT_DERIVE_SCHEMA, false);
         } else {
-            throw new ValidationException("A definition of a schema or "
-                    + "derivation from the table's schema is required.");
+            throw new ValidationException(
+                    "A definition of a schema or "
+                            + "derivation from the table's schema is required.");
         }
     }
 
-    /**
-     * Deserializes the basic field.
-     */
+    /** Deserializes the basic field. */
     public static Object deserializeBasicField(
-            String fieldName,
-            FormatInfo fieldFormatInfo,
-            String fieldText,
-            String nullLiteral
-    ) {
+            String fieldName, FormatInfo fieldFormatInfo, String fieldText, String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (fieldText == null) {
@@ -591,21 +542,21 @@ public class TableFormatUtils {
         try {
             return ((BasicFormatInfo<?>) fieldFormatInfo).deserialize(fieldText);
         } catch (Exception e) {
-            throw new RuntimeException("Could not properly deserialize the "
-                    + "text " + fieldText + " for field " + fieldName + ".", e);
+            throw new RuntimeException(
+                    "Could not properly deserialize the "
+                            + "text "
+                            + fieldText
+                            + " for field "
+                            + fieldName
+                            + ".",
+                    e);
         }
     }
 
-    /**
-     * Serializes the basic field.
-     */
+    /** Serializes the basic field. */
     @SuppressWarnings("unchecked")
     public static String serializeBasicField(
-            String fieldName,
-            FormatInfo fieldFormatInfo,
-            Object field,
-            String nullLiteral
-    ) {
+            String fieldName, FormatInfo fieldFormatInfo, Object field, String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (field == null) {
@@ -615,8 +566,14 @@ public class TableFormatUtils {
         try {
             return ((BasicFormatInfo<Object>) fieldFormatInfo).serialize(field);
         } catch (Exception e) {
-            throw new RuntimeException("Could not properly serialize the "
-                    + "value " + field + " for field " + fieldName + ".", e);
+            throw new RuntimeException(
+                    "Could not properly serialize the "
+                            + "value "
+                            + field
+                            + " for field "
+                            + fieldName
+                            + ".",
+                    e);
         }
     }
 }

@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.pojo.dataproxy;
 
-/**
- * InlongStreamId
- */
+/** InlongStreamId */
 public class InlongStreamId {
 
     private String inlongGroupId;
@@ -98,5 +96,4 @@ public class InlongStreamId {
     public void setExtParams(String extParams) {
         this.extParams = extParams;
     }
-
 }

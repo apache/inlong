@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.plugin.flink.dto;
 
+import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-
-/**
- * Flink infomation, including end point, job name, source type, etc.
- */
+/** Flink infomation, including end point, job name, source type, etc. */
 @Data
 public class FlinkInfo {
 

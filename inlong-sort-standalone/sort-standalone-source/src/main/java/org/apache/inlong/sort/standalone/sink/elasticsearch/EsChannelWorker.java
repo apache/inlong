@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import org.apache.flume.Channel;
@@ -25,9 +22,7 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * EsChannelWorker
- */
+/** EsChannelWorker */
 public class EsChannelWorker extends Thread {
 
     public static final Logger LOG = LoggerFactory.getLogger(EsChannelWorker.class);
@@ -40,7 +35,7 @@ public class EsChannelWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      * @param workerIndex
      */
@@ -51,13 +46,15 @@ public class EsChannelWorker extends Thread {
         this.handler = context.createIndexRequestHandler();
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         status = LifecycleState.START;
-        LOG.info("start to EsChannelWorker:{},status:{},index:{}", context.getTaskName(), status, workerIndex);
+        LOG.info(
+                "start to EsChannelWorker:{},status:{},index:{}",
+                context.getTaskName(),
+                status,
+                workerIndex);
         while (status == LifecycleState.START) {
             try {
                 this.doRun();
@@ -67,9 +64,7 @@ public class EsChannelWorker extends Thread {
         }
     }
 
-    /**
-     * doRun
-     */
+    /** doRun */
     public void doRun() {
         Channel channel = context.getChannel();
         Transaction tx = channel.getTransaction();
@@ -112,9 +107,7 @@ public class EsChannelWorker extends Thread {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         this.status = LifecycleState.STOP;
     }

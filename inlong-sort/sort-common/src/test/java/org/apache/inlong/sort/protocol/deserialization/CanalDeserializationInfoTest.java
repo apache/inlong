@@ -20,14 +20,11 @@ package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link CanalDeserializationInfo}
- */
+/** Test for {@link CanalDeserializationInfo} */
 public class CanalDeserializationInfoTest extends SerializeBaseTest<CanalDeserializationInfo> {
 
     @Override
     public CanalDeserializationInfo getTestObject() {
-        return new CanalDeserializationInfo(null, null,
-                false, "SQL", true);
+        return new CanalDeserializationInfo(null, null, false, "SQL", true);
     }
 }

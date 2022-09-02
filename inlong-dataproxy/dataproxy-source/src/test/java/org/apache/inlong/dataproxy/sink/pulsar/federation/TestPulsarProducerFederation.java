@@ -17,6 +17,12 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -36,34 +42,33 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.junit.Assert.assertTrue;
-
-/**
- * TestPulsarProducerFederation
- */
+/** TestPulsarProducerFederation */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
-@PrepareForTest({PulsarClient.class, ClientBuilder.class, MessageId.class,
-        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class, MetricRegister.class})
+@PrepareForTest({
+    PulsarClient.class,
+    ClientBuilder.class,
+    MessageId.class,
+    Producer.class,
+    ProducerBuilder.class,
+    TypedMessageBuilder.class,
+    MetricRegister.class
+})
 public class TestPulsarProducerFederation {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestPulsarProducerFederation.class);
     public static Context context;
     public static Context sinkContext;
 
-    /**
-     * setup
-     */
+    /** setup */
     @BeforeClass
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
-                "dataproxy-pulsar.conf").openStream()) {
+        try (InputStream inStream =
+                TestPulsarFederationSink.class
+                        .getClassLoader()
+                        .getResource("dataproxy-pulsar.conf")
+                        .openStream()) {
             MockUtils.mockMetricRegister();
             Properties props = new Properties();
             props.load(inStream);
@@ -71,25 +76,27 @@ public class TestPulsarProducerFederation {
                 result.put((String) entry.getKey(), (String) entry.getValue());
             }
             context = new Context(result);
-            sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
+            sinkContext =
+                    new Context(
+                            context.getSubProperties(
+                                    "proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
             MockUtils.mockPulsarClient();
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
     }
 
-    /**
-     * testResult
-     */
+    /** testResult */
     @Test
     public void testResult() throws Exception {
         String workerName = "workerName";
-        PulsarFederationSinkContext pulsarContext = new PulsarFederationSinkContext(MockUtils.SINK_ID, sinkContext);
-        PulsarProducerFederation federation = new PulsarProducerFederation(workerName, pulsarContext);
+        PulsarFederationSinkContext pulsarContext =
+                new PulsarFederationSinkContext(MockUtils.SINK_ID, sinkContext);
+        PulsarProducerFederation federation =
+                new PulsarProducerFederation(workerName, pulsarContext);
         federation.start();
         Event event = MockUtils.mockEvent();
         boolean result = federation.send(event);
         assertTrue(result);
     }
-
 }

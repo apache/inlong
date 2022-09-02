@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * Date utils.
- */
+/** Date utils. */
 @Slf4j
 @UtilityClass
 public class DateUtils {
@@ -61,5 +58,4 @@ public class DateUtils {
 
         return Math.toIntExact(dueLocalDate.toEpochDay() - createLocalDate.toEpochDay());
     }
-
 }

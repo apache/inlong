@@ -22,7 +22,6 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 import java.util.Date;
 import java.util.List;
 import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
@@ -40,14 +39,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ClusterServiceImpl implements ClusterService {
 
-    @Autowired
-    ClusterRepository clusterRepository;
+    @Autowired ClusterRepository clusterRepository;
 
-    @Autowired
-    NodeService nodeService;
+    @Autowired NodeService nodeService;
 
-    @Autowired
-    MasterService masterService;
+    @Autowired MasterService masterService;
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -77,14 +73,12 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Override
     public ClusterEntry getOneCluster(long clusterId) {
-        return clusterRepository
-                .findClusterEntryByClusterId(clusterId);
+        return clusterRepository.findClusterEntryByClusterId(clusterId);
     }
 
     @Override
     public ClusterEntry getOneCluster(String clusterName) {
-        return clusterRepository
-                .findClusterEntryByClusterName(clusterName);
+        return clusterRepository.findClusterEntryByClusterName(clusterName);
     }
 
     @Override
@@ -95,8 +89,8 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public TubeMQResult modifyCluster(ClusterDto clusterDto) {
         try {
-            ClusterEntry cluster = clusterRepository
-                    .findClusterEntryByClusterId(clusterDto.getClusterId());
+            ClusterEntry cluster =
+                    clusterRepository.findClusterEntryByClusterId(clusterDto.getClusterId());
             cluster.setClusterName(clusterDto.getClusterName());
             cluster.setReloadBrokerSize(clusterDto.getReloadBrokerSize());
             clusterRepository.save(cluster);
@@ -120,5 +114,4 @@ public class ClusterServiceImpl implements ClusterService {
             nodeService.addNode(masterEntry);
         }
     }
-
 }

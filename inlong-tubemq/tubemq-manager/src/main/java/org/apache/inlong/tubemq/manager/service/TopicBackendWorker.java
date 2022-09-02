@@ -17,14 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.tubemq.manager.repository.TopicRepository;
-import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +27,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.tubemq.manager.repository.TopicRepository;
+import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-/**
- * Topic backend thread worker.
- */
+/** Topic backend thread worker. */
 @Component
 @Slf4j
-public class TopicBackendWorker implements DisposableBean, Runnable  {
+public class TopicBackendWorker implements DisposableBean, Runnable {
     // old code, stop first
     private final AtomicBoolean runFlag = new AtomicBoolean(false);
     private final ConcurrentHashMap<Integer, BlockingQueue<TopicFuture>> pendingTopics =
@@ -49,8 +46,7 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
     private final AtomicInteger notSatisfiedCount = new AtomicInteger(0);
     private final NodeService nodeService;
 
-    @Autowired
-    private TopicRepository topicRepository;
+    @Autowired private TopicRepository topicRepository;
 
     @Value("${manager.topic.queue.warning.size:100}")
     private int queueWarningSize;
@@ -75,12 +71,13 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
 
     /**
      * add topic future to pending executing queue.
+     *
      * @param future - TopicFuture.
      */
     public void addTopicFuture(TopicFuture future) {
         BlockingQueue<TopicFuture> tmpQueue = new LinkedBlockingQueue<>();
-        BlockingQueue<TopicFuture> queue = pendingTopics.putIfAbsent(
-                future.getEntry().getClusterId(), tmpQueue);
+        BlockingQueue<TopicFuture> queue =
+                pendingTopics.putIfAbsent(future.getEntry().getClusterId(), tmpQueue);
         if (queue == null) {
             queue = tmpQueue;
         }
@@ -90,33 +87,29 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
         }
     }
 
-    /**
-     * batch executing adding topic, wait util max n seconds or max size satisfied.
-     */
+    /** batch executing adding topic, wait util max n seconds or max size satisfied. */
     private void batchAddTopic() {
-        pendingTopics.forEach((clusterId, queue) -> {
-            Map<String, TopicFuture> pendingTopicList = new HashMap<>(32);
-            if (notSatisfiedCount.get() > queueMaxWait || queue.size() > queueMaxRunningSize) {
-                notSatisfiedCount.set(0);
-                List<TopicFuture> tmpTopicList = new ArrayList<>();
-                queue.drainTo(tmpTopicList, queueMaxRunningSize);
-                for (TopicFuture topicFuture : tmpTopicList) {
-                    pendingTopicList.put(topicFuture.getEntry().getTopic(), topicFuture);
-                }
-            } else {
-                notSatisfiedCount.incrementAndGet();
-            }
-            // update broker status
-            nodeService.updateBrokerStatus(clusterId, pendingTopicList);
-        });
-
+        pendingTopics.forEach(
+                (clusterId, queue) -> {
+                    Map<String, TopicFuture> pendingTopicList = new HashMap<>(32);
+                    if (notSatisfiedCount.get() > queueMaxWait
+                            || queue.size() > queueMaxRunningSize) {
+                        notSatisfiedCount.set(0);
+                        List<TopicFuture> tmpTopicList = new ArrayList<>();
+                        queue.drainTo(tmpTopicList, queueMaxRunningSize);
+                        for (TopicFuture topicFuture : tmpTopicList) {
+                            pendingTopicList.put(topicFuture.getEntry().getTopic(), topicFuture);
+                        }
+                    } else {
+                        notSatisfiedCount.incrementAndGet();
+                    }
+                    // update broker status
+                    nodeService.updateBrokerStatus(clusterId, pendingTopicList);
+                });
     }
 
-    /**
-     * check topic from db
-     */
-    private void checkTopicFromDB() {
-    }
+    /** check topic from db */
+    private void checkTopicFromDB() {}
 
     @Override
     public void run() {

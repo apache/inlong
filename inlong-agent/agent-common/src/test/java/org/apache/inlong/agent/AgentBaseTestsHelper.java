@@ -25,9 +25,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * common environment setting up for test cases.
- */
+/** common environment setting up for test cases. */
 public class AgentBaseTestsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentBaseTestsHelper.class);
@@ -40,8 +38,7 @@ public class AgentBaseTestsHelper {
     }
 
     public AgentBaseTestsHelper setupAgentHome() {
-        testRootDir = Paths
-                .get("/tmp", AgentBaseTestsHelper.class.getSimpleName(), className);
+        testRootDir = Paths.get("/tmp", AgentBaseTestsHelper.class.getSimpleName(), className);
         teardownAgentHome();
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);

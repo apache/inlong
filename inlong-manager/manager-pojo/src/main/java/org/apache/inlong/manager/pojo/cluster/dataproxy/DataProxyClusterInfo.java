@@ -27,9 +27,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
-/**
- * Inlong cluster info for DataProxy
- */
+/** Inlong cluster info for DataProxy */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -54,5 +52,4 @@ public class DataProxyClusterInfo extends ClusterInfo {
     public DataProxyClusterRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, DataProxyClusterRequest::new);
     }
-
 }

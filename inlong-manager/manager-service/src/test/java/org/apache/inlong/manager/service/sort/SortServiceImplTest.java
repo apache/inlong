@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sort;
 
+import java.util.Date;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -40,11 +41,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
-/**
- * Sort service test for {@link SortService}
- */
+/** Sort service test for {@link SortService} */
 @TestMethodOrder(OrderAnnotation.class)
 public class SortServiceImplTest extends ServiceBaseTest {
 
@@ -56,16 +53,11 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private static final String TEST_SINK_TYPE = "testSinkType";
     private static final String TEST_CREATOR = "testUser";
 
-    @Autowired
-    private InlongClusterEntityMapper clusterEntityMapper;
-    @Autowired
-    private StreamSinkEntityMapper streamSinkEntityMapper;
-    @Autowired
-    private InlongGroupEntityMapper inlongGroupEntityMapper;
-    @Autowired
-    private DataNodeEntityMapper dataNodeEntityMapper;
-    @Autowired
-    private SortService sortService;
+    @Autowired private InlongClusterEntityMapper clusterEntityMapper;
+    @Autowired private StreamSinkEntityMapper streamSinkEntityMapper;
+    @Autowired private InlongGroupEntityMapper inlongGroupEntityMapper;
+    @Autowired private DataNodeEntityMapper dataNodeEntityMapper;
+    @Autowired private SortService sortService;
 
     @Test
     @Order(1)
@@ -83,7 +75,8 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(2)
     @Transactional
     public void testSourceCorrectParams() {
-        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
+        SortSourceConfigResponse response =
+                sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
         JSONObject jo = new JSONObject(response);
         System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
@@ -96,7 +89,8 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(3)
     @Transactional
     public void testSourceSameMd5() {
-        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
+        SortSourceConfigResponse response =
+                sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
         String md5 = response.getMd5();
         response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, md5);
         System.out.println(response);
@@ -110,7 +104,8 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(4)
     @Transactional
     public void testSourceErrorClusterName() {
-        SortSourceConfigResponse response = sortService.getSourceConfig("errCluster", "errTask", "");
+        SortSourceConfigResponse response =
+                sortService.getSourceConfig("errCluster", "errTask", "");
         System.out.println(response.toString());
         Assertions.assertEquals(0, response.getCode());
         Assertions.assertNull(response.getMd5());
@@ -128,7 +123,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
         Assertions.assertNull(response.getMd5());
         Assertions.assertNull(response.getData());
         Assertions.assertNotNull(response.getMsg());
-
     }
 
     @Test
@@ -238,12 +232,16 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setVersion(InlongConstants.INITIAL_VERSION);
-        String extTag = "zone=" + TEST_TAG
-                + "&producer=true"
-                + "&consumer=" + (isConsumable ? "true" : "false");
+        String extTag =
+                "zone="
+                        + TEST_TAG
+                        + "&producer=true"
+                        + "&consumer="
+                        + (isConsumable ? "true" : "false");
         entity.setExtTag(extTag);
-        entity.setExtParams("{\"tenant\":\"testTenant\",\"namespace\":\"testNS\",\"serviceUrl\":\"testServiceUrl\","
-                + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
+        entity.setExtParams(
+                "{\"tenant\":\"testTenant\",\"namespace\":\"testNS\",\"serviceUrl\":\"testServiceUrl\","
+                        + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
         clusterEntityMapper.insert(entity);
     }
 
@@ -265,5 +263,4 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setExtParams("{\"delimiter\":\"|\",\"dataType\":\"text\"}");
         streamSinkEntityMapper.insert(entity);
     }
-
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.hive;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,11 +31,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import java.util.List;
-
-/**
- * Hive sink info
- */
+/** Hive sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -71,7 +68,8 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
+    @ApiModelProperty(
+            "File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
@@ -83,7 +81,8 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
+    @ApiModelProperty(
+            "Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
     public HiveSink() {
@@ -94,5 +93,4 @@ public class HiveSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, HiveSinkRequest::new);
     }
-
 }

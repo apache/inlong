@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -35,22 +39,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-
-/**
- * Operator for clickHouse resource, such as create sink resource, clickHouse tables, etc.
- */
+/** Operator for clickHouse resource, such as create sink resource, clickHouse tables, etc. */
 @Service
 public class ClickHouseResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseResourceOperator.class);
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper clickHouseFieldMapper;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private StreamSinkFieldEntityMapper clickHouseFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -67,8 +62,10 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
 
@@ -78,9 +75,12 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
     private void createTable(SinkInfo sinkInfo) {
         LOGGER.info("begin to create clickhouse table for sinkId={}", sinkInfo.getId());
 
-        List<StreamSinkFieldEntity> fieldList = clickHouseFieldMapper.selectBySinkId(sinkInfo.getId());
+        List<StreamSinkFieldEntity> fieldList =
+                clickHouseFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no clickhouse fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOGGER.warn(
+                    "no clickhouse fields found, skip to create table for sinkId={}",
+                    sinkInfo.getId());
         }
 
         // set columns
@@ -95,7 +95,8 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
 
         try {
             ClickHouseSinkDTO ckInfo = ClickHouseSinkDTO.getFromJson(sinkInfo.getExtParams());
-            ClickHouseTableInfo tableInfo = ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, columnList);
+            ClickHouseTableInfo tableInfo =
+                    ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, columnList);
             String url = ckInfo.getJdbcUrl();
             String user = ckInfo.getUsername();
             String password = ckInfo.getPassword();
@@ -115,18 +116,20 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
                 ClickHouseJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
                 // 4. table exists, add columns - skip the exists columns
-                List<ClickHouseColumnInfo> existColumns = ClickHouseJdbcUtils.getColumns(url,
-                        user, password, dbName, tableName);
-                List<ClickHouseColumnInfo> needAddColumns = tableInfo.getColumns().stream()
-                        .skip(existColumns.size()).collect(toList());
+                List<ClickHouseColumnInfo> existColumns =
+                        ClickHouseJdbcUtils.getColumns(url, user, password, dbName, tableName);
+                List<ClickHouseColumnInfo> needAddColumns =
+                        tableInfo.getColumns().stream().skip(existColumns.size()).collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
-                    ClickHouseJdbcUtils.addColumns(url, user, password, dbName, tableName, needAddColumns);
+                    ClickHouseJdbcUtils.addColumns(
+                            url, user, password, dbName, tableName, needAddColumns);
                 }
             }
 
             // 5. update the sink status to success
             String info = "success to create clickhouse resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "create clickhouse table failed: " + e.getMessage();
@@ -137,5 +140,4 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
 
         LOGGER.info("success create ClickHouse table for sink id [" + sinkInfo.getId() + "]");
     }
-
 }

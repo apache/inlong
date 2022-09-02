@@ -20,6 +20,10 @@ package org.apache.inlong.manager.pojo.sink.postgresql;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,14 +33,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 
-import javax.validation.constraints.NotNull;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
-/**
- * PostgreSQL sink info
- */
+/** PostgreSQL sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -69,15 +66,14 @@ public class PostgreSQLSinkDTO {
     @ApiModelProperty("Properties for PostgreSQL")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
+            passwd =
+                    AESUtils.encryptToString(
+                            request.getPassword().getBytes(StandardCharsets.UTF_8), encryptVersion);
         }
         return PostgreSQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -102,14 +98,14 @@ public class PostgreSQLSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, PostgreSQLSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
-    /**
-     * Get PostgreSQL table info
-     */
-    public static PostgreSQLTableInfo getTableInfo(PostgreSQLSinkDTO pgSink, List<PostgreSQLColumnInfo> columnList) {
+    /** Get PostgreSQL table info */
+    public static PostgreSQLTableInfo getTableInfo(
+            PostgreSQLSinkDTO pgSink, List<PostgreSQLColumnInfo> columnList) {
         PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
         tableInfo.setDbName(pgSink.getDbName());
         tableInfo.setTableName(pgSink.getTableName());
@@ -125,5 +121,4 @@ public class PostgreSQLSinkDTO {
         }
         return this;
     }
-
 }

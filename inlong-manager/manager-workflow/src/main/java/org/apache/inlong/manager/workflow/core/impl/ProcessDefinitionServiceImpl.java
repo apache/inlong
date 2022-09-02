@@ -24,14 +24,11 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * WorkflowProcess definition service
- */
+/** WorkflowProcess definition service */
 @Service
 public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
 
-    @Autowired
-    private ProcessDefinitionRepository definitionRepository;
+    @Autowired private ProcessDefinitionRepository definitionRepository;
 
     @Override
     public void register(WorkflowProcess process) {
@@ -44,5 +41,4 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     public WorkflowProcess getByName(String name) {
         return definitionRepository.get(name);
     }
-
 }

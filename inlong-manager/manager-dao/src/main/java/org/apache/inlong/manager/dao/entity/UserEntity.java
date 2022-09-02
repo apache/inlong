@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * User entity, including username, password, etc.
- */
+/** User entity, including username, password, etc. */
 @Data
 public class UserEntity implements Serializable {
 

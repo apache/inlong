@@ -23,9 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Data consumption query
- */
+/** Data consumption query */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Data consumption query conditions")
@@ -52,8 +50,10 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Consumption target stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Status: Draft: 0, Pending distribution: 10, "
-            + "Pending approval: 11, Approval rejected: 20, Approved: 21")
+    @ApiModelProperty(
+            value =
+                    "Status: Draft: 0, Pending distribution: 10, "
+                            + "Pending approval: 11, Approval rejected: 20, Approved: 21")
     private Integer status;
 
     @ApiModelProperty(value = "Consumption status: normal: 0, abnormal: 1, shielded: 2, no: 3")

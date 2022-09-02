@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
+
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,12 +32,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
-
-/**
- * The format information for {@link Date}s.
- */
+/** The format information for {@link Date}s. */
 public class DateFormatInfo implements BasicFormatInfo<Date> {
 
     private static final long serialVersionUID = 1L;
@@ -45,14 +43,10 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     @Nonnull
     private final String format;
 
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
+    @JsonIgnore @Nullable private final SimpleDateFormat simpleDateFormat;
 
     @JsonCreator
-    public DateFormatInfo(
-            @JsonProperty(FIELD_FORMAT) @Nonnull String format
-    ) {
+    public DateFormatInfo(@JsonProperty(FIELD_FORMAT) @Nonnull String format) {
         this.format = format;
 
         if (!format.equals("SECONDS")
@@ -83,27 +77,31 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     @Override
     public String serialize(Date date) {
         switch (format) {
-            case "MICROS": {
-                long millis = date.getTime();
-                long micros = TimeUnit.MILLISECONDS.toMicros(millis);
-                return Long.toString(micros);
-            }
-            case "MILLIS": {
-                long millis = date.getTime();
-                return Long.toString(millis);
-            }
-            case "SECONDS": {
-                long millis = date.getTime();
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-                return Long.toString(seconds);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long millis = date.getTime();
+                    long micros = TimeUnit.MILLISECONDS.toMicros(millis);
+                    return Long.toString(micros);
                 }
+            case "MILLIS":
+                {
+                    long millis = date.getTime();
+                    return Long.toString(millis);
+                }
+            case "SECONDS":
+                {
+                    long millis = date.getTime();
+                    long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+                    return Long.toString(seconds);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                return simpleDateFormat.format(date);
-            }
+                    return simpleDateFormat.format(date);
+                }
         }
     }
 
@@ -111,28 +109,32 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
     public Date deserialize(String text) throws ParseException {
 
         switch (format) {
-            case "MICROS": {
-                long micros = Long.parseLong(text.trim());
-                long millis = TimeUnit.MICROSECONDS.toMillis(micros);
-                return new Date(millis);
-            }
-            case "MILLIS": {
-                long millis = Long.parseLong(text.trim());
-                return new Date(millis);
-            }
-            case "SECONDS": {
-                long seconds = Long.parseLong(text.trim());
-                long millis = TimeUnit.SECONDS.toMillis(seconds);
-                return new Date(millis);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long micros = Long.parseLong(text.trim());
+                    long millis = TimeUnit.MICROSECONDS.toMillis(micros);
+                    return new Date(millis);
                 }
+            case "MILLIS":
+                {
+                    long millis = Long.parseLong(text.trim());
+                    return new Date(millis);
+                }
+            case "SECONDS":
+                {
+                    long seconds = Long.parseLong(text.trim());
+                    long millis = TimeUnit.SECONDS.toMillis(seconds);
+                    return new Date(millis);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                java.util.Date jDate = simpleDateFormat.parse(text.trim());
-                return new Date(jDate.getTime());
-            }
+                    java.util.Date jDate = simpleDateFormat.parse(text.trim());
+                    return new Date(jDate.getTime());
+                }
         }
     }
 

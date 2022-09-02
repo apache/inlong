@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ErrorCode {
-
     ATTR_ERROR(1),
 
     DT_ERROR(2),
@@ -48,5 +47,4 @@ public enum ErrorCode {
     public static ErrorCode valueOf(int value) {
         return map.get(value);
     }
-
 }

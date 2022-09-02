@@ -25,14 +25,13 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link TumbleFunction}
- */
+/** Test for {@link TumbleFunction} */
 public class TumbleFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new TumbleFunction(new FieldInfo("time_field", new TimestampFormatInfo()),
+        return new TumbleFunction(
+                new FieldInfo("time_field", new TimestampFormatInfo()),
                 new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
     }

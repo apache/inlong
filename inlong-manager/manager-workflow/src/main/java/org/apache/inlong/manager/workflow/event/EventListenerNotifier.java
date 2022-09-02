@@ -19,9 +19,7 @@ package org.apache.inlong.manager.workflow.event;
 
 import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * Process event listener notifier
- */
+/** Process event listener notifier */
 public interface EventListenerNotifier<E extends WorkflowEvent> {
 
     /**
@@ -39,5 +37,4 @@ public interface EventListenerNotifier<E extends WorkflowEvent> {
      * @param context context
      */
     ListenerResult notify(String listenerName, WorkflowContext context);
-
 }

@@ -1,31 +1,24 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.commons.protocol;
 
 import java.nio.charset.Charset;
 import java.util.Map;
-
 import org.apache.flume.event.SimpleEvent;
 
-/**
- * 
- * SdkEvent
- */
+/** SdkEvent */
 public class SdkEvent extends SimpleEvent {
 
     protected String inlongGroupId;
@@ -35,15 +28,12 @@ public class SdkEvent extends SimpleEvent {
     protected long msgTime;
     protected String sourceIp;
 
+    /** Constructor */
+    public SdkEvent() {}
+
     /**
      * Constructor
-     */
-    public SdkEvent(){
-    }
-    
-    /**
-     * Constructor
-     * 
+     *
      * @param inlongGroupId
      * @param inlongStreamId
      * @param body
@@ -63,7 +53,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * Constructor
-     * 
+     *
      * @param inlongGroupId
      * @param inlongStreamId
      * @param body
@@ -74,7 +64,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * get sourceIp
-     * 
+     *
      * @return the sourceIp
      */
     public String getSourceIp() {
@@ -83,7 +73,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * set sourceIp
-     * 
+     *
      * @param sourceIp the sourceIp to set
      */
     public void setSourceIp(String sourceIp) {
@@ -93,7 +83,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -102,7 +92,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -111,7 +101,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * get uid
-     * 
+     *
      * @return the uid
      */
     public String getUid() {
@@ -120,7 +110,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * get msgTime
-     * 
+     *
      * @return the msgTime
      */
     public long getMsgTime() {
@@ -129,7 +119,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * set inlongGroupId
-     * 
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -138,7 +128,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * set inlongStreamId
-     * 
+     *
      * @param inlongStreamId the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
@@ -147,7 +137,7 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * set uid
-     * 
+     *
      * @param uid the uid to set
      */
     public void setUid(String uid) {
@@ -156,11 +146,10 @@ public class SdkEvent extends SimpleEvent {
 
     /**
      * set msgTime
-     * 
+     *
      * @param msgTime the msgTime to set
      */
     public void setMsgTime(long msgTime) {
         this.msgTime = msgTime;
     }
-
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.sort.impl;
 
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
+import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -27,13 +28,10 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.api.TopicManager;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
-import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * New version of sort client.
- */
+/** New version of sort client. */
 public class SortClientImplV2 extends SortClient {
 
     private final String logPrefix = "[" + SortClientImpl.class.getSimpleName() + "] ";
@@ -53,10 +51,14 @@ public class SortClientImplV2 extends SortClient {
     public SortClientImplV2(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            this.inLongTopicManager = InlongTopicManagerFactory
-                    .createInLongTopicManager(sortClientConfig.getTopicType(),
-                            context, new QueryConsumeConfigImpl(context));
+            this.context =
+                    new ClientContextImpl(
+                            this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
+            this.inLongTopicManager =
+                    InlongTopicManagerFactory.createInLongTopicManager(
+                            sortClientConfig.getTopicType(),
+                            context,
+                            new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             this.close();
             throw e;
@@ -64,21 +66,27 @@ public class SortClientImplV2 extends SortClient {
     }
 
     /**
-     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and ManagerReportHandler
+     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and
+     * ManagerReportHandler
      *
      * @param sortClientConfig SortClientConfig
      * @param queryConsumeConfig QueryConsumeConfig
      * @param metricReporter MetricReporter
      * @param managerReportHandler ManagerReportHandler
      */
-    public SortClientImplV2(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-                          MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+    public SortClientImplV2(
+            SortClientConfig sortClientConfig,
+            QueryConsumeConfig queryConsumeConfig,
+            MetricReporter metricReporter,
+            ManagerReportHandler managerReportHandler) {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
-            this.inLongTopicManager = InlongTopicManagerFactory
-                    .createInLongTopicManager(sortClientConfig.getTopicType(),
-                            context, new QueryConsumeConfigImpl(context));
+            this.inLongTopicManager =
+                    InlongTopicManagerFactory.createInLongTopicManager(
+                            sortClientConfig.getTopicType(),
+                            context,
+                            new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             e.printStackTrace();
             this.close();
@@ -106,8 +114,7 @@ public class SortClientImplV2 extends SortClient {
      * @throws Exception
      */
     @Override
-    public void ack(String msgKey, String msgOffset)
-            throws Exception {
+    public void ack(String msgKey, String msgOffset) throws Exception {
         logger.debug("ack:{} offset:{}", msgKey, msgOffset);
         TopicFetcher topicFetcher = getFetcher(msgKey);
         topicFetcher.ack(msgOffset);
@@ -123,10 +130,12 @@ public class SortClientImplV2 extends SortClient {
         boolean cleanInLongTopicManager = doClose(inLongTopicManager);
         boolean cleanContext = doClose(context);
 
-        logger.info(logPrefix
-
-                + "|cleanInLongTopicManager=" + cleanInLongTopicManager
-                + "|cleanContext=" + cleanContext);
+        logger.info(
+                logPrefix
+                        + "|cleanInLongTopicManager="
+                        + cleanInLongTopicManager
+                        + "|cleanContext="
+                        + cleanContext);
         return (cleanInLongTopicManager && cleanContext);
     }
 

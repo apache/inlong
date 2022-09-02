@@ -17,39 +17,25 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * DataProxy node response, used for DataProxy SDK.
- */
+/** DataProxy node response, used for DataProxy SDK. */
 @Data
 public class DataProxyNodeResponse {
 
-    /**
-     * DataProxy cluster id
-     */
+    /** DataProxy cluster id */
     private Integer clusterId;
 
-    /**
-     * Is the DataProxy cluster an intranet? 0: no, 1: yes
-     */
+    /** Is the DataProxy cluster an intranet? 0: no, 1: yes */
     private Integer isIntranet;
 
-    /**
-     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
-     */
+    /** Is the DataProxy cluster in a switch status? 0: no, 1: yes */
     private Integer isSwitch;
 
-    /**
-     * Load of the DataProxy cluster, default is 20
-     */
+    /** Load of the DataProxy cluster, default is 20 */
     private Integer load = 20;
 
-    /**
-     * List of the cluster node
-     */
+    /** List of the cluster node */
     private List<DataProxyNodeInfo> nodeList;
-
 }

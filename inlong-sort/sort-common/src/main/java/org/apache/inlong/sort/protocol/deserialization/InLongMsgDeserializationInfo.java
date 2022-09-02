@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * InLongMsgDeserializationInfo.
- */
+/** InLongMsgDeserializationInfo. */
 public abstract class InLongMsgDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = 3707412713264864315L;

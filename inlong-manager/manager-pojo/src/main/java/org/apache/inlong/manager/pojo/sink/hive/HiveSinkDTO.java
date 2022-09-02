@@ -20,6 +20,10 @@ package org.apache.inlong.manager.pojo.sink.hive;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,14 +34,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 
-import javax.validation.constraints.NotNull;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Hive sink info
- */
+/** Hive sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -73,7 +70,8 @@ public class HiveSinkDTO {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
+    @ApiModelProperty(
+            "File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
@@ -91,18 +89,18 @@ public class HiveSinkDTO {
     @ApiModelProperty("Password encrypt version")
     private Integer encryptVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
+    @ApiModelProperty(
+            "Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
+            passwd =
+                    AESUtils.encryptToString(
+                            request.getPassword().getBytes(StandardCharsets.UTF_8), encryptVersion);
         }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -124,22 +122,20 @@ public class HiveSinkDTO {
                 .build();
     }
 
-    /**
-     * Get Hive sink info from JSON string
-     */
+    /** Get Hive sink info from JSON string */
     public static HiveSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
-    /**
-     * Get Hive table info
-     */
-    public static HiveTableInfo getHiveTableInfo(HiveSinkDTO hiveInfo, List<HiveColumnInfo> columnList) {
+    /** Get Hive table info */
+    public static HiveTableInfo getHiveTableInfo(
+            HiveSinkDTO hiveInfo, List<HiveColumnInfo> columnList) {
         HiveTableInfo tableInfo = new HiveTableInfo();
         tableInfo.setDbName(hiveInfo.getDbName());
         tableInfo.setTableName(hiveInfo.getTableName());
@@ -172,5 +168,4 @@ public class HiveSinkDTO {
         }
         return this;
     }
-
 }

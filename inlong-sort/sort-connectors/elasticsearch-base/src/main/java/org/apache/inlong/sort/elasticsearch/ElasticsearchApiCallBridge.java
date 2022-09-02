@@ -18,18 +18,15 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
-import org.apache.flink.annotation.Internal;
-
-import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkProcessor;
-
-import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nullable;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkProcessor;
 
 /**
  * An {@link ElasticsearchApiCallBridge} is used to bridge incompatible Elasticsearch Java API calls

@@ -22,12 +22,12 @@ import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 
-/**
- * Listener of build even log event.
- */
-public class LogableTaskEventListener extends LogableEventListener<TaskEvent> implements TaskEventListener {
+/** Listener of build even log event. */
+public class LogableTaskEventListener extends LogableEventListener<TaskEvent>
+        implements TaskEventListener {
 
-    public LogableTaskEventListener(TaskEventListener eventListener, WorkflowEventLogEntityMapper eventLogMapper) {
+    public LogableTaskEventListener(
+            TaskEventListener eventListener, WorkflowEventLogEntityMapper eventLogMapper) {
         super(eventListener, eventLogMapper);
     }
 

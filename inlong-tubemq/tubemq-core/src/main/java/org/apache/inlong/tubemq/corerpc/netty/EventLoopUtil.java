@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -39,46 +36,53 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
 public class EventLoopUtil {
-    public EventLoopUtil() {
-    }
+    public EventLoopUtil() {}
 
-    public static EventLoopGroup newEventLoopGroup(int nThreads,
-            boolean enableBusyWait, ThreadFactory threadFactory) {
+    public static EventLoopGroup newEventLoopGroup(
+            int nThreads, boolean enableBusyWait, ThreadFactory threadFactory) {
         if (!Epoll.isAvailable()) {
             return new NioEventLoopGroup(nThreads, threadFactory);
         } else if (!enableBusyWait) {
             return new EpollEventLoopGroup(nThreads, threadFactory);
         } else {
-            EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(nThreads,
-                    threadFactory, () -> {
-                return (selectSupplier, hasTasks) -> {
-                    return -3;
-                };
-            });
+            EpollEventLoopGroup eventLoopGroup =
+                    new EpollEventLoopGroup(
+                            nThreads,
+                            threadFactory,
+                            () -> {
+                                return (selectSupplier, hasTasks) -> {
+                                    return -3;
+                                };
+                            });
             return eventLoopGroup;
         }
     }
 
-    public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
+    public static Class<? extends SocketChannel> getClientSocketChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollSocketChannel.class : NioSocketChannel.class;
+                ? EpollSocketChannel.class
+                : NioSocketChannel.class;
     }
 
-    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
+    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+                ? EpollServerSocketChannel.class
+                : NioServerSocketChannel.class;
     }
 
-    public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
+    public static Class<? extends DatagramChannel> getDatagramChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollDatagramChannel.class : NioDatagramChannel.class;
+                ? EpollDatagramChannel.class
+                : NioDatagramChannel.class;
     }
 
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {
         if (Epoll.isAvailable()) {
             bootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         }
-
     }
 
     public static CompletableFuture<Void> shutdownGracefully(EventLoopGroup eventLoopGroup) {
@@ -102,13 +106,14 @@ public class EventLoopUtil {
                 adapter.completeExceptionally(future.cause());
             }
         } else {
-            future.addListener(f -> {
-                if (f.isSuccess()) {
-                    adapter.complete(null);
-                } else {
-                    adapter.completeExceptionally(f.cause());
-                }
-            });
+            future.addListener(
+                    f -> {
+                        if (f.isSuccess()) {
+                            adapter.complete(null);
+                        } else {
+                            adapter.completeExceptionally(f.cause());
+                        }
+                    });
         }
         return adapter;
     }

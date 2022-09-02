@@ -18,8 +18,27 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.TableId;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.flink.util.Preconditions;
@@ -34,26 +53,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.stream.Collectors;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
 
 /**
  * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key
@@ -80,8 +79,7 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
     private ExecutorService executor;
     private Object lock;
 
-    @Nullable
-    private Long checkpointIdToFinish;
+    @Nullable private Long checkpointIdToFinish;
 
     public MySqlSnapshotSplitAssigner(
             MySqlSourceConfig sourceConfig,
@@ -381,9 +379,7 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
         }
     }
 
-    /**
-     * Indicates there is no more splits available in this assigner.
-     */
+    /** Indicates there is no more splits available in this assigner. */
     public boolean noMoreSplits() {
         return remainingTables.isEmpty() && remainingSplits.isEmpty();
     }

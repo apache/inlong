@@ -28,8 +28,9 @@ public class FlinkConfigOptions {
             ConfigOptions.key("table.exec.iceberg.infer-source-parallelism")
                     .booleanType()
                     .defaultValue(true)
-                    .withDescription("If is false, parallelism of source are set by config.\n"
-                            + "If is true, source parallelism is inferred according to splits number.\n");
+                    .withDescription(
+                            "If is false, parallelism of source are set by config.\n"
+                                    + "If is true, source parallelism is inferred according to splits number.\n");
     public static final ConfigOption<Integer> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM_MAX =
             ConfigOptions.key("table.exec.iceberg.infer-source-parallelism.max")
                     .intType()
@@ -41,7 +42,5 @@ public class FlinkConfigOptions {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
-    private FlinkConfigOptions() {
-    }
-
+    private FlinkConfigOptions() {}
 }

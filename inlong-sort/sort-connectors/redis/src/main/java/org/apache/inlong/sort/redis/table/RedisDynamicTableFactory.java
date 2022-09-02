@@ -17,6 +17,17 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator;
@@ -31,51 +42,34 @@ import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
-
-/**
- * Redis dynamic table factory
- */
+/** Redis dynamic table factory */
 public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
 
-    /**
-     * The identifier of Redis Connector
-     */
+    /** The identifier of Redis Connector */
     public static final String IDENTIFIER = "redis-inlong";
-    /**
-     * Supported redis mode, contains [standalone|cluster|sentinel].
-     */
-    public static final Set<String> SUPPORT_REDIS_MODE = new HashSet<String>() {
-        private static final long serialVersionUID = 1L;
+    /** Supported redis mode, contains [standalone|cluster|sentinel]. */
+    public static final Set<String> SUPPORT_REDIS_MODE =
+            new HashSet<String>() {
+                private static final long serialVersionUID = 1L;
 
-        {
-            add(RedisValidator.REDIS_CLUSTER);
-            add(RedisValidator.REDIS_SENTINEL);
-            add(InlongRedisValidator.REDIS_STANDALONE);
-        }
-    };
-    /**
-     * Supported redis source commands, contain [GET|HGET|ZREVRANK|ZSCORE] at now.
-     */
-    public static Set<String> SUPPORT_SOURCE_COMMANDS = new HashSet<String>() {
-        private static final long serialVersionUID = 1L;
+                {
+                    add(RedisValidator.REDIS_CLUSTER);
+                    add(RedisValidator.REDIS_SENTINEL);
+                    add(InlongRedisValidator.REDIS_STANDALONE);
+                }
+            };
+    /** Supported redis source commands, contain [GET|HGET|ZREVRANK|ZSCORE] at now. */
+    public static Set<String> SUPPORT_SOURCE_COMMANDS =
+            new HashSet<String>() {
+                private static final long serialVersionUID = 1L;
 
-        {
-            add(RedisCommand.GET.name());
-            add(RedisCommand.HGET.name());
-            add(RedisCommand.ZREVRANK.name());
-            add(RedisCommand.ZSCORE.name());
-        }
-    };
+                {
+                    add(RedisCommand.GET.name());
+                    add(RedisCommand.HGET.name());
+                    add(RedisCommand.ZREVRANK.name());
+                    add(RedisCommand.ZSCORE.name());
+                }
+            };
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
@@ -83,14 +77,19 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
         ReadableConfig config = helper.getOptions();
         helper.validate();
         validateConfigOptions(config, SUPPORT_SOURCE_COMMANDS);
-        return new RedisDynamicTableSource(context.getCatalogTable().getOptions(),
-                context.getCatalogTable().getResolvedSchema(), config, getJdbcLookupOptions(config));
+        return new RedisDynamicTableSource(
+                context.getCatalogTable().getOptions(),
+                context.getCatalogTable().getResolvedSchema(),
+                config,
+                getJdbcLookupOptions(config));
     }
 
     private RedisLookupOptions getJdbcLookupOptions(ReadableConfig readableConfig) {
-        return new RedisLookupOptions(readableConfig.get(LOOKUP_CACHE_MAX_ROWS),
+        return new RedisLookupOptions(
+                readableConfig.get(LOOKUP_CACHE_MAX_ROWS),
                 readableConfig.get(LOOKUP_CACHE_TTL),
-                readableConfig.get(LOOKUP_MAX_RETRIES), readableConfig.get(LOOKUP_ASYNC));
+                readableConfig.get(LOOKUP_MAX_RETRIES),
+                readableConfig.get(LOOKUP_ASYNC));
     }
 
     @Override
@@ -131,18 +130,30 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
 
     private void validateConfigOptions(ReadableConfig config, Set<String> supportCommands) {
         String redisMode = config.get(RedisOptions.REDIS_MODE);
-        List<String> matchRedisMode = SUPPORT_REDIS_MODE.stream().filter(e -> e.equals(redisMode.toLowerCase().trim()))
-                .collect(Collectors.toList());
-        checkState(!matchRedisMode.isEmpty(),
-                "Unsupported redis-mode " + redisMode + ". The supported redis-mode " + Arrays
-                        .deepToString(SUPPORT_REDIS_MODE.toArray()));
+        List<String> matchRedisMode =
+                SUPPORT_REDIS_MODE.stream()
+                        .filter(e -> e.equals(redisMode.toLowerCase().trim()))
+                        .collect(Collectors.toList());
+        checkState(
+                !matchRedisMode.isEmpty(),
+                "Unsupported redis-mode "
+                        + redisMode
+                        + ". The supported redis-mode "
+                        + Arrays.deepToString(SUPPORT_REDIS_MODE.toArray()));
         String command = config.get(RedisOptions.COMMAND);
-        Preconditions.checkState(!StringUtils.isNullOrWhitespaceOnly(command),
-                "Command can not be empty. The supported command are " + Arrays
-                        .deepToString(supportCommands.toArray()));
-        List<String> matchCommand = supportCommands
-                .stream().filter(e -> e.equals(command.toUpperCase().trim())).collect(Collectors.toList());
-        checkState(!matchCommand.isEmpty(), "Unsupported command " + command + ". The supported command " + Arrays
-                .deepToString(supportCommands.toArray()));
+        Preconditions.checkState(
+                !StringUtils.isNullOrWhitespaceOnly(command),
+                "Command can not be empty. The supported command are "
+                        + Arrays.deepToString(supportCommands.toArray()));
+        List<String> matchCommand =
+                supportCommands.stream()
+                        .filter(e -> e.equals(command.toUpperCase().trim()))
+                        .collect(Collectors.toList());
+        checkState(
+                !matchCommand.isEmpty(),
+                "Unsupported command "
+                        + command
+                        + ". The supported command "
+                        + Arrays.deepToString(supportCommands.toArray()));
     }
 }

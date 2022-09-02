@@ -19,6 +19,7 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.connectors.tubemq.TubemqOptions.MAX_RETRIES;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,52 +48,36 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
 
     private static final String SYSTEM_HEADER_TIME_FORMAT = "yyyyMMddHHmm";
 
-    /**
-     * The address of tubemq master, format eg: 127.0.0.1:8080,127.0.0.2:8081.
-     */
+    /** The address of tubemq master, format eg: 127.0.0.1:8080,127.0.0.2:8081. */
     private final String masterAddress;
 
-    /**
-     * The topic name.
-     */
+    /** The topic name. */
     private final String topic;
 
-    /**
-     * The tid of this topic
-     */
+    /** The tid of this topic */
     private final String tid;
-    /**
-     * The serializer for the records sent to pulsar.
-     */
+    /** The serializer for the records sent to pulsar. */
     private final SerializationSchema<T> serializationSchema;
 
-    /**
-     * The tubemq producer.
-     */
+    /** The tubemq producer. */
     private transient MessageProducer producer;
 
-    /**
-     * The tubemq session factory.
-     */
+    /** The tubemq session factory. */
     private transient MessageSessionFactory sessionFactory;
 
-    /**
-     * The maximum number of retries.
-     */
+    /** The maximum number of retries. */
     private final int maxRetries;
 
-    public TubemqSinkFunction(String topic,
-                              String masterAddress,
-                              SerializationSchema<T> serializationSchema,
-                              Configuration configuration) {
-        Preconditions.checkNotNull(topic,
-            "The topic must not be null.");
-        Preconditions.checkNotNull(masterAddress,
-            "The master address must not be null.");
-        Preconditions.checkNotNull(serializationSchema,
-            "The serialization schema must not be null.");
-        Preconditions.checkNotNull(configuration,
-            "The configuration must not be null.");
+    public TubemqSinkFunction(
+            String topic,
+            String masterAddress,
+            SerializationSchema<T> serializationSchema,
+            Configuration configuration) {
+        Preconditions.checkNotNull(topic, "The topic must not be null.");
+        Preconditions.checkNotNull(masterAddress, "The master address must not be null.");
+        Preconditions.checkNotNull(
+                serializationSchema, "The serialization schema must not be null.");
+        Preconditions.checkNotNull(configuration, "The configuration must not be null.");
 
         this.topic = topic;
         this.masterAddress = masterAddress;
@@ -144,12 +129,16 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
                 if (sendResult.isSuccess()) {
                     return;
                 } else {
-                    LOG.warn("Send msg fail, error code: {}, error message: {}",
-                        sendResult.getErrCode(), sendResult.getErrMsg());
+                    LOG.warn(
+                            "Send msg fail, error code: {}, error message: {}",
+                            sendResult.getErrCode(),
+                            sendResult.getErrMsg());
                 }
             } catch (Exception e) {
-                LOG.warn("Could not properly send the message to hippo "
-                        + "(retries: {}).", retries, e);
+                LOG.warn(
+                        "Could not properly send the message to hippo " + "(retries: {}).",
+                        retries,
+                        e);
 
                 retries++;
                 exception = ExceptionUtils.firstOrSuppressed(e, exception);

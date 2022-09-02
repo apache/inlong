@@ -21,13 +21,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 
-/**
- * decoder interface definition
- */
+/** decoder interface definition */
 public interface ServiceDecoder {
 
-    /**
-     * extract data from buffer and convert it into map.
-     */
+    /** extract data from buffer and convert it into map. */
     BaseCommand extractData(ByteBuf cb, Channel channel) throws Exception;
 }

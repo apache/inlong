@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -35,31 +39,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-
-/**
- * Hive resource operator
- */
+/** Hive resource operator */
 @Service
 public class HiveResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveResourceOperator.class);
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
         return SinkType.HIVE.equals(sinkType);
     }
 
-    /**
-     * Create hive table according to the groupId and hive config
-     */
+    /** Create hive table according to the groupId and hive config */
     @Override
     public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
@@ -70,8 +63,10 @@ public class HiveResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
 
@@ -83,7 +78,8 @@ public class HiveResourceOperator implements SinkResourceOperator {
 
         List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no hive fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOGGER.warn(
+                    "no hive fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
         // set columns
@@ -118,17 +114,20 @@ public class HiveResourceOperator implements SinkResourceOperator {
                 HiveJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
                 // 4. table exists, add columns - skip the exists columns
-                List<HiveColumnInfo> existColumns = HiveJdbcUtils.getColumns(url, user, password, dbName, tableName);
-                List<HiveColumnInfo> needAddColumns = tableInfo.getColumns().stream()
-                        .skip(existColumns.size()).collect(toList());
+                List<HiveColumnInfo> existColumns =
+                        HiveJdbcUtils.getColumns(url, user, password, dbName, tableName);
+                List<HiveColumnInfo> needAddColumns =
+                        tableInfo.getColumns().stream().skip(existColumns.size()).collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
-                    HiveJdbcUtils.addColumns(url, user, password, dbName, tableName, needAddColumns);
+                    HiveJdbcUtils.addColumns(
+                            url, user, password, dbName, tableName, needAddColumns);
                 }
             }
 
             // 5. update the sink status to success
             String info = "success to create hive resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "create hive table failed: " + e.getMessage();
@@ -137,5 +136,4 @@ public class HiveResourceOperator implements SinkResourceOperator {
             throw new WorkflowException(errMsg);
         }
     }
-
 }

@@ -62,5 +62,4 @@ public interface DataNode {
      * @return whether succeed
      */
     Boolean delete(Integer id);
-
 }

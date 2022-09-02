@@ -18,16 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.flink.table.api.TableException;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.TimestampData;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.LogicalTypeRoot;
-
-import javax.annotation.Nonnull;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -40,6 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+import org.apache.flink.table.api.TableException;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.LogicalTypeRoot;
 
 /**
  * Factory of {@link IndexGenerator}.
@@ -59,9 +57,7 @@ import java.util.regex.Pattern;
  */
 public final class IndexGeneratorFactory {
 
-    private IndexGeneratorFactory() {
-
-    }
+    private IndexGeneratorFactory() {}
 
     public static IndexGenerator createIndexGenerator(String index, TableSchema schema) {
         final IndexHelper indexHelper = new IndexHelper();

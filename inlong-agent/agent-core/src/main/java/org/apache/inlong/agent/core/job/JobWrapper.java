@@ -17,6 +17,13 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
@@ -30,17 +37,9 @@ import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
-
 /**
- * JobWrapper is used in JobManager, it defines the life cycle of
- * running job and maintains the state of job.
+ * JobWrapper is used in JobManager, it defines the life cycle of running job and maintains the
+ * state of job.
  */
 public class JobWrapper extends AbstractStateWrapper {
 
@@ -64,21 +63,24 @@ public class JobWrapper extends AbstractStateWrapper {
         doChangeState(State.ACCEPTED);
     }
 
-    /**
-     * check states of all tasks, wait if one of them not finished.
-     */
+    /** check states of all tasks, wait if one of them not finished. */
     private void checkAllTasksStateAndWait() throws Exception {
         boolean isFinished = false;
 
-        long checkInterval = agentConf.getLong(
-                AgentConstants.JOB_FINISH_CHECK_INTERVAL, AgentConstants.DEFAULT_JOB_FINISH_CHECK_INTERVAL);
+        long checkInterval =
+                agentConf.getLong(
+                        AgentConstants.JOB_FINISH_CHECK_INTERVAL,
+                        AgentConstants.DEFAULT_JOB_FINISH_CHECK_INTERVAL);
         do {
             // check whether all tasks have finished.
-            isFinished = allTasks.stream().allMatch(task -> taskManager.isTaskFinished(task.getTaskId()));
+            isFinished =
+                    allTasks.stream()
+                            .allMatch(task -> taskManager.isTaskFinished(task.getTaskId()));
             TimeUnit.SECONDS.sleep(checkInterval);
         } while (!isFinished);
         LOGGER.info("all tasks of {} has been checked", job.getJobInstanceId());
-        boolean isSuccess = allTasks.stream().allMatch(task -> taskManager.isTaskSuccess(task.getTaskId()));
+        boolean isSuccess =
+                allTasks.stream().allMatch(task -> taskManager.isTaskSuccess(task.getTaskId()));
         if (isSuccess) {
             doChangeState(State.SUCCEEDED);
         } else {
@@ -97,16 +99,15 @@ public class JobWrapper extends AbstractStateWrapper {
         db.storeCommand(entity);
     }
 
-    /**
-     * submit all tasks
-     */
+    /** submit all tasks */
     private void submitAllTasks() {
         List<Task> tasks = job.createTasks();
         LOGGER.info("job name is {} and task size {}", job.getName(), tasks.size());
-        tasks.forEach(task -> {
-            allTasks.add(task);
-            taskManager.submitTask(task);
-        });
+        tasks.forEach(
+                task -> {
+                    allTasks.add(task);
+                    taskManager.submitTask(task);
+                });
     }
 
     /**
@@ -134,9 +135,7 @@ public class JobWrapper extends AbstractStateWrapper {
         return job;
     }
 
-    /**
-     * cleanup job
-     */
+    /** cleanup job */
     public void cleanup() {
         allTasks.forEach(task -> taskManager.removeTask(task.getTaskId()));
     }
@@ -150,20 +149,25 @@ public class JobWrapper extends AbstractStateWrapper {
             cleanup();
         } catch (Exception ex) {
             doChangeState(State.FAILED);
-            LOGGER.error("error caught: {}, message: {}",
-                    job.getJobConf().toJsonStr(), ex);
+            LOGGER.error("error caught: {}, message: {}", job.getJobConf().toJsonStr(), ex);
         }
     }
 
     @Override
     public void addCallbacks() {
-        this.addCallback(State.ACCEPTED, State.RUNNING, (before, after) -> {
-
-        }).addCallback(State.RUNNING, State.FAILED, (before, after) -> {
-            jobManager.markJobAsFailed(job.getJobInstanceId());
-        }).addCallback(State.RUNNING, State.SUCCEEDED, ((before, after) -> {
-            jobManager.markJobAsSuccess(job.getJobInstanceId());
-        }));
+        this.addCallback(State.ACCEPTED, State.RUNNING, (before, after) -> {})
+                .addCallback(
+                        State.RUNNING,
+                        State.FAILED,
+                        (before, after) -> {
+                            jobManager.markJobAsFailed(job.getJobInstanceId());
+                        })
+                .addCallback(
+                        State.RUNNING,
+                        State.SUCCEEDED,
+                        ((before, after) -> {
+                            jobManager.markJobAsSuccess(job.getJobInstanceId());
+                        }));
     }
 
     public List<Task> getAllTasks() {

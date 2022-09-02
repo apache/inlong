@@ -21,9 +21,7 @@ import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 
-/**
- * The service interface for agent
- */
+/** The service interface for agent */
 public interface AgentService {
 
     /**
@@ -48,5 +46,4 @@ public interface AgentService {
      * @return Task result.
      */
     TaskResult getTaskResult(TaskRequest request);
-
 }

@@ -17,9 +17,8 @@
 
 package org.apache.inlong.tubemq.manager.controller.topic.result;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class TopicQueryRes {
@@ -38,7 +37,7 @@ public class TopicQueryRes {
         private String createUser;
         private String createDate;
         private List<AuthConsumeGroupInfo> authConsumeGroup;
-        private String  groupCount;
+        private String groupCount;
         private List<AuthFilterCondSet> authFilterCondSet;
         private String filterCount;
 

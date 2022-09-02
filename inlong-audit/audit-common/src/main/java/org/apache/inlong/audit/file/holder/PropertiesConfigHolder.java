@@ -34,9 +34,7 @@ import org.apache.inlong.audit.file.ConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * properties to map
- */
+/** properties to map */
 public class PropertiesConfigHolder extends ConfigHolder {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesConfigHolder.class);
@@ -84,6 +82,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
 
     /**
      * load from holder
+     *
      * @param tmpHolder
      * @return
      */
@@ -149,5 +148,4 @@ public class PropertiesConfigHolder extends ConfigHolder {
     public Map<String, String> getHolder() {
         return holder;
     }
-
 }

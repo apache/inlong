@@ -18,16 +18,16 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * index collector, print the num of receive messages of one DefaultMessageSender in every one minute
+ * index collector, print the num of receive messages of one DefaultMessageSender in every one
+ * minute
  */
 public class IndexCollectThread extends Thread {
 

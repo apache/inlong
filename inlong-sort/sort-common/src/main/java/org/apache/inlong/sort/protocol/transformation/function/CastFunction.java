@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,9 +28,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
-
-import java.util.Arrays;
-import java.util.List;
 
 @JsonTypeName("cast")
 @Data
@@ -41,8 +40,8 @@ public class CastFunction implements Function {
     private String type;
 
     @JsonCreator
-    public CastFunction(@JsonProperty("field") FunctionParam field,
-            @JsonProperty("type") String type) {
+    public CastFunction(
+            @JsonProperty("field") FunctionParam field, @JsonProperty("type") String type) {
         this.field = Preconditions.checkNotNull(field, "field is null");
         this.type = Preconditions.checkNotNull(type, "type is null");
     }

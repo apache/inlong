@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DataProxySink
- */
+/** DataProxySink */
 public class ProxySink {
 
     private String name;
@@ -101,5 +99,4 @@ public class ProxySink {
     public void setParams(Map<String, String> params) {
         this.params = params;
     }
-
 }

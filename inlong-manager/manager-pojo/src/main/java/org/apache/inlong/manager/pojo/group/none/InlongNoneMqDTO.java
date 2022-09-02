@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Inlong group info without MQ.
- */
+/** Inlong group info without MQ. */
 @Data
 @NoArgsConstructor
 @ApiModel("Inlong group info without MQ")

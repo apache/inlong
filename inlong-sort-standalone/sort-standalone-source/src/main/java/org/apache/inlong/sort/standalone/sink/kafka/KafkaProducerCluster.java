@@ -1,24 +1,22 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
-
+import java.io.IOException;
+import java.util.Properties;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
@@ -33,9 +31,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
-
-import java.io.IOException;
-import java.util.Properties;
 
 /** wrapper of kafka producer */
 public class KafkaProducerCluster implements LifecycleAware {
@@ -56,8 +51,8 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * constructor of KafkaProducerCluster
      *
-     * @param workerName                 workerName
-     * @param config                     config of cluster
+     * @param workerName workerName
+     * @param config config of cluster
      * @param kafkaFederationSinkContext producer context
      */
     public KafkaProducerCluster(
@@ -81,7 +76,9 @@ public class KafkaProducerCluster implements LifecycleAware {
             Properties props = new Properties();
             props.put(
                     ProducerConfig.PARTITIONER_CLASS_CONFIG,
-                    context.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName()));
+                    context.getString(
+                            ProducerConfig.PARTITIONER_CLASS_CONFIG,
+                            PartitionerSelector.class.getName()));
             props.put(
                     ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     context.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
@@ -90,7 +87,8 @@ public class KafkaProducerCluster implements LifecycleAware {
                     context.getString(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
             props.putAll(context.getParameters());
             LOG.info("init kafka client info: " + props);
-            producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+            producer =
+                    new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -122,8 +120,8 @@ public class KafkaProducerCluster implements LifecycleAware {
     /**
      * Send data
      *
-     * @param  profileEvent data to send
-     * @return              boolean
+     * @param profileEvent data to send
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
@@ -139,15 +137,19 @@ public class KafkaProducerCluster implements LifecycleAware {
             return true;
         }
         try {
-            producer.send(record,
+            producer.send(
+                    record,
                     (metadata, ex) -> {
                         if (ex == null) {
                             tx.commit();
                             sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
                             profileEvent.ack();
                         } else {
-                            LOG.error(String.format("send failed, topic is %s, partition is %s",
-                                    metadata.topic(), metadata.partition()), ex);
+                            LOG.error(
+                                    String.format(
+                                            "send failed, topic is %s, partition is %s",
+                                            metadata.topic(), metadata.partition()),
+                                    ex);
                             tx.rollback();
                             sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
                         }

@@ -19,7 +19,6 @@
 package org.apache.inlong.sdk.dataproxy;
 
 public enum LoadBalance {
-
     RANDOM("random", 0),
     ROBIN("robin", 1),
     CONSISTENCY_HASH("consistency hash", 2),
@@ -41,5 +40,4 @@ public enum LoadBalance {
     public int getIndex() {
         return index;
     }
-
 }

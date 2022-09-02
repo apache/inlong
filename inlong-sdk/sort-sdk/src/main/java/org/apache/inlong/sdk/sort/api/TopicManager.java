@@ -18,14 +18,11 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-
 import java.util.Collection;
 import java.util.Set;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
-/**
- * A manager to maintain different type of fetchers
- */
+/** A manager to maintain different type of fetchers */
 public abstract class TopicManager implements Cleanable {
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
@@ -37,6 +34,7 @@ public abstract class TopicManager implements Cleanable {
 
     /**
      * Add topic and return the fetcher that maintain this topic.
+     *
      * @param topic Topic to be consumed.
      * @return The fetcher that maintain this topic.
      */
@@ -44,6 +42,7 @@ public abstract class TopicManager implements Cleanable {
 
     /**
      * Remove topic and return the fetcher that has maintained this topic.
+     *
      * @param topic Topic to be removed.
      * @param closeFetcher Should close this fetcher or not.
      * @return The fetcher that has maintained this topic.
@@ -52,6 +51,7 @@ public abstract class TopicManager implements Cleanable {
 
     /**
      * Get the specified fetcher by the given fetch key.
+     *
      * @param fetchKey Unique fetch key.
      * @return Related fetcher.
      */
@@ -59,23 +59,21 @@ public abstract class TopicManager implements Cleanable {
 
     /**
      * Get all fetchers.
+     *
      * @return All fetchers.
      */
     public abstract Collection<TopicFetcher> getAllFetchers();
 
     /**
      * Get all topics that under this manager.
+     *
      * @return All topics.
      */
     public abstract Set<String> getManagedInLongTopics();
 
-    /**
-     * Offline all topics and their partitions if they exist.
-     */
+    /** Offline all topics and their partitions if they exist. */
     public abstract void offlineAllTopicsAndPartitions();
 
-    /**
-     * Close manager.
-     */
+    /** Close manager. */
     public abstract void close();
 }

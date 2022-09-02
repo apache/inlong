@@ -21,9 +21,7 @@ import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
-/**
- * Test for {@link FieldRelation}
- */
+/** Test for {@link FieldRelation} */
 public class FieldRelationTest extends SerializeBaseTest<FieldRelation> {
 
     /**
@@ -33,7 +31,8 @@ public class FieldRelationTest extends SerializeBaseTest<FieldRelation> {
      */
     @Override
     public FieldRelation getTestObject() {
-        return new FieldRelation(new FieldInfo("f", StringFormatInfo.INSTANCE),
+        return new FieldRelation(
+                new FieldInfo("f", StringFormatInfo.INSTANCE),
                 new FieldInfo("f", StringFormatInfo.INSTANCE));
     }
 }

@@ -29,15 +29,14 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-/**
- * Json getter function, used to get a field value from a json string
- */
-public class JsonGetterFunction implements CascadeFunction, Serializable  {
+/** Json getter function, used to get a field value from a json string */
+public class JsonGetterFunction implements CascadeFunction, Serializable {
 
     private static final long serialVersionUID = -2701547146694616429L;
 
     @JsonProperty("field")
     private FieldInfo field;
+
     @JsonProperty("key")
     private StringConstantParam key;
 
@@ -48,8 +47,8 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
      * @param key the key of the field in the json
      */
     @JsonCreator
-    public JsonGetterFunction(@JsonProperty("field") FieldInfo field,
-        @JsonProperty("key") StringConstantParam key) {
+    public JsonGetterFunction(
+            @JsonProperty("field") FieldInfo field, @JsonProperty("key") StringConstantParam key) {
         this.field = Preconditions.checkNotNull(field, "field is null");
         this.key = Preconditions.checkNotNull(key, "key is null");
     }
@@ -66,14 +65,12 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
 
     @Override
     public String format() {
-        return String.format("%s(CAST(%s AS STRING), %s)",
-            getName(), field.format(), key.format());
+        return String.format("%s(CAST(%s AS STRING), %s)", getName(), field.format(), key.format());
     }
 
     @Override
     public ConstantParam apply(ConstantParam constantParam) {
-        return new ConstantParam(String.format("%s(%s, %s)", getName(),
-            constantParam.format(), key.format()));
+        return new ConstantParam(
+                String.format("%s(%s, %s)", getName(), constantParam.format(), key.format()));
     }
-
 }

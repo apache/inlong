@@ -17,21 +17,20 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
 
@@ -45,14 +44,10 @@ public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
     private static final String fieldType = "hdfs_type";
     private static final Integer fieldId = 1;
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
@@ -75,9 +70,7 @@ public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(hdfsSinkRequest, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         // Verify that the deletion was successful
@@ -106,5 +99,4 @@ public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(result);
         deleteSink(sinkId);
     }
-
 }

@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -26,12 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * defines the field for generating watermarks
- */
+/** defines the field for generating watermarks */
 @JsonTypeName("watermark")
 @Data
 @NoArgsConstructor
@@ -39,13 +36,16 @@ public class WatermarkField implements TimeWindowFunction {
 
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
+
     @JsonProperty("interval")
     private StringConstantParam interval;
+
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
-    public WatermarkField(@JsonProperty("timeAttr") FieldInfo timeAttr,
+    public WatermarkField(
+            @JsonProperty("timeAttr") FieldInfo timeAttr,
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
@@ -60,14 +60,25 @@ public class WatermarkField implements TimeWindowFunction {
     @Override
     public String format() {
         if (interval == null) {
-            return String.format("%s FOR %s AS %s", getName(), timeAttr.format(), timeAttr.format());
+            return String.format(
+                    "%s FOR %s AS %s", getName(), timeAttr.format(), timeAttr.format());
         }
         if (timeUnit == null) {
-            return String.format("%s FOR %s AS %s - INTERVAL %s %s", getName(), timeAttr.format(),
-                    timeAttr.format(), interval.format(), TimeUnit.SECOND.name());
+            return String.format(
+                    "%s FOR %s AS %s - INTERVAL %s %s",
+                    getName(),
+                    timeAttr.format(),
+                    timeAttr.format(),
+                    interval.format(),
+                    TimeUnit.SECOND.name());
         }
-        return String.format("%s FOR %s AS %s - INTERVAL %s %s", getName(), timeAttr.format(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+        return String.format(
+                "%s FOR %s AS %s - INTERVAL %s %s",
+                getName(),
+                timeAttr.format(),
+                timeAttr.format(),
+                interval.format(),
+                timeUnit.format());
     }
 
     @Override

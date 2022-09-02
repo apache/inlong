@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
@@ -26,12 +28,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Service layer interface for stream sink
- */
+/** Service layer interface for stream sink */
 public interface StreamSinkService {
 
     /**
@@ -76,7 +73,8 @@ public interface StreamSinkService {
      * @param streamInfos inlong stream info list
      * @return map of StreamSink list, key-inlongStreamId, value-StreamSinkList
      */
-    Map<String, List<StreamSink>> getSinksMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
+    Map<String, List<StreamSink>> getSinksMap(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
 
     /**
      * Query the number of undeleted sink info based on inlong group and inlong stream id
@@ -170,5 +168,4 @@ public interface StreamSinkService {
      * @return whether succeed
      */
     Boolean updateAfterApprove(List<SinkApproveDTO> sinkApproveList, String operator);
-
 }

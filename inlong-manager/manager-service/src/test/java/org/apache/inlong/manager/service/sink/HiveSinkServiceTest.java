@@ -19,19 +19,17 @@ package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Hive sink service test
- */
+/** Hive sink service test */
 public class HiveSinkServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
@@ -39,14 +37,10 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
     private final String globalOperator = "admin";
     private final String sinkName = "default";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
@@ -92,5 +86,4 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
 
         sinkService.delete(sinkId, globalOperator);
     }
-
 }

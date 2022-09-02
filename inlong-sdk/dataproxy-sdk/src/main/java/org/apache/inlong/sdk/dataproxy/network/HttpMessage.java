@@ -20,12 +20,9 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 
-/**
- * http message for cache.
- */
+/** http message for cache. */
 public class HttpMessage {
     private final String groupId;
     private final String streamId;
@@ -35,8 +32,14 @@ public class HttpMessage {
     private final long timeout;
     private final TimeUnit timeUnit;
 
-    public HttpMessage(List<String> bodies, String groupId, String streamId, long dt,
-                       long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
+    public HttpMessage(
+            List<String> bodies,
+            String groupId,
+            String streamId,
+            long dt,
+            long timeout,
+            TimeUnit timeUnit,
+            SendMessageCallback callback) {
         this.groupId = groupId;
         this.streamId = streamId;
         this.bodies = bodies;

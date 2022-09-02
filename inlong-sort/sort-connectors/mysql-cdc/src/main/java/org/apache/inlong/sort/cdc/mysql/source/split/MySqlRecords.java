@@ -18,13 +18,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.kafka.connect.source.SourceRecord;
-
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.kafka.connect.source.SourceRecord;
 
 /**
  * An implementation of {@link RecordsWithSplitIds} which contains the records of one table split.

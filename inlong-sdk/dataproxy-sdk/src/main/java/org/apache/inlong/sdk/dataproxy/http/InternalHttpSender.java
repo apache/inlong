@@ -20,7 +20,6 @@ package org.apache.inlong.sdk.dataproxy.http;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -50,9 +48,7 @@ import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * internal http sender
- */
+/** internal http sender */
 public class InternalHttpSender {
     private static final Logger logger = LoggerFactory.getLogger(InternalHttpSender.class);
 
@@ -60,15 +56,15 @@ public class InternalHttpSender {
     private final ConcurrentHashSet<HostInfo> hostList;
 
     private final LinkedBlockingQueue<HttpMessage> messageCache;
-    private final ExecutorService workerServices = Executors
-            .newCachedThreadPool();
+    private final ExecutorService workerServices = Executors.newCachedThreadPool();
     private CloseableHttpClient httpClient;
     private final JsonParser jsonParser = new JsonParser();
     private boolean bShutDown = false;
 
-    public InternalHttpSender(ProxyClientConfig proxyClientConfig,
-                              ConcurrentHashSet<HostInfo> hostList,
-                              LinkedBlockingQueue<HttpMessage> messageCache) {
+    public InternalHttpSender(
+            ProxyClientConfig proxyClientConfig,
+            ConcurrentHashSet<HostInfo> hostList,
+            LinkedBlockingQueue<HttpMessage> messageCache) {
         this.proxyClientConfig = proxyClientConfig;
         this.hostList = hostList;
         this.messageCache = messageCache;
@@ -90,8 +86,8 @@ public class InternalHttpSender {
      * @param dt
      * @return
      */
-    private ArrayList<BasicNameValuePair> getHeaders(List<String> bodies,
-                                                     String groupId, String streamId, long dt) {
+    private ArrayList<BasicNameValuePair> getHeaders(
+            List<String> bodies, String groupId, String streamId, long dt) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("groupId", groupId));
         params.add(new BasicNameValuePair("streamId", streamId));
@@ -114,17 +110,17 @@ public class InternalHttpSender {
             return httpClient;
         }
         long timeoutInMs = timeUnit.toMillis(timeout);
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout((int) timeoutInMs)
-                .setSocketTimeout((int) timeoutInMs).build();
+        RequestConfig requestConfig =
+                RequestConfig.custom()
+                        .setConnectTimeout((int) timeoutInMs)
+                        .setSocketTimeout((int) timeoutInMs)
+                        .build();
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
     }
 
-    /**
-     * check cache runner
-     */
+    /** check cache runner */
     private class WorkerRunner implements Runnable {
         @Override
         public void run() {
@@ -134,10 +130,11 @@ public class InternalHttpSender {
                     while (!messageCache.isEmpty()) {
                         HttpMessage httpMessage = messageCache.poll();
                         if (httpMessage != null) {
-                            SendResult result = sendMessageWithHostInfo(
-                                    httpMessage.getBodies(), httpMessage.getGroupId(),
-                                    httpMessage.getStreamId(), httpMessage.getDt(),
-                                    httpMessage.getTimeout(), httpMessage.getTimeUnit());
+                            SendResult result =
+                                    sendMessageWithHostInfo(
+                                            httpMessage.getBodies(), httpMessage.getGroupId(),
+                                            httpMessage.getStreamId(), httpMessage.getDt(),
+                                            httpMessage.getTimeout(), httpMessage.getTimeUnit());
                             httpMessage.getCallback().onMessageAck(result);
                         }
                     }
@@ -173,11 +170,17 @@ public class InternalHttpSender {
      * @param timeUnit
      * @param hostInfo
      * @return
-     *
      * @throws Exception
      */
-    private SendResult sendByHttp(List<String> bodies, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit, HostInfo hostInfo) throws Exception {
+    private SendResult sendByHttp(
+            List<String> bodies,
+            String groupId,
+            String streamId,
+            long dt,
+            long timeout,
+            TimeUnit timeUnit,
+            HostInfo hostInfo)
+            throws Exception {
         HttpPost httpPost = null;
         CloseableHttpResponse response = null;
         try {
@@ -185,8 +188,12 @@ public class InternalHttpSender {
                 httpClient = constructHttpClient(timeout, timeUnit);
             }
 
-            String url = "http://" + hostInfo.getHostName() + ":" + hostInfo.getPortNumber()
-                    + "/dataproxy/message";
+            String url =
+                    "http://"
+                            + hostInfo.getHostName()
+                            + ":"
+                            + hostInfo.getPortNumber()
+                            + "/dataproxy/message";
 
             httpPost = new HttpPost(url);
             httpPost.setHeader(HttpHeaders.CONNECTION, "close");
@@ -214,8 +221,11 @@ public class InternalHttpSender {
                 }
 
             } else {
-                throw new Exception("exception to get response from request " + returnStr + " "
-                        + response.getStatusLine().getStatusCode());
+                throw new Exception(
+                        "exception to get response from request "
+                                + returnStr
+                                + " "
+                                + response.getStatusLine().getStatusCode());
             }
 
         } finally {
@@ -240,8 +250,13 @@ public class InternalHttpSender {
      * @param timeUnit
      * @return
      */
-    public SendResult sendMessageWithHostInfo(List<String> bodies, String groupId, String streamId, long dt,
-                                              long timeout, TimeUnit timeUnit) {
+    public SendResult sendMessageWithHostInfo(
+            List<String> bodies,
+            String groupId,
+            String streamId,
+            long dt,
+            long timeout,
+            TimeUnit timeUnit) {
 
         List<HostInfo> randomHostList = getRandomHostInfo();
         Exception tmpException = null;

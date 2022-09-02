@@ -20,7 +20,6 @@ package org.apache.inlong.manager.workflow.definition;
 import java.util.Locale;
 
 public enum ServiceTaskType {
-
     INIT_SOURCE,
     INIT_MQ,
     INIT_SORT,
@@ -40,5 +39,4 @@ public enum ServiceTaskType {
     public String toString() {
         return name().toLowerCase(Locale.ROOT);
     }
-
 }

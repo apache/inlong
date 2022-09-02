@@ -21,15 +21,15 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link WatermarkField}
- */
+/** Test for {@link WatermarkField} */
 public class WatermarkFieldTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
-                new StringConstantParam("10"), new TimeUnitConstantParam(TimeUnit.HOUR));
+        return new WatermarkField(
+                new FieldInfo("ts", new TimestampFormatInfo()),
+                new StringConstantParam("10"),
+                new TimeUnitConstantParam(TimeUnit.HOUR));
     }
 
     @Override

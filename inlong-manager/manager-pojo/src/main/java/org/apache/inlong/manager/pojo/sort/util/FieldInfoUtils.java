@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.MetaField;
@@ -50,35 +51,45 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
-import java.util.List;
-
-/**
- * Util for sort field info.
- */
+/** Util for sort field info. */
 @Slf4j
 public class FieldInfoUtils {
 
     public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId) {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
-                sinkField.getFieldType(), isMetaField, sinkField.getMetaFieldName(),
-                sinkField.getFieldFormat());
+        FieldInfo fieldInfo =
+                getFieldInfo(
+                        sinkField.getFieldName(),
+                        sinkField.getFieldType(),
+                        isMetaField,
+                        sinkField.getMetaFieldName(),
+                        sinkField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(),
-                isMetaField, streamField.getMetaFieldName(), streamField.getFieldFormat());
+        FieldInfo fieldInfo =
+                getFieldInfo(
+                        streamField.getFieldName(),
+                        streamField.getFieldType(),
+                        isMetaField,
+                        streamField.getMetaFieldName(),
+                        streamField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(),
-                isMetaField, streamField.getMetaFieldName(), streamField.getFieldFormat());
+        FieldInfo fieldInfo =
+                getFieldInfo(
+                        streamField.getFieldName(),
+                        streamField.getFieldType(),
+                        isMetaField,
+                        streamField.getMetaFieldName(),
+                        streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
     }
@@ -120,8 +131,12 @@ public class FieldInfoUtils {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType,
-            boolean isMetaField, String metaFieldName, String format) {
+    private static FieldInfo getFieldInfo(
+            String fieldName,
+            String fieldType,
+            boolean isMetaField,
+            String metaFieldName,
+            String format) {
         if (isMetaField) {
             // TODO The meta field needs to be selectable and cannot be filled in by the user
             return new MetaFieldInfo(fieldName, MetaField.forName(metaFieldName));
@@ -204,7 +219,9 @@ public class FieldInfoUtils {
             case DECIMAL:
                 if (StringUtils.isNotBlank(format)) {
                     DecimalFormat decimalFormat = FieldFormatUtils.parseDecimalFormat(format);
-                    formatInfo = new DecimalFormatInfo(decimalFormat.getPrecision(), decimalFormat.getScale());
+                    formatInfo =
+                            new DecimalFormatInfo(
+                                    decimalFormat.getPrecision(), decimalFormat.getScale());
                 } else {
                     formatInfo = new DecimalFormatInfo();
                 }
@@ -233,7 +250,9 @@ public class FieldInfoUtils {
                 break;
             case LOCAL_ZONE_TIMESTAMP:
                 if (StringUtils.isNotBlank(format)) {
-                    formatInfo = new LocalZonedTimestampFormatInfo(convertTimestampOrDataFormat(format), 2);
+                    formatInfo =
+                            new LocalZonedTimestampFormatInfo(
+                                    convertTimestampOrDataFormat(format), 2);
                 } else {
                     formatInfo = new LocalZonedTimestampFormatInfo();
                 }
@@ -262,8 +281,9 @@ public class FieldInfoUtils {
             throw new IllegalArgumentException("Unsupported array type without format");
         }
         ArrayFormat arrayFormat = FieldFormatUtils.parseArrayFormat(format);
-        FormatInfo elementFormatInfo = convertFieldFormat(arrayFormat.getElementType().name(),
-                arrayFormat.getElementFormat());
+        FormatInfo elementFormatInfo =
+                convertFieldFormat(
+                        arrayFormat.getElementType().name(), arrayFormat.getElementFormat());
         return new ArrayFormatInfo(elementFormatInfo);
     }
 
@@ -272,8 +292,10 @@ public class FieldInfoUtils {
             throw new IllegalArgumentException("Unsupported map type without format");
         }
         MapFormat mapFormat = FieldFormatUtils.parseMapFormat(format);
-        FormatInfo keyFormatInfo = convertFieldFormat(mapFormat.getKeyType().name(), mapFormat.getKeyFormat());
-        FormatInfo valueFormatInfo = convertFieldFormat(mapFormat.getValueType().name(), mapFormat.getValueFormat());
+        FormatInfo keyFormatInfo =
+                convertFieldFormat(mapFormat.getKeyType().name(), mapFormat.getKeyFormat());
+        FormatInfo valueFormatInfo =
+                convertFieldFormat(mapFormat.getValueType().name(), mapFormat.getValueFormat());
         return new MapFormatInfo(keyFormatInfo, valueFormatInfo);
     }
 
@@ -286,9 +308,11 @@ public class FieldInfoUtils {
         List<FormatInfo> formatInfos = Lists.newArrayList();
         for (Element element : structFormat.getElements()) {
             fieldNames.add(element.getFieldName());
-            formatInfos.add(convertFieldFormat(element.getFieldType().name(), element.getFieldFormat()));
+            formatInfos.add(
+                    convertFieldFormat(element.getFieldType().name(), element.getFieldFormat()));
         }
-        return new RowFormatInfo(fieldNames.toArray(new String[0]), formatInfos.toArray(new FormatInfo[0]));
+        return new RowFormatInfo(
+                fieldNames.toArray(new String[0]), formatInfos.toArray(new FormatInfo[0]));
     }
 
     /**
@@ -313,5 +337,4 @@ public class FieldInfoUtils {
         }
         return sortFormat;
     }
-
 }

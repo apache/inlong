@@ -18,20 +18,6 @@
 package org.apache.inlong.agent.plugin.utils;
 
 import io.debezium.embedded.EmbeddedEngine;
-import org.apache.inlong.agent.pojo.DebeziumOffset;
-import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.runtime.WorkerConfig;
-import org.apache.kafka.connect.runtime.standalone.StandaloneConfig;
-import org.apache.kafka.connect.storage.Converter;
-import org.apache.kafka.connect.storage.FileOffsetBackingStore;
-import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
-import org.apache.kafka.connect.storage.OffsetStorageWriter;
-import org.apache.kafka.connect.util.SafeObjectInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +32,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.inlong.agent.pojo.DebeziumOffset;
+import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.runtime.standalone.StandaloneConfig;
+import org.apache.kafka.connect.storage.Converter;
+import org.apache.kafka.connect.storage.FileOffsetBackingStore;
+import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
+import org.apache.kafka.connect.storage.OffsetStorageWriter;
+import org.apache.kafka.connect.util.SafeObjectInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of OffsetBackingStore that saves data locally to a file. To ensure this behaves
@@ -59,9 +58,7 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
     private static final Logger log = LoggerFactory.getLogger(FileOffsetBackingStore.class);
     private File file;
 
-    public InLongFileOffsetBackingStore() {
-
-    }
+    public InLongFileOffsetBackingStore() {}
 
     @Override
     public void configure(WorkerConfig config) {
@@ -159,7 +156,8 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
 
     @SuppressWarnings("unchecked")
     private void load() {
-        try (SafeObjectInputStream is = new SafeObjectInputStream(Files.newInputStream(file.toPath()))) {
+        try (SafeObjectInputStream is =
+                new SafeObjectInputStream(Files.newInputStream(file.toPath()))) {
             Object obj = is.readObject();
             if (!(obj instanceof HashMap)) {
                 throw new ConnectException("Expected HashMap but found " + obj.getClass());
@@ -167,8 +165,10 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
             Map<byte[], byte[]> raw = (Map<byte[], byte[]>) obj;
             data = new HashMap<>();
             for (Map.Entry<byte[], byte[]> mapEntry : raw.entrySet()) {
-                ByteBuffer key = (mapEntry.getKey() != null) ? ByteBuffer.wrap(mapEntry.getKey()) : null;
-                ByteBuffer value = (mapEntry.getValue() != null) ? ByteBuffer.wrap(mapEntry.getValue()) : null;
+                ByteBuffer key =
+                        (mapEntry.getKey() != null) ? ByteBuffer.wrap(mapEntry.getKey()) : null;
+                ByteBuffer value =
+                        (mapEntry.getValue() != null) ? ByteBuffer.wrap(mapEntry.getValue()) : null;
                 data.put(key, value);
             }
         } catch (NoSuchFileException | EOFException e) {

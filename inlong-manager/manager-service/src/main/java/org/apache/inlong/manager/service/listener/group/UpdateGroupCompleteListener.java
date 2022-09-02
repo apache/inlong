@@ -33,17 +33,13 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongGroup when update operates successfully.
- */
+/** The listener of InlongGroup when update operates successfully. */
 @Slf4j
 @Component
 public class UpdateGroupCompleteListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private StreamSourceService sourceService;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
@@ -55,7 +51,10 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         GroupOperateType operateType = form.getGroupOperateType();
-        log.info("begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
+        log.info(
+                "begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}",
+                groupId,
+                operateType);
 
         // update inlong group status and other configs
         String operator = context.getOperator();
@@ -81,17 +80,23 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
             changeSource4Lightweight(groupId, operateType, operator);
         }
 
-        log.info("success to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
+        log.info(
+                "success to execute UpdateGroupCompleteListener for groupId={}, operateType={}",
+                groupId,
+                operateType);
         return ListenerResult.success();
     }
 
-    private void changeSource4Lightweight(String groupId, GroupOperateType operateType, String operator) {
+    private void changeSource4Lightweight(
+            String groupId, GroupOperateType operateType, String operator) {
         switch (operateType) {
             case SUSPEND:
-                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
+                sourceService.updateStatus(
+                        groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
                 break;
             case RESTART:
-                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+                sourceService.updateStatus(
+                        groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
                 break;
             case DELETE:
                 sourceService.logicDeleteAll(groupId, null, operator);
@@ -101,5 +106,4 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
                 break;
         }
     }
-
 }

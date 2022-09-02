@@ -41,5 +41,4 @@ public class StoreConfig {
     public boolean isClickHouseStore() {
         return store.contains("clickhouse");
     }
-
 }

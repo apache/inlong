@@ -19,9 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.es;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -36,21 +34,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * Elasticsearch config information, including host, port, etc.
- */
+/** Elasticsearch config information, including host, port, etc. */
 @Data
 @Component
 public class ElasticsearchConfig {
 
     @Value("${es.index.search.hostname}")
     private String host;
+
     @Value("${es.index.search.port}")
     private Integer port = 9200;
+
     @Value("${es.auth.enable}")
     private Boolean authEnable = false;
+
     @Value("${es.auth.user}")
     private String username;
+
     @Value("${es.auth.password}")
     private String password;
 
@@ -78,7 +78,8 @@ public class ElasticsearchConfig {
                             hosts.add(new HttpHost(host, port, "http"));
                         }
                     }
-                    RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[0]));
+                    RestClientBuilder clientBuilder =
+                            RestClient.builder(hosts.toArray(new HttpHost[0]));
                     this.setEsAuth(clientBuilder);
                     highLevelClient = new RestHighLevelClient(clientBuilder);
                 }
@@ -99,14 +100,15 @@ public class ElasticsearchConfig {
             logger.info("set es auth of enable={}", authEnable);
             if (authEnable) {
                 final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+                credentialsProvider.setCredentials(
+                        AuthScope.ANY, new UsernamePasswordCredentials(username, password));
                 builder.setHttpClientConfigCallback(
-                        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-
+                        httpClientBuilder ->
+                                httpClientBuilder.setDefaultCredentialsProvider(
+                                        credentialsProvider));
             }
         } catch (Exception e) {
             logger.error("set es auth error ", e);
         }
     }
-
 }

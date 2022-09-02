@@ -22,20 +22,15 @@ import java.util.Map;
 import org.apache.flink.table.factories.TableFormatFactory;
 import org.apache.flink.types.Row;
 
-/**
- * Factory for creating configured instances of {@link TableFormatSerializer}.
- */
+/** Factory for creating configured instances of {@link TableFormatSerializer}. */
 public interface TableFormatSerializerFactory extends TableFormatFactory<Row> {
 
     /**
-     * Creates and configures a {@link TableFormatSerializer} using the given
-     * properties.
+     * Creates and configures a {@link TableFormatSerializer} using the given properties.
      *
      * @param properties The normalized properties describing the format.
-     * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * @return The configured serialization schema or null if the factory cannot provide an instance
+     *     of the class.
      */
-    TableFormatSerializer createFormatSerializer(
-            final Map<String, String> properties
-    );
+    TableFormatSerializer createFormatSerializer(final Map<String, String> properties);
 }

@@ -17,13 +17,13 @@
 
 package org.apache.inlong.sort.protocol;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
 
@@ -31,7 +31,6 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
     public FieldInfo getTestObject() {
         return new FieldInfo("field_name", StringFormatInfo.INSTANCE);
     }
-
 
     /**
      * Test deserialize with nodeId
@@ -43,8 +42,9 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
         fieldInfo.setNodeId("1");
         ObjectMapper objectMapper = new ObjectMapper();
-        String fieldInfoStr = "{\"type\":\"field\",\"name\":\"field_name\","
-                + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
+        String fieldInfoStr =
+                "{\"type\":\"field\",\"name\":\"field_name\","
+                        + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
         FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
         assertEquals(expected, fieldInfo);
     }

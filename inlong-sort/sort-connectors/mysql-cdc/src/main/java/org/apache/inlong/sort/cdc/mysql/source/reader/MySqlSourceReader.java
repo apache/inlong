@@ -18,9 +18,23 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
+import static org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent.WakeUpTarget.SNAPSHOT_READER;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toNormalBinlogSplit;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toSuspendedBinlogSplit;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils.getNextMetaGroupId;
+
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
@@ -54,27 +68,10 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent.WakeUpTarget.SNAPSHOT_READER;
-import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toNormalBinlogSplit;
-import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toSuspendedBinlogSplit;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils.getNextMetaGroupId;
-
-/**
- * The source reader for MySQL source splits.
- */
+/** The source reader for MySQL source splits. */
 public class MySqlSourceReader<T>
         extends SingleThreadMultiplexSourceReaderBase<
-        SourceRecord, T, MySqlSplit, MySqlSplitState> {
+                SourceRecord, T, MySqlSplit, MySqlSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSourceReader.class);
 
@@ -206,7 +203,7 @@ public class MySqlSourceReader<T>
         final String splitId = split.splitId();
         if (split.getTableSchemas().isEmpty()) {
             try (MySqlConnection jdbc =
-                         DebeziumUtils.createMySqlConnection(sourceConfig.getDbzConfiguration())) {
+                    DebeziumUtils.createMySqlConnection(sourceConfig.getDbzConfiguration())) {
                 Map<TableId, TableChanges.TableChange> tableSchemas =
                         TableDiscoveryUtils.discoverCapturedTableSchemas(sourceConfig, jdbc);
                 LOG.info("The table schema discovery for binlog split {} success", splitId);

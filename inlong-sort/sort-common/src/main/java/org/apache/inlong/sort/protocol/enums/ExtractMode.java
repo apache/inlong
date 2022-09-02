@@ -17,16 +17,10 @@
 
 package org.apache.inlong.sort.protocol.enums;
 
-/**
- * This class defines the extract mode of all kinds of extract node
- */
+/** This class defines the extract mode of all kinds of extract node */
 public enum ExtractMode {
-    /**
-     * Scan data from extract node
-     */
+    /** Scan data from extract node */
     SCAN,
-    /**
-     * Capture data from extract node that changed
-     */
+    /** Capture data from extract node that changed */
     CDC
 }

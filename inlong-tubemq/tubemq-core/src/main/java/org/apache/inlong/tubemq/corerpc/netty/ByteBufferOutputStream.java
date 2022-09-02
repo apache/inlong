@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import java.io.IOException;
@@ -25,8 +22,8 @@ import java.util.List;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
 /**
- * Utility to collect data written to an {@link java.io.OutputStream} in {@link java.nio.ByteBuffer}s.
- * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
+ * Utility to collect data written to an {@link java.io.OutputStream} in {@link
+ * java.nio.ByteBuffer}s. Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
  */
 public class ByteBufferOutputStream extends OutputStream {
 
@@ -36,9 +33,7 @@ public class ByteBufferOutputStream extends OutputStream {
         reset();
     }
 
-    /**
-     * Returns all data written and resets the stream to be empty.
-     */
+    /** Returns all data written and resets the stream to be empty. */
     public List<ByteBuffer> getBufferList() {
         List<ByteBuffer> result = buffers;
         reset();
@@ -51,7 +46,7 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Prepend a list of ByteBuffers to this stream.
      *
-     * @param lists    need to prepended content
+     * @param lists need to prepended content
      */
     public void prepend(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -63,7 +58,7 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Append a list of ByteBuffers to this stream.
      *
-     * @param lists    need to appended content
+     * @param lists need to appended content
      */
     public void append(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -109,7 +104,7 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Add a buffer to the output without copying, if possible.
      *
-     * @param buffer   the content need to written
+     * @param buffer the content need to written
      */
     public void writeBuffer(ByteBuffer buffer) throws IOException {
         if (buffer.remaining() < RpcConstants.RPC_MAX_BUFFER_SIZE) {

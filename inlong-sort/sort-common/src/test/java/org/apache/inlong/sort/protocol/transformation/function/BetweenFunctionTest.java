@@ -26,19 +26,23 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 
-/**
- * Test for {@link BetweenFunction}
- */
+/** Test for {@link BetweenFunction} */
 public class BetweenFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new BetweenFunction(EmptyOperator.getInstance(), new FieldInfo("order_time", new TimestampFormatInfo()),
-                new SubtractFunction(new FieldInfo("update_time", new TimestampFormatInfo()),
-                        new IntervalFunction(new StringConstantParam("5"),
+        return new BetweenFunction(
+                EmptyOperator.getInstance(),
+                new FieldInfo("order_time", new TimestampFormatInfo()),
+                new SubtractFunction(
+                        new FieldInfo("update_time", new TimestampFormatInfo()),
+                        new IntervalFunction(
+                                new StringConstantParam("5"),
                                 new TimeUnitConstantParam(TimeUnit.SECOND))),
-                new AddFunction(new FieldInfo("update_time", new TimestampFormatInfo()),
-                        new IntervalFunction(new StringConstantParam("5"),
+                new AddFunction(
+                        new FieldInfo("update_time", new TimestampFormatInfo()),
+                        new IntervalFunction(
+                                new StringConstantParam("5"),
                                 new TimeUnitConstantParam(TimeUnit.SECOND))));
     }
 

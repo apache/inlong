@@ -18,6 +18,4 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-public class MessageSenderFactory {
-
-}
+public class MessageSenderFactory {}

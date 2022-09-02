@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.node.format;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link JsonFormat}
- */
+/** Test for {@link JsonFormat} */
 public class JsonFormatTest extends SerializeBaseTest<JsonFormat> {
 
     /**

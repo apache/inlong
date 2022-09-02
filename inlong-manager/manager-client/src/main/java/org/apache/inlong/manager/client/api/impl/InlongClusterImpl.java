@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import java.util.List;
 import org.apache.inlong.manager.client.api.InlongCluster;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
@@ -27,15 +28,14 @@ import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 
-import java.util.List;
-
 public class InlongClusterImpl implements InlongCluster {
 
     private InlongClusterClient clusterClient;
 
     public InlongClusterImpl(InlongClientImpl inlongClient) {
         if (this.clusterClient == null) {
-            ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+            ClientFactory clientFactory =
+                    ClientUtils.getClientFactory(inlongClient.getConfiguration());
             this.clusterClient = clientFactory.getClusterClient();
         }
     }
@@ -50,7 +50,8 @@ public class InlongClusterImpl implements InlongCluster {
     }
 
     @Override
-    public List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, List<String> clusterTags) {
+    public List<ClusterNodeResponse> listNodes(
+            String clusterName, String clusterType, List<String> clusterTags) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setName(clusterName);
         request.setType(clusterType);
@@ -60,7 +61,8 @@ public class InlongClusterImpl implements InlongCluster {
     }
 
     @Override
-    public List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, String clusterTag) {
+    public List<ClusterNodeResponse> listNodes(
+            String clusterName, String clusterType, String clusterTag) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setName(clusterName);
         request.setType(clusterType);

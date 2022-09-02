@@ -38,8 +38,10 @@ public interface StreamSourceApi {
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);
 
     @GET("source/list")
-    Call<Response<PageResult<StreamSource>>> listSources(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sourceType") String sourceType);
+    Call<Response<PageResult<StreamSource>>> listSources(
+            @Query("inlongGroupId") String groupId,
+            @Query("inlongStreamId") String streamId,
+            @Query("sourceType") String sourceType);
 
     @DELETE("source/delete/{id}")
     Call<Response<Boolean>> deleteSource(@Path("id") Integer sourceId);

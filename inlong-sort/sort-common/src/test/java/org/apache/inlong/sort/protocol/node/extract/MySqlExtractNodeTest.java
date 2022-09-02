@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -24,24 +28,27 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Test for {@link MySqlExtractNode}
- */
+/** Test for {@link MySqlExtractNode} */
 public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
 
     @Override
     public MySqlExtractNode getTestObject() {
-        return new MySqlExtractNode("1", null,
-                Collections.singletonList(new FieldInfo("field", new StringFormatInfo())), null, null,
-                "primary_key_field", Arrays.asList("table1", "table2"),
-                "localhost", "username",
-                "password", "dabasename", 3306, 123,
-                true, null);
+        return new MySqlExtractNode(
+                "1",
+                null,
+                Collections.singletonList(new FieldInfo("field", new StringFormatInfo())),
+                null,
+                null,
+                "primary_key_field",
+                Arrays.asList("table1", "table2"),
+                "localhost",
+                "username",
+                "password",
+                "dabasename",
+                3306,
+                123,
+                true,
+                null);
     }
 
     @Test
@@ -56,10 +63,14 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
         formatMap.put(MetaField.IS_DDL, "BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL");
         formatMap.put(MetaField.TS, "TIMESTAMP_LTZ(3) METADATA FROM 'meta.ts' VIRTUAL");
         formatMap.put(MetaField.SQL_TYPE, "MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL");
-        formatMap.put(MetaField.MYSQL_TYPE, "MAP<STRING, STRING> METADATA FROM 'meta.mysql_type' VIRTUAL");
+        formatMap.put(
+                MetaField.MYSQL_TYPE,
+                "MAP<STRING, STRING> METADATA FROM 'meta.mysql_type' VIRTUAL");
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL");
         formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL");
-        formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL");
+        formatMap.put(
+                MetaField.UPDATE_BEFORE,
+                "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL");
         MySqlExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {

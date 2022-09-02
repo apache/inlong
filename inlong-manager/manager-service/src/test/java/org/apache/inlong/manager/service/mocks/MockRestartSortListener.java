@@ -25,9 +25,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Test class for listen restart sort event.
- */
+/** Test class for listen restart sort event. */
 public class MockRestartSortListener implements SortOperateListener {
 
     @Override
@@ -49,5 +47,4 @@ public class MockRestartSortListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock restart sort success");
     }
-
 }

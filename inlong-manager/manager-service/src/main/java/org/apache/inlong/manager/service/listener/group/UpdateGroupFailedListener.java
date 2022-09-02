@@ -28,15 +28,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongGroup when update operates failed.
- */
+/** The listener of InlongGroup when update operates failed. */
 @Slf4j
 @Component
 public class UpdateGroupFailedListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
+    @Autowired private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
@@ -57,5 +54,4 @@ public class UpdateGroupFailedListener implements ProcessEventListener {
         log.info("success to execute UpdateGroupFailedListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

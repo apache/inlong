@@ -27,7 +27,10 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 public interface Deserializer extends Serializable {
 
-    List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
+    List<InLongMessage> deserialize(
+            ClientContext context,
+            InLongTopic inLongTopic,
+            Map<String, String> headers,
             byte[] data)
             throws Exception;
 }

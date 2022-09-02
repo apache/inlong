@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongGroupExtEntityMapper {
@@ -47,9 +46,7 @@ public interface InlongGroupExtEntityMapper {
      */
     int insertAll(@Param("extList") List<InlongGroupExtEntity> extEntityList);
 
-    /**
-     * Insert data in batches, update if it exists, create new if it does not exist
-     */
+    /** Insert data in batches, update if it exists, create new if it does not exist */
     int insertOnDuplicateKeyUpdate(@Param("extList") List<InlongGroupExtEntity> extEntityList);
 
     /**
@@ -65,5 +62,4 @@ public interface InlongGroupExtEntityMapper {
      * @return rows updated
      */
     int logicDeleteAllByGroupId(String groupId);
-
 }

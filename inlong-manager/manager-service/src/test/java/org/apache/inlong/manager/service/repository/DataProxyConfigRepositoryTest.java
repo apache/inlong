@@ -1,49 +1,46 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.manager.service.repository;
-
-import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 
-/**
- * DataProxyConfigRepositoryTest
- * 
- */
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+/** DataProxyConfigRepositoryTest */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({InlongGroupEntityMapper.class, StreamSinkEntityMapper.class, InlongClusterEntityMapper.class})
+@PrepareForTest({
+    InlongGroupEntityMapper.class,
+    StreamSinkEntityMapper.class,
+    InlongClusterEntityMapper.class
+})
 public class DataProxyConfigRepositoryTest {
 
     private static final String INLONG_GROUP_ID = "03a00000026";
@@ -63,7 +60,8 @@ public class DataProxyConfigRepositoryTest {
         repository.setInlongGroupMapper(this.mockGroupMapper());
         repository.setClusterMapper(this.mockClusterMapper());
         repository.setStreamSinkMapper(this.mockStreamSinkMapper());
-        String inlongGroupId = repository.changeClusterTag(INLONG_GROUP_ID, CLUSTER_TAG_NEW, TOPIC_NEW);
+        String inlongGroupId =
+                repository.changeClusterTag(INLONG_GROUP_ID, CLUSTER_TAG_NEW, TOPIC_NEW);
         assertEquals(inlongGroupId, INLONG_GROUP_ID);
     }
 
@@ -98,11 +96,17 @@ public class DataProxyConfigRepositoryTest {
         clsCluster.setName(CLS_CLUSTER_OLD);
         clsCluster.setType("cls");
         clsCluster.setClusterTags(CLUSTER_TAG_OLD);
-        clsCluster.setExtParams(String.format("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
-                DataProxyConfigRepository.KEY_SINK_NAME, CLS_DATA_NODE_OLD,
-                DataProxyConfigRepository.KEY_SORT_TASK_NAME, CLS_DATA_NODE_OLD,
-                DataProxyConfigRepository.KEY_DATA_NODE_NAME, CLS_DATA_NODE_OLD,
-                DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP, CLS_DATA_NODE_OLD));
+        clsCluster.setExtParams(
+                String.format(
+                        "{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+                        DataProxyConfigRepository.KEY_SINK_NAME,
+                        CLS_DATA_NODE_OLD,
+                        DataProxyConfigRepository.KEY_SORT_TASK_NAME,
+                        CLS_DATA_NODE_OLD,
+                        DataProxyConfigRepository.KEY_DATA_NODE_NAME,
+                        CLS_DATA_NODE_OLD,
+                        DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP,
+                        CLS_DATA_NODE_OLD));
         clusters.add(clsCluster);
         InlongClusterEntity kafkaCluster = new InlongClusterEntity();
         kafkaCluster.setName("kafka_1");
@@ -113,11 +117,17 @@ public class DataProxyConfigRepositoryTest {
         clsCluster2.setName(CLS_CLUSTER_NEW);
         clsCluster2.setType("cls");
         clsCluster2.setClusterTags(CLUSTER_TAG_NEW);
-        clsCluster2.setExtParams(String.format("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
-                DataProxyConfigRepository.KEY_SINK_NAME, CLS_DATA_NODE_NEW,
-                DataProxyConfigRepository.KEY_SORT_TASK_NAME, CLS_DATA_NODE_NEW,
-                DataProxyConfigRepository.KEY_DATA_NODE_NAME, CLS_DATA_NODE_NEW,
-                DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP, CLS_DATA_NODE_NEW));
+        clsCluster2.setExtParams(
+                String.format(
+                        "{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+                        DataProxyConfigRepository.KEY_SINK_NAME,
+                        CLS_DATA_NODE_NEW,
+                        DataProxyConfigRepository.KEY_SORT_TASK_NAME,
+                        CLS_DATA_NODE_NEW,
+                        DataProxyConfigRepository.KEY_DATA_NODE_NAME,
+                        CLS_DATA_NODE_NEW,
+                        DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP,
+                        CLS_DATA_NODE_NEW));
         clusters.add(clsCluster2);
         InlongClusterEntityMapper mapper = PowerMockito.mock(InlongClusterEntityMapper.class);
         PowerMockito.when(mapper.selectByCondition(any())).thenReturn(clusters);
@@ -162,15 +172,20 @@ public class DataProxyConfigRepositoryTest {
         groupEntity.setInlongClusterTag(CLUSTER_TAG_NEW);
         groupEntity.setMqResource(TOPIC_NEW);
         groupEntity.setExtParams(
-                String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", DataProxyConfigRepository.KEY_BACKUP_CLUSTER_TAG,
-                        CLUSTER_TAG_OLD, DataProxyConfigRepository.KEY_BACKUP_TOPIC, TOPIC_OLD));
+                String.format(
+                        "{\"%s\":\"%s\",\"%s\":\"%s\"}",
+                        DataProxyConfigRepository.KEY_BACKUP_CLUSTER_TAG,
+                        CLUSTER_TAG_OLD,
+                        DataProxyConfigRepository.KEY_BACKUP_TOPIC,
+                        TOPIC_OLD));
         repository.setInlongGroupMapper(groupMapper);
         // cluster
         repository.setClusterMapper(this.mockClusterMapper());
         // stream sink
         StreamSinkEntityMapper streamSinkMapper = this.mockStreamSinkMapper();
         SinkPageRequest sinkPageRequest = new SinkPageRequest();
-        final List<StreamSinkEntity> streamSinks = streamSinkMapper.selectByCondition(sinkPageRequest);
+        final List<StreamSinkEntity> streamSinks =
+                streamSinkMapper.selectByCondition(sinkPageRequest);
         StreamSinkEntity clsSink = new StreamSinkEntity();
         clsSink.setInlongGroupId(INLONG_GROUP_ID);
         clsSink.setInlongStreamId(INLONG_STREAM_ID);

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.web.auth;
 
+import java.util.Collection;
+import javax.annotation.Resource;
 import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
@@ -28,17 +30,11 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
-import java.util.Collection;
-
-/**
- * Inlong hiro config.
- */
+/** Inlong hiro config. */
 @Configuration
 public class ShiroConfig {
 
-    @Resource
-    private InlongShiro inlongShiro;
+    @Resource private InlongShiro inlongShiro;
 
     @Bean
     public Collection<Realm> shiroRealms() {
@@ -47,30 +43,28 @@ public class ShiroConfig {
 
     @Bean
     public WebSecurityManager securityManager() {
-        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inlongShiro.getWebSecurityManager();
+        DefaultWebSecurityManager securityManager =
+                (DefaultWebSecurityManager) inlongShiro.getWebSecurityManager();
         securityManager.setRealms(shiroRealms());
         return securityManager;
     }
 
     @Bean
     public DefaultWebSessionManager sessionManager() {
-        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inlongShiro.getWebSessionManager();
+        DefaultWebSessionManager sessionManager =
+                (DefaultWebSessionManager) inlongShiro.getWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
     }
 
-    /**
-     * Filter for annon / authc
-     */
+    /** Filter for annon / authc */
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = inlongShiro.getShiroFilter(securityManager);
         return shiroFilterFactoryBean;
     }
 
-    /**
-     * Enable permission verification annotation
-     */
+    /** Enable permission verification annotation */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
         return inlongShiro.getAuthorizationAttributeSourceAdvisor(securityManager());

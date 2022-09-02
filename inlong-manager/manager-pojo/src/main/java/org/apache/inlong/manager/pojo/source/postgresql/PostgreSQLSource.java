@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.source.postgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,11 +32,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.List;
-
-/**
- * PostgreSQL source info
- */
+/** PostgreSQL source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -81,5 +78,4 @@ public class PostgreSQLSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, PostgreSQLSourceRequest::new);
     }
-
 }

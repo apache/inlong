@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.state;
 
-/**
- * job/task state
- */
+/** job/task state */
 public enum State {
     // accepted state
     ACCEPTED,

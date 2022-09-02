@@ -17,35 +17,28 @@
 
 package org.apache.inlong.manager.service.resource.sink;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Factory for {@link SinkResourceOperator}.
- */
+/** Factory for {@link SinkResourceOperator}. */
 @Service
 public class SinkResourceOperatorFactory {
 
-    @Autowired
-    private List<SinkResourceOperator> operatorList;
+    @Autowired private List<SinkResourceOperator> operatorList;
 
-    /**
-     * Get a sink resource operator instance via the given sinkType
-     */
+    /** Get a sink resource operator instance via the given sinkType */
     public SinkResourceOperator getInstance(String sinkType) {
-        Optional<SinkResourceOperator> instance = operatorList.stream()
-                .filter(inst -> inst.accept(sinkType))
-                .findFirst();
+        Optional<SinkResourceOperator> instance =
+                operatorList.stream().filter(inst -> inst.accept(sinkType)).findFirst();
         if (!instance.isPresent()) {
-            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
                     String.format(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage(), sinkType));
         }
         return instance.get();
     }
-
 }

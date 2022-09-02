@@ -17,19 +17,16 @@
 
 package org.apache.inlong.agent.plugin;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-/**
- * common environment setting up for test cases.
- */
+/** common environment setting up for test cases. */
 public class AgentBaseTestsHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentBaseTestsHelper.class);
@@ -44,8 +41,11 @@ public class AgentBaseTestsHelper {
 
     public AgentBaseTestsHelper setupAgentHome() {
         parentPath = Paths.get("./").toAbsolutePath();
-        testRootDir = Paths.get(parentPath + File.separator + "logs",
-                AgentBaseTestsHelper.class.getSimpleName(), className);
+        testRootDir =
+                Paths.get(
+                        parentPath + File.separator + "logs",
+                        AgentBaseTestsHelper.class.getSimpleName(),
+                        className);
         teardownAgentHome();
         boolean result = testRootDir.toFile().mkdirs();
         LOGGER.info("try to create {}, result is {}", testRootDir, result);

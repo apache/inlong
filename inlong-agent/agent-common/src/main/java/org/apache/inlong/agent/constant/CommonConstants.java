@@ -19,9 +19,7 @@ package org.apache.inlong.agent.constant;
 
 import org.apache.inlong.agent.utils.AgentUtils;
 
-/**
- * Common constants.
- */
+/** Common constants. */
 public class CommonConstants {
 
     public static final String PROXY_NET_TAG = "proxy.net.tag";
@@ -67,7 +65,8 @@ public class CommonConstants {
     public static final String PROXY_MESSAGE_SEMAPHORE = "proxy.semaphore";
     public static final int DEFAULT_PROXY_MESSAGE_SEMAPHORE = 10000;
 
-    public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = "proxy.group.queue.maxNumber";
+    public static final String PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER =
+            "proxy.group.queue.maxNumber";
     public static final int DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER = 10000;
 
     public static final String PROXY_PACKAGE_MAX_TIMEOUT_MS = "proxy.package.maxTimeout.ms";
@@ -116,7 +115,8 @@ public class CommonConstants {
     public static final String PULSAR_PRODUCER_ASYNC = "pulsar.producer.async";
     public static final boolean DEFAULT_PULSAR_PRODUCER_ASYNC = true;
 
-    public static final String PULSAR_PRODUCER_MAX_PENDING_COUNT = "pulsar.producer.maxPending.count";
+    public static final String PULSAR_PRODUCER_MAX_PENDING_COUNT =
+            "pulsar.producer.maxPending.count";
     public static final int DEFAULT_PULSAR_PRODUCER_MAX_PENDING_COUNT = 10000;
 
     public static final String PULSAR_PRODUCER_THREAD_NUM = "pulsar.producer.thread.num";
@@ -163,6 +163,4 @@ public class CommonConstants {
     public static final String COMMA = ",";
     public static final String DELIMITER_UNDERLINE = "_";
     public static final String DELIMITER_HYPHEN = "-";
-
-
 }

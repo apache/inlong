@@ -24,9 +24,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisSentinelPool;
 
-/**
- * The redis contain expand from {@link RedisContainer}
- */
+/** The redis contain expand from {@link RedisContainer} */
 public class InlongRedisContainer extends RedisContainer implements InlongRedisCommandsContainer {
 
     private static final long serialVersionUID = 1L;
@@ -65,8 +63,10 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             jedis.del(key);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot send Redis with del command to key {}  error message {}",
-                        key, e.getMessage());
+                LOG.error(
+                        "Cannot send Redis with del command to key {}  error message {}",
+                        key,
+                        e.getMessage());
             }
             throw e;
         } finally {
@@ -82,8 +82,11 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             jedis.hdel(key, hashField);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot send Redis with hdel command to key {} of field {}  error message {}",
-                        key, hashField, e.getMessage());
+                LOG.error(
+                        "Cannot send Redis with hdel command to key {} of field {}  error message {}",
+                        key,
+                        hashField,
+                        e.getMessage());
             }
             throw e;
         } finally {
@@ -99,7 +102,10 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             return jedis.get(key);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot get value with get command from key {} error message {}", key, e.getMessage());
+                LOG.error(
+                        "Cannot get value with get command from key {} error message {}",
+                        key,
+                        e.getMessage());
             }
             throw e;
         } finally {
@@ -115,8 +121,11 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             return jedis.hget(key, hashField);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot get value with hget command from key {} of field {}  error message {}",
-                        key, hashField, e.getMessage());
+                LOG.error(
+                        "Cannot get value with hget command from key {} of field {}  error message {}",
+                        key,
+                        hashField,
+                        e.getMessage());
             }
             throw e;
         } finally {
@@ -132,8 +141,11 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             return jedis.zscore(key, member);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot get value with zscore command from key {} of member {}  error message {}",
-                        key, member, e.getMessage());
+                LOG.error(
+                        "Cannot get value with zscore command from key {} of member {}  error message {}",
+                        key,
+                        member,
+                        e.getMessage());
             }
             throw e;
         } finally {
@@ -149,8 +161,11 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
             return jedis.zrevrank(key, member);
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Cannot get value with zrevrank command from key {} of member {}  error message {}",
-                        key, member, e.getMessage());
+                LOG.error(
+                        "Cannot get value with zrevrank command from key {} of member {}  error message {}",
+                        key,
+                        member,
+                        e.getMessage());
             }
             throw e;
         } finally {

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -48,12 +50,7 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Inlong group service implementation.
- */
+/** Inlong group service implementation. */
 public class InlongGroupImpl implements InlongGroup {
 
     public static final String GROUP_FIELD = "groupInfo";
@@ -108,14 +105,18 @@ public class InlongGroupImpl implements InlongGroup {
         TaskResponse taskView = taskViews.get(0);
         final int taskId = taskView.getId();
         ProcessResponse processView = initWorkflowResult.getProcessInfo();
-        Preconditions.checkTrue(ProcessStatus.PROCESSING == processView.getStatus(),
-                String.format("process status %s is not corrected, should be PROCESSING", processView.getStatus()));
+        Preconditions.checkTrue(
+                ProcessStatus.PROCESSING == processView.getStatus(),
+                String.format(
+                        "process status %s is not corrected, should be PROCESSING",
+                        processView.getStatus()));
 
         // init must be ApplyGroupProcessForm
         // compile with old cluster
-        JSONObject formDataJson = JsonUtils.parseObject(
-                JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
-                JSONObject.class);
+        JSONObject formDataJson =
+                JsonUtils.parseObject(
+                        JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
+                        JSONObject.class);
         assert formDataJson != null;
         if (formDataJson.has(GROUP_FIELD)) {
             JSONObject groupInfoJson = formDataJson.getJSONObject(GROUP_FIELD);
@@ -124,15 +125,19 @@ public class InlongGroupImpl implements InlongGroup {
             }
         }
         String formDataNew = formDataJson.toString();
-        ApplyGroupProcessForm groupProcessForm = JsonUtils.parseObject(
-                formDataNew, ApplyGroupProcessForm.class);
+        ApplyGroupProcessForm groupProcessForm =
+                JsonUtils.parseObject(formDataNew, ApplyGroupProcessForm.class);
         Preconditions.checkNotNull(groupProcessForm, "ApplyGroupProcessForm cannot be null");
         groupContext.setInitMsg(groupProcessForm);
         assert groupProcessForm != null;
-        WorkflowResult startWorkflowResult = workFlowClient.startInlongGroup(taskId, groupProcessForm);
+        WorkflowResult startWorkflowResult =
+                workFlowClient.startInlongGroup(taskId, groupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
-        Preconditions.checkTrue(ProcessStatus.COMPLETED == processView.getStatus(),
-                String.format("inlong group status %s is incorrect, should be COMPLETED", processView.getStatus()));
+        Preconditions.checkTrue(
+                ProcessStatus.COMPLETED == processView.getStatus(),
+                String.format(
+                        "inlong group status %s is incorrect, should be COMPLETED",
+                        processView.getStatus()));
         return generateSnapshot();
     }
 
@@ -143,7 +148,8 @@ public class InlongGroupImpl implements InlongGroup {
         }
 
         final String groupId = originGroupInfo.getInlongGroupId();
-        Preconditions.checkTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
+        Preconditions.checkTrue(
+                groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
                 "groupId must be same");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
@@ -159,9 +165,11 @@ public class InlongGroupImpl implements InlongGroup {
 
     private void updateOpt(InlongGroupInfo groupInfo) {
         InlongGroupInfo existGroupInfo = groupClient.getGroupInfo(groupInfo.getInlongGroupId());
-        Preconditions.checkNotNull(existGroupInfo, "inlong group does not exist, cannot be updated");
+        Preconditions.checkNotNull(
+                existGroupInfo, "inlong group does not exist, cannot be updated");
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
-        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
+        Preconditions.checkTrue(
+                status != SimpleGroupStatus.INITIALIZING,
                 "inlong group is in init status, cannot be updated");
 
         groupInfo.setVersion(existGroupInfo.getVersion());
@@ -173,14 +181,16 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
+    public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf)
+            throws Exception {
         this.update(originGroupInfo, sortConf);
         String inlongGroupId = this.groupContext.getGroupInfo().getInlongGroupId();
         InlongGroupInfo newGroupInfo = groupClient.getGroupIfExists(inlongGroupId);
         if (newGroupInfo != null) {
             this.groupContext.setGroupInfo(newGroupInfo);
         } else {
-            throw new RuntimeException(String.format("Group not found by inlongGroupId=%s", inlongGroupId));
+            throw new RuntimeException(
+                    String.format("Group not found by inlongGroupId=%s", inlongGroupId));
         }
 
         return init();
@@ -196,7 +206,8 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         this.updateOpt(groupInfo);
 
-        groupClient.operateInlongGroup(groupInfo.getInlongGroupId(), SimpleGroupStatus.STOPPED, async);
+        groupClient.operateInlongGroup(
+                groupInfo.getInlongGroupId(), SimpleGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
 
@@ -210,7 +221,8 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         this.updateOpt(groupInfo);
 
-        groupClient.operateInlongGroup(groupInfo.getInlongGroupId(), SimpleGroupStatus.STARTED, async);
+        groupClient.operateInlongGroup(
+                groupInfo.getInlongGroupId(), SimpleGroupStatus.STARTED, async);
         return generateSnapshot();
     }
 
@@ -243,8 +255,8 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext reset(int rerun, int resetFinalStatus) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        InlongGroupResetRequest request = new InlongGroupResetRequest(groupInfo.getInlongGroupId(),
-                rerun, resetFinalStatus);
+        InlongGroupResetRequest request =
+                new InlongGroupResetRequest(groupInfo.getInlongGroupId(), rerun, resetFinalStatus);
         groupClient.resetGroup(request);
         return generateSnapshot();
     }

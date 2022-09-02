@@ -22,19 +22,15 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.WEB_API;
 
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
 
-/**
- * json class for topic info list from master http service.
- */
+/** json class for topic info list from master http service. */
 @Data
 public class TubeHttpTopicInfoList {
     private boolean result;
@@ -82,7 +78,6 @@ public class TubeHttpTopicInfoList {
             private String modifyUser;
             private String modifyDate;
             private RunInfo runInfo;
-
         }
 
         private String topicName;
@@ -118,7 +113,8 @@ public class TubeHttpTopicInfoList {
      * @param token authorized key
      * @return topic data
      */
-    public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
+    public AddTopicReq getAddTopicReq(
+            List<Integer> brokerIds, List<String> targetTopicNames, String token) {
 
         AddTopicReq req = new AddTopicReq();
         TopicInfoList topicInfoList = data.get(0);
@@ -138,8 +134,8 @@ public class TubeHttpTopicInfoList {
         return req;
     }
 
-    private void setAttributes(String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr,
-                               String topic) {
+    private void setAttributes(
+            String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr, String topic) {
         req.setBrokerId(brokerStr);
         req.setTopicName(topic);
         req.setMethod(BATCH_ADD_TOPIC);

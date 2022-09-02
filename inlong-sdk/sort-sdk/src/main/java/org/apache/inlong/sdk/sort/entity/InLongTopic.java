@@ -25,7 +25,7 @@ public class InLongTopic {
     private String topic;
     private CacheZoneCluster cacheZoneCluster;
     private int partitionId;
-    //pulsar,kafka,tube
+    // pulsar,kafka,tube
     private String topicType;
     private Map<String, String> properties;
 
@@ -95,6 +95,14 @@ public class InLongTopic {
 
     @Override
     public String toString() {
-        return "InLongTopic>>>" + topic + "|" + "|" + partitionId + "|" + topicType + "|" + cacheZoneCluster;
+        return "InLongTopic>>>"
+                + topic
+                + "|"
+                + "|"
+                + partitionId
+                + "|"
+                + topicType
+                + "|"
+                + cacheZoneCluster;
     }
 }

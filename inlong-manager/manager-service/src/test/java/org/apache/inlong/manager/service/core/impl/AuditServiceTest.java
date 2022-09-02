@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
@@ -26,18 +30,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Audit service test for {@link AuditService}
- */
+/** Audit service test for {@link AuditService} */
 class AuditServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @Test
     void testQueryFromMySQL() throws IOException {
@@ -49,21 +45,23 @@ class AuditServiceTest extends ServiceBaseTest {
         List<AuditVO> result = new ArrayList<>();
         AuditVO auditVO = new AuditVO();
         auditVO.setAuditId("3");
-        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L),
-                new AuditInfo("2022-01-01 00:01:00", 124L)));
+        auditVO.setAuditSet(
+                Arrays.asList(
+                        new AuditInfo("2022-01-01 00:00:00", 123L),
+                        new AuditInfo("2022-01-01 00:01:00", 124L)));
         result.add(auditVO);
         Assertions.assertNotNull(result);
         // close real test for testQueryFromMySQL due to date_format function not support in h2
-//        Assertions.assertNotNull(auditService.listByCondition(request));
+        //        Assertions.assertNotNull(auditService.listByCondition(request));
     }
 
     /**
-     * Temporarily close testing for testQueryFromElasticsearch due to lack of elasticsearch dev environment
-     * You can open it if exists elasticsearch dev environment
+     * Temporarily close testing for testQueryFromElasticsearch due to lack of elasticsearch dev
+     * environment You can open it if exists elasticsearch dev environment
      *
      * @throws IOException The exception may throws
      */
-//    @Test
+    //    @Test
     public void testQueryFromElasticsearch() throws IOException {
         AuditRequest request = new AuditRequest();
         request.setAuditIds(Arrays.asList("3", "4"));

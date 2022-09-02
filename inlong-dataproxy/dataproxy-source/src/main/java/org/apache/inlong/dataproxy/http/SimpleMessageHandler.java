@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
-import javax.servlet.http.HttpServletRequest;
+
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
@@ -51,8 +52,8 @@ public class SimpleMessageHandler implements MessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleMessageHandler.class);
     private static final ConfigManager configManager = ConfigManager.getInstance();
-    private static final DateTimeFormatter DATE_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final ZoneId defZoneId = ZoneId.systemDefault();
 
     private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
@@ -63,12 +64,16 @@ public class SimpleMessageHandler implements MessageHandler {
 
     @SuppressWarnings("unused")
     private int maxMsgLength;
+
     private long logCounter = 0L;
     private long channelTrace = 0L;
 
-    public SimpleMessageHandler(ChannelProcessor processor, MonitorIndex monitorIndex,
-                                MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
-                                ServiceDecoder decoder) {
+    public SimpleMessageHandler(
+            ChannelProcessor processor,
+            MonitorIndex monitorIndex,
+            MonitorIndexExt monitorIndexExt,
+            DataProxyMetricItemSet metricItemSet,
+            ServiceDecoder decoder) {
         this.processor = processor;
         this.monitorIndex = monitorIndex;
         this.monitorIndexExt = monitorIndexExt;
@@ -77,12 +82,10 @@ public class SimpleMessageHandler implements MessageHandler {
     }
 
     @Override
-    public void init() {
-    }
+    public void init() {}
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 
     @Override
     public void processMessage(Context context) throws MessageProcessException {
@@ -104,8 +107,13 @@ public class SimpleMessageHandler implements MessageHandler {
             newAttrBuffer = new StringBuilder(mxValue.trim());
         }
 
-        newAttrBuffer.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
-                .append("&dt=").append(dt);
+        newAttrBuffer
+                .append("&groupId=")
+                .append(groupId)
+                .append("&streamId=")
+                .append(streamId)
+                .append("&dt=")
+                .append(dt);
         HttpServletRequest request =
                 (HttpServletRequest) context.get(AttributeConstants.HTTP_REQUEST);
         String strRemoteIP = request.getRemoteAddr();
@@ -146,38 +154,51 @@ public class SimpleMessageHandler implements MessageHandler {
         try {
             dtten = Long.parseLong(dt);
         } catch (NumberFormatException e1) {
-            throw new MessageProcessException(new Throwable(
-                    "attribute dt=" + dt + " has error," + " detail is: " + newAttrBuffer));
+            throw new MessageProcessException(
+                    new Throwable(
+                            "attribute dt=" + dt + " has error," + " detail is: " + newAttrBuffer));
         }
         dtten = dtten / 1000 / 60 / 10;
         dtten = dtten * 1000 * 60 * 10;
         StringBuilder newBase = new StringBuilder();
-        newBase.append("http").append(SEP_HASHTAG).append(topicValue).append(SEP_HASHTAG)
-                .append(streamId).append(SEP_HASHTAG).append(strRemoteIP).append(SEP_HASHTAG)
-                .append(NetworkUtils.getLocalIp()).append(SEP_HASHTAG)
-                .append("non-order").append(SEP_HASHTAG)
-                .append(new SimpleDateFormat("yyyyMMddHHmm").format(dtten)).append(SEP_HASHTAG)
+        newBase.append("http")
+                .append(SEP_HASHTAG)
+                .append(topicValue)
+                .append(SEP_HASHTAG)
+                .append(streamId)
+                .append(SEP_HASHTAG)
+                .append(strRemoteIP)
+                .append(SEP_HASHTAG)
+                .append(NetworkUtils.getLocalIp())
+                .append(SEP_HASHTAG)
+                .append("non-order")
+                .append(SEP_HASHTAG)
+                .append(new SimpleDateFormat("yyyyMMddHHmm").format(dtten))
+                .append(SEP_HASHTAG)
                 .append(pkgTime);
         long beginTime = System.currentTimeMillis();
         try {
             processor.processEvent(event);
             if (monitorIndex != null) {
-                monitorIndex.addAndGet(new String(newBase),
-                        Integer.parseInt(msgCount), 1, data.length, 0);
+                monitorIndex.addAndGet(
+                        new String(newBase), Integer.parseInt(msgCount), 1, data.length, 0);
                 monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
             }
             addMetric(true, data.length, event);
         } catch (ChannelException ex) {
             if (monitorIndex != null) {
-                monitorIndex.addAndGet(new String(newBase),
-                        0, 0, 0, Integer.parseInt(msgCount));
+                monitorIndex.addAndGet(new String(newBase), 0, 0, 0, Integer.parseInt(msgCount));
                 monitorIndexExt.incrementAndGet("EVENT_DROPPED");
             }
             addMetric(false, data.length, event);
             logCounter++;
             if (logCounter == 1 || logCounter % 1000 == 0) {
-                LOG.error("Error writing to channel, and will retry after 1s, ex={},"
-                        + "logCounter={}, spend time={} ms", ex, logCounter, System.currentTimeMillis() - beginTime);
+                LOG.error(
+                        "Error writing to channel, and will retry after 1s, ex={},"
+                                + "logCounter={}, spend time={} ms",
+                        ex,
+                        logCounter,
+                        System.currentTimeMillis() - beginTime);
                 if (logCounter > Long.MAX_VALUE - 10) {
                     logCounter = 0;
                     LOG.info("logCounter will reverse");
@@ -187,7 +208,9 @@ public class SimpleMessageHandler implements MessageHandler {
         }
         channelTrace++;
         if (channelTrace % 600000 == 0) {
-            LOG.info("processor.processEvent spend time={} ms", System.currentTimeMillis() - beginTime);
+            LOG.info(
+                    "processor.processEvent spend time={} ms",
+                    System.currentTimeMillis() - beginTime);
         }
         if (channelTrace > Long.MAX_VALUE - 10) {
             channelTrace = 0;
@@ -196,8 +219,7 @@ public class SimpleMessageHandler implements MessageHandler {
     }
 
     @Override
-    public void configure(org.apache.flume.Context context) {
-    }
+    public void configure(org.apache.flume.Context context) {}
 
     private String getTopic(String groupId, String streamId) {
         String topic = null;
@@ -209,16 +231,17 @@ public class SimpleMessageHandler implements MessageHandler {
                 topic = configManager.getTopicProperties().get(groupId);
             }
         }
-        LOG.debug("Get topic by groupId/streamId = {}, topic = {}", groupId + "/" + streamId, topic);
+        LOG.debug(
+                "Get topic by groupId/streamId = {}, topic = {}", groupId + "/" + streamId, topic);
         return topic;
     }
 
     /**
      * add audit metric
      *
-     * @param result  success or failure
-     * @param size    message size
-     * @param event   message event
+     * @param result success or failure
+     * @param size message size
+     * @param event message event
      */
     private void addMetric(boolean result, long size, Event event) {
         Map<String, String> dimensions = new HashMap<>();

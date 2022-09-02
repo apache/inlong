@@ -17,14 +17,27 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 import org.elasticsearch.action.search.SearchRequest;
@@ -46,23 +59,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-/**
- * Audit service layer implementation
- */
+/** Audit service layer implementation */
 @Service
 public class AuditServiceImpl implements AuditService {
 
@@ -72,10 +69,9 @@ public class AuditServiceImpl implements AuditService {
 
     @Value("${audit.query.source}")
     private String auditQuerySource = AuditQuerySource.MYSQL.name();
-    @Autowired
-    private AuditEntityMapper auditEntityMapper;
-    @Autowired
-    private ElasticsearchApi elasticsearchApi;
+
+    @Autowired private AuditEntityMapper auditEntityMapper;
+    @Autowired private ElasticsearchApi elasticsearchApi;
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
@@ -93,14 +89,19 @@ public class AuditServiceImpl implements AuditService {
                 DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
                 DateTime dtDate = forPattern.parseDateTime(request.getDt());
                 String eDate = dtDate.plusDays(1).toString(forPattern);
-                List<Map<String, Object>> sumList = auditEntityMapper.sumByLogTs(
-                        groupId, streamId, auditId, request.getDt(), eDate, format);
-                List<AuditInfo> auditSet = sumList.stream().map(s -> {
-                    AuditInfo vo = new AuditInfo();
-                    vo.setLogTs((String) s.get("logTs"));
-                    vo.setCount(((BigDecimal) s.get("total")).longValue());
-                    return vo;
-                }).collect(Collectors.toList());
+                List<Map<String, Object>> sumList =
+                        auditEntityMapper.sumByLogTs(
+                                groupId, streamId, auditId, request.getDt(), eDate, format);
+                List<AuditInfo> auditSet =
+                        sumList.stream()
+                                .map(
+                                        s -> {
+                                            AuditInfo vo = new AuditInfo();
+                                            vo.setLogTs((String) s.get("logTs"));
+                                            vo.setCount(((BigDecimal) s.get("total")).longValue());
+                                            return vo;
+                                        })
+                                .collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getDt().replaceAll("-", ""), auditId);
@@ -108,17 +109,28 @@ public class AuditServiceImpl implements AuditService {
                     LOGGER.warn("elasticsearch index={} not exists", index);
                     continue;
                 }
-                SearchResponse response = elasticsearchApi.search(toAuditSearchRequest(index, groupId, streamId));
+                SearchResponse response =
+                        elasticsearchApi.search(toAuditSearchRequest(index, groupId, streamId));
                 final List<Aggregation> aggregations = response.getAggregations().asList();
                 if (CollectionUtils.isNotEmpty(aggregations)) {
                     ParsedTerms terms = (ParsedTerms) aggregations.get(0);
                     if (CollectionUtils.isNotEmpty(terms.getBuckets())) {
-                        List<AuditInfo> auditSet = terms.getBuckets().stream().map(bucket -> {
-                            AuditInfo vo = new AuditInfo();
-                            vo.setLogTs(bucket.getKeyAsString());
-                            vo.setCount((long) ((ParsedSum) bucket.getAggregations().asList().get(0)).getValue());
-                            return vo;
-                        }).collect(Collectors.toList());
+                        List<AuditInfo> auditSet =
+                                terms.getBuckets().stream()
+                                        .map(
+                                                bucket -> {
+                                                    AuditInfo vo = new AuditInfo();
+                                                    vo.setLogTs(bucket.getKeyAsString());
+                                                    vo.setCount(
+                                                            (long)
+                                                                    ((ParsedSum)
+                                                                                    bucket.getAggregations()
+                                                                                            .asList()
+                                                                                            .get(0))
+                                                                            .getValue());
+                                                    return vo;
+                                                })
+                                        .collect(Collectors.toList());
                         result.add(new AuditVO(auditId, auditSet));
                     }
                 }
@@ -137,8 +149,11 @@ public class AuditServiceImpl implements AuditService {
      * @return The search request of elasticsearch
      */
     private SearchRequest toAuditSearchRequest(String index, String groupId, String streamId) {
-        TermsAggregationBuilder builder = AggregationBuilders.terms("log_ts").field("log_ts")
-                .size(Integer.MAX_VALUE).subAggregation(AggregationBuilders.sum("count").field("count"));
+        TermsAggregationBuilder builder =
+                AggregationBuilders.terms("log_ts")
+                        .field("log_ts")
+                        .size(Integer.MAX_VALUE)
+                        .subAggregation(AggregationBuilders.sum("count").field("count"));
         BoolQueryBuilder filterBuilder = new BoolQueryBuilder();
         filterBuilder.must(termQuery("inlong_group_id", groupId));
         filterBuilder.must(termQuery("inlong_stream_id", streamId));
@@ -148,13 +163,12 @@ public class AuditServiceImpl implements AuditService {
         sourceBuilder.from(0);
         sourceBuilder.size(0);
         sourceBuilder.sort("log_ts", SortOrder.ASC);
-        return new SearchRequest(new String[]{index}, sourceBuilder);
+        return new SearchRequest(new String[] {index}, sourceBuilder);
     }
 
-    /**
-     * Aggregate by time dim
-     */
-    private List<AuditVO> aggregateByTimeDim(List<AuditVO> auditVOList, TimeStaticsDim timeStaticsDim) {
+    /** Aggregate by time dim */
+    private List<AuditVO> aggregateByTimeDim(
+            List<AuditVO> auditVOList, TimeStaticsDim timeStaticsDim) {
         List<AuditVO> result;
         switch (timeStaticsDim) {
             case HOUR:
@@ -170,9 +184,7 @@ public class AuditServiceImpl implements AuditService {
         return result;
     }
 
-    /**
-     * Execute the aggregate by the given time format
-     */
+    /** Execute the aggregate by the given time format */
     private List<AuditVO> doAggregate(List<AuditVO> auditVOList, String format) {
         List<AuditVO> result = new ArrayList<>();
         for (AuditVO auditVO : auditVOList) {
@@ -203,9 +215,7 @@ public class AuditServiceImpl implements AuditService {
         return result;
     }
 
-    /**
-     * Format the log time
-     */
+    /** Format the log time */
     private String formatLogTime(String dateString, String format) {
         String formatDateString = null;
         try {

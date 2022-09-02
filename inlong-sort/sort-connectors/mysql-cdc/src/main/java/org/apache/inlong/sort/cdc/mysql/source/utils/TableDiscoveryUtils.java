@@ -18,34 +18,29 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
-
-/**
- * Utilities to discovery matched tables.
- */
+/** Utilities to discovery matched tables. */
 public class TableDiscoveryUtils {
     private static final Logger LOG = LoggerFactory.getLogger(TableDiscoveryUtils.class);
 
-    /**
-     * Get list of table.
-     */
+    /** Get list of table. */
     public static List<TableId> listTables(JdbcConnection jdbc, RelationalTableFilters tableFilters)
             throws SQLException {
         final List<TableId> capturedTableIds = new ArrayList<>();
@@ -99,9 +94,7 @@ public class TableDiscoveryUtils {
         return capturedTableIds;
     }
 
-    /**
-     * Discover schemas of table.
-     */
+    /** Discover schemas of table. */
     public static Map<TableId, TableChanges.TableChange> discoverCapturedTableSchemas(
             MySqlSourceConfig sourceConfig, MySqlConnection jdbc) {
         final List<TableId> capturedTableIds;

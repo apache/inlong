@@ -19,12 +19,9 @@ package org.apache.inlong.tubemq.manager.service.tube;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
 
-/**
- * json class for broker info list from master http service.
- */
+/** json class for broker info list from master http service. */
 @Data
 public class TubeHttpBrokerInfoList {
 
@@ -34,9 +31,7 @@ public class TubeHttpBrokerInfoList {
     private static final String ONLY_READ = "only-read";
     private static final String ONLY_WRITE = "only-write";
 
-    /**
-     * json class for broker info.
-     */
+    /** json class for broker info. */
     @Data
     public static class BrokerInfo {
         private int brokerId;
@@ -59,8 +54,8 @@ public class TubeHttpBrokerInfoList {
 
         private boolean isWorking() {
             if (runStatus != null && manageStatus != null) {
-                return RUNNING.equals(runStatus) && (
-                        ONLINE.equals(manageStatus)
+                return RUNNING.equals(runStatus)
+                        && (ONLINE.equals(manageStatus)
                                 || ONLY_READ.equals(manageStatus)
                                 || ONLY_WRITE.equals(manageStatus));
             }
@@ -106,9 +101,7 @@ public class TubeHttpBrokerInfoList {
     // need reload broker list
     private List<Integer> needReloadList;
 
-    /**
-     * divide broker list into different list by broker state.
-     */
+    /** divide broker list into different list by broker state. */
     public void divideBrokerListByState() {
         if (data != null) {
             configurableList = new ArrayList<>();
@@ -151,5 +144,4 @@ public class TubeHttpBrokerInfoList {
         }
         return tmpBrokerIdList;
     }
-
 }

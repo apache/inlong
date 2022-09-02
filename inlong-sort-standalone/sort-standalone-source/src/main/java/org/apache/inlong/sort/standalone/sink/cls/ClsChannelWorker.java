@@ -1,26 +1,24 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.cls;
 
 import com.google.common.base.Preconditions;
 import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.common.LogItem;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import java.util.List;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
@@ -29,11 +27,7 @@ import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.List;
-
-/**
- * Cls channel worker.
- */
+/** Cls channel worker. */
 public class ClsChannelWorker extends Thread {
     private static final Logger LOG = InlongLoggerFactory.getLogger(ClsChannelWorker.class);
 
@@ -65,17 +59,13 @@ public class ClsChannelWorker extends Thread {
         super.start();
     }
 
-    /**
-     * Close cls channel worker.
-     */
+    /** Close cls channel worker. */
     public void close() {
         LOG.info("Close cls channel worker {}", this.workerName);
         status = LifecycleState.STOP;
     }
 
-    /**
-     * Run until status is STOP.
-     */
+    /** Run until status is STOP. */
     @Override
     public void run() {
         LOG.info("worker {} start to run, the state is {}", this.workerName, status.name());
@@ -84,9 +74,7 @@ public class ClsChannelWorker extends Thread {
         }
     }
 
-    /**
-     * Do run.
-     */
+    /** Do run. */
     private void doRun() {
         Transaction tx = null;
         try {
@@ -124,13 +112,15 @@ public class ClsChannelWorker extends Thread {
      * @throws ProducerException
      * @throws InterruptedException
      */
-    private void send(Event rowEvent, Transaction tx) throws ProducerException, InterruptedException {
+    private void send(Event rowEvent, Transaction tx)
+            throws ProducerException, InterruptedException {
         ProfileEvent event = (ProfileEvent) rowEvent;
         ClsIdConfig idConfig = context.getIdConfig(event.getUid());
         if (idConfig == null) {
             event.ack();
             LOG.error("There is no cls id config for uid {}, discard it", event.getUid());
-            context.addSendResultMetric(event, context.getTaskName(), false, System.currentTimeMillis());
+            context.addSendResultMetric(
+                    event, context.getTaskName(), false, System.currentTimeMillis());
             return;
         }
         event.getHeaders().put(ClsSinkContext.KEY_TOPIC_ID, idConfig.getTopicId());
@@ -151,6 +141,7 @@ public class ClsChannelWorker extends Thread {
 
     /**
      * Rollback transaction if it exists.
+     *
      * @param tx Transaction
      */
     private void rollbackTransaction(Transaction tx) {
@@ -162,6 +153,7 @@ public class ClsChannelWorker extends Thread {
 
     /**
      * Commit transaction if it exists.
+     *
      * @param tx Transaction
      */
     private void commitTransaction(Transaction tx) {
@@ -170,5 +162,4 @@ public class ClsChannelWorker extends Thread {
             tx.close();
         }
     }
-
 }

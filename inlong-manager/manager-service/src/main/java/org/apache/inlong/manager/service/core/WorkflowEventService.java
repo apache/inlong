@@ -23,9 +23,7 @@ import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Workflow event related services
- */
+/** Workflow event related services */
 public interface WorkflowEventService {
 
     /**
@@ -82,5 +80,4 @@ public interface WorkflowEventService {
      * @param taskEvent WorkflowTask event
      */
     void triggerTaskEvent(Integer taskId, TaskEvent taskEvent);
-
 }

@@ -21,10 +21,7 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.ByteUtil;
 
-/**
- * filter message to get stream id
- * use the first word to set stream id string
- */
+/** filter message to get stream id use the first word to set stream id string */
 public class DefaultMessageFilter implements MessageFilter {
 
     public static final int STREAM_INDEX = 0;

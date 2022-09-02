@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.hbase;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-
-/**
- * HBase column family info
- */
+/** HBase column family info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -47,9 +44,7 @@ public class HBaseColumnFamilyInfo {
     @ApiModelProperty("Column family ttl")
     private Integer ttl;
 
-    /**
-     * Get the extra param from the Json
-     */
+    /** Get the extra param from the Json */
     public static HBaseColumnFamilyInfo getFromJson(@NotNull String extParams) {
         if (StringUtils.isEmpty(extParams)) {
             return new HBaseColumnFamilyInfo();
@@ -58,8 +53,8 @@ public class HBaseColumnFamilyInfo {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, HBaseColumnFamilyInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

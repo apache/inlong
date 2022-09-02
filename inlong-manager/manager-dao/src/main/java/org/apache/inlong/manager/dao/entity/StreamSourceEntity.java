@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.util.MaskDataUtils;
 
-/**
- * Stream source entity, including source type, source name, etc.
- */
+/** Stream source entity, including source type, source name, etc. */
 @Data
 public class StreamSourceEntity implements Serializable {
 
@@ -66,28 +63,64 @@ public class StreamSourceEntity implements Serializable {
             extParams = buffer.toString();
         }
         return "StreamSourceEntity{"
-                + "id=" + id
-                + ", inlongGroupId='" + inlongGroupId + '\''
-                + ", inlongStreamId='" + inlongStreamId + '\''
-                + ", sourceType='" + sourceType + '\''
-                + ", sourceName='" + sourceName + '\''
-                + ", templateId=" + templateId
-                + ", agentIp='" + agentIp + '\''
-                + ", uuid='" + uuid + '\''
-                + ", dataNodeName='" + dataNodeName + '\''
-                + ", inlongClusterName='" + inlongClusterName + '\''
-                + ", serializationType='" + serializationType + '\''
-                + ", snapshot='" + snapshot + '\''
-                + ", reportTime=" + reportTime
-                + ", extParams='" + extParams + '\''
-                + ", version=" + version
-                + ", status=" + status
-                + ", previousStatus=" + previousStatus
-                + ", isDeleted=" + isDeleted
-                + ", creator='" + creator + '\''
-                + ", modifier='" + modifier + '\''
-                + ", createTime=" + createTime + '\''
-                + ", modifyTime=" + modifyTime
+                + "id="
+                + id
+                + ", inlongGroupId='"
+                + inlongGroupId
+                + '\''
+                + ", inlongStreamId='"
+                + inlongStreamId
+                + '\''
+                + ", sourceType='"
+                + sourceType
+                + '\''
+                + ", sourceName='"
+                + sourceName
+                + '\''
+                + ", templateId="
+                + templateId
+                + ", agentIp='"
+                + agentIp
+                + '\''
+                + ", uuid='"
+                + uuid
+                + '\''
+                + ", dataNodeName='"
+                + dataNodeName
+                + '\''
+                + ", inlongClusterName='"
+                + inlongClusterName
+                + '\''
+                + ", serializationType='"
+                + serializationType
+                + '\''
+                + ", snapshot='"
+                + snapshot
+                + '\''
+                + ", reportTime="
+                + reportTime
+                + ", extParams='"
+                + extParams
+                + '\''
+                + ", version="
+                + version
+                + ", status="
+                + status
+                + ", previousStatus="
+                + previousStatus
+                + ", isDeleted="
+                + isDeleted
+                + ", creator='"
+                + creator
+                + '\''
+                + ", modifier='"
+                + modifier
+                + '\''
+                + ", createTime="
+                + createTime
+                + '\''
+                + ", modifyTime="
+                + modifyTime
                 + '}';
     }
 }

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.source.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -33,16 +34,11 @@ import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * kafka stream source operator
- */
+/** kafka stream source operator */
 @Service
 public class KafkaSourceOperator extends AbstractSourceOperator {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -62,7 +58,8 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -81,5 +78,4 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
         source.setFieldList(sourceFields);
         return source;
     }
-
 }

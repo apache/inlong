@@ -23,9 +23,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * The approval form of the consumption
- */
+/** The approval form of the consumption */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ConsumptionApproveForm extends BaseTaskForm {

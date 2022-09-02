@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * Basic config for a single job
- */
+/** Basic config for a single job */
 public class JobConstants extends CommonConstants {
 
     // job id
@@ -44,7 +42,7 @@ public class JobConstants extends CommonConstants {
     public static final String DEFAULT_JOB_DESCRIPTION = "default job description";
     public static final String DEFAULT_JOB_LINE_FILTER = "";
 
-    //File job
+    // File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";
     public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
@@ -61,7 +59,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_MONITOR_STATUS = "job.fileJob.monitorStatus";
     public static final String JOB_FILE_MONITOR_EXPIRE = "job.fileJob.monitorExpire";
 
-    //Binlog job
+    // Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
@@ -71,15 +69,17 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
 
     public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
-    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogJob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS =
+            "job.binlogJob.offset.intervalMs";
 
-    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogJob.history.filename";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME =
+            "job.binlogJob.history.filename";
     public static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.binlogJob.schema";
     public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
     public static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
     public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
-    //Kafka job
+    // Kafka job
     public static final String JOB_KAFKA_TOPIC = "job.kafkaJob.topic";
     public static final String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkaJob.bootstrap.servers";
     public static final String JOB_KAFKA_GROUP_ID = "job.kafkaJob.group.id";
@@ -124,38 +124,26 @@ public class JobConstants extends CommonConstants {
     // job time reading file
     public static final String JOB_DATA_TIME = "job.dataTime";
 
-    /**
-     * when job is retried, the retry time should be provided
-     */
+    /** when job is retried, the retry time should be provided */
     public static final String JOB_RETRY_TIME = "job.retryTime";
 
-    /**
-     * delimiter to split offset for different task
-     */
+    /** delimiter to split offset for different task */
     public static final String JOB_OFFSET_DELIMITER = "_";
 
-    /**
-     * delimiter to split all partition offset for all kafka tasks
-     */
+    /** delimiter to split all partition offset for all kafka tasks */
     public static final String JOB_KAFKA_PARTITION_OFFSET_DELIMITER = "#";
 
-    /**
-     * sync send data when sending to DataProxy
-     */
+    /** sync send data when sending to DataProxy */
     public static final int SYNC_SEND_OPEN = 1;
 
     public static final String INTERVAL_MILLISECONDS = "500";
 
-    /**
-     * monitor switch, 1 true and 0 false
-     */
+    /** monitor switch, 1 true and 0 false */
     public static final String JOB_FILE_MONITOR_DEFAULT_STATUS = "1";
 
     /**
-     * monitor expire time and the time in milliseconds.
-     * default value is -1 and stand for not expire time.
+     * monitor expire time and the time in milliseconds. default value is -1 and stand for not
+     * expire time.
      */
     public static final String JOB_FILE_MONITOR_DEFAULT_EXPIRE = "-1";
-
-
 }

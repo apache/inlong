@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.utils;
 
 import com.google.protobuf.ByteString;
@@ -29,9 +26,7 @@ import org.apache.inlong.tubemq.corebase.utils.MessageFlagUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 
-/**
- * Storage util. Used for data and index file storage format.
- */
+/** Storage util. Used for data and index file storage format. */
 public class DataStoreUtils {
     // Data storage format definition
 
@@ -85,8 +80,8 @@ public class DataStoreUtils {
     public static final int MAX_MSG_DATA_STORE_SIZE =
             TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
                     + TBaseConstants.META_MB_UNIT_SIZE * 8;
-    public static final int STORE_MAX_MESSAGE_STORE_LEN
-            = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
+    public static final int STORE_MAX_MESSAGE_STORE_LEN =
+            STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 
     public static final String DATA_FILE_SUFFIX = ".tube";
     public static final String INDEX_FILE_SUFFIX = ".index";
@@ -106,26 +101,25 @@ public class DataStoreUtils {
     /**
      * Convert inner message to protobuf format, then reply to client.
      *
-     * @param dataBuffer      the raw stored data
-     * @param dataTotalSize   the data size
-     * @param countMap        the statistics map
-     * @param statisKeyBase   the statistics key prefix
-     * @param sBuilder        the string buffer
-     * @return                the converted messages
+     * @param dataBuffer the raw stored data
+     * @param dataTotalSize the data size
+     * @param countMap the statistics map
+     * @param statisKeyBase the statistics key prefix
+     * @param sBuilder the string buffer
+     * @return the converted messages
      */
-    public static ClientBroker.TransferedMessage getTransferMsg(ByteBuffer dataBuffer, int dataTotalSize,
-                                                                HashMap<String, TrafficInfo> countMap,
-                                                                String statisKeyBase,
-                                                                StringBuilder sBuilder) {
+    public static ClientBroker.TransferedMessage getTransferMsg(
+            ByteBuffer dataBuffer,
+            int dataTotalSize,
+            HashMap<String, TrafficInfo> countMap,
+            String statisKeyBase,
+            StringBuilder sBuilder) {
         if (dataBuffer.array().length < dataTotalSize) {
             return null;
         }
-        final int msgLen =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_LENGTH);
-        final int msgToken =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_DATATYPE);
-        final int checkSum =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_CHECKSUM);
+        final int msgLen = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_LENGTH);
+        final int msgToken = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_DATATYPE);
+        final int checkSum = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_CHECKSUM);
         int payLoadLen = msgLen - DataStoreUtils.STORE_DATA_PREFX_LEN;
         int payLoadOffset = DataStoreUtils.STORE_DATA_HEADER_LEN;
         if ((msgToken != DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE)
@@ -184,8 +178,7 @@ public class DataStoreUtils {
                 }
             }
         }
-        String baseKey = sBuilder.append(statisKeyBase)
-                .append("#").append(messageTime).toString();
+        String baseKey = sBuilder.append(statisKeyBase).append("#").append(messageTime).toString();
         sBuilder.delete(0, sBuilder.length());
         TrafficInfo getCount = countMap.get(baseKey);
         if (getCount == null) {

@@ -18,7 +18,16 @@
 
 package org.apache.inlong.sort.cdc.sqlserver.table;
 
+import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
+import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -27,16 +36,6 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
-
-import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
-import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
-import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /** Factory for creating configured instance of {@link SqlServerTableSource}. */
 public class SqlServerTableFactory implements DynamicTableSourceFactory {
@@ -134,7 +133,8 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-            inlongMetric, auditHostAndPorts);
+                inlongMetric,
+                auditHostAndPorts);
     }
 
     @Override

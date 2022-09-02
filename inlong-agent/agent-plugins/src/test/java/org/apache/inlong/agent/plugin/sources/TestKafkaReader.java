@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.MockConsumer;
@@ -25,16 +29,12 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-
 public class TestKafkaReader {
 
     @Test
     public void testKafkaConsumerInit() {
-        MockConsumer<String, String> mockConsumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
+        MockConsumer<String, String> mockConsumer =
+                new MockConsumer<>(OffsetResetStrategy.EARLIEST);
         final String topic = "my_topic";
 
         mockConsumer.assign(Collections.singletonList(new TopicPartition(topic, 0)));
@@ -49,5 +49,4 @@ public class TestKafkaReader {
             Assert.assertArrayEquals("test_value".getBytes(StandardCharsets.UTF_8), recordValue);
         }
     }
-
 }

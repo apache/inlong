@@ -94,10 +94,14 @@ public class MessagesTest {
         // case 1
         Throwable exVal = null;
         String msgTime;
-        Message message1 = new MessageExt(0, "test", "test case".getBytes(),
-                "$msgType$=streamId1,$msgTime$=202201151799,key2=value2", 1);
+        Message message1 =
+                new MessageExt(
+                        0,
+                        "test",
+                        "test case".getBytes(),
+                        "$msgType$=streamId1,$msgTime$=202201151799,key2=value2",
+                        1);
         msgTime = message1.getMsgTime();
         Assert.assertEquals(msgTime, TStringUtils.EMPTY);
-
     }
 }

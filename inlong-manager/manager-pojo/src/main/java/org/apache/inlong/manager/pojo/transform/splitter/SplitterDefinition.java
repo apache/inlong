@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.transform.splitter;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,19 +26,13 @@ import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
-import java.util.List;
-
-/**
- * A class to define operation to split fields according to SplitRule defined.
- */
+/** A class to define operation to split fields according to SplitRule defined. */
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
 public class SplitterDefinition extends TransformDefinition {
 
-    /**
-     * Split rules for transform;
-     */
+    /** Split rules for transform; */
     private List<SplitRule> splitRules;
 
     public SplitterDefinition(List<SplitRule> splitRules) {
@@ -46,26 +41,22 @@ public class SplitterDefinition extends TransformDefinition {
     }
 
     /**
-     * SplitterRule is aim to define a splitter action below:
-     * SourceField will be split to targetFields by separator
+     * SplitterRule is aim to define a splitter action below: SourceField will be split to
+     * targetFields by separator
      */
     @Data
     @AllArgsConstructor
     public static class SplitRule {
 
-        /**
-         * Field to split
-         */
+        /** Field to split */
         private StreamField sourceField;
 
-        /**
-         * String separator to split sourceField
-         */
+        /** String separator to split sourceField */
         private String separator;
 
         /**
-         * Fields generated when sourceField is split.
-         * Use sourceName_0, sourceName_1, sourceName_2 if not set
+         * Fields generated when sourceField is split. Use sourceName_0, sourceName_1, sourceName_2
+         * if not set
          */
         private List<String> targetFields;
     }

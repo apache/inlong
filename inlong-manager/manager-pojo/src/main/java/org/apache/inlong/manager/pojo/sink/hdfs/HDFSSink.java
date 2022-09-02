@@ -19,20 +19,17 @@ package org.apache.inlong.manager.pojo.sink.hdfs;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import java.util.List;
-
-/**
- * HDFS sink info
- */
+/** HDFS sink info */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

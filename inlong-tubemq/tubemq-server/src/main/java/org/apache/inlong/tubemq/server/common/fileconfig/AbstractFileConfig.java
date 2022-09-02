@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
 import java.io.File;
@@ -45,8 +42,7 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_META_AUDIT = "audit";
     protected static final String SECT_TOKEN_META_PROMETHEUS = "prometheus";
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(AbstractFileConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFileConfig.class);
     private String basePath;
     private String configPath;
     private long loadFileChkSum = -1;
@@ -82,19 +78,17 @@ public abstract class AbstractFileConfig {
         load();
     }
 
-    /**
-     * reload the configuration file.
-     */
+    /** reload the configuration file. */
     public void reload() {
         load();
     }
 
     /**
-     * Get integer configuration value from a specific section with key. It returns a default value if no value
-     * is found in the section of the file.
+     * Get integer configuration value from a specific section with key. It returns a default value
+     * if no value is found in the section of the file.
      *
-     * @param section      the section of the key/value comes from.
-     * @param key          the key of the configuration
+     * @param section the section of the key/value comes from.
+     * @param key the key of the configuration
      * @param defaultValue the default value if no value is found in the specific section
      * @return the integer value of the specific key
      */
@@ -116,21 +110,26 @@ public abstract class AbstractFileConfig {
      * Get integer configuration value from a specific section in the config file.
      *
      * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
+     * @param key the key of the configuration
      * @return the integer value of the configuration, if no value is found, it throws NPE
      */
     public int getInt(final Profile.Section section, final String key) {
         final String value = section.get(key);
         if (TStringUtils.isBlank(value)) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Blank value for ").append(key).toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256).append("Blank value for ").append(key).toString());
         } else {
             try {
                 return Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("Translate key(").append(key).append(")'s value ")
-                        .append(value).append(" to int failure!").toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("Translate key(")
+                                .append(key)
+                                .append(")'s value ")
+                                .append(value)
+                                .append(" to int failure!")
+                                .toString());
             }
         }
     }
@@ -139,21 +138,26 @@ public abstract class AbstractFileConfig {
      * Get boolean configuration value from a specific section in the config file.
      *
      * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
+     * @param key the key of the configuration
      * @return the boolean value of the configuration, if no value is found, it throws NPE
      */
     public boolean getBoolean(final Profile.Section section, final String key) {
         final String value = section.get(key);
         if (TStringUtils.isBlank(value)) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Blank value for ").append(key).toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256).append("Blank value for ").append(key).toString());
         } else {
             try {
                 return Boolean.parseBoolean(value);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("Translate key(").append(key).append(")'s value ")
-                        .append(value).append(" to boolean failure!").toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("Translate key(")
+                                .append(key)
+                                .append(")'s value ")
+                                .append(value)
+                                .append(" to boolean failure!")
+                                .toString());
             }
         }
     }
@@ -162,41 +166,51 @@ public abstract class AbstractFileConfig {
      * Get long configuration value from a specific section in the config file.
      *
      * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
+     * @param key the key of the configuration
      * @return the long value of the configuration, if no value is found, it throws NPE
      */
     public long getLong(final Profile.Section section, final String key) {
         final String value = section.get(key);
         if (TStringUtils.isBlank(value)) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Blank value for ").append(key).toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256).append("Blank value for ").append(key).toString());
         } else {
             try {
                 return Long.parseLong(value);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("Translate key(").append(key).append(")'s value ")
-                        .append(value).append(" to long failure!").toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("Translate key(")
+                                .append(key)
+                                .append(")'s value ")
+                                .append(value)
+                                .append(" to long failure!")
+                                .toString());
             }
         }
     }
 
     /**
-     * Retrieve similar configurations within a set of specific configurations according to the given configuration.
+     * Retrieve similar configurations within a set of specific configurations according to the
+     * given configuration.
      *
-     * @param section      the section within file to be searched.
+     * @param section the section within file to be searched.
      * @param configFields the set of configurations to be searched.
-     * @param checkItem    the given configuration to be compared.
+     * @param checkItem the given configuration to be compared.
      */
-
     public void getSimilarConfigField(String section, Set<String> configFields, String checkItem) {
         if (!configFields.contains(checkItem)) {
             String best = this.findBestMatchField(configFields, checkItem);
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Config item ").append(checkItem)
-                    .append(" is Required! in section ").append(section)
-                    .append("! (a similar item :").append(best)
-                    .append(" found)").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256)
+                            .append("Config item ")
+                            .append(checkItem)
+                            .append(" is Required! in section ")
+                            .append(section)
+                            .append("! (a similar item :")
+                            .append(best)
+                            .append(" found)")
+                            .toString());
         }
     }
 
@@ -248,14 +262,20 @@ public abstract class AbstractFileConfig {
     protected ZKConfig loadZKeeperSectConf(final Ini iniConf) {
         final Profile.Section zkeeperSect = iniConf.get(SECT_TOKEN_ZKEEPER);
         if (zkeeperSect == null) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append(SECT_TOKEN_ZKEEPER).append(" configure section is required!").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256)
+                            .append(SECT_TOKEN_ZKEEPER)
+                            .append(" configure section is required!")
+                            .toString());
         }
         Set<String> configKeySet = zkeeperSect.keySet();
         if (configKeySet.isEmpty()) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Empty configure item in ").append(SECT_TOKEN_ZKEEPER)
-                    .append(" section!").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256)
+                            .append("Empty configure item in ")
+                            .append(SECT_TOKEN_ZKEEPER)
+                            .append(" section!")
+                            .toString());
         }
         ZKConfig zkConfig = new ZKConfig();
         if (TStringUtils.isNotBlank(zkeeperSect.get("zkServerAddr"))) {
@@ -303,8 +323,7 @@ public abstract class AbstractFileConfig {
                 throw new IllegalArgumentException(
                         "Illegal parameter: auditProxyAddr's value must like \"ip1:port,ip2:port\"!");
             }
-            String[] hostAndPortArray =
-                    auditProxyAddrs.split(TokenConstants.ARRAY_SEP);
+            String[] hostAndPortArray = auditProxyAddrs.split(TokenConstants.ARRAY_SEP);
             for (String addr : hostAndPortArray) {
                 if (TStringUtils.isBlank(addr)) {
                     throw new IllegalArgumentException(
@@ -376,11 +395,16 @@ public abstract class AbstractFileConfig {
     @Override
     public String toString() {
         return new StringBuilder(512)
-                .append("\"loadFileAttr\":{\"basePath\":\"").append(basePath)
-                .append("\",\"configPath\":\"").append(configPath)
-                .append("\",\"loadFileChkSum\":").append(loadFileChkSum)
-                .append(",\"loadFileModified\":").append(loadFileModified)
-                .append("}").toString();
+                .append("\"loadFileAttr\":{\"basePath\":\"")
+                .append(basePath)
+                .append("\",\"configPath\":\"")
+                .append(configPath)
+                .append("\",\"loadFileChkSum\":")
+                .append(loadFileChkSum)
+                .append(",\"loadFileModified\":")
+                .append(loadFileModified)
+                .append("}")
+                .toString();
     }
 
     protected abstract void loadFileSectAttributes(Ini iniConf);
@@ -406,16 +430,23 @@ public abstract class AbstractFileConfig {
         try {
             final File file = new File(configPath);
             if (!file.exists()) {
-                throw new StartupException(new StringBuilder(256).append("File ")
-                        .append(configPath).append(" is not exists").toString());
+                throw new StartupException(
+                        new StringBuilder(256)
+                                .append("File ")
+                                .append(configPath)
+                                .append(" is not exists")
+                                .toString());
             }
             basePath = file.getParent() == null ? "" : file.getParent();
             final Ini iniConf = this.createIni(file);
             this.loadConfigAttributes(iniConf);
         } catch (final IOException e) {
-            throw new StartupException(new StringBuilder(256)
-                    .append("Parse configuration failed,path=")
-                    .append(configPath).toString(), e);
+            throw new StartupException(
+                    new StringBuilder(256)
+                            .append("Parse configuration failed,path=")
+                            .append(configPath)
+                            .toString(),
+                    e);
         }
     }
 
@@ -425,5 +456,4 @@ public abstract class AbstractFileConfig {
         this.loadFileChkSum = FileUtils.checksumCRC32(file);
         return conf;
     }
-
 }

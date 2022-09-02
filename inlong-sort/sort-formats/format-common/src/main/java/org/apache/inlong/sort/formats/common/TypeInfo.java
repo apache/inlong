@@ -18,35 +18,30 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import java.io.Serializable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.io.Serializable;
-
-/**
- * The type information for data types.
- */
+/** The type information for data types. */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(name = "string", value = StringTypeInfo.class),
-        @JsonSubTypes.Type(name = "boolean", value = BooleanTypeInfo.class),
-        @JsonSubTypes.Type(name = "byte", value = ByteTypeInfo.class),
-        @JsonSubTypes.Type(name = "short", value = ShortTypeInfo.class),
-        @JsonSubTypes.Type(name = "int", value = IntTypeInfo.class),
-        @JsonSubTypes.Type(name = "long", value = LongTypeInfo.class),
-        @JsonSubTypes.Type(name = "float", value = FloatTypeInfo.class),
-        @JsonSubTypes.Type(name = "double", value = DoubleTypeInfo.class),
-        @JsonSubTypes.Type(name = "decimal", value = DecimalTypeInfo.class),
-        @JsonSubTypes.Type(name = "time", value = TimeTypeInfo.class),
-        @JsonSubTypes.Type(name = "date", value = DateTypeInfo.class),
-        @JsonSubTypes.Type(name = "timestamp", value = TimestampTypeInfo.class),
-        @JsonSubTypes.Type(name = "array", value = ArrayTypeInfo.class),
-        @JsonSubTypes.Type(name = "map", value = MapTypeInfo.class),
-        @JsonSubTypes.Type(name = "row", value = RowTypeInfo.class),
-        @JsonSubTypes.Type(name = "binary", value = BinaryTypeInfo.class),
-        @JsonSubTypes.Type(name = "null", value = NullTypeInfo.class),
-        @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampTypeInfo.class)
+    @JsonSubTypes.Type(name = "string", value = StringTypeInfo.class),
+    @JsonSubTypes.Type(name = "boolean", value = BooleanTypeInfo.class),
+    @JsonSubTypes.Type(name = "byte", value = ByteTypeInfo.class),
+    @JsonSubTypes.Type(name = "short", value = ShortTypeInfo.class),
+    @JsonSubTypes.Type(name = "int", value = IntTypeInfo.class),
+    @JsonSubTypes.Type(name = "long", value = LongTypeInfo.class),
+    @JsonSubTypes.Type(name = "float", value = FloatTypeInfo.class),
+    @JsonSubTypes.Type(name = "double", value = DoubleTypeInfo.class),
+    @JsonSubTypes.Type(name = "decimal", value = DecimalTypeInfo.class),
+    @JsonSubTypes.Type(name = "time", value = TimeTypeInfo.class),
+    @JsonSubTypes.Type(name = "date", value = DateTypeInfo.class),
+    @JsonSubTypes.Type(name = "timestamp", value = TimestampTypeInfo.class),
+    @JsonSubTypes.Type(name = "array", value = ArrayTypeInfo.class),
+    @JsonSubTypes.Type(name = "map", value = MapTypeInfo.class),
+    @JsonSubTypes.Type(name = "row", value = RowTypeInfo.class),
+    @JsonSubTypes.Type(name = "binary", value = BinaryTypeInfo.class),
+    @JsonSubTypes.Type(name = "null", value = NullTypeInfo.class),
+    @JsonSubTypes.Type(name = "local_zoned_timestamp", value = LocalZonedTimestampTypeInfo.class)
 })
-public interface TypeInfo extends Serializable {
-
-}
+public interface TypeInfo extends Serializable {}

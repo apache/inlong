@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -39,51 +41,39 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-/**
- * Test class for rest template config.
- */
+/** Test class for rest template config. */
 @Data
 @Configuration
 @ConditionalOnMissingBean(RestTemplate.class)
 public class RestTemplateConfig {
 
-    /**
-     * Max total
-     */
+    /** Max total */
     private final int maxTotal = 5000;
-    /**
-     * Concurrency
-     */
+    /** Concurrency */
     private final int defaultMaxPerRoute = 2000;
 
     private final int validateAfterInactivity = 5000;
 
-    /**
-     * Time to connect to the server (successful handshake), timeout throws connect timeout
-     */
+    /** Time to connect to the server (successful handshake), timeout throws connect timeout */
     private final int connectionTimeout = 3000;
-    /**
-     * The time for the server to return data (response), timeout throws read timeout
-     */
+    /** The time for the server to return data (response), timeout throws read timeout */
     private final int readTimeout = 10000;
     /**
-     * Get the timeout time of the connection from the connection pool,
-     * and throw ConnectionPoolTimeoutException when timeout
+     * Get the timeout time of the connection from the connection pool, and throw
+     * ConnectionPoolTimeoutException when timeout
      */
     private final int connectionRequestTimeout = 3000;
 
     @Bean
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
         // Support HTTP, HTTPS
-        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", SSLConnectionSocketFactory.getSocketFactory())
-                .build();
-        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(
-                registry);
+        Registry<ConnectionSocketFactory> registry =
+                RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                        .register("https", SSLConnectionSocketFactory.getSocketFactory())
+                        .build();
+        PoolingHttpClientConnectionManager httpClientConnectionManager =
+                new PoolingHttpClientConnectionManager(registry);
         httpClientConnectionManager.setMaxTotal(maxTotal);
         httpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
         httpClientConnectionManager.setValidateAfterInactivity(validateAfterInactivity);
@@ -102,7 +92,8 @@ public class RestTemplateConfig {
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         // httpClient connection configuration
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient());
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(httpClient());
         // Time to connect to the server (successful handshake), timeout throws connect timeout
         factory.setConnectTimeout(connectionTimeout);
         // The time for the server to return data (response), timeout throws read timeout
@@ -137,15 +128,14 @@ public class RestTemplateConfig {
 
     public static class CustomConnectionKeepAliveStrategy implements ConnectionKeepAliveStrategy {
 
-        public static CustomConnectionKeepAliveStrategy INSTANCE = new CustomConnectionKeepAliveStrategy();
+        public static CustomConnectionKeepAliveStrategy INSTANCE =
+                new CustomConnectionKeepAliveStrategy();
 
-        private CustomConnectionKeepAliveStrategy() {
-        }
+        private CustomConnectionKeepAliveStrategy() {}
 
         @Override
         public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
             return 30 * 1000;
         }
     }
-
 }

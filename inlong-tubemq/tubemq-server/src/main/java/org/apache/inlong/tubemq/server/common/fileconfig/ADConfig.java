@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
 import java.util.Arrays;
@@ -26,8 +23,7 @@ public class ADConfig {
     // whether to enable data report by audit sdk
     private boolean auditEnable = false;
     // audit proxy server addresses
-    private HashSet<String> auditProxyAddrSet =
-            new HashSet<>(Arrays.asList("127.0.0.1:10081"));
+    private HashSet<String> auditProxyAddrSet = new HashSet<>(Arrays.asList("127.0.0.1:10081"));
     // file path for audit cache data
     private String auditCacheFilePath = "/data/inlong/audit";
     // max cache records for audit cache
@@ -37,9 +33,7 @@ public class ADConfig {
     // audit id for consumption
     private int auditIdConsume = 10;
 
-    public ADConfig() {
-
-    }
+    public ADConfig() {}
 
     public boolean isAuditEnable() {
         return auditEnable;
@@ -100,12 +94,19 @@ public class ADConfig {
 
     public String toString() {
         return new StringBuilder(512)
-                .append("\"ADConfig\":{\"auditEnable\":").append(auditEnable)
-                .append(",\"auditProxyAddr\":\"").append(auditProxyAddrSet)
-                .append("\",\"auditCacheFilePath\":\"").append(auditCacheFilePath)
-                .append("\",\"auditCacheMaxRows\":").append(auditCacheMaxRows)
-                .append(",\"auditIdProduce\":").append(auditIdProduce)
-                .append(",\"auditIdConsume\":").append(auditIdConsume)
-                .append("}").toString();
+                .append("\"ADConfig\":{\"auditEnable\":")
+                .append(auditEnable)
+                .append(",\"auditProxyAddr\":\"")
+                .append(auditProxyAddrSet)
+                .append("\",\"auditCacheFilePath\":\"")
+                .append(auditCacheFilePath)
+                .append("\",\"auditCacheMaxRows\":")
+                .append(auditCacheMaxRows)
+                .append(",\"auditIdProduce\":")
+                .append(auditIdProduce)
+                .append(",\"auditIdConsume\":")
+                .append(auditIdConsume)
+                .append("}")
+                .toString();
     }
 }

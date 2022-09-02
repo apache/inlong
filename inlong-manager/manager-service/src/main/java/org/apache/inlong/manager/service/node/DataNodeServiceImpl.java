@@ -19,6 +19,10 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -36,23 +40,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-/**
- * Data node service layer implementation
- */
+/** Data node service layer implementation */
 @Service
 public class DataNodeServiceImpl implements DataNodeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataNodeServiceImpl.class);
 
-    @Autowired
-    private DataNodeEntityMapper dataNodeMapper;
-    @Autowired
-    private DataNodeOperatorFactory operatorFactory;
+    @Autowired private DataNodeEntityMapper dataNodeMapper;
+    @Autowired private DataNodeOperatorFactory operatorFactory;
 
     @Override
     public Integer save(DataNodeRequest request, String operator) {
@@ -62,7 +57,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         // check if data node already exist
         DataNodeEntity exist = dataNodeMapper.selectByNameAndType(name, type);
         if (exist != null) {
-            String errMsg = String.format("data node already exist for name=%s type=%s)", name, type);
+            String errMsg =
+                    String.format("data node already exist for name=%s type=%s)", name, type);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -91,15 +87,24 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public PageResult<DataNodeInfo> list(DataNodePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
-        List<DataNodeInfo> list = entityPage.stream()
-                .map(entity -> {
-                    DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
-                    return dataNodeOperator.getFromEntity(entity);
-                }).collect(Collectors.toList());
+        Page<DataNodeEntity> entityPage =
+                (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
+        List<DataNodeInfo> list =
+                entityPage.stream()
+                        .map(
+                                entity -> {
+                                    DataNodeOperator dataNodeOperator =
+                                            operatorFactory.getInstance(entity.getType());
+                                    return dataNodeOperator.getFromEntity(entity);
+                                })
+                        .collect(Collectors.toList());
 
-        PageResult<DataNodeInfo> pageResult = new PageResult<>(list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        PageResult<DataNodeInfo> pageResult =
+                new PageResult<>(
+                        list,
+                        entityPage.getTotal(),
+                        entityPage.getPageNum(),
+                        entityPage.getPageSize());
 
         LOGGER.debug("success to list data node by {}", request);
         return pageResult;
@@ -112,7 +117,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity exist = dataNodeMapper.selectByNameAndType(name, type);
         Integer id = request.getId();
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("data node already exist for name=%s type=%s", name, type);
+            String errMsg =
+                    String.format("data node already exist for name=%s type=%s", name, type);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -122,8 +128,10 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
-        String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
-                entity.getName(), entity.getType(), request.getVersion());
+        String errMsg =
+                String.format(
+                        "data node has already updated with name=%s, type=%s, curVersion=%s",
+                        entity.getName(), entity.getType(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -146,8 +154,11 @@ public class DataNodeServiceImpl implements DataNodeService {
         entity.setModifier(operator);
         int rowCount = dataNodeMapper.updateById(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("data node has already updated, data node name={}, type={}, current version ={}",
-                    entity.getName(), entity.getType(), entity.getVersion());
+            LOGGER.error(
+                    "data node has already updated, data node name={}, type={}, current version ={}",
+                    entity.getName(),
+                    entity.getType(),
+                    entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         LOGGER.info("success to delete data node by id={}", id);
@@ -168,13 +179,12 @@ public class DataNodeServiceImpl implements DataNodeService {
         return result;
     }
 
-    /**
-     * Test connection for Hive
-     */
+    /** Test connection for Hive */
     private Boolean testHiveConnection(DataNodeRequest request) {
         String url = request.getUrl();
         Preconditions.checkNotNull(url, "connection url cannot be empty");
-        try (Connection ignored = HiveJdbcUtils.getConnection(url, request.getUsername(), request.getToken())) {
+        try (Connection ignored =
+                HiveJdbcUtils.getConnection(url, request.getUsername(), request.getToken())) {
             LOGGER.info("hive connection not null - connection success");
             return true;
         } catch (Exception e) {
@@ -182,5 +192,4 @@ public class DataNodeServiceImpl implements DataNodeService {
             return false;
         }
     }
-
 }

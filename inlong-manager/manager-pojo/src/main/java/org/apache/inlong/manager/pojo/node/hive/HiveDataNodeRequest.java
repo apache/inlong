@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-/**
- * Hive data node request
- */
+/** Hive data node request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -42,7 +40,8 @@ public class HiveDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
+    @ApiModelProperty(
+            "Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
     @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
@@ -57,5 +56,4 @@ public class HiveDataNodeRequest extends DataNodeRequest {
     public HiveDataNodeRequest() {
         this.setType(DataNodeType.HIVE);
     }
-
 }

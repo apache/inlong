@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.source.pulsar;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * Pulsar source information data transfer object
- */
+/** Pulsar source information data transfer object */
 @Data
 @Builder
 @AllArgsConstructor
@@ -68,17 +65,16 @@ public class PulsarSourceDTO {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty("Configure the Source's startup mode. "
-            + "Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @ApiModelProperty(
+            "Configure the Source's startup mode. "
+                    + "Available options are earliest, latest, external-subscription, and specific-offsets.")
     @Builder.Default
     private String scanStartupMode = "earliest";
 
     @ApiModelProperty("Properties for Pulsar")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static PulsarSourceDTO getFromRequest(PulsarSourceRequest request) {
         return PulsarSourceDTO.builder()
                 .adminUrl(request.getAdminUrl())
@@ -97,8 +93,8 @@ public class PulsarSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, PulsarSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

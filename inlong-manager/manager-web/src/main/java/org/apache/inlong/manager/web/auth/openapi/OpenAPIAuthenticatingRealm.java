@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.web.auth.openapi;
 
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.UserService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -28,11 +29,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 
-import java.util.Date;
-
-/**
- * Open api client authorization.
- */
+/** Open api client authorization. */
 @Slf4j
 public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
 
@@ -42,9 +39,7 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
         this.userService = userService;
     }
 
-    /**
-     * Get open api authentication info
-     */
+    /** Get open api authentication info */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
             throws AuthenticationException {
@@ -54,8 +49,10 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
         Preconditions.checkNotNull(userInfo, "User doesn't exist");
         Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "user has expired");
         try {
-            String secretKey = new String(
-                    AESUtils.decryptAsString(userInfo.getSecretKey(), userInfo.getEncryptVersion()));
+            String secretKey =
+                    new String(
+                            AESUtils.decryptAsString(
+                                    userInfo.getSecretKey(), userInfo.getEncryptVersion()));
             return new SimpleAuthenticationInfo(username, secretKey, getName());
         } catch (Exception e) {
             log.error("decrypt secret key fail: ", e);
@@ -66,5 +63,4 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
     public boolean supports(AuthenticationToken token) {
         return token instanceof SecretToken;
     }
-
 }

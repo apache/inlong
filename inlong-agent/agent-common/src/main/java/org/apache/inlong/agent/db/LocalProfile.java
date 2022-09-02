@@ -17,10 +17,6 @@
 
 package org.apache.inlong.agent.db;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,10 +24,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * profile from local file
- */
+/** profile from local file */
 public class LocalProfile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalProfile.class);

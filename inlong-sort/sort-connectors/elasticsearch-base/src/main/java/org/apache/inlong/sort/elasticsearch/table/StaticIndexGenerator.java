@@ -21,7 +21,6 @@ package org.apache.inlong.sort.elasticsearch.table;
 import org.apache.flink.table.data.RowData;
 
 /** A static {@link IndexGenerator} which generate fixed index name. */
-
 public final class StaticIndexGenerator extends IndexGeneratorBase {
 
     public StaticIndexGenerator(String index) {

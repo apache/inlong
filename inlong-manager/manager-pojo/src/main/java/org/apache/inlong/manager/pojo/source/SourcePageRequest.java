@@ -19,15 +19,12 @@ package org.apache.inlong.manager.pojo.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import javax.validation.constraints.NotBlank;
-
-/**
- * Paging query request for Source
- */
+/** Paging query request for Source */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Paging query request for Source")
@@ -48,5 +45,4 @@ public class SourcePageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Status")
     private Integer status;
-
 }

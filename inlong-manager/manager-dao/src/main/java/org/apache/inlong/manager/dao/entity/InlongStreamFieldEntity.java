@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * Inlong stream field entity, including inlong gourp id, inlong stream id, etc.
- */
+/** Inlong stream field entity, including inlong gourp id, inlong stream id, etc. */
 @Data
 public class InlongStreamFieldEntity implements Serializable {
 
@@ -42,5 +39,4 @@ public class InlongStreamFieldEntity implements Serializable {
     private String fieldFormat;
     private Short rankNum;
     private Integer isDeleted;
-
 }

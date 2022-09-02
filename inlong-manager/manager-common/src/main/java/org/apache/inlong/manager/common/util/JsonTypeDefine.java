@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.util;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,14 +32,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface JsonTypeDefine {
 
-    /**
-     * Value of the type
-     */
+    /** Value of the type */
     String value() default "";
 
-    /**
-     * Description of the type
-     */
+    /** Description of the type */
     String desc() default "";
-
 }

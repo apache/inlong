@@ -18,18 +18,15 @@
 package org.apache.inlong.manager.pojo.workflow.form.task;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.List;
-
-/**
- * The approval form of the inlong group
- */
+/** The approval form of the inlong group */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class InlongGroupApproveForm extends BaseTaskForm {
@@ -39,7 +36,8 @@ public class InlongGroupApproveForm extends BaseTaskForm {
     @ApiModelProperty(value = "Inlong group approve info", required = true)
     private InlongGroupApproveRequest groupApproveInfo;
 
-    @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
+    @ApiModelProperty(
+            value = "All inlong stream info under the inlong group, including the sink info")
     private List<InlongStreamApproveRequest> streamApproveInfoList;
 
     @Override
@@ -51,5 +49,4 @@ public class InlongGroupApproveForm extends BaseTaskForm {
     public String getFormName() {
         return FORM_NAME;
     }
-
 }

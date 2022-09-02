@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import java.util.Date;
+import javax.annotation.Resource;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
@@ -30,13 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.annotation.Resource;
-import java.util.Date;
-
 class DataNodeControllerTest extends WebBaseTest {
 
-    @Resource
-    DataNodeEntityMapper dataNodeEntityMapper;
+    @Resource DataNodeEntityMapper dataNodeEntityMapper;
 
     HiveDataNodeRequest getHiveDataNodeRequest() {
         HiveDataNodeRequest hiveDataNodeRequest = new HiveDataNodeRequest();
@@ -57,7 +55,8 @@ class DataNodeControllerTest extends WebBaseTest {
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getHiveDataNodeRequest());
 
         Response<Integer> response = getResBody(mvcResult, Integer.class);
-        Assertions.assertEquals("Current user [operator] has no permission to access URL", response.getErrMsg());
+        Assertions.assertEquals(
+                "Current user [operator] has no permission to access URL", response.getErrMsg());
     }
 
     @Test
@@ -122,5 +121,4 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertFalse(response.isSuccess());
         Assertions.assertEquals("id: must not be null\n", response.getErrMsg());
     }
-
 }

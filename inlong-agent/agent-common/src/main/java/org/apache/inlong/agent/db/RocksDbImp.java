@@ -17,7 +17,16 @@
 
 package org.apache.inlong.agent.db;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.gson.Gson;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.common.db.CommandEntity;
@@ -34,19 +43,7 @@ import org.rocksdb.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
-
-/**
- * DB implement based on the Rocks DB.
- */
+/** DB implement based on the Rocks DB. */
 public class RocksDbImp implements Db {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RocksDbImp.class);
@@ -73,7 +70,10 @@ public class RocksDbImp implements Db {
     }
 
     private RocksDB initEnv() {
-        String configPath = conf.get(AgentConstants.AGENT_ROCKS_DB_PATH, AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH);
+        String configPath =
+                conf.get(
+                        AgentConstants.AGENT_ROCKS_DB_PATH,
+                        AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH);
         String parentPath = conf.get(AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
         File finalPath = new File(parentPath, configPath);
         storePath = finalPath.getAbsolutePath();
@@ -87,14 +87,23 @@ public class RocksDbImp implements Db {
             columnHandlesMap = new ConcurrentHashMap<>();
             columnDescriptorMap = new ConcurrentHashMap<>();
 
-            final DBOptions dbOptions = new DBOptions().setCreateIfMissing(true).setCreateMissingColumnFamilies(true)
-                    .setWalDir(finalPath.getAbsolutePath()).setStatistics(new Statistics());
+            final DBOptions dbOptions =
+                    new DBOptions()
+                            .setCreateIfMissing(true)
+                            .setCreateMissingColumnFamilies(true)
+                            .setWalDir(finalPath.getAbsolutePath())
+                            .setStatistics(new Statistics());
 
-            final List<ColumnFamilyDescriptor> managedColumnFamilies = loadManagedColumnFamilies(dbOptions);
+            final List<ColumnFamilyDescriptor> managedColumnFamilies =
+                    loadManagedColumnFamilies(dbOptions);
             final List<ColumnFamilyHandle> managedHandles = new ArrayList<>();
 
-            RocksDB rocksDB = RocksDB.open(dbOptions,
-                    finalPath.getAbsolutePath(), managedColumnFamilies, managedHandles);
+            RocksDB rocksDB =
+                    RocksDB.open(
+                            dbOptions,
+                            finalPath.getAbsolutePath(),
+                            managedColumnFamilies,
+                            managedHandles);
 
             for (int index = 0; index < managedHandles.size(); index++) {
                 ColumnFamilyHandle handle = managedHandles.get(index);
@@ -113,7 +122,8 @@ public class RocksDbImp implements Db {
         }
     }
 
-    private List<ColumnFamilyDescriptor> loadManagedColumnFamilies(DBOptions dbOptions) throws RocksDBException {
+    private List<ColumnFamilyDescriptor> loadManagedColumnFamilies(DBOptions dbOptions)
+            throws RocksDBException {
         final List<ColumnFamilyDescriptor> managedColumnFamilies = new ArrayList<>();
         final Options options = new Options(dbOptions, new ColumnFamilyOptions());
         List<byte[]> existing = RocksDB.listColumnFamilies(options, storePath);
@@ -122,27 +132,32 @@ public class RocksDbImp implements Db {
             LOGGER.info("no previous column family found, use default");
             managedColumnFamilies.add(getColumnFamilyDescriptor(RocksDB.DEFAULT_COLUMN_FAMILY));
         } else {
-            LOGGER.info("loading column families :" + existing.stream().map(String::new).collect(Collectors.toList()));
+            LOGGER.info(
+                    "loading column families :"
+                            + existing.stream().map(String::new).collect(Collectors.toList()));
             managedColumnFamilies.addAll(
-                    existing.stream().map(RocksDbImp::getColumnFamilyDescriptor).collect(Collectors.toList()));
+                    existing.stream()
+                            .map(RocksDbImp::getColumnFamilyDescriptor)
+                            .collect(Collectors.toList()));
         }
         return managedColumnFamilies;
     }
 
-    /**
-     * add columnFamilyName
-     */
+    /** add columnFamilyName */
     public void addColumnFamily(String columnFamilyName) {
-        columnDescriptorMap.computeIfAbsent(columnFamilyName, colFamilyName -> {
-            try {
-                ColumnFamilyDescriptor descriptor = getColumnFamilyDescriptor(colFamilyName.getBytes());
-                ColumnFamilyHandle handle = db.createColumnFamily(descriptor);
-                columnHandlesMap.put(colFamilyName, handle);
-                return descriptor;
-            } catch (RocksDBException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        columnDescriptorMap.computeIfAbsent(
+                columnFamilyName,
+                colFamilyName -> {
+                    try {
+                        ColumnFamilyDescriptor descriptor =
+                                getColumnFamilyDescriptor(colFamilyName.getBytes());
+                        ColumnFamilyHandle handle = db.createColumnFamily(descriptor);
+                        columnHandlesMap.put(colFamilyName, handle);
+                        return descriptor;
+                    } catch (RocksDBException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     @Override
@@ -170,7 +185,10 @@ public class RocksDbImp implements Db {
     public CommandEntity putCommand(CommandEntity entity) {
         requireNonNull(entity);
         try {
-            db.put(columnHandlesMap.get(commandFamilyName), entity.getId().getBytes(), GSON.toJson(entity).getBytes());
+            db.put(
+                    columnHandlesMap.get(commandFamilyName),
+                    entity.getId().getBytes(),
+                    GSON.toJson(entity).getBytes());
         } catch (Exception e) {
             throw new RuntimeException("put value to rocks db error", e);
         }
@@ -187,7 +205,10 @@ public class RocksDbImp implements Db {
     public KeyValueEntity put(KeyValueEntity entity) {
         requireNonNull(entity);
         try {
-            db.put(columnHandlesMap.get(defaultFamilyName), entity.getKey().getBytes(), GSON.toJson(entity).getBytes());
+            db.put(
+                    columnHandlesMap.get(defaultFamilyName),
+                    entity.getKey().getBytes(),
+                    GSON.toJson(entity).getBytes());
         } catch (Exception e) {
             throw new RuntimeException("put value to rocks db error", e);
         }
@@ -216,8 +237,10 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
-                if (keyValue.getStateSearchKey().equals(searchKey) && keyValue.getKey().startsWith(keyPrefix)) {
+                KeyValueEntity keyValue =
+                        GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                if (keyValue.getStateSearchKey().equals(searchKey)
+                        && keyValue.getKey().startsWith(keyPrefix)) {
                     results.add(keyValue);
                 }
                 it.next();
@@ -232,7 +255,8 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                KeyValueEntity keyValue =
+                        GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValue.getStateSearchKey().equals(searchKey)) {
                     results.add(keyValue);
                 }
@@ -248,7 +272,8 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(commandFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                CommandEntity commandEntity = GSON.fromJson(new String(it.value()), CommandEntity.class);
+                CommandEntity commandEntity =
+                        GSON.fromJson(new String(it.value()), CommandEntity.class);
                 if (commandEntity.isAcked() == isAcked) {
                     results.add(commandEntity);
                 }
@@ -263,7 +288,8 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                KeyValueEntity keyValue =
+                        GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValue.getStateSearchKey().equals(searchKey)) {
                     return keyValue;
                 }
@@ -278,7 +304,8 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                KeyValueEntity keyValue =
+                        GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValue.getFileName().equals(fileName)) {
                     return keyValue;
                 }
@@ -294,7 +321,8 @@ public class RocksDbImp implements Db {
         try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
-                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                KeyValueEntity keyValue =
+                        GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValue.getKey().startsWith(prefix)) {
                     results.add(keyValue);
                 }
@@ -311,5 +339,4 @@ public class RocksDbImp implements Db {
         columnHandlesMap.clear();
         columnDescriptorMap.clear();
     }
-
 }

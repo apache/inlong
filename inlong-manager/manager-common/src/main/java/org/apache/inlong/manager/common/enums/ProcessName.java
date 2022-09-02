@@ -17,59 +17,37 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * WorkflowProcess name
- */
+/** WorkflowProcess name */
 public enum ProcessName {
 
-    /**
-     * Apply inlong group process
-     */
+    /** Apply inlong group process */
     APPLY_GROUP_PROCESS("Apply-Group"),
 
-    /**
-     * Create inlong group resources process
-     */
+    /** Create inlong group resources process */
     CREATE_GROUP_RESOURCE("Create-Group"),
 
-    /**
-     * Suspend inlong group process
-     */
+    /** Suspend inlong group process */
     SUSPEND_GROUP_PROCESS("Suspend-Group"),
 
-    /**
-     * Restart inlong group process
-     */
+    /** Restart inlong group process */
     RESTART_GROUP_PROCESS("Restart-Group"),
 
-    /**
-     * Delete inlong group process
-     */
+    /** Delete inlong group process */
     DELETE_GROUP_PROCESS("Delete-Group"),
 
-    /**
-     * Apply consumption process
-     */
+    /** Apply consumption process */
     APPLY_CONSUMPTION_PROCESS("Apply-Consumption"),
 
-    /**
-     * Create inlong stream process
-     */
+    /** Create inlong stream process */
     CREATE_STREAM_RESOURCE("Create-Stream"),
 
-    /**
-     * Suspend inlong stream process
-     */
+    /** Suspend inlong stream process */
     SUSPEND_STREAM_RESOURCE("Suspend-Stream"),
 
-    /**
-     * Restart inlong stream process
-     */
+    /** Restart inlong stream process */
     RESTART_STREAM_RESOURCE("Restart-Stream"),
 
-    /**
-     * Delete inlong stream process
-     */
+    /** Delete inlong stream process */
     DELETE_STREAM_RESOURCE("Delete-Stream");
 
     private final String displayName;
@@ -81,5 +59,4 @@ public enum ProcessName {
     public String getDisplayName() {
         return displayName;
     }
-
 }

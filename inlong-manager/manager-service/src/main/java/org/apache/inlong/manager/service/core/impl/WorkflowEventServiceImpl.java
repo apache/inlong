@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import java.util.List;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -32,18 +33,12 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Workflow event related services
- */
+/** Workflow event related services */
 @Service
 public class WorkflowEventServiceImpl implements WorkflowEventService {
 
-    @Autowired
-    private WorkflowQueryService queryService;
-    @Autowired
-    private EventListenerService eventListenerService;
+    @Autowired private WorkflowQueryService queryService;
+    @Autowired private EventListenerService eventListenerService;
 
     @Override
     public EventLogResponse get(Integer id) {
@@ -54,9 +49,11 @@ public class WorkflowEventServiceImpl implements WorkflowEventService {
     @Override
     public PageResult<EventLogResponse> list(EventLogRequest query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
-        Page<WorkflowEventLogEntity> page = (Page<WorkflowEventLogEntity>) queryService.listEventLog(query);
+        Page<WorkflowEventLogEntity> page =
+                (Page<WorkflowEventLogEntity>) queryService.listEventLog(query);
 
-        List<EventLogResponse> viewList = CommonBeanUtils.copyListProperties(page, EventLogResponse::new);
+        List<EventLogResponse> viewList =
+                CommonBeanUtils.copyListProperties(page, EventLogResponse::new);
 
         return new PageResult<>(viewList, page.getTotal(), page.getPageNum(), page.getPageSize());
     }

@@ -17,15 +17,12 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import org.apache.inlong.common.db.CommandEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Request task from agent to manager.
- */
+/** Request task from agent to manager. */
 @Data
 public class TaskRequest {
 
@@ -38,5 +35,4 @@ public class TaskRequest {
     private int pullJobType;
 
     private List<CommandEntity> commandInfo = new ArrayList<>();
-
 }

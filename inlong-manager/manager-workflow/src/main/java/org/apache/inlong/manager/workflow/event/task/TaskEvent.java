@@ -19,49 +19,30 @@ package org.apache.inlong.manager.workflow.event.task;
 
 import org.apache.inlong.manager.workflow.event.WorkflowEvent;
 
-/**
- * Task event
- */
+/** Task event */
 public enum TaskEvent implements WorkflowEvent {
 
-    /**
-     * Task is created
-     */
+    /** Task is created */
     CREATE,
 
-    /**
-     * Task is approved
-     */
+    /** Task is approved */
     APPROVE,
 
-    /**
-     * Task is rejected
-     */
+    /** Task is rejected */
     REJECT,
 
-    /**
-     * Transfer task to someone else
-     */
+    /** Transfer task to someone else */
     TRANSFER,
 
-    /**
-     * Task is cancelled
-     */
+    /** Task is cancelled */
     CANCEL,
 
-    /**
-     * Automatic task completion
-     */
+    /** Automatic task completion */
     COMPLETE,
 
-    /**
-     * Task was terminated
-     */
+    /** Task was terminated */
     TERMINATE,
 
-    /**
-     * System task failed
-     */
+    /** System task failed */
     FAIL,
-
 }

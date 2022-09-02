@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link JsonDeserializationInfo}
- */
+/** Test for {@link JsonDeserializationInfo} */
 public class JsonDeserializationInfoTest extends SerializeBaseTest<JsonDeserializationInfo> {
 
     @Override

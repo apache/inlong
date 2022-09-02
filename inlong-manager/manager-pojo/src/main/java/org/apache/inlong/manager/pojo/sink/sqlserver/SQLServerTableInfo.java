@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sink.sqlserver;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * SQLServer table info.
- */
+/** SQLServer table info. */
 @Data
 public class SQLServerTableInfo {
 

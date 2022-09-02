@@ -18,16 +18,13 @@
 package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Map;
-
-/**
- * Default authentication.
- */
+/** Default authentication. */
 @NoArgsConstructor
 @JsonTypeDefine(value = DefaultAuthentication.DEFAULT)
 public class DefaultAuthentication implements Authentication {
@@ -37,11 +34,9 @@ public class DefaultAuthentication implements Authentication {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
-    @Getter
-    protected String username;
+    @Getter protected String username;
 
-    @Getter
-    protected String password;
+    @Getter protected String password;
 
     public DefaultAuthentication(String username, String password) {
         this.username = username;
@@ -55,7 +50,8 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init DefaultAuthentication");
+        Preconditions.checkNotEmpty(
+                properties, "Properties cannot be empty when init DefaultAuthentication");
         this.username = properties.get(USERNAME);
         this.password = properties.get(PASSWORD);
     }

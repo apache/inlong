@@ -25,41 +25,41 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MessageFormatMessage;
 import org.junit.Test;
 
-/**
- * Test class for LogMaskerConverter.
- */
+/** Test class for LogMaskerConverter. */
 public class LogMaskerConverterTest {
 
     @Test
     public void testLogMaskerConverter() {
-        String unmasked = "(\n"
-                + "  \"password\": \"inlong\",\n"
-                + "  \"pwd\": \"inlong\",\n"
-                + "  \"pass\": \"inlong\",\n"
-                + "  \"token\": \"inlong\",\n"
-                + "  \"secret_token\": \"inlong\",\n"
-                + "  \"secretToken\": \"inlong\",\n"
-                + "  \"secret_id\": \"inlong\",\n"
-                + "  \"secretId\": \"inlong\",\n"
-                + "  \"secret_key\": \"inlong\",\n"
-                + "  \"secretKey\": \"inlong\",\n"
-                + "  \"public_key\": \"inlong\",\n"
-                + "  \"publicKey\": \"inlong\"\n"
-                + ")";
-        String masked = "(\n"
-                + "  \"password\": \"******\",\n"
-                + "  \"pwd\": \"******\",\n"
-                + "  \"pass\": \"******\",\n"
-                + "  \"token\": \"******\",\n"
-                + "  \"secret_token\": \"******\",\n"
-                + "  \"secretToken\": \"******\",\n"
-                + "  \"secret_id\": \"******\",\n"
-                + "  \"secretId\": \"******\",\n"
-                + "  \"secret_key\": \"******\",\n"
-                + "  \"secretKey\": \"******\",\n"
-                + "  \"public_key\": \"******\",\n"
-                + "  \"publicKey\": \"******\"\n"
-                + ")";
+        String unmasked =
+                "(\n"
+                        + "  \"password\": \"inlong\",\n"
+                        + "  \"pwd\": \"inlong\",\n"
+                        + "  \"pass\": \"inlong\",\n"
+                        + "  \"token\": \"inlong\",\n"
+                        + "  \"secret_token\": \"inlong\",\n"
+                        + "  \"secretToken\": \"inlong\",\n"
+                        + "  \"secret_id\": \"inlong\",\n"
+                        + "  \"secretId\": \"inlong\",\n"
+                        + "  \"secret_key\": \"inlong\",\n"
+                        + "  \"secretKey\": \"inlong\",\n"
+                        + "  \"public_key\": \"inlong\",\n"
+                        + "  \"publicKey\": \"inlong\"\n"
+                        + ")";
+        String masked =
+                "(\n"
+                        + "  \"password\": \"******\",\n"
+                        + "  \"pwd\": \"******\",\n"
+                        + "  \"pass\": \"******\",\n"
+                        + "  \"token\": \"******\",\n"
+                        + "  \"secret_token\": \"******\",\n"
+                        + "  \"secretToken\": \"******\",\n"
+                        + "  \"secret_id\": \"******\",\n"
+                        + "  \"secretId\": \"******\",\n"
+                        + "  \"secret_key\": \"******\",\n"
+                        + "  \"secretKey\": \"******\",\n"
+                        + "  \"public_key\": \"******\",\n"
+                        + "  \"publicKey\": \"******\"\n"
+                        + ")";
         LogMaskerConverter logMaskerConverter = LogMaskerConverter.newInstance(null);
         Message message = new MessageFormatMessage(unmasked);
         LogEvent logEvent = Log4jLogEvent.newBuilder().setMessage(message).build();
@@ -67,5 +67,4 @@ public class LogMaskerConverterTest {
         logMaskerConverter.format(logEvent, buffer);
         assertEquals(unmasked + masked, buffer.toString());
     }
-
 }

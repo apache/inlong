@@ -18,9 +18,7 @@
 package org.apache.inlong.tubemq.manager.controller.node;
 
 import com.google.gson.Gson;
-
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
@@ -52,49 +50,38 @@ public class NodeController {
 
     private final Gson gson = new Gson();
 
-    @Autowired
-    NodeService nodeService;
+    @Autowired NodeService nodeService;
 
-    @Autowired
-    MasterRepository masterRepository;
+    @Autowired MasterRepository masterRepository;
 
-    @Autowired
-    MasterService masterService;
+    @Autowired MasterService masterService;
 
-    /**
-     * query brokers' run status
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/broker/status", method = RequestMethod.GET,
+    /** query brokers' run status this method supports batch operation */
+    @RequestMapping(
+            value = "/broker/status",
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-        String queryBrokerDetail(
-            @RequestParam Map<String, String> queryBody) throws Exception {
+    public @ResponseBody String queryBrokerDetail(@RequestParam Map<String, String> queryBody)
+            throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
     }
 
-    /**
-     * query brokers' configuration
-     * this method supports batch operation
-     */
-    @RequestMapping(value = "/broker/config", method = RequestMethod.GET,
+    /** query brokers' configuration this method supports batch operation */
+    @RequestMapping(
+            value = "/broker/config",
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-        String queryBrokerConfig(
-            @RequestParam Map<String, String> queryBody) throws Exception {
+    public @ResponseBody String queryBrokerConfig(@RequestParam Map<String, String> queryBody)
+            throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
     }
 
-    /**
-     * broker method proxy
-     * divides the operation on broker to different method
-     */
+    /** broker method proxy divides the operation on broker to different method */
     @RequestMapping(value = "/broker")
-    public @ResponseBody
-        TubeMQResult
-        brokerMethodProxy(@RequestParam String method, @RequestBody String req) throws Exception {
+    public @ResponseBody TubeMQResult brokerMethodProxy(
+            @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case TubeConst.CLONE:
                 return nodeService.cloneBrokersWithTopic(gson.fromJson(req, CloneBrokersReq.class));
@@ -104,21 +91,23 @@ public class NodeController {
                 return masterService.baseRequestMaster(gson.fromJson(req, ModifyBrokerReq.class));
             case TubeConst.ONLINE:
             case TubeConst.OFFLINE:
-                return masterService.baseRequestMaster(gson.fromJson(req, OnlineOfflineBrokerReq.class));
+                return masterService.baseRequestMaster(
+                        gson.fromJson(req, OnlineOfflineBrokerReq.class));
             case TubeConst.RELOAD:
                 return masterService.baseRequestMaster(gson.fromJson(req, ReloadBrokerReq.class));
             case TubeConst.DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteBrokerReq.class));
             case TubeConst.SET_READ_OR_WRITE:
-                return masterService.baseRequestMaster(gson.fromJson(req, BrokerSetReadOrWriteReq.class));
+                return masterService.baseRequestMaster(
+                        gson.fromJson(req, BrokerSetReadOrWriteReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
     }
 
     @RequestMapping(value = "/master")
-    public @ResponseBody
-        TubeMQResult masterMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult masterMethodProxy(
+            @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.MODIFY:
                 return nodeService.modifyMasterNode(gson.fromJson(req, MasterDto.class));
@@ -126,5 +115,4 @@ public class NodeController {
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
     }
-
 }

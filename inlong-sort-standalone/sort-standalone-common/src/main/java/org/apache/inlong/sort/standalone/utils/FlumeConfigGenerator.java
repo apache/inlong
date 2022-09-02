@@ -17,16 +17,13 @@
 
 package org.apache.inlong.sort.standalone.utils;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
-/**
- * generator for flume config
- */
+/** generator for flume config */
 public class FlumeConfigGenerator {
 
     public static final String KEY_TASK_NAME = "taskName";
@@ -56,15 +53,23 @@ public class FlumeConfigGenerator {
      * @param name sort task name
      * @param sinkParams sink params of this task
      */
-    private static void appendChannels(Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
+    private static void appendChannels(
+            Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
         StringBuilder builder = new StringBuilder();
         String channelName = name + "Channel";
         flumeConf.put(name + ".channels", channelName);
-        String prefix = builder.append(name).append(".channels.").append(channelName).append(".").toString();
+        String prefix =
+                builder.append(name)
+                        .append(".channels.")
+                        .append(channelName)
+                        .append(".")
+                        .toString();
         builder.setLength(0);
         String channelType = builder.append(prefix).append("type").toString();
-        String channelClass = sinkParams.getOrDefault(KEY_SORT_CHANNEL_TYPE,
-                CommonPropertiesHolder.getString(KEY_SORT_CHANNEL_TYPE));
+        String channelClass =
+                sinkParams.getOrDefault(
+                        KEY_SORT_CHANNEL_TYPE,
+                        CommonPropertiesHolder.getString(KEY_SORT_CHANNEL_TYPE));
         flumeConf.put(channelType, channelClass);
         appendCommon(flumeConf, prefix, null, name);
     }
@@ -107,17 +112,20 @@ public class FlumeConfigGenerator {
      * @param name sort task name
      * @param sinkParams sink params of this task
      */
-    private static void appendSinks(Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
+    private static void appendSinks(
+            Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
         // sinks
         String sinkName = name + "Sink";
         flumeConf.put(name + ".sinks", sinkName);
         StringBuilder builder = new StringBuilder();
-        String prefix = builder.append(name).append(".sinks.").append(sinkName).append(".").toString();
+        String prefix =
+                builder.append(name).append(".sinks.").append(sinkName).append(".").toString();
         // type
         builder.setLength(0);
         String sinkType = builder.append(prefix).append("type").toString();
-        String sinkClass = sinkParams.getOrDefault(KEY_SORT_SINK_TYPE,
-                CommonPropertiesHolder.getString(KEY_SORT_SINK_TYPE));
+        String sinkClass =
+                sinkParams.getOrDefault(
+                        KEY_SORT_SINK_TYPE, CommonPropertiesHolder.getString(KEY_SORT_SINK_TYPE));
         flumeConf.put(sinkType, sinkClass);
         // channel
         builder.setLength(0);
@@ -136,19 +144,20 @@ public class FlumeConfigGenerator {
      * @param sinkParams sink params of this task
      */
     private static void appendSources(
-            Map<String, String> flumeConf,
-            String name, Map<String,
-            String> sinkParams) {
+            Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
         // sources
         String sourceName = name + "Source";
         flumeConf.put(name + ".sources", sourceName);
         StringBuilder builder = new StringBuilder();
-        String prefix = builder.append(name).append(".sources.").append(sourceName).append(".").toString();
+        String prefix =
+                builder.append(name).append(".sources.").append(sourceName).append(".").toString();
         // type
         builder.setLength(0);
         String sourceType = builder.append(prefix).append("type").toString();
-        String sourceClass = sinkParams.getOrDefault(KEY_SORT_SOURCE_TYPE,
-                CommonPropertiesHolder.getString(KEY_SORT_SOURCE_TYPE));
+        String sourceClass =
+                sinkParams.getOrDefault(
+                        KEY_SORT_SOURCE_TYPE,
+                        CommonPropertiesHolder.getString(KEY_SORT_SOURCE_TYPE));
         flumeConf.put(sourceType, sourceClass);
         // channel
         builder.setLength(0);

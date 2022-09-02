@@ -18,17 +18,14 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-
-/**
- * Memory process memory
- */
+/** Memory process memory */
 @Component
 public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepository {
 
@@ -51,7 +48,8 @@ public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepos
     public void add(WorkflowProcess process) {
         Preconditions.checkNotEmpty(process.getName(), "process name cannot be null");
         if (PROCESS_BY_NAME_MAP.containsKey(process.getName())) {
-            throw new WorkflowException("process already exist with the same name " + process.getName());
+            throw new WorkflowException(
+                    "process already exist with the same name " + process.getName());
         }
 
         PROCESS_BY_NAME_MAP.put(process.getName(), process);
@@ -65,5 +63,4 @@ public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepos
 
         PROCESS_BY_NAME_MAP.remove(name);
     }
-
 }

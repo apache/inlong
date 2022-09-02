@@ -32,7 +32,6 @@ import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
-
 import org.apache.inlong.audit.protocol.AuditApi.AuditMessageBody;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply.RSP_CODE;
@@ -43,10 +42,7 @@ import org.apache.inlong.audit.protocol.Commands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Server message handler
- *
- */
+/** Server message handler */
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
@@ -62,22 +58,28 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     private final Gson gson = new Gson();
 
-    public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
-                                ChannelGroup allChannels, Integer maxCons) {
+    public ServerMessageHandler(
+            AbstractSource source,
+            ServiceDecoder serviceDecoder,
+            ChannelGroup allChannels,
+            Integer maxCons) {
         this.source = source;
         this.processor = source.getChannelProcessor();
         this.serviceDecoder = serviceDecoder;
         this.allChannels = allChannels;
         this.maxConnections = maxCons;
-
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (allChannels.size() - 1 >= maxConnections) {
-            logger.warn("refuse to connect , and connections=" + (allChannels.size() - 1)
-                    + ", maxConnections="
-                    + maxConnections + ",channel is " + ctx.channel());
+            logger.warn(
+                    "refuse to connect , and connections="
+                            + (allChannels.size() - 1)
+                            + ", maxConnections="
+                            + maxConnections
+                            + ",channel is "
+                            + ctx.channel());
             ctx.channel().disconnect();
             ctx.channel().close();
         }
@@ -122,16 +124,16 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         switch (cmd.getType()) {
             case PING:
                 checkArgument(cmd.hasPing());
-                channelBuffer  = Commands.getPongChannelBuffer();
+                channelBuffer = Commands.getPongChannelBuffer();
                 break;
             case PONG:
                 checkArgument(cmd.hasPong());
-                channelBuffer  = Commands.getPingChannelBuffer();
+                channelBuffer = Commands.getPingChannelBuffer();
                 break;
             case AUDITREQUEST:
                 checkArgument(cmd.hasAuditRequest());
                 AuditReply auditReply = handleRequest(cmd.getAuditRequest());
-                channelBuffer  = Commands.getAuditReplylBuffer(auditReply);
+                channelBuffer = Commands.getAuditReplylBuffer(auditReply);
                 break;
             case AUDITREPLY:
                 checkArgument(cmd.hasAuditReply());
@@ -184,16 +186,24 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
                 if (errorMsgBody != 0) {
-                    reply = AuditReply.newBuilder().setRequestId(auditRequest.getRequestId())
-                            .setMessage("Error writing to controller,data "
-                            + "will discard. error body num = "
-                            + errorMsgBody).setRspCode(RSP_CODE.FAILED).build();
+                    reply =
+                            AuditReply.newBuilder()
+                                    .setRequestId(auditRequest.getRequestId())
+                                    .setMessage(
+                                            "Error writing to controller,data "
+                                                    + "will discard. error body num = "
+                                                    + errorMsgBody)
+                                    .setRspCode(RSP_CODE.FAILED)
+                                    .build();
                 }
             }
         }
         if (reply == null) {
-            reply = AuditReply.newBuilder().setRequestId(auditRequest.getRequestId())
-                    .setRspCode(RSP_CODE.SUCCESS).build();
+            reply =
+                    AuditReply.newBuilder()
+                            .setRequestId(auditRequest.getRequestId())
+                            .setRspCode(RSP_CODE.SUCCESS)
+                            .build();
         }
         return reply;
     }
@@ -209,10 +219,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         } else {
             logger.warn(
                     "the send buffer2 is full, so disconnect it!please check remote client"
-                            + "; Connection info:" + remoteChannel);
-            throw new Exception(new Throwable(
-                    "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
-                            + remoteChannel));
+                            + "; Connection info:"
+                            + remoteChannel);
+            throw new Exception(
+                    new Throwable(
+                            "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
+                                    + remoteChannel));
         }
     }
 }

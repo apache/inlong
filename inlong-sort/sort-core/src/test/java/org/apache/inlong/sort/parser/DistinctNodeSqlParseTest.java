@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -49,189 +53,281 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for {@link DistinctNode}
- */
+/** Test for {@link DistinctNode} */
 public class DistinctNodeSqlParseTest extends AbstractTestBase {
 
     private KafkaExtractNode buildKafkaExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()),
-                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
-        return new KafkaExtractNode("1", "kafka_input", fields, null,
-                null, "topic_input", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId", null);
-    }
-
-    private KafkaExtractNode buildKafkaExtractNode2() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()),
-                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
-        WatermarkField wk = new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
-                new StringConstantParam("1"),
-                new TimeUnitConstantParam(TimeUnit.SECOND));
-        return new KafkaExtractNode("1", "kafka_input", fields, wk,
-                null, "topic_input", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId", null);
-    }
-
-    private KafkaExtractNode buildKafkaExtractNode3() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        return new KafkaExtractNode("1", "kafka_input", fields, null,
-                null, "topic_input", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null);
-    }
-
-    private KafkaLoadNode buildKafkaLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
-                null, "topic_output", "localhost:9092",
-                new JsonFormat(), null,
-                null, null);
-    }
-
-    private KafkaLoadNode buildKafkaLoadNode2() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
-                null, "topic_output", "localhost:9092",
-                new JsonFormat(), null,
-                null, "id");
-    }
-
-    private KafkaLoadNode buildKafkaLoadNode3() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
-                null, "topic_output", "localhost:9092",
-                new JsonFormat(), null,
-                null, "id");
-    }
-
-    private Node buildTransformNode() {
-        return new DistinctNode("2", null,
-                Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo()),
+                        new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                null,
+                null,
+                "topic_input",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId",
+                null);
+    }
+
+    private KafkaExtractNode buildKafkaExtractNode2() {
+        List<FieldInfo> fields =
                 Arrays.asList(
-                        new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()),
+                        new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
+        WatermarkField wk =
+                new WatermarkField(
+                        new FieldInfo("ts", new TimestampFormatInfo()),
+                        new StringConstantParam("1"),
+                        new TimeUnitConstantParam(TimeUnit.SECOND));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                wk,
+                null,
+                "topic_input",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId",
+                null);
+    }
+
+    private KafkaExtractNode buildKafkaExtractNode3() {
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                null,
+                null,
+                "topic_input",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId",
+                null);
+    }
+
+    private KafkaLoadNode buildKafkaLoadNode() {
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
-                null, null,
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new KafkaLoadNode(
+                "3",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic_output",
+                "localhost:9092",
+                new JsonFormat(),
+                null,
+                null,
+                null);
+    }
+
+    private KafkaLoadNode buildKafkaLoadNode2() {
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new KafkaLoadNode(
+                "3",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic_output",
+                "localhost:9092",
+                new JsonFormat(),
+                null,
+                null,
+                "id");
+    }
+
+    private KafkaLoadNode buildKafkaLoadNode3() {
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new KafkaLoadNode(
+                "3",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic_output",
+                "localhost:9092",
+                new JsonFormat(),
+                null,
+                null,
+                "id");
+    }
+
+    private Node buildTransformNode() {
+        return new DistinctNode(
+                "2",
+                null,
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
+                null,
+                null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("proctime", new TimestampFormatInfo()),
                 OrderDirection.ASC);
     }
 
     private Node buildTransformNode2() {
-        return new DistinctNode("2", null,
-                Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+        return new DistinctNode(
+                "2",
+                null,
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
-                        new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
-                null, null,
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
+                null,
+                null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 OrderDirection.ASC);
     }
 
     private Node buildTransformNode3() {
-        return new DistinctNode("2", null,
-                Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+        return new DistinctNode(
+                "2",
+                null,
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
-                        new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
-                null, null,
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
+                null,
+                null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 OrderDirection.ASC);
@@ -250,11 +346,8 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testDistinctBasedProcessTime() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -262,13 +355,17 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
         Node inputNode = buildKafkaExtractNode();
         Node tansformNode = buildTransformNode();
         Node outputNode = buildKafkaLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, tansformNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(tansformNode)),
-                        buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, tansformNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(tansformNode)),
+                                buildNodeRelation(
+                                        Collections.singletonList(tansformNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -282,11 +379,8 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testDistinctBasedTimeField() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -294,13 +388,17 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
         Node inputNode = buildKafkaExtractNode3();
         Node tansformNode = buildTransformNode3();
         Node outputNode = buildKafkaLoadNode3();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, tansformNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(tansformNode)),
-                        buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, tansformNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(tansformNode)),
+                                buildNodeRelation(
+                                        Collections.singletonList(tansformNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -314,11 +412,8 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testDistinctBasedEventTime() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -326,17 +421,20 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
         Node inputNode = buildKafkaExtractNode2();
         Node tansformNode = buildTransformNode2();
         Node outputNode = buildKafkaLoadNode2();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, tansformNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(tansformNode)),
-                        buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, tansformNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(tansformNode)),
+                                buildNodeRelation(
+                                        Collections.singletonList(tansformNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

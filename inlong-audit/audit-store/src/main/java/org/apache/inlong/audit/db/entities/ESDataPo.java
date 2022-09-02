@@ -17,10 +17,9 @@
 
 package org.apache.inlong.audit.db.entities;
 
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -39,8 +38,17 @@ public class ESDataPo {
     private long packetId;
 
     public String getDocId() {
-        String docId = ip + dockerId + threadId + sdkTs + packetId + logTs + inlongGroupId + inlongStreamId
-                + auditId + count;
+        String docId =
+                ip
+                        + dockerId
+                        + threadId
+                        + sdkTs
+                        + packetId
+                        + logTs
+                        + inlongGroupId
+                        + inlongStreamId
+                        + auditId
+                        + count;
         return docId;
     }
 }

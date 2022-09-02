@@ -18,28 +18,22 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.function.Function;
-
-/**
- * An extractor for a Elasticsearch routing from a {@link RowData}.
- */
+/** An extractor for a Elasticsearch routing from a {@link RowData}. */
 @Internal
 public class RoutingExtractor {
-    private RoutingExtractor() {
-    }
+    private RoutingExtractor() {}
 
     public static Function<RowData, String> createRoutingExtractor(
-            TableSchema schema,
-            @Nullable String filedName) {
+            TableSchema schema, @Nullable String filedName) {
         if (filedName == null) {
             return null;
         }
@@ -47,17 +41,17 @@ public class RoutingExtractor {
         for (int i = 0; i < schema.getFieldCount(); i++) {
             TableColumn column = tableColumns.get(i);
             if (column.getName().equals(filedName)) {
-                RowData.FieldGetter fieldGetter = RowData.createFieldGetter(
-                        column.getType().getLogicalType(),
-                        i);
-                return (Function<RowData, String> & Serializable) (row) -> {
-                    Object fieldOrNull = fieldGetter.getFieldOrNull(row);
-                    if (fieldOrNull != null) {
-                        return fieldOrNull.toString();
-                    } else {
-                        return null;
-                    }
-                };
+                RowData.FieldGetter fieldGetter =
+                        RowData.createFieldGetter(column.getType().getLogicalType(), i);
+                return (Function<RowData, String> & Serializable)
+                        (row) -> {
+                            Object fieldOrNull = fieldGetter.getFieldOrNull(row);
+                            if (fieldOrNull != null) {
+                                return fieldOrNull.toString();
+                            } else {
+                                return null;
+                            }
+                        };
             }
         }
         throw new IllegalArgumentException("Filed " + filedName + " not exist in table schema.");

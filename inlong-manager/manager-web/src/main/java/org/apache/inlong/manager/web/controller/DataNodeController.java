@@ -42,16 +42,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Data node controller
- */
+/** Data node controller */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Data-Node-API")
 public class DataNodeController {
 
-    @Autowired
-    private DataNodeService dataNodeService;
+    @Autowired private DataNodeService dataNodeService;
 
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save node")
@@ -64,7 +61,11 @@ public class DataNodeController {
 
     @GetMapping(value = "/node/get/{id}")
     @ApiOperation(value = "Get node by id")
-    @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Data node ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<DataNodeInfo> get(@PathVariable Integer id) {
         return Response.success(dataNodeService.get(id));
     }
@@ -78,7 +79,8 @@ public class DataNodeController {
     @PostMapping(value = "/node/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
+    public Response<Boolean> update(
+            @Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.update(request, username));
     }
@@ -86,10 +88,15 @@ public class DataNodeController {
     @DeleteMapping(value = "/node/delete/{id}")
     @ApiOperation(value = "Delete data node by id")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Data node ID",
+            dataTypeClass = Integer.class,
+            required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping("/node/testConnection")
@@ -97,5 +104,4 @@ public class DataNodeController {
     public Response<Boolean> testConnection(@Validated @RequestBody DataNodeRequest request) {
         return Response.success(dataNodeService.testConnection(request));
     }
-
 }

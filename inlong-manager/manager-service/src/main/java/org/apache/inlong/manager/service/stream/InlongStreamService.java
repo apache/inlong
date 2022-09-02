@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -24,13 +25,11 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 
-import java.util.List;
-
 /**
  * Inlong stream service layer interface
  *
- * @apiNote InlongStream was associated with various sources, the upstream is StreamSource,
- *         and the downstream is StreamSink
+ * @apiNote InlongStream was associated with various sources, the upstream is StreamSource, and the
+ *     downstream is StreamSink
  */
 public interface InlongStreamService {
 
@@ -129,9 +128,7 @@ public interface InlongStreamService {
      */
     int selectCountByGroupId(String groupId);
 
-    /**
-     * According to the inlong group id, query the Topic list
-     */
+    /** According to the inlong group id, query the Topic list */
     List<InlongStreamBriefInfo> getTopicList(String groupId);
 
     /**
@@ -162,9 +159,6 @@ public interface InlongStreamService {
      */
     void insertDlqOrRlq(String bid, String topicName, String operator);
 
-    /**
-     * Logic delete dlq or rlq topic by bid
-     */
+    /** Logic delete dlq or rlq topic by bid */
     void logicDeleteDlqOrRlq(String bid, String topicName, String operator);
-
 }

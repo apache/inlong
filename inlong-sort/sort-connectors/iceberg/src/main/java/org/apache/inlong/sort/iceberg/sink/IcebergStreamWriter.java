@@ -19,6 +19,10 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
 import org.apache.flink.streaming.api.operators.ChainingStrategy;
@@ -30,11 +34,6 @@ import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
@@ -49,8 +48,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
     private transient int attemptId;
-    @Nullable
-    private transient SinkMetricData metricData;
+    @Nullable private transient SinkMetricData metricData;
 
     IcebergStreamWriter(
             String fullTableName,
@@ -81,8 +79,13 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
             String inLongGroupId = inLongMetricArray[0];
             String inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData = new SinkMetricData(
-                    inLongGroupId, inLongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
+            metricData =
+                    new SinkMetricData(
+                            inLongGroupId,
+                            inLongStreamId,
+                            nodeId,
+                            getRuntimeContext().getMetricGroup(),
+                            auditHostAndPorts);
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
@@ -120,8 +123,10 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     @Override
     public void endInput() throws IOException {
-        // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit the remaining
-        // completed files to downstream before closing the writer so that we won't miss any of them.
+        // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit
+        // the remaining
+        // completed files to downstream before closing the writer so that we won't miss any of
+        // them.
         emit(writer.complete());
     }
 

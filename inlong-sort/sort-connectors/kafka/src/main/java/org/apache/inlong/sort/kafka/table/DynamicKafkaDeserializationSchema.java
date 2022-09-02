@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
@@ -33,23 +41,12 @@ import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-
-/**
- * deserialization schema for {@link KafkaDynamicSource}.
- */
+/** deserialization schema for {@link KafkaDynamicSource}. */
 class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    DeserializationSchema<RowData> keyDeserialization;
+    private final @Nullable DeserializationSchema<RowData> keyDeserialization;
 
     private final DeserializationSchema<RowData> valueDeserialization;
 
@@ -107,7 +104,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         this.upsertMode = upsertMode;
         this.inlongMetric = inLongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
-
     }
 
     @Override
@@ -121,14 +117,18 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             inLongGroupId = inLongMetricArray[0];
             inLongStreamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
+            metricData =
+                    new SourceMetricData(
+                            inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
             metricData.registerMetricsForNumBytesIn();
             metricData.registerMetricsForNumBytesInPerSecond();
             metricData.registerMetricsForNumRecordsIn();
             metricData.registerMetricsForNumRecordsInPerSecond();
         }
         if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            AuditImp.getInstance()
+                    .setAuditProxy(
+                            new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             auditImp = AuditImp.getInstance();
         }
     }

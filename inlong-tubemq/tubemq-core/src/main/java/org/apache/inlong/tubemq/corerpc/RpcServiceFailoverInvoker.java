@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc;
 
 import java.io.IOException;
@@ -38,8 +35,11 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
     private Client currentClient;
     private int masterNodeCnt;
 
-    public RpcServiceFailoverInvoker(ClientFactory clientFactory, Class serviceClass,
-                                     RpcConfig conf, MasterInfo masterInfo) {
+    public RpcServiceFailoverInvoker(
+            ClientFactory clientFactory,
+            Class serviceClass,
+            RpcConfig conf,
+            MasterInfo masterInfo) {
         super(clientFactory, serviceClass, conf);
         this.masterInfo = masterInfo;
         this.masterNodeCnt = masterInfo.getNodeHostPortList().size();
@@ -47,15 +47,15 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
     }
 
     @Override
-    public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
-        if (currentClient == null
-                || !currentClient.isReady()) {
+    public Object callMethod(String targetInterface, String method, Object arg, Callback callback)
+            throws Throwable {
+        if (currentClient == null || !currentClient.isReady()) {
             getNextClient(false);
         }
         int currentCounter = retryCounter.get();
         RequestWrapper requestWrapper =
-                new RequestWrapper(PbEnDecoder.getServiceIdByServiceName(targetInterface),
+                new RequestWrapper(
+                        PbEnDecoder.getServiceIdByServiceName(targetInterface),
                         RpcProtocol.RPC_PROTOCOL_VERSION,
                         RpcConstants.RPC_FLAG_MSG_TYPE_REQUEST,
                         requestTimeout);
@@ -66,18 +66,25 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
             if (currentClient != null) {
                 try {
                     ResponseWrapper responseWrapper =
-                            currentClient.call(requestWrapper, callback,
-                                    requestTimeout, TimeUnit.MILLISECONDS);
+                            currentClient.call(
+                                    requestWrapper,
+                                    callback,
+                                    requestTimeout,
+                                    TimeUnit.MILLISECONDS);
                     if (responseWrapper != null) {
                         if (responseWrapper.isSuccess()) {
                             return responseWrapper.getResponseData();
                         } else {
                             Throwable remote =
-                                    MixUtils.unwrapException(new StringBuilder(512)
-                                            .append(responseWrapper.getErrMsg()).append("#")
-                                            .append(responseWrapper.getStackTrace()).toString());
+                                    MixUtils.unwrapException(
+                                            new StringBuilder(512)
+                                                    .append(responseWrapper.getErrMsg())
+                                                    .append("#")
+                                                    .append(responseWrapper.getStackTrace())
+                                                    .toString());
                             if ((IOException.class.isAssignableFrom(remote.getClass()))
-                                    || (StandbyException.class.isAssignableFrom(remote.getClass()))) {
+                                    || (StandbyException.class.isAssignableFrom(
+                                            remote.getClass()))) {
                                 if (currentCounter == retryCounter.get()) {
                                     getNextClient(true);
                                     currentCounter++;
@@ -91,7 +98,8 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
                         break;
                     }
                 } catch (Throwable e) {
-                    // If the call throws an exception and the master address is not polled, we need to try again.
+                    // If the call throws an exception and the master address is not polled, we need
+                    // to try again.
                     if (currentCounter == retryCounter.get()) {
                         getNextClient(true);
                         currentCounter++;
@@ -100,8 +108,13 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
                 }
             } else {
                 int index = (currentCounter & Integer.MAX_VALUE) % masterNodeCnt;
-                t = new IOException(new StringBuilder(512).append("Connect server ")
-                        .append(masterInfo.getNodeHostPortList().get(index)).append(" failure!").toString());
+                t =
+                        new IOException(
+                                new StringBuilder(512)
+                                        .append("Connect server ")
+                                        .append(masterInfo.getNodeHostPortList().get(index))
+                                        .append(" failure!")
+                                        .toString());
                 if (currentCounter == retryCounter.get()) {
                     getNextClient(false);
                     currentCounter++;
@@ -128,7 +141,9 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
             List<String> addressList = masterInfo.getNodeHostPortList();
             while (client == null || !client.isReady()) {
                 String nodeKey =
-                        addressList.get((retryCounter.getAndIncrement() & Integer.MAX_VALUE) % masterNodeCnt);
+                        addressList.get(
+                                (retryCounter.getAndIncrement() & Integer.MAX_VALUE)
+                                        % masterNodeCnt);
                 NodeAddrInfo nodeAddrInfo = masterInfo.getAddrMap4Failover().get(nodeKey);
                 try {
                     client = clientFactory.getClient(nodeAddrInfo, conf);

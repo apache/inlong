@@ -24,9 +24,7 @@ import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The format information for rows.
- */
+/** The format information for rows. */
 public class RowFormatInfo implements FormatInfo {
 
     private static final long serialVersionUID = 1L;
@@ -34,8 +32,7 @@ public class RowFormatInfo implements FormatInfo {
     private static final String FIELD_FIELD_NAMES = "fieldNames";
     private static final String FIELD_FIELD_FORMATS = "fieldFormats";
 
-    public static final RowFormatInfo EMPTY =
-            new RowFormatInfo(new String[0], new FormatInfo[0]);
+    public static final RowFormatInfo EMPTY = new RowFormatInfo(new String[0], new FormatInfo[0]);
 
     @JsonProperty(FIELD_FIELD_NAMES)
     @Nonnull
@@ -48,8 +45,7 @@ public class RowFormatInfo implements FormatInfo {
     @JsonCreator
     public RowFormatInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos
-    ) {
+            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos) {
         checkArity(fieldNames, fieldFormatInfos);
         checkDuplicates(fieldNames);
 
@@ -77,21 +73,16 @@ public class RowFormatInfo implements FormatInfo {
         return new RowTypeInfo(fieldNames, fieldTypeInfos);
     }
 
-    private static void checkArity(
-            String[] fieldNames,
-            FormatInfo[] fieldFormatInfos
-    ) {
+    private static void checkArity(String[] fieldNames, FormatInfo[] fieldFormatInfos) {
         if (fieldNames.length != fieldFormatInfos.length) {
-            throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
+            throw new IllegalArgumentException(
+                    "The number of names and " + "formats is not equal.");
         }
     }
 
     private static void checkDuplicates(String[] fieldNames) {
         long numFieldNames = fieldNames.length;
-        long numDistinctFieldNames =
-                Arrays.stream(fieldNames)
-                        .collect(Collectors.toSet())
-                        .size();
+        long numDistinctFieldNames = Arrays.stream(fieldNames).collect(Collectors.toSet()).size();
 
         if (numDistinctFieldNames != numFieldNames) {
             throw new IllegalArgumentException("There exist duplicated " + "field names.");

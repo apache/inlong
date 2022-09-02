@@ -1,28 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.config;
 
+import com.alibaba.fastjson.JSON;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
@@ -34,12 +31,7 @@ import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-
-/**
- * 
- * FileProxyClusterConfigLoader
- */
+/** FileProxyClusterConfigLoader */
 public class FileProxyClusterConfigLoader implements ProxyClusterConfigLoader {
 
     private static Logger LOG = LoggerFactory.getLogger(FileProxyClusterConfigLoader.class);
@@ -47,7 +39,7 @@ public class FileProxyClusterConfigLoader implements ProxyClusterConfigLoader {
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -57,24 +49,26 @@ public class FileProxyClusterConfigLoader implements ProxyClusterConfigLoader {
 
     /**
      * loadByStream
-     * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     *
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
     @Override
     public ProxyClusterResult loadByStream(String inlongGroupId, String inlongStreamId) {
         try {
             String fileName = this.context.getString(KEY_LOADER_TYPE_FILE_NAME);
-            String jsonString = FileUtils.readFileToString(new File(fileName), Charset.defaultCharset());
+            String jsonString =
+                    FileUtils.readFileToString(new File(fileName), Charset.defaultCharset());
             LOG.info("Get ProxyClusterConfigLoader result:{}", jsonString);
 
-            GetProxyConfigBySdkResponse configResponse = JSON.parseObject(jsonString,
-                    GetProxyConfigBySdkResponse.class);
+            GetProxyConfigBySdkResponse configResponse =
+                    JSON.parseObject(jsonString, GetProxyConfigBySdkResponse.class);
 
             // result
             for (Entry<String, ProxyClusterResult> entry : configResponse.getData().entrySet()) {
-                for (InlongStreamConfig stream : entry.getValue().getConfig().getInlongStreamList()) {
+                for (InlongStreamConfig stream :
+                        entry.getValue().getConfig().getInlongStreamList()) {
                     if (StringUtils.equals(inlongGroupId, stream.getInlongGroupId())
                             && StringUtils.equals(inlongStreamId, stream.getInlongStreamId())) {
                         return entry.getValue();
@@ -90,8 +84,8 @@ public class FileProxyClusterConfigLoader implements ProxyClusterConfigLoader {
 
     /**
      * loadByClusterIds
-     * 
-     * @param  proxys
+     *
+     * @param proxys
      * @return
      */
     @Override
@@ -99,11 +93,12 @@ public class FileProxyClusterConfigLoader implements ProxyClusterConfigLoader {
         HttpPost httpPost = null;
         try {
             String fileName = this.context.getString(KEY_LOADER_TYPE_FILE_NAME);
-            String jsonString = FileUtils.readFileToString(new File(fileName), Charset.defaultCharset());
+            String jsonString =
+                    FileUtils.readFileToString(new File(fileName), Charset.defaultCharset());
             LOG.info("Get ProxyClusterConfigLoader result:{}", jsonString);
 
-            GetProxyConfigBySdkResponse configResponse = JSON.parseObject(jsonString,
-                    GetProxyConfigBySdkResponse.class);
+            GetProxyConfigBySdkResponse configResponse =
+                    JSON.parseObject(jsonString, GetProxyConfigBySdkResponse.class);
 
             // result
             return configResponse.getData();

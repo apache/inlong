@@ -21,6 +21,7 @@ package org.apache.flume.sink.tubemq;
 import static org.apache.flume.sink.tubemq.ConfigOptions.MASTER_HOST_PORT_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurables;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -45,7 +46,7 @@ public class TestTubemqSink {
 
         TubeClientConfig config = tubemqSink.getClientConfig();
 
-        //check that we have defaults set
+        // check that we have defaults set
         for (String host : config.getMasterInfo().getNodeHostPortList()) {
             if (host.startsWith("ip1")) {
                 assertEquals("ip1:9092", host);

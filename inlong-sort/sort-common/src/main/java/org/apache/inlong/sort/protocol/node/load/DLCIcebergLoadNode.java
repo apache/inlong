@@ -19,6 +19,11 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,12 +38,6 @@ import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @JsonTypeName("dlcIcebergLoad")
 @Data
@@ -66,7 +65,8 @@ public class DLCIcebergLoadNode extends LoadNode implements InlongMetric, Serial
     private String warehouse;
 
     @JsonCreator
-    public DLCIcebergLoadNode(@JsonProperty("id") String id,
+    public DLCIcebergLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
@@ -79,7 +79,15 @@ public class DLCIcebergLoadNode extends LoadNode implements InlongMetric, Serial
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
         this.primaryKey = primaryKey;
@@ -126,12 +134,16 @@ public class DLCIcebergLoadNode extends LoadNode implements InlongMetric, Serial
 
     private void validateAuth(Map<String, String> properties) {
         Preconditions.checkNotNull(properties);
-        Preconditions.checkNotNull(properties.get(DLCConstant.DLC_SECRET_ID), "dlc secret-id is null");
-        Preconditions.checkNotNull(properties.get(DLCConstant.DLC_SECRET_KEY), "dlc secret-key is null");
+        Preconditions.checkNotNull(
+                properties.get(DLCConstant.DLC_SECRET_ID), "dlc secret-id is null");
+        Preconditions.checkNotNull(
+                properties.get(DLCConstant.DLC_SECRET_KEY), "dlc secret-key is null");
         Preconditions.checkNotNull(properties.get(DLCConstant.DLC_REGION), "dlc region is null");
 
         Preconditions.checkNotNull(properties.get(DLCConstant.FS_COS_REGION), "cos region is null");
-        Preconditions.checkNotNull(properties.get(DLCConstant.FS_COS_SECRET_ID), "cos secret-id is null");
-        Preconditions.checkNotNull(properties.get(DLCConstant.FS_COS_SECRET_KEY), "cos secret-key is null");
+        Preconditions.checkNotNull(
+                properties.get(DLCConstant.FS_COS_SECRET_ID), "cos secret-id is null");
+        Preconditions.checkNotNull(
+                properties.get(DLCConstant.FS_COS_SECRET_KEY), "cos secret-key is null");
     }
 }

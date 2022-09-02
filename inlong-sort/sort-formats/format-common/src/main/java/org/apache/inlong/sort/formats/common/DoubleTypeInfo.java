@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for doubles.
- */
+/** The type information for doubles. */
 public class DoubleTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

@@ -19,9 +19,7 @@ package org.apache.inlong.sort.redis.common.mapper.row;
 
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
-/**
- * Get mapper that used to get value from a specified key
- */
+/** Get mapper that used to get value from a specified key */
 public class GetMapper extends RowRedisMapper {
 
     private static final long serialVersionUID = 1L;

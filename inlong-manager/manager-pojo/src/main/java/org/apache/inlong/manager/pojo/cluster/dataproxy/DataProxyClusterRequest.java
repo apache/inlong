@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
-/**
- * Inlong cluster request for DataProxy
- */
+/** Inlong cluster request for DataProxy */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -48,5 +46,4 @@ public class DataProxyClusterRequest extends ClusterRequest {
     public DataProxyClusterRequest() {
         this.setType(ClusterType.DATAPROXY);
     }
-
 }

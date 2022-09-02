@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import java.util.ArrayList;
@@ -57,8 +54,7 @@ public class Master implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Sever is stopping...");
             }
-            MetaDataService defMetaDataService =
-                    this.master.getMetaDataService();
+            MetaDataService defMetaDataService = this.master.getMetaDataService();
             if (!defMetaDataService.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
@@ -98,12 +94,12 @@ public class Master implements Action {
         String group = req.getParameter("group");
         if (group != null) {
             int index = 1;
-            List<String> consumerViewInfos =
-                    consumerHolder.getConsumerViewList(group);
+            List<String> consumerViewInfos = consumerHolder.getConsumerViewList(group);
             if (CollectionUtils.isEmpty(consumerViewInfos)) {
                 List<String> groupList = consumerHolder.getAllGroupName();
                 sBuilder.append("No such group.\n\nCurrent all groups(")
-                        .append(groupList.size()).append("):\n");
+                        .append(groupList.size())
+                        .append("):\n");
                 for (String currGroup : groupList) {
                     sBuilder.append(currGroup).append("\n");
                 }
@@ -113,8 +109,7 @@ public class Master implements Action {
                     if (consumerViewInfo == null) {
                         continue;
                     }
-                    sBuilder.append(index).append(". ")
-                            .append(consumerViewInfo).append("\n");
+                    sBuilder.append(index).append(". ").append(consumerViewInfo).append("\n");
                     index++;
                 }
             }
@@ -137,34 +132,43 @@ public class Master implements Action {
             if (CollectionUtils.isEmpty(consumerList)) {
                 List<String> groupList = consumerHolder.getAllGroupName();
                 sBuilder.append("No such group.\n\nCurrent all group(")
-                        .append(groupList.size()).append("):\n");
+                        .append(groupList.size())
+                        .append("):\n");
                 for (String currGroup : groupList) {
                     sBuilder.append(currGroup).append("\n");
                 }
             } else {
-                sBuilder.append("\n########################## Subscribe Relationship ############################\n\n");
+                sBuilder.append(
+                        "\n########################## Subscribe Relationship ############################\n\n");
                 Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
                         master.getCurrentSubInfoMap();
                 for (int i = 0; i < consumerList.size(); i++) {
                     Tuple2<String, Boolean> consumer = consumerList.get(i);
-                    sBuilder.append("*************** ").append(i + 1)
-                            .append(". ").append(consumer.getF0())
-                            .append("#isOverTLS=").append(consumer.getF1())
+                    sBuilder.append("*************** ")
+                            .append(i + 1)
+                            .append(". ")
+                            .append(consumer.getF0())
+                            .append("#isOverTLS=")
+                            .append(consumer.getF1())
                             .append(" ***************");
                     Map<String, Map<String, Partition>> topicSubMap =
                             currentSubInfoMap.get(consumer.getF0());
                     if (topicSubMap != null) {
                         int totalSize = 0;
-                        for (Map.Entry<String, Map<String, Partition>> entry : topicSubMap.entrySet()) {
+                        for (Map.Entry<String, Map<String, Partition>> entry :
+                                topicSubMap.entrySet()) {
                             totalSize += entry.getValue().size();
                         }
                         sBuilder.append("(").append(totalSize).append(")\n\n");
-                        for (Map.Entry<String, Map<String, Partition>> entry : topicSubMap.entrySet()) {
+                        for (Map.Entry<String, Map<String, Partition>> entry :
+                                topicSubMap.entrySet()) {
                             Map<String, Partition> partMap = entry.getValue();
                             if (partMap != null) {
                                 for (Partition part : partMap.values()) {
                                     sBuilder.append(consumer.getF0())
-                                            .append("#").append(part.toString()).append("\n");
+                                            .append("#")
+                                            .append(part.toString())
+                                            .append("\n");
                                 }
                             }
                         }
@@ -194,10 +198,8 @@ public class Master implements Action {
         } else {
             String topic = req.getParameter("topic");
             if (topic != null) {
-                TopicPSInfoManager topicPSInfoManager =
-                        master.getTopicPSInfoManager();
-                Set<String> producerSet =
-                        topicPSInfoManager.getTopicPubInfo(topic);
+                TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+                Set<String> producerSet = topicPSInfoManager.getTopicPubInfo(topic);
                 if (producerSet != null && !producerSet.isEmpty()) {
                     int index = 1;
                     for (String producer : producerSet) {
@@ -217,8 +219,8 @@ public class Master implements Action {
      * @param isOldRet
      * @return
      */
-    private void innGetBrokerInfo(final HttpServletRequest req,
-                                           StringBuilder sBuilder, boolean isOldRet) {
+    private void innGetBrokerInfo(
+            final HttpServletRequest req, StringBuilder sBuilder, boolean isOldRet) {
         Map<Integer, BrokerInfo> brokerInfoMap = null;
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         String brokerIds = req.getParameter("ids");
@@ -237,7 +239,9 @@ public class Master implements Action {
             MetaDataService defMetaDataService = master.getMetaDataService();
             for (BrokerInfo broker : brokerInfoMap.values()) {
                 sBuilder.append("\n################################## ")
-                        .append(index).append(". ").append(broker.toString())
+                        .append(index)
+                        .append(". ")
+                        .append(broker.toString())
                         .append(" ##################################\n");
                 List<TopicInfo> topicInfoList =
                         brokerRunManager.getPubBrokerPushedTopicInfo(broker.getBrokerId());
@@ -247,7 +251,6 @@ public class Master implements Action {
                     for (TopicInfo info : topicInfoList) {
                         sBuilder = info.toStrBuilderString(sBuilder);
                         sBuilder.append("\n");
-
                     }
                 } else {
                     for (TopicInfo info : topicInfoList) {
@@ -264,7 +267,8 @@ public class Master implements Action {
                             } else {
                                 sBuilder = info.toStrBuilderString(sBuilder);
                                 sBuilder.append(TokenConstants.SEGMENT_SEP)
-                                        .append(bdbEntity.getTopicStatusId()).append("\n");
+                                        .append(bdbEntity.getTopicStatusId())
+                                        .append("\n");
                             }
                         }
                     }
@@ -283,8 +287,7 @@ public class Master implements Action {
      */
     private void getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String topic = req.getParameter("topic");
-        Set<String> producerIds =
-                master.getTopicPSInfoManager().getTopicPubInfo(topic);
+        Set<String> producerIds = master.getTopicPSInfoManager().getTopicPubInfo(topic);
         if (producerIds != null && !producerIds.isEmpty()) {
             for (String producerId : producerIds) {
                 sBuilder.append(producerId).append("\n");

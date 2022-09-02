@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * MongoDB source info
- */
+/** MongoDB source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -68,5 +66,4 @@ public class MongoDBSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, MongoDBSourceRequest::new);
     }
-
 }

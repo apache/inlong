@@ -18,18 +18,17 @@
 
 package org.apache.inlong.sort.hive.filesystem;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.state.StateInitializationContext;
 import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.filesystem.stream.PartitionCommitInfo;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
 
 /** Writer for emitting {@link PartitionCommitInfo} to downstream. */
 public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, PartitionCommitInfo> {
@@ -43,7 +42,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     public StreamingFileWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
                     bucketsBuilder,
             String inLongMetric,
             String auditHostAndPorts) {
@@ -69,9 +68,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     }
 
     @Override
-    protected void onPartFileOpened(String s, Path newPath) {
-
-    }
+    protected void onPartFileOpened(String s, Path newPath) {}
 
     @Override
     public void snapshotState(StateSnapshotContext context) throws Exception {
@@ -100,4 +97,3 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
                                 new ArrayList<>(partitions))));
     }
 }
-

@@ -18,12 +18,17 @@
 package org.apache.inlong.manager.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -31,15 +36,7 @@ import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Base example class for client.
- */
+/** Base example class for client. */
 @Data
 public class BaseExample {
 
@@ -66,9 +63,7 @@ public class BaseExample {
     // Pulsar topic
     private String topic = "{pulsar.topic}";
 
-    /**
-     * Create inlong group info
-     */
+    /** Create inlong group info */
     public InlongGroupInfo createGroupInfo() {
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId(groupId);
@@ -101,9 +96,7 @@ public class BaseExample {
         return pulsarInfo;
     }
 
-    /**
-     * Create inlong stream info
-     */
+    /** Create inlong stream info */
     public InlongStreamInfo createStreamInfo() {
         InlongStreamInfo streamInfo = new InlongStreamInfo();
         streamInfo.setName(this.getStreamId());
@@ -116,9 +109,7 @@ public class BaseExample {
         return streamInfo;
     }
 
-    /**
-     * Create hive sink
-     */
+    /** Create hive sink */
     public HiveSink createHiveSink() {
         HiveSink hiveSink = new HiveSink();
         hiveSink.setDbName("{db.name}");
@@ -131,8 +122,15 @@ public class BaseExample {
         hiveSink.setHiveConfDir("{hive.conf.dir}");
 
         List<SinkField> fields = new ArrayList<>();
-        SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
-        SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name");
+        SinkField field1 =
+                new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
+        SinkField field2 =
+                new SinkField(
+                        1,
+                        FieldType.STRING.toString(),
+                        "name",
+                        FieldType.STRING.toString(),
+                        "name");
         fields.add(field1);
         fields.add(field2);
         hiveSink.setSinkFieldList(fields);
@@ -140,5 +138,4 @@ public class BaseExample {
         hiveSink.setSinkName("{hive.sink.name}");
         return hiveSink;
     }
-
 }

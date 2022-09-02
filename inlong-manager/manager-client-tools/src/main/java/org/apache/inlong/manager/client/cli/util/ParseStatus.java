@@ -22,12 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Parse status as STATUS (status).
- * e.g. FAILED (120)
- */
+/** Parse status as STATUS (status). e.g. FAILED (120) */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface ParseStatus {
-
-}
+public @interface ParseStatus {}

@@ -18,14 +18,11 @@
 
 package org.apache.inlong.manager.common.util;
 
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
-
-/**
- * AES encryption and decryption util test.
- */
+/** AES encryption and decryption util test. */
 public class AESUtilsTest {
 
     @Test
@@ -41,7 +38,8 @@ public class AESUtilsTest {
     void testEncryptDecryptByConfigVersion() throws Exception {
         String plainText = "hello, inlong again";
         Integer version = AESUtils.getCurrentVersion(null);
-        String cipheredText = AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), version);
+        String cipheredText =
+                AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), version);
         byte[] decipheredBytes = AESUtils.decryptAsString(cipheredText, version);
         Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
     }
@@ -51,7 +49,8 @@ public class AESUtilsTest {
         String plainText = "hello, inlong again";
 
         // when version is null no encryption is performed
-        String cipheredText = AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), null);
+        String cipheredText =
+                AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), null);
         Assertions.assertEquals(plainText, cipheredText);
 
         // when version is null no decryption is performed

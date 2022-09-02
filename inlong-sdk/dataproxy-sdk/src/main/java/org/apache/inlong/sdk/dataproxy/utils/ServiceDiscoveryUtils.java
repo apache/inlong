@@ -22,6 +22,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -46,35 +56,22 @@ import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Utils for service discovery
- */
+/** Utils for service discovery */
 public class ServiceDiscoveryUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceDiscoveryUtils.class);
 
-    private static final String GET_MANAGER_IP_LIST_API = "/inlong/manager/openapi/agent/getManagerIpList";
+    private static final String GET_MANAGER_IP_LIST_API =
+            "/inlong/manager/openapi/agent/getManagerIpList";
     private static String latestManagerIPList = "";
     private static String arraySed = ",";
 
-    /**
-     * Get Inlong-Manager IP list from the given proxy client config
-     */
+    /** Get Inlong-Manager IP list from the given proxy client config */
     public static String getManagerIpList(ProxyClientConfig clientConfig) {
         String managerAddress = clientConfig.getManagerIP() + ":" + clientConfig.getManagerPort();
         if (StringUtils.isBlank(managerAddress)) {
-            log.error("ServiceDiscovery get managerIpList but managerAddress is blank, just return");
+            log.error(
+                    "ServiceDiscovery get managerIpList but managerAddress is blank, just return");
             return null;
         }
 
@@ -84,21 +81,25 @@ public class ServiceDiscoveryUtils {
             return managerIpList;
         }
 
-        log.error("ServiceDiscovery get managerIpList from {} occur error, try to get from latestManagerIPList",
+        log.error(
+                "ServiceDiscovery get managerIpList from {} occur error, try to get from latestManagerIPList",
                 managerAddress);
 
         String[] managerIps = latestManagerIPList.split(arraySed);
         if (managerIps.length > 0) {
             for (String managerIp : managerIps) {
                 if (StringUtils.isBlank(managerIp)) {
-                    log.error("ServiceDiscovery managerIp is null, latestManagerIPList is {}", latestManagerIPList);
+                    log.error(
+                            "ServiceDiscovery managerIp is null, latestManagerIPList is {}",
+                            latestManagerIPList);
                     continue;
                 }
 
                 String currentAddress = managerIp + ":" + clientConfig.getManagerPort();
                 managerIpList = getManagerIpListByHttp(currentAddress, clientConfig);
                 if (StringUtils.isBlank(managerIpList)) {
-                    log.error("ServiceDiscovery get latestManagerIPList from {} but got nothing, will try next ip",
+                    log.error(
+                            "ServiceDiscovery get latestManagerIPList from {} but got nothing, will try next ip",
                             managerIp);
                     continue;
                 }
@@ -106,7 +107,9 @@ public class ServiceDiscoveryUtils {
                 return managerIpList;
             }
         } else {
-            log.error("ServiceDiscovery latestManagerIpList {} format error, or not contain ip", latestManagerIPList);
+            log.error(
+                    "ServiceDiscovery latestManagerIpList {} format error, or not contain ip",
+                    latestManagerIPList);
         }
 
         String existedIpList = getLocalManagerIpList(clientConfig.getManagerIpLocalPath());
@@ -115,40 +118,49 @@ public class ServiceDiscoveryUtils {
             if (existedIps.length > 0) {
                 for (String existedIp : existedIps) {
                     if (StringUtils.isBlank(existedIp)) {
-                        log.error("ServiceDiscovery get illegal format ipList from local file, "
+                        log.error(
+                                "ServiceDiscovery get illegal format ipList from local file, "
                                         + "exist ip is empty, managerIpList is {}, local file is {}",
-                                existedIpList, clientConfig.getManagerIpLocalPath());
+                                existedIpList,
+                                clientConfig.getManagerIpLocalPath());
                         continue;
                     }
 
                     String currentAddress = existedIp + ":" + clientConfig.getManagerPort();
                     managerIpList = getManagerIpListByHttp(currentAddress, clientConfig);
                     if (StringUtils.isBlank(managerIpList)) {
-                        log.error("ServiceDiscovery get {} from local file {} but got nothing, will try next ip",
-                                existedIp, clientConfig.getManagerIpLocalPath());
+                        log.error(
+                                "ServiceDiscovery get {} from local file {} but got nothing, will try next ip",
+                                existedIp,
+                                clientConfig.getManagerIpLocalPath());
                         continue;
                     }
                     latestManagerIPList = managerIpList;
                     return managerIpList;
                 }
             } else {
-                log.error("ServiceDiscovery get illegal format ipList from local file, "
+                log.error(
+                        "ServiceDiscovery get illegal format ipList from local file, "
                                 + "exist ip is empty, managerIpList is {}, local file is {}",
-                        existedIpList, clientConfig.getManagerIpLocalPath());
+                        existedIpList,
+                        clientConfig.getManagerIpLocalPath());
             }
         } else {
-            log.error("ServiceDiscovery get empty ipList from local file {}", clientConfig.getManagerIpLocalPath());
+            log.error(
+                    "ServiceDiscovery get empty ipList from local file {}",
+                    clientConfig.getManagerIpLocalPath());
         }
 
         return managerIpList;
     }
 
-    /**
-     * Get Inlong-Manager IP list from the given managerIp and proxy client config
-     */
-    public static String getManagerIpListByHttp(String managerIp, ProxyClientConfig proxyClientConfig) {
+    /** Get Inlong-Manager IP list from the given managerIp and proxy client config */
+    public static String getManagerIpListByHttp(
+            String managerIp, ProxyClientConfig proxyClientConfig) {
         String url =
-                (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + GET_MANAGER_IP_LIST_API;
+                (proxyClientConfig.isLocalVisit() ? "http://" : "https://")
+                        + managerIp
+                        + GET_MANAGER_IP_LIST_API;
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", proxyClientConfig.getUserName()));
@@ -156,7 +168,8 @@ public class ServiceDiscoveryUtils {
         log.info("Begin to get configure from manager {}, param is {}", url, params);
         CloseableHttpClient httpClient;
         HttpParams myParams = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(myParams, proxyClientConfig.getManagerConnectionTimeout());
+        HttpConnectionParams.setConnectionTimeout(
+                myParams, proxyClientConfig.getManagerConnectionTimeout());
         HttpConnectionParams.setSoTimeout(myParams, proxyClientConfig.getManagerSocketTimeout());
         if (proxyClientConfig.isLocalVisit()) {
             httpClient = new DefaultHttpClient(myParams);
@@ -166,14 +179,24 @@ public class ServiceDiscoveryUtils {
                 for (BasicNameValuePair paramItem : params) {
                     headers.add(new BasicHeader(paramItem.getName(), paramItem.getValue()));
                 }
-                RequestConfig requestConfig = RequestConfig.custom()
-                        .setConnectTimeout(10000).setSocketTimeout(30000).build();
+                RequestConfig requestConfig =
+                        RequestConfig.custom()
+                                .setConnectTimeout(10000)
+                                .setSocketTimeout(30000)
+                                .build();
                 SSLContext sslContext = SSLContexts.custom().build();
-                SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                        new String[]{"TLSv1"}, null,
-                        SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-                httpClient = HttpClients.custom().setDefaultHeaders(headers)
-                        .setDefaultRequestConfig(requestConfig).setSSLSocketFactory(sslsf).build();
+                SSLConnectionSocketFactory sslsf =
+                        new SSLConnectionSocketFactory(
+                                sslContext,
+                                new String[] {"TLSv1"},
+                                null,
+                                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+                httpClient =
+                        HttpClients.custom()
+                                .setDefaultHeaders(headers)
+                                .setDefaultRequestConfig(requestConfig)
+                                .setSSLSocketFactory(sslsf)
+                                .build();
             } catch (Throwable t) {
                 log.error("Create Https client failed: ", t);
                 return null;
@@ -185,10 +208,16 @@ public class ServiceDiscoveryUtils {
             httpPost = new HttpPost(url);
             if (proxyClientConfig.isNeedAuthentication()) {
                 long timestamp = System.currentTimeMillis();
-                int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
-                httpPost.setHeader(BasicAuth.BASIC_AUTH_HEADER,
-                        Utils.getAuthorizenInfo(proxyClientConfig.getUserName(),
-                                proxyClientConfig.getSecretKey(), timestamp, nonce));
+                int nonce =
+                        new SecureRandom(String.valueOf(timestamp).getBytes())
+                                .nextInt(Integer.MAX_VALUE);
+                httpPost.setHeader(
+                        BasicAuth.BASIC_AUTH_HEADER,
+                        Utils.getAuthorizenInfo(
+                                proxyClientConfig.getUserName(),
+                                proxyClientConfig.getSecretKey(),
+                                timestamp,
+                                nonce));
             }
             httpPost.setEntity(new UrlEncodedFormEntity(params));
             HttpResponse response = httpClient.execute(httpPost);
@@ -198,8 +227,11 @@ public class ServiceDiscoveryUtils {
                 JsonParser jsonParser = new JsonParser();
                 JsonObject jb = jsonParser.parse(returnStr).getAsJsonObject();
                 if (jb == null) {
-                    log.warn("ServiceDiscovery updated manager ip failed, returnStr = {} jb is "
-                            + "null ", returnStr, jb);
+                    log.warn(
+                            "ServiceDiscovery updated manager ip failed, returnStr = {} jb is "
+                                    + "null ",
+                            returnStr,
+                            jb);
                     return null;
                 }
                 JsonArray retData = jb.get("data").getAsJsonArray();
@@ -212,7 +244,11 @@ public class ServiceDiscoveryUtils {
                     return null;
                 }
                 String strIPs = String.join(",", managerIpList);
-                log.info("ServiceDiscovery updated manager ip success, ip : " + strIPs + ", retStr : " + returnStr);
+                log.info(
+                        "ServiceDiscovery updated manager ip success, ip : "
+                                + strIPs
+                                + ", retStr : "
+                                + returnStr);
                 return strIPs;
             }
             return null;
@@ -229,9 +265,7 @@ public class ServiceDiscoveryUtils {
         }
     }
 
-    /**
-     * Get Inlong-Manager IP list from local path
-     */
+    /** Get Inlong-Manager IP list from local path */
     public static String getLocalManagerIpList(String localPath) {
         log.info("ServiceDiscovery start loading config from file {} ...", localPath);
         String newestIp = null;
@@ -246,7 +280,9 @@ public class ServiceDiscoveryUtils {
                 return null;
             }
             newestIp = new String(serialized, StandardCharsets.UTF_8);
-            log.info("ServiceDiscovery get manager ip list from local success, result is: {}", newestIp);
+            log.info(
+                    "ServiceDiscovery get manager ip list from local success, result is: {}",
+                    newestIp);
         } catch (IOException e) {
             log.error("ServiceDiscovery load manager config error: ", e);
         }
@@ -254,12 +290,11 @@ public class ServiceDiscoveryUtils {
         return newestIp;
     }
 
-    /**
-     * Update Inlong-Manager info to local file
-     */
+    /** Update Inlong-Manager info to local file */
     public static void updateManagerInfo2Local(String storeString, String path) {
         if (StringUtils.isBlank(storeString)) {
-            log.warn("ServiceDiscovery updateTdmInfo2Local error, configMap is empty or managerIpList is blank");
+            log.warn(
+                    "ServiceDiscovery updateTdmInfo2Local error, configMap is empty or managerIpList is blank");
             return;
         }
         File localPath = new File(path);
@@ -267,13 +302,14 @@ public class ServiceDiscoveryUtils {
             localPath.getParentFile().mkdirs();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(localPath), StandardCharsets.UTF_8))) {
+        try (BufferedWriter writer =
+                new BufferedWriter(
+                        new OutputStreamWriter(
+                                new FileOutputStream(localPath), StandardCharsets.UTF_8))) {
             writer.write(storeString);
             writer.flush();
         } catch (IOException e) {
             log.error("ServiceDiscovery save manager config error: ", e);
         }
     }
-
 }

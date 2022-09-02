@@ -17,6 +17,19 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
@@ -26,29 +39,12 @@ import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
-/**
- * Read text files
- */
+/** Read text files */
 public class TextFileSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
 
-    public TextFileSource() {
-    }
+    public TextFileSource() {}
 
     @Override
     public List<Reader> split(JobProfile jobConf) {
@@ -59,10 +55,14 @@ public class TextFileSource extends AbstractSource {
         LOGGER.info("file splits size: {}", allFiles.size());
         for (File file : allFiles) {
             int startPosition = getStartPosition(jobConf, file);
-            LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", startPosition,
-                    jobConf.getInstanceId(), file.getAbsolutePath());
+            LOGGER.info(
+                    "read from history position {} with job profile {}, file absolute path: {}",
+                    startPosition,
+                    jobConf.getInstanceId(),
+                    file.getAbsolutePath());
             FileReaderOperator fileReader = new FileReaderOperator(file, startPosition);
-            long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
+            long waitTimeout =
+                    jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
             fileReader.setWaitMillisecond(waitTimeout);
             addValidator(filterPattern, fileReader);
             result.add(fileReader);
@@ -74,9 +74,11 @@ public class TextFileSource extends AbstractSource {
 
     private int getStartPosition(JobProfile jobConf, File file) {
         int seekPosition;
-        if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
-                .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
-            try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file.getPath()))) {
+        if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE)
+                && DataCollectType.INCREMENT.equalsIgnoreCase(
+                        jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
+            try (LineNumberReader lineNumberReader =
+                    new LineNumberReader(new FileReader(file.getPath()))) {
                 lineNumberReader.skip(Long.MAX_VALUE);
                 seekPosition = lineNumberReader.getLineNumber() + 1;
                 return seekPosition;

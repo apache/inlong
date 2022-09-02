@@ -19,16 +19,12 @@ package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Inlong group related status
- */
+/** Inlong group related status */
 public enum GroupStatus {
-
     DRAFT(0, "draft"),
     TO_BE_SUBMIT(100, "waiting for submit"),
     TO_BE_APPROVAL(101, "waiting for approval"),
@@ -52,31 +48,48 @@ public enum GroupStatus {
     // GROUP_FINISH is used for batch task.
     FINISH(131, "finish");
 
-    private static final Map<GroupStatus, Set<GroupStatus>> GROUP_STATE_AUTOMATON = Maps.newHashMap();
+    private static final Map<GroupStatus, Set<GroupStatus>> GROUP_STATE_AUTOMATON =
+            Maps.newHashMap();
 
     /*
      * Init group finite status automaton
      */
     static {
         GROUP_STATE_AUTOMATON.put(DRAFT, Sets.newHashSet(DRAFT, TO_BE_SUBMIT, DELETING));
-        GROUP_STATE_AUTOMATON.put(TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL,
+        GROUP_STATE_AUTOMATON.put(
+                TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, DELETING));
+        GROUP_STATE_AUTOMATON.put(
+                TO_BE_APPROVAL,
                 Sets.newHashSet(TO_BE_APPROVAL, APPROVE_REJECTED, APPROVE_PASSED, DELETING));
 
-        GROUP_STATE_AUTOMATON.put(APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, DELETING));
+        GROUP_STATE_AUTOMATON.put(
+                APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, DELETING));
+        GROUP_STATE_AUTOMATON.put(
+                APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, DELETING));
 
-        GROUP_STATE_AUTOMATON.put(CONFIG_ING, Sets.newHashSet(CONFIG_ING, CONFIG_FAILED, CONFIG_SUCCESSFUL));
-        GROUP_STATE_AUTOMATON.put(CONFIG_FAILED,
+        GROUP_STATE_AUTOMATON.put(
+                CONFIG_ING, Sets.newHashSet(CONFIG_ING, CONFIG_FAILED, CONFIG_SUCCESSFUL));
+        GROUP_STATE_AUTOMATON.put(
+                CONFIG_FAILED,
                 Sets.newHashSet(CONFIG_FAILED, CONFIG_SUCCESSFUL, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(CONFIG_SUCCESSFUL,
-                Sets.newHashSet(CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_ING, SUSPENDING, DELETING, FINISH));
+        GROUP_STATE_AUTOMATON.put(
+                CONFIG_SUCCESSFUL,
+                Sets.newHashSet(
+                        CONFIG_SUCCESSFUL,
+                        TO_BE_APPROVAL,
+                        CONFIG_ING,
+                        SUSPENDING,
+                        DELETING,
+                        FINISH));
 
-        GROUP_STATE_AUTOMATON.put(SUSPENDING, Sets.newHashSet(SUSPENDING, SUSPENDED, CONFIG_FAILED));
+        GROUP_STATE_AUTOMATON.put(
+                SUSPENDING, Sets.newHashSet(SUSPENDING, SUSPENDED, CONFIG_FAILED));
         GROUP_STATE_AUTOMATON.put(SUSPENDED, Sets.newHashSet(SUSPENDED, RESTARTING, DELETING));
 
-        GROUP_STATE_AUTOMATON.put(RESTARTING, Sets.newHashSet(RESTARTING, RESTARTED, CONFIG_FAILED));
-        GROUP_STATE_AUTOMATON.put(RESTARTED, Sets.newHashSet(RESTARTED, SUSPENDING, TO_BE_APPROVAL, DELETING));
+        GROUP_STATE_AUTOMATON.put(
+                RESTARTING, Sets.newHashSet(RESTARTING, RESTARTED, CONFIG_FAILED));
+        GROUP_STATE_AUTOMATON.put(
+                RESTARTED, Sets.newHashSet(RESTARTED, SUSPENDING, TO_BE_APPROVAL, DELETING));
 
         GROUP_STATE_AUTOMATON.put(DELETING, Sets.newHashSet(DELETING, DELETED, CONFIG_FAILED));
         GROUP_STATE_AUTOMATON.put(DELETED, Sets.newHashSet(DELETED));
@@ -106,35 +119,35 @@ public enum GroupStatus {
         return nextStates == null || !nextStates.contains(now);
     }
 
-    /**
-     * Checks whether the given status allows the update.
-     */
+    /** Checks whether the given status allows the update. */
     public static boolean notAllowedUpdate(GroupStatus status) {
-        return status == GroupStatus.CONFIG_ING || status == GroupStatus.SUSPENDING
-                || status == GroupStatus.RESTARTING || status == GroupStatus.DELETING;
+        return status == GroupStatus.CONFIG_ING
+                || status == GroupStatus.SUSPENDING
+                || status == GroupStatus.RESTARTING
+                || status == GroupStatus.DELETING;
     }
 
-    /**
-     * Checks whether the given status allows the logical delete
-     */
+    /** Checks whether the given status allows the logical delete */
     public static boolean allowedLogicDelete(GroupStatus status) {
-        return status == GroupStatus.DRAFT || status == GroupStatus.TO_BE_SUBMIT
-                || status == GroupStatus.DELETED || status == GroupStatus.FINISH;
+        return status == GroupStatus.DRAFT
+                || status == GroupStatus.TO_BE_SUBMIT
+                || status == GroupStatus.DELETED
+                || status == GroupStatus.FINISH;
     }
 
     /**
-     * Only the {@link GroupStatus#DRAFT} and {@link GroupStatus#TO_BE_SUBMIT} status
-     * allows change the MQ type of inlong group.
+     * Only the {@link GroupStatus#DRAFT} and {@link GroupStatus#TO_BE_SUBMIT} status allows change
+     * the MQ type of inlong group.
      */
     public static boolean notAllowedUpdateMQ(GroupStatus status) {
-        return status != GroupStatus.DRAFT && status != GroupStatus.TO_BE_SUBMIT
-                && status != GroupStatus.TO_BE_APPROVAL && status != GroupStatus.APPROVE_REJECTED
+        return status != GroupStatus.DRAFT
+                && status != GroupStatus.TO_BE_SUBMIT
+                && status != GroupStatus.TO_BE_APPROVAL
+                && status != GroupStatus.APPROVE_REJECTED
                 && status != GroupStatus.CONFIG_FAILED;
     }
 
-    /**
-     * Temporary group status, adding, deleting and modifying operations are not allowed
-     */
+    /** Temporary group status, adding, deleting and modifying operations are not allowed */
     public static boolean isTempStatus(GroupStatus status) {
         return status == TO_BE_APPROVAL || status == CONFIG_ING;
     }

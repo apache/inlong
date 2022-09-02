@@ -17,19 +17,18 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.dao.entity.DBCollectorDetailTaskEntity;
+import org.apache.inlong.manager.dao.mapper.DBCollectorDetailTaskMapper;
 import org.apache.inlong.manager.pojo.dbcollector.DBCollectorReportTaskRequest;
 import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskInfo;
 import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskRequest;
-import org.apache.inlong.manager.dao.entity.DBCollectorDetailTaskEntity;
-import org.apache.inlong.manager.dao.mapper.DBCollectorDetailTaskMapper;
 import org.apache.inlong.manager.service.core.DBCollectorTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -49,22 +48,30 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
     private static final int RETURN_INVALID_VERSION = 2;
     private static final int RETURN_INVALID_STATE = 3;
 
-    @Autowired
-    private DBCollectorDetailTaskMapper detailTaskMapper;
+    @Autowired private DBCollectorDetailTaskMapper detailTaskMapper;
 
     @Override
     public DBCollectorTaskInfo getTask(DBCollectorTaskRequest req) {
         LOGGER.debug("db collector task request: {}", req);
         if (!INTERFACE_VERSION.equals(req.getVersion())) {
-            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_INVALID_VERSION).build();
+            return DBCollectorTaskInfo.builder()
+                    .version(INTERFACE_VERSION)
+                    .returnCode(RETURN_INVALID_VERSION)
+                    .build();
         }
         DBCollectorDetailTaskEntity entity = detailTaskMapper.selectOneByState(INIT);
         if (entity == null) {
-            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_EMPTY).build();
+            return DBCollectorTaskInfo.builder()
+                    .version(INTERFACE_VERSION)
+                    .returnCode(RETURN_EMPTY)
+                    .build();
         }
         int ret = detailTaskMapper.changeState(entity.getId(), 0, INIT, DISPATCHED);
         if (ret == 0) {
-            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_EMPTY).build();
+            return DBCollectorTaskInfo.builder()
+                    .version(INTERFACE_VERSION)
+                    .returnCode(RETURN_EMPTY)
+                    .build();
         } else {
             DBCollectorTaskInfo.TaskInfo task = new DBCollectorTaskInfo.TaskInfo();
             task.setId(entity.getId());
@@ -82,7 +89,11 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
             task.setRetryTimes(entity.getRetryTimes());
             task.setInlongGroupId(entity.getGroupId());
             task.setInlongStreamId(entity.getStreamId());
-            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_SUCC).data(task).build();
+            return DBCollectorTaskInfo.builder()
+                    .version(INTERFACE_VERSION)
+                    .returnCode(RETURN_SUCC)
+                    .data(task)
+                    .build();
         }
     }
 
@@ -95,12 +106,12 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
         if (entity == null) {
             return RETURN_EMPTY;
         }
-        if (req.getState() != DISPATCHED
-                && req.getState() != DONE
-                && req.getState() != FAILED) {
+        if (req.getState() != DISPATCHED && req.getState() != DONE && req.getState() != FAILED) {
             return RETURN_INVALID_STATE;
         }
-        int ret = detailTaskMapper.changeState(entity.getId(), req.getOffset(), DISPATCHED, req.getState());
+        int ret =
+                detailTaskMapper.changeState(
+                        entity.getId(), req.getOffset(), DISPATCHED, req.getState());
         if (ret == 0) {
             return RETURN_EMPTY;
         }

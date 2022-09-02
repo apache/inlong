@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.transform.deduplication;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,22 +27,18 @@ import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 /**
- * A class to define operation to duplicate message in a time duration.
- * DupFields is needed to judge whether stream records is duplicate.
- * TimingField is eventTime of stream records.
- * Interval and timeunit is required to modify a time interval,
- * during which duplicate records is operated;
+ * A class to define operation to duplicate message in a time duration. DupFields is needed to judge
+ * whether stream records is duplicate. TimingField is eventTime of stream records. Interval and
+ * timeunit is required to modify a time interval, during which duplicate records is operated;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder
 public class DeDuplicationDefinition extends TransformDefinition {
 
-    public DeDuplicationDefinition(List<StreamField> dupFields,
+    public DeDuplicationDefinition(
+            List<StreamField> dupFields,
             StreamField timingField,
             long interval,
             TimeUnit timeUnit,
@@ -53,33 +51,25 @@ public class DeDuplicationDefinition extends TransformDefinition {
         this.deDuplicationStrategy = deDuplicationStrategy;
     }
 
-    /**
-     * Duplicate fields for de_duplication transform
-     */
+    /** Duplicate fields for de_duplication transform */
     private List<StreamField> dupFields;
 
-    /**
-     * Event time field for de_duplication transform
-     */
+    /** Event time field for de_duplication transform */
     private StreamField timingField;
 
-    /**
-     * Time interval for de_duplication transform
-     */
+    /** Time interval for de_duplication transform */
     private long interval;
 
-    /**
-     * TimeUnit for de_duplication transform
-     */
+    /** TimeUnit for de_duplication transform */
     private TimeUnit timeUnit;
 
     @JsonFormat
     public enum DeDuplicationStrategy {
-        REMOVE_ALL, RESERVE_FIRST, RESERVE_LAST
+        REMOVE_ALL,
+        RESERVE_FIRST,
+        RESERVE_LAST
     }
 
-    /**
-     * Strategy for de_duplication operation
-     */
+    /** Strategy for de_duplication operation */
     private DeDuplicationStrategy deDuplicationStrategy;
 }

@@ -1,24 +1,22 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc.codec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +56,9 @@ public class DataConverterUtilTest {
         strInfoList.clear();
         strInfoList.add("001@group#0:localhost:1200#tube:0");
         List<SubscribeInfo> subscribeInfoList = DataConverterUtil.convertSubInfo(strInfoList);
-        assertTrue("subscribe should be equal", subscribeInfoEqual(subscribeInfo, subscribeInfoList.get(0)));
+        assertTrue(
+                "subscribe should be equal",
+                subscribeInfoEqual(subscribeInfo, subscribeInfoList.get(0)));
 
         // topic convert
         TopicInfo topic = new TopicInfo(broker, "tube", 10, 5, true, true);
@@ -67,7 +67,5 @@ public class DataConverterUtilTest {
         strInfoList.add("tube#0:10:5");
         List<TopicInfo> topicList = DataConverterUtil.convertTopicInfo(brokerMap, strInfoList);
         assertEquals("topic should be equal", topic, topicList.get(0));
-
     }
-
 }

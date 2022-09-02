@@ -35,5 +35,4 @@ public class StreamHeartbeat {
     private String status;
 
     private String metric;
-
 }

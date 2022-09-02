@@ -1,18 +1,17 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
- * agreements.  See the NOTICE file distributed with this work for additional information regarding
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
  * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.  You may obtain a
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.apache.inlong.common.monitor;
 
 import java.util.HashMap;
@@ -22,8 +21,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatRunner
-        implements Runnable {
+public class StatRunner implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(StatRunner.class);
     private boolean shutDownFlag = false;
@@ -33,8 +31,12 @@ public class StatRunner
     private int intervalSec;
     private Set<String> moniterNames;
 
-    public StatRunner(String name, CounterGroup counterGroup, CounterGroupExt counterExt,
-            int intervalSec, Set<String> moniterNames) {
+    public StatRunner(
+            String name,
+            CounterGroup counterGroup,
+            CounterGroupExt counterExt,
+            int intervalSec,
+            Set<String> moniterNames) {
         this.counterGroup = counterGroup;
         this.counterGroupExt = counterExt;
         this.intervalSec = intervalSec;
@@ -42,9 +44,7 @@ public class StatRunner
         this.name = name;
     }
 
-    /**
-     * run
-     */
+    /** run */
     public void run() {
         HashMap<String, Long> counters = new HashMap();
         HashMap counterExt = new HashMap();
@@ -71,7 +71,7 @@ public class StatRunner
                 while (iterator.hasNext()) {
                     str = (String) iterator.next();
                     cnt = (Long) counters.get(str);
-                    logger.info("{}.{}={}", new Object[]{this.name, str, cnt});
+                    logger.info("{}.{}={}", new Object[] {this.name, str, cnt});
                 }
 
                 counters.clear();
@@ -93,8 +93,9 @@ public class StatRunner
 
                 while (iterator.hasNext()) {
                     Entry<String, Long> entrys = (Entry) iterator.next();
-                    logger.info("{}.{}={}",
-                            new Object[]{this.name, entrys.getKey(), entrys.getValue()});
+                    logger.info(
+                            "{}.{}={}",
+                            new Object[] {this.name, entrys.getKey(), entrys.getValue()});
                 }
 
                 counterExt.clear();
@@ -102,11 +103,9 @@ public class StatRunner
                 logger.warn("statrunner interrupted");
             }
         }
-
     }
 
     public void shutDown() {
         this.shutDownFlag = true;
     }
 }
-

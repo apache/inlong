@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,11 +27,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.List;
-
-/**
- * Inlong group status info
- */
+/** Inlong group status info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -49,5 +46,4 @@ public class InlongGroupStatusInfo {
 
     @ApiModelProperty(value = "Stream sources in the inlong group")
     private List<StreamSource> streamSources;
-
 }

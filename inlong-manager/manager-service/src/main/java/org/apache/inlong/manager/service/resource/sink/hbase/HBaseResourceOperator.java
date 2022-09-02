@@ -17,17 +17,24 @@
 
 package org.apache.inlong.manager.service.resource.sink.hbase;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseSinkDTO;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -35,35 +42,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toList;
-
-/**
- * HBase's resource operator
- */
+/** HBase's resource operator */
 @Service
 public class HBaseResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseResourceOperator.class);
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
         return SinkType.HBASE.equals(sinkType);
     }
 
-    /**
-     * Create hbase table according to the sink config
-     */
+    /** Create hbase table according to the sink config */
     public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
@@ -73,8 +66,10 @@ public class HBaseResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
 
@@ -102,28 +97,40 @@ public class HBaseResourceOperator implements SinkResourceOperator {
             HBaseApiUtils.createNamespace(zkAddress, zkNode, namespace);
 
             // 2. check if the table exists
-            boolean tableExists = HBaseApiUtils.tableExists(zkAddress, zkNode, namespace, tableName);
+            boolean tableExists =
+                    HBaseApiUtils.tableExists(zkAddress, zkNode, namespace, tableName);
 
             if (!tableExists) {
                 // 3. create table
                 HBaseApiUtils.createTable(zkAddress, zkNode, tableInfo);
             } else {
                 // 4. or update table columns
-                List<HBaseColumnFamilyInfo> existColumnFamilies = HBaseApiUtils.getColumnFamilies(zkAddress, zkNode,
-                                namespace, tableName).stream()
-                        .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());
-                List<HBaseColumnFamilyInfo> requestColumnFamilies = tableInfo.getColumnFamilies().stream()
-                        .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());
-                List<HBaseColumnFamilyInfo> newColumnFamilies = requestColumnFamilies.stream()
-                        .skip(existColumnFamilies.size()).collect(toList());
+                List<HBaseColumnFamilyInfo> existColumnFamilies =
+                        HBaseApiUtils.getColumnFamilies(zkAddress, zkNode, namespace, tableName)
+                                .stream()
+                                .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName))
+                                .collect(toList());
+                List<HBaseColumnFamilyInfo> requestColumnFamilies =
+                        tableInfo.getColumnFamilies().stream()
+                                .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName))
+                                .collect(toList());
+                List<HBaseColumnFamilyInfo> newColumnFamilies =
+                        requestColumnFamilies.stream()
+                                .skip(existColumnFamilies.size())
+                                .collect(toList());
 
                 if (CollectionUtils.isNotEmpty(newColumnFamilies)) {
-                    HBaseApiUtils.addColumnFamilies(zkAddress, zkNode, namespace, tableName, newColumnFamilies);
-                    LOGGER.info("{} column families added for table {}", newColumnFamilies.size(), tableName);
+                    HBaseApiUtils.addColumnFamilies(
+                            zkAddress, zkNode, namespace, tableName, newColumnFamilies);
+                    LOGGER.info(
+                            "{} column families added for table {}",
+                            newColumnFamilies.size(),
+                            tableName);
                 }
             }
             String info = "success to create hbase resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo = {}", info);
         } catch (Throwable e) {
             String errMsg = "create hbase table failed: " + e.getMessage();
@@ -139,7 +146,8 @@ public class HBaseResourceOperator implements SinkResourceOperator {
 
         List<HBaseColumnFamilyInfo> columnFamilies = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            HBaseColumnFamilyInfo columnFamily = HBaseColumnFamilyInfo.getFromJson(field.getExtParams());
+            HBaseColumnFamilyInfo columnFamily =
+                    HBaseColumnFamilyInfo.getFromJson(field.getExtParams());
             if (seen.contains(columnFamily.getCfName())) {
                 continue;
             }

@@ -41,11 +41,6 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("Swagger3.0.0")
-                .description("api")
-                .version("2.0")
-                .build();
+        return new ApiInfoBuilder().title("Swagger3.0.0").description("api").version("2.0").build();
     }
-
 }

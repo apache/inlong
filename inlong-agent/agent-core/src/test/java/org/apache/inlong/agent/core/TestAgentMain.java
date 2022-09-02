@@ -41,8 +41,7 @@ public class TestAgentMain {
         options.addOption("t", "test", true, "test args");
 
         CommandLineParser parser = new DefaultParser();
-        CommandLine cl = parser.parse(options, new String[]{"-test all the"});
+        CommandLine cl = parser.parse(options, new String[] {"-test all the"});
         Assert.assertTrue(cl.hasOption("test"));
     }
-
 }

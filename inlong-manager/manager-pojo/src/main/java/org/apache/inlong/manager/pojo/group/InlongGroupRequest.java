@@ -20,18 +20,15 @@ package org.apache.inlong.manager.pojo.group;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import java.util.List;
-
-/**
- * Inlong group request
- */
+/** Inlong group request */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,7 +39,8 @@ public abstract class InlongGroupRequest {
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
+    @Pattern(
+            regexp = "^[a-z0-9_-]{4,100}$",
             message = "inlongGroupId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
@@ -60,7 +58,8 @@ public abstract class InlongGroupRequest {
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource",
+    @ApiModelProperty(
+            value = "MQ resource",
             notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
@@ -106,5 +105,4 @@ public abstract class InlongGroupRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

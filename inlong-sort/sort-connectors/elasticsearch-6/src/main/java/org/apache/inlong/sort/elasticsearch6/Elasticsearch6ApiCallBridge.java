@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
@@ -34,15 +39,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * Implementation of {@link ElasticsearchApiCallBridge} for Elasticsearch 6 and later versions.
- */
+/** Implementation of {@link ElasticsearchApiCallBridge} for Elasticsearch 6 and later versions. */
 @Internal
 public class Elasticsearch6ApiCallBridge
         implements ElasticsearchApiCallBridge<RestHighLevelClient> {
@@ -51,14 +48,10 @@ public class Elasticsearch6ApiCallBridge
 
     private static final Logger LOG = LoggerFactory.getLogger(Elasticsearch6ApiCallBridge.class);
 
-    /**
-     * User-provided HTTP Host.
-     */
+    /** User-provided HTTP Host. */
     private final List<HttpHost> httpHosts;
 
-    /**
-     * The factory to configure the rest client.
-     */
+    /** The factory to configure the rest client. */
     private final RestClientFactory restClientFactory;
 
     Elasticsearch6ApiCallBridge(List<HttpHost> httpHosts, RestClientFactory restClientFactory) {

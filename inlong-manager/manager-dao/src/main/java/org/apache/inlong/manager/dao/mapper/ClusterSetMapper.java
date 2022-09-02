@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.dataproxy.CacheCluster;
 import org.apache.inlong.manager.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.pojo.dataproxy.ProxyCluster;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-/**
- * ClusterSetMapper
- */
+/** ClusterSetMapper */
 @Repository
 public interface ClusterSetMapper {
 

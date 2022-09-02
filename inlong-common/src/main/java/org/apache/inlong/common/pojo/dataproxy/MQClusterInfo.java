@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * MQ cluster info.
- */
+/** MQ cluster info. */
 public class MQClusterInfo {
 
     private String url;

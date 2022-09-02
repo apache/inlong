@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlDatabaseSchema;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.connector.mysql.MySqlDatabaseSchema;
 import io.debezium.connector.mysql.MySqlOffsetContext;
@@ -25,23 +28,17 @@ import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.schema.SchemaChangeEvent;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlDatabaseSchema;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
-
-/**
- * A component used to get schema by table path.
- */
+/** A component used to get schema by table path. */
 public class MySqlSchema {
     private static final String SHOW_CREATE_TABLE = "SHOW CREATE TABLE ";
     private static final String DESC_TABLE = "DESC ";

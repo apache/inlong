@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
+import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -27,16 +28,11 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
-import java.io.File;
-
-/**
- * Create resource by json file.
- */
+/** Create resource by json file. */
 @Parameters(commandDescription = "Create resource by json file")
 public class CreateCommand extends AbstractCommand {
 
-    @Parameter()
-    private java.util.List<String> params;
+    @Parameter() private java.util.List<String> params;
 
     public CreateCommand() {
         super("create");
@@ -46,15 +42,17 @@ public class CreateCommand extends AbstractCommand {
     @Parameters(commandDescription = "Create group by json file")
     private static class CreateGroup extends AbstractCommandRunner {
 
-        @Parameter()
-        private java.util.List<String> params;
+        @Parameter() private java.util.List<String> params;
 
-        @Parameter(names = {"-f", "--file"},
+        @Parameter(
+                names = {"-f", "--file"},
                 converter = FileConverter.class,
                 description = "json file")
         private File file;
 
-        @Parameter(names = {"-s"}, description = "optional log string to create file")
+        @Parameter(
+                names = {"-s"},
+                description = "optional log string to create file")
         private String input;
 
         @Override

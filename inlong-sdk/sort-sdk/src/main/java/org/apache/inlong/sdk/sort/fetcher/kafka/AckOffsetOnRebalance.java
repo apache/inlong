@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
+import java.util.Collection;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import org.apache.inlong.sdk.sort.api.Seeker;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -25,21 +29,19 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AckOffsetOnRebalance.class);
     private final String clusterId;
     private final Seeker seeker;
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
-    private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap;
+    private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>>
+            ackOffsetMap;
 
-    public AckOffsetOnRebalance(String clusterId, Seeker seeker,
-                                ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
+    public AckOffsetOnRebalance(
+            String clusterId,
+            Seeker seeker,
+            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
         this(clusterId, seeker, commitOffsetMap, null);
     }
 
@@ -57,41 +59,44 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
         LOGGER.debug("*- in re-balance:onPartitionsRevoked");
-        collection.forEach((v) -> {
-            LOGGER.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
-        });
+        collection.forEach(
+                (v) -> {
+                    LOGGER.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
+                });
         if (Objects.nonNull(ackOffsetMap) && Objects.nonNull(commitOffsetMap)) {
             ackRevokedPartitions(collection);
         }
     }
 
     private void ackRevokedPartitions(Collection<TopicPartition> collection) {
-        collection.forEach(tp -> {
-            if (!ackOffsetMap.containsKey(tp)) {
-                return;
-            }
-            ConcurrentSkipListMap<Long, Boolean> tpOffsetMap = ackOffsetMap.remove(tp);
-            long commitOffset = -1;
-            for (Long ackOffset : tpOffsetMap.keySet()) {
-                if (!tpOffsetMap.get(ackOffset)) {
-                    break;
-                }
-                commitOffset = ackOffset;
-            }
-            // the first haven't ack, do nothing
-            if (commitOffset == -1) {
-                return;
-            }
-            commitOffsetMap.put(tp, new OffsetAndMetadata(commitOffset));
-        });
+        collection.forEach(
+                tp -> {
+                    if (!ackOffsetMap.containsKey(tp)) {
+                        return;
+                    }
+                    ConcurrentSkipListMap<Long, Boolean> tpOffsetMap = ackOffsetMap.remove(tp);
+                    long commitOffset = -1;
+                    for (Long ackOffset : tpOffsetMap.keySet()) {
+                        if (!tpOffsetMap.get(ackOffset)) {
+                            break;
+                        }
+                        commitOffset = ackOffset;
+                    }
+                    // the first haven't ack, do nothing
+                    if (commitOffset == -1) {
+                        return;
+                    }
+                    commitOffsetMap.put(tp, new OffsetAndMetadata(commitOffset));
+                });
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
         LOGGER.debug("*- in re-balance:onPartitionsAssigned  ");
-        collection.forEach((v) -> {
-            LOGGER.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
-        });
+        collection.forEach(
+                (v) -> {
+                    LOGGER.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
+                });
         seeker.seek();
     }
 }

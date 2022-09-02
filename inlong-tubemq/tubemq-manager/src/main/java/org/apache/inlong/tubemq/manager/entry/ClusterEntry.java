@@ -22,19 +22,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import lombok.Data;
 
-/**
- * cluster machine for tube cluster. broker/master/standby
- */
+/** cluster machine for tube cluster. broker/master/standby */
 @Entity
-@Table(name = "cluster",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"clusterName"}))
+@Table(name = "cluster", uniqueConstraints = @UniqueConstraint(columnNames = {"clusterName"}))
 @Data
 public class ClusterEntry {
-    @Id
-    private long clusterId;
+    @Id private long clusterId;
 
     private String clusterName;
 

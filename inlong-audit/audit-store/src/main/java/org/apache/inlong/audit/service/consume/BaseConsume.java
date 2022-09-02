@@ -18,15 +18,13 @@
 package org.apache.inlong.audit.service.consume;
 
 import com.google.gson.Gson;
-
+import java.util.List;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.service.InsertData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public abstract class BaseConsume {
 
@@ -38,7 +36,9 @@ public abstract class BaseConsume {
     protected StoreConfig storeConfig;
     protected MessageQueueConfig mqConfig;
 
-    public BaseConsume(List<InsertData> insertServiceList, StoreConfig storeConfig,
+    public BaseConsume(
+            List<InsertData> insertServiceList,
+            StoreConfig storeConfig,
             MessageQueueConfig mqConfig) {
         this.insertServiceList = insertServiceList;
         this.storeConfig = storeConfig;
@@ -49,18 +49,19 @@ public abstract class BaseConsume {
 
     /**
      * handleMessage
+     *
      * @param body
      * @throws Exception
      */
     protected void handleMessage(String body) throws Exception {
         AuditData msgBody = gson.fromJson(body, AuditData.class);
-        this.insertServiceList.forEach((service) -> {
-            try {
-                service.insert(msgBody);
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-            }
-        });
+        this.insertServiceList.forEach(
+                (service) -> {
+                    try {
+                        service.insert(msgBody);
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                });
     }
-
 }

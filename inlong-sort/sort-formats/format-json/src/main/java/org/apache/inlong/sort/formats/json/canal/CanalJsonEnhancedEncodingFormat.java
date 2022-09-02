@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions;
@@ -30,19 +36,13 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedSerializationSchema.MetadataConverter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * {@link org.apache.flink.table.connector.format.EncodingFormat} for Canal using JSON encoding.
  *
- * different from flink:1.13.5. This can apply metadata, sink metadata into canal format
+ * <p>different from flink:1.13.5. This can apply metadata, sink metadata into canal format
  */
-public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<SerializationSchema<RowData>> {
+public class CanalJsonEnhancedEncodingFormat
+        implements EncodingFormat<SerializationSchema<RowData>> {
 
     private final TimestampFormat timestampFormat;
     private final JsonOptions.MapNullKeyMode mapNullKeyMode;
@@ -63,7 +63,8 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
     }
 
     @Override
-    public SerializationSchema<RowData> createRuntimeEncoder(Context context, DataType physicalDataType) {
+    public SerializationSchema<RowData> createRuntimeEncoder(
+            Context context, DataType physicalDataType) {
         final List<WriteableMetadata> writeableMetadata =
                 metadataKeys.stream()
                         .map(
@@ -85,8 +86,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
     @Override
     public Map<String, DataType> listWritableMetadata() {
         return Arrays.stream(WriteableMetadata.values())
-                .collect(
-                        Collectors.toMap(m -> m.key, m -> m.dataType));
+                .collect(Collectors.toMap(m -> m.key, m -> m.dataType));
     }
 
     @Override
@@ -108,10 +108,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    /**
-     * List of metadata that can write into this format.
-     * canal json inner data type
-     */
+    /** List of metadata that can write into this format. canal json inner data type */
     enum WriteableMetadata {
         DATABASE(
                 "database",
@@ -239,7 +236,8 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
         MYSQL_TYPE(
                 "mysql-type",
-                DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
+                DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable())
+                        .nullable(),
                 DataTypes.FIELD("mysqlType", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
@@ -270,11 +268,14 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
         UPDATE_BEFORE(
                 "update-before",
                 DataTypes.ARRAY(
-                        DataTypes.MAP(
-                                DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable())
+                                DataTypes.MAP(
+                                                DataTypes.STRING().nullable(),
+                                                DataTypes.STRING().nullable())
+                                        .nullable())
                         .nullable(),
-                DataTypes.FIELD("updateBefore", DataTypes.ARRAY(
-                        DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
+                DataTypes.FIELD(
+                        "updateBefore",
+                        DataTypes.ARRAY(DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
 

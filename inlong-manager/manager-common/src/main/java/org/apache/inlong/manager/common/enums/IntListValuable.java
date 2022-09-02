@@ -19,10 +19,7 @@ package org.apache.inlong.manager.common.enums;
 
 import java.util.List;
 
-/**
- * An interface that generates a list of Int
- * e.g. for generating enum values
- */
+/** An interface that generates a list of Int e.g. for generating enum values */
 public interface IntListValuable {
 
     /**
@@ -31,5 +28,4 @@ public interface IntListValuable {
      * @return list of Integer values
      */
     List<Integer> valueList();
-
 }

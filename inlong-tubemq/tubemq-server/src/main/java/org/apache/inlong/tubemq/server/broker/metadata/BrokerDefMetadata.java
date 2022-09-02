@@ -1,28 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.metadata;
 
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
- * Default metadata for broker, it mainly contains topic default config(partitions count, delete policy...).
- * These metadata will be overwrite if explicitly be set.
+ * Default metadata for broker, it mainly contains topic default config(partitions count, delete
+ * policy...). These metadata will be overwrite if explicitly be set.
  */
 public class BrokerDefMetadata {
     // topic's store file count.
@@ -33,7 +30,8 @@ public class BrokerDefMetadata {
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed data size reaches the threshold, 0=disabled.
     private int unflushDataHold = 0;
-    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush
+    // operation.
     private int unflushInterval = 10000;
     // enable produce data to topic.
     private boolean acceptPublish = true;
@@ -41,8 +39,7 @@ public class BrokerDefMetadata {
     private boolean acceptSubscribe = true;
     // path to store topic's data in disk.
     private String dataPath;
-    @Deprecated
-    private String deleteWhen = "0 0 6,18 * * ?";
+    @Deprecated private String deleteWhen = "0 0 6,18 * * ?";
     // expire policy.
     private String deletePolicy = "delete,168h";
     // the max cache size for topic.
@@ -52,15 +49,13 @@ public class BrokerDefMetadata {
     // the max interval(milliseconds) that topic's memory cache will flush to disk.
     private int memCacheFlushInterval = 20000;
 
-    public BrokerDefMetadata() {
-
-    }
+    public BrokerDefMetadata() {}
 
     /**
      * Initial broker meta-data object by configure info
      *
-     * @param brokerDefMetaConfInfo      the broker configure information.
-    */
+     * @param brokerDefMetaConfInfo the broker configure information.
+     */
     public BrokerDefMetadata(String brokerDefMetaConfInfo) {
         if (TStringUtils.isBlank(brokerDefMetaConfInfo)) {
             return;
@@ -183,5 +178,4 @@ public class BrokerDefMetadata {
     public void setMemCacheFlushInterval(int memCacheFlushInterval) {
         this.memCacheFlushInterval = memCacheFlushInterval;
     }
-
 }

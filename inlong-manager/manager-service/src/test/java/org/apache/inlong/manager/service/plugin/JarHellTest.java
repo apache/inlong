@@ -20,9 +20,7 @@ package org.apache.inlong.manager.service.plugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test class for deal with jar hell.
- */
+/** Test class for deal with jar hell. */
 public class JarHellTest {
 
     @Test
@@ -36,5 +34,4 @@ public class JarHellTest {
             Assertions.assertTrue(msg.contains("requires Java 1.8"));
         }
     }
-
 }

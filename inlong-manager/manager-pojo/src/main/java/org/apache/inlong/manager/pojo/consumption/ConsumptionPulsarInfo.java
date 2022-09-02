@@ -24,9 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.MQType;
 
-/**
- * Pulsar consumer information
- */
+/** Pulsar consumer information */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -37,16 +35,17 @@ public class ConsumptionPulsarInfo extends ConsumptionMqExtBase {
         this.setMqType(MQType.PULSAR);
     }
 
-    @ApiModelProperty("Whether to configure the dead letter queue, 0: do not configure, 1: configure")
+    @ApiModelProperty(
+            "Whether to configure the dead letter queue, 0: do not configure, 1: configure")
     private Integer isDlq;
 
     @ApiModelProperty("The name of the dead letter queue Topic")
     private String deadLetterTopic;
 
-    @ApiModelProperty("Whether to configure the retry letter queue, 0: do not configure, 1: configure")
+    @ApiModelProperty(
+            "Whether to configure the retry letter queue, 0: do not configure, 1: configure")
     private Integer isRlq;
 
     @ApiModelProperty("The name of the retry letter queue topic")
     private String retryLetterTopic;
-
 }

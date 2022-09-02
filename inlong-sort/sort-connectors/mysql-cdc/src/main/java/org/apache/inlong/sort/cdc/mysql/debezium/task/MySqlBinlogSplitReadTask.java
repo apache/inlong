@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task;
 
+import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
+
 import com.github.shyiko.mysql.binlog.event.Event;
 import io.debezium.DebeziumException;
 import io.debezium.connector.mysql.MySqlConnection;
@@ -37,9 +40,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
-
 /**
  * Task to read all binlog for table and also supports read bounded (from lowWatermark to
  * highWatermark) binlog.
@@ -54,9 +54,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     private final ErrorHandler errorHandler;
     private ChangeEventSourceContext context;
 
-    /**
-     * Constructor of MySqlBinlogSplitReadTask.
-     */
+    /** Constructor of MySqlBinlogSplitReadTask. */
     public MySqlBinlogSplitReadTask(
             MySqlConnectorConfig connectorConfig,
             MySqlOffsetContext offsetContext,

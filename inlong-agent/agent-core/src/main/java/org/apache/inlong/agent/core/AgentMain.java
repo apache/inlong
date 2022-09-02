@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core;
 
+import java.util.Iterator;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -29,11 +30,7 @@ import org.apache.inlong.common.metric.MetricObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-
-/**
- * Agent entrance class
- */
+/** Agent entrance class */
 public class AgentMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentMain.class);
@@ -77,8 +74,10 @@ public class AgentMain {
         Iterator<Option> iterator = cl.iterator();
         while (iterator != null && iterator.hasNext()) {
             Option opt = iterator.next();
-            if (opt != null && opt.getLongOpt() != null
-                    && opt.getValue() != null && conf.hasKey(opt.getLongOpt())) {
+            if (opt != null
+                    && opt.getLongOpt() != null
+                    && opt.getValue() != null
+                    && conf.hasKey(opt.getLongOpt())) {
                 conf.set(opt.getLongOpt(), opt.getValue().trim());
             }
         }
@@ -90,14 +89,17 @@ public class AgentMain {
      * @param manager agent manager
      */
     private static void stopManagerIfKilled(AgentManager manager) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                LOGGER.info("stopping agent gracefully");
-                manager.stop();
-            } catch (Exception ex) {
-                LOGGER.error("exception while stopping threads", ex);
-            }
-        }));
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        new Thread(
+                                () -> {
+                                    try {
+                                        LOGGER.info("stopping agent gracefully");
+                                        manager.stop();
+                                    } catch (Exception ex) {
+                                        LOGGER.error("exception while stopping threads", ex);
+                                    }
+                                }));
     }
 
     /**
@@ -115,7 +117,7 @@ public class AgentMain {
         try {
             manager.start();
             stopManagerIfKilled(manager);
-            //metrics
+            // metrics
             MetricObserver.init(AgentConfiguration.getAgentConf().getConfigProperties());
             manager.join();
         } catch (Exception ex) {

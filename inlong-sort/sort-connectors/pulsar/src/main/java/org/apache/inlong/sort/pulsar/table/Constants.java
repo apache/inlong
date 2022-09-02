@@ -24,9 +24,8 @@ import org.apache.flink.configuration.ConfigOptions;
 public class Constants {
 
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inlong.metric")
-            .stringType()
-            .defaultValue("")
-            .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
-
+            ConfigOptions.key("inlong.metric")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 }

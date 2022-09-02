@@ -18,11 +18,10 @@
 
 package org.apache.inlong.sort.cdc.debezium.table;
 
-import org.apache.flink.table.types.logical.LogicalType;
-
 import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.Optional;
+import org.apache.flink.table.types.logical.LogicalType;
 
 /**
  * Factory to create {@link DeserializationRuntimeConverter} according to {@link LogicalType}. It's

@@ -19,6 +19,11 @@
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
 import com.google.common.base.Objects;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
@@ -28,20 +33,13 @@ import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * InLongMsg pb format deserialization schema.
- * Used to deserialize {@link MessageObj} msg.
- */
+/** InLongMsg pb format deserialization schema. Used to deserialize {@link MessageObj} msg. */
 public class InLongMsgPbDeserializationSchema implements DeserializationSchema<RowData> {
 
-    /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
-     *  data buffer message */
+    /**
+     * Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged data
+     * buffer message
+     */
     private final DeserializationSchema<RowData> deserializationSchema;
 
     /** {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}. */
@@ -71,8 +69,9 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
 
     @Override
     public RowData deserialize(byte[] bytes) throws IOException {
-        throw new RuntimeException("Unsupported method, "
-                + "Please invoke DeserializationSchema#deserialize(byte[], Collector<RowData>) instead.");
+        throw new RuntimeException(
+                "Unsupported method, "
+                        + "Please invoke DeserializationSchema#deserialize(byte[], Collector<RowData>) instead.");
     }
 
     @Override
@@ -106,7 +105,8 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
         }
         InLongMsgPbDeserializationSchema that = (InLongMsgPbDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
-                && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
+                && Objects.equal(
+                        Arrays.stream(metadataConverters).collect(Collectors.toList()),
                         Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(decompressor, that.decompressor)
@@ -115,8 +115,12 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo,
-                ignoreErrors, decompressor);
+        return Objects.hashCode(
+                deserializationSchema,
+                metadataConverters,
+                producedTypeInfo,
+                ignoreErrors,
+                decompressor);
     }
 
     interface MetadataConverter extends Serializable {

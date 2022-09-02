@@ -69,7 +69,8 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
                         writeOptions.getBufferFlushMaxSizeInBytes(),
                         writeOptions.getBufferFlushMaxRows(),
                         writeOptions.getBufferFlushIntervalMillis(),
-                        inlongMetric, inlongAudit);
+                        inlongMetric,
+                        inlongAudit);
         return SinkFunctionProvider.of(sinkFunction, writeOptions.getParallelism());
     }
 
@@ -88,7 +89,13 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
     @Override
     public DynamicTableSink copy() {
         return new HBaseDynamicTableSink(
-                tableName, hbaseTableSchema, hbaseConf, writeOptions, nullStringLiteral, inlongMetric, inlongAudit);
+                tableName,
+                hbaseTableSchema,
+                hbaseConf,
+                writeOptions,
+                nullStringLiteral,
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override

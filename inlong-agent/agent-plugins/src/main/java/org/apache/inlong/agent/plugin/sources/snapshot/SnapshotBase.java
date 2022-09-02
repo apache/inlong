@@ -21,13 +21,11 @@ public interface SnapshotBase {
 
     /**
      * get snapshot of the job
+     *
      * @return
      */
     String getSnapshot();
 
-    /**
-     * close resources
-     */
+    /** close resources */
     void close();
-
 }

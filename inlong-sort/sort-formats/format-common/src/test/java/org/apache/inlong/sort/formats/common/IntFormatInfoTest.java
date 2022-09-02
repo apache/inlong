@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link IntFormatInfo}.
- */
+/** Unit tests for {@link IntFormatInfo}. */
 public class IntFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -36,17 +34,11 @@ public class IntFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testSerialize() {
-        assertEquals(
-                "2147483647",
-                IntFormatInfo.INSTANCE.serialize(2147483647)
-        );
+        assertEquals("2147483647", IntFormatInfo.INSTANCE.serialize(2147483647));
     }
 
     @Test
     public void testDeserialize() {
-        assertEquals(
-                Integer.valueOf(2147483647),
-                IntFormatInfo.INSTANCE.deserialize("2147483647")
-        );
+        assertEquals(Integer.valueOf(2147483647), IntFormatInfo.INSTANCE.deserialize("2147483647"));
     }
 }

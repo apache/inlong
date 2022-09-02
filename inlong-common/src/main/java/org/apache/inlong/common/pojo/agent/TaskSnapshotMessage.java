@@ -19,20 +19,13 @@ package org.apache.inlong.common.pojo.agent;
 
 import lombok.Data;
 
-/**
- * Snapshot message
- */
+/** Snapshot message */
 @Data
 public class TaskSnapshotMessage {
 
-    /**
-     * The job id
-     */
+    /** The job id */
     private Integer jobId;
 
-    /**
-     * Snapshot of this source task
-     */
+    /** Snapshot of this source task */
     private String snapshot;
-
 }

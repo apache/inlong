@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.group;
 
+import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
@@ -27,13 +30,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
-/**
- * Inlong group service layer interface
- */
+/** Inlong group service layer interface */
 public interface InlongGroupService {
 
     /**
@@ -68,7 +65,9 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return inlong group id
      */
-    String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
+    String update(
+            @Valid @NotNull(message = "inlong group request cannot be null")
+                    InlongGroupRequest request,
             String operator);
 
     /**
@@ -122,16 +121,18 @@ public interface InlongGroupService {
      * @param operator name of operator
      */
     void updateAfterApprove(
-            @Valid @NotNull(message = "approve request cannot be null") InlongGroupApproveRequest approveRequest,
+            @Valid @NotNull(message = "approve request cannot be null")
+                    InlongGroupApproveRequest approveRequest,
             String operator);
 
     /**
      * Save or update extended information
-     * <p/>First physically delete the existing extended information, and then add this batch of extended information
+     *
+     * <p>First physically delete the existing extended information, and then add this batch of
+     * extended information
      *
      * @param groupId inlong group id
      * @param infoList inlong group ext info list
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
-
 }

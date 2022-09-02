@@ -17,7 +17,22 @@
 
 package org.apache.inlong.sort.hive.table;
 
+import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.DEFAULT_DATABASE;
+import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HADOOP_CONF_DIR;
+import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_CONF_DIR;
+import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_VERSION;
+import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
+import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_ENABLE;
+import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_PARTITION_INCLUDE;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_DATABASE;
+
 import com.google.common.base.Preconditions;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connectors.hive.HiveLookupTableSource;
@@ -36,25 +51,7 @@ import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.inlong.sort.hive.HiveTableSink;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.DEFAULT_DATABASE;
-import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HADOOP_CONF_DIR;
-import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_CONF_DIR;
-import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_VERSION;
-import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
-import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_ENABLE;
-import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_PARTITION_INCLUDE;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.hive.HiveOptions.HIVE_DATABASE;
-
-/**
- * DynamicTableSourceFactory for hive table source
- */
+/** DynamicTableSourceFactory for hive table source */
 public class HiveTableInlongFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     private final HiveConf hiveConf;
@@ -99,13 +96,17 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         if (isHiveTable) {
             updateHiveConf(options);
             //  new HiveValidator().validate(properties);
-                        Integer configuredParallelism =
-                                Configuration.fromMap(context.getCatalogTable().getOptions())
-                                        .get(FileSystemOptions.SINK_PARALLELISM);
-            final String inLongMetric = context.getCatalogTable().getOptions()
-                    .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
-            final String auditHostAndPorts = context.getCatalogTable().getOptions()
-                    .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
+            Integer configuredParallelism =
+                    Configuration.fromMap(context.getCatalogTable().getOptions())
+                            .get(FileSystemOptions.SINK_PARALLELISM);
+            final String inLongMetric =
+                    context.getCatalogTable()
+                            .getOptions()
+                            .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
+            final String auditHostAndPorts =
+                    context.getCatalogTable()
+                            .getOptions()
+                            .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
 
             return new HiveTableSink(
                     context.getConfiguration(),
@@ -159,8 +160,7 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                                         .getOptions()
                                         .getOrDefault(
                                                 STREAMING_SOURCE_PARTITION_INCLUDE.key(),
-                                                STREAMING_SOURCE_PARTITION_INCLUDE
-                                                        .defaultValue()));
+                                                STREAMING_SOURCE_PARTITION_INCLUDE.defaultValue()));
         // hive table source that has not lookup ability
         if (isStreamingSource && includeAllPartition) {
             updateHiveConf(options);

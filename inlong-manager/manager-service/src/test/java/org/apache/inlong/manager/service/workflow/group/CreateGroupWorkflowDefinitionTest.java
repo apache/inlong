@@ -23,13 +23,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Test class for workflow define process.
- */
+/** Test class for workflow define process. */
 public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
 
-    @Autowired
-    CreateGroupWorkflowDefinition createGroupWorkflowDefinition;
+    @Autowired CreateGroupWorkflowDefinition createGroupWorkflowDefinition;
 
     @Test
     public void testDefineProcess() throws CloneNotSupportedException {
@@ -43,5 +40,4 @@ public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
         Assertions.assertNotNull(process.getTaskByName("InitSink"));
         Assertions.assertEquals(4, process.getNameToTaskMap().size());
     }
-
 }

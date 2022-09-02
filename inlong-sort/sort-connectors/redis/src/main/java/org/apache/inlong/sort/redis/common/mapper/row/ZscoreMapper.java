@@ -19,9 +19,7 @@ package org.apache.inlong.sort.redis.common.mapper.row;
 
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
-/**
- * Zscore mapper that used to get score from a specified key with member
- */
+/** Zscore mapper that used to get score from a specified key with member */
 public class ZscoreMapper extends RowRedisMapper {
 
     public ZscoreMapper(String additionalKey) {
@@ -31,5 +29,4 @@ public class ZscoreMapper extends RowRedisMapper {
     public ZscoreMapper() {
         super(RedisCommand.ZSCORE);
     }
-
 }

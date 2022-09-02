@@ -17,10 +17,10 @@
 
 package org.apache.inlong.audit.send;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.inlong.audit.util.AuditConfig;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class SenderManagerTest {
     private AuditConfig testConfig = new AuditConfig();

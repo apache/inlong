@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -27,14 +25,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 /**
- * Basic class of multi topic fetchers.
- * The main differences between this and {@link SingleTopicFetcher} is that:
- * 1. MultiTopicFetcher maintains a list of topics while {@link SingleTopicFetcher} only maintains one;
- * 2. All topics share the same properties;
- * 3. The joining and removing of topics will result in new creation of consumer,
- *      and the old ones will be put in a list, waiting to be cleaned by a scheduled thread.
+ * Basic class of multi topic fetchers. The main differences between this and {@link
+ * SingleTopicFetcher} is that: 1. MultiTopicFetcher maintains a list of topics while {@link
+ * SingleTopicFetcher} only maintains one; 2. All topics share the same properties; 3. The joining
+ * and removing of topics will result in new creation of consumer, and the old ones will be put in a
+ * list, waiting to be cleaned by a scheduled thread.
  */
 public abstract class MultiTopicsFetcher implements TopicFetcher {
     protected final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
@@ -57,9 +55,10 @@ public abstract class MultiTopicsFetcher implements TopicFetcher {
             ClientContext context,
             Interceptor interceptor,
             Deserializer deserializer) {
-        this.onlineTopics = topics.stream()
-                .filter(Objects::nonNull)
-                .collect((Collectors.toMap(InLongTopic::getTopic, t -> t)));
+        this.onlineTopics =
+                topics.stream()
+                        .filter(Objects::nonNull)
+                        .collect((Collectors.toMap(InLongTopic::getTopic, t -> t)));
         this.context = context;
         this.interceptor = interceptor;
         this.deserializer = deserializer;
@@ -71,7 +70,8 @@ public abstract class MultiTopicsFetcher implements TopicFetcher {
             return true;
         }
         // all topic should share the same properties in one task
-        if (Objects.equals(newTopics.stream().findFirst(), onlineTopics.values().stream().findFirst())) {
+        if (Objects.equals(
+                newTopics.stream().findFirst(), onlineTopics.values().stream().findFirst())) {
             return true;
         }
         for (InLongTopic topic : newTopics) {
@@ -81,5 +81,4 @@ public abstract class MultiTopicsFetcher implements TopicFetcher {
         }
         return false;
     }
-
 }

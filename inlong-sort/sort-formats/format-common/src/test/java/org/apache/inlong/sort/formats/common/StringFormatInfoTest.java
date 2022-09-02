@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link StringFormatInfo}.
- */
+/** Unit tests for {@link StringFormatInfo}. */
 public class StringFormatInfoTest extends FormatInfoTestBase {
 
     @Override

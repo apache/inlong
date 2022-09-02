@@ -19,17 +19,13 @@ package org.apache.inlong.common.metric;
 
 import java.util.List;
 
-/**
- * MetricListener
- */
+/** MetricListener */
 public interface MetricListener {
 
     String KEY_METRIC_DOMAINS = "metricDomains";
     String KEY_DOMAIN_LISTENERS = "domainListeners";
     String KEY_SNAPSHOT_INTERVAL = "snapshotInterval";
 
-    /**
-     * snapshot
-     */
+    /** snapshot */
     void snapshot(String domain, List<MetricItemValue> itemValues);
 }

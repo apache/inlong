@@ -24,8 +24,10 @@ public class KeyBuilderUtils {
 
     public static String buildGroupTopicRecKey(String groupName, String topicName) {
         return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                .append(topicName).append(TokenConstants.ATTR_SEP)
-                .append(groupName).toString();
+                .append(topicName)
+                .append(TokenConstants.ATTR_SEP)
+                .append(groupName)
+                .toString();
     }
 
     public static Tuple2<String, String> splitRecKey2GroupTopic(String recordKey) {
@@ -45,14 +47,17 @@ public class KeyBuilderUtils {
 
     public static String buildTopicConfRecKey(int brokerId, String topicName) {
         return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                .append(brokerId).append(TokenConstants.ATTR_SEP)
-                .append(topicName).toString();
+                .append(brokerId)
+                .append(TokenConstants.ATTR_SEP)
+                .append(topicName)
+                .toString();
     }
 
     public static String buildAddressInfo(String brokerIp, int brokerPort) {
         return new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                .append(brokerIp).append(TokenConstants.ATTR_SEP)
-                .append(brokerPort).toString();
+                .append(brokerIp)
+                .append(TokenConstants.ATTR_SEP)
+                .append(brokerPort)
+                .toString();
     }
-
 }

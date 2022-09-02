@@ -17,9 +17,7 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-/**
- * CacheTopic
- */
+/** CacheTopic */
 public class CacheTopicObject {
 
     private String topic;
@@ -60,5 +58,4 @@ public class CacheTopicObject {
     public void setPartitionNum(Integer partitionNum) {
         this.partitionNum = partitionNum;
     }
-
 }

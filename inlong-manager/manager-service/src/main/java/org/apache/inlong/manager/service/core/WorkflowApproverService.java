@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.service.core;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 
-import java.util.List;
-
-/**
- * Workflow approver configuration service
- */
+/** Workflow approver configuration service */
 public interface WorkflowApproverService {
 
     /**
@@ -77,5 +74,4 @@ public interface WorkflowApproverService {
      * @param operator operator name
      */
     void delete(Integer id, String operator);
-
 }

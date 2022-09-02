@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.apache.flink.shaded.guava18.com.google.common.cache.Cache;
 import org.apache.flink.shaded.guava18.com.google.common.cache.CacheBuilder;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
@@ -33,12 +35,7 @@ import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Redis RowData lookup function
- */
+/** Redis RowData lookup function */
 public class RedisRowDataLookupFunction extends TableFunction<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RedisRowDataLookupFunction.class);
@@ -54,8 +51,10 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
     private transient Cache<RowData, RowData> cache;
     private InlongRedisCommandsContainer redisCommandsContainer;
 
-    RedisRowDataLookupFunction(RedisCommandDescription redisCommandDescription,
-            FlinkJedisConfigBase flinkJedisConfigBase, RedisLookupOptions redisLookupOptions) {
+    RedisRowDataLookupFunction(
+            RedisCommandDescription redisCommandDescription,
+            FlinkJedisConfigBase flinkJedisConfigBase,
+            RedisLookupOptions redisLookupOptions) {
         this.flinkJedisConfigBase = flinkJedisConfigBase;
         this.redisCommand = redisCommandDescription.getCommand();
         this.additionalKey = redisCommandDescription.getAdditionalKey();
@@ -83,24 +82,34 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
                 RowData rowData;
                 switch (redisCommand) {
                     case GET:
-                        rowData = GenericRowData
-                                .of(StringData.fromString(keys[0].toString()), StringData
-                                        .fromString(this.redisCommandsContainer.get(keys[0].toString())));
+                        rowData =
+                                GenericRowData.of(
+                                        StringData.fromString(keys[0].toString()),
+                                        StringData.fromString(
+                                                this.redisCommandsContainer.get(
+                                                        keys[0].toString())));
                         break;
                     case HGET:
-                        rowData = GenericRowData
-                                .of(StringData.fromString(keys[0].toString()), StringData.fromString(
-                                        this.redisCommandsContainer.hget(this.additionalKey, keys[0].toString())));
+                        rowData =
+                                GenericRowData.of(
+                                        StringData.fromString(keys[0].toString()),
+                                        StringData.fromString(
+                                                this.redisCommandsContainer.hget(
+                                                        this.additionalKey, keys[0].toString())));
                         break;
                     case ZREVRANK:
-                        rowData = GenericRowData
-                                .of(StringData.fromString(keys[0].toString()),
-                                        this.redisCommandsContainer.zrevrank(this.additionalKey, keys[0].toString()));
+                        rowData =
+                                GenericRowData.of(
+                                        StringData.fromString(keys[0].toString()),
+                                        this.redisCommandsContainer.zrevrank(
+                                                this.additionalKey, keys[0].toString()));
                         break;
                     case ZSCORE:
-                        rowData = GenericRowData
-                                .of(StringData.fromString(keys[0].toString()),
-                                        this.redisCommandsContainer.zscore(this.additionalKey, keys[0].toString()));
+                        rowData =
+                                GenericRowData.of(
+                                        StringData.fromString(keys[0].toString()),
+                                        this.redisCommandsContainer.zscore(
+                                                this.additionalKey, keys[0].toString()));
                         break;
                     default:
                         throw new UnsupportedOperationException(
@@ -130,12 +139,16 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
     @Override
     public void open(FunctionContext context) throws Exception {
         try {
-            this.redisCommandsContainer = RedisCommandsContainerBuilder.build(this.flinkJedisConfigBase);
+            this.redisCommandsContainer =
+                    RedisCommandsContainerBuilder.build(this.flinkJedisConfigBase);
             this.redisCommandsContainer.open();
-            this.cache = cacheMaxSize == -1 || cacheExpireMs == -1 ? null : CacheBuilder.newBuilder()
-                    .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
-                    .maximumSize(cacheMaxSize)
-                    .build();
+            this.cache =
+                    cacheMaxSize == -1 || cacheExpireMs == -1
+                            ? null
+                            : CacheBuilder.newBuilder()
+                                    .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
+                                    .maximumSize(cacheMaxSize)
+                                    .build();
         } catch (Exception e) {
             LOG.error("Redis has not been properly initialized: ", e);
             throw e;
@@ -148,5 +161,4 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
             redisCommandsContainer.close();
         }
     }
-
 }

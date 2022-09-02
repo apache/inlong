@@ -18,24 +18,21 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
-import org.apache.flink.core.memory.DataInputDeserializer;
-import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
 
-/**
- * The information used to describe a finished snapshot split.
- */
+import io.debezium.relational.TableId;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
+import org.apache.flink.core.memory.DataInputDeserializer;
+import org.apache.flink.core.memory.DataOutputSerializer;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
+/** The information used to describe a finished snapshot split. */
 public class FinishedSnapshotSplitInfo {
 
     private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE =

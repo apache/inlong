@@ -38,9 +38,7 @@ public class StringDebeziumDeserializationSchema implements DebeziumDeserializat
 
     @Override
     public void deserialize(SourceRecord record, Collector<String> out, TableChange tableChange)
-        throws Exception {
-
-    }
+            throws Exception {}
 
     @Override
     public TypeInformation<String> getProducedType() {

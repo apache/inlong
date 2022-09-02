@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -37,8 +34,8 @@ public class TopicCtrlEntityTest {
         Date createDate = new Date();
         final int maxMsgSizeInB = 12222;
         BdbTopicAuthControlEntity bdbEntity1 =
-                new BdbTopicAuthControlEntity(topicName,
-                        enableAuthControl, attributes, createUser, createDate);
+                new BdbTopicAuthControlEntity(
+                        topicName, enableAuthControl, attributes, createUser, createDate);
         final TopicCtrlEntity ctrlEntity1 = new TopicCtrlEntity(bdbEntity1);
         // check bdbEntity1
         Assert.assertEquals(bdbEntity1.getTopicName(), topicName);
@@ -54,10 +51,10 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity1.getTopicName(), topicName);
         Assert.assertEquals(ctrlEntity1.getTopicId(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(ctrlEntity1.getAuthCtrlStatus(), EnableStatus.STATUS_DISABLE);
-        Assert.assertEquals(ctrlEntity1.getMaxMsgSizeInB(),
-                TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
-        Assert.assertEquals(ctrlEntity1.getMaxMsgSizeInMB(),
-                TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
+        Assert.assertEquals(
+                ctrlEntity1.getMaxMsgSizeInB(), TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
+        Assert.assertEquals(
+                ctrlEntity1.getMaxMsgSizeInMB(), TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
         Assert.assertEquals(ctrlEntity1.getCreateUser(), createUser);
         Assert.assertEquals(ctrlEntity1.getCreateDate(), createDate);
         Assert.assertEquals(ctrlEntity1.getModifyUser(), createUser);
@@ -76,15 +73,17 @@ public class TopicCtrlEntityTest {
         Assert.assertTrue(ctrlEntity2.isDataEquals(ctrlEntity1));
         BaseEntity opInfoEntry = new BaseEntity(dataVerId2, createUser2, createDate2);
         Assert.assertTrue(ctrlEntity2.updBaseModifyInfo(opInfoEntry));
-        Assert.assertTrue(ctrlEntity2.updModifyInfo(opInfoEntry.getDataVerId(),
-                topicId2, maxMsgSizeInB2, enableAuthControl2));
+        Assert.assertTrue(
+                ctrlEntity2.updModifyInfo(
+                        opInfoEntry.getDataVerId(), topicId2, maxMsgSizeInB2, enableAuthControl2));
         Assert.assertFalse(ctrlEntity2.isDataEquals(ctrlEntity1));
         Assert.assertFalse(ctrlEntity2.isMatched(ctrlEntity1, true));
         // check ctrlEntity2
         Assert.assertEquals(ctrlEntity2.getTopicName(), topicName);
         Assert.assertEquals(ctrlEntity2.getTopicId(), topicId2);
         Assert.assertEquals(ctrlEntity2.getAuthCtrlStatus(), EnableStatus.STATUS_ENABLE);
-        Assert.assertEquals(ctrlEntity2.getMaxMsgSizeInB(),
+        Assert.assertEquals(
+                ctrlEntity2.getMaxMsgSizeInB(),
                 SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInB2));
         Assert.assertEquals(ctrlEntity2.getMaxMsgSizeInMB(), maxMsgSizeInB2);
         Assert.assertEquals(ctrlEntity2.getCreateUser(), createUser);
@@ -93,12 +92,11 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity2.getModifyDate(), createDate2);
         Assert.assertEquals(ctrlEntity2.getDataVerId(), dataVerId2);
         // case 3
-        BdbTopicAuthControlEntity bdbEntity3 =
-                ctrlEntity2.buildBdbTopicAuthControlEntity();
+        BdbTopicAuthControlEntity bdbEntity3 = ctrlEntity2.buildBdbTopicAuthControlEntity();
         Assert.assertEquals(bdbEntity3.getTopicName(), ctrlEntity2.getTopicName());
         Assert.assertEquals(bdbEntity3.getTopicId(), ctrlEntity2.getTopicId());
-        Assert.assertEquals(bdbEntity3.isEnableAuthControl(),
-                ctrlEntity2.getAuthCtrlStatus().isEnable());
+        Assert.assertEquals(
+                bdbEntity3.isEnableAuthControl(), ctrlEntity2.getAuthCtrlStatus().isEnable());
         Assert.assertEquals(bdbEntity3.getMaxMsgSize(), ctrlEntity2.getMaxMsgSizeInB());
         Assert.assertEquals(bdbEntity3.getModifyUser(), ctrlEntity2.getModifyUser());
         Assert.assertEquals(bdbEntity3.getStrModifyDate(), ctrlEntity2.getModifyDateStr());
@@ -119,5 +117,4 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity4.getModifyDateStr(), ctrlEntity2.getModifyDateStr());
         Assert.assertEquals(ctrlEntity4.getDataVerId(), ctrlEntity2.getDataVerId());
     }
-
 }

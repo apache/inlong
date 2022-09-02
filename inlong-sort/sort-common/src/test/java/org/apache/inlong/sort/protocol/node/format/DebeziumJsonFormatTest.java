@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.node.format;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link DebeziumJsonFormat}
- */
+/** Test for {@link DebeziumJsonFormat} */
 public class DebeziumJsonFormatTest extends SerializeBaseTest<DebeziumJsonFormat> {
 
     @Override

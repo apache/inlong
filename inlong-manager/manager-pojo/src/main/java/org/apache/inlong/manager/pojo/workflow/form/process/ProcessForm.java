@@ -18,13 +18,10 @@
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Map;
 import org.apache.inlong.manager.pojo.workflow.form.Form;
 
-import java.util.Map;
-
-/**
- * WorkflowProcess main form
- */
+/** WorkflowProcess main form */
 public interface ProcessForm extends Form {
 
     /**
@@ -35,19 +32,14 @@ public interface ProcessForm extends Form {
     @JsonIgnore
     String getInlongGroupId();
 
-    /**
-     * Get form title.
-     */
+    /** Get form title. */
     @JsonIgnore
     default String getTitle() {
         return null;
     }
 
-    /**
-     * Field data displayed in the process list.
-     */
+    /** Field data displayed in the process list. */
     default Map<String, Object> showInList() {
         return null;
     }
-
 }

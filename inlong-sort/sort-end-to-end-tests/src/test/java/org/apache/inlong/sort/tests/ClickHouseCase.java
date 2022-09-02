@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.tests;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.TestUtils;
@@ -30,21 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.ClickHouseContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * End-to-end tests
- * Test flink sql mysql cdc to clickHouse
- */
+/** End-to-end tests Test flink sql mysql cdc to clickHouse */
 public class ClickHouseCase extends FlinkContainerTestEnv {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseCase.class);
@@ -57,18 +53,24 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
 
     static {
         try {
-            sqlFile = Paths.get(ClickHouseCase.class.getResource("/flinkSql/clickhouse_test.sql").toURI()).toString();
+            sqlFile =
+                    Paths.get(
+                                    ClickHouseCase.class
+                                            .getResource("/flinkSql/clickhouse_test.sql")
+                                            .toURI())
+                            .toString();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
     @ClassRule
-    public static final ClickHouseContainer CLICK_HOUSE_CONTAINER = (ClickHouseContainer) new ClickHouseContainer(
-            "yandex/clickhouse-server:20.1.8.41")
-            .withNetwork(NETWORK)
-            .withNetworkAliases("clickhouse")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+    public static final ClickHouseContainer CLICK_HOUSE_CONTAINER =
+            (ClickHouseContainer)
+                    new ClickHouseContainer("yandex/clickhouse-server:20.1.8.41")
+                            .withNetwork(NETWORK)
+                            .withNetworkAliases("clickhouse")
+                            .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -86,16 +88,19 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
     private void initializeClickHouseTable() {
         try {
             Class.forName(CLICK_HOUSE_CONTAINER.getDriverClassName());
-            Connection conn = DriverManager
-                    .getConnection(CLICK_HOUSE_CONTAINER.getJdbcUrl(), CLICK_HOUSE_CONTAINER.getUsername(),
+            Connection conn =
+                    DriverManager.getConnection(
+                            CLICK_HOUSE_CONTAINER.getJdbcUrl(),
+                            CLICK_HOUSE_CONTAINER.getUsername(),
                             CLICK_HOUSE_CONTAINER.getPassword());
             Statement stat = conn.createStatement();
-            stat.execute("create table test_output1 (\n"
-                    + "       id Int32,\n"
-                    + "       name Nullable(String),\n"
-                    + "       description Nullable(String)\n"
-                    + ")\n"
-                    + "engine=MergeTree ORDER BY id;");
+            stat.execute(
+                    "create table test_output1 (\n"
+                            + "       id Int32,\n"
+                            + "       name Nullable(String),\n"
+                            + "       description Nullable(String)\n"
+                            + ")\n"
+                            + "engine=MergeTree ORDER BY id;");
             stat.close();
             conn.close();
         } catch (Exception e) {
@@ -105,7 +110,8 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
 
     private void initializeMysqlTable() {
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                        DriverManager.getConnection(
+                                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "CREATE TABLE test_input1 (\n"
@@ -117,7 +123,6 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
             throw new RuntimeException(e);
         }
     }
-
 
     /**
      * Test flink sql mysql cdc to clickHouse
@@ -131,33 +136,27 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
 
         // generate input
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                        DriverManager.getConnection(
+                                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input1 "
                             + "VALUES (1,'jacket','water resistent white wind breaker');");
-            stat.execute(
-                    "INSERT INTO test_input1 VALUES (2,'scooter','Big 2-wheel scooter ');");
-            stat.execute(
-                    "update test_input1 set name = 'tom' where id = 2;");
-            stat.execute(
-                    "delete from test_input1 where id = 1;");
+            stat.execute("INSERT INTO test_input1 VALUES (2,'scooter','Big 2-wheel scooter ');");
+            stat.execute("update test_input1 set name = 'tom' where id = 2;");
+            stat.execute("delete from test_input1 where id = 1;");
         } catch (SQLException e) {
             LOG.error("Update table for CDC failed.", e);
             throw e;
         }
 
         JdbcProxy proxy =
-                new JdbcProxy(CLICK_HOUSE_CONTAINER.getJdbcUrl(), CLICK_HOUSE_CONTAINER.getUsername(),
+                new JdbcProxy(
+                        CLICK_HOUSE_CONTAINER.getJdbcUrl(),
+                        CLICK_HOUSE_CONTAINER.getUsername(),
                         CLICK_HOUSE_CONTAINER.getPassword(),
                         CLICK_HOUSE_CONTAINER.getDriverClassName());
-        List<String> expectResult =
-                Arrays.asList("2,tom,Big 2-wheel scooter ");
-        proxy.checkResultWithTimeout(
-                expectResult,
-                "test_output1",
-                3,
-                60000L);
+        List<String> expectResult = Arrays.asList("2,tom,Big 2-wheel scooter ");
+        proxy.checkResultWithTimeout(expectResult, "test_output1", 3, 60000L);
     }
-
 }

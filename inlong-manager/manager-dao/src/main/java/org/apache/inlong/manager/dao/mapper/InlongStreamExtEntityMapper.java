@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongStreamExtEntityMapper {
@@ -42,7 +41,8 @@ public interface InlongStreamExtEntityMapper {
      */
     int insertOnDuplicateKeyUpdate(@Param("extList") List<InlongStreamExtEntity> extList);
 
-    List<InlongStreamExtEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<InlongStreamExtEntity> selectByRelatedId(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
     int updateByPrimaryKey(InlongStreamExtEntity record);
 
@@ -51,7 +51,8 @@ public interface InlongStreamExtEntityMapper {
      *
      * @return rows updated
      */
-    int logicDeleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    int logicDeleteAllByRelatedId(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
     int deleteByPrimaryKey(Integer id);
 
@@ -61,5 +62,4 @@ public interface InlongStreamExtEntityMapper {
      * @return rows deleted
      */
     int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
-
 }

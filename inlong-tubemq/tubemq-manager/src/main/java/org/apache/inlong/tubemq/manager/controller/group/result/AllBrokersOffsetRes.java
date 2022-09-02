@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.manager.controller.group.result;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
 
 @Data

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase.metric;
 
 import java.util.LinkedHashMap;
@@ -28,8 +25,7 @@ public class HistogramTest {
 
     @Test
     public void testSimpleHistogram() {
-        SimpleHistogram histogram =
-                new SimpleHistogram("stats", "api");
+        SimpleHistogram histogram = new SimpleHistogram("stats", "api");
         // test getValue by StringBuilder
         histogram.update(10L);
         histogram.update(100000L);
@@ -79,8 +75,7 @@ public class HistogramTest {
 
     @Test
     public void testESTHistogram() {
-        ESTHistogram estHistogram =
-                new ESTHistogram("dlt", "disk");
+        ESTHistogram estHistogram = new ESTHistogram("dlt", "disk");
         estHistogram.update(30L);
         estHistogram.update(1000L);
         estHistogram.update(-5L);
@@ -91,9 +86,10 @@ public class HistogramTest {
         // test get value by strBuff
         StringBuilder strBuff = new StringBuilder(512);
         estHistogram.getValue(strBuff, false);
-        String result1 = "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,"
-                + "\"cells\":{\"cell_0t2\":1,\"cell_16t32\":1,\"cell_512t1024\":1"
-                + ",\"cell_65536t131072\":2,\"cell_131072tMax\":2}}";
+        String result1 =
+                "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,"
+                        + "\"cells\":{\"cell_0t2\":1,\"cell_16t32\":1,\"cell_512t1024\":1"
+                        + ",\"cell_65536t131072\":2,\"cell_131072tMax\":2}}";
         Assert.assertEquals(result1, strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test for map

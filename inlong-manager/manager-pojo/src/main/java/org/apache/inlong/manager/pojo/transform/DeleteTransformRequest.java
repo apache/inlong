@@ -19,13 +19,10 @@ package org.apache.inlong.manager.pojo.transform;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-
-/**
- * Delete request of transform
- */
+/** Delete request of transform */
 @Data
 @ApiModel("Delete request of stream transform")
 public class DeleteTransformRequest {
@@ -41,6 +38,4 @@ public class DeleteTransformRequest {
     @NotBlank(message = "transformName cannot be blank")
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
-
 }
-

@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for dates.
- */
+/** The type information for dates. */
 public class DateTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

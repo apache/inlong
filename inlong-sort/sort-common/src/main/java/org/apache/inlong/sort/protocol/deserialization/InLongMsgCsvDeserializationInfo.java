@@ -22,9 +22,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * It represents CSV format of InLongMsg(m=0).
- */
+/** It represents CSV format of InLongMsg(m=0). */
 public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = 1499370571949888870L;
@@ -35,8 +33,7 @@ public class InLongMsgCsvDeserializationInfo extends InLongMsgDeserializationInf
     private final boolean deleteHeadDelimiter;
 
     public InLongMsgCsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
-            @JsonProperty("delimiter") char delimiter) {
+            @JsonProperty("tid") String tid, @JsonProperty("delimiter") char delimiter) {
         this(tid, delimiter, true);
     }
 

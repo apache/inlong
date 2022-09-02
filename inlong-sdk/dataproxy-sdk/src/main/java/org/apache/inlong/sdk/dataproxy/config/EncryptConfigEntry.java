@@ -18,14 +18,13 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
+import java.net.URLEncoder;
+import java.security.interfaces.RSAPublicKey;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URLEncoder;
-import java.security.interfaces.RSAPublicKey;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class EncryptConfigEntry implements java.io.Serializable {
 
@@ -87,7 +86,6 @@ public class EncryptConfigEntry implements java.io.Serializable {
                 logger.error("RSA Encrypt error {}", e);
                 return null;
             }
-
         }
         return rsaEncryptedKey;
     }
@@ -136,7 +134,12 @@ public class EncryptConfigEntry implements java.io.Serializable {
     }
 
     public String toString() {
-        return "{\"version\":\"" + version + "\",\"public_key\":\"" + pubKey + "\",\"groupId\":\"" + userName + "\"}";
+        return "{\"version\":\""
+                + version
+                + "\",\"public_key\":\""
+                + pubKey
+                + "\",\"groupId\":\""
+                + userName
+                + "\"}";
     }
-
 }

@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for strings.
- */
+/** The type information for strings. */
 public class StringTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

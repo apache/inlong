@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.tools.cli;
 
 import com.google.gson.JsonObject;
@@ -30,13 +27,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is use to process CLI Broker Admin process for script #{bin/tubemq-broker-admin.sh}.
- *
- *
  */
 public class CliBrokerAdmin extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliBrokerAdmin.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliBrokerAdmin.class);
 
     private static final String defBrokerPortal = "127.0.0.1:8081";
 
@@ -45,21 +39,19 @@ public class CliBrokerAdmin extends CliAbstractBase {
         initCommandOptions();
     }
 
-    /**
-     * Init command options
-     */
+    /** Init command options */
     protected void initCommandOptions() {
         // add the cli required parameters
         addCommandOption(CliArgDef.BROKERPORTAL);
         addCommandOption(CliArgDef.ADMINMETHOD);
         addCommandOption(CliArgDef.METHOD);
-
     }
 
     /**
      * Call the broker's HTTP API by the tubemq-broker-admin.sh script
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     *
+     * @param args Call parameter array, the relevant parameters are dynamic mode, which is parsed
+     *     by CommandLine.
      */
     public boolean processParams(String[] args) throws Exception {
         // parse parameters and check value
@@ -108,7 +100,5 @@ public class CliBrokerAdmin extends CliAbstractBase {
             logger.error(ex.getMessage());
             cliBrokerAdmin.help();
         }
-
     }
-
 }

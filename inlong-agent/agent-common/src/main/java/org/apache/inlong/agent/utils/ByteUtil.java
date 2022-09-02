@@ -20,9 +20,7 @@ package org.apache.inlong.agent.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ByteUtil
- */
+/** ByteUtil */
 public class ByteUtil {
 
     /**
@@ -135,7 +133,7 @@ public class ByteUtil {
      * within {@code array} starting at {@code fromIndex} , or {@code -1} if there is no such
      * occurrence.
      *
-     * Returns the lowest index {@code k} such that {@code k >= fromIndex} and {@code
+     * <p>Returns the lowest index {@code k} such that {@code k >= fromIndex} and {@code
      * java.util.Arrays.copyOfRange(array, k, k + target.length)} contains exactly the same elements
      * as {@code target}.
      *
@@ -173,7 +171,7 @@ public class ByteUtil {
     }
 
     /**
-     * Returns a copy of the source byte array, starting at offset for the given length.  If the
+     * Returns a copy of the source byte array, starting at offset for the given length. If the
      * offset + length is out of bounds for the array, returns null.
      */
     public static byte[] safeCopy(byte[] source, int offset, int length) {
@@ -199,8 +197,10 @@ public class ByteUtil {
         public Range(int start, int end) {
             if (start < 0 || end < start) {
                 throw new IllegalArgumentException(
-                        "Invalid range, required that: 0 <= start <= end; start=" + start
-                                + ", end=" + end);
+                        "Invalid range, required that: 0 <= start <= end; start="
+                                + start
+                                + ", end="
+                                + end);
             }
 
             this.startIdx = start;

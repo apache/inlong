@@ -19,12 +19,11 @@
 package org.apache.inlong.sort.cdc.debezium;
 
 import io.debezium.relational.history.TableChanges;
+import java.io.Serializable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
-
-import java.io.Serializable;
 
 /**
  * The deserialization schema describes how to turn the Debezium SourceRecord into data types
@@ -35,9 +34,7 @@ import java.io.Serializable;
 @PublicEvolving
 public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
-    /**
-     * Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}.
-     */
+    /** Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}. */
     void deserialize(SourceRecord record, Collector<T> out) throws Exception;
 
     /**
@@ -49,5 +46,4 @@ public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTy
             throws Exception {
         deserialize(record, out);
     }
-
 }

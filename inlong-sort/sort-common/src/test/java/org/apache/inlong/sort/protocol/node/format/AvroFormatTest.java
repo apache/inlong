@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.node.format;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link AvroFormat}
- */
+/** Test for {@link AvroFormat} */
 public class AvroFormatTest extends SerializeBaseTest<AvroFormat> {
 
     @Override

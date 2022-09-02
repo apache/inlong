@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
-/**
- * Workflow process entity
- */
+/** Workflow process entity */
 @Data
 public class WorkflowProcessEntity {
 
@@ -41,5 +38,4 @@ public class WorkflowProcessEntity {
     private Date endTime;
     private String extParams;
     private Integer hidden;
-
 }

@@ -64,38 +64,40 @@ public class MessageDeserializerTest {
 
         inLongTopic = new InLongTopic();
         inLongTopic.setTopic("testTopic");
-        CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
+        CacheZoneCluster cacheZoneCluster =
+                new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
         inLongTopic.setProperties(new HashMap<>());
 
         when(context.getConfig()).thenReturn(sortClientConfig);
         when(context.getStatManager()).thenReturn(statManager);
-        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
-                cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
-        when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
+        SortClientStateCounter sortClientStateCounter =
+                new SortClientStateCounter(
+                        "sortTaskId", cacheZoneCluster.getClusterId(), inLongTopic.getTopic(), 0);
+        when(statManager.getStatistics(anyString(), anyString(), anyString()))
+                .thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
     }
 
     @Test
     public void testDeserialize() {
-        //1. setUp
+        // 1. setUp
         try {
             setUp();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        //2. testDeserializeVersion0
+        // 2. testDeserializeVersion0
         testDeserializeVersion0();
 
-        //3. testDeserializeVersion1CompressionType0
+        // 3. testDeserializeVersion1CompressionType0
         testDeserializeVersion1CompressionType0();
 
-        //4. testDeserializeVersion1CompressionType1
+        // 4. testDeserializeVersion1CompressionType1
         testDeserializeVersion1CompressionType1();
 
-        //5. testDeserializeVersion1CompressionType2
+        // 5. testDeserializeVersion1CompressionType2
         testDeserializeVersion1CompressionType2();
     }
 
@@ -104,8 +106,9 @@ public class MessageDeserializerTest {
             // test version == 0
             headers.put("version", "0");
             testData = "test data";
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testData.getBytes());
+            List<InLongMessage> deserialize =
+                    messageDeserializer.deserialize(
+                            context, inLongTopic, headers, testData.getBytes());
             Assert.assertEquals(1, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -120,8 +123,9 @@ public class MessageDeserializerTest {
             // non compression
             headers.put("compressType", "0");
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, messageObjs.toByteArray());
+            List<InLongMessage> deserialize =
+                    messageDeserializer.deserialize(
+                            context, inLongTopic, headers, messageObjs.toByteArray());
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -138,8 +142,9 @@ public class MessageDeserializerTest {
 
             byte[] testDataByteArray = Utils.compressGZip(messageObjs.toByteArray());
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testDataByteArray);
+            List<InLongMessage> deserialize =
+                    messageDeserializer.deserialize(
+                            context, inLongTopic, headers, testDataByteArray);
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -156,8 +161,9 @@ public class MessageDeserializerTest {
 
             byte[] testDataByteArray = Utils.snappyCompress(messageObjs.toByteArray());
 
-            List<InLongMessage> deserialize = messageDeserializer
-                    .deserialize(context, inLongTopic, headers, testDataByteArray);
+            List<InLongMessage> deserialize =
+                    messageDeserializer.deserialize(
+                            context, inLongTopic, headers, testDataByteArray);
             Assert.assertEquals(2, deserialize.size());
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
@@ -169,17 +175,22 @@ public class MessageDeserializerTest {
         headers.put("version", "1");
         testData = "test data";
         long messageTime = System.currentTimeMillis();
-        MapFieldEntry mapFieldEntry = MapFieldEntry.newBuilder().setKey("key").setValue("val").build();
-        MessageObj messageObj1 = MessageObj.newBuilder().setBody(ByteString.copyFrom(testData.getBytes()))
-                .setMsgTime(messageTime)
-                .setSourceIp("ip1")
-                .addParams(mapFieldEntry)
-                .build();
-        MessageObj messageObj2 = MessageObj.newBuilder().setBody(ByteString.copyFrom(testData.getBytes()))
-                .setMsgTime(messageTime)
-                .setSourceIp("ip2")
-                .addParams(mapFieldEntry)
-                .build();
+        MapFieldEntry mapFieldEntry =
+                MapFieldEntry.newBuilder().setKey("key").setValue("val").build();
+        MessageObj messageObj1 =
+                MessageObj.newBuilder()
+                        .setBody(ByteString.copyFrom(testData.getBytes()))
+                        .setMsgTime(messageTime)
+                        .setSourceIp("ip1")
+                        .addParams(mapFieldEntry)
+                        .build();
+        MessageObj messageObj2 =
+                MessageObj.newBuilder()
+                        .setBody(ByteString.copyFrom(testData.getBytes()))
+                        .setMsgTime(messageTime)
+                        .setSourceIp("ip2")
+                        .addParams(mapFieldEntry)
+                        .build();
 
         messageObjs = MessageObjs.newBuilder().addMsgs(messageObj1).addMsgs(messageObj2).build();
     }

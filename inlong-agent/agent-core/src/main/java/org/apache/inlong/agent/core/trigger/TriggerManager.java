@@ -17,6 +17,15 @@
 
 package org.apache.inlong.agent.core.trigger;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -32,19 +41,7 @@ import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
-
-/**
- * manager for triggers.
- */
+/** manager for triggers. */
 public class TriggerManager extends AbstractDaemon {
 
     public static final int JOB_CHECK_INTERVAL = 1;
@@ -63,8 +60,10 @@ public class TriggerManager extends AbstractDaemon {
         this.triggerProfileDB = triggerProfileDb;
         this.triggerMap = new ConcurrentHashMap<>();
         this.triggerJobMap = new ConcurrentHashMap<>();
-        this.triggerFetchInterval = conf.getInt(AgentConstants.TRIGGER_FETCH_INTERVAL,
-                AgentConstants.DEFAULT_TRIGGER_FETCH_INTERVAL);
+        this.triggerFetchInterval =
+                conf.getInt(
+                        AgentConstants.TRIGGER_FETCH_INTERVAL,
+                        AgentConstants.DEFAULT_TRIGGER_FETCH_INTERVAL);
         this.maxRunningNum = conf.getInt(TRIGGER_MAX_RUNNING_NUM, DEFAULT_TRIGGER_MAX_RUNNING_NUM);
     }
 
@@ -105,8 +104,11 @@ public class TriggerManager extends AbstractDaemon {
     public boolean submitTrigger(TriggerProfile triggerProfile) {
         // make sure all required key exists.
         if (!triggerProfile.allRequiredKeyExist() || this.triggerMap.size() > maxRunningNum) {
-            LOGGER.error("trigger {} not all required key exists or size {} exceed {}",
-                    triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum);
+            LOGGER.error(
+                    "trigger {} not all required key exists or size {} exceed {}",
+                    triggerProfile.toJsonStr(),
+                    this.triggerMap.size(),
+                    maxRunningNum);
             return false;
         }
         preprocessTrigger(triggerProfile);
@@ -118,8 +120,7 @@ public class TriggerManager extends AbstractDaemon {
     /**
      * Preprocessing before adding trigger, default value FULL
      *
-     * FULL: All directory by regex
-     * INCREMENT: Directory entry created
+     * <p>FULL: All directory by regex INCREMENT: Directory entry created
      */
     public void preprocessTrigger(TriggerProfile profile) {
         String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
@@ -134,35 +135,31 @@ public class TriggerManager extends AbstractDaemon {
         return () -> {
             while (isRunnable()) {
                 try {
-                    triggerMap.forEach((s, trigger) -> {
-                        JobProfile profile = trigger.fetchJobProfile();
-                        if (profile != null) {
-                            TriggerProfile triggerProfile = trigger.getTriggerProfile();
-                            if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
-                                deleteRelatedJobs(triggerProfile.getTriggerId());
-                            }
-                            manager.getJobManager().submitFileJobProfile(profile);
-                            addToTriggerMap(profile.get(JOB_ID), profile);
-                        }
-                    });
+                    triggerMap.forEach(
+                            (s, trigger) -> {
+                                JobProfile profile = trigger.fetchJobProfile();
+                                if (profile != null) {
+                                    TriggerProfile triggerProfile = trigger.getTriggerProfile();
+                                    if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
+                                        deleteRelatedJobs(triggerProfile.getTriggerId());
+                                    }
+                                    manager.getJobManager().submitFileJobProfile(profile);
+                                    addToTriggerMap(profile.get(JOB_ID), profile);
+                                }
+                            });
                     TimeUnit.SECONDS.sleep(triggerFetchInterval);
                 } catch (Throwable e) {
                     LOGGER.info("ignored Exception ", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-
                 }
             }
-
         };
     }
 
-    /**
-     * delete jobs generated by the trigger
-     */
+    /** delete jobs generated by the trigger */
     private void deleteRelatedJobs(String triggerId) {
         LOGGER.info("start to delete related jobs in triggerId {}", triggerId);
-        ConcurrentHashMap<String, JobProfile> jobProfiles =
-                triggerJobMap.get(triggerId);
+        ConcurrentHashMap<String, JobProfile> jobProfiles = triggerJobMap.get(triggerId);
         if (jobProfiles != null) {
             LOGGER.info("trigger can only run one job, stop the others {}", jobProfiles.keySet());
             jobProfiles.keySet().forEach(this::deleteJob);
@@ -178,31 +175,28 @@ public class TriggerManager extends AbstractDaemon {
         return () -> {
             while (isRunnable()) {
                 try {
-                    triggerJobMap.forEach((s, jobProfiles) -> {
-                        for (String jobId : jobProfiles.keySet()) {
-                            Map<String, JobWrapper> jobs =
-                                    manager.getJobManager().getJobs();
-                            if (jobs.get(jobId) == null) {
-                                triggerJobMap.remove(jobId);
-                            }
-                        }
-                    });
+                    triggerJobMap.forEach(
+                            (s, jobProfiles) -> {
+                                for (String jobId : jobProfiles.keySet()) {
+                                    Map<String, JobWrapper> jobs =
+                                            manager.getJobManager().getJobs();
+                                    if (jobs.get(jobId) == null) {
+                                        triggerJobMap.remove(jobId);
+                                    }
+                                }
+                            });
                     TimeUnit.MINUTES.sleep(JOB_CHECK_INTERVAL);
                 } catch (Throwable e) {
                     LOGGER.info("ignored Exception ", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 }
             }
-
         };
     }
 
-    /**
-     * need to put profile in triggerJobMap
-     */
+    /** need to put profile in triggerJobMap */
     private void addToTriggerMap(String triggerId, JobProfile profile) {
-        ConcurrentHashMap<String, JobProfile> tmpList =
-                new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, JobProfile> tmpList = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, JobProfile> jobWrappers =
                 triggerJobMap.putIfAbsent(triggerId, tmpList);
         if (jobWrappers == null) {
@@ -230,9 +224,7 @@ public class TriggerManager extends AbstractDaemon {
         return false;
     }
 
-    /**
-     * init all triggers when daemon started.
-     */
+    /** init all triggers when daemon started. */
     private void initTriggers() throws Exception {
         // fetch all triggers from db
         List<TriggerProfile> profileList = triggerProfileDB.getTriggers();
@@ -242,9 +234,10 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     private void stopTriggers() {
-        triggerMap.forEach((s, trigger) -> {
-            trigger.destroy();
-        });
+        triggerMap.forEach(
+                (s, trigger) -> {
+                    trigger.destroy();
+                });
     }
 
     @Override
@@ -259,5 +252,4 @@ public class TriggerManager extends AbstractDaemon {
         // stop all triggers
         stopTriggers();
     }
-
 }

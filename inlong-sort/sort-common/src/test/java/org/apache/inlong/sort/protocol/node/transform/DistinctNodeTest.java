@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.node.transform;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -24,33 +25,38 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
-import java.util.Arrays;
-
-/**
- * Test for {@link DistinctNode}
- */
+/** Test for {@link DistinctNode} */
 public class DistinctNodeTest extends SerializeBaseTest<DistinctNode> {
 
     @Override
     public DistinctNode getTestObject() {
-        return new DistinctNode("1", null,
-                Arrays.asList(new FieldInfo("f1", new StringFormatInfo()),
+        return new DistinctNode(
+                "1",
+                null,
+                Arrays.asList(
+                        new FieldInfo("f1", new StringFormatInfo()),
                         new FieldInfo("f2", new StringFormatInfo()),
                         new FieldInfo("f3", new StringFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
-                        new FieldRelation(new FieldInfo("f1", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("f1", new StringFormatInfo()),
                                 new FieldInfo("f1", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("f2", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("f2", new StringFormatInfo()),
                                 new FieldInfo("f2", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("f3", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("f3", new StringFormatInfo()),
                                 new FieldInfo("f3", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new StringFormatInfo()),
-                                new FieldInfo("ts", new StringFormatInfo()))
-                ),
-                null, null,
-                Arrays.asList(new FieldInfo("f1", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("ts", new StringFormatInfo()),
+                                new FieldInfo("ts", new StringFormatInfo()))),
+                null,
+                null,
+                Arrays.asList(
+                        new FieldInfo("f1", new StringFormatInfo()),
                         new FieldInfo("f2", new StringFormatInfo())),
-                new FieldInfo("ts", new StringFormatInfo()), OrderDirection.ASC);
+                new FieldInfo("ts", new StringFormatInfo()),
+                OrderDirection.ASC);
     }
 }

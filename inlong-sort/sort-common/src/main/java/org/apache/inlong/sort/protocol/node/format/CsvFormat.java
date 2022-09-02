@@ -17,20 +17,20 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The CSV format.
  *
- * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/csv/">CSV
- *         Format</a>
+ * @see <a
+ *     href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/csv/">CSV
+ *     Format</a>
  */
 @JsonTypeName("csvFormat")
 @Data
@@ -40,28 +40,39 @@ public class CsvFormat implements Format {
 
     @JsonProperty(value = "fieldDelimiter", defaultValue = ",")
     private String fieldDelimiter;
+
     @JsonProperty(value = "disableQuoteCharacter", defaultValue = "true")
     private Boolean disableQuoteCharacter;
+
     @JsonProperty(value = "quoteCharacter", defaultValue = "\"")
     private String quoteCharacter;
+
     @JsonProperty(value = "allowComments", defaultValue = "false")
     private Boolean allowComments;
+
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "false")
     private Boolean ignoreParseErrors;
+
     @JsonProperty(value = "arrayElementDelimiter", defaultValue = ";")
     private String arrayElementDelimiter;
+
     @JsonProperty(value = "escapeCharacter")
     private String escapeCharacter;
+
     @JsonProperty(value = "nullLiteral")
     private String nullLiteral;
 
     @JsonCreator
-    public CsvFormat(@JsonProperty(value = "fieldDelimiter", defaultValue = ",") String fieldDelimiter,
-            @JsonProperty(value = "disableQuoteCharacter", defaultValue = "false") Boolean disableQuoteCharacter,
+    public CsvFormat(
+            @JsonProperty(value = "fieldDelimiter", defaultValue = ",") String fieldDelimiter,
+            @JsonProperty(value = "disableQuoteCharacter", defaultValue = "false")
+                    Boolean disableQuoteCharacter,
             @JsonProperty(value = "quoteCharacter", defaultValue = "\"") String quoteCharacter,
             @JsonProperty(value = "allowComments", defaultValue = "false") Boolean allowComments,
-            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
-            @JsonProperty(value = "arrayElementDelimiter", defaultValue = ";") String arrayElementDelimiter,
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
+                    Boolean ignoreParseErrors,
+            @JsonProperty(value = "arrayElementDelimiter", defaultValue = ";")
+                    String arrayElementDelimiter,
             @JsonProperty(value = "escapeCharacter") String escapeCharacter,
             @JsonProperty(value = "nullLiteral") String nullLiteral) {
         this.fieldDelimiter = fieldDelimiter;

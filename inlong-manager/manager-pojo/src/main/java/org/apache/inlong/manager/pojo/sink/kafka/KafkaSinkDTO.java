@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.sink.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * Kafka sink info
- */
+/** Kafka sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -53,7 +50,8 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
+    @ApiModelProperty(
+            value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
@@ -63,9 +61,7 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Properties for kafka")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request) {
         return KafkaSinkDTO.builder()
                 .bootstrapServers(request.getBootstrapServers())
@@ -83,7 +79,8 @@ public class KafkaSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, KafkaSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

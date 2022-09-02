@@ -27,36 +27,26 @@ import org.apache.flink.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The default implementation of {@link TableFormatDeserializer}.
- */
+/** The default implementation of {@link TableFormatDeserializer}. */
 public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTableFormatDeserializer.class);
 
-    /**
-     * The delegated deserialization schema for rows.
-     */
+    /** The delegated deserialization schema for rows. */
     private final DeserializationSchema<Row> deserializationSchema;
 
-    /**
-     * True if ignore errors in the deserialization.
-     */
+    /** True if ignore errors in the deserialization. */
     private final boolean ignoreErrors;
 
     public DefaultTableFormatDeserializer(
-            DeserializationSchema<Row> deserializationSchema,
-            boolean ignoreErrors
-    ) {
+            DeserializationSchema<Row> deserializationSchema, boolean ignoreErrors) {
         this.deserializationSchema = deserializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
-    public DefaultTableFormatDeserializer(
-            DeserializationSchema<Row> deserializationSchema
-    ) {
+    public DefaultTableFormatDeserializer(DeserializationSchema<Row> deserializationSchema) {
         this(deserializationSchema, TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
@@ -66,18 +56,17 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     }
 
     @Override
-    public void flatMap(
-            byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+    public void flatMap(byte[] bytes, Collector<Row> collector) throws Exception {
         Row row;
 
         try {
             row = deserializationSchema.deserialize(bytes);
         } catch (Exception e) {
             if (ignoreErrors) {
-                LOG.warn("Could not properly deserialize the data {}.",
-                        StringUtils.byteToHexString(bytes), e);
+                LOG.warn(
+                        "Could not properly deserialize the data {}.",
+                        StringUtils.byteToHexString(bytes),
+                        e);
                 return;
             } else {
                 throw e;
@@ -101,7 +90,7 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
         DefaultTableFormatDeserializer that = (DefaultTableFormatDeserializer) o;
         return ignoreErrors == that.ignoreErrors
-               && Objects.equals(deserializationSchema, that.deserializationSchema);
+                && Objects.equals(deserializationSchema, that.deserializationSchema);
     }
 
     @Override
@@ -112,8 +101,10 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     @Override
     public String toString() {
         return "DefaultTableFormatDeserializer{"
-               + "deserializationSchema=" + deserializationSchema
-               + ", ignoreErrors=" + ignoreErrors
-               + '}';
+                + "deserializationSchema="
+                + deserializationSchema
+                + ", ignoreErrors="
+                + ignoreErrors
+                + '}';
     }
 }

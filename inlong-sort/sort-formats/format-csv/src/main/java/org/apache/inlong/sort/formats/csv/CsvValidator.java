@@ -23,9 +23,7 @@ import org.apache.flink.table.descriptors.FormatDescriptorValidator;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 
-/**
- * Validator for {@link Csv}.
- */
+/** Validator for {@link Csv}. */
 public class CsvValidator extends FormatDescriptorValidator {
 
     @Override

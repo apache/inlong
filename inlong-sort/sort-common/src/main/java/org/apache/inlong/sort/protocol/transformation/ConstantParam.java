@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -25,23 +26,18 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.io.Serializable;
-
 /**
- * ConstantParam class is used for the definition and encapsulation of constant param.
- * It can represent any constant, but it is simply implemented by toString() of {@link Object}
- * in the format function used for sql.
- * It contains two subclasses, one is {@link TimeUnitConstantParam} for the definition of time unit constant,
- * and the other is {@link StringConstantParam} for the definition of string constant.
+ * ConstantParam class is used for the definition and encapsulation of constant param. It can
+ * represent any constant, but it is simply implemented by toString() of {@link Object} in the
+ * format function used for sql. It contains two subclasses, one is {@link TimeUnitConstantParam}
+ * for the definition of time unit constant, and the other is {@link StringConstantParam} for the
+ * definition of string constant.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
-        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
-        @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant")
+    @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
+    @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
+    @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant")
 })
 @NoArgsConstructor
 @Data
@@ -71,5 +67,4 @@ public class ConstantParam implements FunctionParam, Serializable {
     public String format() {
         return value.toString();
     }
-
 }

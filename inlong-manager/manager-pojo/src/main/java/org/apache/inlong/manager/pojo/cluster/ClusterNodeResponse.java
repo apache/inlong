@@ -20,16 +20,13 @@ package org.apache.inlong.manager.pojo.cluster;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Inlong cluster node response
- */
+/** Inlong cluster node response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -75,5 +72,4 @@ public class ClusterNodeResponse {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

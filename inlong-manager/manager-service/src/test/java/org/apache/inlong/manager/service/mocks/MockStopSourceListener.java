@@ -25,9 +25,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Test class for listen stop source event.
- */
+/** Test class for listen stop source event. */
 public class MockStopSourceListener implements SourceOperateListener {
 
     @Override
@@ -49,5 +47,4 @@ public class MockStopSourceListener implements SourceOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock stop source success");
     }
-
 }

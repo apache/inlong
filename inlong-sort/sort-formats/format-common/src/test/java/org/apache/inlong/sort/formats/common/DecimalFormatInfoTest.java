@@ -25,9 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link DecimalFormatInfo}.
- */
+/** Unit tests for {@link DecimalFormatInfo}. */
 public class DecimalFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -40,18 +38,13 @@ public class DecimalFormatInfoTest extends FormatInfoTestBase {
         assertEquals(
                 "1111.0000000000000000000000001",
                 DecimalFormatInfo.INSTANCE.serialize(
-                        new BigDecimal("1111.0000000000000000000000001")
-                )
-        );
+                        new BigDecimal("1111.0000000000000000000000001")));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 new BigDecimal("1111.0000000000000000000000001"),
-                DecimalFormatInfo.INSTANCE.deserialize(
-                        "1111.0000000000000000000000001"
-                )
-        );
+                DecimalFormatInfo.INSTANCE.deserialize("1111.0000000000000000000000001"));
     }
 }

@@ -19,9 +19,7 @@ package org.apache.inlong.common.heartbeat;
 
 import lombok.Data;
 
-/**
- * Component heartbeat info
- */
+/** Component heartbeat info */
 @Data
 public class ComponentHeartbeat {
 
@@ -37,10 +35,14 @@ public class ComponentHeartbeat {
 
     private String inCharges;
 
-    public ComponentHeartbeat() {
-    }
+    public ComponentHeartbeat() {}
 
-    public ComponentHeartbeat(String clusterTag, String clusterName, String componentType, String ip, int port,
+    public ComponentHeartbeat(
+            String clusterTag,
+            String clusterName,
+            String componentType,
+            String ip,
+            int port,
             String inCharges) {
         this.clusterTag = clusterTag;
         this.clusterName = clusterName;

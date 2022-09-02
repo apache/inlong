@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * StreamTransformEntity.
- */
+/** StreamTransformEntity. */
 @Data
 public class StreamTransformEntity implements Serializable {
 
@@ -44,5 +41,4 @@ public class StreamTransformEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-
 }

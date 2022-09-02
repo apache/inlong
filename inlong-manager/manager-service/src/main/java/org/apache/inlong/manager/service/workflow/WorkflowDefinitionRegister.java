@@ -17,22 +17,19 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import java.util.List;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
-
 @Slf4j
 @Service
 public class WorkflowDefinitionRegister {
 
-    @Autowired
-    private ProcessDefinitionService processDefService;
-    @Autowired
-    private List<WorkflowDefinition> workflowDefinitions;
+    @Autowired private ProcessDefinitionService processDefService;
+    @Autowired private List<WorkflowDefinition> workflowDefinitions;
 
     @PostConstruct
     public void registerWorkflowDefinition() {
@@ -41,9 +38,11 @@ public class WorkflowDefinitionRegister {
                 processDefService.register(definition.defineProcess());
                 log.info("success register workflow definition: {}", definition.getProcessName());
             } catch (Exception e) {
-                log.error("failed to register workflow definition {}", definition.getProcessName(), e);
+                log.error(
+                        "failed to register workflow definition {}",
+                        definition.getProcessName(),
+                        e);
             }
         }
     }
-
 }

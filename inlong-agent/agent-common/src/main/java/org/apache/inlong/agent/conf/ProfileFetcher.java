@@ -17,13 +17,10 @@
 
 package org.apache.inlong.agent.conf;
 
+import java.util.List;
 import org.apache.inlong.agent.common.Service;
 
-import java.util.List;
-
-/**
- * fetch profile from other system, communicate with json format string
- */
+/** fetch profile from other system, communicate with json format string */
 public interface ProfileFetcher extends Service {
 
     /**

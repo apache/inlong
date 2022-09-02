@@ -19,33 +19,30 @@ package org.apache.inlong.manager.service.group;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Inlong group operator for Pulsar.
- */
+/** Inlong group operator for Pulsar. */
 @Service
 public class InlongPulsarOperator extends AbstractGroupOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongPulsarOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String mqType) {
@@ -88,7 +85,8 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
         Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
         Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
         if (!(ackQuorum <= writeQuorum)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
+            throw new BusinessException(
+                    ErrorCodeEnum.GROUP_SAVE_FAILED,
                     "Pulsar params must meet: ackQuorum <= writeQuorum");
         }
         // The default value of ensemble is writeQuorum
@@ -99,7 +97,8 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
             InlongPulsarDTO dto = InlongPulsarDTO.getFromRequest(pulsarRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
         LOGGER.info("success set entity for inlong group with Pulsar");
     }
@@ -116,5 +115,4 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
         // groupInfo.setServiceUrl();
         return topicInfo;
     }
-
 }

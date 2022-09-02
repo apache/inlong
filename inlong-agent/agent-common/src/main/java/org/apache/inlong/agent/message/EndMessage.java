@@ -22,8 +22,8 @@ import java.util.Map;
 import org.apache.inlong.agent.plugin.Message;
 
 /**
- * End message, this is an empty message only indicate
- * that source data have been completely consumed.
+ * End message, this is an empty message only indicate that source data have been completely
+ * consumed.
  */
 public class EndMessage implements Message {
 

@@ -18,17 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import java.io.Serializable;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CHUNK_META_GROUP_SIZE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CONNECTION_POOL_SIZE;
@@ -41,9 +30,17 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND;
 
-/**
- * A factory to construct {@link MySqlSourceConfig}.
- */
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+import org.apache.flink.annotation.Internal;
+import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
+
+/** A factory to construct {@link MySqlSourceConfig}. */
 @Internal
 public class MySqlSourceConfigFactory implements Serializable {
 
@@ -92,9 +89,7 @@ public class MySqlSourceConfigFactory implements Serializable {
         return this;
     }
 
-    /**
-     * Integer port number of the MySQL database server.
-     */
+    /** Integer port number of the MySQL database server. */
     public MySqlSourceConfigFactory port(int port) {
         this.port = port;
         return this;
@@ -121,17 +116,13 @@ public class MySqlSourceConfigFactory implements Serializable {
         return this;
     }
 
-    /**
-     * Name of the MySQL database to use when connecting to the MySQL database server.
-     */
+    /** Name of the MySQL database to use when connecting to the MySQL database server. */
     public MySqlSourceConfigFactory username(String username) {
         this.username = username;
         return this;
     }
 
-    /**
-     * Password to use when connecting to the MySQL database server.
-     */
+    /** Password to use when connecting to the MySQL database server. */
     public MySqlSourceConfigFactory password(String password) {
         this.password = password;
         return this;
@@ -197,9 +188,7 @@ public class MySqlSourceConfigFactory implements Serializable {
         return this;
     }
 
-    /**
-     * The maximum fetch size for per poll when read table snapshot.
-     */
+    /** The maximum fetch size for per poll when read table snapshot. */
     public MySqlSourceConfigFactory fetchSize(int fetchSize) {
         this.fetchSize = fetchSize;
         return this;
@@ -214,49 +203,37 @@ public class MySqlSourceConfigFactory implements Serializable {
         return this;
     }
 
-    /**
-     * The connection pool size.
-     */
+    /** The connection pool size. */
     public MySqlSourceConfigFactory connectionPoolSize(int connectionPoolSize) {
         this.connectionPoolSize = connectionPoolSize;
         return this;
     }
 
-    /**
-     * The max retry times to get connection.
-     */
+    /** The max retry times to get connection. */
     public MySqlSourceConfigFactory connectMaxRetries(int connectMaxRetries) {
         this.connectMaxRetries = connectMaxRetries;
         return this;
     }
 
-    /**
-     * Whether the {@link MySqlSource} should output the schema changes or not.
-     */
+    /** Whether the {@link MySqlSource} should output the schema changes or not. */
     public MySqlSourceConfigFactory includeSchemaChanges(boolean includeSchemaChanges) {
         this.includeSchemaChanges = includeSchemaChanges;
         return this;
     }
 
-    /**
-     * Whether the {@link MySqlSource} should scan the newly added tables or not.
-     */
+    /** Whether the {@link MySqlSource} should scan the newly added tables or not. */
     public MySqlSourceConfigFactory scanNewlyAddedTableEnabled(boolean scanNewlyAddedTableEnabled) {
         this.scanNewlyAddedTableEnabled = scanNewlyAddedTableEnabled;
         return this;
     }
 
-    /**
-     * Custom properties that will overwrite the default JDBC connection URL.
-     */
+    /** Custom properties that will overwrite the default JDBC connection URL. */
     public MySqlSourceConfigFactory jdbcProperties(Properties jdbcProperties) {
         this.jdbcProperties = jdbcProperties;
         return this;
     }
 
-    /**
-     * Specifies the startup options.
-     */
+    /** Specifies the startup options. */
     public MySqlSourceConfigFactory startupOptions(StartupOptions startupOptions) {
         switch (startupOptions.startupMode) {
             case INITIAL:
@@ -275,17 +252,13 @@ public class MySqlSourceConfigFactory implements Serializable {
         return this;
     }
 
-    /**
-     * The Debezium MySQL connector properties. For example, "snapshot.mode".
-     */
+    /** The Debezium MySQL connector properties. For example, "snapshot.mode". */
     public MySqlSourceConfigFactory debeziumProperties(Properties properties) {
         this.dbzProperties = properties;
         return this;
     }
 
-    /**
-     * Creates a new {@link MySqlSourceConfig} for the given subtask {@code subtaskId}.
-     */
+    /** Creates a new {@link MySqlSourceConfig} for the given subtask {@code subtaskId}. */
     public MySqlSourceConfig createConfig(int subtaskId) {
         Properties props = new Properties();
         // hard code server name, because we don't need to distinguish it, docs:

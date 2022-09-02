@@ -24,39 +24,25 @@ import java.util.List;
 import java.util.Map;
 import org.apache.inlong.common.msg.InLongMsg;
 
-/**
- * The body deserialized from {@link InLongMsg}.
- */
+/** The body deserialized from {@link InLongMsg}. */
 public class InLongMsgBody implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * The body of the record.
-     */
+    /** The body of the record. */
     private final byte[] data;
 
-    /**
-     * The interface of the record.
-     */
+    /** The interface of the record. */
     private final String tid;
 
-    /**
-     * The fields extracted from the body.
-     */
+    /** The fields extracted from the body. */
     private final List<String> fields;
 
-    /**
-     * The entries extracted from the body.
-     */
+    /** The entries extracted from the body. */
     private final Map<String, String> entries;
 
     public InLongMsgBody(
-            byte[] data,
-            String tid,
-            List<String> fields,
-            Map<String, String> entries
-    ) {
+            byte[] data, String tid, List<String> fields, Map<String, String> entries) {
         this.data = data;
         this.tid = tid;
         this.fields = fields;
@@ -100,7 +86,16 @@ public class InLongMsgBody implements Serializable {
 
     @Override
     public String toString() {
-        return "InLongMsgBody{" + "data=" + Arrays.toString(data) + ", tid='" + tid + '\''
-               + ", fields=" + fields + ", entries=" + entries + '}';
+        return "InLongMsgBody{"
+                + "data="
+                + Arrays.toString(data)
+                + ", tid='"
+                + tid
+                + '\''
+                + ", fields="
+                + fields
+                + ", entries="
+                + entries
+                + '}';
     }
 }

@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -40,68 +45,84 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for extract data use {@link DorisExtractNode} and load node use {@link MySqlLoadNode}
- */
+/** Test for extract data use {@link DorisExtractNode} and load node use {@link MySqlLoadNode} */
 @Slf4j
 public class DorisExtractNodeToMySqlLoadNodeTest extends AbstractTestBase {
 
     private DorisExtractNode buildDorisExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("dt", new StringFormatInfo()),
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
-        return new DorisExtractNode("1", "doris_input", fields,
-                null, null, "localhost:8030", "root",
-                "000000", "test.test1");
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("dt", new StringFormatInfo()),
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldInfo("sale", new DoubleFormatInfo()));
+        return new DorisExtractNode(
+                "1",
+                "doris_input",
+                fields,
+                null,
+                null,
+                "localhost:8030",
+                "root",
+                "000000",
+                "test.test1");
     }
 
     private Node buildMySqlLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("dt", new StringFormatInfo()),
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("dt", new StringFormatInfo()),
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldInfo("sale", new DoubleFormatInfo()));
 
-        List<FieldRelation> fieldRelations = Arrays
-                .asList(new FieldRelation(new FieldInfo("dt", new StringFormatInfo()),
+        List<FieldRelation> fieldRelations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("dt", new StringFormatInfo()),
                                 new FieldInfo("dt", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("price", new DecimalFormatInfo()),
                                 new FieldInfo("price", new DecimalFormatInfo())),
-                        new FieldRelation(new FieldInfo("sale", new DoubleFormatInfo()),
-                                new FieldInfo("sale", new DoubleFormatInfo()))
-                );
+                        new FieldRelation(
+                                new FieldInfo("sale", new DoubleFormatInfo()),
+                                new FieldInfo("sale", new DoubleFormatInfo())));
 
         List<FilterFunction> filters = new ArrayList<>();
 
-        return new MySqlLoadNode("2", "mysql_output", fields, fieldRelations, filters,
-                null, null, null, "jdbc:mysql://localhost:3306/inlong",
-                "inlong", "inlong", "table_output", null);
+        return new MySqlLoadNode(
+                "2",
+                "mysql_output",
+                fields,
+                fieldRelations,
+                filters,
+                null,
+                null,
+                null,
+                "jdbc:mysql://localhost:3306/inlong",
+                "inlong",
+                "inlong",
+                "table_output",
+                null);
     }
 
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -112,7 +133,8 @@ public class DorisExtractNodeToMySqlLoadNodeTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is mysql {@link MySqlLoadNode}
+     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is mysql {@link
+     * MySqlLoadNode}
      */
     @Test
     public void testDorisExtractNodeToMySqlLoadNodeSqlParse() {
@@ -120,17 +142,19 @@ public class DorisExtractNodeToMySqlLoadNodeTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildDorisExtractNode();
         Node outputNode = buildMySqlLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

@@ -51,31 +51,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Workflow controller
- */
+/** Workflow controller */
 @Slf4j
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Workflow-API")
 public class WorkflowController {
 
-    @Autowired
-    private WorkflowService workflowService;
+    @Autowired private WorkflowService workflowService;
 
     @PostMapping("/workflow/start")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperationRequest request) {
         String applicant = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.start(request.getName(), applicant, request.getForm()));
+        return Response.success(
+                workflowService.start(request.getName(), applicant, request.getForm()));
     }
 
     @PostMapping("/workflow/cancel/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Cancellation process")
-    @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperationRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Process ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> cancel(
+            @PathVariable Integer id, @RequestBody WorkflowOperationRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.cancel(id, operator, request.getRemark()));
     }
@@ -83,9 +86,13 @@ public class WorkflowController {
     @PostMapping("/workflow/continue/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Continue process")
-    @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
-            @RequestBody WorkflowOperationRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Process ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> continueProcess(
+            @PathVariable Integer id, @RequestBody WorkflowOperationRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.continueProcess(id, operator, request.getRemark()));
     }
@@ -93,17 +100,28 @@ public class WorkflowController {
     @PostMapping("/workflow/approve/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval and consent")
-    @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Task ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> approve(
+            @PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.approve(id, request.getRemark(), request.getForm(), operator));
+        return Response.success(
+                workflowService.approve(id, request.getRemark(), request.getForm(), operator));
     }
 
     @PostMapping("/workflow/reject/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval rejected")
-    @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Task ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> reject(
+            @PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.reject(id, request.getRemark(), operator));
     }
@@ -111,18 +129,29 @@ public class WorkflowController {
     @PostMapping("/workflow/transfer/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Turn to another approver", notes = "Change approver")
-    @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Task ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> transfer(
+            @PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(workflowService.transfer(id, request.getRemark(),
-                request.getTransferTo(), operator));
+        return Response.success(
+                workflowService.transfer(
+                        id, request.getRemark(), request.getTransferTo(), operator));
     }
 
     @PostMapping("/workflow/complete/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Complete task by ID")
-    @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
+    @ApiImplicitParam(
+            name = "id",
+            value = "Task ID",
+            dataTypeClass = Integer.class,
+            required = true)
+    public Response<WorkflowResult> complete(
+            @PathVariable Integer id, @RequestBody WorkflowApprovalRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.complete(id, request.getRemark(), operator));
     }
@@ -130,11 +159,19 @@ public class WorkflowController {
     @GetMapping("/workflow/detail/{id}")
     @ApiOperation(value = "Get process detail")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true),
-            @ApiImplicitParam(name = "taskId", value = "Task ID", dataTypeClass = Integer.class, example = "1")
+        @ApiImplicitParam(
+                name = "id",
+                value = "Process ID",
+                dataTypeClass = Integer.class,
+                required = true),
+        @ApiImplicitParam(
+                name = "taskId",
+                value = "Task ID",
+                dataTypeClass = Integer.class,
+                example = "1")
     })
-    public Response<ProcessDetailResponse> detail(@PathVariable(name = "id") Integer id,
-            @RequestParam(required = false) Integer taskId) {
+    public Response<ProcessDetailResponse> detail(
+            @PathVariable(name = "id") Integer id, @RequestParam(required = false) Integer taskId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.detail(id, taskId, operator));
     }
@@ -172,5 +209,4 @@ public class WorkflowController {
     public Response<PageResult<WorkflowExecuteLog>> listTaskLogs(TaskLogRequest query) {
         return Response.success(workflowService.listTaskLogs(query));
     }
-
 }

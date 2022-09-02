@@ -17,23 +17,18 @@
 
 package org.apache.inlong.manager.dao.config;
 
+import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.inlong.manager.dao.DaoBaseTest;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.sql.DataSource;
-
-/**
- * JDBC source config test for {@link JDBCSourceConfig}
- */
+/** JDBC source config test for {@link JDBCSourceConfig} */
 public class JDBCSourceConfigTest extends DaoBaseTest {
 
-    @Autowired
-    private JDBCSourceConfig jdbcSourceConfig;
+    @Autowired private JDBCSourceConfig jdbcSourceConfig;
 
     @Test
     public void dataSource() {
@@ -52,5 +47,4 @@ public class JDBCSourceConfigTest extends DaoBaseTest {
         SqlSessionTemplate sqlSessionTemplate = jdbcSourceConfig.sqlSessionTemplate();
         Assertions.assertNotNull(sqlSessionTemplate);
     }
-
 }

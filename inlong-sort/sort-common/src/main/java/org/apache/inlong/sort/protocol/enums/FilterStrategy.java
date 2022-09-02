@@ -17,16 +17,10 @@
 
 package org.apache.inlong.sort.protocol.enums;
 
-/**
- * Filter strategy,it defines the strategy of filter
- */
+/** Filter strategy,it defines the strategy of filter */
 public enum FilterStrategy {
-    /**
-     * The RETAIN strategy that is retain the data that satisfies the filter
-     */
+    /** The RETAIN strategy that is retain the data that satisfies the filter */
     RETAIN,
-    /**
-     * The REMOVE strategy that is remove the data that satisfies the filter
-     */
+    /** The REMOVE strategy that is remove the data that satisfies the filter */
     REMOVE
 }

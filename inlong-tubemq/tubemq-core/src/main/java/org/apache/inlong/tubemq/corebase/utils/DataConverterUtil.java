@@ -35,9 +35,7 @@ import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 
-/**
- * Tube meta info converter tools
- */
+/** Tube meta info converter tools */
 public class DataConverterUtil {
 
     /**
@@ -99,8 +97,8 @@ public class DataConverterUtil {
      * @param brokerInfoMap
      * @param strTopicInfos return a list of TopicInfo
      */
-    public static List<TopicInfo> convertTopicInfo(Map<Integer, BrokerInfo> brokerInfoMap,
-                                                   List<String> strTopicInfos) {
+    public static List<TopicInfo> convertTopicInfo(
+            Map<Integer, BrokerInfo> brokerInfoMap, List<String> strTopicInfos) {
         List<TopicInfo> topicList = new ArrayList<>();
         if (strTopicInfos != null) {
             for (String info : strTopicInfos) {
@@ -110,11 +108,17 @@ public class DataConverterUtil {
                     String[] strTopicInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
                     for (String s : strTopicInfoSet) {
                         String[] strTopicInfo = s.split(TokenConstants.ATTR_SEP);
-                        BrokerInfo brokerInfo = brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
+                        BrokerInfo brokerInfo =
+                                brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
                         if (brokerInfo != null) {
-                            topicList.add(new TopicInfo(brokerInfo,
-                                    strInfo[0], Integer.parseInt(strTopicInfo[1]),
-                                    Integer.parseInt(strTopicInfo[2]), true, true));
+                            topicList.add(
+                                    new TopicInfo(
+                                            brokerInfo,
+                                            strInfo[0],
+                                            Integer.parseInt(strTopicInfo[1]),
+                                            Integer.parseInt(strTopicInfo[2]),
+                                            true,
+                                            true));
                         }
                     }
                 }
@@ -129,8 +133,7 @@ public class DataConverterUtil {
      * @param strBrokerInfos return a BrokerInfo Map
      */
     public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos) {
-        Map<Integer, BrokerInfo> brokerInfoMap =
-                new ConcurrentHashMap<>();
+        Map<Integer, BrokerInfo> brokerInfoMap = new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
             for (String info : strBrokerInfos) {
                 if (info != null) {
@@ -144,14 +147,13 @@ public class DataConverterUtil {
     }
 
     /**
-     * convert string info to  a map of TopicCondition TreeSet
+     * convert string info to a map of TopicCondition TreeSet
      *
      * @param strTopicConditions return a map of TopicCondition TreeSet
      */
     public static Map<String, TreeSet<String>> convertTopicConditions(
             final List<String> strTopicConditions) {
-        Map<String, TreeSet<String>> topicConditions =
-                new HashMap<>();
+        Map<String, TreeSet<String>> topicConditions = new HashMap<>();
         if (strTopicConditions == null || strTopicConditions.isEmpty()) {
             return topicConditions;
         }
@@ -160,8 +162,7 @@ public class DataConverterUtil {
                 continue;
             }
             String[] strInfo = topicCond.split(TokenConstants.SEGMENT_SEP);
-            if (TStringUtils.isBlank(strInfo[0])
-                    || TStringUtils.isBlank(strInfo[1])) {
+            if (TStringUtils.isBlank(strInfo[0]) || TStringUtils.isBlank(strInfo[1])) {
                 continue;
             }
             String topicName = strInfo[0].trim();
@@ -181,14 +182,14 @@ public class DataConverterUtil {
     }
 
     /**
-     * convert a list of @link ClientBroker.TransferedMessage with topicName
-     * to a list of @link Message
+     * convert a list of @link ClientBroker.TransferedMessage with topicName to a list of @link
+     * Message
      *
      * @param topicName
      * @param transferedMessageList return a list of @link Message
      */
-    public static List<Message> convertMessage(final String topicName,
-                                               List<ClientBroker.TransferedMessage> transferedMessageList) {
+    public static List<Message> convertMessage(
+            final String topicName, List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
             return new ArrayList<>();
         }
@@ -230,9 +231,9 @@ public class DataConverterUtil {
             }
             final byte[] payload = new byte[payloadDataLen];
             System.arraycopy(payloadData.array(), readPos, payload, 0, payloadDataLen);
-            messageList.add(new MessageExt(trsMessage.getMessageId(), topicName, payload, attribute, flag));
+            messageList.add(
+                    new MessageExt(trsMessage.getMessageId(), topicName, payload, attribute, flag));
         }
         return messageList;
     }
-
 }

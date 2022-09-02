@@ -22,16 +22,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
 
-/**
- * Approval task node form
- */
+/** Approval task node form */
 @Data
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongGroupApproveForm.class, name = InlongGroupApproveForm.FORM_NAME),
-        @JsonSubTypes.Type(value = ConsumptionApproveForm.class, name = ConsumptionApproveForm.FORM_NAME),
-        @JsonSubTypes.Type(value = ServiceTaskForm.class, name = ServiceTaskForm.FORM_NAME),
+    @JsonSubTypes.Type(
+            value = InlongGroupApproveForm.class,
+            name = InlongGroupApproveForm.FORM_NAME),
+    @JsonSubTypes.Type(
+            value = ConsumptionApproveForm.class,
+            name = ConsumptionApproveForm.FORM_NAME),
+    @JsonSubTypes.Type(value = ServiceTaskForm.class, name = ServiceTaskForm.FORM_NAME),
 })
-public abstract class BaseTaskForm implements TaskForm {
-
-}
+public abstract class BaseTaskForm implements TaskForm {}

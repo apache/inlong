@@ -24,9 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Task run service.
- */
+/** Task run service. */
 public class TaskRunService {
 
     private static final ExecutorService executorService;
@@ -37,9 +35,13 @@ public class TaskRunService {
     private static final long KEEP_ALIVE_TIME = 0L;
 
     static {
-        executorService = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE,
-                KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(QUEUE_SIZE));
+        executorService =
+                new ThreadPoolExecutor(
+                        CORE_POOL_SIZE,
+                        MAXIMUM_POOL_SIZE,
+                        KEEP_ALIVE_TIME,
+                        TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<Runnable>(QUEUE_SIZE));
     }
 
     /**
@@ -83,5 +85,4 @@ public class TaskRunService {
     public static <T> Future<T> submit(Callable<T> callable) {
         return executorService.submit(callable);
     }
-
 }

@@ -28,10 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-
-/**
- * Iceberg column info
- */
+/** Iceberg column info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -49,7 +46,8 @@ public class IcebergColumnInfo {
     @ApiModelProperty("Scale of decimal type")
     private Integer scale;
 
-    @ApiModelProperty("Field partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
+    @ApiModelProperty(
+            "Field partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
     private String partitionStrategy;
 
     @ApiModelProperty("Bucket num param of bucket partition")
@@ -64,9 +62,7 @@ public class IcebergColumnInfo {
     private String desc;
     private boolean required;
 
-    /**
-     * Get the extra param from the Json
-     */
+    /** Get the extra param from the Json */
     public static IcebergColumnInfo getFromJson(String extParams) {
         if (StringUtils.isEmpty(extParams)) {
             return new IcebergColumnInfo();
@@ -75,7 +71,8 @@ public class IcebergColumnInfo {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, IcebergColumnInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

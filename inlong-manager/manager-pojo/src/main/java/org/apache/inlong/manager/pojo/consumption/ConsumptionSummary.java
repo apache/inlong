@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Data consumption statistics
- */
+/** Data consumption statistics */
 @Data
 @Builder
 @NoArgsConstructor

@@ -21,9 +21,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * Controller advice for handling exceptions
- */
+/** Controller advice for handling exceptions */
 @RestControllerAdvice
 public class ManagerControllerAdvice {
 

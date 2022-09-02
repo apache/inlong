@@ -17,21 +17,18 @@
 
 package org.apache.inlong.manager.workflow;
 
+import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 
-import java.util.List;
-
-/**
- * Workflow Context
- */
+/** Workflow Context */
 @Data
 @Slf4j
 public class WorkflowContext {
@@ -175,5 +172,4 @@ public class WorkflowContext {
             return this;
         }
     }
-
 }

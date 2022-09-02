@@ -17,19 +17,15 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import org.apache.inlong.sort.SerializeBaseTest;
-
 import java.util.Arrays;
 import java.util.Collections;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Tests for {@link UnionNodeRelation}
- */
+/** Tests for {@link UnionNodeRelation} */
 public class UnionNodeRelationTest extends SerializeBaseTest<UnionNodeRelation> {
 
     @Override
     public UnionNodeRelation getTestObject() {
-        return new UnionNodeRelation(Arrays.asList("1", "2"),
-                Collections.singletonList("3"));
+        return new UnionNodeRelation(Arrays.asList("1", "2"), Collections.singletonList("3"));
     }
 }

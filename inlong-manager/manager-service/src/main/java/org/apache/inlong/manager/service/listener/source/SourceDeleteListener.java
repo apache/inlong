@@ -25,9 +25,7 @@ import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcess
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.springframework.stereotype.Component;
 
-/**
- * Listener of source delete event.
- */
+/** Listener of source delete event. */
 @Slf4j
 @Component
 public class SourceDeleteListener extends AbstractSourceOperateListener {

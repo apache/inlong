@@ -23,12 +23,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
-/**
- * MySQL sink request.
- */
+/** MySQL sink request. */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)

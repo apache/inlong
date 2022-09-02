@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.redis.common.config.handler;
 
+import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_MODE;
+import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_STANDALONE;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
@@ -24,19 +29,10 @@ import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.redis.common.config.RedisOptions;
 import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
 
-import java.util.HashMap;
-import java.util.Map;
-import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_MODE;
-import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_STANDALONE;
-
-/**
- * Jedis standalone config handler to find and create jedis standalone config use meta.
- */
+/** Jedis standalone config handler to find and create jedis standalone config use meta. */
 public class FlinkJedisStandaloneConfigHandler implements InlongJedisConfigHandler {
 
-    public FlinkJedisStandaloneConfigHandler() {
-
-    }
+    public FlinkJedisStandaloneConfigHandler() {}
 
     @Override
     public FlinkJedisConfigBase createFlinkJedisConfig(ReadableConfig config) {
@@ -45,15 +41,16 @@ public class FlinkJedisStandaloneConfigHandler implements InlongJedisConfigHandl
         int port = config.get(RedisOptions.PORT);
         Preconditions.checkNotNull(port, "port should not be null in standalone mode");
         String password = config.get(RedisOptions.PASSWORD);
-        FlinkJedisPoolConfig.Builder builder = new FlinkJedisPoolConfig.Builder()
-                .setHost(host)
-                .setPassword(password)
-                .setPort(port)
-                .setMaxIdle(config.get(RedisOptions.MAXIDLE))
-                .setMinIdle(config.get(RedisOptions.MINIDLE))
-                .setMaxTotal(config.get(RedisOptions.MAX_TOTAL))
-                .setDatabase(config.get(RedisOptions.DATABASE))
-                .setTimeout(config.get(RedisOptions.TIMEOUT));
+        FlinkJedisPoolConfig.Builder builder =
+                new FlinkJedisPoolConfig.Builder()
+                        .setHost(host)
+                        .setPassword(password)
+                        .setPort(port)
+                        .setMaxIdle(config.get(RedisOptions.MAXIDLE))
+                        .setMinIdle(config.get(RedisOptions.MINIDLE))
+                        .setMaxTotal(config.get(RedisOptions.MAX_TOTAL))
+                        .setDatabase(config.get(RedisOptions.DATABASE))
+                        .setTimeout(config.get(RedisOptions.TIMEOUT));
         return builder.build();
     }
 

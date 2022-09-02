@@ -22,6 +22,7 @@ import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.LONG_TYPE_INFO;
 import static org.apache.flink.api.common.typeinfo.BasicTypeInfo.STRING_TYPE_INFO;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.TimeUtils.parseDuration;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -55,121 +56,87 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The type of records produced by this data source
  */
-public class TubemqSourceFunction<T>
-    extends RichParallelSourceFunction<T> implements CheckpointedFunction {
+public class TubemqSourceFunction<T> extends RichParallelSourceFunction<T>
+        implements CheckpointedFunction {
 
-    private static final Logger LOG =
-        LoggerFactory.getLogger(TubemqSourceFunction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TubemqSourceFunction.class);
 
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";
 
     private static final String SPLIT_COMMA = ",";
     private static final String SPLIT_COLON = ":";
 
-    /**
-     * The address of TubeMQ master, format eg: 127.0.0.1:8080,127.0.0.2:8081.
-     */
+    /** The address of TubeMQ master, format eg: 127.0.0.1:8080,127.0.0.2:8081. */
     private final String masterAddress;
 
-    /**
-     * The topic name.
-     */
+    /** The topic name. */
     private final String topic;
 
-    /**
-     * The tubemq consumers use this tid set to filter records reading from server.
-     */
+    /** The tubemq consumers use this tid set to filter records reading from server. */
     private final TreeSet<String> tidSet;
 
-    /**
-     * The consumer group name.
-     */
+    /** The consumer group name. */
     private final String consumerGroup;
 
-    /**
-     * The deserializer for records.
-     */
+    /** The deserializer for records. */
     private final DeserializationSchema<T> deserializationSchema;
 
-    /**
-     * The random key for TubeMQ consumer group when startup.
-     */
+    /** The random key for TubeMQ consumer group when startup. */
     private final String sessionKey;
 
-    /**
-     * True if consuming message from max offset.
-     */
+    /** True if consuming message from max offset. */
     private final boolean consumeFromMax;
 
-    /**
-     * The time to wait if tubemq broker returns message not found.
-     */
+    /** The time to wait if tubemq broker returns message not found. */
     private final Duration messageNotFoundWaitPeriod;
 
-    /**
-     * The max time to marked source idle.
-     */
+    /** The max time to marked source idle. */
     private final Duration maxIdleTime;
 
-    /**
-     * Flag indicating whether the consumer is still running.
-     **/
+    /** Flag indicating whether the consumer is still running. */
     private volatile boolean running;
 
-    /**
-     * The state for the offsets of queues.
-     */
+    /** The state for the offsets of queues. */
     private transient ListState<Tuple2<String, Long>> offsetsState;
 
     /**
-     * The current offsets of partitions which are stored in {@link #offsetsState}
-     * once a checkpoint is triggered.
+     * The current offsets of partitions which are stored in {@link #offsetsState} once a checkpoint
+     * is triggered.
      *
-     *NOTE: The offsets are populated in the main thread and saved in the
-     * checkpoint thread. Its usage must be guarded by the checkpoint lock.</p>
+     * <p>NOTE: The offsets are populated in the main thread and saved in the checkpoint thread. Its
+     * usage must be guarded by the checkpoint lock.
      */
     private transient Map<String, Long> currentOffsets;
 
-    /**
-     * The TubeMQ session factory.
-     */
+    /** The TubeMQ session factory. */
     private transient TubeSingleSessionFactory messageSessionFactory;
 
-    /**
-     * The TubeMQ pull consumer.
-     */
+    /** The TubeMQ pull consumer. */
     private transient PullMessageConsumer messagePullConsumer;
 
     /**
      * Build a TubeMQ source function
      *
-     * @param masterAddress            the master address of TubeMQ
-     * @param topic                    the topic name
-     * @param tidSet                   the  topic's filter condition items
-     * @param consumerGroup            the consumer group name
-     * @param deserializationSchema    the deserialize schema
-     * @param configuration            the configure
+     * @param masterAddress the master address of TubeMQ
+     * @param topic the topic name
+     * @param tidSet the topic's filter condition items
+     * @param consumerGroup the consumer group name
+     * @param deserializationSchema the deserialize schema
+     * @param configuration the configure
      */
     public TubemqSourceFunction(
-        String masterAddress,
-        String topic,
-        TreeSet<String> tidSet,
-        String consumerGroup,
-        DeserializationSchema<T> deserializationSchema,
-        Configuration configuration
-    ) {
-        checkNotNull(masterAddress,
-            "The master address must not be null.");
-        checkNotNull(topic,
-            "The topic must not be null.");
-        checkNotNull(tidSet,
-            "The tid set must not be null.");
-        checkNotNull(consumerGroup,
-            "The consumer group must not be null.");
-        checkNotNull(deserializationSchema,
-            "The deserialization schema must not be null.");
-        checkNotNull(configuration,
-            "The configuration must not be null.");
+            String masterAddress,
+            String topic,
+            TreeSet<String> tidSet,
+            String consumerGroup,
+            DeserializationSchema<T> deserializationSchema,
+            Configuration configuration) {
+        checkNotNull(masterAddress, "The master address must not be null.");
+        checkNotNull(topic, "The topic must not be null.");
+        checkNotNull(tidSet, "The tid set must not be null.");
+        checkNotNull(consumerGroup, "The consumer group must not be null.");
+        checkNotNull(deserializationSchema, "The deserialization schema must not be null.");
+        checkNotNull(configuration, "The configuration must not be null.");
 
         this.masterAddress = masterAddress;
         this.topic = topic;
@@ -177,29 +144,21 @@ public class TubemqSourceFunction<T>
         this.consumerGroup = consumerGroup;
         this.deserializationSchema = deserializationSchema;
 
-        this.sessionKey =
-            configuration.getString(TubemqOptions.SESSION_KEY);
-        this.consumeFromMax =
-            configuration.getBoolean(TubemqOptions.BOOTSTRAP_FROM_MAX);
+        this.sessionKey = configuration.getString(TubemqOptions.SESSION_KEY);
+        this.consumeFromMax = configuration.getBoolean(TubemqOptions.BOOTSTRAP_FROM_MAX);
         this.messageNotFoundWaitPeriod =
-            parseDuration(
-                configuration.getString(
-                    TubemqOptions.MESSAGE_NOT_FOUND_WAIT_PERIOD));
+                parseDuration(configuration.getString(TubemqOptions.MESSAGE_NOT_FOUND_WAIT_PERIOD));
         this.maxIdleTime =
-            parseDuration(
-                configuration.getString(
-                    TubemqOptions.SOURCE_MAX_IDLE_TIME));
+                parseDuration(configuration.getString(TubemqOptions.SOURCE_MAX_IDLE_TIME));
     }
 
     @Override
-    public void initializeState(
-        FunctionInitializationContext context
-    ) throws Exception {
+    public void initializeState(FunctionInitializationContext context) throws Exception {
 
         TypeInformation<Tuple2<String, Long>> typeInformation =
-            new TupleTypeInfo<>(STRING_TYPE_INFO, LONG_TYPE_INFO);
+                new TupleTypeInfo<>(STRING_TYPE_INFO, LONG_TYPE_INFO);
         ListStateDescriptor<Tuple2<String, Long>> stateDescriptor =
-            new ListStateDescriptor<>(TUBE_OFFSET_STATE, typeInformation);
+                new ListStateDescriptor<>(TUBE_OFFSET_STATE, typeInformation);
 
         OperatorStateStore stateStore = context.getOperatorStateStore();
         offsetsState = stateStore.getListState(stateDescriptor);
@@ -218,23 +177,20 @@ public class TubemqSourceFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        ConsumerConfig consumerConfig =
-            new ConsumerConfig(masterAddress, consumerGroup);
-        consumerConfig.setConsumePosition(consumeFromMax
-                ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
-                : ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterAddress, consumerGroup);
+        consumerConfig.setConsumePosition(
+                consumeFromMax
+                        ? ConsumePosition.CONSUMER_FROM_MAX_OFFSET_ALWAYS
+                        : ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         consumerConfig.setMsgNotFoundWaitPeriodMs(messageNotFoundWaitPeriod.toMillis());
 
         final int numTasks = getRuntimeContext().getNumberOfParallelSubtasks();
 
         messageSessionFactory = new TubeSingleSessionFactory(consumerConfig);
 
-        messagePullConsumer =
-            messageSessionFactory.createPullConsumer(consumerConfig);
-        messagePullConsumer
-            .subscribe(topic, tidSet);
-        messagePullConsumer
-            .completeSubscribe(sessionKey, numTasks, true, currentOffsets);
+        messagePullConsumer = messageSessionFactory.createPullConsumer(consumerConfig);
+        messagePullConsumer.subscribe(topic, tidSet);
+        messagePullConsumer.completeSubscribe(sessionKey, numTasks, true, currentOffsets);
 
         running = true;
     }
@@ -254,13 +210,14 @@ public class TubemqSourceFunction<T>
                         || consumeResult.getErrCode() == 406
                         || consumeResult.getErrCode() == 407
                         || consumeResult.getErrCode() == 408)) {
-                    LOG.info("Could not consume messages from tubemq (errcode: {}, "
-                                    + "errmsg: {}).", consumeResult.getErrCode(),
+                    LOG.info(
+                            "Could not consume messages from tubemq (errcode: {}, "
+                                    + "errmsg: {}).",
+                            consumeResult.getErrCode(),
                             consumeResult.getErrMsg());
                 }
 
-                Duration idleTime =
-                    Duration.between(lastConsumeInstant, Instant.now());
+                Duration idleTime = Duration.between(lastConsumeInstant, Instant.now());
                 if (idleTime.compareTo(maxIdleTime) > 0) {
                     ctx.markAsTemporarilyIdle();
                 }
@@ -275,27 +232,21 @@ public class TubemqSourceFunction<T>
                 lastConsumeInstant = Instant.now();
 
                 for (Message message : messageList) {
-                    T record =
-                        deserializationSchema.deserialize(message.getData());
+                    T record = deserializationSchema.deserialize(message.getData());
                     records.add(record);
                 }
             }
 
             synchronized (ctx.getCheckpointLock()) {
-
                 for (T record : records) {
                     ctx.collect(record);
                 }
 
-                currentOffsets.put(
-                    consumeResult.getPartitionKey(),
-                    consumeResult.getCurrOffset()
-                );
+                currentOffsets.put(consumeResult.getPartitionKey(), consumeResult.getCurrOffset());
             }
 
             ConsumerResult confirmResult =
-                messagePullConsumer
-                    .confirmConsume(consumeResult.getConfirmContext(), true);
+                    messagePullConsumer.confirmConsume(consumeResult.getConfirmContext(), true);
             if (!confirmResult.isSuccess()) {
                 if (!(confirmResult.getErrCode() == 400
                         || confirmResult.getErrCode() == 404
@@ -303,8 +254,9 @@ public class TubemqSourceFunction<T>
                         || confirmResult.getErrCode() == 406
                         || confirmResult.getErrCode() == 407
                         || confirmResult.getErrCode() == 408)) {
-                    LOG.warn("Could not confirm messages to tubemq (errcode: {}, "
-                                    + "errmsg: {}).", confirmResult.getErrCode(),
+                    LOG.warn(
+                            "Could not confirm messages to tubemq (errcode: {}, " + "errmsg: {}).",
+                            confirmResult.getErrCode(),
                             confirmResult.getErrMsg());
                 }
             }
@@ -319,8 +271,10 @@ public class TubemqSourceFunction<T>
             offsetsState.add(new Tuple2<>(entry.getKey(), entry.getValue()));
         }
 
-        LOG.info("Successfully save the offsets in checkpoint {}: {}.",
-            context.getCheckpointId(), currentOffsets);
+        LOG.info(
+                "Successfully save the offsets in checkpoint {}: {}.",
+                context.getCheckpointId(),
+                currentOffsets);
     }
 
     @Override

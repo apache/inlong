@@ -59,10 +59,9 @@ public class ProxyClientConfig {
 
     private int managerConnectionTimeout = 10000;
     private boolean readProxyIPFromLocal = false;
-    /**
-     * Default connection, handshake, and initial request timeout in milliseconds.
-     */
+    /** Default connection, handshake, and initial request timeout in milliseconds. */
     private long connectTimeoutMillis;
+
     private long requestTimeoutMillis;
 
     private int managerSocketTimeout = 30 * 1000;
@@ -101,9 +100,19 @@ public class ProxyClientConfig {
     private int maxRetry;
 
     /*pay attention to the last url parameter ip*/
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-                             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
-                             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+    public ProxyClientConfig(
+            String localHost,
+            boolean isLocalVisit,
+            String managerIp,
+            int managerPort,
+            String groupId,
+            String netTag,
+            String authSecretId,
+            String authSecretKey,
+            LoadBalance loadBalance,
+            int virtualNode,
+            int maxRetry)
+            throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -114,7 +123,12 @@ public class ProxyClientConfig {
             throw new ProxysdkException("groupId is blank!");
         }
         this.proxyIPServiceURL =
-                "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + groupId;
+                "http://"
+                        + managerIp
+                        + ":"
+                        + managerPort
+                        + ConfigConstants.MANAGER_DATAPROXY_API
+                        + groupId;
         this.groupId = groupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
@@ -136,10 +150,27 @@ public class ProxyClientConfig {
         this.maxRetry = maxRetry;
     }
 
-    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String groupId,
-                             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
-        this(localHost, isLocalVisit, managerIp, managerPort, groupId, netTag, authSecretId, authSecretKey,
-                ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
+    public ProxyClientConfig(
+            String localHost,
+            boolean isLocalVisit,
+            String managerIp,
+            int managerPort,
+            String groupId,
+            String netTag,
+            String authSecretId,
+            String authSecretKey)
+            throws ProxysdkException {
+        this(
+                localHost,
+                isLocalVisit,
+                managerIp,
+                managerPort,
+                groupId,
+                netTag,
+                authSecretId,
+                authSecretKey,
+                ConfigConstants.DEFAULT_LOAD_BALANCE,
+                ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
 
@@ -303,8 +334,11 @@ public class ProxyClientConfig {
         return this.needAuthentication;
     }
 
-    public void setAuthenticationInfo(boolean needAuthentication, boolean needDataEncry,
-                                      final String userName, final String secretKey) {
+    public void setAuthenticationInfo(
+            boolean needAuthentication,
+            boolean needDataEncry,
+            final String userName,
+            final String secretKey) {
         this.needAuthentication = needAuthentication;
         this.isNeedDataEncry = needDataEncry;
         if (this.needAuthentication || this.isNeedDataEncry) {

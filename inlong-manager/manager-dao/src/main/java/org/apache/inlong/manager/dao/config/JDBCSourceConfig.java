@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.dao.config;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import java.util.Objects;
+import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -28,12 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import javax.sql.DataSource;
-import java.util.Objects;
-
-/**
- * Main data source config
- */
+/** Main data source config */
 @Configuration
 @MapperScan(
         basePackages = "org.apache.inlong.manager.dao.mapper",
@@ -52,9 +49,12 @@ public class JDBCSourceConfig {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource());
-        bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
+        bean.setMapperLocations(
+                new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
 
-        Objects.requireNonNull(bean.getObject()).getConfiguration().setMapUnderscoreToCamelCase(true);
+        Objects.requireNonNull(bean.getObject())
+                .getConfiguration()
+                .setMapUnderscoreToCamelCase(true);
         return bean.getObject();
     }
 
@@ -63,5 +63,4 @@ public class JDBCSourceConfig {
     public SqlSessionTemplate sqlSessionTemplate() throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory());
     }
-
 }

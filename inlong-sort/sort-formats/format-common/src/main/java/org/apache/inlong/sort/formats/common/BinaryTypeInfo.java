@@ -42,5 +42,4 @@ public class BinaryTypeInfo implements TypeInfo {
     public String toString() {
         return "BinaryTypeInfo";
     }
-
 }

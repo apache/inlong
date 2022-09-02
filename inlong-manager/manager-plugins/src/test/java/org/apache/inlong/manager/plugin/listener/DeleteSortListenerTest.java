@@ -18,22 +18,19 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.plugin.flink.enums.Constants;
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.junit.jupiter.api.Test;
 
-/**
- * Test class for delete sort listener.
- */
+/** Test class for delete sort listener. */
 public class DeleteSortListenerTest {
 
     @Test

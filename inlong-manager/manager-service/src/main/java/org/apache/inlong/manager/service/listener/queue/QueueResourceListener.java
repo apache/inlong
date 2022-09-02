@@ -34,17 +34,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Create message queue resources,
- * such as Pulsar Topic and Subscription, TubeMQ Topic and ConsumerGroup, etc.
+ * Create message queue resources, such as Pulsar Topic and Subscription, TubeMQ Topic and
+ * ConsumerGroup, etc.
  */
 @Slf4j
 @Service
 public class QueueResourceListener implements QueueOperateListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private QueueResourceOperatorFactory queueOperatorFactory;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private QueueResourceOperatorFactory queueOperatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -62,7 +60,8 @@ public class QueueResourceListener implements QueueOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) context.getProcessForm();
+        GroupResourceProcessForm groupProcessForm =
+                (GroupResourceProcessForm) context.getProcessForm();
         final String groupId = groupProcessForm.getInlongGroupId();
         // ensure the inlong group exists
         InlongGroupInfo groupInfo = groupService.get(groupId);
@@ -73,11 +72,14 @@ public class QueueResourceListener implements QueueOperateListener {
         }
 
         if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(groupInfo.getEnableCreateResource())) {
-            log.warn("skip to execute QueueResourceListener as disable create resource for groupId={}", groupId);
+            log.warn(
+                    "skip to execute QueueResourceListener as disable create resource for groupId={}",
+                    groupId);
             return ListenerResult.success("skip - disable create resource");
         }
 
-        QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupInfo.getMqType());
+        QueueResourceOperator queueOperator =
+                queueOperatorFactory.getInstance(groupInfo.getMqType());
         GroupOperateType operateType = groupProcessForm.getGroupOperateType();
         String operator = context.getOperator();
         switch (operateType) {
@@ -92,8 +94,10 @@ public class QueueResourceListener implements QueueOperateListener {
                 break;
         }
 
-        log.info("success to execute QueueResourceListener for groupId={}, operateType={}", groupId, operateType);
+        log.info(
+                "success to execute QueueResourceListener for groupId={}, operateType={}",
+                groupId,
+                operateType);
         return ListenerResult.success("success");
     }
-
 }

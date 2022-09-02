@@ -28,9 +28,7 @@ import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-/**
- * Kafka source request
- */
+/** Kafka source request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -47,20 +45,25 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
     private String bootstrapServers;
 
-    @ApiModelProperty(value = "Limit the amount of data read per second",
+    @ApiModelProperty(
+            value = "Limit the amount of data read per second",
             notes = "Greater than or equal to 0, equal to zero means no limit")
     private String recordSpeedLimit;
 
-    @ApiModelProperty(value = "Limit the number of bytes read per second",
+    @ApiModelProperty(
+            value = "Limit the number of bytes read per second",
             notes = "Greater than or equal to 0, equal to zero means no limit")
     private String byteSpeedLimit;
 
-    @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
-                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    @ApiModelProperty(
+            value = "Topic partition offset",
+            notes =
+                    "For example,'partition:0,offset:42;partition:1,offset:300' "
+                            + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
+    @ApiModelProperty(
+            value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
@@ -70,7 +73,8 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("table pattern used for filter in canal format")
     private String tablePattern;
 
-    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    @ApiModelProperty(
+            "ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
     private boolean ignoreParseErrors = true;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
@@ -91,5 +95,4 @@ public class KafkaSourceRequest extends SourceRequest {
     public KafkaSourceRequest() {
         this.setSourceType(SourceType.KAFKA);
     }
-
 }

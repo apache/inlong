@@ -19,9 +19,7 @@ package org.apache.inlong.manager.pojo.sink.ck;
 
 import lombok.Data;
 
-/**
- * ClickHouse column info.
- */
+/** ClickHouse column info. */
 @Data
 public class ClickHouseColumnInfo {
 

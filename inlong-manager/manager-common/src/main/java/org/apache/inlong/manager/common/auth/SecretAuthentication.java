@@ -18,16 +18,13 @@
 package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Map;
-
-/**
- * Secret authentication.
- */
+/** Secret authentication. */
 @NoArgsConstructor
 @JsonTypeDefine(value = SecretAuthentication.SECRET)
 public class SecretAuthentication implements Authentication {
@@ -38,11 +35,9 @@ public class SecretAuthentication implements Authentication {
 
     public static final String SECRET_KEY = "secret_key";
 
-    @Getter
-    protected String secretId;
+    @Getter protected String secretId;
 
-    @Getter
-    protected String secretKey;
+    @Getter protected String secretKey;
 
     public SecretAuthentication(String secretId, String secretKey) {
         this.secretId = secretId;
@@ -56,7 +51,8 @@ public class SecretAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init SecretAuthentication");
+        Preconditions.checkNotEmpty(
+                properties, "Properties cannot be empty when init SecretAuthentication");
         this.secretId = properties.get(SECRET_ID);
         this.secretKey = properties.get(SECRET_KEY);
     }

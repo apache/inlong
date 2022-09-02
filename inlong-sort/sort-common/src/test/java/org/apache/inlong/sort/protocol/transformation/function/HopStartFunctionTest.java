@@ -25,14 +25,13 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link HopStartFunction}
- */
+/** Test for {@link HopStartFunction} */
 public class HopStartFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new HopStartFunction(new FieldInfo("time_field", new TimestampFormatInfo()),
+        return new HopStartFunction(
+                new FieldInfo("time_field", new TimestampFormatInfo()),
                 new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
     }

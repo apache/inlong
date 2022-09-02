@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
-/**
- * Test for {@link IsNotNullOperator}
- */
+/** Test for {@link IsNotNullOperator} */
 public class IsNotNullOperatorTest extends OperatorBaseTest {
 
     @Override

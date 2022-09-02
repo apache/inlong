@@ -18,7 +18,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isInitialAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isNewlyAddedAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
 import io.debezium.relational.TableId;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.HybridPendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -29,19 +41,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isInitialAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isNewlyAddedAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
 
 /**
  * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key

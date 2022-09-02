@@ -24,12 +24,9 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.junit.Test;
 
-/**
- * Unit tests for {@link TimestampFormatInfo}.
- */
+/** Unit tests for {@link TimestampFormatInfo}. */
 public class TimestampFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -41,8 +38,12 @@ public class TimestampFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         Timestamp timestamp = Timestamp.valueOf("2020-03-22 11:12:13");
 
-        assertEquals("2020-03-22 11:12:13", new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").serialize(timestamp));
-        assertEquals("22/03/2020 11:12:13", new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").serialize(timestamp));
+        assertEquals(
+                "2020-03-22 11:12:13",
+                new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").serialize(timestamp));
+        assertEquals(
+                "22/03/2020 11:12:13",
+                new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").serialize(timestamp));
         assertEquals("2020-03-22 11:12:13", new TimestampFormatInfo().serialize(timestamp));
     }
 
@@ -50,8 +51,12 @@ public class TimestampFormatInfoTest extends FormatInfoTestBase {
     public void testDeserialize() throws ParseException {
         Timestamp timestamp = Timestamp.valueOf("2020-03-22 11:12:13");
 
-        assertEquals(timestamp, new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").deserialize("2020-03-22 11:12:13"));
-        assertEquals(timestamp, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").deserialize("22/03/2020 11:12:13"));
+        assertEquals(
+                timestamp,
+                new TimestampFormatInfo("yyyy-MM-dd hh:mm:ss").deserialize("2020-03-22 11:12:13"));
+        assertEquals(
+                timestamp,
+                new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss").deserialize("22/03/2020 11:12:13"));
         assertEquals(timestamp, new TimestampFormatInfo().deserialize("2020-03-22 11:12:13"));
     }
 

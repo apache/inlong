@@ -21,153 +21,209 @@ package org.apache.inlong.sdk.dataproxy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 
 public interface MessageSender {
 
     /**
-     * This method provides a synchronized function which you want to send data
-     * with extra attributes except  groupId,streamId,dt,etc
-     * This method is deprecated,we suggest you don't use it.
-     *
-     * @param body       The data will be sent
-     * @param attributes The attributes you want to add
-     */
-    @Deprecated
-    public SendResult sendMessage(byte[] body, String attributes, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
-
-    /**
-     * This method provides a synchronized  function which you want to send data  without packing
+     * This method provides a synchronized function which you want to send data with extra
+     * attributes except groupId,streamId,dt,etc This method is deprecated,we suggest you don't use
+     * it.
      *
      * @param body The data will be sent
-     *             
-     */
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
-
-    /**
-     * This method provides a synchronized  function which you want to send data without packing
-     * with extra attributes except  groupId,streamId,dt,etc
-     *
-     * @param body         The data will be sent
-     *                     
-     * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
-     */
-    public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
-
-    /**
-     * This method provides a synchronized  function which you want to send data  with packing
-     * 
-     *
-     * @param bodyList The data will be sent,which is a collection consisting of byte arrays
-     */
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
-
-    /**
-     * This method provides a synchronized  function which you want to send data with packing
-     * with extra attributes except  groupId,streamId,dt,etc
-     * 
-     *
-     * @param bodyList     The data will be sent,which is a collection consisting of byte arrays
-     * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
-     */
-    public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
-
-    /**
-     * This method provides an asynchronized  function which you want to send data
-     * with extra attributes except  groupId,streamId,dt,etc
-     * This method is deprecated,we suggest you don't use it.
-     * 
-     *
-     * @param body       The data will be sent
      * @param attributes The attributes you want to add
      */
     @Deprecated
-    public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String attributes, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+    public SendResult sendMessage(
+            byte[] body, String attributes, String msgUUID, long timeout, TimeUnit timeUnit);
 
     /**
-     * This method provides a synchronized  function which you want to send data without packing
-     * with extra attributes except  groupId,streamId,dt,etc
-     * 
+     * This method provides a synchronized function which you want to send data without packing
      *
-     * @param body         The data will be sent
-     * @param extraAttrMap The attributes you want to add,
-     *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
+     * @param body The data will be sent
      */
-    public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit,
-                                 Map<String, String> extraAttrMap) throws ProxysdkException;
+    public SendResult sendMessage(
+            byte[] body,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit);
 
     /**
-     * This method provides an asynchronized  function which you want to send data  without packing
-     * 
+     * This method provides a synchronized function which you want to send data without packing with
+     * extra attributes except groupId,streamId,dt,etc
      *
-     * @param callback The implementation of callback function
-     * @param body     The data will be sent
+     * @param body The data will be sent
+     * @param extraAttrMap The attributes you want to add, and each element of extraAttrMap contains
+     *     a pair like attrKey,attrValue
      */
-    public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+    public SendResult sendMessage(
+            byte[] body,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit,
+            Map<String, String> extraAttrMap);
 
     /**
-     * This method provides an asynchronized  function which you want to send data  with packing
-     * 
+     * This method provides a synchronized function which you want to send data with packing
      *
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
-    public void asyncSendMessage(SendMessageCallback callback,
-                                 List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+    public SendResult sendMessage(
+            List<byte[]> bodyList,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit);
 
     /**
-     * This method provides an asynchronized  function which you want to send data with packing
-     * with extra attributes except  groupId,streamId,dt,etc
-     * 
+     * This method provides a synchronized function which you want to send data with packing with
+     * extra attributes except groupId,streamId,dt,etc
      *
-     * @param bodyList     The data will be sent,which is a collection consisting of byte arrays
-     * @param extraAttrMap The attributes you want to add, and each
-     *                     element of extraAttrMap contains a pair like attrKey,attrValue
+     * @param bodyList The data will be sent,which is a collection consisting of byte arrays
+     * @param extraAttrMap The attributes you want to add, and each element of extraAttrMap contains
+     *     a pair like attrKey,attrValue
      */
-    public void asyncSendMessage(SendMessageCallback callback,
-                                 List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit,
-                                 Map<String, String> extraAttrMap) throws ProxysdkException;
+    public SendResult sendMessage(
+            List<byte[]> bodyList,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit,
+            Map<String, String> extraAttrMap);
+
+    /**
+     * This method provides an asynchronized function which you want to send data with extra
+     * attributes except groupId,streamId,dt,etc This method is deprecated,we suggest you don't use
+     * it.
+     *
+     * @param body The data will be sent
+     * @param attributes The attributes you want to add
+     */
+    @Deprecated
+    public void asyncSendMessage(
+            SendMessageCallback callback,
+            byte[] body,
+            String attributes,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit)
+            throws ProxysdkException;
+
+    /**
+     * This method provides a synchronized function which you want to send data without packing with
+     * extra attributes except groupId,streamId,dt,etc
+     *
+     * @param body The data will be sent
+     * @param extraAttrMap The attributes you want to add, and each element of extraAttrMap contains
+     *     a pair like attrKey,attrValue
+     */
+    public void asyncSendMessage(
+            SendMessageCallback callback,
+            byte[] body,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit,
+            Map<String, String> extraAttrMap)
+            throws ProxysdkException;
+
+    /**
+     * This method provides an asynchronized function which you want to send data without packing
+     *
+     * @param callback The implementation of callback function
+     * @param body The data will be sent
+     */
+    public void asyncSendMessage(
+            SendMessageCallback callback,
+            byte[] body,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit)
+            throws ProxysdkException;
+
+    /**
+     * This method provides an asynchronized function which you want to send data with packing
+     *
+     * @param bodyList The data will be sent,which is a collection consisting of byte arrays
+     */
+    public void asyncSendMessage(
+            SendMessageCallback callback,
+            List<byte[]> bodyList,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit)
+            throws ProxysdkException;
+
+    /**
+     * This method provides an asynchronized function which you want to send data with packing with
+     * extra attributes except groupId,streamId,dt,etc
+     *
+     * @param bodyList The data will be sent,which is a collection consisting of byte arrays
+     * @param extraAttrMap The attributes you want to add, and each element of extraAttrMap contains
+     *     a pair like attrKey,attrValue
+     */
+    public void asyncSendMessage(
+            SendMessageCallback callback,
+            List<byte[]> bodyList,
+            String groupId,
+            String streamId,
+            long dt,
+            String msgUUID,
+            long timeout,
+            TimeUnit timeUnit,
+            Map<String, String> extraAttrMap)
+            throws ProxysdkException;
 
     /**
      * This method provides an asynchronized function which you want to send data.<br>
      * Sending timeout is configured by MessageSenderBuilder.<br>
      * Message time will be current time.<br>
+     *
      * @param inlongGroupId
      * @param inlongStreamId
      * @param body
      * @param callback callback can be null
      * @throws ProxysdkException
      */
-    void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback) 
+    void asyncSendMessage(
+            String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
             throws ProxysdkException;
-    
+
     /**
      * This method provides an asynchronized function which you want to send datas.<br>
      * Sending timeout is configured by MessageSenderBuilder.<br>
      * Message time will be current time.<br>
+     *
      * @param inlongGroupId
      * @param inlongStreamId
      * @param bodyList
      * @param callback callback can be null
      * @throws ProxysdkException
      */
-    void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList, 
-            SendMessageCallback callback) throws ProxysdkException;
+    void asyncSendMessage(
+            String inlongGroupId,
+            String inlongStreamId,
+            List<byte[]> bodyList,
+            SendMessageCallback callback)
+            throws ProxysdkException;
 
     public void close();
 }

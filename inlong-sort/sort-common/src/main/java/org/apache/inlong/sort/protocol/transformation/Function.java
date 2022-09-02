@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import java.util.List;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -43,41 +44,34 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
 
-import java.util.List;
-
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
-        @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
-        @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
-        @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
-        @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
-        @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
-        @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
-        @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
-        @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
-        @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
-        @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
-        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
-        @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex"),
-        @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
-        @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
-        @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
-        @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
-        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
-        @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction"),
-        @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction"),
-        @JsonSubTypes.Type(value = IntervalFunction.class, name = "intervalFunction"),
-        @JsonSubTypes.Type(value = AddFunction.class, name = "addFunction"),
-        @JsonSubTypes.Type(value = SubtractFunction.class, name = "subtractFunction")
-
+    @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
+    @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
+    @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
+    @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
+    @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
+    @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
+    @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
+    @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
+    @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
+    @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
+    @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
+    @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
+    @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex"),
+    @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
+    @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
+    @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
+    @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
+    @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
+    @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction"),
+    @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction"),
+    @JsonSubTypes.Type(value = IntervalFunction.class, name = "intervalFunction"),
+    @JsonSubTypes.Type(value = AddFunction.class, name = "addFunction"),
+    @JsonSubTypes.Type(value = SubtractFunction.class, name = "subtractFunction")
 })
 public interface Function extends FunctionParam {
 
     @JsonIgnore
     List<FunctionParam> getParams();
-
 }

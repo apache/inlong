@@ -19,6 +19,12 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -40,43 +46,35 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-/**
- * Operation of workflow approvers
- */
+/** Operation of workflow approvers */
 @Service
 public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowApproverServiceImpl.class);
 
-    @Autowired
-    private WorkflowApproverEntityMapper approverMapper;
-    @Autowired
-    private ProcessDefinitionService processDefinitionService;
+    @Autowired private WorkflowApproverEntityMapper approverMapper;
+    @Autowired private ProcessDefinitionService processDefinitionService;
 
     @Override
     public Integer save(ApproverRequest request, String operator) {
         LOGGER.info("begin to save approver: {} by user: {}", request, operator);
         WorkflowProcess process = processDefinitionService.getByName(request.getProcessName());
-        Preconditions.checkNotNull(process, "process not exit with name: " + request.getProcessName());
+        Preconditions.checkNotNull(
+                process, "process not exit with name: " + request.getProcessName());
         WorkflowTask task = process.getTaskByName(request.getTaskName());
         Preconditions.checkNotNull(task, "task not exit with name: " + request.getTaskName());
         Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
 
-        ApproverPageRequest pageRequest = ApproverPageRequest.builder()
-                .processName(request.getProcessName())
-                .taskName(request.getTaskName())
-                .build();
+        ApproverPageRequest pageRequest =
+                ApproverPageRequest.builder()
+                        .processName(request.getProcessName())
+                        .taskName(request.getTaskName())
+                        .build();
         List<WorkflowApproverEntity> exist = approverMapper.selectByCondition(pageRequest);
         Preconditions.checkEmpty(exist, "workflow approver already exits");
 
-        WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(request, WorkflowApproverEntity::new);
+        WorkflowApproverEntity entity =
+                CommonBeanUtils.copyProperties(request, WorkflowApproverEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
         approverMapper.insert(entity);
@@ -98,14 +96,15 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public List<String> getApprovers(String processName, String taskName) {
-        ApproverPageRequest pageRequest = ApproverPageRequest.builder()
-                .processName(processName)
-                .taskName(taskName)
-                .build();
-        List<WorkflowApproverEntity> approverEntities = approverMapper.selectByCondition(pageRequest);
+        ApproverPageRequest pageRequest =
+                ApproverPageRequest.builder().processName(processName).taskName(taskName).build();
+        List<WorkflowApproverEntity> approverEntities =
+                approverMapper.selectByCondition(pageRequest);
         Set<String> resultSet = new HashSet<>();
-        approverEntities.forEach(entity ->
-                resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
+        approverEntities.forEach(
+                entity ->
+                        resultSet.addAll(
+                                Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
 
         return new ArrayList<>(resultSet);
     }
@@ -114,9 +113,10 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     public PageResult<ApproverResponse> listByCondition(ApproverPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
 
-        Page<WorkflowApproverEntity> page = (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
-        List<ApproverResponse> resultList = CommonBeanUtils.copyListProperties(page,
-                ApproverResponse::new);
+        Page<WorkflowApproverEntity> page =
+                (Page<WorkflowApproverEntity>) approverMapper.selectByCondition(request);
+        List<ApproverResponse> resultList =
+                CommonBeanUtils.copyListProperties(page, ApproverResponse::new);
 
         return new PageResult<>(resultList, page.getTotal(), page.getPageNum(), page.getPageSize());
     }
@@ -129,8 +129,10 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
         WorkflowApproverEntity entity = approverMapper.selectById(id);
         Preconditions.checkNotNull(entity, "not exist with id:" + id);
-        String errMsg = String.format("approver has already updated with id=%s, process=%s, task=%s, curVersion=%s",
-                id, request.getProcessName(), request.getTaskName(), request.getVersion());
+        String errMsg =
+                String.format(
+                        "approver has already updated with id=%s, process=%s, task=%s, curVersion=%s",
+                        id, request.getProcessName(), request.getTaskName(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -139,7 +141,10 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         entity.setApprovers(request.getApprovers());
         approverMapper.updateById(entity);
 
-        LOGGER.info("success to update workflow approver for request: {} by user: {}", request, operator);
+        LOGGER.info(
+                "success to update workflow approver for request: {} by user: {}",
+                request,
+                operator);
         return id;
     }
 
@@ -150,5 +155,4 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         int success = this.approverMapper.deleteByPrimaryKey(id, operator);
         Preconditions.checkTrue(success == 1, "delete failed");
     }
-
 }

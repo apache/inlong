@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.web.auth;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.servlet.Filter;
 import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.inlong.manager.common.util.SHAUtils;
 import org.apache.inlong.manager.service.user.UserService;
@@ -40,15 +45,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.Filter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-/**
- * Inlong shiro service layer implementation.
- */
+/** Inlong shiro service layer implementation. */
 @Component
 @ConditionalOnProperty(name = "type", prefix = "inlong.auth", havingValue = "default")
 public class InlongShiroImpl implements InlongShiro {
@@ -56,8 +53,7 @@ public class InlongShiroImpl implements InlongShiro {
     private static final String FILTER_NAME_WEB = "authWeb";
     private static final String FILTER_NAME_API = "authAPI";
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
     @Value("${openapi.auth.enabled:false}")
     private Boolean openAPIAuthEnabled;
@@ -123,7 +119,8 @@ public class InlongShiroImpl implements InlongShiro {
     }
 
     @Override
-    public AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+    public AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(
+            SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor =
                 new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);

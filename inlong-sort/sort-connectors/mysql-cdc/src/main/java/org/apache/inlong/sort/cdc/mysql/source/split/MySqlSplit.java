@@ -20,10 +20,9 @@ package org.apache.inlong.sort.cdc.mysql.source.split;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
-import org.apache.flink.api.connector.source.SourceSplit;
-
 import java.util.Map;
 import java.util.Objects;
+import org.apache.flink.api.connector.source.SourceSplit;
 
 /** The split of table comes from a Table that splits by primary key. */
 public abstract class MySqlSplit implements SourceSplit {

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.metrics;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.metric.MetricUtils;
 import org.apache.inlong.common.metric.MetricValue;
@@ -30,10 +26,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * 
- * TestMetricItemSetMBean
- */
+/** TestMetricItemSetMBean */
 public class TestMetricListenerRunnable {
 
     public static final String CLUSTER_ID = "inlong5th_sz";
@@ -54,9 +47,7 @@ public class TestMetricListenerRunnable {
     private static String keySink1;
     private static String keySink2;
 
-    /**
-     * setup
-     */
+    /** setup */
     @BeforeClass
     public static void setup() {
         itemSet = new SortMetricItemSet(CLUSTER_ID);
@@ -78,10 +69,8 @@ public class TestMetricListenerRunnable {
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
     }
-    
-    /**
-     * setdown
-     */
+
+    /** setdown */
     @AfterClass
     public static void setdown() {
         MetricRegister.unregister(itemSet);
@@ -89,7 +78,7 @@ public class TestMetricListenerRunnable {
 
     /**
      * testResult
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -122,36 +111,37 @@ public class TestMetricListenerRunnable {
         item.sendFailSize.addAndGet(2000);
         keySink2 = MetricUtils.getDimensionsKey(dimSink);
         // report
-        MetricListener listener = new MetricListener() {
+        MetricListener listener =
+                new MetricListener() {
 
-            @Override
-            public void snapshot(String domain, List<MetricItemValue> itemValues) {
-                assertEquals("Sort", domain);
-                for (MetricItemValue itemValue : itemValues) {
-                    String key = itemValue.getKey();
-                    Map<String, MetricValue> metricMap = itemValue.getMetrics();
-                    if (keySource1.equals(itemValue.getKey())) {
-                        assertEquals(1, metricMap.get("readSuccessCount").value);
-                        assertEquals(100, metricMap.get("readSuccessSize").value);
-                    } else if (keySource2.equals(key)) {
-                        assertEquals(20, metricMap.get("readFailCount").value);
-                        assertEquals(2000, metricMap.get("readFailSize").value);
-                    } else if (keySink1.equals(key)) {
-                        assertEquals(1, metricMap.get("sendCount").value);
-                        assertEquals(100, metricMap.get("sendSize").value);
-                        assertEquals(1, metricMap.get("sendSuccessCount").value);
-                        assertEquals(100, metricMap.get("sendSuccessSize").value);
-                    } else if (keySink2.equals(key)) {
-                        assertEquals(20, metricMap.get("sendCount").value);
-                        assertEquals(2000, metricMap.get("sendSize").value);
-                        assertEquals(20, metricMap.get("sendFailCount").value);
-                        assertEquals(2000, metricMap.get("sendFailSize").value);
-                    } else {
-                        System.out.println("bad MetricItem:" + key);
+                    @Override
+                    public void snapshot(String domain, List<MetricItemValue> itemValues) {
+                        assertEquals("Sort", domain);
+                        for (MetricItemValue itemValue : itemValues) {
+                            String key = itemValue.getKey();
+                            Map<String, MetricValue> metricMap = itemValue.getMetrics();
+                            if (keySource1.equals(itemValue.getKey())) {
+                                assertEquals(1, metricMap.get("readSuccessCount").value);
+                                assertEquals(100, metricMap.get("readSuccessSize").value);
+                            } else if (keySource2.equals(key)) {
+                                assertEquals(20, metricMap.get("readFailCount").value);
+                                assertEquals(2000, metricMap.get("readFailSize").value);
+                            } else if (keySink1.equals(key)) {
+                                assertEquals(1, metricMap.get("sendCount").value);
+                                assertEquals(100, metricMap.get("sendSize").value);
+                                assertEquals(1, metricMap.get("sendSuccessCount").value);
+                                assertEquals(100, metricMap.get("sendSuccessSize").value);
+                            } else if (keySink2.equals(key)) {
+                                assertEquals(20, metricMap.get("sendCount").value);
+                                assertEquals(2000, metricMap.get("sendSize").value);
+                                assertEquals(20, metricMap.get("sendFailCount").value);
+                                assertEquals(2000, metricMap.get("sendFailSize").value);
+                            } else {
+                                System.out.println("bad MetricItem:" + key);
+                            }
+                        }
                     }
-                }
-            }
-        };
+                };
         List<MetricListener> listeners = new ArrayList<>();
         listeners.add(listener);
         MetricListenerRunnable runnable = new MetricListenerRunnable("Sort", listeners);

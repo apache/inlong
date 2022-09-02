@@ -18,6 +18,10 @@
 package org.apache.inlong.audit.file;
 
 import com.google.gson.Gson;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -30,17 +34,11 @@ import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    private static final Map<String, ConfigHolder> holderMap =
-            new ConcurrentHashMap<>();
+    private static final Map<String, ConfigHolder> holderMap = new ConcurrentHashMap<>();
 
     private static ConfigManager instance = null;
 
@@ -85,11 +83,11 @@ public class ConfigManager {
         return null;
     }
 
-    private boolean updatePropertiesHolder(Map<String, String> result,
-            String holderName, boolean addElseRemove) {
+    private boolean updatePropertiesHolder(
+            Map<String, String> result, String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {
-            PropertiesConfigHolder holder = (PropertiesConfigHolder)
-                    holderMap.get(holderName + ".properties");
+            PropertiesConfigHolder holder =
+                    (PropertiesConfigHolder) holderMap.get(holderName + ".properties");
             return updatePropertiesHolder(result, holder, true);
         }
         return true;
@@ -103,13 +101,15 @@ public class ConfigManager {
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
-    private boolean updatePropertiesHolder(Map<String, String> result,
-            PropertiesConfigHolder holder, boolean addElseRemove) {
+    private boolean updatePropertiesHolder(
+            Map<String, String> result, PropertiesConfigHolder holder, boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
         for (Entry<String, String> entry : result.entrySet()) {
-            String oldValue = addElseRemove
-                    ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
+            String oldValue =
+                    addElseRemove
+                            ? tmpHolder.put(entry.getKey(), entry.getValue())
+                            : tmpHolder.remove(entry.getKey());
             // if addElseRemove is false, that means removing item, changed is true.
             if (oldValue == null || !oldValue.equals(entry.getValue()) || !addElseRemove) {
                 changed = true;
@@ -131,9 +131,7 @@ public class ConfigManager {
         return holderMap.get(fileName);
     }
 
-    /**
-     * load worker
-     */
+    /** load worker */
     private static class ReloadConfigWorker extends Thread {
 
         private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
@@ -149,9 +147,11 @@ public class ConfigManager {
 
         private synchronized CloseableHttpClient constructHttpClient() {
             long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout((int) timeoutInMs)
-                    .setSocketTimeout((int) timeoutInMs).build();
+            RequestConfig requestConfig =
+                    RequestConfig.custom()
+                            .setConnectTimeout((int) timeoutInMs)
+                            .setSocketTimeout((int) timeoutInMs)
+                            .build();
             HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
             httpClientBuilder.setDefaultRequestConfig(requestConfig);
             return httpClientBuilder.build();
@@ -163,8 +163,9 @@ public class ConfigManager {
 
         private long getSleepTime() {
             String sleepTimeInMsStr =
-                    configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get(
-                            "configCheckIntervalMs");
+                    configManager
+                            .getProperties(DEFAULT_CONFIG_PROPERTIES)
+                            .get("configCheckIntervalMs");
             long sleepTimeInMs = 10000;
             try {
                 if (sleepTimeInMsStr != null) {
@@ -206,8 +207,7 @@ public class ConfigManager {
                 if (configJsonMap != null && configJsonMap.size() > 0) {
                     for (Entry<String, String> entry : configJsonMap.entrySet()) {
                         Map<String, String> valueMap = gson.fromJson(entry.getValue(), Map.class);
-                        configManager.updatePropertiesHolder(valueMap,
-                                entry.getKey(), true);
+                        configManager.updatePropertiesHolder(valueMap, entry.getKey(), true);
                     }
                 }
             } catch (Exception ex) {
@@ -224,7 +224,8 @@ public class ConfigManager {
         private void checkRemoteConfig() {
 
             try {
-                String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager_hosts");
+                String managerHosts =
+                        configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager_hosts");
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
                     if (checkWithManager(host)) {

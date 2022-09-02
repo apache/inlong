@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -34,23 +35,18 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * The listener that approves to apply for InlongGroup.
- * <p/>
- * After approval, start other follow-up processes.
+ *
+ * <p>After approval, start other follow-up processes.
  */
 @Slf4j
 @Component
 public class ApproveApplyProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private WorkflowService workflowService;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private WorkflowService workflowService;
 
     @Override
     public ProcessEvent event() {
@@ -71,9 +67,11 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
         processForm.setStreamInfos(streamList);
 
         // may run for long time, make it async processing
-        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
+        EXECUTOR_SERVICE.execute(
+                () ->
+                        workflowService.start(
+                                ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
         log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

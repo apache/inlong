@@ -19,16 +19,13 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * Workflow result info
- */
+/** Workflow result info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -41,5 +38,4 @@ public class WorkflowResult {
 
     @ApiModelProperty(value = "Newly generated tasks")
     private List<TaskResponse> newTasks;
-
 }

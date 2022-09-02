@@ -22,9 +22,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * Workflow components
- */
+/** Workflow components */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "class")
 public abstract class Element implements Cloneable {
@@ -32,12 +30,12 @@ public abstract class Element implements Cloneable {
     private String name;
     private String displayName;
 
-    public Element() {
-    }
+    public Element() {}
 
     public void validate() {
         Preconditions.checkTrue(StringUtils.isNotBlank(this.name), "process name cannot be empty");
-        Preconditions.checkTrue(StringUtils.isNotBlank(this.displayName), "process display name cannot be empty");
+        Preconditions.checkTrue(
+                StringUtils.isNotBlank(this.displayName), "process display name cannot be empty");
     }
 
     @Override

@@ -27,14 +27,13 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerMessageFactory
-        extends ChannelInitializer<SocketChannel> {
+public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
 
@@ -93,10 +92,20 @@ public class ServerMessageFactory
      * @param monitorIndexExt
      * @param name
      */
-    public ServerMessageFactory(AbstractSource source, ChannelGroup allChannels, String protocol,
-            ServiceDecoder serviceDecoder, String messageHandlerName, Integer maxMsgLength,
-            String topic, String attr, Boolean filterEmptyMsg, Integer maxCons,
-            Boolean isCompressed, MonitorIndex monitorIndex, MonitorIndexExt monitorIndexExt,
+    public ServerMessageFactory(
+            AbstractSource source,
+            ChannelGroup allChannels,
+            String protocol,
+            ServiceDecoder serviceDecoder,
+            String messageHandlerName,
+            Integer maxMsgLength,
+            String topic,
+            String attr,
+            Boolean filterEmptyMsg,
+            Integer maxCons,
+            Boolean isCompressed,
+            MonitorIndex monitorIndex,
+            MonitorIndexExt monitorIndexExt,
             String name) {
         this.source = source;
         this.processor = source.getChannelProcessor();
@@ -119,32 +128,52 @@ public class ServerMessageFactory
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
 
-        if (this.protocolType
-                .equalsIgnoreCase(ConfigConstants.TCP_PROTOCOL)) {
-            ch.pipeline().addLast("messageDecoder", new LengthFieldBasedFrameDecoder(
-                    this.maxMsgLength, 0,
-                    MSG_LENGTH_LEN, 0, 0, true));
-            ch.pipeline().addLast("readTimeoutHandler",
-                    new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
+        if (this.protocolType.equalsIgnoreCase(ConfigConstants.TCP_PROTOCOL)) {
+            ch.pipeline()
+                    .addLast(
+                            "messageDecoder",
+                            new LengthFieldBasedFrameDecoder(
+                                    this.maxMsgLength, 0, MSG_LENGTH_LEN, 0, 0, true));
+            ch.pipeline()
+                    .addLast(
+                            "readTimeoutHandler",
+                            new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
         }
 
         if (processor != null) {
             try {
-                Class<? extends ChannelInboundHandlerAdapter> clazz
-                        = (Class<? extends ChannelInboundHandlerAdapter>) Class
-                        .forName(messageHandlerName);
+                Class<? extends ChannelInboundHandlerAdapter> clazz =
+                        (Class<? extends ChannelInboundHandlerAdapter>)
+                                Class.forName(messageHandlerName);
 
-                Constructor<?> ctor = clazz.getConstructor(
-                        AbstractSource.class, ServiceDecoder.class, ChannelGroup.class,
-                        String.class, String.class, Boolean.class,
-                        Integer.class, Boolean.class, MonitorIndex.class,
-                        MonitorIndexExt.class, String.class);
+                Constructor<?> ctor =
+                        clazz.getConstructor(
+                                AbstractSource.class,
+                                ServiceDecoder.class,
+                                ChannelGroup.class,
+                                String.class,
+                                String.class,
+                                Boolean.class,
+                                Integer.class,
+                                Boolean.class,
+                                MonitorIndex.class,
+                                MonitorIndexExt.class,
+                                String.class);
 
-                ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
-                        .newInstance(source, serviceDecoder, allChannels, topic, attr,
-                                filterEmptyMsg, maxConnections,
-                                isCompressed,  monitorIndex, monitorIndexExt, protocolType
-                        );
+                ChannelInboundHandlerAdapter messageHandler =
+                        (ChannelInboundHandlerAdapter)
+                                ctor.newInstance(
+                                        source,
+                                        serviceDecoder,
+                                        allChannels,
+                                        topic,
+                                        attr,
+                                        filterEmptyMsg,
+                                        maxConnections,
+                                        isCompressed,
+                                        monitorIndex,
+                                        monitorIndexExt,
+                                        protocolType);
 
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {

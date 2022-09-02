@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.workflow.WorkflowAction;
-import org.apache.inlong.manager.workflow.WorkflowContext;
+import java.util.List;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.workflow.WorkflowAction;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
-import java.util.List;
-
-/**
- * Workflow context builder
- */
+/** Workflow context builder */
 public interface WorkflowContextBuilder {
 
     /**
@@ -46,26 +43,26 @@ public interface WorkflowContextBuilder {
      */
     WorkflowContext buildContextForProcess(Integer processId);
 
-    /**
-     * Build context information based on task ID
-     */
-    WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, String remark, String operator);
+    /** Build context information based on task ID */
+    WorkflowContext buildContextForTask(
+            Integer taskId, WorkflowAction action, String remark, String operator);
 
-    /**
-     * Build task context information
-     */
-    WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, TaskForm taskForm, String remark,
+    /** Build task context information */
+    WorkflowContext buildContextForTask(
+            Integer taskId,
+            WorkflowAction action,
+            TaskForm taskForm,
+            String remark,
             String operator);
 
-    /**
-     * Build task context information
-     */
-    WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, List<String> transferToUsers,
-            String remark, String operator);
+    /** Build task context information */
+    WorkflowContext buildContextForTask(
+            Integer taskId,
+            WorkflowAction action,
+            List<String> transferToUsers,
+            String remark,
+            String operator);
 
-    /**
-     * Build context information based on task ID
-     */
+    /** Build context information based on task ID */
     WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action);
-
 }

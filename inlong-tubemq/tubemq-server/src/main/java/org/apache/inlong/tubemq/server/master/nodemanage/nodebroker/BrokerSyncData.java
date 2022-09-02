@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
 import java.nio.ByteBuffer;
@@ -42,13 +39,11 @@ import org.slf4j.LoggerFactory;
  * Broker sync data holder
  */
 public class BrokerSyncData {
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerSyncData.class);
+    private static final Logger logger = LoggerFactory.getLogger(BrokerSyncData.class);
     // current data push id
     private long dataPushId;
     // data need to sync
-    private final AtomicLong syncDownDataConfId =
-            new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong syncDownDataConfId = new AtomicLong(System.currentTimeMillis());
     private int syncDownDataChkSumId;
     private ManageStatus mngStatus;
     private String syncDownBrokerConfInfo;
@@ -64,27 +59,25 @@ public class BrokerSyncData {
     Map<String, TopicInfo> syncUpTopicInfoMap = new HashMap<>();
     private long lastDataUpTime = 0;
 
-    public BrokerSyncData() {
-
-    }
+    public BrokerSyncData() {}
 
     /**
      * Update current sync data
      *
-     * @param isForceSync  if force sync data to broker
-     * @param dataPushId   data push id for verify
-     * @param mngStatus    new broker manage status
-     * @param brokerConfInfo  broker default configure
+     * @param isForceSync if force sync data to broker
+     * @param dataPushId data push id for verify
+     * @param mngStatus new broker manage status
+     * @param brokerConfInfo broker default configure
      * @param topicConfInfoMap topic configure set
-     *
-     * @return whether changed, if null: input brokerConfInfo data is illegal
-     *         f0 : manage status changed
-     *         f1 : configure changed
+     * @return whether changed, if null: input brokerConfInfo data is illegal f0 : manage status
+     *     changed f1 : configure changed
      */
-    public Tuple2<Boolean, Boolean> updBrokerSyncData(boolean isForceSync, long dataPushId,
-                                                      ManageStatus mngStatus,
-                                                      String brokerConfInfo,
-                                                      Map<String, String> topicConfInfoMap) {
+    public Tuple2<Boolean, Boolean> updBrokerSyncData(
+            boolean isForceSync,
+            long dataPushId,
+            ManageStatus mngStatus,
+            String brokerConfInfo,
+            Map<String, String> topicConfInfoMap) {
         isStatusChanged = false;
         isConfChanged = false;
         // check parameters
@@ -116,19 +109,22 @@ public class BrokerSyncData {
 
     /**
      * Book the report data by broker
-     * @param brokerInfo      broker info
-     * @param syncDataConfId   data configure id
-     * @param syncDataChkSumId data check-sum id
-     * @param isTakeData  if carry the data info
-     * @param syncBrokerConfInfo  broker default config
-     * @param syncTopicConfInfos topic config set
      *
+     * @param brokerInfo broker info
+     * @param syncDataConfId data configure id
+     * @param syncDataChkSumId data check-sum id
+     * @param isTakeData if carry the data info
+     * @param syncBrokerConfInfo broker default config
+     * @param syncTopicConfInfos topic config set
      * @return whether the broker data synchronized
      */
-    public boolean bookBrokerReportInfo(BrokerInfo brokerInfo,
-                                        long syncDataConfId, int syncDataChkSumId,
-                                        boolean isTakeData, String syncBrokerConfInfo,
-                                        List<String> syncTopicConfInfos) {
+    public boolean bookBrokerReportInfo(
+            BrokerInfo brokerInfo,
+            long syncDataConfId,
+            int syncDataChkSumId,
+            boolean isTakeData,
+            String syncBrokerConfInfo,
+            List<String> syncTopicConfInfos) {
         this.syncUpDataConfId = syncDataConfId;
         this.syncUpDataChkSumId = syncDataChkSumId;
         if (isTakeData) {
@@ -150,10 +146,9 @@ public class BrokerSyncData {
     }
 
     /**
-     *  whether the broker data is synchronized
+     * whether the broker data is synchronized
      *
-     * @return true: the configure is synchronized;
-     *         false: not synchronized
+     * @return true: the configure is synchronized; false: not synchronized
      */
     public boolean isConfSynchronized() {
         return (this.syncDownDataConfId.get() == this.syncUpDataConfId
@@ -179,16 +174,18 @@ public class BrokerSyncData {
                     topicInfoList.add(topicInfo);
                 }
             }
-            return new Tuple4<>(syncDownDataConfId.get(), syncDownDataChkSumId,
-                    syncDownBrokerConfInfo, topicInfoList);
+            return new Tuple4<>(
+                    syncDownDataConfId.get(),
+                    syncDownDataChkSumId,
+                    syncDownBrokerConfInfo,
+                    topicInfoList);
         }
     }
 
     /**
      * Get the broker publish info
-     * @return need sync data
-     *         f0 : manage status
-     *         f1 : topic configure
+     *
+     * @return need sync data f0 : manage status f1 : topic configure
      */
     public Tuple2<ManageStatus, Map<String, TopicInfo>> getBrokerPublishInfo() {
         return new Tuple2<>(mngStatus, syncUpTopicInfoMap);
@@ -204,13 +201,12 @@ public class BrokerSyncData {
 
     /**
      * Judge the sync-data is change
-     * @param brokerConfInfo  broker default config
-     * @param topicConfInfoMap topic config set
      *
+     * @param brokerConfInfo broker default config
+     * @param topicConfInfoMap topic config set
      * @return whether the sync-data is change
      */
-    private boolean isSyncDataChanged(String brokerConfInfo,
-                                      Map<String, String> topicConfInfoMap) {
+    private boolean isSyncDataChanged(String brokerConfInfo, Map<String, String> topicConfInfoMap) {
         return !Objects.equals(syncDownBrokerConfInfo, brokerConfInfo)
                 || !Objects.equals(syncDownTopicConfInfoMap, topicConfInfoMap);
     }
@@ -218,24 +214,38 @@ public class BrokerSyncData {
     /**
      * Format broker sync data to json string
      *
-     * @param sBuffer  string process container
+     * @param sBuffer string process container
      * @return process result
      */
     public StringBuilder toJsonString(StringBuilder sBuffer) {
-        sBuffer.append("{\"dataPushId\":").append(dataPushId)
-                .append(",\"mngStatus\":\"").append(mngStatus.getDescription())
-                .append("\",\"syncDownDataConfId\":").append(syncDownDataConfId.get())
-                .append(",\"syncDownDataChkSumId\":").append(syncDownDataChkSumId)
-                .append(",\"isStatusChanged\":").append(isStatusChanged)
-                .append(",\"isConfChanged\":").append(isConfChanged)
-                .append(",\"syncDownBrokerConfInfo\":\"").append(syncDownBrokerConfInfo)
-                .append("\",\"syncDownTopicConfInfoMap\":\"").append(syncDownTopicConfInfoMap.toString())
-                .append("\",\"syncUpDataConfId\":").append(syncUpDataConfId)
-                .append(",\"syncUpDataChkSumId\":").append(syncUpDataChkSumId)
-                .append(",\"syncUpBrokerConfInfo\":\"").append(syncUpBrokerConfInfo)
-                .append("\",\"syncUpTopicConfInfos\":\"").append(syncUpTopicConfInfos.toString())
-                .append("\",\"syncUpTopicInfoMap\":\"").append(syncUpTopicInfoMap.toString())
-                .append("\",\"lastDataUpTime\":").append(lastDataUpTime)
+        sBuffer.append("{\"dataPushId\":")
+                .append(dataPushId)
+                .append(",\"mngStatus\":\"")
+                .append(mngStatus.getDescription())
+                .append("\",\"syncDownDataConfId\":")
+                .append(syncDownDataConfId.get())
+                .append(",\"syncDownDataChkSumId\":")
+                .append(syncDownDataChkSumId)
+                .append(",\"isStatusChanged\":")
+                .append(isStatusChanged)
+                .append(",\"isConfChanged\":")
+                .append(isConfChanged)
+                .append(",\"syncDownBrokerConfInfo\":\"")
+                .append(syncDownBrokerConfInfo)
+                .append("\",\"syncDownTopicConfInfoMap\":\"")
+                .append(syncDownTopicConfInfoMap.toString())
+                .append("\",\"syncUpDataConfId\":")
+                .append(syncUpDataConfId)
+                .append(",\"syncUpDataChkSumId\":")
+                .append(syncUpDataChkSumId)
+                .append(",\"syncUpBrokerConfInfo\":\"")
+                .append(syncUpBrokerConfInfo)
+                .append("\",\"syncUpTopicConfInfos\":\"")
+                .append(syncUpTopicConfInfos.toString())
+                .append("\",\"syncUpTopicInfoMap\":\"")
+                .append(syncUpTopicInfoMap.toString())
+                .append("\",\"lastDataUpTime\":")
+                .append(lastDataUpTime)
                 .append("}");
         return sBuffer;
     }
@@ -251,8 +261,7 @@ public class BrokerSyncData {
             return null;
         }
         // get broker status and topic default configure
-        String[] brokerConfInfoAttrs =
-                this.syncUpBrokerConfInfo.split(TokenConstants.ATTR_SEP);
+        String[] brokerConfInfoAttrs = this.syncUpBrokerConfInfo.split(TokenConstants.ATTR_SEP);
         int numPartitions = Integer.parseInt(brokerConfInfoAttrs[0]);
         boolean cfgAcceptPublish = Boolean.parseBoolean(brokerConfInfoAttrs[1]);
         boolean cfgAcceptSubscribe = Boolean.parseBoolean(brokerConfInfoAttrs[2]);
@@ -268,8 +277,7 @@ public class BrokerSyncData {
             if (TStringUtils.isBlank(strTopicConfInfo)) {
                 continue;
             }
-            String[] topicConfAttrs =
-                    strTopicConfInfo.split(TokenConstants.ATTR_SEP);
+            String[] topicConfAttrs = strTopicConfInfo.split(TokenConstants.ATTR_SEP);
             final String tmpTopic = topicConfAttrs[0];
             int tmpPartNum = numPartitions;
             if (!TStringUtils.isBlank(topicConfAttrs[1])) {
@@ -288,8 +296,15 @@ public class BrokerSyncData {
             if (!TStringUtils.isBlank(topicConfAttrs[3])) {
                 tmpAcceptSubscribe = Boolean.parseBoolean(topicConfAttrs[3]);
             }
-            topicInfoMap.put(tmpTopic, new TopicInfo(brokerInfo, tmpTopic,
-                    tmpPartNum, tmpNumTopicStores, tmpAcceptPublish, tmpAcceptSubscribe));
+            topicInfoMap.put(
+                    tmpTopic,
+                    new TopicInfo(
+                            brokerInfo,
+                            tmpTopic,
+                            tmpPartNum,
+                            tmpNumTopicStores,
+                            tmpAcceptPublish,
+                            tmpAcceptSubscribe));
         }
         return topicInfoMap;
     }
@@ -297,17 +312,15 @@ public class BrokerSyncData {
     /**
      * Calculate the sync-data's crc32 value
      *
-     * @param brokerConfInfo  broker default config
+     * @param brokerConfInfo broker default config
      * @param topicConfInfoMap topic config set
-     *
      * @return the crc32 value
      */
-    private int calculateConfigCrc32Value(String brokerConfInfo,
-                                          Map<String, String> topicConfInfoMap) {
+    private int calculateConfigCrc32Value(
+            String brokerConfInfo, Map<String, String> topicConfInfoMap) {
         int result = -1;
         int capacity = 0;
-        List<String> topicConfInfoLst =
-                new ArrayList<>(topicConfInfoMap.values());
+        List<String> topicConfInfoLst = new ArrayList<>(topicConfInfoMap.values());
         Collections.sort(topicConfInfoLst);
         capacity += brokerConfInfo.length();
         for (String itemStr : topicConfInfoLst) {
@@ -325,8 +338,8 @@ public class BrokerSyncData {
         return 0;
     }
 
-    private int inCalcBufferResult(int capacity, String brokerConfInfo,
-                                   List<String> topicConfInfoLst) {
+    private int inCalcBufferResult(
+            int capacity, String brokerConfInfo, List<String> topicConfInfoLst) {
         final ByteBuffer buffer = ByteBuffer.allocate(capacity);
         buffer.put(StringUtils.getBytesUtf8(brokerConfInfo));
         for (String itemStr : topicConfInfoLst) {
@@ -338,5 +351,4 @@ public class BrokerSyncData {
         }
         return CheckSum.crc32(buffer.array());
     }
-
 }

@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Process count response
- */
+/** Process count response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -48,5 +46,4 @@ public class ProcessCountResponse {
 
     @ApiModelProperty(value = "Count of cancelled")
     private Integer totalCancelCount;
-
 }

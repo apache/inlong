@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,11 +28,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
-
-/**
- * Workflow event log query request
- */
+/** Workflow event log query request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -87,5 +84,4 @@ public class EventLogRequest extends PageRequest {
     @ApiModelProperty("End time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeEnd;
-
 }

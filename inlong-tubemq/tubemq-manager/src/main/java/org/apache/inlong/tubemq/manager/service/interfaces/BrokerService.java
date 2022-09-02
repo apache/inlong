@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
 import java.util.List;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
@@ -80,8 +79,7 @@ public interface BrokerService {
      * @param req
      * @return
      */
-    TubeMQResult deleteOffset(String brokerIp, int brokerWebPort,
-                              DeleteOffsetReq req);
+    TubeMQResult deleteOffset(String brokerIp, int brokerWebPort, DeleteOffsetReq req);
 
     OffsetQueryRes queryOffset(String brokerIp, int brokerWebPort, QueryOffsetReq req);
 }

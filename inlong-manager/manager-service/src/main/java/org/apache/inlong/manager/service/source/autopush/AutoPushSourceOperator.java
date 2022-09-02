@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.source.autopush;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -35,18 +36,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * DataProxy SDK source operator
- */
+/** DataProxy SDK source operator */
 @Service
 public class AutoPushSourceOperator extends AbstractSourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoPushSourceOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -67,7 +63,8 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to source info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -86,5 +83,4 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
         source.setFieldList(sourceFields);
         return source;
     }
-
 }

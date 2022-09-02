@@ -22,17 +22,23 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * MaskDataUtils is used to mask sensitive message in the raw data.
- */
+/** MaskDataUtils is used to mask sensitive message in the raw data. */
 public class MaskDataUtils {
 
-    private static final List<String> KEYWORDS = Arrays.asList(
-            "password", "pwd", "pass",
-            "token", "secret_token", "secretToken",
-            "secret_id", "secretId",
-            "secret_key", "secretKey",
-            "public_key", "publicKey");
+    private static final List<String> KEYWORDS =
+            Arrays.asList(
+                    "password",
+                    "pwd",
+                    "pass",
+                    "token",
+                    "secret_token",
+                    "secretToken",
+                    "secret_id",
+                    "secretId",
+                    "secret_key",
+                    "secretKey",
+                    "public_key",
+                    "publicKey");
     private static final List<String> SEPARATORS = Arrays.asList(":", "=", "\": \"", "\":\"");
     private static final List<Character> STOP_CHARACTERS = Arrays.asList('\'', '"');
     private static final List<Character> KNOWN_DELIMITERS =
@@ -59,7 +65,7 @@ public class MaskDataUtils {
             if (!maskedThisCharacter) {
                 while (pos < length
                         && !(Character.isWhitespace(stringBuilder.charAt(pos))
-                        || STOP_CHARACTERS.contains(stringBuilder.charAt(pos)))) {
+                                || STOP_CHARACTERS.contains(stringBuilder.charAt(pos)))) {
                     pos++;
                 }
             }
@@ -101,7 +107,7 @@ public class MaskDataUtils {
             int keywordStart = 0;
             int keywordLength = 0;
             String keywordUsed = null;
-            for (String keyword: KEYWORDS) {
+            for (String keyword : KEYWORDS) {
                 keywordStart = StringUtils.indexOfIgnoreCase(builder, keyword, charPos);
                 if (keywordStartAtRightPosition(keywordStart, charPos)) {
                     keywordLength = keyword.length();
@@ -115,12 +121,20 @@ public class MaskDataUtils {
             }
 
             int idxSeparator;
-            for (String separator: SEPARATORS) {
-                idxSeparator = StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
+            for (String separator : SEPARATORS) {
+                idxSeparator =
+                        StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
                 if (idxSeparator == keywordStart + keywordLength) {
                     charPos = maskStartPosition(keywordStart, keywordLength, separator, builder);
 
-                    int endPos = detectEnd(builder, buffLength, charPos, keywordUsed, keywordLength, separator);
+                    int endPos =
+                            detectEnd(
+                                    builder,
+                                    buffLength,
+                                    charPos,
+                                    keywordUsed,
+                                    keywordLength,
+                                    separator);
 
                     if (endPos > charPos) {
                         return mask(builder, maskChar, charPos, endPos);
@@ -143,8 +157,13 @@ public class MaskDataUtils {
      * @param separator the specified separator char
      * @return the end position of sensitive data
      */
-    private static int detectEnd(StringBuilder builder, int buffLength, int startPos, String keyword,
-            int keywordLength, String separator) {
+    private static int detectEnd(
+            StringBuilder builder,
+            int buffLength,
+            int startPos,
+            String keyword,
+            int keywordLength,
+            String separator) {
         if (separator.charAt(0) == '>') {
             return detectEndXml(builder, buffLength, startPos, keyword, keywordLength);
         } else if (separator.contains("\"")) {
@@ -217,14 +236,20 @@ public class MaskDataUtils {
      * @param keywordLength the length of keyword
      * @return the end position os sensitive data
      */
-    private static int detectEndXml(StringBuilder builder, int buffLength, int startPos,
-            String keyword, int keywordLength) {
+    private static int detectEndXml(
+            StringBuilder builder,
+            int buffLength,
+            int startPos,
+            String keyword,
+            int keywordLength) {
         if (buffLength < startPos + keywordLength + 3) {
             return -1;
         }
 
         int passwordEnd = StringUtils.indexOfIgnoreCase(builder, keyword, startPos);
-        if (passwordEnd > 0 && builder.charAt(passwordEnd - 1) == '/' && builder.charAt(passwordEnd - 2) == '<') {
+        if (passwordEnd > 0
+                && builder.charAt(passwordEnd - 1) == '/'
+                && builder.charAt(passwordEnd - 2) == '<') {
             return passwordEnd - 2;
         }
 
@@ -265,13 +290,12 @@ public class MaskDataUtils {
      * @param builder raw data
      * @return the start position of sensitive data
      */
-    private static int maskStartPosition(int keywordStart, int keywordLength, String separator,
-            StringBuilder builder) {
+    private static int maskStartPosition(
+            int keywordStart, int keywordLength, String separator, StringBuilder builder) {
         int charPos = keywordStart + keywordLength + separator.length();
         if (Character.isWhitespace(builder.charAt(charPos))) {
             charPos++;
         }
         return charPos;
     }
-
 }

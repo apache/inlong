@@ -20,21 +20,18 @@ package org.apache.inlong.manager.pojo.stream;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import lombok.Data;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.manager.common.util.Preconditions;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * Stream pipeline, save stream node relation list.
- */
+/** Stream pipeline, save stream node relation list. */
 @Data
 public class StreamPipeline {
 
@@ -53,9 +50,7 @@ public class StreamPipeline {
         pipeline.add(relation);
     }
 
-    /**
-     * Check if a pipeline has a circle, if it has, return circled node names
-     */
+    /** Check if a pipeline has a circle, if it has, return circled node names */
     public Pair<Boolean, Pair<String, String>> hasCircle() {
         Map<String, Set<String>> priorityMap = Maps.newHashMap();
         for (StreamNodeRelation relation : pipeline) {
@@ -63,7 +58,9 @@ public class StreamPipeline {
             Set<String> outputNodes = relation.getOutputNodes();
             for (String inputNode : inputNodes) {
                 for (String outputNode : outputNodes) {
-                    priorityMap.computeIfAbsent(inputNode, key -> Sets.newHashSet()).add(outputNode);
+                    priorityMap
+                            .computeIfAbsent(inputNode, key -> Sets.newHashSet())
+                            .add(outputNode);
                     if (CollectionUtils.isEmpty(priorityMap.get(outputNode))) {
                         continue;
                     }

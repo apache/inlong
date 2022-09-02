@@ -1,24 +1,33 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.metrics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricItemMBean;
@@ -29,25 +38,7 @@ import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-/**
- * 
- * MetricListenerRunnable
- */
+/** MetricListenerRunnable */
 public class MetricListenerRunnable implements Runnable {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(MetricListenerRunnable.class);
@@ -57,7 +48,7 @@ public class MetricListenerRunnable implements Runnable {
 
     /**
      * Constructor
-     * 
+     *
      * @param domain
      * @param listenerList
      */
@@ -66,19 +57,21 @@ public class MetricListenerRunnable implements Runnable {
         this.listenerList = listenerList;
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         LOG.info("begin to snapshot metric:{}", domain);
         try {
             List<MetricItemValue> itemValues = this.getItemValues();
-            LOG.info("snapshot metric:{},size:{},content:{}", domain, itemValues.size(),
+            LOG.info(
+                    "snapshot metric:{},size:{},content:{}",
+                    domain,
+                    itemValues.size(),
                     new ObjectMapper().writeValueAsString(itemValues));
-            this.listenerList.forEach((item) -> {
-                item.snapshot(domain, itemValues);
-            });
+            this.listenerList.forEach(
+                    (item) -> {
+                        item.snapshot(domain, itemValues);
+                    });
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
@@ -87,8 +80,8 @@ public class MetricListenerRunnable implements Runnable {
 
     /**
      * getItemValues
-     * 
-     * @return                              MetricItemValue List
+     *
+     * @return MetricItemValue List
      * @throws InstanceNotFoundException
      * @throws AttributeNotFoundException
      * @throws ReflectionException
@@ -97,11 +90,14 @@ public class MetricListenerRunnable implements Runnable {
      * @throws ClassNotFoundException
      */
     @SuppressWarnings("unchecked")
-    public List<MetricItemValue> getItemValues() throws InstanceNotFoundException, AttributeNotFoundException,
-            ReflectionException, MBeanException, MalformedObjectNameException, ClassNotFoundException {
+    public List<MetricItemValue> getItemValues()
+            throws InstanceNotFoundException, AttributeNotFoundException, ReflectionException,
+                    MBeanException, MalformedObjectNameException, ClassNotFoundException {
         StringBuilder beanName = new StringBuilder();
-        beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                .append("type=").append(MetricUtils.getDomain(SortMetricItemSet.class))
+        beanName.append(MetricRegister.JMX_DOMAIN)
+                .append(MetricItemMBean.DOMAIN_SEPARATOR)
+                .append("type=")
+                .append(MetricUtils.getDomain(SortMetricItemSet.class))
                 .append(MetricItemMBean.PROPERTY_SEPARATOR)
                 .append("*");
         ObjectName objName = new ObjectName(beanName.toString());
@@ -114,24 +110,37 @@ public class MetricListenerRunnable implements Runnable {
             Class<?> clazz = ClassUtils.getClass(className);
             if (ClassUtils.isAssignable(clazz, MetricItemMBean.class)) {
                 ObjectName metricObjectName = mbean.getObjectName();
-                String dimensionsKey = (String) mbs.getAttribute(metricObjectName,
-                        MetricItemMBean.ATTRIBUTE_KEY);
-                Map<String, String> dimensions = (Map<String, String>) mbs
-                        .getAttribute(metricObjectName, MetricItemMBean.ATTRIBUTE_DIMENSIONS);
-                Map<String, MetricValue> metrics = (Map<String, MetricValue>) mbs
-                        .invoke(metricObjectName, MetricItemMBean.METHOD_SNAPSHOT, null, null);
+                String dimensionsKey =
+                        (String) mbs.getAttribute(metricObjectName, MetricItemMBean.ATTRIBUTE_KEY);
+                Map<String, String> dimensions =
+                        (Map<String, String>)
+                                mbs.getAttribute(
+                                        metricObjectName, MetricItemMBean.ATTRIBUTE_DIMENSIONS);
+                Map<String, MetricValue> metrics =
+                        (Map<String, MetricValue>)
+                                mbs.invoke(
+                                        metricObjectName,
+                                        MetricItemMBean.METHOD_SNAPSHOT,
+                                        null,
+                                        null);
                 MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
                 LOG.info("MetricItemMBean get itemValue:{}", itemValue);
                 itemValues.add(itemValue);
             } else if (ClassUtils.isAssignable(clazz, MetricItemSetMBean.class)) {
                 ObjectName metricObjectName = mbean.getObjectName();
-                List<MetricItem> items = (List<MetricItem>) mbs.invoke(metricObjectName,
-                        MetricItemMBean.METHOD_SNAPSHOT, null, null);
+                List<MetricItem> items =
+                        (List<MetricItem>)
+                                mbs.invoke(
+                                        metricObjectName,
+                                        MetricItemMBean.METHOD_SNAPSHOT,
+                                        null,
+                                        null);
                 for (MetricItem item : items) {
                     String dimensionsKey = item.getDimensionsKey();
                     Map<String, String> dimensions = item.getDimensions();
                     Map<String, MetricValue> metrics = item.snapshot();
-                    MetricItemValue itemValue = new MetricItemValue(dimensionsKey, dimensions, metrics);
+                    MetricItemValue itemValue =
+                            new MetricItemValue(dimensionsKey, dimensions, metrics);
                     LOG.info("MetricItemSetMBean get itemValue:{}", itemValue);
                     itemValues.add(itemValue);
                 }

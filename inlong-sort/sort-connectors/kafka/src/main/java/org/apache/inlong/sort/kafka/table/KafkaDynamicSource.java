@@ -18,6 +18,20 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -41,31 +55,11 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
-
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-/**
- * Dynamic Kafka table source.
- * supports reading metadata from Kafka and metric reporting
- */
+/** Dynamic Kafka table source. supports reading metadata from Kafka and metric reporting */
 @Internal
 public class KafkaDynamicSource
         implements ScanTableSource, SupportsReadingMetadata, SupportsWatermarkPushDown {
@@ -213,8 +207,12 @@ public class KafkaDynamicSource
                 context.createTypeInformation(producedDataType);
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer =
-                createKafkaConsumer(keyDeserialization, valueDeserialization,
-                    producedTypeInfo, inLongMetric, auditHostAndPorts);
+                createKafkaConsumer(
+                        keyDeserialization,
+                        valueDeserialization,
+                        producedTypeInfo,
+                        inLongMetric,
+                        auditHostAndPorts);
 
         return SourceFunctionProvider.of(kafkaConsumer, false);
     }
@@ -284,7 +282,9 @@ public class KafkaDynamicSource
                         startupMode,
                         specificStartupOffsets,
                         startupTimestampMillis,
-                        upsertMode, inLongMetric, auditHostAndPorts);
+                        upsertMode,
+                        inLongMetric,
+                        auditHostAndPorts);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
@@ -350,8 +350,8 @@ public class KafkaDynamicSource
             DeserializationSchema<RowData> keyDeserialization,
             DeserializationSchema<RowData> valueDeserialization,
             TypeInformation<RowData> producedTypeInfo,
-        String inlongMetric,
-        String auditHostAndPorts) {
+            String inlongMetric,
+            String auditHostAndPorts) {
 
         final MetadataConverter[] metadataConverters =
                 metadataKeys.stream()
@@ -390,7 +390,9 @@ public class KafkaDynamicSource
                         hasMetadata,
                         metadataConverters,
                         producedTypeInfo,
-                        upsertMode, inlongMetric, auditHostAndPorts);
+                        upsertMode,
+                        inlongMetric,
+                        auditHostAndPorts);
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer;
         if (topics != null) {

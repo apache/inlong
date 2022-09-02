@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.LinkedHashMap;
@@ -23,9 +20,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * MsgStoreStatsHolder test.
- */
+/** MsgStoreStatsHolder test. */
 public class MsgStoreStatsHolderTest {
 
     @Test
@@ -112,9 +107,8 @@ public class MsgStoreStatsHolderTest {
     public void testFilePartStats() {
         MsgStoreStatsHolder msgStoreStatsHolder = new MsgStoreStatsHolder();
         // case 1, not started
-        msgStoreStatsHolder.addFileFlushStatsInfo(2, 30, 500,
-                0, 0, true, true,
-                true, true, true, true);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                2, 30, 500, 0, 0, true, true, true, true, true, true);
         msgStoreStatsHolder.addFileTimeoutFlushStats(1, 500, false);
         Map<String, Long> retMap = new LinkedHashMap<>();
         msgStoreStatsHolder.getValue(retMap);
@@ -162,24 +156,18 @@ public class MsgStoreStatsHolderTest {
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         // get value when started
-        msgStoreStatsHolder.addFileFlushStatsInfo(1, 1, 1,
-                1, 1, true, false,
-                false, false, false, false);
-        msgStoreStatsHolder.addFileFlushStatsInfo(6, 6, 6,
-                6, 6, false, false,
-                false, false, false, true);
-        msgStoreStatsHolder.addFileFlushStatsInfo(2, 2, 2,
-                2, 2, false, true,
-                false, false, false, false);
-        msgStoreStatsHolder.addFileFlushStatsInfo(5, 5, 5,
-                5, 5, false, false,
-                false, false, true, false);
-        msgStoreStatsHolder.addFileFlushStatsInfo(4, 4, 4,
-                4, 4, false, false,
-                false, true, false, false);
-        msgStoreStatsHolder.addFileFlushStatsInfo(3, 3, 3,
-                3, 3, false, false,
-                true, false, false, false);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                1, 1, 1, 1, 1, true, false, false, false, false, false);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                6, 6, 6, 6, 6, false, false, false, false, false, true);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                2, 2, 2, 2, 2, false, true, false, false, false, false);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                5, 5, 5, 5, 5, false, false, false, false, true, false);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                4, 4, 4, 4, 4, false, false, false, true, false, false);
+        msgStoreStatsHolder.addFileFlushStatsInfo(
+                3, 3, 3, 3, 3, false, false, true, false, false, false);
         msgStoreStatsHolder.snapShort(retMap);
         Assert.assertNotNull(retMap.get("reset_time"));
         Assert.assertEquals(21, retMap.get("file_total_msg_cnt").longValue());

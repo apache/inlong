@@ -88,16 +88,27 @@ public class DebeziumSerializationInfo implements SerializationInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(timestampFormatStandard, mapNullKeyMod, mapNullKeyLiteral, encodeDecimalAsPlainNumber);
+        return Objects.hash(
+                timestampFormatStandard,
+                mapNullKeyMod,
+                mapNullKeyLiteral,
+                encodeDecimalAsPlainNumber);
     }
 
     @Override
     public String toString() {
         return "DebeziumSerializationInfo{"
-                + "timestampFormatStandard='" + timestampFormatStandard + '\''
-                + ", mapNullKeyMod='" + mapNullKeyMod + '\''
-                + ", mapNullKeyLiteral='" + mapNullKeyLiteral + '\''
-                + ", encodeDecimalAsPlainNumber=" + encodeDecimalAsPlainNumber
+                + "timestampFormatStandard='"
+                + timestampFormatStandard
+                + '\''
+                + ", mapNullKeyMod='"
+                + mapNullKeyMod
+                + '\''
+                + ", mapNullKeyLiteral='"
+                + mapNullKeyLiteral
+                + '\''
+                + ", encodeDecimalAsPlainNumber="
+                + encodeDecimalAsPlainNumber
                 + '}';
     }
 }

@@ -19,25 +19,16 @@ package org.apache.inlong.common.pojo.dataproxy;
 
 import lombok.Data;
 
-/**
- * Data proxy node info.
- */
+/** Data proxy node info. */
 @Data
 public class DataProxyNodeInfo {
 
-    /**
-     * DataProxy node id
-     */
+    /** DataProxy node id */
     private Integer id;
 
-    /**
-     * Node IP
-     */
+    /** Node IP */
     private String ip;
 
-    /**
-     * Node port
-     */
+    /** Node port */
     private Integer port;
-
 }

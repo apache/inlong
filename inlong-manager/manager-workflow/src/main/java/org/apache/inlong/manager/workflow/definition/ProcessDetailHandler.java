@@ -19,10 +19,7 @@ package org.apache.inlong.manager.workflow.definition;
 
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 
-/**
- * WorkflowProcess detail processor
- *
- */
+/** WorkflowProcess detail processor */
 public interface ProcessDetailHandler {
 
     /**
@@ -32,5 +29,4 @@ public interface ProcessDetailHandler {
      * @return WorkflowProcess details
      */
     ProcessDetailResponse handle(ProcessDetailResponse workflowResponse);
-
 }

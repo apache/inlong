@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.balance;
 
 import java.util.ArrayList;
@@ -73,8 +70,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             StringBuilder strBuffer) {
         // #lizard forgives
         // load balance according to group
-        Map<String/* consumer */,
-                Map<String/* topic */, List<Partition>>> finalSubInfoMap =
+        Map<String /* consumer */, Map<String /* topic */, List<Partition>>> finalSubInfoMap =
                 new HashMap<>();
         Map<String, RebProcessInfo> rejGroupClientInfoMap = new HashMap<>();
         Set<String> onlineOfflineGroupSet = new HashSet<>();
@@ -87,8 +83,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (consumeGroupInfo == null || consumeGroupInfo.isClientBalance()) {
                 continue;
             }
-            List<ConsumerInfo> consumerList =
-                    consumeGroupInfo.getConsumerInfoList();
+            List<ConsumerInfo> consumerList = consumeGroupInfo.getConsumerInfoList();
             if (CollectionUtils.isEmpty(consumerList)) {
                 continue;
             }
@@ -111,33 +106,40 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 // check if current client meet minimal requirements
                 GroupResCtrlEntity offsetResetGroupEntity =
                         defMetaDataService.getGroupCtrlConf(group);
-                int confAllowBClientRate = (offsetResetGroupEntity != null
-                        && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                        ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
-                int allowRate = confAllowBClientRate > 0
-                        ? confAllowBClientRate : consumerHolder.getDefResourceRate();
-                int maxBrokerCount =
-                        brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
+                int confAllowBClientRate =
+                        (offsetResetGroupEntity != null
+                                        && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
+                                ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                                : -2;
+                int allowRate =
+                        confAllowBClientRate > 0
+                                ? confAllowBClientRate
+                                : consumerHolder.getDefResourceRate();
+                int maxBrokerCount = brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
                 int curBClientRate = (int) Math.floor(maxBrokerCount / newConsumerList.size());
                 if (curBClientRate > allowRate) {
                     int minClientCnt = maxBrokerCount / allowRate;
                     if (maxBrokerCount % allowRate != 0) {
                         minClientCnt += 1;
                     }
-                    consumeGroupInfo.setConsumeResourceInfo(confAllowBClientRate,
-                            curBClientRate, minClientCnt, false);
+                    consumeGroupInfo.setConsumeResourceInfo(
+                            confAllowBClientRate, curBClientRate, minClientCnt, false);
                     if (consumeGroupInfo.isEnableBalanceChkPrint()) {
-                        logger.info(strBuffer.append("[UnBound Alloc 2] Not allocate partition :group(")
-                                .append(group).append(")'s consumer getCachedSize(")
-                                .append(consumeGroupInfo.getGroupCnt())
-                                .append(") low than min required client count:")
-                                .append(minClientCnt).toString());
+                        logger.info(
+                                strBuffer
+                                        .append("[UnBound Alloc 2] Not allocate partition :group(")
+                                        .append(group)
+                                        .append(")'s consumer getCachedSize(")
+                                        .append(consumeGroupInfo.getGroupCnt())
+                                        .append(") low than min required client count:")
+                                        .append(minClientCnt)
+                                        .toString());
                         strBuffer.delete(0, strBuffer.length());
                     }
                     continue;
                 } else {
-                    consumeGroupInfo.setConsumeResourceInfo(confAllowBClientRate,
-                            curBClientRate, -2, true);
+                    consumeGroupInfo.setConsumeResourceInfo(
+                            confAllowBClientRate, curBClientRate, -2, true);
                 }
             }
             RebProcessInfo rebProcessInfo = new RebProcessInfo();
@@ -148,21 +150,20 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             List<ConsumerInfo> newConsumerList2 = new ArrayList<>();
-            Map<String, Partition> partMap =
-                    brokerRunManager.getSubBrokerAcceptSubParts(topicSet);
+            Map<String, Partition> partMap = brokerRunManager.getSubBrokerAcceptSubParts(topicSet);
             Map<String, NodeRebInfo> rebProcessInfoMap = consumeGroupInfo.getBalanceMap();
             for (ConsumerInfo consumer : newConsumerList) {
                 Map<String, List<Partition>> partitions = new HashMap<>();
                 finalSubInfoMap.put(consumer.getConsumerId(), partitions);
-                Map<String, Map<String, Partition>> relation = clusterState.get(consumer.getConsumerId());
+                Map<String, Map<String, Partition>> relation =
+                        clusterState.get(consumer.getConsumerId());
                 if (relation != null) {
                     // filter client which can not meet requirements
                     if (rebProcessInfo.needProcessList.contains(consumer.getConsumerId())
                             || rebProcessInfo.needEscapeList.contains(consumer.getConsumerId())) {
                         NodeRebInfo tmpNodeRegInfo =
                                 rebProcessInfoMap.get(consumer.getConsumerId());
-                        if (tmpNodeRegInfo != null
-                                && tmpNodeRegInfo.getReqType() == 0) {
+                        if (tmpNodeRegInfo != null && tmpNodeRegInfo.getReqType() == 0) {
                             newConsumerList2.add(consumer);
                         }
                         for (Entry<String, Map<String, Partition>> entry : relation.entrySet()) {
@@ -190,8 +191,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (!partMap.isEmpty()) {
                 onlineOfflineGroupSet.add(group);
                 if (!newConsumerList2.isEmpty()) {
-                    this.randomAssign(partMap, newConsumerList2,
-                            finalSubInfoMap, clusterState, rebProcessInfo.needProcessList);
+                    this.randomAssign(
+                            partMap,
+                            newConsumerList2,
+                            finalSubInfoMap,
+                            clusterState,
+                            rebProcessInfo.needProcessList);
                 }
             }
         }
@@ -219,14 +224,18 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
         }
         if (!groupsNeedToBalance.isEmpty()) {
-            balance(finalSubInfoMap, consumerHolder, brokerRunManager,
-                    groupsNeedToBalance, clusterState, rejGroupClientInfoMap);
+            balance(
+                    finalSubInfoMap,
+                    consumerHolder,
+                    brokerRunManager,
+                    groupsNeedToBalance,
+                    clusterState,
+                    rejGroupClientInfoMap);
         }
         if (!rejGroupClientInfoMap.isEmpty()) {
-            for (Entry<String, RebProcessInfo> entry :
-                    rejGroupClientInfoMap.entrySet()) {
-                consumerHolder.setRebNodeProcessed(entry.getKey(),
-                        entry.getValue().needProcessList);
+            for (Entry<String, RebProcessInfo> entry : rejGroupClientInfoMap.entrySet()) {
+                consumerHolder.setRebNodeProcessed(
+                        entry.getKey(), entry.getValue().needProcessList);
             }
         }
         return finalSubInfoMap;
@@ -256,7 +265,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
                         continue;
                     }
                     if (rebProcessInfo.needProcessList.contains(consumerInfo.getConsumerId())
-                            || rebProcessInfo.needEscapeList.contains(consumerInfo.getConsumerId())) {
+                            || rebProcessInfo.needEscapeList.contains(
+                                    consumerInfo.getConsumerId())) {
                         Map<String, List<Partition>> partitions2 =
                                 clusterState.computeIfAbsent(
                                         consumerInfo.getConsumerId(), k -> new HashMap<>());
@@ -279,8 +289,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // sort consumer and partitions, then mod
             Set<String> topics = consumeGroupInfo.getTopicSet();
-            Map<String, Partition> psPartMap =
-                    brokerRunManager.getSubBrokerAcceptSubParts(topics);
+            Map<String, Partition> psPartMap = brokerRunManager.getSubBrokerAcceptSubParts(topics);
             int min = psPartMap.size() / consumerList.size();
             int max = psPartMap.size() % consumerList.size() == 0 ? min : min + 1;
             int serverNumToLoadMax = psPartMap.size() % consumerList.size();
@@ -351,13 +360,14 @@ public class DefaultLoadBalancer implements LoadBalancer {
         }
     }
 
-    private void assign(Partition partition,
-                        Map<String, Map<String, List<Partition>>> clusterState,
-                        String consumerId) {
+    private void assign(
+            Partition partition,
+            Map<String, Map<String, List<Partition>>> clusterState,
+            String consumerId) {
         Map<String, List<Partition>> partitions =
                 clusterState.computeIfAbsent(consumerId, k -> new HashMap<>());
-        List<Partition> ps = partitions.computeIfAbsent(
-                partition.getTopic(), k -> new ArrayList<>());
+        List<Partition> ps =
+                partitions.computeIfAbsent(partition.getTopic(), k -> new ArrayList<>());
         ps.add(partition);
     }
 
@@ -370,11 +380,12 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param oldClusterState
      * @param filterList
      */
-    private void randomAssign(Map<String, Partition> partitionToAssignMap,
-                              List<ConsumerInfo> consumerList,
-                              Map<String, Map<String, List<Partition>>> clusterState,
-                              Map<String, Map<String, Map<String, Partition>>> oldClusterState,
-                              List<String> filterList) {
+    private void randomAssign(
+            Map<String, Partition> partitionToAssignMap,
+            List<ConsumerInfo> consumerList,
+            Map<String, Map<String, List<Partition>>> clusterState,
+            Map<String, Map<String, Map<String, Partition>>> oldClusterState,
+            List<String> filterList) {
         int searched = 1;
         int consumerSize = consumerList.size();
         for (Partition partition : partitionToAssignMap.values()) {
@@ -407,8 +418,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             Map<String, List<Partition>> partitions =
                     clusterState.computeIfAbsent(consumer.getConsumerId(), k -> new HashMap<>());
-            List<Partition> ps = partitions.computeIfAbsent(
-                    partition.getTopic(), k -> new ArrayList<>());
+            List<Partition> ps =
+                    partitions.computeIfAbsent(partition.getTopic(), k -> new ArrayList<>());
             ps.add(partition);
         }
     }
@@ -421,8 +432,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @return
      */
     @Override
-    public Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
-                                                             List<String> consumers) {
+    public Map<String, List<Partition>> roundRobinAssignment(
+            List<Partition> partitions, List<String> consumers) {
         if (partitions.isEmpty() || consumers.isEmpty()) {
             return null;
         }
@@ -476,11 +487,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
             StringBuilder strBuffer) {
         // #lizard forgives
         // regular consumer allocate operation
-        Map<String, Map<String, List<Partition>>> finalSubInfoMap =
-                new HashMap<>();
+        Map<String, Map<String, List<Partition>>> finalSubInfoMap = new HashMap<>();
         for (String group : groupSet) {
-            ConsumeGroupInfo consumeGroupInfo =
-                    consumerHolder.getConsumeGroupInfo(group);
+            ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(group);
             if (consumeGroupInfo == null
                     || consumeGroupInfo.isClientBalance()
                     || consumeGroupInfo.isUnReadyServerBalance()) {
@@ -492,41 +501,46 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // check if current client meet minimal requirements
             Set<String> topicSet = consumeGroupInfo.getTopicSet();
-            GroupResCtrlEntity offsetResetGroupEntity =
-                    defMetaDataService.getGroupCtrlConf(group);
-            int confAllowBClientRate = (offsetResetGroupEntity != null
-                    && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                    ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
-            int allowRate = confAllowBClientRate > 0
-                    ? confAllowBClientRate : consumerHolder.getDefResourceRate();
-            int maxBrokerCount =
-                    brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
+            GroupResCtrlEntity offsetResetGroupEntity = defMetaDataService.getGroupCtrlConf(group);
+            int confAllowBClientRate =
+                    (offsetResetGroupEntity != null
+                                    && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
+                            ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                            : -2;
+            int allowRate =
+                    confAllowBClientRate > 0
+                            ? confAllowBClientRate
+                            : consumerHolder.getDefResourceRate();
+            int maxBrokerCount = brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
             int curBClientRate = (int) Math.floor(maxBrokerCount / consumerList.size());
             if (curBClientRate > allowRate) {
                 int minClientCnt = maxBrokerCount / allowRate;
                 if (maxBrokerCount % allowRate != 0) {
                     minClientCnt += 1;
                 }
-                consumeGroupInfo.setConsumeResourceInfo(confAllowBClientRate,
-                        curBClientRate, minClientCnt, false);
+                consumeGroupInfo.setConsumeResourceInfo(
+                        confAllowBClientRate, curBClientRate, minClientCnt, false);
                 if (consumeGroupInfo.isEnableBalanceChkPrint()) {
-                    logger.info(strBuffer.append("[UnBound Alloc 1] Not allocate partition :group(")
-                            .append(group).append(")'s consumer getCachedSize(")
-                            .append(consumeGroupInfo.getGroupCnt())
-                            .append(") low than min required client count:")
-                            .append(minClientCnt).toString());
+                    logger.info(
+                            strBuffer
+                                    .append("[UnBound Alloc 1] Not allocate partition :group(")
+                                    .append(group)
+                                    .append(")'s consumer getCachedSize(")
+                                    .append(consumeGroupInfo.getGroupCnt())
+                                    .append(") low than min required client count:")
+                                    .append(minClientCnt)
+                                    .toString());
                     strBuffer.delete(0, strBuffer.length());
                 }
                 continue;
             } else {
-                consumeGroupInfo.setConsumeResourceInfo(confAllowBClientRate,
-                        curBClientRate, -2, true);
+                consumeGroupInfo.setConsumeResourceInfo(
+                        confAllowBClientRate, curBClientRate, -2, true);
             }
             // sort and mod
             Collections.sort(consumerList);
             for (String topic : topicSet) {
-                List<Partition> partPubList =
-                        brokerRunManager.getSubBrokerAcceptSubParts(topic);
+                List<Partition> partPubList = brokerRunManager.getSubBrokerAcceptSubParts(topic);
                 Collections.sort(partPubList);
                 int partsPerConsumer = partPubList.size() / consumerList.size();
                 int consumersWithExtraPart = partPubList.size() % consumerList.size();
@@ -560,11 +574,13 @@ public class DefaultLoadBalancer implements LoadBalancer {
      */
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBukAssign(
-            ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataService defMetaDataService,
+            ConsumerInfoHolder consumerHolder,
+            BrokerRunManager brokerRunManager,
+            List<String> groupSet,
+            MetaDataService defMetaDataService,
             final StringBuilder strBuffer) {
-        return inReBalanceCluster(false, consumerHolder,
-                brokerRunManager, groupSet, defMetaDataService, strBuffer);
+        return inReBalanceCluster(
+                false, consumerHolder, brokerRunManager, groupSet, defMetaDataService, strBuffer);
     }
 
     /**
@@ -581,10 +597,13 @@ public class DefaultLoadBalancer implements LoadBalancer {
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
-            ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataService defMetaDataService, StringBuilder strBuffer) {
-        return inReBalanceCluster(true, consumerHolder,
-                brokerRunManager, groupSet, defMetaDataService, strBuffer);
+            ConsumerInfoHolder consumerHolder,
+            BrokerRunManager brokerRunManager,
+            List<String> groupSet,
+            MetaDataService defMetaDataService,
+            StringBuilder strBuffer) {
+        return inReBalanceCluster(
+                true, consumerHolder, brokerRunManager, groupSet, defMetaDataService, strBuffer);
     }
 
     // #lizard forgives
@@ -596,16 +615,14 @@ public class DefaultLoadBalancer implements LoadBalancer {
             MetaDataService defMetaDataService,
             StringBuilder strBuffer) {
         // band consume reset offset
-        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap =
-                new HashMap<>();
+        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap = new HashMap<>();
         // according group
         for (String group : groupSet) {
             if (group == null) {
                 continue;
             }
             // filter band consumer
-            ConsumeGroupInfo consumeGroupInfo =
-                    consumerHolder.getConsumeGroupInfo(group);
+            ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(group);
             if (consumeGroupInfo == null
                     || consumeGroupInfo.isGroupEmpty()
                     || consumeGroupInfo.isNotNeedBoundBalance()) {
@@ -616,21 +633,29 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 Long checkCycle = consumerHolder.addCurCheckCycle(group);
                 if (isResetRebalance) {
                     if (checkCycle != null && checkCycle % 15 == 0) {
-                        logger.info(strBuffer.append("[Bound Alloc 2] Not allocate partition :group(")
-                                .append(group).append(")'s consumer getCachedSize(")
-                                .append(consumeGroupInfo.getGroupCnt())
-                                .append(") low than required source count:")
-                                .append(consumeGroupInfo.getSourceCount())
-                                .append(", checked cycle is ")
-                                .append(checkCycle).toString());
+                        logger.info(
+                                strBuffer
+                                        .append("[Bound Alloc 2] Not allocate partition :group(")
+                                        .append(group)
+                                        .append(")'s consumer getCachedSize(")
+                                        .append(consumeGroupInfo.getGroupCnt())
+                                        .append(") low than required source count:")
+                                        .append(consumeGroupInfo.getSourceCount())
+                                        .append(", checked cycle is ")
+                                        .append(checkCycle)
+                                        .toString());
                         strBuffer.delete(0, strBuffer.length());
                     }
                 } else {
-                    logger.info(strBuffer.append("[Bound Alloc 1] Not allocate partition :group(")
-                            .append(group).append(")'s consumer getCachedSize(")
-                            .append(consumeGroupInfo.getGroupCnt())
-                            .append(") low than required source count:")
-                            .append(consumeGroupInfo.getSourceCount()).toString());
+                    logger.info(
+                            strBuffer
+                                    .append("[Bound Alloc 1] Not allocate partition :group(")
+                                    .append(group)
+                                    .append(")'s consumer getCachedSize(")
+                                    .append(consumeGroupInfo.getGroupCnt())
+                                    .append(") low than required source count:")
+                                    .append(consumeGroupInfo.getSourceCount())
+                                    .toString());
                     strBuffer.delete(0, strBuffer.length());
                 }
                 continue;
@@ -641,8 +666,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             for (Partition partition : partPubMap.values()) {
                 partitionMap.put(partition.getPartitionKey(), partition);
             }
-            Map<String, String> partsConsumerMap =
-                    consumeGroupInfo.getPartitionInfoMap();
+            Map<String, String> partsConsumerMap = consumeGroupInfo.getPartitionInfoMap();
             for (Entry<String, String> entry : partsConsumerMap.entrySet()) {
                 Partition foundPart = partitionMap.get(entry.getKey());
                 if (foundPart != null) {

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.client;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
@@ -30,13 +33,7 @@ import org.apache.shiro.util.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Test class for binlog to kafka.
- */
+/** Test class for binlog to kafka. */
 @Slf4j
 @Disabled
 class Binlog2KafkaExample extends BaseExample {

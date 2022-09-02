@@ -38,16 +38,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Stream sink control layer
- */
+/** Stream sink control layer */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Stream-Sink-API")
 public class StreamSinkController {
 
-    @Autowired
-    private StreamSinkService sinkService;
+    @Autowired private StreamSinkService sinkService;
 
     @RequestMapping(value = "/sink/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
@@ -72,8 +69,10 @@ public class StreamSinkController {
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
-        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
+    public Response<Boolean> update(
+            @Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
+        return Response.success(
+                sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
@@ -84,5 +83,4 @@ public class StreamSinkController {
         boolean result = sinkService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
-
 }

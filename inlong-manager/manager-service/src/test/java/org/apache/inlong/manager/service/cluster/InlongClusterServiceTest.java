@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import java.util.List;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.consts.MQType;
@@ -35,19 +36,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-/**
- * Inlong cluster service test for {@link InlongClusterService}
- */
+/** Inlong cluster service test for {@link InlongClusterService} */
 public class InlongClusterServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private InlongClusterService clusterService;
 
-    /**
-     * Save data proxy cluster
-     */
+    /** Save data proxy cluster */
     public Integer saveDataProxyCluster(String clusterTag, String clusterName, String extTag) {
         DataProxyClusterRequest request = new DataProxyClusterRequest();
         request.setClusterTags(clusterTag);
@@ -58,9 +52,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.save(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Save Pulsar cluster
-     */
+    /** Save Pulsar cluster */
     public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setClusterTags(clusterTag);
@@ -72,9 +64,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.save(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * List clusters by page.
-     */
+    /** List clusters by page. */
     public PageResult<ClusterInfo> listCluster(String type, String clusterTag) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
@@ -82,10 +72,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.list(request);
     }
 
-    /**
-     * Update cluster info.
-     */
-    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl, Integer version) {
+    /** Update cluster info. */
+    public Boolean updatePulsarCluster(
+            Integer id, String name, String clusterTag, String adminUrl, Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
@@ -96,16 +85,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.update(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Delete cluster info by id.
-     */
+    /** Delete cluster info by id. */
     public Boolean deleteCluster(Integer id) {
         return clusterService.delete(id, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Save cluster node info.
-     */
+    /** Save cluster node info. */
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setParentId(parentId);
@@ -115,10 +100,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.saveNode(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * List cluster nodes by page.
-     */
-    public PageResult<ClusterNodeResponse> listClusterNode(String type, String keyword, Integer parentId) {
+    /** List cluster nodes by page. */
+    public PageResult<ClusterNodeResponse> listClusterNode(
+            String type, String keyword, Integer parentId) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
@@ -126,10 +110,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.listNode(request, "admin");
     }
 
-    /**
-     * Update cluster node info.
-     */
-    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port, Integer version) {
+    /** Update cluster node info. */
+    public Boolean updateClusterNode(
+            Integer id, Integer parentId, String ip, Integer port, Integer version) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setId(id);
         request.setParentId(parentId);
@@ -139,16 +122,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Delete cluster node info.
-     */
+    /** Delete cluster node info. */
     public Boolean deleteClusterNode(Integer id) {
         return clusterService.deleteNode(id, GLOBAL_OPERATOR);
     }
 
-    /**
-     * test cluster interface.
-     */
+    /** test cluster interface. */
     @Test
     public void testPulsarCluster() {
         // save cluster
@@ -169,8 +148,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String clusterNameUpdate = "default_pulsar_2";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate,
-                pulsarCluster.getVersion());
+        Boolean updateSuccess =
+                this.updatePulsarCluster(
+                        id,
+                        clusterNameUpdate,
+                        clusterTagUpdate,
+                        adminUrlUpdate,
+                        pulsarCluster.getVersion());
         Assertions.assertTrue(updateSuccess);
 
         // save cluster node
@@ -188,7 +172,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
         Integer version = listNode.getList().get(0).getVersion();
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
+        Boolean updateNodeSuccess =
+                this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
         Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node
@@ -238,5 +223,4 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         this.deleteClusterNode(nodeId2);
         this.deleteCluster(id);
     }
-
 }

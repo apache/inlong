@@ -17,23 +17,20 @@
 
 package org.apache.inlong.manager.web;
 
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.BeanUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 
-/**
- * Tool testing
- */
+/** Tool testing */
 public class UtilsTest {
 
     @Test
@@ -82,5 +79,4 @@ public class UtilsTest {
         Assertions.assertTrue(optional.isPresent());
         Assertions.assertEquals("one", optional.get());
     }
-
 }

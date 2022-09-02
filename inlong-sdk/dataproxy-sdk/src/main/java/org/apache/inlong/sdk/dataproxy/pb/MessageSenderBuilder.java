@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb;
 
 import org.apache.flume.Context;
@@ -22,9 +19,7 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.dataproxy.MessageSender;
 import org.apache.inlong.sdk.dataproxy.pb.config.LoaderType;
 
-/**
- * MessageSenderBuilder
- */
+/** MessageSenderBuilder */
 public class MessageSenderBuilder implements ISenderBuilder {
 
     // context
@@ -57,7 +52,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get name
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -66,7 +61,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set name
-     * 
+     *
      * @param name the name to set
      */
     public void setName(String name) {
@@ -75,7 +70,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public Context getContext() {
@@ -84,7 +79,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set context
-     * 
+     *
      * @param context the context to set
      */
     public void setContext(Context context) {
@@ -93,7 +88,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get reloadInterval
-     * 
+     *
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -102,7 +97,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set reloadInterval
-     * 
+     *
      * @param reloadInterval the reloadInterval to set
      */
     public void setReloadInterval(long reloadInterval) {
@@ -112,7 +107,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get maxBufferQueueSizeKb
-     * 
+     *
      * @return the maxBufferQueueSizeKb
      */
     public int getMaxBufferQueueSizeKb() {
@@ -121,7 +116,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set maxBufferQueueSizeKb
-     * 
+     *
      * @param maxBufferQueueSizeKb the maxBufferQueueSizeKb to set
      */
     public void setMaxBufferQueueSizeKb(int maxBufferQueueSizeKb) {
@@ -131,7 +126,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderType
-     * 
+     *
      * @return the loaderType
      */
     public LoaderType getLoaderType() {
@@ -140,7 +135,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderType
-     * 
+     *
      * @param loaderType the loaderType to set
      */
     public void setLoaderType(LoaderType loaderType) {
@@ -150,7 +145,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderReloadInterval
-     * 
+     *
      * @return the loaderReloadInterval
      */
     public long getLoaderReloadInterval() {
@@ -159,7 +154,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderReloadInterval
-     * 
+     *
      * @param loaderReloadInterval the loaderReloadInterval to set
      */
     public void setLoaderReloadInterval(long loaderReloadInterval) {
@@ -169,7 +164,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderFileName
-     * 
+     *
      * @return the loaderFileName
      */
     public String getLoaderFileName() {
@@ -178,7 +173,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderFileName
-     * 
+     *
      * @param loaderFileName the loaderFileName to set
      */
     public void setLoaderFileName(String loaderFileName) {
@@ -188,7 +183,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderContextKey
-     * 
+     *
      * @return the loaderContextKey
      */
     public String getLoaderContextKey() {
@@ -197,7 +192,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderContextKey
-     * 
+     *
      * @param loaderContextKey the loaderContextKey to set
      */
     public void setLoaderContextKey(String loaderContextKey) {
@@ -207,7 +202,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderManagerStreamUrl
-     * 
+     *
      * @return the loaderManagerStreamUrl
      */
     public String getLoaderManagerStreamUrl() {
@@ -216,7 +211,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderManagerStreamUrl
-     * 
+     *
      * @param loaderManagerStreamUrl the loaderManagerStreamUrl to set
      */
     public void setLoaderManagerStreamUrl(String loaderManagerStreamUrl) {
@@ -226,7 +221,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderManagerSdkUrl
-     * 
+     *
      * @return the loaderManagerSdkUrl
      */
     public String getLoaderManagerSdkUrl() {
@@ -235,7 +230,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderManagerSdkUrl
-     * 
+     *
      * @param loaderManagerSdkUrl the loaderManagerSdkUrl to set
      */
     public void setLoaderManagerSdkUrl(String loaderManagerSdkUrl) {
@@ -245,7 +240,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get loaderPluginClass
-     * 
+     *
      * @return the loaderPluginClass
      */
     public String getLoaderPluginClass() {
@@ -254,7 +249,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set loaderPluginClass
-     * 
+     *
      * @param loaderPluginClass the loaderPluginClass to set
      */
     public void setLoaderPluginClass(String loaderPluginClass) {
@@ -264,7 +259,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get sdkPackTimeout
-     * 
+     *
      * @return the sdkPackTimeout
      */
     public long getSdkPackTimeout() {
@@ -273,7 +268,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set sdkPackTimeout
-     * 
+     *
      * @param sdkPackTimeout the sdkPackTimeout to set
      */
     public void setSdkPackTimeout(long sdkPackTimeout) {
@@ -283,7 +278,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get compressedType
-     * 
+     *
      * @return the compressedType
      */
     public INLONG_COMPRESSED_TYPE getCompressedType() {
@@ -292,7 +287,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set compressedType
-     * 
+     *
      * @param compressedType the compressedType to set
      */
     public void setCompressedType(INLONG_COMPRESSED_TYPE compressedType) {
@@ -302,7 +297,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get nodeId
-     * 
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -311,7 +306,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set nodeId
-     * 
+     *
      * @param nodeId the nodeId to set
      */
     public void setNodeId(String nodeId) {
@@ -321,7 +316,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get maxThreads
-     * 
+     *
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -330,7 +325,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set maxThreads
-     * 
+     *
      * @param maxThreads the maxThreads to set
      */
     public void setMaxThreads(int maxThreads) {
@@ -340,7 +335,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get processInterval
-     * 
+     *
      * @return the processInterval
      */
     public long getProcessInterval() {
@@ -349,7 +344,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set processInterval
-     * 
+     *
      * @param processInterval the processInterval to set
      */
     public void setProcessInterval(long processInterval) {
@@ -359,7 +354,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get auditFormatInterval
-     * 
+     *
      * @return the auditFormatInterval
      */
     public long getAuditFormatInterval() {
@@ -368,7 +363,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set auditFormatInterval
-     * 
+     *
      * @param auditFormatInterval the auditFormatInterval to set
      */
     public void setAuditFormatInterval(long auditFormatInterval) {
@@ -378,7 +373,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get dispatchTimeout
-     * 
+     *
      * @return the dispatchTimeout
      */
     public long getDispatchTimeout() {
@@ -387,7 +382,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set dispatchTimeout
-     * 
+     *
      * @param dispatchTimeout the dispatchTimeout to set
      */
     public void setDispatchTimeout(long dispatchTimeout) {
@@ -397,7 +392,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get dispatchMaxPackCount
-     * 
+     *
      * @return the dispatchMaxPackCount
      */
     public int getDispatchMaxPackCount() {
@@ -406,7 +401,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set dispatchMaxPackCount
-     * 
+     *
      * @param dispatchMaxPackCount the dispatchMaxPackCount to set
      */
     public void setDispatchMaxPackCount(int dispatchMaxPackCount) {
@@ -416,7 +411,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * get dispatchMaxPackSize
-     * 
+     *
      * @return the dispatchMaxPackSize
      */
     public int getDispatchMaxPackSize() {
@@ -425,7 +420,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * set dispatchMaxPackSize
-     * 
+     *
      * @param dispatchMaxPackSize the dispatchMaxPackSize to set
      */
     public void setDispatchMaxPackSize(int dispatchMaxPackSize) {
@@ -435,7 +430,7 @@ public class MessageSenderBuilder implements ISenderBuilder {
 
     /**
      * build
-     * 
+     *
      * @return
      */
     public MessageSender build() {

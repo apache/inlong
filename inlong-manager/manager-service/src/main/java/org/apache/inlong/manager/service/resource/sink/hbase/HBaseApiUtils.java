@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.hbase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
@@ -33,13 +36,7 @@ import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Utils for hbase api
- */
+/** Utils for hbase api */
 public class HBaseApiUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseApiUtils.class);
@@ -47,9 +44,7 @@ public class HBaseApiUtils {
     private static final String HBASE_CONF_ZK_QUORUM = "hbase.zookeeper.quorum";
     private static final String HBASE_CONF_ZNODE_PARENT = "zookeeper.znode.parent";
 
-    /**
-     * Get and verify hbase connection
-     */
+    /** Get and verify hbase connection */
     private static Connection getConnection(String zkAddress, String zkNode) throws Exception {
         Configuration config = HBaseConfiguration.create();
 
@@ -60,10 +55,9 @@ public class HBaseApiUtils {
         return ConnectionFactory.createConnection(config);
     }
 
-    /**
-     * Create hbase namespace
-     */
-    public static void createNamespace(String zkAddress, String zkNode, String namespace) throws Exception {
+    /** Create hbase namespace */
+    public static void createNamespace(String zkAddress, String zkNode, String namespace)
+            throws Exception {
         if (namespace == null || namespace.isEmpty()) {
             return;
         }
@@ -78,10 +72,9 @@ public class HBaseApiUtils {
         }
     }
 
-    /**
-     * Create hbase table
-     */
-    public static void createTable(String zkAddress, String zkNode, HBaseTableInfo tableInfo) throws Exception {
+    /** Create hbase table */
+    public static void createTable(String zkAddress, String zkNode, HBaseTableInfo tableInfo)
+            throws Exception {
         TableName tableName = TableName.valueOf(tableInfo.getNamespace(), tableInfo.getTableName());
         TableDescriptorBuilder desc = TableDescriptorBuilder.newBuilder(tableName);
         for (HBaseColumnFamilyInfo cf : tableInfo.getColumnFamilies()) {
@@ -95,11 +88,9 @@ public class HBaseApiUtils {
         }
     }
 
-    /**
-     * Check hbase table already exists or not
-     */
-    public static boolean tableExists(String zkAddress, String zkNode, String namespace, String qualifier)
-            throws Exception {
+    /** Check hbase table already exists or not */
+    public static boolean tableExists(
+            String zkAddress, String zkNode, String namespace, String qualifier) throws Exception {
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
             Admin admin = conn.getAdmin();
@@ -107,11 +98,9 @@ public class HBaseApiUtils {
         }
     }
 
-    /**
-     * Query hbase table column families
-     */
-    public static List<HBaseColumnFamilyInfo> getColumnFamilies(String zkAddress, String zkNode, String namespace,
-            String qualifier) throws Exception {
+    /** Query hbase table column families */
+    public static List<HBaseColumnFamilyInfo> getColumnFamilies(
+            String zkAddress, String zkNode, String namespace, String qualifier) throws Exception {
         List<HBaseColumnFamilyInfo> cfList = new ArrayList<>();
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
@@ -126,23 +115,26 @@ public class HBaseApiUtils {
         return cfList;
     }
 
-    /**
-     * Add column families for hbase table
-     */
-    public static void addColumnFamilies(String zkAddress, String zkNode, String namespace, String qualifier,
-            List<HBaseColumnFamilyInfo> columnFamilies) throws Exception {
+    /** Add column families for hbase table */
+    public static void addColumnFamilies(
+            String zkAddress,
+            String zkNode,
+            String namespace,
+            String qualifier,
+            List<HBaseColumnFamilyInfo> columnFamilies)
+            throws Exception {
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
             Admin admin = conn.getAdmin();
             admin.disableTable(tableName);
             try {
                 for (HBaseColumnFamilyInfo info : columnFamilies) {
-                    admin.addColumnFamily(tableName, ColumnFamilyDescriptorBuilder.of(info.getCfName()));
+                    admin.addColumnFamily(
+                            tableName, ColumnFamilyDescriptorBuilder.of(info.getCfName()));
                 }
             } finally {
                 admin.enableTable(tableName);
             }
         }
     }
-
 }

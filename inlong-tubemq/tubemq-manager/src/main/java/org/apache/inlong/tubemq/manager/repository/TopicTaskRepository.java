@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.repository;
 
 import java.util.List;
-
 import org.apache.inlong.tubemq.manager.entry.TopicTaskEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -28,5 +27,6 @@ public interface TopicTaskRepository extends JpaRepository<TopicTaskEntry, Long>
 
     List<TopicTaskEntry> findTopicTaskEntriesByClusterIdAndStatus(Long clusterId, Integer status);
 
-    TopicTaskEntry findTopicTaskEntryByClusterIdAndStatusAndTopicName(Long clusterId, Integer status, String topicName);
+    TopicTaskEntry findTopicTaskEntryByClusterIdAndStatusAndTopicName(
+            Long clusterId, Integer status, String topicName);
 }

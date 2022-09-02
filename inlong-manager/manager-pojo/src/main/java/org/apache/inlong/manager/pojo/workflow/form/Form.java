@@ -19,14 +19,10 @@ package org.apache.inlong.manager.pojo.workflow.form;
 
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
-/**
- * Interface of workflow form
- */
+/** Interface of workflow form */
 public interface Form {
 
-    /**
-     * Form verification before process submission
-     */
+    /** Form verification before process submission */
     void validate() throws FormValidateException;
 
     /**
@@ -35,5 +31,4 @@ public interface Form {
      * @return form name
      */
     String getFormName();
-
 }

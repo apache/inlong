@@ -17,11 +17,10 @@
 
 package org.apache.inlong.audit.util;
 
-import org.apache.inlong.audit.protocol.AuditApi;
-
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.inlong.audit.protocol.AuditApi;
 
 public class AuditData implements Serializable {
     public static int HEAD_LENGTH = 4;
@@ -40,9 +39,7 @@ public class AuditData implements Serializable {
         this.content = content;
     }
 
-    /**
-     * set resendTimes
-     */
+    /** set resendTimes */
     public int increaseResendTimes() {
         return this.resendTimes.incrementAndGet();
     }
@@ -53,7 +50,8 @@ public class AuditData implements Serializable {
      * @return
      */
     public byte[] getDataByte() {
-        return addBytes(ByteBuffer.allocate(HEAD_LENGTH).putInt(content.toByteArray().length).array(),
+        return addBytes(
+                ByteBuffer.allocate(HEAD_LENGTH).putInt(content.toByteArray().length).array(),
                 content.toByteArray());
     }
 
@@ -62,7 +60,7 @@ public class AuditData implements Serializable {
      *
      * @param data1
      * @param data2
-     * @return data1 and  data2 combined package result
+     * @return data1 and data2 combined package result
      */
     public byte[] addBytes(byte[] data1, byte[] data2) {
         byte[] data3 = new byte[data1.length + data2.length];

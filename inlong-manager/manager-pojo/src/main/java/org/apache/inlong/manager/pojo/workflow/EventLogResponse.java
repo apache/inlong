@@ -19,16 +19,13 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Event log response
- */
+/** Event log response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -89,5 +86,4 @@ public class EventLogResponse {
 
     @ApiModelProperty("Exception message")
     private String exception;
-
 }

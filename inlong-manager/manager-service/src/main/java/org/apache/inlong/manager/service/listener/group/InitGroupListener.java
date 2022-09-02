@@ -31,15 +31,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener for initial the InlongGroup information.
- */
+/** The listener for initial the InlongGroup information. */
 @Slf4j
 @Component
 public class InitGroupListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
+    @Autowired private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
@@ -47,7 +44,8 @@ public class InitGroupListener implements ProcessEventListener {
     }
 
     /**
-     * Begin to execute the InlongGroup workflow, init the workflow context, and update other info if needed.
+     * Begin to execute the InlongGroup workflow, init the workflow context, and update other info
+     * if needed.
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
@@ -57,15 +55,16 @@ public class InitGroupListener implements ProcessEventListener {
 
         InlongGroupInfo groupInfo = form.getGroupInfo();
         if (groupInfo == null) {
-            throw new WorkflowListenerException("inlong group info cannot be null for init group process");
+            throw new WorkflowListenerException(
+                    "inlong group info cannot be null for init group process");
         }
         if (CollectionUtils.isEmpty(form.getStreamInfos())) {
-            throw new WorkflowListenerException("inlong stream info list cannot be null for init group process");
+            throw new WorkflowListenerException(
+                    "inlong stream info list cannot be null for init group process");
         }
         groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
 
         log.info("success to execute InitGroupListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

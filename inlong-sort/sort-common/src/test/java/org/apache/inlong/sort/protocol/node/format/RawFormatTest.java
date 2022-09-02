@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.node.format;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link RawFormat}
- */
+/** Test for {@link RawFormat} */
 public class RawFormatTest extends SerializeBaseTest<RawFormat> {
 
     /**

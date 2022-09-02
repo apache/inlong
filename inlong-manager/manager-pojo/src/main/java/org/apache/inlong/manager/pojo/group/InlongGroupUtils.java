@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 
-import java.util.List;
-
-/**
- * String utils for inlong.
- */
+/** String utils for inlong. */
 public class InlongGroupUtils {
 
     /**
@@ -45,5 +42,4 @@ public class InlongGroupUtils {
         }
         return false;
     }
-
 }

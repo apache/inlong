@@ -1,24 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Preconditions;
-
+import io.netty.channel.group.ChannelGroup;
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.source.AbstractSource;
@@ -31,17 +32,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import io.netty.channel.group.ChannelGroup;
-
-/**
- * 
- * SinkContext
- */
+/** SinkContext */
 public class SourceContext {
 
     public static final Logger LOG = LoggerFactory.getLogger(SourceContext.class);
@@ -76,7 +67,7 @@ public class SourceContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param source
      * @param allChannels
      * @param context
@@ -84,8 +75,9 @@ public class SourceContext {
     public SourceContext(AbstractSource source, ChannelGroup allChannels, Context context) {
         this.source = source;
         this.allChannels = allChannels;
-        this.proxyClusterId = CommonPropertiesHolder.get()
-                .getOrDefault(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME, "unknown");
+        this.proxyClusterId =
+                CommonPropertiesHolder.get()
+                        .getOrDefault(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME, "unknown");
         this.sourceId = source.getName();
         // metric
         this.metricItemSet = new DataProxyMetricItemSet(sourceId);
@@ -111,8 +103,8 @@ public class SourceContext {
 
     /**
      * getHostIp
-     * 
-     * @param  context
+     *
+     * @param context
      * @return
      */
     private String getHostIp(Context context) {
@@ -126,8 +118,8 @@ public class SourceContext {
 
     /**
      * getHostPort
-     * 
-     * @param  context
+     *
+     * @param context
      * @return
      */
     private int getHostPort(Context context) {
@@ -139,9 +131,7 @@ public class SourceContext {
         return context.getInteger(INLONG_HOST_IP, 0);
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         try {
             this.reload();
@@ -151,9 +141,7 @@ public class SourceContext {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         try {
             this.reloadTimer.cancel();
@@ -162,23 +150,21 @@ public class SourceContext {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     protected void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            public void run() {
-                reload();
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+                    public void run() {
+                        reload();
+                    }
+                };
+        reloadTimer.schedule(
+                task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
             this.idHolder.reload();
@@ -189,7 +175,7 @@ public class SourceContext {
 
     /**
      * get sourceDataId
-     * 
+     *
      * @return the sourceDataId
      */
     public String getSourceDataId() {
@@ -198,7 +184,7 @@ public class SourceContext {
 
     /**
      * set sourceDataId
-     * 
+     *
      * @param sourceDataId the sourceDataId to set
      */
     public void setSourceDataId(String sourceDataId) {
@@ -207,7 +193,7 @@ public class SourceContext {
 
     /**
      * get source
-     * 
+     *
      * @return the source
      */
     public AbstractSource getSource() {
@@ -216,7 +202,7 @@ public class SourceContext {
 
     /**
      * get allChannels
-     * 
+     *
      * @return the allChannels
      */
     public ChannelGroup getAllChannels() {
@@ -225,7 +211,7 @@ public class SourceContext {
 
     /**
      * get proxyClusterId
-     * 
+     *
      * @return the proxyClusterId
      */
     public String getProxyClusterId() {
@@ -234,7 +220,7 @@ public class SourceContext {
 
     /**
      * get sourceId
-     * 
+     *
      * @return the sourceId
      */
     public String getSourceId() {
@@ -243,7 +229,7 @@ public class SourceContext {
 
     /**
      * get maxConnections
-     * 
+     *
      * @return the maxConnections
      */
     public int getMaxConnections() {
@@ -252,7 +238,7 @@ public class SourceContext {
 
     /**
      * get maxMsgLength
-     * 
+     *
      * @return the maxMsgLength
      */
     public int getMaxMsgLength() {
@@ -261,7 +247,7 @@ public class SourceContext {
 
     /**
      * get idHolder
-     * 
+     *
      * @return the idHolder
      */
     public IdTopicConfigHolder getIdHolder() {
@@ -270,7 +256,7 @@ public class SourceContext {
 
     /**
      * get metricItemSet
-     * 
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
@@ -279,7 +265,7 @@ public class SourceContext {
 
     /**
      * get parentContext
-     * 
+     *
      * @return the parentContext
      */
     public Context getParentContext() {
@@ -288,7 +274,7 @@ public class SourceContext {
 
     /**
      * get reloadInterval
-     * 
+     *
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -297,7 +283,7 @@ public class SourceContext {
 
     /**
      * get maxThreads
-     * 
+     *
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -306,7 +292,7 @@ public class SourceContext {
 
     /**
      * isRejectService
-     * 
+     *
      * @return
      */
     public boolean isRejectService() {
@@ -315,11 +301,10 @@ public class SourceContext {
 
     /**
      * setRejectService
-     * 
+     *
      * @param isRejectService
      */
     public void setRejectService(boolean isRejectService) {
         this.isRejectService = isRejectService;
     }
-
 }

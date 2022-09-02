@@ -23,26 +23,21 @@ import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The format information for arrays.
- */
+/** The format information for arrays. */
 public class ArrayFormatInfo implements FormatInfo {
 
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_ELEMENT_FORMAT = "elementFormat";
 
-    /**
-     * The format information for elements.
-     */
+    /** The format information for elements. */
     @JsonProperty(FIELD_ELEMENT_FORMAT)
     @Nonnull
     private final FormatInfo elementFormatInfo;
 
     @JsonCreator
     public ArrayFormatInfo(
-            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo
-    ) {
+            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo) {
         this.elementFormatInfo = elementFormatInfo;
     }
 

@@ -17,20 +17,16 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-/**
- * the seeker is used to reset the offset of topic-partition of rollback task
- */
+/** the seeker is used to reset the offset of topic-partition of rollback task */
 public interface Seeker extends Configurable {
 
-    /**
-     * do seek
-     */
+    /** do seek */
     void seek();
 
     /**
      * return the expected seek time of seeker
+     *
      * @return expected seek time
      */
     long getSeekTime();
-
 }

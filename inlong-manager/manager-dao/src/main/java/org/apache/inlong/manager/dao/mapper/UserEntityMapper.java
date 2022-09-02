@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface UserEntityMapper {
@@ -39,5 +38,4 @@ public interface UserEntityMapper {
     int updateByPrimaryKeySelective(UserEntity record);
 
     int deleteById(Integer id);
-
 }

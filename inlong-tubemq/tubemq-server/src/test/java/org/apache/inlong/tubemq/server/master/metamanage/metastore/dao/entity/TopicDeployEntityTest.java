@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -47,10 +44,24 @@ public class TopicDeployEntityTest {
         String modifyUser1 = "modifyer";
         Date modifyDate1 = new Date();
         BdbTopicConfEntity bdbEntry1 =
-                new BdbTopicConfEntity(brokerId1, brokerIp1, brokerPort1, topicName1,
-                        numPartitions1, unflushThreshold1, unflushInterval1, deleteWhen1,
-                        deletePolicy1, acceptPublish1, acceptSubscribe1, numTopicStores1,
-                        attributes1, createUser1, createDate1, modifyUser1, modifyDate1);
+                new BdbTopicConfEntity(
+                        brokerId1,
+                        brokerIp1,
+                        brokerPort1,
+                        topicName1,
+                        numPartitions1,
+                        unflushThreshold1,
+                        unflushInterval1,
+                        deleteWhen1,
+                        deletePolicy1,
+                        acceptPublish1,
+                        acceptSubscribe1,
+                        numTopicStores1,
+                        attributes1,
+                        createUser1,
+                        createDate1,
+                        modifyUser1,
+                        modifyDate1);
         TopicDeployEntity deployEntity1 = new TopicDeployEntity(bdbEntry1);
         // check confEntity1
         Assert.assertEquals(deployEntity1.getRecordKey(), bdbEntry1.getRecordKey());
@@ -60,8 +71,8 @@ public class TopicDeployEntityTest {
         Assert.assertEquals(deployEntity1.getTopicName(), bdbEntry1.getTopicName());
         Assert.assertEquals(deployEntity1.getTopicId(), bdbEntry1.getTopicId());
         Assert.assertEquals(deployEntity1.getBrokerAddress(), bdbEntry1.getBrokerAddress());
-        Assert.assertEquals(deployEntity1.getDeployStatus().getCode(),
-                bdbEntry1.getTopicStatusId());
+        Assert.assertEquals(
+                deployEntity1.getDeployStatus().getCode(), bdbEntry1.getTopicStatusId());
         TopicPropGroup props1 = deployEntity1.getTopicProps();
         Assert.assertEquals(props1.getNumTopicStores(), bdbEntry1.getNumTopicStores());
         Assert.assertEquals(props1.getNumPartitions(), bdbEntry1.getNumPartitions());
@@ -103,11 +114,16 @@ public class TopicDeployEntityTest {
         topicProps2.setDataStoreInfo(dataStoreType2, dataPath2);
         TopicDeployEntity deployEntity2 = deployEntity1.clone();
         Assert.assertTrue(deployEntity2.isMatched(deployEntity1, true));
-        Assert.assertTrue(deployEntity2.updModifyInfo(dataVerId2,
-                topicNameId2, brokerPort2, brokerIp2, deployStatus2, topicProps2));
+        Assert.assertTrue(
+                deployEntity2.updModifyInfo(
+                        dataVerId2,
+                        topicNameId2,
+                        brokerPort2,
+                        brokerIp2,
+                        deployStatus2,
+                        topicProps2));
         TopicDeployEntity deployEntity31 = deployEntity2.clone();
-        BdbTopicConfEntity bdbEntry3 =
-                deployEntity31.buildBdbTopicConfEntity();
+        BdbTopicConfEntity bdbEntry3 = deployEntity31.buildBdbTopicConfEntity();
         TopicDeployEntity deployEntity32 = new TopicDeployEntity(bdbEntry3);
         Assert.assertTrue(deployEntity32.isDataEquals(deployEntity32));
         // check value
@@ -118,8 +134,8 @@ public class TopicDeployEntityTest {
         Assert.assertEquals(deployEntity32.getTopicName(), bdbEntry3.getTopicName());
         Assert.assertEquals(deployEntity32.getTopicId(), bdbEntry3.getTopicId());
         Assert.assertEquals(deployEntity32.getBrokerAddress(), bdbEntry3.getBrokerAddress());
-        Assert.assertEquals(deployEntity32.getDeployStatus().getCode(),
-                bdbEntry3.getTopicStatusId());
+        Assert.assertEquals(
+                deployEntity32.getDeployStatus().getCode(), bdbEntry3.getTopicStatusId());
         TopicPropGroup props2 = deployEntity32.getTopicProps();
         Assert.assertEquals(props2.getNumTopicStores(), bdbEntry3.getNumTopicStores());
         Assert.assertEquals(props2.getNumPartitions(), bdbEntry3.getNumPartitions());
@@ -141,7 +157,8 @@ public class TopicDeployEntityTest {
         Assert.assertEquals(deployEntity32.getBrokerPort(), brokerPort2);
         Assert.assertEquals(deployEntity32.getTopicName(), topicName1);
         Assert.assertEquals(deployEntity32.getTopicId(), topicNameId2);
-        Assert.assertEquals(deployEntity32.getBrokerAddress(),
+        Assert.assertEquals(
+                deployEntity32.getBrokerAddress(),
                 KeyBuilderUtils.buildAddressInfo(brokerIp2, brokerPort2));
         Assert.assertEquals(deployEntity32.getDeployStatus(), deployStatus2);
         Assert.assertEquals(props2.getNumTopicStores(), numTopicStores2);
@@ -154,5 +171,4 @@ public class TopicDeployEntityTest {
         Assert.assertEquals(props2.getDataPath(), dataPath2);
         Assert.assertEquals(props2.getDeletePolicy(), deletePolicy2);
     }
-
 }

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
@@ -52,7 +49,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     private ByteBuf lastByteBuf;
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out)
+            throws Exception {
         buffer = convertToNewBuf(buffer);
         while (buffer.readableBytes() > 0) {
             if (!packHeaderRead) {
@@ -61,11 +59,12 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                     break;
                 }
                 int frameToken = buffer.readInt();
-                filterIllegalPkgToken(frameToken, RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
+                filterIllegalPkgToken(
+                        frameToken, RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
                 int serialNo = buffer.readInt();
                 int tmpListSize = buffer.readInt();
-                filterIllegalPackageSize(true, tmpListSize,
-                        RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
+                filterIllegalPackageSize(
+                        true, tmpListSize, RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
                 this.listSize = tmpListSize;
                 this.dataPack = new RpcDataPack(serialNo, new ArrayList<>(this.listSize));
                 this.packHeaderRead = true;
@@ -120,8 +119,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
         return newByteBuf;
     }
 
-    private void filterIllegalPkgToken(int inParamValue, int allowTokenVal,
-            Channel channel) throws UnknownProtocolException {
+    private void filterIllegalPkgToken(int inParamValue, int allowTokenVal, Channel channel)
+            throws UnknownProtocolException {
         if (inParamValue != allowTokenVal) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {
@@ -138,23 +137,29 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 long curTime = System.currentTimeMillis();
                 if (curTime - befTime > 180000) {
                     if (lastProtolTime.compareAndSet(befTime, System.currentTimeMillis())) {
-                        logger.warn("[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
+                        logger.warn(
+                                "[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
                                         + "allowTokenVal = {}] visit "
                                         + "list is : {}",
-                                inParamValue, allowTokenVal,
+                                inParamValue,
+                                allowTokenVal,
                                 errProtolAddrMap.toString());
                         errProtolAddrMap.clear();
                     }
                 }
             }
-            throw new UnknownProtocolException(new StringBuilder(256)
-                    .append("Unknown protocol exception for message frame, channel.address = ")
-                    .append(channel.remoteAddress().toString()).toString());
+            throw new UnknownProtocolException(
+                    new StringBuilder(256)
+                            .append(
+                                    "Unknown protocol exception for message frame, channel.address = ")
+                            .append(channel.remoteAddress().toString())
+                            .toString());
         }
     }
 
-    private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
-                                          int allowSize, Channel channel) throws UnknownProtocolException {
+    private void filterIllegalPackageSize(
+            boolean isFrameSize, int inParamValue, int allowSize, Channel channel)
+            throws UnknownProtocolException {
         if (inParamValue < 0 || inParamValue > allowSize) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {
@@ -171,23 +176,30 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 long curTime = System.currentTimeMillis();
                 if (curTime - befTime > 180000) {
                     if (lastSizeTime.compareAndSet(befTime, System.currentTimeMillis())) {
-                        logger.warn("[Abnormal Visit] Abnormal BodySize visit list is :" + errSizeAddrMap.toString());
+                        logger.warn(
+                                "[Abnormal Visit] Abnormal BodySize visit list is :"
+                                        + errSizeAddrMap.toString());
                         errSizeAddrMap.clear();
                     }
                 }
             }
-            StringBuilder sBuilder = new StringBuilder(256)
-                    .append("Unknown protocol exception for message listSize! channel.address = ")
-                    .append(channel.remoteAddress().toString());
+            StringBuilder sBuilder =
+                    new StringBuilder(256)
+                            .append(
+                                    "Unknown protocol exception for message listSize! channel.address = ")
+                            .append(channel.remoteAddress().toString());
             if (isFrameSize) {
-                sBuilder.append(", Max list size=").append(allowSize)
-                        .append(", request's list size=").append(inParamValue);
+                sBuilder.append(", Max list size=")
+                        .append(allowSize)
+                        .append(", request's list size=")
+                        .append(inParamValue);
             } else {
-                sBuilder.append(", Max buffer size=").append(allowSize)
-                        .append(", request's buffer size=").append(inParamValue);
+                sBuilder.append(", Max buffer size=")
+                        .append(allowSize)
+                        .append(", request's buffer size=")
+                        .append(inParamValue);
             }
             throw new UnknownProtocolException(sBuilder.toString());
         }
     }
-
 }

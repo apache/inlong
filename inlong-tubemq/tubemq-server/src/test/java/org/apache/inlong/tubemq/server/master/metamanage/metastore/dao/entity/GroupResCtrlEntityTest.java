@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -52,12 +49,20 @@ public class GroupResCtrlEntityTest {
         String createUser = "create";
         Date createDate = new Date();
         BdbGroupFlowCtrlEntity bdbEntity2 =
-                new BdbGroupFlowCtrlEntity(dataVerId, groupName2,
-                        flowCtrlInfo, statusId, ruleCnt, qryPriorityId,
-                        attributes, createUser, createDate);
+                new BdbGroupFlowCtrlEntity(
+                        dataVerId,
+                        groupName2,
+                        flowCtrlInfo,
+                        statusId,
+                        ruleCnt,
+                        qryPriorityId,
+                        attributes,
+                        createUser,
+                        createDate);
         Assert.assertEquals(bdbEntity2.getGroupName(), groupName2);
         Assert.assertEquals(bdbEntity2.getResCheckStatus(), EnableStatus.STATUS_UNDEFINE);
-        Assert.assertEquals(bdbEntity2.getAllowedBrokerClientRate(), TBaseConstants.META_VALUE_UNDEFINED);
+        Assert.assertEquals(
+                bdbEntity2.getAllowedBrokerClientRate(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(bdbEntity2.getQryPriorityId(), 203);
         Assert.assertEquals(bdbEntity2.getStatusId(), 1);
         Assert.assertEquals(bdbEntity2.getFlowCtrlInfo(), flowCtrlInfo);
@@ -70,8 +75,8 @@ public class GroupResCtrlEntityTest {
         GroupResCtrlEntity resEntry3 = new GroupResCtrlEntity(bdbEntity2);
         Assert.assertEquals(bdbEntity2.getGroupName(), resEntry3.getGroupName());
         Assert.assertEquals(bdbEntity2.getResCheckStatus(), resEntry3.getResCheckStatus());
-        Assert.assertEquals(bdbEntity2.getAllowedBrokerClientRate(),
-                resEntry3.getAllowedBrokerClientRate());
+        Assert.assertEquals(
+                bdbEntity2.getAllowedBrokerClientRate(), resEntry3.getAllowedBrokerClientRate());
         Assert.assertEquals(bdbEntity2.getQryPriorityId(), resEntry3.getQryPriorityId());
         Assert.assertTrue(resEntry3.getFlowCtrlStatus().isEnable());
         Assert.assertEquals(bdbEntity2.getFlowCtrlInfo(), resEntry3.getFlowCtrlInfo());
@@ -86,13 +91,20 @@ public class GroupResCtrlEntityTest {
         boolean resChkEnable = true;
         int newAllowedB2CRate = 5;
         int newQryPriorityId = 2;
-        boolean newFlowCtrlEnable =  false;
+        boolean newFlowCtrlEnable = false;
         int newFlowRuleCnt = 2;
         String newFlowCtrlRuleInfo = "[{},{}]";
         GroupResCtrlEntity resEntry4 = resEntry3.clone();
         Assert.assertTrue(resEntry4.isMatched(resEntry3));
-        Assert.assertTrue(resEntry4.updModifyInfo(newDataVerId, resChkEnable, newAllowedB2CRate,
-                newQryPriorityId, newFlowCtrlEnable, newFlowRuleCnt, newFlowCtrlRuleInfo));
+        Assert.assertTrue(
+                resEntry4.updModifyInfo(
+                        newDataVerId,
+                        resChkEnable,
+                        newAllowedB2CRate,
+                        newQryPriorityId,
+                        newFlowCtrlEnable,
+                        newFlowRuleCnt,
+                        newFlowCtrlRuleInfo));
         Assert.assertEquals(resEntry4.getDataVerId(), newDataVerId);
         Assert.assertEquals(resEntry4.getResCheckStatus().isEnable(), resChkEnable);
         Assert.assertEquals(resEntry4.getAllowedBrokerClientRate(), newAllowedB2CRate);
@@ -102,8 +114,8 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(resEntry4.getFlowCtrlInfo(), newFlowCtrlRuleInfo);
         Assert.assertEquals(resEntry4.getGroupName(), resEntry3.getGroupName());
         Assert.assertEquals(resEntry4.getResCheckStatus(), resEntry3.getResCheckStatus());
-        Assert.assertNotEquals(resEntry4.getAllowedBrokerClientRate(),
-                resEntry3.getAllowedBrokerClientRate());
+        Assert.assertNotEquals(
+                resEntry4.getAllowedBrokerClientRate(), resEntry3.getAllowedBrokerClientRate());
         Assert.assertNotEquals(resEntry4.getQryPriorityId(), resEntry3.getQryPriorityId());
         Assert.assertNotEquals(resEntry4.getFlowCtrlStatus(), resEntry3.getFlowCtrlStatus());
         Assert.assertNotEquals(resEntry4.getFlowCtrlInfo(), resEntry3.getFlowCtrlInfo());
@@ -127,7 +139,5 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(resEntry4.getCreateDateStr(), bdbEntity5.getStrCreateDate());
         Assert.assertEquals(resEntry4.getModifyUser(), bdbEntity5.getModifyUser());
         Assert.assertEquals(resEntry4.getModifyDateStr(), bdbEntity5.getStrModifyDate());
-
     }
-
 }

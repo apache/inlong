@@ -19,15 +19,23 @@
 package org.apache.inlong.sdk.sort.fetcher.tube;
 
 import com.google.common.base.Splitter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SysConstants;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
@@ -37,18 +45,7 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Tube single topic fetcher
- */
+/** Tube single topic fetcher */
 public class TubeSingleTopicFetcher extends SingleTopicFetcher {
     private static final Logger LOG = LoggerFactory.getLogger(TubeSingleTopicFetcher.class);
     private PullMessageConsumer messageConsumer;
@@ -69,23 +66,32 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
     public boolean init() {
         TubeClientConfig tubeClientConfig = tubeConsumerCreator.getTubeClientConfig();
         try {
-            ConsumerConfig consumerConfig = new ConsumerConfig(tubeClientConfig.getMasterInfo(),
-                    context.getConfig().getSortTaskId());
+            ConsumerConfig consumerConfig =
+                    new ConsumerConfig(
+                            tubeClientConfig.getMasterInfo(), context.getConfig().getSortTaskId());
 
-            messageConsumer = tubeConsumerCreator.getMessageSessionFactory().createPullConsumer(consumerConfig);
+            messageConsumer =
+                    tubeConsumerCreator
+                            .getMessageSessionFactory()
+                            .createPullConsumer(consumerConfig);
             if (messageConsumer != null) {
                 TreeSet<String> filters = null;
-                if (topic.getProperties() != null && topic.getProperties().containsKey(
-                        SysConstants.TUBE_TOPIC_FILTER_KEY)) {
-                    String filterStr = topic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
+                if (topic.getProperties() != null
+                        && topic.getProperties().containsKey(SysConstants.TUBE_TOPIC_FILTER_KEY)) {
+                    String filterStr =
+                            topic.getProperties().get(SysConstants.TUBE_TOPIC_FILTER_KEY);
                     String[] filterArray = filterStr.split(" ");
                     filters = new TreeSet<>(Arrays.asList(filterArray));
                 }
                 messageConsumer.subscribe(topic.getTopic(), filters);
                 messageConsumer.completeSubscribe();
 
-                String threadName = String.format("sort_sdk_tube_single_topic_fetch_thread_%s_%s_%d",
-                        this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
+                String threadName =
+                        String.format(
+                                "sort_sdk_tube_single_topic_fetch_thread_%s_%s_%d",
+                                this.topic.getInLongCluster().getClusterId(),
+                                topic.getTopic(),
+                                this.hashCode());
                 this.fetchThread = new Thread(new TubeSingleTopicFetcher.Fetcher(), threadName);
                 this.fetchThread.start();
             } else {
@@ -182,9 +188,12 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
             long start = System.currentTimeMillis();
             try {
                 context.getStateCounterByTopic(topic).addCallbackTimes(1L);
-                context.getConfig().getCallback().onFinishedBatch(Collections.singletonList(messageRecord));
+                context.getConfig()
+                        .getCallback()
+                        .onFinishedBatch(Collections.singletonList(messageRecord));
                 context.getStateCounterByTopic(topic)
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                        .addCallbackTimeCost(System.currentTimeMillis() - start)
+                        .addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getStateCounterByTopic(topic).addCallbackErrorTimes(1L);
                 LOG.error("failed to callback {}", e.getMessage(), e);
@@ -199,7 +208,8 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
          * @param entrySplitterStr String
          * @return {@link Map}
          */
-        private Map<String, String> parseAttr(Splitter splitter, String attr, String entrySplitterStr) {
+        private Map<String, String> parseAttr(
+                Splitter splitter, String attr, String entrySplitterStr) {
             Map<String, String> map = new HashMap<>();
             for (String s : splitter.split(attr)) {
                 int idx = s.indexOf(entrySplitterStr);
@@ -240,12 +250,16 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
 
                     long startFetchTime = System.currentTimeMillis();
                     ConsumerResult message = messageConsumer.getMessage();
-                    context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+                    context.getStateCounterByTopic(topic)
+                            .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != message && TErrCodeConstants.SUCCESS == message.getErrCode()) {
                         for (Message msg : message.getMessageList()) {
                             List<InLongMessage> msgs = new ArrayList<>();
-                            List<InLongMessage> deserialize = deserializer
-                                    .deserialize(context, topic, getAttributeMap(msg.getAttribute()),
+                            List<InLongMessage> deserialize =
+                                    deserializer.deserialize(
+                                            context,
+                                            topic,
+                                            getAttributeMap(msg.getAttribute()),
                                             msg.getData());
                             deserialize = interceptor.intercept(deserialize);
                             if (deserialize.isEmpty()) {
@@ -255,16 +269,23 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                             context.getStateCounterByTopic(topic)
                                     .addMsgCount(deserialize.size())
                                     .addConsumeSize(msg.getData().length);
-                            handleAndCallbackMsg(new MessageRecord(topic.getTopicKey(), msgs,
-                                    message.getConfirmContext(), System.currentTimeMillis()));
+                            handleAndCallbackMsg(
+                                    new MessageRecord(
+                                            topic.getTopicKey(),
+                                            msgs,
+                                            message.getConfirmContext(),
+                                            System.currentTimeMillis()));
                         }
                         sleepTime = 0L;
                     } else {
                         context.getStateCounterByTopic(topic).addEmptyFetchTimes(1L);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                            sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                                    context.getConfig().getMaxEmptyPollSleepMs());
+                            sleepTime =
+                                    Math.min(
+                                            (sleepTime +=
+                                                    context.getConfig().getEmptyPollSleepStepMs()),
+                                            context.getConfig().getMaxEmptyPollSleepMs());
                             emptyFetchTimes = 0;
                         }
                     }

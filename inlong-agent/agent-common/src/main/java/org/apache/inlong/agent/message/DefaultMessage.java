@@ -17,15 +17,14 @@
 
 package org.apache.inlong.agent.message;
 
-import org.apache.inlong.agent.plugin.Message;
-
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.inlong.agent.plugin.Message;
 
 /**
- * DefaultMessage is used in inner-data transfer, including two parts, header and body. Header is the attributes of
- * message, and body is the content of message.
+ * DefaultMessage is used in inner-data transfer, including two parts, header and body. Header is
+ * the attributes of message, and body is the content of message.
  */
 public class DefaultMessage implements Message {
 

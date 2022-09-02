@@ -17,33 +17,20 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * WorkflowProcess status
- */
+/** WorkflowProcess status */
 public enum ProcessStatus {
-    /**
-     * Processing
-     */
+    /** Processing */
     PROCESSING,
 
-    /**
-     * Completed
-     */
+    /** Completed */
     COMPLETED,
 
-    /**
-     * Rejected
-     */
+    /** Rejected */
     REJECTED,
 
-    /**
-     * Canceled
-     */
+    /** Canceled */
     CANCELED,
 
-    /**
-     * Terminated
-     */
+    /** Terminated */
     TERMINATED;
-
 }

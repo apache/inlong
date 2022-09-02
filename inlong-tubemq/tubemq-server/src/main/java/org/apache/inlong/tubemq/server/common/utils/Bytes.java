@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.utils;
 
 import java.lang.reflect.Field;
@@ -28,26 +25,25 @@ import sun.misc.Unsafe;
 
 /**
  * Utility class that handles byte arrays, conversions to/from other types, comparisons, hash code
- * generation, manufacturing keys for HashMaps or HashSets, etc.
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * generation, manufacturing keys for HashMaps or HashSets, etc. Copied from <a
+ * href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class Bytes {
-    /**
-     * Size of long in bytes
-     */
+    /** Size of long in bytes */
     public static final int SIZEOF_LONG = Long.SIZE / Byte.SIZE;
+
     private static final Logger logger = LoggerFactory.getLogger(Bytes.class);
 
     /**
      * Compare two arrays content.
      *
-     * @param left  left operand
+     * @param left left operand
      * @param right right operand
      * @return 0 if equal, < 0 if left is less than right, etc.
      */
     public static int compareTo(final byte[] left, final byte[] right) {
-        return LexicographicalComparerHolder.BEST_COMPARER.compareTo(left, 0, left.length, right, 0,
-                right.length);
+        return LexicographicalComparerHolder.BEST_COMPARER.compareTo(
+                left, 0, left.length, right, 0, right.length);
     }
 
     /**
@@ -61,10 +57,10 @@ public class Bytes {
      * @param length2 How much to compare from the right buffer
      * @return 0 if equal, < 0 if left is less than right, etc.
      */
-    public static int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2,
-                                int offset2, int length2) {
-        return LexicographicalComparerHolder.BEST_COMPARER.compareTo(buffer1, offset1, length1,
-                buffer2, offset2, length2);
+    public static int compareTo(
+            byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2, int length2) {
+        return LexicographicalComparerHolder.BEST_COMPARER.compareTo(
+                buffer1, offset1, length1, buffer2, offset2, length2);
     }
 
     static Comparer<byte[]> lexicographicalComparerJavaImpl() {
@@ -83,7 +79,9 @@ public class Bytes {
         String first = new String(b, off, len, StandardCharsets.ISO_8859_1);
         for (int i = 0; i < first.length(); ++i) {
             int ch = first.charAt(i) & 0xFF;
-            if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')
+            if ((ch >= '0' && ch <= '9')
+                    || (ch >= 'A' && ch <= 'Z')
+                    || (ch >= 'a' && ch <= 'z')
                     || " `~!@#$%^&*()-_=+[]{}\\|;:'\",.<>/?".indexOf(ch) >= 0) {
                 result.append(first.charAt(i));
             } else {
@@ -94,21 +92,21 @@ public class Bytes {
     }
 
     interface Comparer<T> {
-        int compareTo(T buffer1, int offset1, int length1, T buffer2, int offset2,
-                                      int length2);
+        int compareTo(T buffer1, int offset1, int length1, T buffer2, int offset2, int length2);
     }
 
     /**
      * Provides a lexicographical comparer implementation; either a Java implementation or a faster
      * implementation based on {@link Unsafe}.
-     * <p/>
-     * <p/>
-     * Uses reflection to gracefully fall back to the Java implementation if {@code Unsafe} isn't
+     *
+     * <p>
+     *
+     * <p>Uses reflection to gracefully fall back to the Java implementation if {@code Unsafe} isn't
      * available.
      */
     static class LexicographicalComparerHolder {
-        static final String UNSAFE_COMPARER_NAME = LexicographicalComparerHolder.class.getName()
-                + "$UnsafeComparer";
+        static final String UNSAFE_COMPARER_NAME =
+                LexicographicalComparerHolder.class.getName() + "$UnsafeComparer";
 
         static final Comparer<byte[]> BEST_COMPARER = getBestComparer();
 
@@ -133,8 +131,13 @@ public class Bytes {
             INSTANCE;
 
             @Override
-            public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+            public int compareTo(
+                    byte[] buffer1,
+                    int offset1,
+                    int length1,
+                    byte[] buffer2,
+                    int offset2,
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;
@@ -158,30 +161,34 @@ public class Bytes {
 
             private static final Unsafe theUnsafe;
 
-            /**
-             * The offset to the first element in a byte array.
-             */
+            /** The offset to the first element in a byte array. */
             private static final int BYTE_ARRAY_BASE_OFFSET;
+
             private static final boolean littleEndian =
                     ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
 
             static {
-                theUnsafe = (Unsafe) AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                    @Override
-                    public Object run() {
-                        try {
-                            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-                            f.setAccessible(true);
-                            return f.get(null);
-                        } catch (NoSuchFieldException e) {
-                            // It doesn't matter what we throw;
-                            // it's swallowed in getBestComparer().
-                            throw new Error();
-                        } catch (IllegalAccessException e) {
-                            throw new Error();
-                        }
-                    }
-                });
+                theUnsafe =
+                        (Unsafe)
+                                AccessController.doPrivileged(
+                                        new PrivilegedAction<Object>() {
+                                            @Override
+                                            public Object run() {
+                                                try {
+                                                    Field f =
+                                                            Unsafe.class.getDeclaredField(
+                                                                    "theUnsafe");
+                                                    f.setAccessible(true);
+                                                    return f.get(null);
+                                                } catch (NoSuchFieldException e) {
+                                                    // It doesn't matter what we throw;
+                                                    // it's swallowed in getBestComparer().
+                                                    throw new Error();
+                                                } catch (IllegalAccessException e) {
+                                                    throw new Error();
+                                                }
+                                            }
+                                        });
 
                 BYTE_ARRAY_BASE_OFFSET = theUnsafe.arrayBaseOffset(byte[].class);
 
@@ -191,9 +198,7 @@ public class Bytes {
                 }
             }
 
-            /**
-             * Returns true if x1 is less than x2, when both values are treated as unsigned.
-             */
+            /** Returns true if x1 is less than x2, when both values are treated as unsigned. */
             static boolean lessThanUnsigned(long x1, long x2) {
                 return (x1 + Long.MIN_VALUE) < (x2 + Long.MIN_VALUE);
             }
@@ -210,8 +215,13 @@ public class Bytes {
              * @return 0 if equal, < 0 if left is less than right, etc.
              */
             @Override
-            public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+            public int compareTo(
+                    byte[] buffer1,
+                    int offset1,
+                    int length1,
+                    byte[] buffer2,
+                    int offset2,
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;

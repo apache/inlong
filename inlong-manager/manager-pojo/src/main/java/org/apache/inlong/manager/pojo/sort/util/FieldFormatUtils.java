@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
@@ -24,8 +25,6 @@ import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
 import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
-
-import java.util.List;
 
 public class FieldFormatUtils {
 
@@ -45,7 +44,8 @@ public class FieldFormatUtils {
         return JsonUtils.parseObject(formatJson, ArrayFormat.class);
     }
 
-    public static String createMapFormat(FieldType keyType, String keyFormat, FieldType valueType, String valueFormat) {
+    public static String createMapFormat(
+            FieldType keyType, String keyFormat, FieldType valueType, String valueFormat) {
         return JsonUtils.toJsonString(new MapFormat(keyType, keyFormat, valueType, valueFormat));
     }
 

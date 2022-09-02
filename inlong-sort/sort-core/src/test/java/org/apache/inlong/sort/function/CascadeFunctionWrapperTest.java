@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.function;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -37,12 +39,7 @@ import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunc
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Test for {@link CascadeFunctionWrapper}
- */
+/** Test for {@link CascadeFunctionWrapper} */
 public class CascadeFunctionWrapperTest extends AbstractTestBase {
 
     /**
@@ -53,35 +50,38 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
     @Test
     public void testCascadeFunctionWrapper() throws Exception {
         // step 0. Initialize the execution environment
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         // step 1. Register custom function of REGEXP_REPLACE_FIRST
-        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST",
-                RegexpReplaceFirstFunction.class);
+        tableEnv.createTemporarySystemFunction(
+                "REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
         // step 2. Generate test data and convert to DataStream
         List<Row> data = new ArrayList<>();
         data.add(Row.of("aabbccaabbcc"));
-        TypeInformation<?>[] types = {
-                BasicTypeInfo.STRING_TYPE_INFO};
+        TypeInformation<?>[] types = {BasicTypeInfo.STRING_TYPE_INFO};
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         List<CascadeFunction> functions = new ArrayList<>();
-        functions.add(new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction(
-                new FieldInfo("f1", new StringFormatInfo()),
-                new StringConstantParam("aa"), new StringConstantParam("apache")));
-        functions.add(new RegexpReplaceFunction(
-                new FieldInfo("f1", new StringFormatInfo()),
-                new StringConstantParam("bb"), new StringConstantParam("inlong")));
-        functions.add(new RegexpReplaceFunction(
-                new FieldInfo("f1", new StringFormatInfo()),
-                new StringConstantParam("cc"), new StringConstantParam("etl")));
+        functions.add(
+                new org.apache.inlong.sort.protocol.transformation.function
+                        .RegexpReplaceFirstFunction(
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new StringConstantParam("aa"),
+                        new StringConstantParam("apache")));
+        functions.add(
+                new RegexpReplaceFunction(
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new StringConstantParam("bb"),
+                        new StringConstantParam("inlong")));
+        functions.add(
+                new RegexpReplaceFunction(
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new StringConstantParam("cc"),
+                        new StringConstantParam("etl")));
         CascadeFunctionWrapper wrapper = new CascadeFunctionWrapper(functions);
         DataStream<Row> ds = env.fromCollection(data).returns(typeInfo);
         // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST function
@@ -92,8 +92,9 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         // step 4. Get function execution result and parse it
         List<String> r = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it =
+                        resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
+                it.hasNext(); ) {
             String next = it.next();
             r.add(next);
         }

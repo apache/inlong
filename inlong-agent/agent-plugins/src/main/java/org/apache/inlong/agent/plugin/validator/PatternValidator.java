@@ -19,9 +19,7 @@ package org.apache.inlong.agent.plugin.validator;
 
 import org.apache.inlong.agent.plugin.Validator;
 
-/**
- * validate whether a message contains specified content
- */
+/** validate whether a message contains specified content */
 public class PatternValidator implements Validator {
 
     private String pattern;

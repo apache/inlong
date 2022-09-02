@@ -18,15 +18,10 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import java.util.List;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 
-import java.util.List;
-
-/**
- * Interceptor interface.
- * Use to filter messages by configured strategies.
- *
- */
+/** Interceptor interface. Use to filter messages by configured strategies. */
 public interface Interceptor extends Configurable {
 
     /**

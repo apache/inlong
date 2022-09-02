@@ -24,9 +24,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.Deseriali
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SerializationFeature;
 
-/**
- * A utility class to marshall and demarshall format information.
- */
+/** A utility class to marshall and demarshall format information. */
 public class FormatUtils {
 
     /**
@@ -36,9 +34,7 @@ public class FormatUtils {
      * @return The json representing the given format.
      * @throws IOException Thrown when the format cannot be marshalled.
      */
-    public static String marshall(
-            @Nonnull FormatInfo format
-    ) throws IOException {
+    public static String marshall(@Nonnull FormatInfo format) throws IOException {
         ObjectMapper objectMapper = getObjectMapper();
         return objectMapper.writeValueAsString(format);
     }
@@ -50,25 +46,19 @@ public class FormatUtils {
      * @return The format represented by the given json.
      * @throws IOException Thrown when the format cannot be demarshalled.
      */
-    public static FormatInfo demarshall(
-            @Nonnull String json
-    ) throws IOException {
+    public static FormatInfo demarshall(@Nonnull String json) throws IOException {
         ObjectMapper objectMapper = getObjectMapper();
         return objectMapper.readValue(json, FormatInfo.class);
     }
 
     private static ObjectMapper getObjectMapper() {
         return new ObjectMapper()
-                       .enable(
-                               DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                               DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                               DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY
-                       )
-                       .disable(
-                               SerializationFeature.FAIL_ON_EMPTY_BEANS
-                       );
+                .enable(
+                        DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+                        DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
+                        DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 
-    private FormatUtils() {
-    }
+    private FormatUtils() {}
 }

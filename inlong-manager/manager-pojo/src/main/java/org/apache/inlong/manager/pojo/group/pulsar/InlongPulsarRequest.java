@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
-/**
- * Inlong group request for Pulsar
- */
+/** Inlong group request for Pulsar */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -36,8 +34,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 @JsonTypeDefine(value = MQType.PULSAR)
 public class InlongPulsarRequest extends InlongGroupRequest {
 
-    @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
-            + "serial: single partition, low throughput, and orderly messages")
+    @ApiModelProperty(
+            value =
+                    "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
+                            + "serial: single partition, low throughput, and orderly messages")
     private String queueModule = "PARALLEL";
 
     @ApiModelProperty(value = "Number of partitions of Topic, 1-20")
@@ -73,5 +73,4 @@ public class InlongPulsarRequest extends InlongGroupRequest {
     public InlongPulsarRequest() {
         this.setMqType(MQType.PULSAR);
     }
-
 }

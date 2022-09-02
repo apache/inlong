@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common;
 
 import java.util.Collections;
@@ -44,23 +41,41 @@ public class WebParameterUtilsTest {
         Map<String, String> paramCntrMap = new HashMap<>();
         // case 1
         initialValue = null;
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.COMPSGROUPNAME, false, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap,
+                        WebFieldDef.COMPSGROUPNAME,
+                        false,
+                        initialValue,
+                        sBuffer,
+                        result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         Set<String> paraDataSet = (Set<String>) result.getRetData();
         Assert.assertEquals(paraDataSet, Collections.EMPTY_SET);
         // case 2
         paramCntrMap.clear();
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.COMPSGROUPNAME, true, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap,
+                        WebFieldDef.COMPSGROUPNAME,
+                        true,
+                        initialValue,
+                        sBuffer,
+                        result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 3
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.COMPSGROUPNAME.shortName, "");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.COMPSGROUPNAME, true, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap,
+                        WebFieldDef.COMPSGROUPNAME,
+                        true,
+                        initialValue,
+                        sBuffer,
+                        result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 4
@@ -70,8 +85,14 @@ public class WebParameterUtilsTest {
         exceptedValSet.add("group2");
         exceptedValSet.add("group3");
         paramCntrMap.put(WebFieldDef.COMPSGROUPNAME.name, "group3,group1,group2");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.COMPSGROUPNAME, true, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap,
+                        WebFieldDef.COMPSGROUPNAME,
+                        true,
+                        initialValue,
+                        sBuffer,
+                        result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         paraDataSet = (Set<String>) result.getRetData();
@@ -79,15 +100,17 @@ public class WebParameterUtilsTest {
         // case 5
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.GROUPNAME.name, "test2,test1,test3");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.GROUPNAME, true, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap, WebFieldDef.GROUPNAME, true, initialValue, sBuffer, result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 6
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.GROUPNAME.name, "test2");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.GROUPNAME, true, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap, WebFieldDef.GROUPNAME, true, initialValue, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         String paraDataStr = (String) result.getRetData();
@@ -95,8 +118,9 @@ public class WebParameterUtilsTest {
         // case 7
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.GROUPNAME.name, "");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.GROUPNAME, false, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap, WebFieldDef.GROUPNAME, false, initialValue, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         paraDataStr = (String) result.getRetData();
@@ -105,8 +129,9 @@ public class WebParameterUtilsTest {
         paramCntrMap.clear();
         initialValue = "initial value";
         paramCntrMap.put(WebFieldDef.GROUPNAME.name, "");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.GROUPNAME, false, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap, WebFieldDef.GROUPNAME, false, initialValue, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         paraDataStr = (String) result.getRetData();
@@ -114,8 +139,14 @@ public class WebParameterUtilsTest {
         // case 9
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.COMPSGROUPNAME.name, "\"test1,test1,test3\"");
-        retValue = WebParameterUtils.getStringParamValue(paramCntrMap,
-                WebFieldDef.COMPSGROUPNAME, false, initialValue, sBuffer, result);
+        retValue =
+                WebParameterUtils.getStringParamValue(
+                        paramCntrMap,
+                        WebFieldDef.COMPSGROUPNAME,
+                        false,
+                        initialValue,
+                        sBuffer,
+                        result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         paraDataSet = (Set<String>) result.getRetData();
@@ -129,15 +160,17 @@ public class WebParameterUtilsTest {
         ProcessResult result = new ProcessResult();
         Map<String, String> paramCntrMap = new HashMap<>();
         // case 1
-        retValue = WebParameterUtils.getBooleanParamValue(paramCntrMap,
-                WebFieldDef.WITHIP, true, null, sBuffer, result);
+        retValue =
+                WebParameterUtils.getBooleanParamValue(
+                        paramCntrMap, WebFieldDef.WITHIP, true, null, sBuffer, result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 2
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.WITHIP.name, "1");
-        retValue = WebParameterUtils.getBooleanParamValue(paramCntrMap,
-                WebFieldDef.WITHIP, true, null, sBuffer, result);
+        retValue =
+                WebParameterUtils.getBooleanParamValue(
+                        paramCntrMap, WebFieldDef.WITHIP, true, null, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         Boolean paraDataObj = (Boolean) result.getRetData();
@@ -145,8 +178,9 @@ public class WebParameterUtilsTest {
         // case 3
         paramCntrMap.clear();
         paramCntrMap.put(WebFieldDef.WITHIP.name, "false");
-        retValue = WebParameterUtils.getBooleanParamValue(paramCntrMap,
-                WebFieldDef.WITHIP, true, null, sBuffer, result);
+        retValue =
+                WebParameterUtils.getBooleanParamValue(
+                        paramCntrMap, WebFieldDef.WITHIP, true, null, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         paraDataObj = (Boolean) result.getRetData();
@@ -160,23 +194,20 @@ public class WebParameterUtilsTest {
         ProcessResult result = new ProcessResult();
         Map<String, String> paramCntrMap = new HashMap<>();
         // case 1
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                true, null, sBuffer, result);
+        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap, true, null, sBuffer, result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 2
         paramCntrMap.clear();
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                false, null, sBuffer, result);
+        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap, false, null, sBuffer, result);
         Assert.assertFalse(retValue);
         Assert.assertFalse(result.isSuccess());
         // case 3
         paramCntrMap.clear();
         BaseEntity defOpEntity = new BaseEntity();
-        defOpEntity.updQueryKeyInfo(-2,
-                "testCreate", "testModify");
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                true, defOpEntity, sBuffer, result);
+        defOpEntity.updQueryKeyInfo(-2, "testCreate", "testModify");
+        retValue =
+                WebParameterUtils.getAUDBaseInfo(paramCntrMap, true, defOpEntity, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         BaseEntity retEntry = (BaseEntity) result.getRetData();
@@ -188,57 +219,56 @@ public class WebParameterUtilsTest {
         paramCntrMap.put(WebFieldDef.DATAVERSIONID.name, "1");
         paramCntrMap.put(WebFieldDef.CREATEUSER.name, "test4");
         paramCntrMap.put(WebFieldDef.CREATEDATE.name, "20210519082350");
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                true, defOpEntity, sBuffer, result);
+        retValue =
+                WebParameterUtils.getAUDBaseInfo(paramCntrMap, true, defOpEntity, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (BaseEntity) result.getRetData();
-        Assert.assertEquals(String.valueOf(retEntry.getDataVerId()),
+        Assert.assertEquals(
+                String.valueOf(retEntry.getDataVerId()),
                 paramCntrMap.get(WebFieldDef.DATAVERSIONID.name));
-        Assert.assertEquals(retEntry.getCreateUser(),
-                paramCntrMap.get(WebFieldDef.CREATEUSER.name));
-        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getCreateDate()),
+        Assert.assertEquals(
+                retEntry.getCreateUser(), paramCntrMap.get(WebFieldDef.CREATEUSER.name));
+        Assert.assertEquals(
+                DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getCreateDate()),
                 paramCntrMap.get(WebFieldDef.CREATEDATE.name));
-        Assert.assertEquals(retEntry.getModifyUser(),
-                paramCntrMap.get(WebFieldDef.CREATEUSER.name));
-        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
+        Assert.assertEquals(
+                retEntry.getModifyUser(), paramCntrMap.get(WebFieldDef.CREATEUSER.name));
+        Assert.assertEquals(
+                DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
                 paramCntrMap.get(WebFieldDef.CREATEDATE.name));
         // case 5
         paramCntrMap.clear();
-        defOpEntity = new BaseEntity(1, "aa",
-                new Date(), "modify", new Date());
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                true, defOpEntity, sBuffer, result);
+        defOpEntity = new BaseEntity(1, "aa", new Date(), "modify", new Date());
+        retValue =
+                WebParameterUtils.getAUDBaseInfo(paramCntrMap, true, defOpEntity, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (BaseEntity) result.getRetData();
-        Assert.assertEquals(retEntry.getDataVerId(),
-                defOpEntity.getDataVerId());
-        Assert.assertEquals(retEntry.getCreateUser(),
-                defOpEntity.getCreateUser());
-        Assert.assertEquals(retEntry.getCreateDate(),
-                defOpEntity.getCreateDate());
-        Assert.assertEquals(retEntry.getModifyUser(),
-                defOpEntity.getModifyUser());
-        Assert.assertEquals(retEntry.getModifyDate(),
-                defOpEntity.getModifyDate());
+        Assert.assertEquals(retEntry.getDataVerId(), defOpEntity.getDataVerId());
+        Assert.assertEquals(retEntry.getCreateUser(), defOpEntity.getCreateUser());
+        Assert.assertEquals(retEntry.getCreateDate(), defOpEntity.getCreateDate());
+        Assert.assertEquals(retEntry.getModifyUser(), defOpEntity.getModifyUser());
+        Assert.assertEquals(retEntry.getModifyDate(), defOpEntity.getModifyDate());
         // case 4
         paramCntrMap.clear();
         defOpEntity = null;
         paramCntrMap.put(WebFieldDef.DATAVERSIONID.name, "1");
         paramCntrMap.put(WebFieldDef.MODIFYUSER.name, "test4");
         paramCntrMap.put(WebFieldDef.MODIFYDATE.name, "20210519082350");
-        retValue = WebParameterUtils.getAUDBaseInfo(paramCntrMap,
-                false, defOpEntity, sBuffer, result);
+        retValue =
+                WebParameterUtils.getAUDBaseInfo(paramCntrMap, false, defOpEntity, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (BaseEntity) result.getRetData();
-        Assert.assertEquals(String.valueOf(retEntry.getDataVerId()),
+        Assert.assertEquals(
+                String.valueOf(retEntry.getDataVerId()),
                 paramCntrMap.get(WebFieldDef.DATAVERSIONID.name));
         Assert.assertTrue(TStringUtils.isBlank(retEntry.getCreateUser()));
-        Assert.assertEquals(retEntry.getModifyUser(),
-                paramCntrMap.get(WebFieldDef.MODIFYUSER.name));
-        Assert.assertEquals(DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
+        Assert.assertEquals(
+                retEntry.getModifyUser(), paramCntrMap.get(WebFieldDef.MODIFYUSER.name));
+        Assert.assertEquals(
+                DateTimeConvertUtils.date2yyyyMMddHHmmss(retEntry.getModifyDate()),
                 paramCntrMap.get(WebFieldDef.MODIFYDATE.name));
     }
 
@@ -261,12 +291,12 @@ public class WebParameterUtilsTest {
         paramCntrMap.put(WebFieldDef.DATASTORETYPE.name, "9");
         paramCntrMap.put(WebFieldDef.DATAPATH.name, "test");
         paramCntrMap.put(WebFieldDef.DELETEPOLICY.name, "delete,2h");
-        boolean retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap,
-                null, sBuffer, result);
+        boolean retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap, null, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         TopicPropGroup retEntry = (TopicPropGroup) result.getRetData();
-        Assert.assertEquals(retEntry.getNumTopicStores(),
+        Assert.assertEquals(
+                retEntry.getNumTopicStores(),
                 Integer.parseInt(paramCntrMap.get(WebFieldDef.NUMTOPICSTORES.name)));
         // case 2
         paramCntrMap.clear();
@@ -275,12 +305,9 @@ public class WebParameterUtilsTest {
         paramCntrMap.put(WebFieldDef.ACCEPTPUBLISH.name, "0");
         paramCntrMap.put(WebFieldDef.NUMTOPICSTORES.name, "9");
         paramCntrMap.put(WebFieldDef.UNFMCACHECNTINK.name, "100");
-        retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap,
-                defOpEntity, sBuffer, result);
+        retValue = WebParameterUtils.getTopicPropInfo(paramCntrMap, defOpEntity, sBuffer, result);
         Assert.assertTrue(retValue);
         Assert.assertTrue(result.isSuccess());
         retEntry = (TopicPropGroup) result.getRetData();
-
     }
-
 }

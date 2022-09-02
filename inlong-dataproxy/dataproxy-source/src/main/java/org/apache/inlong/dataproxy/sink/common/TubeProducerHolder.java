@@ -39,8 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TubeProducerHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(TubeProducerHolder.class);
+    private static final Logger logger = LoggerFactory.getLogger(TubeProducerHolder.class);
     private static final long SEND_FAILURE_WAIT = 30000L;
     private static final long PUBLISH_FAILURE_WAIT = 60000L;
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -51,12 +50,12 @@ public class TubeProducerHolder {
     private final Map<String, MessageProducer> producerMap = new ConcurrentHashMap<>();
     private MessageProducer lastProducer = null;
     private final AtomicInteger lastPubTopicCnt = new AtomicInteger(0);
-    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP
-            = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP =
+            new ConcurrentHashMap<>();
 
     public TubeProducerHolder(String sinkName, String clusterAddr, MQClusterConfig tubeConfig) {
-        Preconditions.checkState(StringUtils.isNotBlank(clusterAddr),
-                "No TubeMQ's cluster address list specified");
+        Preconditions.checkState(
+                StringUtils.isNotBlank(clusterAddr), "No TubeMQ's cluster address list specified");
         this.sinkName = sinkName;
         this.clusterAddr = clusterAddr;
         this.clusterConfig = tubeConfig;
@@ -70,13 +69,18 @@ public class TubeProducerHolder {
         logger.info("ProducerHolder for " + sinkName + " begin to start!");
         // create session factory
         try {
-            TubeClientConfig clientConfig = TubeUtils.buildClientConfig(clusterAddr, this.clusterConfig);
+            TubeClientConfig clientConfig =
+                    TubeUtils.buildClientConfig(clusterAddr, this.clusterConfig);
             this.sessionFactory = new TubeMultiSessionFactory(clientConfig);
             createProducersByTopicSet(configTopicSet);
         } catch (Throwable e) {
             stop();
-            String errInfo = "Build session factory  to " + clusterAddr
-                    + " for " + sinkName + " failure, please re-check";
+            String errInfo =
+                    "Build session factory  to "
+                            + clusterAddr
+                            + " for "
+                            + sinkName
+                            + " failure, please re-check";
             logger.error(errInfo, e);
             throw new FlumeException(errInfo);
         }
@@ -119,19 +123,15 @@ public class TubeProducerHolder {
     }
 
     /**
-     * Get producer by topic name:
-     *   i. if the topic is judged to be an illegal topic, return null;
-     *   ii. if it is not an illegal topic or the status has expired, check:
-     *    a. if the topic has been published before, return the corresponding producer directly;
-     *    b. if the topic is not in the published list, perform the topic's publish action.
-     *  If the topic is thrown exception during the publishing process,
-     *     set the topic to an illegal topic
+     * Get producer by topic name: i. if the topic is judged to be an illegal topic, return null;
+     * ii. if it is not an illegal topic or the status has expired, check: a. if the topic has been
+     * published before, return the corresponding producer directly; b. if the topic is not in the
+     * published list, perform the topic's publish action. If the topic is thrown exception during
+     * the publishing process, set the topic to an illegal topic
      *
-     * @param topicName  the topic name
-     *
-     * @return  the producer
-     *          if topic is illegal, return null
-     * @throws  TubeClientException
+     * @param topicName the topic name
+     * @return the producer if topic is illegal, return null
+     * @throws TubeClientException
      */
     public MessageProducer getProducer(String topicName) throws TubeClientException {
         AtomicLong fbdTime = FROZEN_TOPIC_MAP.get(topicName);
@@ -167,8 +167,11 @@ public class TubeProducerHolder {
                     }
                 }
                 fbdTime.set(System.currentTimeMillis() + PUBLISH_FAILURE_WAIT);
-                logger.warn("Throw exception while publish topic="
-                        + topicName + ", exception is " + e.getMessage());
+                logger.warn(
+                        "Throw exception while publish topic="
+                                + topicName
+                                + ", exception is "
+                                + e.getMessage());
                 return null;
             }
             producerMap.put(topicName, lastProducer);
@@ -180,16 +183,16 @@ public class TubeProducerHolder {
     /**
      * Whether frozen production according to the exceptions returned by message sending
      *
-     * @param topicName  the topic name sent message
-     * @param throwable  the exception information thrown when sending a message
-     *
-     * @return  whether illegal topic
+     * @param topicName the topic name sent message
+     * @param throwable the exception information thrown when sending a message
+     * @return whether illegal topic
      */
     public boolean needFrozenSent(String topicName, Throwable throwable) {
         if (throwable instanceof TubeClientException) {
             String message = throwable.getMessage();
-            if (message != null && (message.contains("No available partition for topic")
-                    || message.contains("The brokers of topic are all forbidden"))) {
+            if (message != null
+                    && (message.contains("No available partition for topic")
+                            || message.contains("The brokers of topic are all forbidden"))) {
                 AtomicLong fbdTime = FROZEN_TOPIC_MAP.get(topicName);
                 if (fbdTime == null) {
                     AtomicLong tmpFbdTime = new AtomicLong(0);
@@ -206,10 +209,10 @@ public class TubeProducerHolder {
     }
 
     /**
-     * Create sink producers by configured topic set
-     * group topicSet to different group, each group is associated with a producer
+     * Create sink producers by configured topic set group topicSet to different group, each group
+     * is associated with a producer
      *
-     * @param cfgTopicSet  the configured topic set
+     * @param cfgTopicSet the configured topic set
      */
     public void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
         if (cfgTopicSet == null || cfgTopicSet.isEmpty()) {
@@ -218,8 +221,7 @@ public class TubeProducerHolder {
         // filter published topics
         List<String> filteredTopics = new ArrayList<>(cfgTopicSet.size());
         for (String topicName : cfgTopicSet) {
-            if (StringUtils.isBlank(topicName)
-                    || producerMap.get(topicName) != null) {
+            if (StringUtils.isBlank(topicName) || producerMap.get(topicName) != null) {
                 continue;
             }
             filteredTopics.add(topicName);
@@ -233,8 +235,8 @@ public class TubeProducerHolder {
         int maxPublishTopicCnt = clusterConfig.getMaxTopicsEachProducerHold();
         int allocTotalCnt = filteredTopics.size();
         List<Integer> topicGroupCnt = new ArrayList<>();
-        int paddingCnt = (lastPubTopicCnt.get() <= 0)
-                ? 0 : (maxPublishTopicCnt - lastPubTopicCnt.get());
+        int paddingCnt =
+                (lastPubTopicCnt.get() <= 0) ? 0 : (maxPublishTopicCnt - lastPubTopicCnt.get());
         while (allocTotalCnt > 0) {
             if (paddingCnt > 0) {
                 topicGroupCnt.add(Math.min(allocTotalCnt, paddingCnt));
@@ -258,8 +260,7 @@ public class TubeProducerHolder {
             }
             startPos = endPos;
             // create producer
-            if (lastProducer == null
-                    || lastPubTopicCnt.get() == maxPublishTopicCnt) {
+            if (lastProducer == null || lastPubTopicCnt.get() == maxPublishTopicCnt) {
                 lastProducer = sessionFactory.createProducer();
                 lastPubTopicCnt.set(0);
             }
@@ -269,9 +270,12 @@ public class TubeProducerHolder {
                 producerMap.put(topicItem, lastProducer);
             }
         }
-        logger.info(sinkName + " initializes producers for topics:"
-                + producerMap.keySet() + ", cost: " + (System.currentTimeMillis() - startTime)
-                + "ms");
+        logger.info(
+                sinkName
+                        + " initializes producers for topics:"
+                        + producerMap.keySet()
+                        + ", cost: "
+                        + (System.currentTimeMillis() - startTime)
+                        + "ms");
     }
-
 }

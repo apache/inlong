@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -57,67 +62,95 @@ import org.apache.inlong.sort.protocol.transformation.relation.IntervalJoinRelat
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * Test for Interval join for {@link IntervalJoinRelation} {@link FlinkSqlParser} with {@link KafkaExtractNode}
+ * Test for Interval join for {@link IntervalJoinRelation} {@link FlinkSqlParser} with {@link
+ * KafkaExtractNode}
  */
 public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
 
     private KafkaExtractNode buildIntervalJoinLeftStream() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo(32, 2)),
-                new FieldInfo("currency", new StringFormatInfo()),
-                new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
-        return new KafkaExtractNode("1", "kafka_input_1", fields,
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo(32, 2)),
+                        new FieldInfo("currency", new StringFormatInfo()),
+                        new FieldInfo("order_time", new TimestampFormatInfo(3)),
+                        new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input_1",
+                fields,
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
-                null, "orders", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
-                "groupId_1", null);
+                null,
+                "orders",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId_1",
+                null);
     }
 
     private KafkaExtractNode buildIntervalJoinRightStream() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
-                new FieldInfo("currency", new StringFormatInfo()),
-                new FieldInfo("update_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
-        return new KafkaExtractNode("2", "kafka_input_2", fields,
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
+                        new FieldInfo("currency", new StringFormatInfo()),
+                        new FieldInfo("update_time", new TimestampFormatInfo(3)),
+                        new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
+        return new KafkaExtractNode(
+                "2",
+                "kafka_input_2",
+                fields,
                 new WatermarkField(new FieldInfo("update_time", new TimestampFormatInfo(3))),
-                null, "currency_rates", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
-                "groupId_2", null);
+                null,
+                "currency_rates",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId_2",
+                null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo(32, 2)),
-                new FieldInfo("currency", new StringFormatInfo()),
-                new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))
-        );
-        List<FieldRelation> relations = Arrays.asList(
-                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelation(new FieldInfo("price", "1", new DecimalFormatInfo(32, 2)),
-                        new FieldInfo("price", new DecimalFormatInfo(32, 2))),
-                new FieldRelation(new FieldInfo("currency", "1", new StringFormatInfo()),
-                        new FieldInfo("currency", new StringFormatInfo())),
-                new FieldRelation(new FieldInfo("order_time", "1", new TimestampFormatInfo(3)),
-                        new FieldInfo("order_time", new TimestampFormatInfo(3))),
-                new FieldRelation(new FieldInfo("conversion_rate", "2", new DecimalFormatInfo(32, 2)),
-                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)))
-        );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
-                null, "orders_output", "localhost:9092", new CanalJsonFormat(),
-                null, null, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo(32, 2)),
+                        new FieldInfo("currency", new StringFormatInfo()),
+                        new FieldInfo("order_time", new TimestampFormatInfo(3)),
+                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", "1", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("price", "1", new DecimalFormatInfo(32, 2)),
+                                new FieldInfo("price", new DecimalFormatInfo(32, 2))),
+                        new FieldRelation(
+                                new FieldInfo("currency", "1", new StringFormatInfo()),
+                                new FieldInfo("currency", new StringFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("order_time", "1", new TimestampFormatInfo(3)),
+                                new FieldInfo("order_time", new TimestampFormatInfo(3))),
+                        new FieldRelation(
+                                new FieldInfo("conversion_rate", "2", new DecimalFormatInfo(32, 2)),
+                                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))));
+        return new KafkaLoadNode(
+                "3",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "orders_output",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                null,
+                null,
+                null);
     }
 
     /**
@@ -131,30 +164,35 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         LinkedHashMap<String, List<FilterFunction>> conditionMap = new LinkedHashMap<>();
-        conditionMap.put("2", Arrays.asList(
-                new SingleValueFilterFunction(
-                        EmptyOperator.getInstance(),
-                        new FieldInfo("currency", "1", new StringFormatInfo()),
-                        EqualOperator.getInstance(),
-                        new FieldInfo("currency", "2", new StringFormatInfo())
-                ),
-                new BetweenFunction(
-                        AndOperator.getInstance(),
-                        new FieldInfo("order_time", "1", new TimestampFormatInfo()),
-                        new SubtractFunction(new FieldInfo("update_time", "2", new TimestampFormatInfo()),
-                                new IntervalFunction(new StringConstantParam("10"), new TimeUnitConstantParam(
-                                        TimeUnit.SECOND))),
-                        new AddFunction(new FieldInfo("update_time", "2", new TimestampFormatInfo()),
-                                new IntervalFunction(new StringConstantParam("5"), new TimeUnitConstantParam(
-                                        TimeUnit.SECOND)))
-                )
-        ));
+        conditionMap.put(
+                "2",
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("currency", "1", new StringFormatInfo()),
+                                EqualOperator.getInstance(),
+                                new FieldInfo("currency", "2", new StringFormatInfo())),
+                        new BetweenFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("order_time", "1", new TimestampFormatInfo()),
+                                new SubtractFunction(
+                                        new FieldInfo(
+                                                "update_time", "2", new TimestampFormatInfo()),
+                                        new IntervalFunction(
+                                                new StringConstantParam("10"),
+                                                new TimeUnitConstantParam(TimeUnit.SECOND))),
+                                new AddFunction(
+                                        new FieldInfo(
+                                                "update_time", "2", new TimestampFormatInfo()),
+                                        new IntervalFunction(
+                                                new StringConstantParam("5"),
+                                                new TimeUnitConstantParam(TimeUnit.SECOND))))));
         return new IntervalJoinRelation(inputIds, outputIds, conditionMap);
     }
 
     /**
-     * Test inner temporal join with event time for extract is mysql {@link KafkaExtractNode}
-     * and load is mysql {@link KafkaLoadNode}
+     * Test inner temporal join with event time for extract is mysql {@link KafkaExtractNode} and
+     * load is mysql {@link KafkaLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -164,21 +202,20 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node leftStream = buildIntervalJoinLeftStream();
         Node rightStream = buildIntervalJoinRightStream();
         Node kafkaLoadNode = buildKafkaLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(leftStream, rightStream, kafkaLoadNode),
-                Collections.singletonList(
-                        buildNodeRelation(Arrays.asList(leftStream, rightStream),
-                                Collections.singletonList(kafkaLoadNode)))
-        );
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(leftStream, rightStream, kafkaLoadNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Arrays.asList(leftStream, rightStream),
+                                        Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

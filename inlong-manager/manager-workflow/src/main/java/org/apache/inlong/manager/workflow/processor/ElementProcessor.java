@@ -17,29 +17,20 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
+import java.util.List;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 
-import java.util.List;
-
-/**
- * Workflow component-processor
- */
+/** Workflow component-processor */
 public interface ElementProcessor<T extends Element> {
 
-    /**
-     * Which type to handle
-     */
+    /** Which type to handle */
     Class<T> watch();
 
-    /**
-     * Execute the logic of the current component
-     */
+    /** Execute the logic of the current component */
     boolean create(T element, WorkflowContext context);
 
-    /**
-     * Whether to wait for user action
-     */
+    /** Whether to wait for user action */
     boolean pendingForAction(WorkflowContext context);
 
     /**
@@ -55,5 +46,4 @@ public interface ElementProcessor<T extends Element> {
      * @return The next component to be executed
      */
     List<Element> next(T element, WorkflowContext context);
-
 }

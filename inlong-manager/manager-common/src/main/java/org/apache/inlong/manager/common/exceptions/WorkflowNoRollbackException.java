@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Mark exceptions that do not need to be rolled back
- */
+/** Mark exceptions that do not need to be rolled back */
 public class WorkflowNoRollbackException extends WorkflowException {
 
     public WorkflowNoRollbackException() {
@@ -38,7 +36,10 @@ public class WorkflowNoRollbackException extends WorkflowException {
         super(cause);
     }
 
-    protected WorkflowNoRollbackException(String message, Throwable cause, boolean enableSuppression,
+    protected WorkflowNoRollbackException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

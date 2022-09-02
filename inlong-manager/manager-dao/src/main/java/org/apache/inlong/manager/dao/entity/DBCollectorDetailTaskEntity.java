@@ -21,9 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
-/**
- * Database collector detail task entity.
- */
+/** Database collector detail task entity. */
 @Data
 public class DBCollectorDetailTaskEntity implements Serializable {
 

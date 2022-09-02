@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.enums;
 
 public enum TaskStatusEnum {
-
     ADDING(1, "topicAdding"),
     FAILED(2, "failed"),
     SUCCESS(3, "success");
@@ -39,5 +38,4 @@ public enum TaskStatusEnum {
     public String getMessage() {
         return message;
     }
-
 }

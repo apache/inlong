@@ -18,7 +18,16 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+
 import io.debezium.relational.TableId;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
@@ -26,16 +35,6 @@ import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
 
 /**
  * The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState} of MySQL CDC

@@ -36,8 +36,9 @@ public class AddTopicTask {
             throw new IllegalArgumentException("topic name length larger than " + MAX_TOPIC_LENGTH);
         }
         if (!topicName.matches(TOPIC_NAME_REGEX)) {
-            throw new IllegalArgumentException("topic name must begin with a letter, can"
-                    + " only contain characters,numbers,and underscores");
+            throw new IllegalArgumentException(
+                    "topic name must begin with a letter, can"
+                            + " only contain characters,numbers,and underscores");
         }
         return true;
     }

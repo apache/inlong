@@ -25,14 +25,12 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * PostgreSQL sink info
- */
+/** PostgreSQL sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -68,5 +66,4 @@ public class PostgreSQLSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, PostgreSQLSinkRequest::new);
     }
-
 }

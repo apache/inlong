@@ -19,6 +19,9 @@ package org.apache.inlong.sort;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -33,10 +36,6 @@ import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.util.ParameterTool;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 public class Entrance {
 
     public static void main(String[] args) throws Exception {
@@ -45,24 +44,27 @@ public class Entrance {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         // Checkpoint related
         env.enableCheckpointing(config.getInteger(Constants.CHECKPOINT_INTERVAL_MS));
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(
-                config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
-        env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
+        env.getCheckpointConfig()
+                .setMinPauseBetweenCheckpoints(
+                        config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
+        env.getCheckpointConfig()
+                .setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner()
-                .inStreamingMode().build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         String sqlFile = config.getString(Constants.SQL_SCRIPT_FILE);
         Parser parser;
         if (StringUtils.isEmpty(sqlFile)) {
-            final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
+            final GroupInfo groupInfo =
+                    getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
             parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         } else {
             String statements = getStatementSetFromFile(sqlFile);
             parser = NativeFlinkSqlParser.getInstance(tableEnv, statements);
         }
-        final ParseResult parseResult = Preconditions.checkNotNull(parser.parse(),
-                "parse result is null");
+        final ParseResult parseResult =
+                Preconditions.checkNotNull(parser.parse(), "parse result is null");
         parseResult.execute();
     }
 

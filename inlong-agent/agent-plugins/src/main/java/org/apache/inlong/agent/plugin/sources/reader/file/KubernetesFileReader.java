@@ -17,28 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import com.google.gson.Gson;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.PodResource;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
@@ -53,9 +31,28 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
 
-/**
- * k8s file reader
- */
+import com.google.gson.Gson;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.PodResource;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** k8s file reader */
 public final class KubernetesFileReader extends AbstractFileReader {
 
     private static final Logger log = LoggerFactory.getLogger(KubernetesFileReader.class);
@@ -87,18 +84,22 @@ public final class KubernetesFileReader extends AbstractFileReader {
             throw new RuntimeException("get k8s client error,k8s env ip and port is null");
         }
         String maserUrl = HTTPS.concat(ip).concat(CommonConstants.AGENT_COLON).concat(port);
-        Config config = new ConfigBuilder()
-                .withMasterUrl(maserUrl)
-                .withCaCertFile(Config.KUBERNETES_SERVICE_ACCOUNT_CA_CRT_PATH)
-                .withOauthToken(new String(
-                        Files.readAllBytes((new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH)).toPath())))
-                .build();
+        Config config =
+                new ConfigBuilder()
+                        .withMasterUrl(maserUrl)
+                        .withCaCertFile(Config.KUBERNETES_SERVICE_ACCOUNT_CA_CRT_PATH)
+                        .withOauthToken(
+                                new String(
+                                        Files.readAllBytes(
+                                                (new File(
+                                                                Config
+                                                                        .KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH))
+                                                        .toPath())))
+                        .build();
         return new KubernetesClientBuilder().withConfig(config).build();
     }
 
-    /**
-     * get PODS of kubernetes information
-     */
+    /** get PODS of kubernetes information */
     public PodList getPods() {
         if (Objects.isNull(client)) {
             return null;
@@ -107,9 +108,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
         return pods.list();
     }
 
-    /**
-     * get pod metadata by namespace and pod name
-     */
+    /** get pod metadata by namespace and pod name */
     public Map<String, String> getK8sMetadata(JobProfile jobConf) {
         if (Objects.isNull(jobConf)) {
             return null;
@@ -126,20 +125,27 @@ public final class KubernetesFileReader extends AbstractFileReader {
         metadata.put(METADATA_CONTAINER_ID, k8sInfo.get(CONTAINER_ID));
         metadata.put(METADATA_POD_NAME, k8sInfo.get(POD_NAME));
 
-        PodResource podResource = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
-                .withName(k8sInfo.get(POD_NAME));
+        PodResource podResource =
+                client.pods().inNamespace(k8sInfo.get(NAMESPACE)).withName(k8sInfo.get(POD_NAME));
         if (Objects.isNull(podResource)) {
             return metadata;
         }
         Pod pod = podResource.get();
-        PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
-                .withLabels(MetaDataUtils.getPodLabels(jobConf)).list();
-        podList.getItems().forEach(data -> {
-            if (data.equals(pod)) {
-                metadata.put(METADATA_POD_UID, pod.getMetadata().getUid());
-                metadata.put(METADATA_POD_LABEL, GSON.toJson(pod.getMetadata().getLabels()));
-            }
-        });
+        PodList podList =
+                client.pods()
+                        .inNamespace(k8sInfo.get(NAMESPACE))
+                        .withLabels(MetaDataUtils.getPodLabels(jobConf))
+                        .list();
+        podList.getItems()
+                .forEach(
+                        data -> {
+                            if (data.equals(pod)) {
+                                metadata.put(METADATA_POD_UID, pod.getMetadata().getUid());
+                                metadata.put(
+                                        METADATA_POD_LABEL,
+                                        GSON.toJson(pod.getMetadata().getLabels()));
+                            }
+                        });
         return metadata;
     }
 }

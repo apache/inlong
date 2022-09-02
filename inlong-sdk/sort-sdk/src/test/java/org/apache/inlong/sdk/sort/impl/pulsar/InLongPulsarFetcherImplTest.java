@@ -58,9 +58,7 @@ public class InLongPulsarFetcherImplTest {
     private SortClientConfig sortClientConfig;
     private StatManager statManager;
 
-    /**
-     * setUp
-     */
+    /** setUp */
     @Before
     public void setUp() throws Exception {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
@@ -71,7 +69,8 @@ public class InLongPulsarFetcherImplTest {
         inLongTopic.setTopicType("pulsar");
         inLongTopic.setProperties(new HashMap<>());
 
-        CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
+        CacheZoneCluster cacheZoneCluster =
+                new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
@@ -80,17 +79,18 @@ public class InLongPulsarFetcherImplTest {
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(clientContext.getStatManager()).thenReturn(statManager);
-        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
-                cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
-        when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
+        SortClientStateCounter sortClientStateCounter =
+                new SortClientStateCounter(
+                        "sortTaskId", cacheZoneCluster.getClusterId(), inLongTopic.getTopic(), 0);
+        when(statManager.getStatistics(anyString(), anyString(), anyString()))
+                .thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
-
     }
 
     @Test
     public void stopConsume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         boolean consumeStop = inLongTopicFetcher.isConsumeStop();
         Assert.assertFalse(consumeStop);
         inLongTopicFetcher.stopConsume(true);
@@ -100,28 +100,32 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void getInLongTopic() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         InLongTopic inLongTopic = inLongTopicFetcher.getInLongTopic();
         Assert.assertEquals(inLongTopic.getInLongCluster(), inLongTopic.getInLongCluster());
     }
 
     @Test
     public void getConsumedDataSize() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         long consumedDataSize = inLongTopicFetcher.getConsumedDataSize();
         Assert.assertEquals(0L, consumedDataSize);
     }
 
     @Test
     public void getAckedOffset() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         long ackedOffset = inLongTopicFetcher.getAckedOffset();
         Assert.assertEquals(0L, ackedOffset);
     }
 
     @Test
     public void ack() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         MessageId messageId = PowerMockito.mock(MessageId.class);
         ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
         offsetCache.put("test", messageId);
@@ -137,7 +141,8 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void init() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         PulsarClient pulsarClient = PowerMockito.mock(PulsarClient.class);
         ConsumerBuilder consumerBuilder = PowerMockito.mock(ConsumerBuilder.class);
 
@@ -166,19 +171,22 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void pause() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        InLongTopicFetcher inLongTopicFetcher =
+                new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         boolean close = inLongTopicFetcher.close();
         Assert.assertTrue(close);
 

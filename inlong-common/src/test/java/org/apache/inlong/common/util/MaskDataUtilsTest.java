@@ -21,44 +21,43 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/**
- * MaskDataUtils unit test
- */
+/** MaskDataUtils unit test */
 public class MaskDataUtilsTest {
 
     @Test
     public void testMaskDataUtils() throws Exception {
-        String unmasked = "{\n"
-                + "  \"password\": \"inlong\",\n"
-                + "  \"pwd\": \"inlong\",\n"
-                + "  \"pass\": \"inlong\",\n"
-                + "  \"token\": \"inlong\",\n"
-                + "  \"secret_token\": \"inlong\",\n"
-                + "  \"secretToken\": \"inlong\",\n"
-                + "  \"secret_id\": \"inlong\",\n"
-                + "  \"secretId\": \"inlong\",\n"
-                + "  \"secret_key\": \"inlong\",\n"
-                + "  \"secretKey\": \"inlong\",\n"
-                + "  \"public_key\": \"inlong\",\n"
-                + "  \"publicKey\": \"inlong\"\n"
-                + "}";
-        String masked = "{\n"
-                + "  \"password\": \"******\",\n"
-                + "  \"pwd\": \"******\",\n"
-                + "  \"pass\": \"******\",\n"
-                + "  \"token\": \"******\",\n"
-                + "  \"secret_token\": \"******\",\n"
-                + "  \"secretToken\": \"******\",\n"
-                + "  \"secret_id\": \"******\",\n"
-                + "  \"secretId\": \"******\",\n"
-                + "  \"secret_key\": \"******\",\n"
-                + "  \"secretKey\": \"******\",\n"
-                + "  \"public_key\": \"******\",\n"
-                + "  \"publicKey\": \"******\"\n"
-                + "}";
+        String unmasked =
+                "{\n"
+                        + "  \"password\": \"inlong\",\n"
+                        + "  \"pwd\": \"inlong\",\n"
+                        + "  \"pass\": \"inlong\",\n"
+                        + "  \"token\": \"inlong\",\n"
+                        + "  \"secret_token\": \"inlong\",\n"
+                        + "  \"secretToken\": \"inlong\",\n"
+                        + "  \"secret_id\": \"inlong\",\n"
+                        + "  \"secretId\": \"inlong\",\n"
+                        + "  \"secret_key\": \"inlong\",\n"
+                        + "  \"secretKey\": \"inlong\",\n"
+                        + "  \"public_key\": \"inlong\",\n"
+                        + "  \"publicKey\": \"inlong\"\n"
+                        + "}";
+        String masked =
+                "{\n"
+                        + "  \"password\": \"******\",\n"
+                        + "  \"pwd\": \"******\",\n"
+                        + "  \"pass\": \"******\",\n"
+                        + "  \"token\": \"******\",\n"
+                        + "  \"secret_token\": \"******\",\n"
+                        + "  \"secretToken\": \"******\",\n"
+                        + "  \"secret_id\": \"******\",\n"
+                        + "  \"secretId\": \"******\",\n"
+                        + "  \"secret_key\": \"******\",\n"
+                        + "  \"secretKey\": \"******\",\n"
+                        + "  \"public_key\": \"******\",\n"
+                        + "  \"publicKey\": \"******\"\n"
+                        + "}";
         StringBuilder buffer = new StringBuilder(unmasked);
         MaskDataUtils.mask(buffer);
         assertEquals(masked, buffer.toString());
     }
-
 }

@@ -17,21 +17,24 @@
 
 package org.apache.inlong.agent.pojo;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-
 @Data
 public class SqlJobProfileDto {
 
     public static final String SQL_JOB = "SQL_JOB";
-    public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
-    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.DatabaseSqlSource";
+    public static final String DEFAULT_CHANNEL =
+            "org.apache.inlong.agent.plugin.channel.MemoryChannel";
+    public static final String DEFAULT_DATAPROXY_SINK =
+            "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String DEFAULT_SOURCE =
+            "org.apache.inlong.agent.plugin.sources.DatabaseSqlSource";
     private static final Gson GSON = new Gson();
 
     private Job job;
@@ -71,9 +74,7 @@ public class SqlJobProfileDto {
         return proxy;
     }
 
-    /**
-     * convert DbCollectorTask to JobProfile
-     */
+    /** convert DbCollectorTask to JobProfile */
     public static JobProfile convertToJobProfile(DbCollectorTask task) {
         if (!task.isValid()) {
             throw new IllegalArgumentException("input task" + task + "is invalid please check");

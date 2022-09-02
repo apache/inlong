@@ -29,8 +29,9 @@ import org.apache.iceberg.flink.RowDataWrapper;
 import org.apache.iceberg.flink.sink.FlinkSink;
 
 /**
- * Create a {@link KeySelector} to shuffle by partition key, then each partition/bucket will be wrote by only one
- * task. That will reduce lots of small files in partitioned fanout write policy for {@link FlinkSink}.
+ * Create a {@link KeySelector} to shuffle by partition key, then each partition/bucket will be
+ * wrote by only one task. That will reduce lots of small files in partitioned fanout write policy
+ * for {@link FlinkSink}.
  */
 class PartitionKeySelector implements KeySelector<RowData, String> {
 
@@ -47,8 +48,8 @@ class PartitionKeySelector implements KeySelector<RowData, String> {
     }
 
     /**
-     * Construct the {@link RowDataWrapper} lazily here because few members in it are not serializable. In this way, we
-     * don't have to serialize them with forcing.
+     * Construct the {@link RowDataWrapper} lazily here because few members in it are not
+     * serializable. In this way, we don't have to serialize them with forcing.
      */
     private RowDataWrapper lazyRowDataWrapper() {
         if (rowDataWrapper == null) {

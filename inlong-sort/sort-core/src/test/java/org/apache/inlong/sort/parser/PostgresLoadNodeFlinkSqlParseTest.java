@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -37,16 +43,7 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Test for {@link PostgresLoadNode}
- */
+/** Test for {@link PostgresLoadNode} */
 public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
 
     /**
@@ -55,14 +52,27 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
      * @return Mysql extract node
      */
     private MySqlExtractNode buildMySQLExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()));
         Map<String, String> map = new HashMap<>();
-        return new MySqlExtractNode("1", "mysql_input", fields,
-                null, map, null,
-                Collections.singletonList("user"), "localhost", "root", "inlong",
-                "test", 3306, null,
-                false, "GMT+8");
+        return new MySqlExtractNode(
+                "1",
+                "mysql_input",
+                fields,
+                null,
+                map,
+                null,
+                Collections.singletonList("user"),
+                "localhost",
+                "root",
+                "inlong",
+                "test",
+                3306,
+                null,
+                false,
+                "GMT+8");
     }
 
     /**
@@ -71,12 +81,23 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
      * @return postgres load node
      */
     private PostgresLoadNode buildPostgresLoadNode() {
-        return new PostgresLoadNode("2", "postgres_output", Arrays.asList(new FieldInfo("name",
-                new StringFormatInfo()), new FieldInfo("age", new IntFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+        return new PostgresLoadNode(
+                "2",
+                "postgres_output",
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo())),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))), null, null, 1, null,
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
                 "jdbc:postgresql://localhost:5432/postgres",
                 "postgres",
                 "inlong",
@@ -87,7 +108,7 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -98,7 +119,8 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is postgres {@link PostgresLoadNode}
+     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is postgres {@link
+     * PostgresLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -108,17 +130,19 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMySQLExtractNode();
         Node outputNode = buildPostgresLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

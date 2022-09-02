@@ -20,17 +20,14 @@ package org.apache.inlong.manager.pojo.cluster;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-/**
- * Inlong cluster request
- */
+/** Inlong cluster request */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -77,5 +74,4 @@ public abstract class ClusterRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

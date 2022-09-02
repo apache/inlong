@@ -18,16 +18,15 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /** JDBC dialect for PostgreSQL. */
 public class PostgresDialect extends AbstractJdbcDialect {

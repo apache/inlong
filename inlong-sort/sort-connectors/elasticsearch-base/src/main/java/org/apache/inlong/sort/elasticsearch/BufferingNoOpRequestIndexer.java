@@ -18,18 +18,15 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
+import java.util.Collections;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.flink.annotation.Internal;
-
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import java.util.Collections;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Implementation of a {@link RequestIndexer} that buffers {@link ActionRequest ActionRequests}

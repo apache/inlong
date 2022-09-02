@@ -19,21 +19,18 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
-import java.util.Set;
-
-/**
- * Workflow-Task query request
- */
+/** Workflow-Task query request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -84,5 +81,4 @@ public class TaskRequest extends PageRequest {
     @ApiModelProperty("End time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeEnd;
-
 }

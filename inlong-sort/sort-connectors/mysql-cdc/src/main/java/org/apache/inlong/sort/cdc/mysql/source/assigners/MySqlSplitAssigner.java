@@ -18,16 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * The {@code MySqlSplitAssigner} is responsible for deciding what split should be processed. It
@@ -44,7 +43,7 @@ public interface MySqlSplitAssigner {
      * Gets the next split.
      *
      * <p>When this method returns an empty {@code Optional}, then the set of splits is assumed to
-     * be done and the source will finish once the readers finished their current splits.</p>
+     * be done and the source will finish once the readers finished their current splits.
      */
     Optional<MySqlSplit> getNext();
 
@@ -78,14 +77,14 @@ public interface MySqlSplitAssigner {
      * <p>The snapshot should contain the latest state of the assigner: It should assume that all
      * operations that happened before the snapshot have successfully completed. For example all
      * splits assigned to readers via {@link #getNext()} don't need to be included in the snapshot
-     * anymore.</p>
+     * anymore.
      *
      * <p>This method takes the ID of the checkpoint for which the state is snapshotted. Most
      * implementations should be able to ignore this parameter, because for the contents of the
      * snapshot, it doesn't matter for which checkpoint it gets created. This parameter can be
      * interesting for source connectors with external systems where those systems are themselves
      * aware of checkpoints; for example in cases where the enumerator notifies that system about a
-     * specific checkpoint being triggered.</p>
+     * specific checkpoint being triggered.
      *
      * @param checkpointId The ID of the checkpoint for which the snapshot is created.
      * @return an object containing the state of the split enumerator.
@@ -100,9 +99,7 @@ public interface MySqlSplitAssigner {
      */
     void notifyCheckpointComplete(long checkpointId);
 
-    /**
-     * Gets the split assigner status, see {@code AssignerStatus}.
-     */
+    /** Gets the split assigner status, see {@code AssignerStatus}. */
     AssignerStatus getAssignerStatus();
 
     /**
@@ -111,9 +108,7 @@ public interface MySqlSplitAssigner {
      */
     void suspend();
 
-    /**
-     * Wakes up the assigner under {@link AssignerStatus#SUSPENDED}.
-     */
+    /** Wakes up the assigner under {@link AssignerStatus#SUSPENDED}. */
     void wakeup();
 
     /**

@@ -19,6 +19,11 @@ package org.apache.inlong.manager.service.user;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -41,15 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-/**
- * User service layer implementation
- */
+/** User service layer implementation */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -57,8 +54,7 @@ public class UserServiceImpl implements UserService {
 
     private static final Integer SECRET_KEY_SIZE = 16;
 
-    @Autowired
-    private UserEntityMapper userMapper;
+    @Autowired private UserEntityMapper userMapper;
 
     @Override
     public Integer save(UserRequest request, String currentUser) {
@@ -83,9 +79,15 @@ public class UserServiceImpl implements UserService {
             String secretKey = RandomStringUtils.randomAlphanumeric(SECRET_KEY_SIZE);
             Integer encryptVersion = AESUtils.getCurrentVersion(null);
             entity.setEncryptVersion(encryptVersion);
-            entity.setPublicKey(AESUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
-            entity.setPrivateKey(AESUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
-            entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setPublicKey(
+                    AESUtils.encryptToString(
+                            publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setPrivateKey(
+                    AESUtils.encryptToString(
+                            privateKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setSecretKey(
+                    AESUtils.encryptToString(
+                            secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
             LOGGER.error(errMsg, e);
@@ -104,7 +106,8 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
 
         UserEntity curUser = userMapper.selectByName(currentUser);
-        Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
+        Preconditions.checkTrue(
+                Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
                         || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
@@ -115,10 +118,12 @@ public class UserServiceImpl implements UserService {
         result.setAccountType(entity.getAccountType());
         result.setVersion(entity.getVersion());
 
-        if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
+        if (StringUtils.isNotBlank(entity.getSecretKey())
+                && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
                 // decipher according to stored key version
-                // note that if the version is null then the string is treated as unencrypted plain text
+                // note that if the version is null then the string is treated as unencrypted plain
+                // text
                 Integer version = entity.getEncryptVersion();
                 byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
                 byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
@@ -154,12 +159,22 @@ public class UserServiceImpl implements UserService {
         List<UserInfo> userList = CommonBeanUtils.copyListProperties(entityPage, UserInfo::new);
 
         // Check whether the user account has expired
-        userList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
+        userList.forEach(
+                entity ->
+                        entity.setStatus(
+                                entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
 
-        PageResult<UserInfo> pageResult = new PageResult<>(userList, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize());
+        PageResult<UserInfo> pageResult =
+                new PageResult<>(
+                        userList,
+                        entityPage.getTotal(),
+                        entityPage.getPageNum(),
+                        entityPage.getPageSize());
 
-        LOGGER.debug("success to list users for request={}, result size={}", request, pageResult.getTotal());
+        LOGGER.debug(
+                "success to list users for request={}, result size={}",
+                request,
+                pageResult.getTotal());
         return pageResult;
     }
 
@@ -172,40 +187,54 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is a manager
         UserEntity currentUserEntity = userMapper.selectByName(currentUser);
         String updateName = request.getName();
-        boolean isAdmin = Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
-        Preconditions.checkTrue(isAdmin || Objects.equals(updateName, currentUser),
+        boolean isAdmin =
+                Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
+        Preconditions.checkTrue(
+                isAdmin || Objects.equals(updateName, currentUser),
                 "You are not a manager and do not have permission to update other users");
 
         // manager cannot set himself as an ordinary
-        boolean managerToOrdinary = isAdmin
-                && Objects.equals(UserTypeEnum.OPERATOR.getCode(), request.getAccountType())
-                && Objects.equals(currentUser, updateName);
-        Preconditions.checkFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
+        boolean managerToOrdinary =
+                isAdmin
+                        && Objects.equals(UserTypeEnum.OPERATOR.getCode(), request.getAccountType())
+                        && Objects.equals(currentUser, updateName);
+        Preconditions.checkFalse(
+                managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
 
         // target username must not exist
         UserEntity updateUserEntity = userMapper.selectById(request.getId());
         Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + request.getId());
-        String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
-                updateName, request.getVersion());
+        String errMsg =
+                String.format(
+                        "user has already updated with username=%s, curVersion=%s",
+                        updateName, request.getVersion());
         if (!Objects.equals(updateUserEntity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
-        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
+        Preconditions.checkTrue(
+                Objects.isNull(targetUserEntity)
                         || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
-        // if the current user is not a manager, needs to check the password before updating user info
+        // if the current user is not a manager, needs to check the password before updating user
+        // info
         if (!isAdmin) {
             String oldPassword = request.getPassword();
             String oldPasswordHash = SHAUtils.encrypt(oldPassword);
-            Preconditions.checkTrue(oldPasswordHash.equals(updateUserEntity.getPassword()), "Old password is wrong");
-            Integer validDays = DateUtils.getValidDays(updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
-            Preconditions.checkTrue((request.getValidDays() <= validDays),
+            Preconditions.checkTrue(
+                    oldPasswordHash.equals(updateUserEntity.getPassword()),
+                    "Old password is wrong");
+            Integer validDays =
+                    DateUtils.getValidDays(
+                            updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
+            Preconditions.checkTrue(
+                    (request.getValidDays() <= validDays),
                     "Ordinary users are not allowed to add valid days");
-            Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), request.getAccountType()),
+            Preconditions.checkTrue(
+                    Objects.equals(updateUserEntity.getAccountType(), request.getAccountType()),
                     "Ordinary users are not allowed to update account type");
         }
 
@@ -235,14 +264,15 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is an administrator
         UserEntity curUser = userMapper.selectByName(currentUser);
         UserEntity entity = userMapper.selectById(userId);
-        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.checkTrue(
+                curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to delete users");
-        Preconditions.checkTrue(!Objects.equals(entity.getName(), currentUser),
+        Preconditions.checkTrue(
+                !Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
         userMapper.deleteById(userId);
 
         LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
     }
-
 }

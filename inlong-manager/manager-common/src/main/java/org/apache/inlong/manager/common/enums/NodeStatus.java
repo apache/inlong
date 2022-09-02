@@ -19,11 +19,8 @@ package org.apache.inlong.manager.common.enums;
 
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 
-/**
- * Status enum of cluster node
- */
+/** Status enum of cluster node */
 public enum NodeStatus {
-
     NORMAL(1),
 
     HEARTBEAT_TIMEOUT(2);

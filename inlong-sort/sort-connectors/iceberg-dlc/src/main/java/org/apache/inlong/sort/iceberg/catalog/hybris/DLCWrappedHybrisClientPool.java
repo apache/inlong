@@ -31,16 +31,16 @@ import org.apache.iceberg.relocated.com.google.common.annotations.VisibleForTest
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 
-/**
- * DLC Catalog client pool.
- */
+/** DLC Catalog client pool. */
 public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient, TException> {
 
     // use appropriate ctor depending on whether we're working with Hive2 or Hive3 dependencies
     // we need to do this because there is a breaking API change between Hive2 and Hive3
-    private static final DynConstructors.Ctor<DLCDataCatalogMetastoreClient> CLIENT_CTOR = DynConstructors.builder()
-            .impl(DLCDataCatalogMetastoreClient.class, HiveConf.class)
-            .impl(DLCDataCatalogMetastoreClient.class, Configuration.class).build();
+    private static final DynConstructors.Ctor<DLCDataCatalogMetastoreClient> CLIENT_CTOR =
+            DynConstructors.builder()
+                    .impl(DLCDataCatalogMetastoreClient.class, HiveConf.class)
+                    .impl(DLCDataCatalogMetastoreClient.class, Configuration.class)
+                    .build();
 
     private final HiveConf hiveConf;
 
@@ -52,7 +52,7 @@ public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient,
     }
 
     @Override
-    protected IMetaStoreClient newClient()  {
+    protected IMetaStoreClient newClient() {
         try {
             try {
                 return CLIENT_CTOR.newInstance(hiveConf);
@@ -68,9 +68,11 @@ public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient,
             throw new RuntimeMetaException(e, "Failed to connect to Hive Metastore");
         } catch (Throwable t) {
             if (t.getMessage().contains("Another instance of Derby may have already booted")) {
-                throw new RuntimeMetaException(t, "Failed to start an embedded metastore because embedded "
-                        + "Derby supports only one client at a time. To fix this, use a metastore that supports "
-                        + "multiple clients.");
+                throw new RuntimeMetaException(
+                        t,
+                        "Failed to start an embedded metastore because embedded "
+                                + "Derby supports only one client at a time. To fix this, use a metastore that supports "
+                                + "multiple clients.");
             }
 
             throw new RuntimeMetaException(t, "Failed to connect to Hive Metastore");
@@ -90,8 +92,12 @@ public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient,
 
     @Override
     protected boolean isConnectionException(Exception e) {
-        return super.isConnectionException(e) || (e != null && e instanceof MetaException
-                && e.getMessage().contains("Got exception: org.apache.thrift.transport.TTransportException"));
+        return super.isConnectionException(e)
+                || (e != null
+                        && e instanceof MetaException
+                        && e.getMessage()
+                                .contains(
+                                        "Got exception: org.apache.thrift.transport.TTransportException"));
     }
 
     @Override

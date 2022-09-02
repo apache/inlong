@@ -17,46 +17,32 @@
 
 package org.apache.inlong.common.metric.item;
 
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.common.metric.CountMetric;
 import org.apache.inlong.common.metric.Dimension;
 import org.apache.inlong.common.metric.GaugeMetric;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItem;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * AgentMetricItem, like PluginMetric
- */
+/** AgentMetricItem, like PluginMetric */
 @MetricDomain(name = "Agent")
 public class AgentMetricItem extends MetricItem {
 
-    @Dimension
-    public String module;
-    @Dimension
-    public String aspect;
-    @Dimension
-    public String tag;
+    @Dimension public String module;
+    @Dimension public String aspect;
+    @Dimension public String tag;
 
-    @CountMetric
-    public AtomicLong readNum = new AtomicLong(0);
+    @CountMetric public AtomicLong readNum = new AtomicLong(0);
 
-    @CountMetric
-    public AtomicLong sendNum = new AtomicLong(0);
+    @CountMetric public AtomicLong sendNum = new AtomicLong(0);
 
-    @CountMetric
-    public AtomicLong sendFailedNum = new AtomicLong(0);
+    @CountMetric public AtomicLong sendFailedNum = new AtomicLong(0);
 
-    @CountMetric
-    public AtomicLong readFailedNum = new AtomicLong(0);
+    @CountMetric public AtomicLong readFailedNum = new AtomicLong(0);
 
-    @CountMetric
-    public AtomicLong readSuccessNum = new AtomicLong(0);
+    @CountMetric public AtomicLong readSuccessNum = new AtomicLong(0);
 
-    @CountMetric
-    public AtomicLong sendSuccessNum = new AtomicLong(0);
+    @CountMetric public AtomicLong sendSuccessNum = new AtomicLong(0);
 
-    @GaugeMetric
-    public AtomicLong runningTasks = new AtomicLong(0);
-
+    @GaugeMetric public AtomicLong runningTasks = new AtomicLong(0);
 }

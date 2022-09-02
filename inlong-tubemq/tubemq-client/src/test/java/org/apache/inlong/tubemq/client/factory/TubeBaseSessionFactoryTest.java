@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import java.lang.reflect.Field;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -64,10 +65,10 @@ public class TubeBaseSessionFactoryTest {
         MessageProducer producer = factory.createProducer();
         assertEquals(1, factory.getCurrClients().size());
 
-        final PullMessageConsumer pullMessageConsumer = factory.createPullConsumer(
-                new ConsumerConfig("127.0.0.1:18080", "test"));
-        final PushMessageConsumer pushMessageConsumer = factory.createPushConsumer(
-                new ConsumerConfig("127.0.0.1:18080", "test"));
+        final PullMessageConsumer pullMessageConsumer =
+                factory.createPullConsumer(new ConsumerConfig("127.0.0.1:18080", "test"));
+        final PushMessageConsumer pushMessageConsumer =
+                factory.createPushConsumer(new ConsumerConfig("127.0.0.1:18080", "test"));
 
         assertEquals(3, factory.getCurrClients().size());
         factory.removeClient(producer);

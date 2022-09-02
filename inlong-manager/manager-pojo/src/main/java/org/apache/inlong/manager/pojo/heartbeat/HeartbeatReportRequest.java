@@ -21,11 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 
-/**
- * Heartbeat report request
- */
+/** Heartbeat report request */
 @Data
 @ApiModel("Request of heartbeat report")
-public class HeartbeatReportRequest extends HeartbeatMsg {
-
-}
+public class HeartbeatReportRequest extends HeartbeatMsg {}

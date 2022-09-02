@@ -53,9 +53,12 @@ public class ManagerReporter extends PeriodicTask {
      * @param runInterval long
      * @param timeUnit TimeUnit
      */
-    public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler,
+    public ManagerReporter(
+            ClientContext context,
+            ManagerReportHandler reportHandler,
             InlongTopicManager inLongTopicManager,
-            long runInterval, TimeUnit timeUnit) {
+            long runInterval,
+            TimeUnit timeUnit) {
         super(runInterval, timeUnit, context.getConfig());
         this.context = context;
         this.reportHandler = reportHandler;
@@ -68,16 +71,16 @@ public class ManagerReporter extends PeriodicTask {
     }
 
     private void reportManager() {
-        //1.report heartbeat to manager
+        // 1.report heartbeat to manager
         heartBeat();
-        //2.report consume status to manager
+        // 2.report consume status to manager
         updateConsumeStatus();
     }
 
     private long getReportInterval(int methodId) {
         Long reportIntervalMs = reportApiInterval.get(methodId);
         if (reportIntervalMs == null) {
-            //default report interval 5s
+            // default report interval 5s
             reportIntervalMs = 5000L;
         }
         return reportIntervalMs;
@@ -86,7 +89,8 @@ public class ManagerReporter extends PeriodicTask {
     private boolean canReport(int methodId) {
         long reportIntervalMs = getReportInterval(methodId);
         Long lastRunTimeMs = reportApiRunTimeMs.get(methodId);
-        return lastRunTimeMs == null || ((System.currentTimeMillis() - lastRunTimeMs) >= reportIntervalMs);
+        return lastRunTimeMs == null
+                || ((System.currentTimeMillis() - lastRunTimeMs) >= reportIntervalMs);
     }
 
     private void setReportTimeMs(int methodId, long timeMs) {
@@ -142,8 +146,7 @@ public class ManagerReporter extends PeriodicTask {
         }
     }
 
-    private void handleConsumeStatusResult(ConsumeStatusResult consumeStatusResult) {
-    }
+    private void handleConsumeStatusResult(ConsumeStatusResult consumeStatusResult) {}
 
     private void updateConsumeStatus() {
         if (null == reportHandler) {
@@ -158,13 +161,13 @@ public class ManagerReporter extends PeriodicTask {
             consumeStatusParams.setSubscribedId(context.getConfig().getSortTaskId());
             consumeStatusParams.setIp(context.getConfig().getLocalIp());
             List<ConsumeState> consumeStates = new ArrayList<>();
-            Collection<InLongTopicFetcher> allFetchers =
-                    inLongTopicManager.getAllFetchers();
+            Collection<InLongTopicFetcher> allFetchers = inLongTopicManager.getAllFetchers();
             for (InLongTopicFetcher fetcher : allFetchers) {
                 ConsumeState consumeState = new ConsumeState();
                 consumeState.setTopic(fetcher.getInLongTopic().getTopic());
                 consumeState.setTopicType(fetcher.getInLongTopic().getTopicType());
-                consumeState.setClusterId(fetcher.getInLongTopic().getInLongCluster().getClusterId());
+                consumeState.setClusterId(
+                        fetcher.getInLongTopic().getInLongCluster().getClusterId());
                 consumeState.setConsumedDataSize(fetcher.getConsumedDataSize());
                 consumeState.setAckOffset(fetcher.getAckedOffset());
                 consumeState.setPartition(fetcher.getInLongTopic().getPartitionId());
@@ -172,11 +175,11 @@ public class ManagerReporter extends PeriodicTask {
             }
             consumeStatusParams.setConsumeStates(consumeStates);
 
-            ConsumeStatusResult consumeStatusResult = reportHandler.updateConsumeStatus(consumeStatusParams);
+            ConsumeStatusResult consumeStatusResult =
+                    reportHandler.updateConsumeStatus(consumeStatusParams);
             handleConsumeStatusResult(consumeStatusResult);
         } catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 }

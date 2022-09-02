@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.example;
 
 import java.util.Map;
@@ -25,14 +22,14 @@ import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This demo shows how to collect and report message received statistics.
- */
+/** This demo shows how to collect and report message received statistics. */
 public class MsgSendReceiveStats implements Runnable {
     private final boolean isProducer;
     private static final Logger logger = LoggerFactory.getLogger(MsgSendReceiveStats.class);
-    private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, AtomicLong> befCountMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> counterMap =
+            new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> befCountMap =
+            new ConcurrentHashMap<>();
     private final AtomicBoolean isStarted = new AtomicBoolean(true);
 
     public MsgSendReceiveStats(boolean isProducer) {
@@ -55,11 +52,17 @@ public class MsgSendReceiveStats implements Runnable {
                         }
                     }
                     if (isProducer) {
-                        logger.info("********* Current {} Message sent count is {}, dlt is {}",
-                                entry.getKey(), currCount, (currCount - befCount.get()));
+                        logger.info(
+                                "********* Current {} Message sent count is {}, dlt is {}",
+                                entry.getKey(),
+                                currCount,
+                                (currCount - befCount.get()));
                     } else {
-                        logger.info("********* Current {} Message received count is {}, dlt is {}",
-                                entry.getKey(), currCount, (currCount - befCount.get()));
+                        logger.info(
+                                "********* Current {} Message received count is {}, dlt is {}",
+                                entry.getKey(),
+                                currCount,
+                                (currCount - befCount.get()));
                     }
                     befCountMap.get(entry.getKey()).set(currCount);
                 }
@@ -73,8 +76,8 @@ public class MsgSendReceiveStats implements Runnable {
     /**
      * Record the number of messages by topicName dimension
      *
-     * @param topicName   topic name
-     * @param msgCnt      message count
+     * @param topicName topic name
+     * @param msgCnt message count
      */
     public void addMsgCount(final String topicName, int msgCnt) {
         if (msgCnt > 0) {

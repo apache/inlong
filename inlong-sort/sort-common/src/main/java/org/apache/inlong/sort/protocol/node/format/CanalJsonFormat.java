@@ -17,20 +17,20 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The Canal format.
  *
- * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/">
- *         Canal Format</a>
+ * @see <a
+ *     href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/">
+ *     Canal Format</a>
  */
 @JsonTypeName("canalJsonFormat")
 @Data
@@ -40,20 +40,28 @@ public class CanalJsonFormat implements Format {
 
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
     private Boolean ignoreParseErrors;
+
     @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
     private String timestampFormatStandard;
+
     @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP")
     private String mapNullKeyMode;
+
     @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
     private String mapNullKeyLiteral;
+
     @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
     private Boolean encodeDecimalAsPlainNumber;
 
     @JsonCreator
-    public CanalJsonFormat(@JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
-            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
+    public CanalJsonFormat(
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
+                    Boolean ignoreParseErrors,
+            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
+                    String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
-            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
+            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
+                    String mapNullKeyLiteral,
             @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
                     Boolean encodeDecimalAsPlainNumber) {
         this.ignoreParseErrors = ignoreParseErrors;
@@ -95,7 +103,9 @@ public class CanalJsonFormat implements Format {
         options.put("canal-json-inlong.map-null-key.mode", this.mapNullKeyMode);
         options.put("canal-json-inlong.map-null-key.literal", this.mapNullKeyLiteral);
         if (this.encodeDecimalAsPlainNumber != null) {
-            options.put("canal-json-inlong.encode.decimal-as-plain-number", this.encodeDecimalAsPlainNumber.toString());
+            options.put(
+                    "canal-json-inlong.encode.decimal-as-plain-number",
+                    this.encodeDecimalAsPlainNumber.toString());
         }
         return options;
     }

@@ -46,7 +46,8 @@ public class MixedUtils {
 
     /**
      * parse topic Parameter with format topic_1[,topic_2[:filterCond_2.1[;filterCond_2.2]]]
-     *  topicParam->set(filterCond) map
+     * topicParam->set(filterCond) map
+     *
      * @param topicParam - composite string
      * @return - map of topic->set(filterCond)
      */
@@ -65,8 +66,7 @@ public class MixedUtils {
                 continue;
             }
             TreeSet<String> filterSet = new TreeSet<>();
-            if (topicFilters.length > 1
-                    && TStringUtils.isNotBlank(topicFilters[1])) {
+            if (topicFilters.length > 1 && TStringUtils.isNotBlank(topicFilters[1])) {
                 String[] filterItems = topicFilters[1].split(TokenConstants.LOG_SEG_SEP);
                 for (String filterItem : filterItems) {
                     if (TStringUtils.isBlank(filterItem)) {
@@ -86,7 +86,7 @@ public class MixedUtils {
         // initial send target
         List<Tuple2<String, String>> topicFilterTuples = new ArrayList<>();
         // initial topic send round
-        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
                 topicFilterTuples.add(new Tuple2<>(entry.getKey()));
             } else {
@@ -100,13 +100,12 @@ public class MixedUtils {
 
     // only for demo
     public static byte[] buildTestData(int bodySize) {
-        final byte[] transmitData =
-                StringUtils.getBytesUtf8("This is a test data!");
+        final byte[] transmitData = StringUtils.getBytesUtf8("This is a test data!");
         final ByteBuffer dataBuffer = ByteBuffer.allocate(bodySize);
         while (dataBuffer.hasRemaining()) {
             int offset = dataBuffer.arrayOffset();
-            dataBuffer.put(transmitData, offset,
-                    Math.min(dataBuffer.remaining(), transmitData.length));
+            dataBuffer.put(
+                    transmitData, offset, Math.min(dataBuffer.remaining(), transmitData.length));
         }
         dataBuffer.flip();
         return dataBuffer.array();
@@ -114,8 +113,8 @@ public class MixedUtils {
 
     // build message to be sent
     // only for demo
-    public static Message buildMessage(String topicName, String filterItem,
-                                       byte[] bodyData, long serialId) {
+    public static Message buildMessage(
+            String topicName, String filterItem, byte[] bodyData, long serialId) {
         // build message to be sent
         Message message = new Message(topicName, bodyData);
         long currTimeMillis = System.currentTimeMillis();
@@ -123,8 +122,7 @@ public class MixedUtils {
         message.setAttrKeyVal("serialId", String.valueOf(serialId));
         message.setAttrKeyVal("dataTime", String.valueOf(currTimeMillis));
         // add filter attribute information, time require yyyyMMddHHmm format
-        message.putSystemHeader(filterItem,
-                DateTimeConvertUtils.ms2yyyyMMddHHmm(currTimeMillis));
+        message.putSystemHeader(filterItem, DateTimeConvertUtils.ms2yyyyMMddHHmm(currTimeMillis));
         return message;
     }
 
@@ -149,5 +147,4 @@ public class MixedUtils {
     public static long mid(long data, long min, long max) {
         return Math.max(min, Math.min(max, data));
     }
-
 }

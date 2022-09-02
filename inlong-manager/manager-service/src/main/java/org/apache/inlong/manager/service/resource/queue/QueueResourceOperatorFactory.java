@@ -17,31 +17,29 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Factory for {@link QueueResourceOperator}.
- */
+/** Factory for {@link QueueResourceOperator}. */
 @Service
 public class QueueResourceOperatorFactory {
 
-    @Autowired
-    private List<QueueResourceOperator> operatorList;
+    @Autowired private List<QueueResourceOperator> operatorList;
 
-    /**
-     * Get a message queue resource operator instance via the given mqType
-     */
+    /** Get a message queue resource operator instance via the given mqType */
     public QueueResourceOperator getInstance(String mqType) {
         return operatorList.stream()
                 .filter(inst -> inst.accept(mqType))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT,
-                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT.getMessage(), mqType)));
+                .orElseThrow(
+                        () ->
+                                new BusinessException(
+                                        ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT,
+                                        String.format(
+                                                ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT.getMessage(),
+                                                mqType)));
     }
-
 }

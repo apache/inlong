@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
+import java.util.List;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 
-import java.util.List;
-
-/**
- * Interface of process plugin.
- */
+/** Interface of process plugin. */
 public interface ProcessPlugin extends Plugin {
 
     default List<SourceOperateListener> createSourceOperateListeners() {
@@ -44,5 +41,4 @@ public interface ProcessPlugin extends Plugin {
     default List<SortOperateListener> createSortOperateListeners() {
         return null;
     }
-
 }

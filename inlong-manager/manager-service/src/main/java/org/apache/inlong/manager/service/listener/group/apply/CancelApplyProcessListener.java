@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.service.listener.group.apply;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -30,26 +31,19 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
-/**
- * The listener of InlongGroup when cancels the application.
- */
+/** The listener of InlongGroup when cancels the application. */
 @Slf4j
 @Component
 public class CancelApplyProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
         return ProcessEvent.CANCEL;
     }
 
-    /**
-     * After canceling the approval, the status becomes [ToBeSubmit]
-     */
+    /** After canceling the approval, the status becomes [ToBeSubmit] */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
@@ -62,8 +56,10 @@ public class CancelApplyProcessListener implements ProcessEventListener {
             throw new WorkflowListenerException("InlongGroup not found with groupId=" + groupId);
         }
         if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException(String.format("Current status [%s] was not allowed to cancel",
-                    GroupStatus.forCode(entity.getStatus())));
+            throw new WorkflowListenerException(
+                    String.format(
+                            "Current status [%s] was not allowed to cancel",
+                            GroupStatus.forCode(entity.getStatus())));
         }
         String operator = context.getOperator();
         groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), operator);
@@ -71,5 +67,4 @@ public class CancelApplyProcessListener implements ProcessEventListener {
         log.info("success to execute CancelApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

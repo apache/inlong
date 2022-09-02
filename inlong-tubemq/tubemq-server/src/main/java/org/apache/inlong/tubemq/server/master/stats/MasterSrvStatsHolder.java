@@ -29,11 +29,10 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 /**
  * MasterSrvStatsHolder, statistics Master's RPC service metric information
  *
- * This class counts the number of consumer groups, timeouts, the load balancing duration
- * distribution of consumer groups, as well as the total number of registered consumers
- * in the system, the number of timeouts, the number of tasks being processed,
- * the total number of producers, the total number of timeouts,
- * and Broker registration and timeouts, etc.
+ * <p>This class counts the number of consumer groups, timeouts, the load balancing duration
+ * distribution of consumer groups, as well as the total number of registered consumers in the
+ * system, the number of timeouts, the number of tasks being processed, the total number of
+ * producers, the total number of timeouts, and Broker registration and timeouts, etc.
  */
 public class MasterSrvStatsHolder {
     // online consume group count statistic
@@ -116,9 +115,7 @@ public class MasterSrvStatsHolder {
         }
     }
 
-    public static void decConsumerCnt(boolean isTimeout,
-                                      boolean isGroupEmpty,
-                                      boolean isCltBal) {
+    public static void decConsumerCnt(boolean isTimeout, boolean isGroupEmpty, boolean isCltBal) {
         consumerOnlineCnt.decValue();
         if (isTimeout) {
             switchableSets[getIndex()].consumerTmoTotCnt.incValue();
@@ -226,173 +223,227 @@ public class MasterSrvStatsHolder {
         return false;
     }
 
-    private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
-        statsMap.put(statsSet.lstResetTime.getFullName(),
-                statsSet.lstResetTime.getSinceTime());
+    private static void getStatsValue(
+            ServiceStatsSet statsSet, boolean resetValue, Map<String, Long> statsMap) {
+        statsMap.put(statsSet.lstResetTime.getFullName(), statsSet.lstResetTime.getSinceTime());
         if (resetValue) {
             // for consume group
-            statsMap.put(csmOnlineGroupCnt.getFullName(),
-                    csmOnlineGroupCnt.getAndResetValue());
-            statsMap.put(statsSet.csmGroupTimeoutCnt.getFullName(),
+            statsMap.put(csmOnlineGroupCnt.getFullName(), csmOnlineGroupCnt.getAndResetValue());
+            statsMap.put(
+                    statsSet.csmGroupTimeoutCnt.getFullName(),
                     statsSet.csmGroupTimeoutCnt.getAndResetValue());
-            statsMap.put(csmCltBalanceGroupCnt.getFullName(),
-                    csmCltBalanceGroupCnt.getAndResetValue());
-            statsMap.put(statsSet.cltBalGroupTmototCnt.getFullName(),
+            statsMap.put(
+                    csmCltBalanceGroupCnt.getFullName(), csmCltBalanceGroupCnt.getAndResetValue());
+            statsMap.put(
+                    statsSet.cltBalGroupTmototCnt.getFullName(),
                     statsSet.cltBalGroupTmototCnt.getAndResetValue());
             statsSet.svrNormalBalanceStats.snapShort(statsMap, false);
             statsSet.svrResetBalanceStats.snapShort(statsMap, false);
             // for consumer
-            statsMap.put(consumerOnlineCnt.getFullName(),
-                    consumerOnlineCnt.getAndResetValue());
-            statsMap.put(statsSet.consumerTmoTotCnt.getFullName(),
+            statsMap.put(consumerOnlineCnt.getFullName(), consumerOnlineCnt.getAndResetValue());
+            statsMap.put(
+                    statsSet.consumerTmoTotCnt.getFullName(),
                     statsSet.consumerTmoTotCnt.getAndResetValue());
-            statsMap.put(consumerInConnectCount.getFullName(),
+            statsMap.put(
+                    consumerInConnectCount.getFullName(),
                     consumerInConnectCount.getAndResetValue());
-            statsMap.put(consumerInDisConnectCount.getFullName(),
+            statsMap.put(
+                    consumerInDisConnectCount.getFullName(),
                     consumerInDisConnectCount.getAndResetValue());
             // for producer
-            statsMap.put(producerOnlineCnt.getFullName(),
-                    producerOnlineCnt.getAndResetValue());
-            statsMap.put(statsSet.producerTmoTotCnt.getFullName(),
+            statsMap.put(producerOnlineCnt.getFullName(), producerOnlineCnt.getAndResetValue());
+            statsMap.put(
+                    statsSet.producerTmoTotCnt.getFullName(),
                     statsSet.producerTmoTotCnt.getAndResetValue());
             // for broker
-            statsMap.put(brokerConfiguredCnt.getFullName(),
-                    brokerConfiguredCnt.getAndResetValue());
-            statsMap.put(brokerOnlineCnt.getFullName(),
-                    brokerOnlineCnt.getAndResetValue());
-            statsMap.put(statsSet.brokerTmoTotCnt.getFullName(),
+            statsMap.put(brokerConfiguredCnt.getFullName(), brokerConfiguredCnt.getAndResetValue());
+            statsMap.put(brokerOnlineCnt.getFullName(), brokerOnlineCnt.getAndResetValue());
+            statsMap.put(
+                    statsSet.brokerTmoTotCnt.getFullName(),
                     statsSet.brokerTmoTotCnt.getAndResetValue());
-            statsMap.put(brokerAbnCurCnt.getFullName(),
-                    brokerAbnCurCnt.getAndResetValue());
-            statsMap.put(brokerFbdCurCnt.getFullName(),
-                    brokerFbdCurCnt.getAndResetValue());
+            statsMap.put(brokerAbnCurCnt.getFullName(), brokerAbnCurCnt.getAndResetValue());
+            statsMap.put(brokerFbdCurCnt.getFullName(), brokerFbdCurCnt.getAndResetValue());
         } else {
             // for consume group
-            statsMap.put(csmOnlineGroupCnt.getFullName(),
-                    csmOnlineGroupCnt.getValue());
-            statsMap.put(statsSet.csmGroupTimeoutCnt.getFullName(),
+            statsMap.put(csmOnlineGroupCnt.getFullName(), csmOnlineGroupCnt.getValue());
+            statsMap.put(
+                    statsSet.csmGroupTimeoutCnt.getFullName(),
                     statsSet.csmGroupTimeoutCnt.getValue());
-            statsMap.put(csmCltBalanceGroupCnt.getFullName(),
-                    csmCltBalanceGroupCnt.getValue());
-            statsMap.put(statsSet.cltBalGroupTmototCnt.getFullName(),
+            statsMap.put(csmCltBalanceGroupCnt.getFullName(), csmCltBalanceGroupCnt.getValue());
+            statsMap.put(
+                    statsSet.cltBalGroupTmototCnt.getFullName(),
                     statsSet.cltBalGroupTmototCnt.getValue());
             statsSet.svrNormalBalanceStats.getValue(statsMap, false);
             statsSet.svrResetBalanceStats.getValue(statsMap, false);
             // for consumer
-            statsMap.put(consumerOnlineCnt.getFullName(),
-                    consumerOnlineCnt.getValue());
-            statsMap.put(statsSet.consumerTmoTotCnt.getFullName(),
+            statsMap.put(consumerOnlineCnt.getFullName(), consumerOnlineCnt.getValue());
+            statsMap.put(
+                    statsSet.consumerTmoTotCnt.getFullName(),
                     statsSet.consumerTmoTotCnt.getValue());
-            statsMap.put(consumerInConnectCount.getFullName(),
-                    consumerInConnectCount.getValue());
-            statsMap.put(consumerInDisConnectCount.getFullName(),
-                    consumerInDisConnectCount.getValue());
+            statsMap.put(consumerInConnectCount.getFullName(), consumerInConnectCount.getValue());
+            statsMap.put(
+                    consumerInDisConnectCount.getFullName(), consumerInDisConnectCount.getValue());
             // for producer
-            statsMap.put(producerOnlineCnt.getFullName(),
-                    producerOnlineCnt.getValue());
-            statsMap.put(statsSet.producerTmoTotCnt.getFullName(),
+            statsMap.put(producerOnlineCnt.getFullName(), producerOnlineCnt.getValue());
+            statsMap.put(
+                    statsSet.producerTmoTotCnt.getFullName(),
                     statsSet.producerTmoTotCnt.getValue());
             // for broker
-            statsMap.put(brokerConfiguredCnt.getFullName(),
-                    brokerConfiguredCnt.getValue());
-            statsMap.put(brokerOnlineCnt.getFullName(),
-                    brokerOnlineCnt.getValue());
-            statsMap.put(statsSet.brokerTmoTotCnt.getFullName(),
-                    statsSet.brokerTmoTotCnt.getValue());
-            statsMap.put(brokerAbnCurCnt.getFullName(),
-                    brokerAbnCurCnt.getValue());
-            statsMap.put(brokerFbdCurCnt.getFullName(),
-                    brokerFbdCurCnt.getValue());
+            statsMap.put(brokerConfiguredCnt.getFullName(), brokerConfiguredCnt.getValue());
+            statsMap.put(brokerOnlineCnt.getFullName(), brokerOnlineCnt.getValue());
+            statsMap.put(
+                    statsSet.brokerTmoTotCnt.getFullName(), statsSet.brokerTmoTotCnt.getValue());
+            statsMap.put(brokerAbnCurCnt.getFullName(), brokerAbnCurCnt.getValue());
+            statsMap.put(brokerFbdCurCnt.getFullName(), brokerFbdCurCnt.getValue());
         }
     }
 
-    private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
-        strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
-                .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
+    private static void getStatsValue(
+            ServiceStatsSet statsSet, boolean resetValue, StringBuilder strBuff) {
+        strBuff.append("{\"")
+                .append(statsSet.lstResetTime.getFullName())
+                .append("\":\"")
+                .append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\"");
         if (resetValue) {
             // for consume group
-            strBuff.append(",\"").append(csmOnlineGroupCnt.getFullName())
-                    .append("\":").append(csmOnlineGroupCnt.getAndResetValue())
-                    .append(",\"").append(statsSet.csmGroupTimeoutCnt.getFullName())
-                    .append("\":").append(statsSet.csmGroupTimeoutCnt.getAndResetValue())
-                    .append(",\"").append(csmCltBalanceGroupCnt.getFullName())
-                    .append("\":").append(csmCltBalanceGroupCnt.getAndResetValue())
-                    .append(",\"").append(statsSet.cltBalGroupTmototCnt.getFullName())
-                    .append("\":").append(statsSet.cltBalGroupTmototCnt.getAndResetValue())
+            strBuff.append(",\"")
+                    .append(csmOnlineGroupCnt.getFullName())
+                    .append("\":")
+                    .append(csmOnlineGroupCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(statsSet.csmGroupTimeoutCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.csmGroupTimeoutCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(csmCltBalanceGroupCnt.getFullName())
+                    .append("\":")
+                    .append(csmCltBalanceGroupCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(statsSet.cltBalGroupTmototCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.cltBalGroupTmototCnt.getAndResetValue())
                     .append(",");
             statsSet.svrNormalBalanceStats.snapShort(strBuff, false);
             strBuff.append(",");
             statsSet.svrResetBalanceStats.snapShort(strBuff, false);
             // for consumer
-            strBuff.append(",\"").append(consumerOnlineCnt.getFullName())
-                    .append("\":").append(consumerOnlineCnt.getAndResetValue())
-                    .append(",\"").append(statsSet.consumerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.consumerTmoTotCnt.getAndResetValue())
-                    .append(",\"").append(consumerInConnectCount.getFullName())
-                    .append("\":").append(consumerInConnectCount.getAndResetValue())
-                    .append(",\"").append(consumerInDisConnectCount.getFullName())
-                    .append("\":").append(consumerInDisConnectCount.getAndResetValue())
+            strBuff.append(",\"")
+                    .append(consumerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(consumerOnlineCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(statsSet.consumerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.consumerTmoTotCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(consumerInConnectCount.getFullName())
+                    .append("\":")
+                    .append(consumerInConnectCount.getAndResetValue())
+                    .append(",\"")
+                    .append(consumerInDisConnectCount.getFullName())
+                    .append("\":")
+                    .append(consumerInDisConnectCount.getAndResetValue())
                     // for producer
-                    .append(",\"").append(producerOnlineCnt.getFullName())
-                    .append("\":").append(producerOnlineCnt.getAndResetValue())
-                    .append(",\"").append(statsSet.producerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.producerTmoTotCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(producerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(producerOnlineCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(statsSet.producerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.producerTmoTotCnt.getAndResetValue())
                     // for broker
-                    .append(",\"").append(brokerConfiguredCnt.getFullName())
-                    .append("\":").append(brokerConfiguredCnt.getAndResetValue())
-                    .append(",\"").append(brokerOnlineCnt.getFullName())
-                    .append("\":").append(brokerOnlineCnt.getAndResetValue())
-                    .append(",\"").append(statsSet.brokerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.brokerTmoTotCnt.getAndResetValue())
-                    .append(",\"").append(brokerAbnCurCnt.getFullName())
-                    .append("\":").append(brokerAbnCurCnt.getAndResetValue())
-                    .append(",\"").append(brokerFbdCurCnt.getFullName())
-                    .append("\":").append(brokerFbdCurCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(brokerConfiguredCnt.getFullName())
+                    .append("\":")
+                    .append(brokerConfiguredCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(brokerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(brokerOnlineCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(statsSet.brokerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.brokerTmoTotCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(brokerAbnCurCnt.getFullName())
+                    .append("\":")
+                    .append(brokerAbnCurCnt.getAndResetValue())
+                    .append(",\"")
+                    .append(brokerFbdCurCnt.getFullName())
+                    .append("\":")
+                    .append(brokerFbdCurCnt.getAndResetValue())
                     .append("}");
         } else {
             // for consume group
-            strBuff.append(",\"").append(csmOnlineGroupCnt.getFullName())
-                    .append("\":").append(csmOnlineGroupCnt.getValue())
-                    .append(",\"").append(statsSet.csmGroupTimeoutCnt.getFullName())
-                    .append("\":").append(statsSet.csmGroupTimeoutCnt.getValue())
-                    .append(",\"").append(csmCltBalanceGroupCnt.getFullName())
-                    .append("\":").append(csmCltBalanceGroupCnt.getValue())
-                    .append(",\"").append(statsSet.cltBalGroupTmototCnt.getFullName())
-                    .append("\":").append(statsSet.cltBalGroupTmototCnt.getValue())
+            strBuff.append(",\"")
+                    .append(csmOnlineGroupCnt.getFullName())
+                    .append("\":")
+                    .append(csmOnlineGroupCnt.getValue())
+                    .append(",\"")
+                    .append(statsSet.csmGroupTimeoutCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.csmGroupTimeoutCnt.getValue())
+                    .append(",\"")
+                    .append(csmCltBalanceGroupCnt.getFullName())
+                    .append("\":")
+                    .append(csmCltBalanceGroupCnt.getValue())
+                    .append(",\"")
+                    .append(statsSet.cltBalGroupTmototCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.cltBalGroupTmototCnt.getValue())
                     .append(",");
             statsSet.svrNormalBalanceStats.getValue(strBuff, false);
             strBuff.append(",");
             statsSet.svrResetBalanceStats.getValue(strBuff, false);
             // for consumer
-            strBuff.append(",\"").append(consumerOnlineCnt.getFullName())
-                    .append("\":").append(consumerOnlineCnt.getValue())
-                    .append(",\"").append(statsSet.consumerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.consumerTmoTotCnt.getValue())
-                    .append(",\"").append(consumerInConnectCount.getFullName())
-                    .append("\":").append(consumerInConnectCount.getValue())
-                    .append(",\"").append(consumerInDisConnectCount.getFullName())
-                    .append("\":").append(consumerInDisConnectCount.getValue())
+            strBuff.append(",\"")
+                    .append(consumerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(consumerOnlineCnt.getValue())
+                    .append(",\"")
+                    .append(statsSet.consumerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.consumerTmoTotCnt.getValue())
+                    .append(",\"")
+                    .append(consumerInConnectCount.getFullName())
+                    .append("\":")
+                    .append(consumerInConnectCount.getValue())
+                    .append(",\"")
+                    .append(consumerInDisConnectCount.getFullName())
+                    .append("\":")
+                    .append(consumerInDisConnectCount.getValue())
                     // for producer
-                    .append(",\"").append(producerOnlineCnt.getFullName())
-                    .append("\":").append(producerOnlineCnt.getValue())
-                    .append(",\"").append(statsSet.producerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.producerTmoTotCnt.getValue())
+                    .append(",\"")
+                    .append(producerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(producerOnlineCnt.getValue())
+                    .append(",\"")
+                    .append(statsSet.producerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.producerTmoTotCnt.getValue())
                     // for broker
-                    .append(",\"").append(brokerConfiguredCnt.getFullName())
-                    .append("\":").append(brokerConfiguredCnt.getValue())
-                    .append(",\"").append(brokerOnlineCnt.getFullName())
-                    .append("\":").append(brokerOnlineCnt.getValue())
-                    .append(",\"").append(statsSet.brokerTmoTotCnt.getFullName())
-                    .append("\":").append(statsSet.brokerTmoTotCnt.getValue())
-                    .append(",\"").append(brokerAbnCurCnt.getFullName())
-                    .append("\":").append(brokerAbnCurCnt.getValue())
-                    .append(",\"").append(brokerFbdCurCnt.getFullName())
-                    .append("\":").append(brokerFbdCurCnt.getValue())
+                    .append(",\"")
+                    .append(brokerConfiguredCnt.getFullName())
+                    .append("\":")
+                    .append(brokerConfiguredCnt.getValue())
+                    .append(",\"")
+                    .append(brokerOnlineCnt.getFullName())
+                    .append("\":")
+                    .append(brokerOnlineCnt.getValue())
+                    .append(",\"")
+                    .append(statsSet.brokerTmoTotCnt.getFullName())
+                    .append("\":")
+                    .append(statsSet.brokerTmoTotCnt.getValue())
+                    .append(",\"")
+                    .append(brokerAbnCurCnt.getFullName())
+                    .append("\":")
+                    .append(brokerAbnCurCnt.getValue())
+                    .append(",\"")
+                    .append(brokerFbdCurCnt.getFullName())
+                    .append("\":")
+                    .append(brokerFbdCurCnt.getValue())
                     .append("}");
         }
     }
@@ -409,7 +460,7 @@ public class MasterSrvStatsHolder {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex the specified value
      * @return the metric block index
      */
     private static int getIndex(int origIndex) {
@@ -419,11 +470,10 @@ public class MasterSrvStatsHolder {
     /**
      * ServiceStatsSet, Switchable metric data statistics block
      *
-     * In which the object is the metric item that can be counted in stages
+     * <p>In which the object is the metric item that can be counted in stages
      */
     private static class ServiceStatsSet {
-        protected final SinceTime lstResetTime =
-                new SinceTime("reset_time", null);
+        protected final SinceTime lstResetTime = new SinceTime("reset_time", null);
         // consume group timeout statistics
         protected final LongStatsCounter csmGroupTimeoutCnt =
                 new LongStatsCounter("csm_group_timeout_cnt", null);
@@ -455,4 +505,3 @@ public class MasterSrvStatsHolder {
         }
     }
 }
-

@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Stream status enum
- */
+/** Stream status enum */
 public enum StreamStatus {
-
     DRAFT(0, "draft"),
 
     NEW(100, "new"),
@@ -46,12 +43,12 @@ public enum StreamStatus {
         this.description = description;
     }
 
-    /**
-     * Checks whether the given status allows the update.
-     */
+    /** Checks whether the given status allows the update. */
     public static boolean notAllowedUpdate(StreamStatus status) {
-        return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
-                || status == StreamStatus.RESTARTING || status == StreamStatus.DELETING;
+        return status == StreamStatus.CONFIG_ING
+                || status == StreamStatus.SUSPENDING
+                || status == StreamStatus.RESTARTING
+                || status == StreamStatus.DELETING;
     }
 
     public static StreamStatus forCode(int code) {
@@ -70,5 +67,4 @@ public enum StreamStatus {
     public String getDescription() {
         return description;
     }
-
 }

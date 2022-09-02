@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
 import java.util.ArrayList;
@@ -35,14 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(AbsConsumeCtrlMapperImpl.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbsConsumeCtrlMapperImpl.class);
     // configure cache
-    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity>
+    private final ConcurrentHashMap<String /* recordKey */, GroupConsumeCtrlEntity>
             consumeCtrlCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String /* topicName */, ConcurrentHashSet<String>>
             topic2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
+    private final ConcurrentHashMap<String /* groupName */, ConcurrentHashSet<String>>
             group2RecordCache = new ConcurrentHashMap<>();
 
     public AbsConsumeCtrlMapperImpl() {
@@ -50,14 +46,17 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     }
 
     @Override
-    public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+    public boolean addGroupConsumeCtrlConf(
+            GroupConsumeCtrlEntity entity, StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity != null) {
-            result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
+            result.setFailResult(
+                    DataOpErrCode.DERR_EXISTED.getCode(),
                     strBuff.append("Existed record found for groupName-topicName(")
-                            .append(entity.getRecordKey()).append(")!").toString());
+                            .append(entity.getRecordKey())
+                            .append(")!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
@@ -69,24 +68,31 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     }
 
     @Override
-    public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+    public boolean updGroupConsumeCtrlConf(
+            GroupConsumeCtrlEntity entity, StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+            result.setFailResult(
+                    DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     strBuff.append("Not found consume control for through groupName-topicName(")
-                            .append(entity.getRecordKey()).append(")!").toString());
+                            .append(entity.getRecordKey())
+                            .append(")!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
         // Build the entity that need to be updated
         GroupConsumeCtrlEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(entity);
-        if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.isEnableConsume(), entity.getDisableReason(),
-                entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
-            result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
+        if (!newEntity.updModifyInfo(
+                entity.getDataVerId(),
+                entity.isEnableConsume(),
+                entity.getDisableReason(),
+                entity.isEnableFilterConsume(),
+                entity.getFilterCondStr())) {
+            result.setFailResult(
+                    DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Consume control configure not changed!");
             return result.isSuccess();
         }
@@ -100,24 +106,20 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean isTopicNameInUse(String topicName) {
-        ConcurrentHashSet<String> consumeCtrlSet =
-                topic2RecordCache.get(topicName);
+        ConcurrentHashSet<String> consumeCtrlSet = topic2RecordCache.get(topicName);
         return (consumeCtrlSet != null && !consumeCtrlSet.isEmpty());
     }
 
     @Override
     public boolean isGroupNameInUse(String groupName) {
-        ConcurrentHashSet<String> keySet =
-                group2RecordCache.get(groupName);
+        ConcurrentHashSet<String> keySet = group2RecordCache.get(groupName);
         return (keySet != null && !keySet.isEmpty());
     }
 
     @Override
-    public boolean delGroupConsumeCtrlConf(String recordKey,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
-        GroupConsumeCtrlEntity curEntity =
-                consumeCtrlCache.get(recordKey);
+    public boolean delGroupConsumeCtrlConf(
+            String recordKey, StringBuilder strBuff, ProcessResult result) {
+        GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(recordKey);
         if (curEntity == null) {
             result.setSuccResult(null);
             return true;
@@ -129,10 +131,9 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     }
 
     @Override
-    public boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                           StringBuilder strBuff, ProcessResult result) {
-        ConcurrentHashSet<String> keySet =
-                new ConcurrentHashSet<>();
+    public boolean delGroupConsumeCtrlConf(
+            String groupName, String topicName, StringBuilder strBuff, ProcessResult result) {
+        ConcurrentHashSet<String> keySet = new ConcurrentHashSet<>();
         // get need deleted record key
         if (groupName == null) {
             if (topicName == null) {
@@ -169,8 +170,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByTopicName(String topicName) {
-        ConcurrentHashSet<String> keySet =
-                topic2RecordCache.get(topicName);
+        ConcurrentHashSet<String> keySet = topic2RecordCache.get(topicName);
         if (keySet == null || keySet.isEmpty()) {
             return Collections.emptyList();
         }
@@ -221,8 +221,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
-        ConcurrentHashSet<String> keySet =
-                group2RecordCache.get(groupName);
+        ConcurrentHashSet<String> keySet = group2RecordCache.get(groupName);
         if (keySet == null || keySet.isEmpty()) {
             return Collections.emptyList();
         }
@@ -271,12 +270,11 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(
             String groupName, String topicName) {
-        return consumeCtrlCache.get(
-                KeyBuilderUtils.buildGroupTopicRecKey(groupName, topicName));
+        return consumeCtrlCache.get(KeyBuilderUtils.buildGroupTopicRecKey(groupName, topicName));
     }
 
     @Override
-    public Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
+    public Map<String /* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
             Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
         Map<String, List<GroupConsumeCtrlEntity>> retEntityMap = new HashMap<>();
         // filter matched keys by groupSet and topicSet
@@ -289,8 +287,8 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
                 if (entity == null || (qryEntry != null && !entity.isMatched(qryEntry))) {
                     continue;
                 }
-                itemLst = retEntityMap.computeIfAbsent(
-                        entity.getGroupName(), k -> new ArrayList<>());
+                itemLst =
+                        retEntityMap.computeIfAbsent(entity.getGroupName(), k -> new ArrayList<>());
                 itemLst.add(entity);
             }
         } else {
@@ -299,8 +297,9 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
                 if (tmpEntity == null || (qryEntry != null && !tmpEntity.isMatched(qryEntry))) {
                     continue;
                 }
-                itemLst = retEntityMap.computeIfAbsent(
-                        tmpEntity.getGroupName(), k -> new ArrayList<>());
+                itemLst =
+                        retEntityMap.computeIfAbsent(
+                                tmpEntity.getGroupName(), k -> new ArrayList<>());
                 itemLst.add(tmpEntity);
             }
         }
@@ -374,9 +373,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         return totalMatchedSet;
     }
 
-    /**
-     * Clear cached data
-     */
+    /** Clear cached data */
     protected void clearCachedData() {
         topic2RecordCache.clear();
         group2RecordCache.clear();
@@ -386,13 +383,12 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity need added or updated entity
      */
     protected void putRecord2Caches(GroupConsumeCtrlEntity entity) {
         consumeCtrlCache.put(entity.getRecordKey(), entity);
         // add topic index map
-        ConcurrentHashSet<String> keySet =
-                topic2RecordCache.get(entity.getTopicName());
+        ConcurrentHashSet<String> keySet = topic2RecordCache.get(entity.getTopicName());
         if (keySet == null) {
             ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
             keySet = topic2RecordCache.putIfAbsent(entity.getTopicName(), tmpSet);
@@ -416,19 +412,19 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     /**
      * Put consume control configure information into persistent store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
+     * @param entity need add record
+     * @param strBuff the string buffer
      * @param result process result with old value
      * @return the process result
      */
-    protected abstract boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+    protected abstract boolean putConfig2Persistent(
+            GroupConsumeCtrlEntity entity, StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete consume control configure information from persistent storage
      *
-     * @param recordKey  the record key
-     * @param strBuff    the string buffer
+     * @param recordKey the record key
+     * @param strBuff the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff);
@@ -436,17 +432,15 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     /**
      * Delete the cached record
      *
-     * @param recordKey  the record key to be deleted
+     * @param recordKey the record key to be deleted
      */
     private void delRecordFromCaches(String recordKey) {
-        GroupConsumeCtrlEntity curEntity =
-                consumeCtrlCache.remove(recordKey);
+        GroupConsumeCtrlEntity curEntity = consumeCtrlCache.remove(recordKey);
         if (curEntity == null) {
             return;
         }
         // add topic index
-        ConcurrentHashSet<String> keySet =
-                topic2RecordCache.get(curEntity.getTopicName());
+        ConcurrentHashSet<String> keySet = topic2RecordCache.get(curEntity.getTopicName());
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {

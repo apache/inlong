@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * Stream transform field entity, including transform type, transform id, etc.
- */
+/** Stream transform field entity, including transform type, transform id, etc. */
 @Data
 public class StreamTransformFieldEntity implements Serializable {
 

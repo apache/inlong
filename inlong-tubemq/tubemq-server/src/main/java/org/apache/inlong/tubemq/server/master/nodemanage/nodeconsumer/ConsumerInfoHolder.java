@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
 import java.io.IOException;
@@ -36,26 +33,24 @@ import org.slf4j.LoggerFactory;
 
 public class ConsumerInfoHolder {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ConsumerInfoHolder.class);
-    private final MasterConfig masterConfig;     // master configure
-    private final RowLock groupRowLock;    //lock
-    private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap =
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerInfoHolder.class);
+    private final MasterConfig masterConfig; // master configure
+    private final RowLock groupRowLock; // lock
+    private final ConcurrentHashMap<String /* group */, ConsumeGroupInfo> groupInfoMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* consumerId */, String/* group */> consumerIndexMap =
+    private final ConcurrentHashMap<String /* consumerId */, String /* group */> consumerIndexMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashSet<String/* group */> serverBalanceGroupSet =
+    private final ConcurrentHashSet<String /* group */> serverBalanceGroupSet =
             new ConcurrentHashSet<>();
-    private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet =
+    private final ConcurrentHashSet<String /* group */> clientBalanceGroupSet =
             new ConcurrentHashSet<>();
     // topic-group map
-    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String>> topicGroupMap
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String /* topic */, ConcurrentHashSet<String>> topicGroupMap =
+            new ConcurrentHashMap<>();
 
     public ConsumerInfoHolder(TMaster tMaster) {
         this.masterConfig = tMaster.getMasterConfig();
-        this.groupRowLock = new RowLock("Group-RowLock",
-                this.masterConfig.getRowLockWaitDurMs());
+        this.groupRowLock = new RowLock("Group-RowLock", this.masterConfig.getRowLockWaitDurMs());
     }
 
     public int getDefResourceRate() {
@@ -96,8 +91,8 @@ public class ConsumerInfoHolder {
     /**
      * Get the client information of the consumer group
      *
-     * The query content of this API is the content presented when
-     *  the Web API queries the client information.
+     * <p>The query content of this API is the content presented when the Web API queries the client
+     * information.
      *
      * @param group the consumer group name
      * @return the consumer id with subscribed topic and link type of the group
@@ -116,7 +111,7 @@ public class ConsumerInfoHolder {
     /**
      * Get the consumerId and tls information of the consumer group
      *
-     * include consumerId and isOverTLS information.
+     * <p>include consumerId and isOverTLS information.
      *
      * @param group the consumer group name
      * @return the consumer info of the group
@@ -220,8 +215,7 @@ public class ConsumerInfoHolder {
      * @param group group name
      * @param processList rebalanced consumer id
      */
-    public void setRebNodeProcessed(String group,
-                                    List<String> processList) {
+    public void setRebNodeProcessed(String group, List<String> processList) {
         if (group == null) {
             return;
         }
@@ -260,8 +254,7 @@ public class ConsumerInfoHolder {
         if (group == null) {
             return false;
         }
-        ConsumeGroupInfo consumeGroupInfo =
-                groupInfoMap.get(group);
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
         if (consumeGroupInfo != null) {
             return consumeGroupInfo.isNotAllocate();
         }
@@ -326,7 +319,7 @@ public class ConsumerInfoHolder {
     /**
      * get all registered group name
      *
-     * @param consumerId  the consumer id
+     * @param consumerId the consumer id
      * @return the consumer info
      */
     public ConsumerInfo getConsumerInfo(String consumerId) {
@@ -342,23 +335,25 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * Add consumer and return group object,
-     * if the consumer is the first one, then create the group object
+     * Add consumer and return group object, if the consumer is the first one, then create the group
+     * object
      *
      * @param consumer consumer info
      * @param isNotAllocated whether balanced
-     * @param sBuffer  string buffer
-     * @param result   check result
+     * @param sBuffer string buffer
+     * @param result check result
      * @return process result
      */
-    public boolean addConsumer(ConsumerInfo consumer, boolean isNotAllocated,
-                               StringBuilder sBuffer, ParamCheckResult result) {
+    public boolean addConsumer(
+            ConsumerInfo consumer,
+            boolean isNotAllocated,
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         ConsumeGroupInfo consumeGroupInfo;
         String group = consumer.getGroupName();
         Integer lid = null;
         try {
-            lid = groupRowLock.getLock(null,
-                    StringUtils.getBytesUtf8(group), true);
+            lid = groupRowLock.getLock(null, StringUtils.getBytesUtf8(group), true);
             consumeGroupInfo = groupInfoMap.get(group);
             if (consumeGroupInfo == null) {
                 ConsumeGroupInfo tmpGroupInfo = new ConsumeGroupInfo(consumer);
@@ -372,7 +367,7 @@ public class ConsumerInfoHolder {
                     }
                     // add topic-group map information
                     ConcurrentHashSet<String> groupSet;
-                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                    for (String topicName : consumeGroupInfo.getTopicSet()) {
                         groupSet = topicGroupMap.get(topicName);
                         if (groupSet == null) {
                             ConcurrentHashSet<String> tmpGroupSet = new ConcurrentHashSet<>();
@@ -384,14 +379,12 @@ public class ConsumerInfoHolder {
                         groupSet.add(group);
                     }
                     // statistic data
-                    MasterSrvStatsHolder.incConsumerCnt(true,
-                            consumeGroupInfo.isClientBalance());
+                    MasterSrvStatsHolder.incConsumerCnt(true, consumeGroupInfo.isClientBalance());
                 }
             }
             if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
                 if ((Boolean) result.checkData) {
-                    MasterSrvStatsHolder.incConsumerCnt(false,
-                            consumeGroupInfo.isClientBalance());
+                    MasterSrvStatsHolder.incConsumerCnt(false, consumeGroupInfo.isClientBalance());
                 }
                 if (!isNotAllocated) {
                     consumeGroupInfo.settAllocated();
@@ -410,8 +403,8 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * remove the consumer and return consumer object,
-     * if the consumer is the latest one, then removed the group object
+     * remove the consumer and return consumer object, if the consumer is the latest one, then
+     * removed the group object
      *
      * @param group group name of consumer
      * @param consumerId consumer id
@@ -427,8 +420,7 @@ public class ConsumerInfoHolder {
         ConsumerInfo consumer = null;
         Integer lid = null;
         try {
-            lid = groupRowLock.getLock(null,
-                    StringUtils.getBytesUtf8(group), true);
+            lid = groupRowLock.getLock(null, StringUtils.getBytesUtf8(group), true);
             ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
             if (consumeGroupInfo != null) {
                 consumer = consumeGroupInfo.removeConsumer(consumerId);
@@ -442,7 +434,7 @@ public class ConsumerInfoHolder {
                     }
                     // remove topic-group map information
                     ConcurrentHashSet<String> groupSet;
-                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                    for (String topicName : consumeGroupInfo.getTopicSet()) {
                         groupSet = topicGroupMap.get(topicName);
                         if (groupSet == null) {
                             continue;

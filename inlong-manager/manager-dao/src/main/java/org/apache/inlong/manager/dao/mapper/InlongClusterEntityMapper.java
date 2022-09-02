@@ -17,13 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongClusterEntityMapper {
@@ -34,10 +33,10 @@ public interface InlongClusterEntityMapper {
 
     InlongClusterEntity selectById(Integer id);
 
-    /**
-     * Select clusters by tags, name and type.
-     */
-    List<InlongClusterEntity> selectByKey(@Param("clusterTag") String clusterTag, @Param("name") String name,
+    /** Select clusters by tags, name and type. */
+    List<InlongClusterEntity> selectByKey(
+            @Param("clusterTag") String clusterTag,
+            @Param("name") String name,
             @Param("type") String type);
 
     InlongClusterEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
@@ -56,5 +55,4 @@ public interface InlongClusterEntityMapper {
     int updateByIdSelective(InlongClusterEntity record);
 
     int deleteByPrimaryKey(Integer id);
-
 }

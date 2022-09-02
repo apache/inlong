@@ -18,14 +18,13 @@
 package org.apache.inlong.manager.service.resource.sink.oracle;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class OracleSqlBuilder {
 
@@ -39,13 +38,14 @@ public class OracleSqlBuilder {
      * @return the check table SQL string
      */
     public static String getCheckTable(final String userName, final String tableName) {
-        final StringBuilder sqlBuilder = new StringBuilder()
-                .append("SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER = UPPER('")
-                .append(userName)
-                .append("') ")
-                .append("AND TABLE_NAME = '")
-                .append(tableName)
-                .append("' ");
+        final StringBuilder sqlBuilder =
+                new StringBuilder()
+                        .append("SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER = UPPER('")
+                        .append(userName)
+                        .append("') ")
+                        .append("AND TABLE_NAME = '")
+                        .append(tableName)
+                        .append("' ");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -58,12 +58,14 @@ public class OracleSqlBuilder {
      * @return the check column SQL string
      */
     public static String getCheckColumn(final String tableName, final String columnName) {
-        final StringBuilder sqlBuilder = new StringBuilder().append("SELECT count(1) ")
-                .append(" from  USER_TAB_COLUMNS where TABLE_NAME= '")
-                .append(tableName)
-                .append("' and COLUMN_NAME = '")
-                .append(columnName)
-                .append("' ");
+        final StringBuilder sqlBuilder =
+                new StringBuilder()
+                        .append("SELECT count(1) ")
+                        .append(" from  USER_TAB_COLUMNS where TABLE_NAME= '")
+                        .append(tableName)
+                        .append("' and COLUMN_NAME = '")
+                        .append(columnName)
+                        .append("' ");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -75,12 +77,14 @@ public class OracleSqlBuilder {
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(final OracleTableInfo table) {
-        final StringBuilder createSql = new StringBuilder()
-                .append("CREATE TABLE ").append(table.getUserName())
-                .append(".\"")
-                .append(table.getTableName())
-                .append("\"")
-                .append(buildCreateColumnsSql(table));
+        final StringBuilder createSql =
+                new StringBuilder()
+                        .append("CREATE TABLE ")
+                        .append(table.getUserName())
+                        .append(".\"")
+                        .append(table.getTableName())
+                        .append("\"")
+                        .append(buildCreateColumnsSql(table));
         final List<String> sqls = Lists.newArrayList(createSql.toString());
 
         sqls.addAll(getColumnsComment(table.getTableName(), table.getColumns()));
@@ -95,20 +99,24 @@ public class OracleSqlBuilder {
      * @param columnList Oracle column list {@link List}
      * @return add column SQL string list
      */
-    public static List<String> buildAddColumnsSql(final String tableName, final List<OracleColumnInfo> columnList) {
+    public static List<String> buildAddColumnsSql(
+            final String tableName, final List<OracleColumnInfo> columnList) {
         final List<String> resultList = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder();
-        columnList.forEach(columnInfo -> {
-            resultList.add(sqlBuilder.append("ALTER TABLE \"")
-                    .append(tableName)
-                    .append("\" ADD \"")
-                    .append(columnInfo.getName())
-                    .append("\" ")
-                    .append(columnInfo.getType())
-                    .append(" ")
-                    .toString());
-            sqlBuilder.delete(0, sqlBuilder.length());
-        });
+        columnList.forEach(
+                columnInfo -> {
+                    resultList.add(
+                            sqlBuilder
+                                    .append("ALTER TABLE \"")
+                                    .append(tableName)
+                                    .append("\" ADD \"")
+                                    .append(columnInfo.getName())
+                                    .append("\" ")
+                                    .append(columnInfo.getType())
+                                    .append(" ")
+                                    .toString());
+                    sqlBuilder.delete(0, sqlBuilder.length());
+                });
 
         resultList.addAll(getColumnsComment(tableName, columnList));
         LOGGER.info("add columns sql={}", resultList);
@@ -123,10 +131,11 @@ public class OracleSqlBuilder {
      */
     private static String buildCreateColumnsSql(final OracleTableInfo table) {
         final List<String> columnList = getColumnsInfo(table.getColumns());
-        final StringBuilder sql = new StringBuilder()
-                .append(" (")
-                .append(StringUtils.join(columnList, ","))
-                .append(") ");
+        final StringBuilder sql =
+                new StringBuilder()
+                        .append(" (")
+                        .append(StringUtils.join(columnList, ","))
+                        .append(") ");
         LOGGER.info("create columns sql={}", sql);
         return sql.toString();
     }
@@ -140,40 +149,46 @@ public class OracleSqlBuilder {
     private static List<String> getColumnsInfo(final List<OracleColumnInfo> columns) {
         final List<String> columnList = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder();
-        columns.forEach(columnInfo -> {
-            columnList.add(sqlBuilder.append("\"")
-                    .append(columnInfo.getName())
-                    .append("\" ")
-                    .append(columnInfo.getType())
-                    .toString());
-            sqlBuilder.delete(0, sqlBuilder.length());
-        });
+        columns.forEach(
+                columnInfo -> {
+                    columnList.add(
+                            sqlBuilder
+                                    .append("\"")
+                                    .append(columnInfo.getName())
+                                    .append("\" ")
+                                    .append(columnInfo.getType())
+                                    .toString());
+                    sqlBuilder.delete(0, sqlBuilder.length());
+                });
         return columnList;
     }
 
     /**
-     * Build column comment by  tableName and OracleColumnInfo list.
+     * Build column comment by tableName and OracleColumnInfo list.
      *
      * @param tableName Oracle table name
      * @param columns Oracle column info {@link OracleColumnInfo} list
      * @return the comment SQL list
      */
-    private static List<String> getColumnsComment(final String tableName, final List<OracleColumnInfo> columns) {
+    private static List<String> getColumnsComment(
+            final String tableName, final List<OracleColumnInfo> columns) {
         final List<String> commentList = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder();
         columns.stream()
                 .filter(columnInfo -> StringUtils.isNoneBlank(columnInfo.getComment()))
-                .forEach(columnInfo -> {
-                    sqlBuilder.append("COMMENT ON COLUMN \"")
-                            .append(tableName)
-                            .append("\".\"")
-                            .append(columnInfo.getName())
-                            .append("\" IS '")
-                            .append(columnInfo.getComment())
-                            .append("' ");
-                    commentList.add(sqlBuilder.toString());
-                    sqlBuilder.delete(0, sqlBuilder.length());
-                });
+                .forEach(
+                        columnInfo -> {
+                            sqlBuilder
+                                    .append("COMMENT ON COLUMN \"")
+                                    .append(tableName)
+                                    .append("\".\"")
+                                    .append(columnInfo.getName())
+                                    .append("\" IS '")
+                                    .append(columnInfo.getComment())
+                                    .append("' ");
+                            commentList.add(sqlBuilder.toString());
+                            sqlBuilder.delete(0, sqlBuilder.length());
+                        });
         return commentList;
     }
 
@@ -194,5 +209,4 @@ public class OracleSqlBuilder {
         LOGGER.info("desc table sql={}", sql);
         return sql.toString();
     }
-
 }

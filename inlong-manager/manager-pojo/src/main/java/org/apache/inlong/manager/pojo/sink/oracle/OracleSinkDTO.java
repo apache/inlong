@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.sink.oracle;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,13 +32,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Oracle sink info
- */
+/** Oracle sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -45,8 +42,9 @@ public class OracleSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(OracleSinkDTO.class);
 
-    @ApiModelProperty("Oracle JDBC URL,Such as jdbc:oracle:thin@host:port:sid "
-            + "or jdbc:oracle:thin@host:port/service_name")
+    @ApiModelProperty(
+            "Oracle JDBC URL,Such as jdbc:oracle:thin@host:port:sid "
+                    + "or jdbc:oracle:thin@host:port/service_name")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -64,9 +62,7 @@ public class OracleSinkDTO {
     @ApiModelProperty("Properties for Oracle")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static OracleSinkDTO getFromRequest(OracleSinkRequest request) {
         return OracleSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -78,16 +74,15 @@ public class OracleSinkDTO {
                 .build();
     }
 
-    /**
-     * Get Oracle sink info from JSON string
-     */
+    /** Get Oracle sink info from JSON string */
     public static OracleSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, OracleSinkDTO.class);
         } catch (Exception e) {
             LOGGER.error("fetch oracle sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -98,7 +93,8 @@ public class OracleSinkDTO {
      * @param columnList Oracle column info list,{@link OracleColumnInfo}
      * @return {@link OracleTableInfo}
      */
-    public static OracleTableInfo getTableInfo(OracleSinkDTO oracleSink, List<OracleColumnInfo> columnList) {
+    public static OracleTableInfo getTableInfo(
+            OracleSinkDTO oracleSink, List<OracleColumnInfo> columnList) {
         OracleTableInfo tableInfo = new OracleTableInfo();
         tableInfo.setTableName(oracleSink.getTableName());
         tableInfo.setPrimaryKey(oracleSink.getPrimaryKey());

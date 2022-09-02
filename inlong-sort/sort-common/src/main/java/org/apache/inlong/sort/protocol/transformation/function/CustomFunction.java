@@ -28,9 +28,7 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-/**
- * CustomFunction class uses the content of field as a function
- */
+/** CustomFunction class uses the content of field as a function */
 @Data
 @JsonTypeName("customFunction")
 @EqualsAndHashCode(callSuper = false)
@@ -55,8 +53,9 @@ public class CustomFunction implements Function {
      */
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("Custom function is used to pass the function script that the user "
-                + "has organized, using content as the real function content, so there is no specific function name.");
+        throw new UnsupportedOperationException(
+                "Custom function is used to pass the function script that the user "
+                        + "has organized, using content as the real function content, so there is no specific function name.");
     }
 
     /**

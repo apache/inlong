@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * Stream sink entity, including sink type, sink name, etc.
- */
+/** Stream sink entity, including sink type, sink name, etc. */
 @Data
 public class StreamSinkEntity implements Serializable {
 
@@ -52,5 +49,4 @@ public class StreamSinkEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer version;
-
 }

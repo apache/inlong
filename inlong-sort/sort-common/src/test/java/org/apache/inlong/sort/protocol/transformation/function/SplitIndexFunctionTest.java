@@ -24,14 +24,13 @@ import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-/**
- * Test for {@link SplitIndexFunction}
- */
+/** Test for {@link SplitIndexFunction} */
 public class SplitIndexFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new SplitIndexFunction(new FieldInfo("split_field", new StringFormatInfo()),
+        return new SplitIndexFunction(
+                new FieldInfo("split_field", new StringFormatInfo()),
                 new StringConstantParam(","),
                 new ConstantParam(0));
     }

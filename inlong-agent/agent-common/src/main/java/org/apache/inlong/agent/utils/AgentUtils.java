@@ -17,12 +17,14 @@
 
 package org.apache.inlong.agent.utils;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
 
 import java.io.Closeable;
 import java.io.File;
@@ -50,19 +52,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
-
-/**
- * Agent utils
- */
+/** Agent utils */
 public class AgentUtils {
 
     public static final String EQUAL = "=";
@@ -79,9 +76,7 @@ public class AgentUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
     private static final String HEX_PREFIX = "0x";
 
-    /**
-     * Get MD5 of file.
-     */
+    /** Get MD5 of file. */
     public static String getFileMd5(File file) {
         try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
             return DigestUtils.md5Hex(is);
@@ -91,9 +86,7 @@ public class AgentUtils {
         return "";
     }
 
-    /**
-     * Get current system time
-     */
+    /** Get current system time */
     public static long getCurrentTime() {
         return System.currentTimeMillis();
     }
@@ -128,9 +121,7 @@ public class AgentUtils {
         }
     }
 
-    /**
-     * Get declare fields.
-     */
+    /** Get declare fields. */
     public static List<Field> getDeclaredFieldsIncludingInherited(Class<?> clazz) {
         List<Field> fields = new ArrayList<Field>();
         // check whether parent exists
@@ -156,16 +147,12 @@ public class AgentUtils {
         return methods;
     }
 
-    /**
-     * Get random int of [seed, seed * 2]
-     */
+    /** Get random int of [seed, seed * 2] */
     public static int getRandomBySeed(int seed) {
         return ThreadLocalRandom.current().nextInt(0, seed) + seed;
     }
 
-    /**
-     * Get local IP
-     */
+    /** Get local IP */
     public static String getLocalIp() {
         String ip = DEFAULT_LOCAL_IP;
         try (DatagramSocket socket = new DatagramSocket()) {
@@ -198,16 +185,12 @@ public class AgentUtils {
         return prefix + currentTime + "_" + id + "_" + index;
     }
 
-    /**
-     * Get job id, such as "job_1"
-     */
+    /** Get job id, such as "job_1" */
     public static String getSingleJobId(String prefix, String id) {
         return prefix + id;
     }
 
-    /**
-     * Sleep millisecond
-     */
+    /** Sleep millisecond */
     public static void silenceSleepInMs(long millisecond) {
         try {
             TimeUnit.MILLISECONDS.sleep(millisecond);
@@ -216,9 +199,7 @@ public class AgentUtils {
         }
     }
 
-    /**
-     * Sleep minutes
-     */
+    /** Sleep minutes */
     public static void silenceSleepInMinute(long minutes) {
         try {
             TimeUnit.MINUTES.sleep(minutes);
@@ -238,16 +219,12 @@ public class AgentUtils {
         }
     }
 
-    /**
-     * formatter for current time
-     */
+    /** formatter for current time */
     public static String formatCurrentTime(String formatter) {
         return formatCurrentTime(formatter, Locale.getDefault());
     }
 
-    /**
-     * Formatter for current time based on zone
-     */
+    /** Formatter for current time based on zone */
     public static String formatCurrentTime(String formatter, Locale locale) {
         ZonedDateTime zoned = ZonedDateTime.now();
         // TODO: locale seems not working
@@ -282,8 +259,8 @@ public class AgentUtils {
      */
     public static boolean regexMatch(String pathStr, String patternStr) {
         String[] pathNames = StringUtils.split(pathStr, FileSystems.getDefault().getSeparator());
-        String[] patternNames = StringUtils
-                .split(patternStr, FileSystems.getDefault().getSeparator());
+        String[] patternNames =
+                StringUtils.split(patternStr, FileSystems.getDefault().getSeparator());
         for (int i = 0; i < pathNames.length && i < patternNames.length; i++) {
             if (!pathNames[i].equals(patternNames[i])) {
                 Matcher matcher = Pattern.compile(patternNames[i]).matcher(pathNames[i]);
@@ -292,13 +269,14 @@ public class AgentUtils {
                 }
             }
         }
-        LOGGER.info("path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
+        LOGGER.info(
+                "path name:{} , pattern name:{}",
+                Arrays.toString(pathNames),
+                Arrays.toString(patternNames));
         return true;
     }
 
-    /**
-     * Parse addition attr, the attributes must be sent in proxy sender
-     */
+    /** Parse addition attr, the attributes must be sent in proxy sender */
     public static Pair<String, Map<String, String>> parseAddAttr(String additionStr) {
         Map<String, String> attr = new HashMap<>();
         String[] split = additionStr.split(ADDITION_SPLITTER);
@@ -317,9 +295,7 @@ public class AgentUtils {
         return Pair.of(mValue, attr);
     }
 
-    /**
-     * Get the attrs in pairs can be complicated in online env
-     */
+    /** Get the attrs in pairs can be complicated in online env */
     private static void getAttrs(Map<String, String> attr, String s, String[] pairs) {
         // when addiction attr be like "m=10&__addcol1__worldid="
         if (s.endsWith(EQUAL) && pairs.length == 1) {
@@ -329,25 +305,19 @@ public class AgentUtils {
         }
     }
 
-    /**
-     * Get addition attributes in additionStr
-     */
+    /** Get addition attributes in additionStr */
     public static Map<String, String> getAdditionAttr(String additionStr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(additionStr);
         return mValueAttrs.getRight();
     }
 
-    /**
-     * Get m value in additionStr
-     */
+    /** Get m value in additionStr */
     public static String getmValue(String addictiveAttr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(addictiveAttr);
         return mValueAttrs.getLeft();
     }
 
-    /**
-     * Check agent ip from manager
-     */
+    /** Check agent ip from manager */
     public static String fetchLocalIp() {
         if (StringUtils.isNoneBlank(AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP, null))) {
             return AgentConfiguration.getAgentConf().get(CUSTOM_FIXED_IP);
@@ -355,9 +325,7 @@ public class AgentUtils {
         return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
     }
 
-    /**
-     * Check agent uuid from manager
-     */
+    /** Check agent uuid from manager */
     public static String fetchLocalUuid() {
         String uuid = "";
         if (!AgentConfiguration.getAgentConf()
@@ -371,8 +339,7 @@ public class AgentUtils {
                 return uuid;
             }
             String result = ExcuteLinux.exeCmd("dmidecode | grep UUID");
-            if (StringUtils.isNotEmpty(result)
-                    && StringUtils.containsIgnoreCase(result, "UUID")) {
+            if (StringUtils.isNotEmpty(result) && StringUtils.containsIgnoreCase(result, "UUID")) {
                 uuid = result.split(":")[1].trim();
                 return uuid;
             }
@@ -382,9 +349,7 @@ public class AgentUtils {
         return uuid;
     }
 
-    /**
-     * Convert the time string to mill second.
-     */
+    /** Convert the time string to mill second. */
     public static long timeStrConvertToMillSec(String time, String cycleUnit) {
         long defaultTime = System.currentTimeMillis();
         if (time.isEmpty() || cycleUnit.isEmpty()) {
@@ -410,9 +375,7 @@ public class AgentUtils {
         return parseTimeToMillSec(time, pattern);
     }
 
-    /**
-     * Convert the time string to mill second
-     */
+    /** Convert the time string to mill second */
     private static long parseTimeToMillSec(String time, String pattern) {
         try {
             SimpleDateFormat df = new SimpleDateFormat(pattern);
@@ -440,11 +403,9 @@ public class AgentUtils {
         return finalPath;
     }
 
-    /**
-     * Whether the config of exiting the program when OOM is enabled
-     */
+    /** Whether the config of exiting the program when OOM is enabled */
     public static boolean enableOOMExit() {
-        return AgentConfiguration.getAgentConf().getBoolean(AGENT_ENABLE_OOM_EXIT, DEFAULT_ENABLE_OOM_EXIT);
+        return AgentConfiguration.getAgentConf()
+                .getBoolean(AGENT_ENABLE_OOM_EXIT, DEFAULT_ENABLE_OOM_EXIT);
     }
-
 }

@@ -19,9 +19,5 @@ package org.apache.inlong.manager.pojo.workflow.form.task;
 
 import org.apache.inlong.manager.pojo.workflow.form.Form;
 
-/**
- * WorkflowTask form
- */
-public interface TaskForm extends Form {
-
-}
+/** WorkflowTask form */
+public interface TaskForm extends Form {}

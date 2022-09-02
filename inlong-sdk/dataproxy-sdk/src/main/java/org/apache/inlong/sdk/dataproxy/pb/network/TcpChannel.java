@@ -1,32 +1,25 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.network;
 
 import java.util.concurrent.Semaphore;
-
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * TcpChannel
- */
+/** TcpChannel */
 public class TcpChannel {
 
     public static final Logger LOG = LoggerFactory.getLogger(TcpChannelGroup.class);
@@ -39,7 +32,7 @@ public class TcpChannel {
 
     /**
      * Constructor
-     * 
+     *
      * @param channel
      * @param ipPort
      */
@@ -51,7 +44,7 @@ public class TcpChannel {
 
     /**
      * toString
-     * 
+     *
      * @return
      */
     @Override
@@ -61,7 +54,7 @@ public class TcpChannel {
 
     /**
      * get ipPort
-     * 
+     *
      * @return the ipPort
      */
     public IpPort getIpPort() {
@@ -70,7 +63,7 @@ public class TcpChannel {
 
     /**
      * set ipPort
-     * 
+     *
      * @param ipPort the ipPort to set
      */
     public void setIpPort(IpPort ipPort) {
@@ -79,7 +72,7 @@ public class TcpChannel {
 
     /**
      * get channel
-     * 
+     *
      * @return the channel
      */
     public Channel getChannel() {
@@ -88,7 +81,7 @@ public class TcpChannel {
 
     /**
      * set channel
-     * 
+     *
      * @param channel the channel to set
      */
     public void setChannel(Channel channel) {
@@ -97,7 +90,7 @@ public class TcpChannel {
 
     /**
      * get hasException
-     * 
+     *
      * @return the hasException
      */
     public boolean isHasException() {
@@ -106,7 +99,7 @@ public class TcpChannel {
 
     /**
      * set hasException
-     * 
+     *
      * @param hasException the hasException to set
      */
     public void setHasException(boolean hasException) {
@@ -115,7 +108,7 @@ public class TcpChannel {
 
     /**
      * get reconnectFail
-     * 
+     *
      * @return the reconnectFail
      */
     public boolean isReconnectFail() {
@@ -124,17 +117,14 @@ public class TcpChannel {
 
     /**
      * set reconnectFail
-     * 
+     *
      * @param reconnectFail the reconnectFail to set
      */
     public void setReconnectFail(boolean reconnectFail) {
         this.reconnectFail = reconnectFail;
     }
 
-    /**
-     * 
-     * close
-     */
+    /** close */
     public void close() {
         try {
             if (channel != null && channel.isConnected()) {
@@ -148,34 +138,30 @@ public class TcpChannel {
 
     /**
      * tryAcquire
-     * 
+     *
      * @return
      */
     public boolean tryAcquire() {
         return packToken.tryAcquire();
     }
 
-    /**
-     * acquireUninterruptibly
-     */
+    /** acquireUninterruptibly */
     public void acquireUninterruptibly() {
-        packToken.acquireUninterruptibly();;
+        packToken.acquireUninterruptibly();
+        ;
     }
 
-    /**
-     * release
-     */
+    /** release */
     public void release() {
         packToken.release();
     }
 
     /**
      * get packToken
-     * 
+     *
      * @return the packToken
      */
     public Semaphore getPackToken() {
         return packToken;
     }
-
 }

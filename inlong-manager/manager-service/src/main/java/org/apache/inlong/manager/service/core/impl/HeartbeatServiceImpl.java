@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.gson.Gson;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,25 +49,17 @@ import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Heartbeat service layer implementation
- */
+/** Heartbeat service layer implementation */
 @Service
 @Slf4j
 public class HeartbeatServiceImpl implements HeartbeatService {
 
     private static final Gson GSON = new Gson();
 
-    @Autowired
-    private HeartbeatManager heartbeatManager;
-    @Autowired
-    private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
-    @Autowired
-    private GroupHeartbeatEntityMapper groupHeartbeatMapper;
-    @Autowired
-    private StreamHeartbeatEntityMapper streamHeartbeatMapper;
+    @Autowired private HeartbeatManager heartbeatManager;
+    @Autowired private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
+    @Autowired private GroupHeartbeatEntityMapper groupHeartbeatMapper;
+    @Autowired private StreamHeartbeatEntityMapper streamHeartbeatMapper;
 
     @Override
     public Boolean reportHeartbeat(HeartbeatReportRequest request) {
@@ -97,7 +90,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
@@ -106,7 +100,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
             case Agent:
             case Cache:
             case SDK:
-                ComponentHeartbeatEntity res = componentHeartbeatMapper.selectByKey(component, request.getInstance());
+                ComponentHeartbeatEntity res =
+                        componentHeartbeatMapper.selectByKey(component, request.getInstance());
                 return CommonBeanUtils.copyProperties(res, ComponentHeartbeatResponse::new);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -118,8 +113,10 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
@@ -128,8 +125,9 @@ public class HeartbeatServiceImpl implements HeartbeatService {
             case Agent:
             case Cache:
             case SDK:
-                GroupHeartbeatEntity result = groupHeartbeatMapper.selectByKey(component, request.getInstance(),
-                        request.getInlongGroupId());
+                GroupHeartbeatEntity result =
+                        groupHeartbeatMapper.selectByKey(
+                                component, request.getInstance(), request.getInlongGroupId());
                 return CommonBeanUtils.copyProperties(result, GroupHeartbeatResponse::new);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -141,9 +139,12 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
@@ -152,8 +153,12 @@ public class HeartbeatServiceImpl implements HeartbeatService {
             case Agent:
             case Cache:
             case SDK:
-                StreamHeartbeatEntity result = streamHeartbeatMapper.selectByKey(component, request.getInstance(),
-                        request.getInlongGroupId(), request.getInlongStreamId());
+                StreamHeartbeatEntity result =
+                        streamHeartbeatMapper.selectByKey(
+                                component,
+                                request.getInstance(),
+                                request.getInlongGroupId(),
+                                request.getInlongStreamId());
                 return CommonBeanUtils.copyProperties(result, StreamHeartbeatResponse::new);
             default:
                 throw new BusinessException("Unsupported component type for " + component);
@@ -161,7 +166,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
     }
 
     @Override
-    public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
+    public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(
+            HeartbeatPageRequest request) {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
@@ -203,7 +209,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
         Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotEmpty(
+                request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forName(component);
         switch (componentType) {
@@ -218,9 +225,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         }
     }
 
-    /**
-     * Default implementation for updating heartbeat
-     */
+    /** Default implementation for updating heartbeat */
     private Boolean updateHeartbeatOpt(HeartbeatReportRequest request) {
         if (log.isDebugEnabled()) {
             log.debug("heartbeat request json = {}", GSON.toJson(request));
@@ -239,47 +244,58 @@ public class HeartbeatServiceImpl implements HeartbeatService {
         // Add group heartbeats
         List<GroupHeartbeat> groupHeartbeats = request.getGroupHeartbeats();
         if (CollectionUtils.isNotEmpty(groupHeartbeats)) {
-            groupHeartbeatMapper.insertOrUpdateAll(component, instanceIp, reportTime, groupHeartbeats);
+            groupHeartbeatMapper.insertOrUpdateAll(
+                    component, instanceIp, reportTime, groupHeartbeats);
         }
 
         // Add stream heartbeats
         List<StreamHeartbeat> streamHeartbeats = request.getStreamHeartbeats();
         if (CollectionUtils.isNotEmpty(streamHeartbeats)) {
-            streamHeartbeatMapper.insertOrUpdateAll(component, instanceIp, reportTime, streamHeartbeats);
+            streamHeartbeatMapper.insertOrUpdateAll(
+                    component, instanceIp, reportTime, streamHeartbeats);
         }
 
         return true;
     }
 
-    private PageResult<ComponentHeartbeatResponse> listComponentHeartbeatOpt(HeartbeatPageRequest request) {
+    private PageResult<ComponentHeartbeatResponse> listComponentHeartbeatOpt(
+            HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<ComponentHeartbeatEntity> entityPage = (Page<ComponentHeartbeatEntity>)
-                componentHeartbeatMapper.selectByCondition(request);
-        List<ComponentHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
-                ComponentHeartbeatResponse::new);
+        Page<ComponentHeartbeatEntity> entityPage =
+                (Page<ComponentHeartbeatEntity>)
+                        componentHeartbeatMapper.selectByCondition(request);
+        List<ComponentHeartbeatResponse> responseList =
+                CommonBeanUtils.copyListProperties(entityPage, ComponentHeartbeatResponse::new);
 
         return new PageResult<>(responseList, entityPage.getTotal());
     }
 
     private PageResult<GroupHeartbeatResponse> listGroupHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<GroupHeartbeatEntity> entityPage = (Page<GroupHeartbeatEntity>) groupHeartbeatMapper.selectByCondition(
-                request);
-        List<GroupHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
-                GroupHeartbeatResponse::new);
+        Page<GroupHeartbeatEntity> entityPage =
+                (Page<GroupHeartbeatEntity>) groupHeartbeatMapper.selectByCondition(request);
+        List<GroupHeartbeatResponse> responseList =
+                CommonBeanUtils.copyListProperties(entityPage, GroupHeartbeatResponse::new);
 
-        return new PageResult<>(responseList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        return new PageResult<>(
+                responseList,
+                entityPage.getTotal(),
+                entityPage.getPageNum(),
+                entityPage.getPageSize());
     }
 
-    private PageResult<StreamHeartbeatResponse> listStreamHeartbeatOpt(HeartbeatPageRequest request) {
+    private PageResult<StreamHeartbeatResponse> listStreamHeartbeatOpt(
+            HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<StreamHeartbeatEntity> entityPage = (Page<StreamHeartbeatEntity>)
-                streamHeartbeatMapper.selectByCondition(request);
-        List<StreamHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
-                StreamHeartbeatResponse::new);
+        Page<StreamHeartbeatEntity> entityPage =
+                (Page<StreamHeartbeatEntity>) streamHeartbeatMapper.selectByCondition(request);
+        List<StreamHeartbeatResponse> responseList =
+                CommonBeanUtils.copyListProperties(entityPage, StreamHeartbeatResponse::new);
 
-        return new PageResult<>(responseList, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        return new PageResult<>(
+                responseList,
+                entityPage.getTotal(),
+                entityPage.getPageNum(),
+                entityPage.getPageSize());
     }
-
 }

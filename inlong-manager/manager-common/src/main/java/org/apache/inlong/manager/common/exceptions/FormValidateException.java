@@ -17,9 +17,5 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Form validation exception
- */
-public class FormValidateException extends WorkflowException {
-
-}
+/** Form validation exception */
+public class FormValidateException extends WorkflowException {}

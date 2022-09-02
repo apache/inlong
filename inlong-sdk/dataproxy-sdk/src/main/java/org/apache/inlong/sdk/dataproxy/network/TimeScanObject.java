@@ -53,5 +53,4 @@ public class TimeScanObject {
     public int getCurTimeoutCount() {
         return this.count.get();
     }
-
 }

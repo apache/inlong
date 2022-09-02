@@ -18,14 +18,13 @@
 package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.controller.TubeMQResult.errorResult;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 
 import com.google.gson.Gson;
-
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,7 +36,6 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
-import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
@@ -51,8 +49,7 @@ public class MasterServiceImpl implements MasterService {
     private static CloseableHttpClient httpclient = HttpClients.createDefault();
     private static Gson gson = new Gson();
 
-    @Autowired
-    MasterRepository masterRepository;
+    @Autowired MasterRepository masterRepository;
 
     @Override
     public TubeMQResult requestMaster(String url) {
@@ -63,10 +60,12 @@ public class MasterServiceImpl implements MasterService {
 
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             TubeHttpResponse tubeResponse =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8), TubeHttpResponse.class);
-            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE && tubeResponse.getErrCode()
-                    == TubeConst.SUCCESS_CODE) {
+                    gson.fromJson(
+                            new InputStreamReader(
+                                    response.getEntity().getContent(), StandardCharsets.UTF_8),
+                            TubeHttpResponse.class);
+            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
+                    && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return defaultResult;
             } else {
                 defaultResult = errorResult(tubeResponse.getErrMsg());
@@ -110,9 +109,18 @@ public class MasterServiceImpl implements MasterService {
         if (masterEntry == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
-        String url = TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + TubeConst.CONF_MOD_AUTH_TOKEN + masterEntry.getToken() + "&"
-                + ConvertUtils.convertReqToQueryStr(req);
+        String url =
+                TubeConst.SCHEMA
+                        + masterEntry.getIp()
+                        + ":"
+                        + masterEntry.getWebPort()
+                        + "/"
+                        + TubeConst.TUBE_REQUEST_PATH
+                        + "?"
+                        + TubeConst.CONF_MOD_AUTH_TOKEN
+                        + masterEntry.getToken()
+                        + "&"
+                        + ConvertUtils.convertReqToQueryStr(req);
         return requestMaster(url);
     }
 
@@ -121,8 +129,7 @@ public class MasterServiceImpl implements MasterService {
         if (req.getClusterId() == null) {
             return null;
         }
-        return masterRepository.findMasterEntryByClusterIdEquals(
-                req.getClusterId());
+        return masterRepository.findMasterEntryByClusterIdEquals(req.getClusterId());
     }
 
     @Override
@@ -133,8 +140,7 @@ public class MasterServiceImpl implements MasterService {
         List<MasterEntry> masters = getMasterNodes(clusterId);
 
         for (MasterEntry masterEntry : masters) {
-            if (!checkMasterNodeStatus(masterEntry.getIp(),
-                    masterEntry.getWebPort()).isError()) {
+            if (!checkMasterNodeStatus(masterEntry.getIp(), masterEntry.getWebPort()).isError()) {
                 return masterEntry;
             }
         }
@@ -171,21 +177,34 @@ public class MasterServiceImpl implements MasterService {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));
         queryBody.remove("clusterId");
         MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
-        return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils.covertMapToQueryString(queryBody);
+        return TubeConst.SCHEMA
+                + masterEntry.getIp()
+                + ":"
+                + masterEntry.getWebPort()
+                + "/"
+                + TubeConst.TUBE_REQUEST_PATH
+                + "?"
+                + ConvertUtils.covertMapToQueryString(queryBody);
     }
 
     @Override
     public TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterWebPort) {
-        String url = TubeConst.SCHEMA + masterIp + ":" + masterWebPort + TubeConst.BROKER_RUN_STATUS;
+        String url =
+                TubeConst.SCHEMA + masterIp + ":" + masterWebPort + TubeConst.BROKER_RUN_STATUS;
         return requestMaster(url);
     }
 
     @Override
     public String getQueryCountUrl(Integer clusterId, String method) {
         MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
-        return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
-                + method + "&" + "clusterId=" + clusterId;
+        return TubeConst.SCHEMA
+                + masterEntry.getIp()
+                + ":"
+                + masterEntry.getWebPort()
+                + method
+                + "&"
+                + "clusterId="
+                + clusterId;
     }
 
     @Override
@@ -195,5 +214,4 @@ public class MasterServiceImpl implements MasterService {
             throw new RuntimeException("no such master with clusterId = " + clusterId);
         }
     }
-
 }

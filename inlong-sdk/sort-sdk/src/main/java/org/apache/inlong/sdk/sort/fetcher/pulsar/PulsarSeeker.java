@@ -26,9 +26,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Pulsar seeker.
- */
+/** Pulsar seeker. */
 public class PulsarSeeker implements Seeker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSeeker.class);

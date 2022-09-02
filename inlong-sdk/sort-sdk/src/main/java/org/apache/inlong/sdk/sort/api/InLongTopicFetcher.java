@@ -17,12 +17,11 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import java.util.Objects;
+import java.util.Optional;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
-
-import java.util.Objects;
-import java.util.Optional;
 
 @Deprecated
 public abstract class InLongTopicFetcher {
@@ -76,7 +75,8 @@ public abstract class InLongTopicFetcher {
         }
         this.inLongTopic = topic;
         Optional.ofNullable(seeker).ifPresent(seeker -> seeker.configure(inLongTopic));
-        Optional.ofNullable(interceptor).ifPresent(interceptor -> interceptor.configure(inLongTopic));
+        Optional.ofNullable(interceptor)
+                .ifPresent(interceptor -> interceptor.configure(inLongTopic));
         return true;
     }
 }

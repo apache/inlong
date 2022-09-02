@@ -18,6 +18,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -35,20 +48,6 @@ import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
-
-import javax.annotation.Nullable;
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a MySQL binlog source from a logical
@@ -87,19 +86,13 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    /**
-     * Data type that describes the final output of the source.
-     */
+    /** Data type that describes the final output of the source. */
     protected DataType producedDataType;
 
-    /**
-     * Metadata that is appended at the end of a physical source row.
-     */
+    /** Metadata that is appended at the end of a physical source row. */
     protected List<String> metadataKeys;
 
-    /**
-     * Constructor of MySqlTableSource.
-     */
+    /** Constructor of MySqlTableSource. */
     public MySqlTableSource(
             ResolvedSchema physicalSchema,
             int port,
@@ -156,9 +149,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 inlongAudit);
     }
 
-    /**
-     * Constructor of MySqlTableSource.
-     */
+    /** Constructor of MySqlTableSource. */
     public MySqlTableSource(
             ResolvedSchema physicalSchema,
             int port,
@@ -317,7 +308,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         m ->
                                 m == MySqlReadableMetadata.OLD
                                         ? new OldFieldMetadataConverter(
-                                        physicalDataType, serverTimeZone)
+                                                physicalDataType, serverTimeZone)
                                         : m.getConverter())
                 .toArray(MetadataConverter[]::new);
     }

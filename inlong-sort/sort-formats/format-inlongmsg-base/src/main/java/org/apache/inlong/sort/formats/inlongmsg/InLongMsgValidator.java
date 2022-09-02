@@ -23,9 +23,7 @@ import org.apache.flink.table.descriptors.FormatDescriptorValidator;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 
-/**
- * Validator for mixed inlongmsg formats.
- */
+/** Validator for mixed inlongmsg formats. */
 public class InLongMsgValidator extends FormatDescriptorValidator {
 
     @Override

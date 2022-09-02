@@ -17,9 +17,7 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-/**
- * IRepository
- */
+/** IRepository */
 public interface IRepository {
 
     long DEFAULT_HEARTBEAT_INTERVAL_MS = 60000;

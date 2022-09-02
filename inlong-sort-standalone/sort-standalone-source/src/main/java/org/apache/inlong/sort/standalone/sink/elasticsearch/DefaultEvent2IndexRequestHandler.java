@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.nio.charset.Charset;
@@ -24,15 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
-/**
- * 
- * DefaultEvent2IndexRequestHandler
- */
+/** DefaultEvent2IndexRequestHandler */
 public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHandler {
 
     public static final String KEY_EXTINFO = "extinfo";
@@ -42,9 +35,9 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
 
     /**
      * parse
-     * 
-     * @param  context
-     * @param  event
+     *
+     * @param context
+     * @param event
      * @return
      */
     @Override
@@ -52,7 +45,8 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         String uid = event.getUid();
         EsIdConfig idConfig = context.getIdConfig(uid);
         if (idConfig == null) {
-            context.addSendResultMetric(event, context.getTaskName(), false, System.currentTimeMillis());
+            context.addSendResultMetric(
+                    event, context.getTaskName(), false, System.currentTimeMillis());
             return null;
         }
         // parse fields
@@ -64,7 +58,12 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         int msgLength = event.getBody().length;
         int contentOffset = idConfig.getContentOffset();
         if (contentOffset > 0 && msgLength >= 1) {
-            strContext = new String(bodyBytes, contentOffset, msgLength - contentOffset, Charset.defaultCharset());
+            strContext =
+                    new String(
+                            bodyBytes,
+                            contentOffset,
+                            msgLength - contentOffset,
+                            Charset.defaultCharset());
         } else {
             strContext = new String(bodyBytes, Charset.defaultCharset());
         }
@@ -98,7 +97,12 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         // build
         EsIndexRequest indexRequest = new EsIndexRequest(indexName, event);
         if (context.isUseIndexId()) {
-            String esIndexId = uid + delimeter + event.getRawLogTime() + delimeter + esIndexIndex.incrementAndGet();
+            String esIndexId =
+                    uid
+                            + delimeter
+                            + event.getRawLogTime()
+                            + delimeter
+                            + esIndexIndex.incrementAndGet();
             indexRequest.id(esIndexId);
         }
         indexRequest.source(fieldMap);
@@ -107,8 +111,8 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
 
     /**
      * getExtInfo
-     * 
-     * @param  event
+     *
+     * @param event
      * @return
      */
     public static String getExtInfo(ProfileEvent event) {
@@ -116,7 +120,8 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
         if (extinfoValue != null) {
             return KEY_EXTINFO + "=" + extinfoValue;
         }
-        extinfoValue = KEY_EXTINFO + "=" + event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
+        extinfoValue =
+                KEY_EXTINFO + "=" + event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
         return extinfoValue;
     }
 }

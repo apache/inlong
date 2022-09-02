@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.db;
 
-/**
- * search key for state.
- */
+/** search key for state. */
 public enum StateSearchKey {
     // success state
     SUCCESS,

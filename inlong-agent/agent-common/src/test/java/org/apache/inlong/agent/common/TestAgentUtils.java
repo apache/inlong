@@ -40,13 +40,14 @@ public class TestAgentUtils {
         Assert.assertArrayEquals(expectResult, result);
 
         result = AgentDbUtils.replaceDynamicSeq("${0x0, 0xf}");
-        expectResult = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a",
-            "b", "c", "d", "e", "f"};
+        expectResult =
+                new String[] {
+                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"
+                };
         Assert.assertArrayEquals(expectResult, result);
 
         result = AgentDbUtils.replaceDynamicSeq("${O01,O10}");
-        expectResult = new String[]{"01", "02", "03", "04", "05",
-            "06", "07", "10"};
+        expectResult = new String[] {"01", "02", "03", "04", "05", "06", "07", "10"};
         Assert.assertArrayEquals(expectResult, result);
     }
 
@@ -79,9 +80,12 @@ public class TestAgentUtils {
 
     @Test
     public void testTimeConvertToMillsec() {
-        Assert.assertEquals(1620316800000L, AgentUtils.timeStrConvertToMillSec("202105071554", "D"));
-        Assert.assertEquals(1620370800000L, AgentUtils.timeStrConvertToMillSec("202105071554", "H"));
-        Assert.assertEquals(1620374040000L, AgentUtils.timeStrConvertToMillSec("202105071554", "M"));
+        Assert.assertEquals(
+                1620316800000L, AgentUtils.timeStrConvertToMillSec("202105071554", "D"));
+        Assert.assertEquals(
+                1620370800000L, AgentUtils.timeStrConvertToMillSec("202105071554", "H"));
+        Assert.assertEquals(
+                1620374040000L, AgentUtils.timeStrConvertToMillSec("202105071554", "M"));
     }
 
     @Test
@@ -93,6 +97,6 @@ public class TestAgentUtils {
     @Test
     public void testCustomFixedIp() {
         String ip = AgentUtils.fetchLocalIp();
-        Assert.assertNotEquals("127.0.0.1",ip);
+        Assert.assertNotEquals("127.0.0.1", ip);
     }
 }

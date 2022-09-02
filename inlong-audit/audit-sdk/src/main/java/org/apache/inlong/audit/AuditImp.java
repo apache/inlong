@@ -17,13 +17,7 @@
 
 package org.apache.inlong.audit;
 
-import org.apache.inlong.audit.protocol.AuditApi;
-import org.apache.inlong.audit.send.SenderManager;
-import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.audit.util.Config;
-import org.apache.inlong.audit.util.StatInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDITREQUEST;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,16 +29,23 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDITREQUEST;
+import org.apache.inlong.audit.protocol.AuditApi;
+import org.apache.inlong.audit.send.SenderManager;
+import org.apache.inlong.audit.util.AuditConfig;
+import org.apache.inlong.audit.util.Config;
+import org.apache.inlong.audit.util.StatInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuditImp {
     private static final Logger logger = LoggerFactory.getLogger(AuditImp.class);
     private static AuditImp auditImp = new AuditImp();
     private static final String FIELD_SEPARATORS = ":";
-    private ConcurrentHashMap<String, StatInfo> countMap = new ConcurrentHashMap<String, StatInfo>();
+    private ConcurrentHashMap<String, StatInfo> countMap =
+            new ConcurrentHashMap<String, StatInfo>();
     private HashMap<String, StatInfo> threadSumMap = new HashMap<String, StatInfo>();
-    private ConcurrentHashMap<String, StatInfo> deleteCountMap = new ConcurrentHashMap<String, StatInfo>();
+    private ConcurrentHashMap<String, StatInfo> deleteCountMap =
+            new ConcurrentHashMap<String, StatInfo>();
     private List<String> deleteKeyList = new ArrayList<String>();
     private AuditConfig auditConfig = null;
     private Config config = new Config();
@@ -57,24 +58,23 @@ public class AuditImp {
     private static ReentrantLock globalLock = new ReentrantLock();
     private static int PERIOD = 1000 * 60;
     private Timer timer = new Timer();
-    private TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
-            try {
-                sendReport();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
-        }
-    };
+    private TimerTask timerTask =
+            new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        sendReport();
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                }
+            };
 
     public static AuditImp getInstance() {
         return auditImp;
     }
 
-    /**
-     * init
-     */
+    /** init */
     private void init() {
         if (inited) {
             return;
@@ -127,10 +127,22 @@ public class AuditImp {
      * @param count
      * @param size
      */
-    public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
+    public void add(
+            int auditID,
+            String inlongGroupID,
+            String inlongStreamID,
+            Long logTime,
+            long count,
+            long size) {
         long delayTime = System.currentTimeMillis() - logTime;
-        String key = (logTime / PERIOD) + FIELD_SEPARATORS + inlongGroupID + FIELD_SEPARATORS
-                + inlongStreamID + FIELD_SEPARATORS + auditID;
+        String key =
+                (logTime / PERIOD)
+                        + FIELD_SEPARATORS
+                        + inlongGroupID
+                        + FIELD_SEPARATORS
+                        + inlongStreamID
+                        + FIELD_SEPARATORS
+                        + auditID;
         addByKey(key, count, size, delayTime);
     }
 
@@ -155,9 +167,7 @@ public class AuditImp {
         }
     }
 
-    /**
-     * Report audit data
-     */
+    /** Report audit data */
     public synchronized void sendReport() {
         manager.clearBuffer();
         resetStat();
@@ -184,11 +194,14 @@ public class AuditImp {
         }
         this.deleteKeyList.clear();
         sdkTime = Calendar.getInstance().getTimeInMillis();
-        AuditApi.AuditMessageHeader mssageHeader = AuditApi.AuditMessageHeader.newBuilder()
-                .setIp(config.getLocalIP()).setDockerId(config.getDockerId())
-                .setThreadId(String.valueOf(Thread.currentThread().getId()))
-                .setSdkTs(sdkTime).setPacketId(packageId)
-                .build();
+        AuditApi.AuditMessageHeader mssageHeader =
+                AuditApi.AuditMessageHeader.newBuilder()
+                        .setIp(config.getLocalIP())
+                        .setDockerId(config.getDockerId())
+                        .setThreadId(String.valueOf(Thread.currentThread().getId()))
+                        .setSdkTs(sdkTime)
+                        .setPacketId(packageId)
+                        .build();
         AuditApi.AuditRequest.Builder requestBulid = AuditApi.AuditRequest.newBuilder();
         requestBulid.setMsgHeader(mssageHeader).setRequestId(manager.nextRequestId());
         for (Map.Entry<String, StatInfo> entry : threadSumMap.entrySet()) {
@@ -198,12 +211,16 @@ public class AuditImp {
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
             StatInfo value = entry.getValue();
-            AuditApi.AuditMessageBody mssageBody = AuditApi.AuditMessageBody.newBuilder()
-                    .setLogTs(logTime).setInlongGroupId(inlongGroupID)
-                    .setInlongStreamId(inlongStreamID).setAuditId(auditID)
-                    .setCount(value.count.get()).setSize(value.size.get())
-                    .setDelay(value.delay.get())
-                    .build();
+            AuditApi.AuditMessageBody mssageBody =
+                    AuditApi.AuditMessageBody.newBuilder()
+                            .setLogTs(logTime)
+                            .setInlongGroupId(inlongGroupID)
+                            .setInlongStreamId(inlongStreamID)
+                            .setAuditId(auditID)
+                            .setCount(value.count.get())
+                            .setSize(value.size.get())
+                            .setDelay(value.delay.get())
+                            .build();
             requestBulid.addMsgBody(mssageBody);
             if (dataId++ >= BATCH_NUM) {
                 dataId = 0;
@@ -255,9 +272,7 @@ public class AuditImp {
         threadSumMap.get(key).delay.addAndGet(delay);
     }
 
-    /**
-     * Reset statistics
-     */
+    /** Reset statistics */
     private void resetStat() {
         dataId = 0;
         packageId = 1;

@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -38,38 +42,55 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for {@link DecimalFormatInfo} and {@link FlinkSqlParser}
- */
+/** Test for {@link DecimalFormatInfo} and {@link FlinkSqlParser} */
 public class DecimalFormatSqlParseTest extends AbstractTestBase {
 
     private KafkaExtractNode buildKafkaExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
-        return new KafkaExtractNode("1", "kafka_input", fields, null,
-                null, "kafka_input", "localhost:9092",
-                new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId_1", null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                null,
+                null,
+                "kafka_input",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "groupId_1",
+                null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("salary", new DecimalFormatInfo(13, 9)),
-                                new FieldInfo("salary", new DecimalFormatInfo(13, 9)))
-                );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
-                null, "kafka_output", "localhost:9092",
-                new CanalJsonFormat(), null,
-                null, null);
+                        new FieldRelation(
+                                new FieldInfo("salary", new DecimalFormatInfo(13, 9)),
+                                new FieldInfo("salary", new DecimalFormatInfo(13, 9))));
+        return new KafkaLoadNode(
+                "2",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "kafka_output",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                null,
+                null,
+                null);
     }
 
     public NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -85,25 +106,25 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testDecimalFormatSqlParse() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
         Node outputNode = buildKafkaLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(inputNode), Collections.singletonList(outputNode))
-                ));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

@@ -19,6 +19,10 @@
 package org.apache.inlong.sort.tubemq.table;
 
 import com.google.common.base.Objects;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
@@ -26,31 +30,18 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.tubemq.corebase.Message;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public class DynamicTubeMQDeserializationSchema implements DeserializationSchema<RowData> {
 
-    /**
-     * data buffer message
-     */
+    /** data buffer message */
     private final DeserializationSchema<RowData> deserializationSchema;
 
-    /**
-     * {@link MetadataConverter} of how to produce metadata from message.
-     */
+    /** {@link MetadataConverter} of how to produce metadata from message. */
     private final MetadataConverter[] metadataConverters;
 
-    /**
-     * {@link TypeInformation} of the produced {@link RowData} (physical + meta data).
-     */
+    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
     private final TypeInformation<RowData> producedTypeInfo;
 
-    /**
-     * status of error
-     */
+    /** status of error */
     private final boolean ignoreErrors;
 
     public DynamicTubeMQDeserializationSchema(
@@ -94,20 +85,20 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         }
         DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
-                && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                && Objects.equal(
+                        Arrays.stream(metadataConverters).collect(Collectors.toList()),
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
+        return Objects.hashCode(
+                deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
-    
-    /**
-     * add metadata column
-     */
+
+    /** add metadata column */
     private void emitRow(Message head, GenericRowData physicalRow, Collector<RowData> out) {
         if (metadataConverters.length == 0) {
             out.collect(physicalRow);

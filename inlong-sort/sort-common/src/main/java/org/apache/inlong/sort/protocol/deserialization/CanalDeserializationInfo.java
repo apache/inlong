@@ -18,15 +18,12 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+import java.util.Objects;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Objects;
-
-/**
- * Canal deserialization info
- */
+/** Canal deserialization info */
 public class CanalDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = -5344203248610337314L;
@@ -106,7 +103,7 @@ public class CanalDeserializationInfo implements DeserializationInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(database, table, ignoreParseErrors, timestampFormatStandard, includeMetadata);
+        return Objects.hash(
+                database, table, ignoreParseErrors, timestampFormatStandard, includeMetadata);
     }
-
 }

@@ -54,9 +54,9 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
  * RowData}. The deserialization schema knows Canal's schema definition and can extract the database
  * data and convert into {@link RowData} with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
+ * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
+ * <p>Failures during deserialization are forwarded as wrapped IOExceptions.
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
@@ -288,10 +288,12 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         }
     }
 
-    private void emitRow(GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
+    private void emitRow(
+            GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
+        final GenericRowData producedRow =
+                new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
 
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
             producedRow.setField(physicalPos + 1, physicalRow.getField(physicalPos));
@@ -303,8 +305,8 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(
+                            metadataConverters[metadataPos].convert(rootRow).toString()));
         }
         producedRow.setField(0, new GenericMapData(metadataMap));
 
@@ -341,12 +343,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     @Override
     public int hashCode() {
         return Objects.hash(
-                jsonDeserializer,
-                producedTypeInfo,
-                database,
-                table,
-                ignoreParseErrors,
-                fieldCount);
+                jsonDeserializer, producedTypeInfo, database, table, ignoreParseErrors, fieldCount);
     }
 
     // --------------------------------------------------------------------------------------------

@@ -17,15 +17,13 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Test for {@link TimeUnitConstantParam}
- */
+/** Test for {@link TimeUnitConstantParam} */
 public class TimeUnitConstantParamTest extends SerializeBaseTest<TimeUnitConstantParam> {
 
     @Override
@@ -42,5 +40,4 @@ public class TimeUnitConstantParamTest extends SerializeBaseTest<TimeUnitConstan
     public void testFormat() {
         assertEquals("HOUR", getTestObject().format());
     }
-
 }

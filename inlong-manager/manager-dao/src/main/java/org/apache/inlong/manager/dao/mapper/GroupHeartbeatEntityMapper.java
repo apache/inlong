@@ -17,29 +17,32 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface GroupHeartbeatEntityMapper {
 
     int insert(GroupHeartbeatEntity record);
 
-    int insertOrUpdateAll(@Param("component") String component, @Param("instance") String instance,
-            @Param("reportTime") Long reportTime, @Param("list") List<GroupHeartbeat> list);
+    int insertOrUpdateAll(
+            @Param("component") String component,
+            @Param("instance") String instance,
+            @Param("reportTime") Long reportTime,
+            @Param("list") List<GroupHeartbeat> list);
 
     GroupHeartbeatEntity selectByPrimaryKey(Integer id);
 
-    GroupHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
+    GroupHeartbeatEntity selectByKey(
+            @Param("component") String component,
+            @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId);
 
     List<GroupHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
 
     int deleteByPrimaryKey(Integer id);
-
 }

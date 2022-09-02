@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.listener.group.apply;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
@@ -32,27 +32,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * The listener for modifying InlongGroup info after the application InlongGroup process is approved.
+ * The listener for modifying InlongGroup info after the application InlongGroup process is
+ * approved.
  */
 @Slf4j
 @Component
 public class AfterApprovedTaskListener implements TaskEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public TaskEvent event() {
         return TaskEvent.APPROVE;
     }
 
-    /**
-     * After approval, persist the modified info during the approval in DB.
-     */
+    /** After approval, persist the modified info during the approval in DB. */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         InlongGroupApproveForm form = (InlongGroupApproveForm) context.getActionContext().getForm();
@@ -67,5 +63,4 @@ public class AfterApprovedTaskListener implements TaskEventListener {
         log.info("success to execute AfterApprovedTaskListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

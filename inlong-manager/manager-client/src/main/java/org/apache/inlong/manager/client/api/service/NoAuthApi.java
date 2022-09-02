@@ -23,9 +23,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
-/**
- * API for AnnoController in manager-web
- */
+/** API for AnnoController in manager-web */
 public interface NoAuthApi {
 
     @POST("anno/register")

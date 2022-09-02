@@ -22,9 +22,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Pulsar topic bean, including tenant, namespace, etc.
- */
+/** Pulsar topic bean, including tenant, namespace, etc. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -39,7 +37,5 @@ public class PulsarTopicBean {
 
     private String queueModule;
 
-    @Builder.Default
-    private Integer numPartitions = 0;
-
+    @Builder.Default private Integer numPartitions = 0;
 }

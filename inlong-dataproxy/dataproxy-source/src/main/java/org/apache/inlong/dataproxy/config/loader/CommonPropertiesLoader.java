@@ -19,9 +19,7 @@ package org.apache.inlong.dataproxy.config.loader;
 
 import java.util.Map;
 
-/**
- * Interface of common properties loader
- */
+/** Interface of common properties loader */
 public interface CommonPropertiesLoader {
 
     /**
@@ -30,5 +28,4 @@ public interface CommonPropertiesLoader {
      * @return the configuration map
      */
     Map<String, String> load();
-
 }

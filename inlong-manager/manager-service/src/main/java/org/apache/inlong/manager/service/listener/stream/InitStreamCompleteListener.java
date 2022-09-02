@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -32,17 +32,13 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongStream when created resources successfully.
- */
+/** The listener of InlongStream when created resources successfully. */
 @Slf4j
 @Component
 public class InitStreamCompleteListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private StreamSourceService sourceService;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
@@ -61,11 +57,12 @@ public class InitStreamCompleteListener implements ProcessEventListener {
         final String operator = context.getOperator();
 
         // Update status of other related configs
-        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        streamService.updateStatus(
+                groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
         streamService.update(streamInfo.genRequest(), operator);
-        sourceService.updateStatus(groupId, streamId, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
+        sourceService.updateStatus(
+                groupId, streamId, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
 
         return ListenerResult.success();
     }
-
 }

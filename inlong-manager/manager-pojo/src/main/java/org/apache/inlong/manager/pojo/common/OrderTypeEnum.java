@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.pojo.common;
 
-/**
- * The order type enumeration.
- */
+/** The order type enumeration. */
 public enum OrderTypeEnum {
-
     DESC,
 
     ASC;
@@ -35,5 +32,4 @@ public enum OrderTypeEnum {
         }
         pageRequest.setOrderType(DESC.name().toLowerCase());
     }
-
 }

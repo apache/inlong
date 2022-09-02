@@ -1,27 +1,23 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -35,10 +31,7 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-/**
- * 
- * SinkContext
- */
+/** SinkContext */
 public class SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(SinkContext.class);
@@ -66,7 +59,7 @@ public class SinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param context
      * @param channel
@@ -85,9 +78,7 @@ public class SinkContext {
         MetricRegister.register(this.metricItemSet);
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         try {
             this.reload();
@@ -97,9 +88,7 @@ public class SinkContext {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         try {
             this.reloadTimer.cancel();
@@ -108,23 +97,21 @@ public class SinkContext {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     protected void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            public void run() {
-                reload();
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+                    public void run() {
+                        reload();
+                    }
+                };
+        reloadTimer.schedule(
+                task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
             this.sortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
@@ -135,7 +122,7 @@ public class SinkContext {
 
     /**
      * get clusterId
-     * 
+     *
      * @return the clusterId
      */
     public String getClusterId() {
@@ -144,7 +131,7 @@ public class SinkContext {
 
     /**
      * get taskName
-     * 
+     *
      * @return the taskName
      */
     public String getTaskName() {
@@ -153,7 +140,7 @@ public class SinkContext {
 
     /**
      * get sinkName
-     * 
+     *
      * @return the sinkName
      */
     public String getSinkName() {
@@ -162,7 +149,7 @@ public class SinkContext {
 
     /**
      * get sinkContext
-     * 
+     *
      * @return the sinkContext
      */
     public Context getSinkContext() {
@@ -171,7 +158,7 @@ public class SinkContext {
 
     /**
      * get sortTaskConfig
-     * 
+     *
      * @return the sortTaskConfig
      */
     public SortTaskConfig getSortTaskConfig() {
@@ -180,7 +167,7 @@ public class SinkContext {
 
     /**
      * get channel
-     * 
+     *
      * @return the channel
      */
     public Channel getChannel() {
@@ -189,7 +176,7 @@ public class SinkContext {
 
     /**
      * get maxThreads
-     * 
+     *
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -198,7 +185,7 @@ public class SinkContext {
 
     /**
      * get processInterval
-     * 
+     *
      * @return the processInterval
      */
     public long getProcessInterval() {
@@ -207,7 +194,7 @@ public class SinkContext {
 
     /**
      * get reloadInterval
-     * 
+     *
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -216,7 +203,7 @@ public class SinkContext {
 
     /**
      * get metricItemSet
-     * 
+     *
      * @return the metricItemSet
      */
     public SortMetricItemSet getMetricItemSet() {

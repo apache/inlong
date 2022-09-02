@@ -19,13 +19,10 @@ package org.apache.inlong.manager.pojo.common;
 
 import lombok.Data;
 
-/**
- * Count info
- */
+/** Count info */
 @Data
 public class CountInfo {
 
     private String key;
     private Integer value;
-
 }

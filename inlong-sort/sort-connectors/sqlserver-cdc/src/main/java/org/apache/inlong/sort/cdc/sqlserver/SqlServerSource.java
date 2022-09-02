@@ -18,15 +18,14 @@
 
 package org.apache.inlong.sort.cdc.sqlserver;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
-import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.connector.sqlserver.SqlServerConnector;
-
 import java.util.Properties;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
 
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume transaction
@@ -167,8 +166,12 @@ public class SqlServerSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, new SqlServerValidator(props),
-                inlongMetric, auditHostAndPorts);
+                    deserializer,
+                    props,
+                    null,
+                    new SqlServerValidator(props),
+                    inlongMetric,
+                    auditHostAndPorts);
         }
     }
 }

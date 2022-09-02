@@ -18,13 +18,10 @@
 package org.apache.inlong.agent.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 
-import java.io.IOException;
-
-/**
- * Serializer implementation for a {@link DebeziumOffset}
- */
+/** Serializer implementation for a {@link DebeziumOffset} */
 public class DebeziumOffsetSerializer {
 
     public static final DebeziumOffsetSerializer INSTANCE = new DebeziumOffsetSerializer();

@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Enum of data separator and related ASCII code.
- */
+/** Enum of data separator and related ASCII code. */
 public enum DataSeparator {
-
     VERTICAL_BAR("|", 124),
     COMMA(",", 44),
     COLON(":", 58),

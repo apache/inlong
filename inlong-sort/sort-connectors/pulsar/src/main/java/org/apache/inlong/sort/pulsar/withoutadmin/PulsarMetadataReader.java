@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
 
+import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions.ENABLE_KEY_HASH_RANGE_KEY;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
@@ -37,23 +47,11 @@ import org.apache.pulsar.shade.com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
-import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions.ENABLE_KEY_HASH_RANGE_KEY;
-
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader}
- * A Helper class that talks to Pulsar Admin API.
- * - getEarliest / Latest / Specific MessageIds
- * - guarantee message existence using subscription by setup, move and remove
+ * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From {@link
+ * org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader} A Helper class that
+ * talks to Pulsar Admin API. - getEarliest / Latest / Specific MessageIds - guarantee message
+ * existence using subscription by setup, move and remove
  */
 public class PulsarMetadataReader implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(PulsarMetadataReader.class);
@@ -92,7 +90,8 @@ public class PulsarMetadataReader implements AutoCloseable {
             Map<String, String> caseInsensitiveParams,
             int indexOfThisSubtask,
             int numParallelSubtasks,
-            boolean useExternalSubscription) throws PulsarClientException {
+            boolean useExternalSubscription)
+            throws PulsarClientException {
         this.serverUrl = serverUrl;
         this.clientConf = clientConf;
         this.subscriptionName = subscriptionName;
@@ -100,20 +99,24 @@ public class PulsarMetadataReader implements AutoCloseable {
         this.indexOfThisSubtask = indexOfThisSubtask;
         this.numParallelSubtasks = numParallelSubtasks;
         this.useExternalSubscription = useExternalSubscription;
-        this.client = buildPulsarClient(serverUrl, clientConf, caseInsensitiveParams.get(AUTHENTICATION_TOKEN.key()));
+        this.client =
+                buildPulsarClient(
+                        serverUrl,
+                        clientConf,
+                        caseInsensitiveParams.get(AUTHENTICATION_TOKEN.key()));
         this.range = buildRange(caseInsensitiveParams);
     }
 
     private PulsarClient buildPulsarClient(
-            String serviceUrl,
-            ClientConfigurationData clientConf,
-            String authentication) throws PulsarClientException {
+            String serviceUrl, ClientConfigurationData clientConf, String authentication)
+            throws PulsarClientException {
         if (StringUtils.isNullOrWhitespaceOnly(authentication)) {
             return new PulsarClientImpl(clientConf);
         } else {
             return PulsarClient.builder()
                     .serviceUrl(serviceUrl)
-                    .authentication(AuthenticationFactory.token(authentication)).build();
+                    .authentication(AuthenticationFactory.token(authentication))
+                    .build();
         }
     }
 
@@ -121,7 +124,8 @@ public class PulsarMetadataReader implements AutoCloseable {
         if (numParallelSubtasks <= 0 || indexOfThisSubtask < 0) {
             return SerializableRange.ofFullRange();
         }
-        if (caseInsensitiveParams == null || caseInsensitiveParams.isEmpty()
+        if (caseInsensitiveParams == null
+                || caseInsensitiveParams.isEmpty()
                 || !caseInsensitiveParams.containsKey(ENABLE_KEY_HASH_RANGE_KEY)) {
             return SerializableRange.ofFullRange();
         }
@@ -129,7 +133,8 @@ public class PulsarMetadataReader implements AutoCloseable {
         if (!Boolean.parseBoolean(enableKeyHashRange)) {
             return SerializableRange.ofFullRange();
         }
-        final Range range = SourceSinkUtils.distributeRange(numParallelSubtasks, indexOfThisSubtask);
+        final Range range =
+                SourceSinkUtils.distributeRange(numParallelSubtasks, indexOfThisSubtask);
         return SerializableRange.of(range);
     }
 
@@ -139,9 +144,11 @@ public class PulsarMetadataReader implements AutoCloseable {
             String subscriptionName,
             Map<String, String> caseInsensitiveParams,
             int indexOfThisSubtask,
-            int numParallelSubtasks) throws PulsarClientException {
+            int numParallelSubtasks)
+            throws PulsarClientException {
 
-        this(serverUrl,
+        this(
+                serverUrl,
                 clientConf,
                 subscriptionName,
                 caseInsensitiveParams,
@@ -243,9 +250,6 @@ public class PulsarMetadataReader implements AutoCloseable {
         return Collections.emptyList();
     }
 
-    /**
-     * Designate the close of the metadata reader.
-     */
-    public static class ClosedException extends Exception {
-    }
+    /** Designate the close of the metadata reader. */
+    public static class ClosedException extends Exception {}
 }

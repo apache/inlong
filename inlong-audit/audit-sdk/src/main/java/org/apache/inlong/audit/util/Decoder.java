@@ -26,17 +26,16 @@ public class Decoder extends MessageToMessageDecoder<ByteBuf> {
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;
 
-    /**
-     * decoding
-     */
+    /** decoding */
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
-            List<Object> out) throws Exception {
-        // Every time you need to read the complete package (that is, read to the end of the package),
+    protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out)
+            throws Exception {
+        // Every time you need to read the complete package (that is, read to the end of the
+        // package),
         // otherwise only the first one will be parsed correctly,
         // which will adversely affect the parsing of the subsequent package
         buffer.markReaderIndex();
-        //Packet composition: 4 bytes length content + ProtocolBuffer content
+        // Packet composition: 4 bytes length content + ProtocolBuffer content
         int totalLen = buffer.readInt();
         // Respond to abnormal channel, interrupt in time to avoid stuck
         if (totalLen > MAX_RESPONSE_LENGTH) {

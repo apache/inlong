@@ -17,11 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.powermock.api.mockito.PowerMockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -30,8 +26,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
+import org.apache.commons.io.FileUtils;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.powermock.api.mockito.PowerMockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestUtils {
 
@@ -71,7 +70,8 @@ public class TestUtils {
                 + "  }";
     }
 
-    public static void createHugeFiles(String fileName, String rootDir, String record) throws Exception {
+    public static void createHugeFiles(String fileName, String rootDir, String record)
+            throws Exception {
         final Path hugeFile = Paths.get(rootDir, fileName);
         FileWriter writer = new FileWriter(hugeFile.toFile());
         for (int i = 0; i < 1024; i++) {
@@ -81,8 +81,8 @@ public class TestUtils {
         writer.close();
     }
 
-    public static void createMultipleLineFiles(String fileName, String rootDir,
-            String record, int lineNum) throws Exception {
+    public static void createMultipleLineFiles(
+            String fileName, String rootDir, String record, int lineNum) throws Exception {
         final Path hugeFile = Paths.get(rootDir, fileName);
         List<String> beforeList = new ArrayList<>();
         for (int i = 0; i < lineNum; i++) {

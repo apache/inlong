@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.hbase.sink;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -42,15 +50,6 @@ import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The sink function for HBase.
@@ -80,12 +79,11 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
      * This is set from inside the {@link BufferedMutator.ExceptionListener} if a {@link Throwable}
      * was thrown.
      *
-     * <p>
-     * Errors will be checked and rethrown before processing each input element, and when the
+     * <p>Errors will be checked and rethrown before processing each input element, and when the
      * sink is closed.
-     * </p>
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
+
     private transient Connection connection;
     private transient BufferedMutator mutator;
     private transient ScheduledExecutorService executor;
@@ -128,8 +126,13 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 String groupId = inlongMetricArray[0];
                 String streamId = inlongMetricArray[1];
                 String nodeId = inlongMetricArray[2];
-                sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup(),
-                        inlongAudit);
+                sinkMetricData =
+                        new SinkMetricData(
+                                groupId,
+                                streamId,
+                                nodeId,
+                                runtimeContext.getMetricGroup(),
+                                inlongAudit);
                 sinkMetricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
                 sinkMetricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());

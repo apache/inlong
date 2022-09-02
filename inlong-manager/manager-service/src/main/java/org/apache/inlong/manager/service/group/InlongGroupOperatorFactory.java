@@ -17,34 +17,27 @@
 
 package org.apache.inlong.manager.service.group;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Factory for {@link InlongGroupOperator}.
- */
+/** Factory for {@link InlongGroupOperator}. */
 @Service
 public class InlongGroupOperatorFactory {
 
-    @Autowired
-    private List<InlongGroupOperator> groupOperatorList;
+    @Autowired private List<InlongGroupOperator> groupOperatorList;
 
-    /**
-     * Get a group operator instance via the given mqType
-     */
+    /** Get a group operator instance via the given mqType */
     public InlongGroupOperator getInstance(String mqType) {
-        Optional<InlongGroupOperator> instance = groupOperatorList.stream()
-                .filter(inst -> inst.accept(mqType))
-                .findFirst();
+        Optional<InlongGroupOperator> instance =
+                groupOperatorList.stream().filter(inst -> inst.accept(mqType)).findFirst();
         if (!instance.isPresent()) {
-            throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
+            throw new BusinessException(
+                    String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
         }
         return instance.get();
     }
-
 }

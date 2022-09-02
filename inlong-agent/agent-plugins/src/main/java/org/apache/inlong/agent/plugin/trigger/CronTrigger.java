@@ -21,25 +21,17 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.plugin.Trigger;
 
-/**
- * Generate job by crontab expression.
- */
+/** Generate job by crontab expression. */
 public class CronTrigger implements Trigger {
 
     @Override
-    public void init(TriggerProfile profile) {
-
-    }
+    public void init(TriggerProfile profile) {}
 
     @Override
-    public void run() {
-
-    }
+    public void run() {}
 
     @Override
-    public void destroy() {
-
-    }
+    public void destroy() {}
 
     @Override
     public JobProfile fetchJobProfile() {

@@ -29,23 +29,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Iceberg stream sink service test.
- */
+/** Iceberg stream sink service test. */
 public class IcebergSinkServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
     private final String globalStreamId = "stream1_iceberg";
     private final String globalOperator = "admin";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();
@@ -89,5 +83,4 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
 
         sinkService.delete(sinkId, globalOperator);
     }
-
 }

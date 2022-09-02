@@ -40,8 +40,7 @@ public class AddressUtils {
 
     @Deprecated
     public static boolean validLocalIp(String currLocalHost) {
-        if (TStringUtils.isNotEmpty(localIPAddress)
-                && localIPAddress.equals(currLocalHost)) {
+        if (TStringUtils.isNotEmpty(localIPAddress) && localIPAddress.equals(currLocalHost)) {
             return true;
         }
 
@@ -50,8 +49,8 @@ public class AddressUtils {
         return checkValidIp(allInterface, currLocalHost);
     }
 
-    private static boolean checkValidIp(Enumeration<NetworkInterface> allInterface,
-                                        String currLocalHost) {
+    private static boolean checkValidIp(
+            Enumeration<NetworkInterface> allInterface, String currLocalHost) {
         String fstV4IP = null;
         while (allInterface.hasMoreElements()) {
             try {
@@ -72,9 +71,12 @@ public class AddressUtils {
             localIPAddress = fstV4IP;
             return true;
         }
-        throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: not found the ip(").append(currLocalHost)
-                .append(") or ip v4 address in local networkInterfaces!").toString());
+        throw new AddressException(
+                new StringBuilder(256)
+                        .append("Illegal parameter: not found the ip(")
+                        .append(currLocalHost)
+                        .append(") or ip v4 address in local networkInterfaces!")
+                        .toString());
     }
 
     public static int ipToInt(String ipAddr) {
@@ -86,9 +88,15 @@ public class AddressUtils {
     }
 
     public static String intToIp(int ipInt) {
-        return new StringBuilder(128).append(((ipInt >> 24) & 0xff)).append('.')
-                .append((ipInt >> 16) & 0xff).append('.').append((ipInt >> 8) & 0xff).append('.')
-                .append((ipInt & 0xff)).toString();
+        return new StringBuilder(128)
+                .append(((ipInt >> 24) & 0xff))
+                .append('.')
+                .append((ipInt >> 16) & 0xff)
+                .append('.')
+                .append((ipInt >> 8) & 0xff)
+                .append('.')
+                .append((ipInt & 0xff))
+                .toString();
     }
 
     public static byte[] toBytes(String ipAddr) {
@@ -141,7 +149,7 @@ public class AddressUtils {
     /**
      * Get local IP V4 address
      *
-     * @return  the local IP V4 address
+     * @return the local IP V4 address
      */
     public static String getIPV4LocalAddress() {
         if (localIPAddress != null) {
@@ -175,36 +183,36 @@ public class AddressUtils {
         } catch (SocketException | UnknownHostException e) {
             throw new AddressException("Call getIPV4LocalAddress throw exception", e);
         }
-        throw new AddressException(new StringBuilder(256)
-            .append("Illegal parameter: not found the default ip")
-            .append(" in local networkInterfaces!").toString());
+        throw new AddressException(
+                new StringBuilder(256)
+                        .append("Illegal parameter: not found the default ip")
+                        .append(" in local networkInterfaces!")
+                        .toString());
     }
 
     /**
      * Get the local IP V4 address from the designated NetworkInterface
      *
-     * @return  the local IP V4 address
+     * @return the local IP V4 address
      */
     public static String getIPV4LocalAddress(String defEthName) {
         boolean foundNetInter = false;
         try {
-            Enumeration<NetworkInterface> enumeration =
-                    NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
             if (enumeration == null) {
                 throw new AddressException("Get NetworkInterfaces is null");
             }
             while (enumeration.hasMoreElements()) {
                 NetworkInterface oneInterface = enumeration.nextElement();
                 if (oneInterface == null
-                    || oneInterface.isLoopback()
-                    || !oneInterface.isUp()
-                    || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
+                        || oneInterface.isLoopback()
+                        || !oneInterface.isUp()
+                        || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
                     continue;
                 }
                 foundNetInter = true;
                 try {
-                    Tuple2<Boolean, String> result =
-                            getValidIPV4Address(oneInterface, null);
+                    Tuple2<Boolean, String> result = getValidIPV4Address(oneInterface, null);
                     if (result.getF0()) {
                         localIPAddress = result.getF1();
                         return localIPAddress;
@@ -217,13 +225,19 @@ public class AddressUtils {
             throw new AddressException("Call getDefNetworkAddress throw exception", e);
         }
         if (foundNetInter) {
-            throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: not found valid ip")
-                .append(" in networkInterfaces ").append(defEthName).toString());
+            throw new AddressException(
+                    new StringBuilder(256)
+                            .append("Illegal parameter: not found valid ip")
+                            .append(" in networkInterfaces ")
+                            .append(defEthName)
+                            .toString());
         } else {
-            throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: ").append(defEthName)
-                .append(" does not exist or is not in a valid state!").toString());
+            throw new AddressException(
+                    new StringBuilder(256)
+                            .append("Illegal parameter: ")
+                            .append(defEthName)
+                            .append(" does not exist or is not in a valid state!")
+                            .toString());
         }
     }
 
@@ -231,12 +245,10 @@ public class AddressUtils {
      * get valid IPV4 address from networkInterface.
      *
      * @param networkInterface need check networkInterface
-     * @param checkIp The IP address to be searched,
-     *                if not specified, set to null
-     * @return Search result, field 0 indicates whether it is successful,
-     *                        field 1 carries the matched IP value;
-     *                        if the checkIp is specified but not found the IP,
-     *                        field 1 will return the first IPV4 address
+     * @param checkIp The IP address to be searched, if not specified, set to null
+     * @return Search result, field 0 indicates whether it is successful, field 1 carries the
+     *     matched IP value; if the checkIp is specified but not found the IP, field 1 will return
+     *     the first IPV4 address
      * @throws AddressException throw exception if found no ipv4 address
      */
     public static Tuple2<Boolean, String> getValidIPV4Address(
@@ -258,8 +270,7 @@ public class AddressUtils {
                     continue;
                 }
                 String localIP = address.getHostAddress();
-                if (TStringUtils.isEmpty(localIP)
-                        || localIP.startsWith("127.0")) {
+                if (TStringUtils.isEmpty(localIP) || localIP.startsWith("127.0")) {
                     continue;
                 }
                 if (!TStringUtils.isEmpty(checkIp)) {
@@ -275,11 +286,13 @@ public class AddressUtils {
             }
             return new Tuple2<>(false, fstV4IP);
         } catch (Throwable e) {
-            throw new AddressException(new StringBuilder(256)
-                    .append("Illegal parameter: ")
-                    .append("unable to obtain valid IP from network card ")
-                    .append(networkInterface).toString(), e);
+            throw new AddressException(
+                    new StringBuilder(256)
+                            .append("Illegal parameter: ")
+                            .append("unable to obtain valid IP from network card ")
+                            .append(networkInterface)
+                            .toString(),
+                    e);
         }
     }
-
 }

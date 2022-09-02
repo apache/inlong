@@ -29,13 +29,12 @@ import org.apache.flink.table.descriptors.DescriptorTestBase;
 import org.apache.flink.table.descriptors.DescriptorValidator;
 import org.junit.Test;
 
-/**
- * Tests for the {@link Kv} descriptor.
- */
+/** Tests for the {@link Kv} descriptor. */
 public class KvTest extends DescriptorTestBase {
 
     private static final String TEST_SCHEMA =
-            "{" + "\"type\":\"row\","
+            "{"
+                    + "\"type\":\"row\","
                     + "\"fieldFormats\":[{"
                     + "\"name\":\"student_name\","
                     + "\"format\":{\"type\":\"string\"}"
@@ -78,11 +77,7 @@ public class KvTest extends DescriptorTestBase {
     @Test(expected = ValidationException.class)
     public void testDuplicateSchema() {
         // we add an additional schema
-        addPropertyAndVerify(
-                MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
-                "format.schema",
-                TEST_SCHEMA
-        );
+        addPropertyAndVerify(MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA, "format.schema", TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

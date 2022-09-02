@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.consts;
 
-/**
- * Constants of sink type.
- */
+/** Constants of sink type. */
 public class SinkType {
 
     public static final String HIVE = "HIVE";
@@ -36,5 +34,4 @@ public class SinkType {
     public static final String ORACLE = "ORACLE";
     public static final String TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
     public static final String DLCICEBERG = "DLCICEBERG";
-
 }

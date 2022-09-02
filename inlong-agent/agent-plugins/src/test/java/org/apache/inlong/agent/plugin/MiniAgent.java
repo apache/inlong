@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.plugin;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
+
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.ProfileFetcher;
@@ -29,19 +32,13 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
-
 public class MiniAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAgent.class);
     private final AgentManager manager;
     private final LinkedBlockingQueue<JobProfile> queueJobs;
 
-    /**
-     * Constructor of MiniAgent.
-     */
+    /** Constructor of MiniAgent. */
     public MiniAgent() throws Exception {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
@@ -55,11 +52,11 @@ public class MiniAgent {
         PowerMockito.doNothing().when(heartbeatManager, "stop");
         PowerMockito.doNothing().when(profileFetcher, "start");
         PowerMockito.doNothing().when(profileFetcher, "stop");
-        MemberModifier.field(AgentManager.class, "taskPositionManager").set(manager, taskPositionManager);
+        MemberModifier.field(AgentManager.class, "taskPositionManager")
+                .set(manager, taskPositionManager);
         MemberModifier.field(AgentManager.class, "heartbeatManager").set(manager, heartbeatManager);
         MemberModifier.field(AgentManager.class, "fetcher").set(manager, profileFetcher);
         queueJobs = new LinkedBlockingQueue<>(100);
-
     }
 
     public void start() throws Exception {

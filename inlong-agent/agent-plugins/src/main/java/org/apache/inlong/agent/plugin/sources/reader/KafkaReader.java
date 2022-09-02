@@ -17,6 +17,21 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -33,25 +48,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
-
-/**
- * read kafka data
- */
+/** read kafka data */
 public class KafkaReader<K, V> extends AbstractReader {
 
     public static final int NEVER_STOP_SIGN = -1;
@@ -88,14 +85,17 @@ public class KafkaReader<K, V> extends AbstractReader {
     private boolean destroyed = false;
     private String topic;
 
-    /**
-     * init attribute
-     */
+    /** init attribute */
     public KafkaReader(KafkaConsumer<K, V> consumer, Map<String, String> paraMap) {
         this.consumer = consumer;
-        this.recordSpeed = Long.parseLong(paraMap.getOrDefault(JOB_KAFKA_RECORD_SPEED_LIMIT, "10000"));
-        this.byteSpeed = Long.parseLong(paraMap.getOrDefault(JOB_KAFKA_BYTE_SPEED_LIMIT, String.valueOf(1024 * 1024)));
-        this.flowControlInterval = Long.parseLong(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL, "1000"));
+        this.recordSpeed =
+                Long.parseLong(paraMap.getOrDefault(JOB_KAFKA_RECORD_SPEED_LIMIT, "10000"));
+        this.byteSpeed =
+                Long.parseLong(
+                        paraMap.getOrDefault(
+                                JOB_KAFKA_BYTE_SPEED_LIMIT, String.valueOf(1024 * 1024)));
+        this.flowControlInterval =
+                Long.parseLong(paraMap.getOrDefault(KAFKA_SOURCE_READ_MIN_INTERVAL, "1000"));
         this.lastTimestamp = System.currentTimeMillis();
         this.topic = paraMap.get(JOB_KAFKA_TOPIC);
 
@@ -111,19 +111,27 @@ public class KafkaReader<K, V> extends AbstractReader {
             // body
             byte[] recordValue = (byte[]) record.value();
             if (validateMessage(recordValue)) {
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                AuditUtils.add(
+                        AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
+                        inlongGroupId,
+                        inlongStreamId,
+                        System.currentTimeMillis());
                 // header
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
                 headerMap.put("record.key", String.valueOf(record.key()));
                 LOGGER.debug(
-                        "partition:" + record.partition()
-                                + ", value:" + new String(recordValue) + ", offset:" + record.offset());
+                        "partition:"
+                                + record.partition()
+                                + ", value:"
+                                + new String(recordValue)
+                                + ", offset:"
+                                + record.offset());
                 // control speed
                 readerMetric.pluginReadCount.incrementAndGet();
                 // commit succeed,then record current offset
-                snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
+                snapshot =
+                        record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
                 DefaultMessage message = new DefaultMessage(recordValue, headerMap);
                 recordReadLimit(1L, message.getBody().length);
                 return message;
@@ -253,7 +261,8 @@ public class KafkaReader<K, V> extends AbstractReader {
             long byteLimitSleepTime = 0;
             long recordLimitSleepTime = 0;
             if (isChannelByteSpeedLimit) {
-                long currentByteSpeed = (currentTotalReadBytes.get() - lastTotalReadBytes.get()) * 1000 / interval;
+                long currentByteSpeed =
+                        (currentTotalReadBytes.get() - lastTotalReadBytes.get()) * 1000 / interval;
                 LOGGER.info("current produce byte speed bytes/s:{}", currentByteSpeed);
                 if (currentByteSpeed > this.byteSpeed) {
                     // calculate byteLimitSleepTime
@@ -263,16 +272,21 @@ public class KafkaReader<K, V> extends AbstractReader {
 
             if (isChannelRecordSpeedLimit) {
                 long currentRecordSpeed =
-                        (currentTotalReadRecords.get() - lastTotalReadRecords.get()) * 1000 / interval;
+                        (currentTotalReadRecords.get() - lastTotalReadRecords.get())
+                                * 1000
+                                / interval;
                 LOGGER.info("current read speed records/s:{}", currentRecordSpeed);
                 if (currentRecordSpeed > this.recordSpeed) {
                     // calculate recordSleepTime reduce to recordLimit
-                    recordLimitSleepTime = currentRecordSpeed * interval / this.recordSpeed - interval;
+                    recordLimitSleepTime =
+                            currentRecordSpeed * interval / this.recordSpeed - interval;
                 }
             }
             // calculate sleep time
-            long sleepTime = byteLimitSleepTime < recordLimitSleepTime
-                    ? recordLimitSleepTime : byteLimitSleepTime;
+            long sleepTime =
+                    byteLimitSleepTime < recordLimitSleepTime
+                            ? recordLimitSleepTime
+                            : byteLimitSleepTime;
             if (sleepTime > 0) {
                 LOGGER.info("sleep seconds:{}", sleepTime / 1000);
                 try {

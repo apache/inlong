@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.function;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -36,12 +38,7 @@ import org.apache.inlong.sort.protocol.transformation.function.SplitIndexFunctio
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Test for {@link SplitIndexFunction}
- */
+/** Test for {@link SplitIndexFunction} */
 public class SplitIndexFunctionTest extends AbstractTestBase {
 
     /**
@@ -51,37 +48,37 @@ public class SplitIndexFunctionTest extends AbstractTestBase {
      */
     @Test
     public void testSplitIndexFunction() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         List<Row> data = new ArrayList<>();
         data.add(Row.of("2022-05-01"));
-        TypeInformation<?>[] types = {
-                BasicTypeInfo.STRING_TYPE_INFO};
+        TypeInformation<?>[] types = {BasicTypeInfo.STRING_TYPE_INFO};
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
-        SplitIndexFunction splitIndexFunction = new SplitIndexFunction(new FieldInfo("f1",
-                new StringFormatInfo()), new StringConstantParam("-"), new ConstantParam(0));
+        SplitIndexFunction splitIndexFunction =
+                new SplitIndexFunction(
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new StringConstantParam("-"),
+                        new ConstantParam(0));
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
-        String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", splitIndexFunction.format());
+        String sqlQuery =
+                String.format("SELECT %s as f1 FROM temp_view", splitIndexFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it =
+                        resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
+                it.hasNext(); ) {
             String ss = it.next();
             result.add(ss);
         }
         String expect = "2022";
         Assert.assertEquals(expect, result.get(0));
     }
-
 }

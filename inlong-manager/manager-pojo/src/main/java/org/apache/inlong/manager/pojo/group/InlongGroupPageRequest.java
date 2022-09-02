@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,11 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import java.util.List;
-
-/**
- * Inlong group query request
- */
+/** Inlong group query request */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
@@ -60,7 +57,9 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
-    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
+    @ApiModelProperty(
+            value = "Whether the current user is in the administrator role",
+            hidden = true)
     private Boolean isAdminRole;
 
     @ApiModelProperty(value = "If list streamSource for group", hidden = true)

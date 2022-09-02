@@ -23,9 +23,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-/**
- * Listener execution result
- */
+/** Listener execution result */
 @Data
 @ToString
 @Builder
@@ -33,24 +31,16 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ListenerResult {
 
-    /**
-     * Whether the execution was successful
-     */
+    /** Whether the execution was successful */
     private boolean success;
 
-    /**
-     * Remarks on execution results
-     */
+    /** Remarks on execution results */
     private String remark;
 
-    /**
-     * Exception information
-     */
+    /** Exception information */
     private Exception exception;
 
-    /**
-     * Listener execute success.
-     */
+    /** Listener execute success. */
     public static ListenerResult success() {
         return ListenerResult.builder().success(true).build();
     }
@@ -65,9 +55,7 @@ public class ListenerResult {
         return ListenerResult.builder().success(true).remark(remark).build();
     }
 
-    /**
-     * Listener execute fail.
-     */
+    /** Listener execute fail. */
     public static ListenerResult fail() {
         return ListenerResult.builder().success(false).build();
     }
@@ -102,5 +90,4 @@ public class ListenerResult {
     public static ListenerResult fail(Exception exception, String remark) {
         return ListenerResult.builder().success(false).exception(exception).remark(remark).build();
     }
-
 }

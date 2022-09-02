@@ -21,32 +21,24 @@ import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.pojo.JobProfileDto;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
-/**
- * profile used in trigger. Trigger profile is a special job profile
- */
+/** profile used in trigger. Trigger profile is a special job profile */
 public class TriggerProfile extends JobProfile {
 
-    /**
-     * Parse a given json string and get a TriggerProfile
-     */
+    /** Parse a given json string and get a TriggerProfile */
     public static TriggerProfile parseJsonStr(String jsonStr) {
         TriggerProfile conf = new TriggerProfile();
         conf.loadJsonStrResource(jsonStr);
         return conf;
     }
 
-    /**
-     * Parse a given JobProfile instance and get a TriggerProfile
-     */
+    /** Parse a given JobProfile instance and get a TriggerProfile */
     public static TriggerProfile parseJobProfile(JobProfile jobProfile) {
         TriggerProfile conf = new TriggerProfile();
         conf.loadJsonStrResource(jobProfile.toJsonStr());
         return conf;
     }
 
-    /**
-     * Get a TriggerProfile from a DataConfig
-     */
+    /** Get a TriggerProfile from a DataConfig */
     public static TriggerProfile getTriggerProfiles(DataConfig dataConfig) {
         if (dataConfig == null) {
             return null;
@@ -70,5 +62,4 @@ public class TriggerProfile extends JobProfile {
     public String getDeliveryTime() {
         return get(JobConstants.JOB_DELIVERY_TIME);
     }
-
 }

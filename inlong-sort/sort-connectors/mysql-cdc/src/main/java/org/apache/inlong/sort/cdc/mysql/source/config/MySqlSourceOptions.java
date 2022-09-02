@@ -18,16 +18,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
+import java.time.Duration;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
-import java.time.Duration;
-
-/**
- * Configurations for {@link MySqlSource}.
- */
+/** Configurations for {@link MySqlSource}. */
 public class MySqlSourceOptions {
 
     public static final ConfigOption<String> HOSTNAME =

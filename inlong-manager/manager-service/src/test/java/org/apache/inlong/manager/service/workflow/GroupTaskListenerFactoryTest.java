@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import java.util.List;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
@@ -29,15 +30,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
-/**
- * Test class for get queue operate listener.
- */
+/** Test class for get queue operate listener. */
 public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
 
-    @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    @Autowired private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Test
     public void testGetQueueOperateListener() {
@@ -48,7 +44,8 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
         processForm.setGroupInfo(pulsarInfo);
         WorkflowContext context = new WorkflowContext();
         context.setProcessForm(processForm);
-        List<QueueOperateListener> queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
+        List<QueueOperateListener> queueOperateListeners =
+                groupTaskListenerFactory.getQueueResourceListener(context);
         if (queueOperateListeners.size() == 0) {
             return;
         }
@@ -60,5 +57,4 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
         queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
         Assertions.assertEquals(2, queueOperateListeners.size());
     }
-
 }

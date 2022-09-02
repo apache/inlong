@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.client.consumer;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -28,8 +25,8 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 /**
  * Partition Extension class. Add flow control mechanism.
  *
- * This class will record consume context, and calculate the consume message size per minute based
- * on the predefined strategy.
+ * <p>This class will record consume context, and calculate the consume message size per minute
+ * based on the predefined strategy.
  */
 public class PartitionExt extends Partition {
     private static final long serialVersionUID = 7587342323917872253L;
@@ -55,9 +52,12 @@ public class PartitionExt extends Partition {
     private boolean isRequireSlow = false;
     private boolean isLastPackConsumed = false;
 
-    public PartitionExt(final FlowCtrlRuleHandler groupFlowCtrlRuleHandler,
-                        final FlowCtrlRuleHandler defFlowCtrlRuleHandler,
-                        final BrokerInfo broker, final String topic, final int partitionId) {
+    public PartitionExt(
+            final FlowCtrlRuleHandler groupFlowCtrlRuleHandler,
+            final FlowCtrlRuleHandler defFlowCtrlRuleHandler,
+            final BrokerInfo broker,
+            final String topic,
+            final int partitionId) {
         super(broker, topic, partitionId);
         this.groupFlowCtrlRuleHandler = groupFlowCtrlRuleHandler;
         this.defFlowCtrlRuleHandler = defFlowCtrlRuleHandler;
@@ -65,27 +65,40 @@ public class PartitionExt extends Partition {
 
     public long procConsumeResult(boolean isFilterConsume) {
         long dltTime = System.currentTimeMillis() - this.lastRptTIme;
-        return procConsumeResult(isFilterConsume, this.reqProcType,
-                this.errCode, this.msgSize, this.isEscLimit,
-                this.limitDlt, this.curDataDlt, this.isRequireSlow) - dltTime;
+        return procConsumeResult(
+                        isFilterConsume,
+                        this.reqProcType,
+                        this.errCode,
+                        this.msgSize,
+                        this.isEscLimit,
+                        this.limitDlt,
+                        this.curDataDlt,
+                        this.isRequireSlow)
+                - dltTime;
     }
 
     /**
      * Process the consume result.
      *
      * @param isFilterConsume if current consume should be filtered
-     * @param reqProcType     type information
-     * @param errCode         error code
-     * @param msgSize         message size
-     * @param isReqEscLimit   if the rsplimitDlt is ignored in current consume
-     * @param rsplimitDlt     max offset of the current consume
-     * @param lastDataDlt     offset of the last data fetch
-     * @param isRequireSlow  if the server requires slow down
+     * @param reqProcType type information
+     * @param errCode error code
+     * @param msgSize message size
+     * @param isReqEscLimit if the rsplimitDlt is ignored in current consume
+     * @param rsplimitDlt max offset of the current consume
+     * @param lastDataDlt offset of the last data fetch
+     * @param isRequireSlow if the server requires slow down
      * @return message size per minute
      */
-    public long procConsumeResult(boolean isFilterConsume, int reqProcType, int errCode,
-                                  int msgSize, boolean isReqEscLimit, long rsplimitDlt,
-                                  long lastDataDlt, boolean isRequireSlow) {
+    public long procConsumeResult(
+            boolean isFilterConsume,
+            int reqProcType,
+            int errCode,
+            int msgSize,
+            boolean isReqEscLimit,
+            long rsplimitDlt,
+            long lastDataDlt,
+            boolean isRequireSlow) {
         if (lastDataDlt >= 0) {
             this.lastDataRdDlt = lastDataDlt;
         }
@@ -93,8 +106,7 @@ public class PartitionExt extends Partition {
         this.recvMsgInMin += msgSize;
         long currTime = System.currentTimeMillis();
         checkAndCalcDataLimit(currTime);
-        if (errCode != TErrCodeConstants.NOT_FOUND
-                && errCode != TErrCodeConstants.SUCCESS) {
+        if (errCode != TErrCodeConstants.NOT_FOUND && errCode != TErrCodeConstants.SUCCESS) {
             return rsplimitDlt;
         }
         if (msgSize == 0 && errCode != TErrCodeConstants.SUCCESS) {
@@ -104,11 +116,11 @@ public class PartitionExt extends Partition {
         }
         if (this.totalRcvZeroCount > 0) {
             if (this.groupFlowCtrlRuleHandler.getMinZeroCnt() != Integer.MAX_VALUE) {
-                return groupFlowCtrlRuleHandler
-                        .getCurFreqLimitTime(this.totalRcvZeroCount, (int) rsplimitDlt);
+                return groupFlowCtrlRuleHandler.getCurFreqLimitTime(
+                        this.totalRcvZeroCount, (int) rsplimitDlt);
             } else {
-                return defFlowCtrlRuleHandler
-                        .getCurFreqLimitTime(this.totalRcvZeroCount, (int) rsplimitDlt);
+                return defFlowCtrlRuleHandler.getCurFreqLimitTime(
+                        this.totalRcvZeroCount, (int) rsplimitDlt);
             }
         }
         if (isReqEscLimit) {
@@ -117,7 +129,8 @@ public class PartitionExt extends Partition {
             if (this.recvMsgInMin >= this.curFlowCtrlVal.dataLtInSize
                     || this.recvMsgSize >= this.limitMsgInSec) {
                 return this.curFlowCtrlVal.freqLtInMs > rsplimitDlt
-                        ? this.curFlowCtrlVal.freqLtInMs : rsplimitDlt;
+                        ? this.curFlowCtrlVal.freqLtInMs
+                        : rsplimitDlt;
             }
             if (errCode == TErrCodeConstants.SUCCESS) {
                 if (isFilterConsume && filterCtrlItem.getFreqLtInMs() >= 0) {
@@ -188,10 +201,14 @@ public class PartitionExt extends Partition {
         return curVal;
     }
 
-    public void setPullTempData(int reqProcType, int errCode,
-                                boolean isEscLimit, int msgSize,
-                                long limitDlt, long curDataDlt,
-                                boolean isRequireSlow) {
+    public void setPullTempData(
+            int reqProcType,
+            int errCode,
+            boolean isEscLimit,
+            int msgSize,
+            long limitDlt,
+            long curDataDlt,
+            boolean isRequireSlow) {
         this.lastRptTIme = System.currentTimeMillis();
         this.reqProcType = reqProcType;
         this.errCode = errCode;
@@ -210,7 +227,6 @@ public class PartitionExt extends Partition {
         this.msgSize = -1;
         this.limitDlt = -1;
         this.curDataDlt = -1;
-
     }
 
     public long getNextLimitUpdateTime() {
@@ -281,8 +297,7 @@ public class PartitionExt extends Partition {
             if (this.lastDataRdDlt < 0) {
                 this.curFlowCtrlVal = new FlowCtrlResult(Integer.MAX_VALUE, 20);
             } else {
-                this.curFlowCtrlVal =
-                        groupFlowCtrlRuleHandler.getCurDataLimit(this.lastDataRdDlt);
+                this.curFlowCtrlVal = groupFlowCtrlRuleHandler.getCurDataLimit(this.lastDataRdDlt);
                 this.filterCtrlItem = groupFlowCtrlRuleHandler.getFilterCtrlItem();
                 if (this.curFlowCtrlVal == null) {
                     this.curFlowCtrlVal =

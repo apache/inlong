@@ -18,15 +18,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.Collections;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-/**
- * Unit tests for {@link VarCharFormatInfo}.
- */
+/** Unit tests for {@link VarCharFormatInfo}. */
 public class VarCharFormatInfoTest extends FormatInfoTestBase {
 
     @Override

@@ -23,9 +23,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
-/**
- * query consumer group
- */
+/** query consumer group */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

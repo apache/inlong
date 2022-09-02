@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.pojo.dataproxy;
 
-/**
- * CacheCluster
- */
+/** CacheCluster */
 public class CacheCluster {
 
     private String clusterName;
@@ -117,5 +115,4 @@ public class CacheCluster {
     public void setExtParams(String extParams) {
         this.extParams = extParams;
     }
-
 }

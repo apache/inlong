@@ -19,15 +19,11 @@ package org.apache.inlong.manager.plugin.flink.enums;
 
 import lombok.Getter;
 
-/**
- * Connectors corresponding to different datasource types in inlong-sort
- */
+/** Connectors corresponding to different datasource types in inlong-sort */
 @Getter
 public enum ConnectorJarType {
 
-    /**
-     * extract datasource type
-     */
+    /** extract datasource type */
     MONGODB_SOURCE("mongoExtract", "mongodb-cdc"),
 
     MYSQL_SOURCE("mysqlExtract", "mysql-cdc"),
@@ -42,9 +38,7 @@ public enum ConnectorJarType {
 
     PULSAR_SOURCE("pulsarExtract", "pulsar"),
 
-    /**
-     * load datasource type
-     */
+    /** load datasource type */
     MYSQL_SINK("mysqlLoad", "jdbc"),
 
     KAFKA_SINK("kafkaLoad", "kafka"),
@@ -72,7 +66,6 @@ public enum ConnectorJarType {
     ICEBERG_SINK("icebergLoad", "iceberg"),
 
     HDFS_SINK("fileSystemLoad", ""),
-
     ;
 
     private String sourceType;
@@ -97,5 +90,4 @@ public enum ConnectorJarType {
         }
         return null;
     }
-
 }

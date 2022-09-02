@@ -17,34 +17,34 @@
 
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
-/**
- * 
- * IEventHandler
- */
+/** IEventHandler */
 public interface IEventHandler {
 
     /**
      * parse
-     * 
-     * @param  idConfig
-     * @param  event
+     *
+     * @param idConfig
+     * @param event
      * @return
      */
     Map<String, String> parse(ClickHouseIdConfig idConfig, ProfileEvent event);
 
     /**
      * setValue
+     *
      * @param idConfig
      * @param columnValueMap
      * @param pstat
      * @throws SQLException
      */
-    void setValue(ClickHouseIdConfig idConfig, Map<String, String> columnValueMap, PreparedStatement pstat)
+    void setValue(
+            ClickHouseIdConfig idConfig,
+            Map<String, String> columnValueMap,
+            PreparedStatement pstat)
             throws SQLException;
 }

@@ -17,16 +17,13 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Test class for process plugin.
- */
+/** Test class for process plugin. */
 public class MockPlugin implements ProcessPlugin {
 
     @Override
@@ -46,5 +43,4 @@ public class MockPlugin implements ProcessPlugin {
         listeners.add(new MockStopSortListener());
         return listeners;
     }
-
 }

@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.service.listener.consumption;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -48,26 +50,16 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Added data consumption process complete archive event listener
- */
+/** Added data consumption process complete archive event listener */
 @Slf4j
 @Component
 public class ConsumptionCompleteProcessListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private ConsumptionEntityMapper consumptionMapper;
-    @Autowired
-    private InlongClusterService clusterService;
-    @Autowired
-    private PulsarOperator pulsarOperator;
-    @Autowired
-    private TubeMQOperator tubeMQOperator;
+    @Autowired private InlongGroupEntityMapper groupMapper;
+    @Autowired private ConsumptionEntityMapper consumptionMapper;
+    @Autowired private InlongClusterService clusterService;
+    @Autowired private PulsarOperator pulsarOperator;
+    @Autowired private TubeMQOperator tubeMQOperator;
 
     @Override
     public ProcessEvent event() {
@@ -76,7 +68,8 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        ApplyConsumptionProcessForm consumptionForm = (ApplyConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumptionProcessForm consumptionForm =
+                (ApplyConsumptionProcessForm) context.getProcessForm();
 
         // Real-time query of consumption information
         Integer consumptionId = consumptionForm.getConsumptionInfo().getId();
@@ -99,24 +92,22 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         return ListenerResult.success("Create MQ consumer group successful");
     }
 
-    /**
-     * Update consumption after approve
-     */
+    /** Update consumption after approve */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
         ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
         update.setStatus(ConsumptionStatus.APPROVED.getStatus());
         update.setConsumerGroup(consumerGroup);
         int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            log.error("consumption information has already updated, id={}, curVersion={}",
-                    update.getId(), update.getVersion());
+            log.error(
+                    "consumption information has already updated, id={}, curVersion={}",
+                    update.getId(),
+                    update.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }
 
-    /**
-     * Create Pulsar subscription
-     */
+    /** Create Pulsar subscription */
     private void createPulsarSubscription(ConsumptionEntity entity) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
@@ -141,12 +132,18 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, topics);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
-            throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
-                    + e.getMessage());
+            throw new WorkflowListenerException(
+                    "failed to create pulsar topic for groupId="
+                            + groupId
+                            + ", reason: "
+                            + e.getMessage());
         }
     }
 
-    private void createPulsarSubscription(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicBean topicBean,
+    private void createPulsarSubscription(
+            PulsarAdmin pulsarAdmin,
+            String subscription,
+            PulsarTopicBean topicBean,
             List<String> topics) {
         try {
             pulsarOperator.createSubscriptions(pulsarAdmin, subscription, topicBean, topics);
@@ -156,9 +153,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         }
     }
 
-    /**
-     * Create TubeMQ consumer group
-     */
+    /** Create TubeMQ consumer group */
     private void createTubeConsumerGroup(ConsumptionEntity entity, String operator) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
@@ -167,13 +162,15 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
+        TubeClusterInfo clusterInfo =
+                (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
         try {
-            tubeMQOperator.createConsumerGroup(clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
+            tubeMQOperator.createConsumerGroup(
+                    clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
         } catch (Exception e) {
             log.error("failed to create tubemq consumer group: ", e);
-            throw new WorkflowListenerException("failed to create tubemq consumer group: " + e.getMessage());
+            throw new WorkflowListenerException(
+                    "failed to create tubemq consumer group: " + e.getMessage());
         }
     }
-
 }

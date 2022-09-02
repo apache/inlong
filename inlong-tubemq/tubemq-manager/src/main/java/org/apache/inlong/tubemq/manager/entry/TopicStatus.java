@@ -18,8 +18,10 @@
 package org.apache.inlong.tubemq.manager.entry;
 
 public enum TopicStatus {
-
-    ADDING(0), SUCCESS(1), FAILED(2), RETRY(3);
+    ADDING(0),
+    SUCCESS(1),
+    FAILED(2),
+    RETRY(3);
 
     private int value = 0;
 

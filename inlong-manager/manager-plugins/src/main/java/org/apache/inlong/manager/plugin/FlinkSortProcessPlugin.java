@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.plugin;
 
+import java.util.LinkedList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.plugin.listener.DeleteSortListener;
 import org.apache.inlong.manager.plugin.listener.DeleteStreamListener;
@@ -30,12 +32,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * Plugin of flink sort process.
- */
+/** Plugin of flink sort process. */
 @Slf4j
 public class FlinkSortProcessPlugin implements ProcessPlugin {
 

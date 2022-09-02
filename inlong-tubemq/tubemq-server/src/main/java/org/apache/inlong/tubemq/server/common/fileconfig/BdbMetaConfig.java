@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
 import com.sleepycat.je.Durability;
@@ -30,9 +27,7 @@ public class BdbMetaConfig {
     private int repReplicaAckPolicy = 1;
     private long repStatusCheckTimeoutMs = 10000;
 
-    public BdbMetaConfig() {
-
-    }
+    public BdbMetaConfig() {}
 
     public String getRepGroupName() {
         return repGroupName;
@@ -136,15 +131,25 @@ public class BdbMetaConfig {
     @Override
     public String toString() {
         return new StringBuilder(512)
-                .append("\"BdbMetaConfig\":{\"repGroupName\":").append(repGroupName)
-                .append("\",\"repNodeName\":\"").append(repNodeName)
-                .append("\",\"repNodePort\":").append(repNodePort)
-                .append("\",\"metaDataPath\":\"").append(metaDataPath)
-                .append("\",\"repHelperHost\":\"").append(repHelperHost)
-                .append("\",\"metaLocalSyncPolicy\":").append(metaLocalSyncPolicy)
-                .append(",\"metaReplicaSyncPolicy\":").append(metaReplicaSyncPolicy)
-                .append(",\"repReplicaAckPolicy\":").append(repReplicaAckPolicy)
-                .append(",\"repStatusCheckTimeoutMs\":").append(repStatusCheckTimeoutMs)
-                .append("}").toString();
+                .append("\"BdbMetaConfig\":{\"repGroupName\":")
+                .append(repGroupName)
+                .append("\",\"repNodeName\":\"")
+                .append(repNodeName)
+                .append("\",\"repNodePort\":")
+                .append(repNodePort)
+                .append("\",\"metaDataPath\":\"")
+                .append(metaDataPath)
+                .append("\",\"repHelperHost\":\"")
+                .append(repHelperHost)
+                .append("\",\"metaLocalSyncPolicy\":")
+                .append(metaLocalSyncPolicy)
+                .append(",\"metaReplicaSyncPolicy\":")
+                .append(metaReplicaSyncPolicy)
+                .append(",\"repReplicaAckPolicy\":")
+                .append(repReplicaAckPolicy)
+                .append(",\"repStatusCheckTimeoutMs\":")
+                .append(repStatusCheckTimeoutMs)
+                .append("}")
+                .toString();
     }
 }

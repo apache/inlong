@@ -47,8 +47,8 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
 /**
  * Copied from apache flink project with a litter change.
  *
- * Serialization schema that serializes an object of Flink Table/SQL internal data structure {@link
- * RowData} into a Canal JSON bytes.
+ * <p>Serialization schema that serializes an object of Flink Table/SQL internal data structure
+ * {@link RowData} into a Canal JSON bytes.
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
@@ -72,8 +72,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
     public CanalJsonSerializationSchema(
             RowType physicalRowType,
             Map<Integer, ReadableMetadata> fieldIndexToMetadata,
-            boolean isMigrateAll
-    ) {
+            boolean isMigrateAll) {
         this.isMigrateAll = isMigrateAll;
 
         if (isMigrateAll) {
@@ -82,8 +81,11 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
             this.objectMapper = null;
         }
 
-        RowTypeInfo rowTypeInfo = createJsonRowType(fromLogicalToDataType(physicalRowType),
-                fieldIndexToMetadata.values(), isMigrateAll);
+        RowTypeInfo rowTypeInfo =
+                createJsonRowType(
+                        fromLogicalToDataType(physicalRowType),
+                        fieldIndexToMetadata.values(),
+                        isMigrateAll);
         jsonSerializer = JsonRowSerializationSchema.builder().withTypeInfo(rowTypeInfo).build();
 
         this.fieldIndexToMetadata = fieldIndexToMetadata;
@@ -155,14 +157,17 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
     }
 
     private static RowTypeInfo createJsonRowType(
-            DataType dataSchema,
-            Collection<ReadableMetadata> metadataSet,
-            boolean isMigrateAll) {
-        DataType root = DataTypes.ROW(
-                DataTypes.FIELD("data", DataTypes.ARRAY(
-                        isMigrateAll ? DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()) : dataSchema)),
-                DataTypes.FIELD("type", DataTypes.STRING())
-        );
+            DataType dataSchema, Collection<ReadableMetadata> metadataSet, boolean isMigrateAll) {
+        DataType root =
+                DataTypes.ROW(
+                        DataTypes.FIELD(
+                                "data",
+                                DataTypes.ARRAY(
+                                        isMigrateAll
+                                                ? DataTypes.MAP(
+                                                        DataTypes.STRING(), DataTypes.STRING())
+                                                : dataSchema)),
+                        DataTypes.FIELD("type", DataTypes.STRING()));
 
         final List<Field> metadataFields =
                 metadataSet.stream()
@@ -170,8 +175,9 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
                         .distinct()
                         .collect(Collectors.toList());
 
-        return (RowTypeInfo) TypeInfoDataTypeConverter.fromDataTypeToTypeInfo(
-                DataTypeUtils.appendRowFields(root, metadataFields));
+        return (RowTypeInfo)
+                TypeInfoDataTypeConverter.fromDataTypeToTypeInfo(
+                        DataTypeUtils.appendRowFields(root, metadataFields));
     }
 
     private MysqlBinLogData getMysqlBinLongData(Row consumedRow) {

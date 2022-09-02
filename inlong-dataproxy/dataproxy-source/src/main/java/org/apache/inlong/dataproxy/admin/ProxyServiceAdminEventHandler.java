@@ -1,41 +1,34 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.admin;
 
+import static org.apache.inlong.dataproxy.admin.ProxyServiceMBean.MBEAN_TYPE;
+
+import java.lang.management.ManagementFactory;
+import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.inlong.sdk.commons.admin.AbstractAdminEventHandler;
 
-import java.lang.management.ManagementFactory;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.servlet.http.HttpServletResponse;
-
-import static org.apache.inlong.dataproxy.admin.ProxyServiceMBean.MBEAN_TYPE;
-
-/**
- * StopServiceAdminEventHandler
- */
+/** StopServiceAdminEventHandler */
 public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
 
     /**
@@ -44,8 +37,7 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
      * @param context
      */
     @Override
-    public void configure(Context context) {
-    }
+    public void configure(Context context) {}
 
     /**
      * process
@@ -87,20 +79,33 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
         LOG.info("start to processOne admin task:{},sort task:{}", cmd, sourceName);
         StringBuilder result = new StringBuilder();
         try {
-            String beanName = JMX_DOMAIN + DOMAIN_SEPARATOR
-                    + JMX_TYPE + PROPERTY_EQUAL + MBEAN_TYPE + PROPERTY_SEPARATOR
-                    + JMX_NAME + PROPERTY_EQUAL + sourceName;
+            String beanName =
+                    JMX_DOMAIN
+                            + DOMAIN_SEPARATOR
+                            + JMX_TYPE
+                            + PROPERTY_EQUAL
+                            + MBEAN_TYPE
+                            + PROPERTY_SEPARATOR
+                            + JMX_NAME
+                            + PROPERTY_EQUAL
+                            + sourceName;
 
             ObjectName objName = new ObjectName(beanName);
             final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             ObjectInstance mbean = mbs.getObjectInstance(objName);
-            LOG.info("getObjectInstance for type:{},name:{},result:{}", MBEAN_TYPE, sourceName, mbean);
+            LOG.info(
+                    "getObjectInstance for type:{},name:{},result:{}",
+                    MBEAN_TYPE,
+                    sourceName,
+                    mbean);
             String className = mbean.getClassName();
             Class<?> clazz = ClassUtils.getClass(className);
             if (ClassUtils.isAssignable(clazz, ProxyServiceMBean.class)) {
                 mbs.invoke(mbean.getObjectName(), cmd, null, null);
-                result.append(String.format("Execute command:%s success in bean:%s\n",
-                        cmd, mbean.getObjectName().toString()));
+                result.append(
+                        String.format(
+                                "Execute command:%s success in bean:%s\n",
+                                cmd, mbean.getObjectName().toString()));
             }
             this.outputResponse(response, result.toString());
         } catch (Exception e) {
@@ -121,9 +126,14 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
         LOG.info("start to processAll admin task:{}", cmd);
         StringBuilder result = new StringBuilder();
         try {
-            String beanName = JMX_DOMAIN + DOMAIN_SEPARATOR
-                    + JMX_TYPE + PROPERTY_EQUAL + MBEAN_TYPE + PROPERTY_SEPARATOR
-                    + "*";
+            String beanName =
+                    JMX_DOMAIN
+                            + DOMAIN_SEPARATOR
+                            + JMX_TYPE
+                            + PROPERTY_EQUAL
+                            + MBEAN_TYPE
+                            + PROPERTY_SEPARATOR
+                            + "*";
             ObjectName objName = new ObjectName(beanName.toString());
             final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             Set<ObjectInstance> mbeans = mbs.queryMBeans(objName, null);
@@ -134,8 +144,10 @@ public class ProxyServiceAdminEventHandler extends AbstractAdminEventHandler {
                 Class<?> clazz = ClassUtils.getClass(className);
                 if (ClassUtils.isAssignable(clazz, ProxyServiceMBean.class)) {
                     mbs.invoke(mbean.getObjectName(), cmd, null, null);
-                    result.append(String.format("Execute command:%s success in bean:%s\n",
-                            cmd, beanObjectName.toString()));
+                    result.append(
+                            String.format(
+                                    "Execute command:%s success in bean:%s\n",
+                                    cmd, beanObjectName.toString()));
                 }
             }
             this.outputResponse(response, result.toString());

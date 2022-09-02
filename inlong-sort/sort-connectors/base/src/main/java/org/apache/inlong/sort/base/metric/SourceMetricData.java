@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
+
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
@@ -25,14 +30,7 @@ import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
-
-/**
- * A collection class for handling metrics
- */
+/** A collection class for handling metrics */
 public class SourceMetricData implements MetricData {
 
     private final MetricGroup metricGroup;
@@ -45,11 +43,16 @@ public class SourceMetricData implements MetricData {
     private Meter numBytesInPerSecond;
     private final AuditImp auditImp;
 
-    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
+    public SourceMetricData(
+            String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
         this(groupId, streamId, nodeId, metricGroup, null);
     }
 
-    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+    public SourceMetricData(
+            String groupId,
+            String streamId,
+            String nodeId,
+            MetricGroup metricGroup,
             AuditImp auditImp) {
         this.groupId = groupId;
         this.streamId = streamId;
@@ -59,36 +62,32 @@ public class SourceMetricData implements MetricData {
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are label value,
+     * user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsIn() {
         registerMetricsForNumRecordsIn(new SimpleCounter());
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and streamId and nodeId
+     * are label value, user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsIn(Counter counter) {
         numRecordsIn = registerCounter(NUM_RECORDS_IN, counter);
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are label value,
+     * user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumBytesIn() {
         registerMetricsForNumBytesIn(new SimpleCounter());
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and streamId and nodeId
+     * are label value, user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumBytesIn(Counter counter) {
         numBytesIn = registerCounter(NUM_BYTES_IN, counter);

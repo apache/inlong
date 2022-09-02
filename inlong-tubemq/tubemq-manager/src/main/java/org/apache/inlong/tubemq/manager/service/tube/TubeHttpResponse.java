@@ -19,9 +19,7 @@ package org.apache.inlong.tubemq.manager.service.tube;
 
 import lombok.Data;
 
-/**
- * common response json str for tube htt request
- */
+/** common response json str for tube htt request */
 @Data
 public class TubeHttpResponse {
     private int code;

@@ -20,34 +20,21 @@ package org.apache.inlong.manager.workflow.core;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Event listener service
- */
+/** Event listener service */
 public interface EventListenerService {
 
-    /**
-     * Execute the listener based on the log ID
-     */
+    /** Execute the listener based on the log ID */
     void executeEventListener(Integer eventLogId);
 
-    /**
-     * Re-execute the specified listener according to the process ID
-     */
+    /** Re-execute the specified listener according to the process ID */
     void executeProcessEventListener(Integer processId, String listenerName);
 
-    /**
-     * Re-execute the specified listener based on the task ID
-     */
+    /** Re-execute the specified listener based on the task ID */
     void executeTaskEventListener(Integer taskId, String listenerName);
 
-    /**
-     * Re-trigger the process event based on the process ID
-     */
+    /** Re-trigger the process event based on the process ID */
     void triggerProcessEvent(Integer processId, ProcessEvent processEvent);
 
-    /**
-     * Re-trigger the task event based on the task ID
-     */
+    /** Re-trigger the task event based on the task ID */
     void triggerTaskEvent(Integer taskId, TaskEvent taskEvent);
-
 }

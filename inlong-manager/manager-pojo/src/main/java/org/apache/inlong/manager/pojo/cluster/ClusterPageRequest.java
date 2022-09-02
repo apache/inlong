@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,11 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import java.util.List;
-
-/**
- * Inlong cluster paging query conditions
- */
+/** Inlong cluster paging query conditions */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
@@ -68,5 +65,4 @@ public class ClusterPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-
 }

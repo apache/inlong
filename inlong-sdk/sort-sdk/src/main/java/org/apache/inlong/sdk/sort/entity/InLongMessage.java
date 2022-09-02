@@ -23,7 +23,7 @@ public class InLongMessage {
 
     private String inlongGroupId;
     private String inlongStreamId;
-    private long msgTime; //message generation time, milliseconds
+    private long msgTime; // message generation time, milliseconds
     private String sourceIp; // agent ip of message generation
     private final Map<String, String> params;
     private final byte[] body;
@@ -33,7 +33,12 @@ public class InLongMessage {
         this.params = params;
     }
 
-    public InLongMessage(String inlongGroupId, String inlongStreamId, long msgTime, String sourceIp, byte[] body,
+    public InLongMessage(
+            String inlongGroupId,
+            String inlongStreamId,
+            long msgTime,
+            String sourceIp,
+            byte[] body,
             Map<String, String> params) {
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;

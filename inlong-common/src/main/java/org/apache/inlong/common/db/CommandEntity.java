@@ -21,9 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * The entity of task command, used for Agent to interact with Manager and BDB.
- */
+/** The entity of task command, used for Agent to interact with Manager and BDB. */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,17 +31,12 @@ public class CommandEntity {
     private int commandResult;
     private boolean isAcked;
     private Integer taskId;
-    /**
-     * The task version.
-     */
+    /** The task version. */
     private Integer version;
-    /**
-     * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
-     */
+    /** The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'. */
     private String deliveryTime;
 
     public static String generateCommandId(String taskId, int opType) {
         return taskId + opType;
     }
-
 }

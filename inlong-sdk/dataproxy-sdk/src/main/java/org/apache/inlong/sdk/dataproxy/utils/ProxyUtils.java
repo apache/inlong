@@ -18,16 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyUtils {
 
@@ -36,9 +35,29 @@ public class ProxyUtils {
     private static final Set<String> invalidAttr = new HashSet<>();
 
     static {
-        Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
-                "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
-                "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey");
+        Collections.addAll(
+                invalidAttr,
+                "groupId",
+                "streamId",
+                "dt",
+                "msgUUID",
+                "cp",
+                "cnt",
+                "mt",
+                "m",
+                "sid",
+                "t",
+                "NodeIP",
+                "messageId",
+                "_file_status_check",
+                "_secretId",
+                "_signature",
+                "_timeStamp",
+                "_nonce",
+                "_userName",
+                "_clientIP",
+                "_encyVersion",
+                "_encyAesKey");
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
@@ -124,11 +143,13 @@ public class ProxyUtils {
             }
         }
         if (!clientConfig.isLocalVisit()) {
-            //if(!clientConfig.isNeedDataEncry()) {
-            //    throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
-            //}
+            // if(!clientConfig.isNeedDataEncry()) {
+            //    throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be
+            // true!");
+            // }
             if (!clientConfig.isNeedAuthentication()) {
-                throw new IllegalArgumentException("OutNetwork visit isNeedAuthentication must be true!");
+                throw new IllegalArgumentException(
+                        "OutNetwork visit isNeedAuthentication must be true!");
             }
             if (Utils.isBlank(clientConfig.getUserName())) {
                 throw new IllegalArgumentException("Authentication require userName not Blank!");
@@ -137,14 +158,16 @@ public class ProxyUtils {
                 throw new IllegalArgumentException("Authentication require secretKey not Blank!");
             }
             if (!clientConfig.isNeedVerServer()) {
-                throw new IllegalArgumentException("OutNetwork visit need https, please set https parameters!");
+                throw new IllegalArgumentException(
+                        "OutNetwork visit need https, please set https parameters!");
             }
             if (Utils.isBlank(clientConfig.getTlsServerCertFilePathAndName())) {
-                throw new IllegalArgumentException("OutNetwork visit need https, "
-                        + "TlsServerCertFilePathAndName is Blank!");
+                throw new IllegalArgumentException(
+                        "OutNetwork visit need https, " + "TlsServerCertFilePathAndName is Blank!");
             }
             if (Utils.isBlank(clientConfig.getTlsServerKey())) {
-                throw new IllegalArgumentException("OutNetwork visit need https, tlsServerKey is Blank!");
+                throw new IllegalArgumentException(
+                        "OutNetwork visit need https, tlsServerKey is Blank!");
             }
         }
     }

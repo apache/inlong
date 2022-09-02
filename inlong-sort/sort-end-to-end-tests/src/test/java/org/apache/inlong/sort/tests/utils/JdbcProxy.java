@@ -18,7 +18,7 @@
 
 package org.apache.inlong.sort.tests.utils;
 
-import org.apache.commons.lang3.StringUtils;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,12 +28,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Proxy to communicate with database using JDBC protocol.
- */
+/** Proxy to communicate with database using JDBC protocol. */
 public class JdbcProxy {
 
     private final String url;
@@ -50,6 +47,7 @@ public class JdbcProxy {
 
     /**
      * Compare db select result and expected result in one time.
+     *
      * @param expectedResult
      * @param table
      * @param fieldsLen

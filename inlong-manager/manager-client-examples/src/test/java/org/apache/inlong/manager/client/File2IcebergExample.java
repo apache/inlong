@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.client;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
@@ -36,13 +39,7 @@ import org.apache.shiro.util.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Test class for file to iceberg.
- */
+/** Test class for file to iceberg. */
 @Slf4j
 @Disabled
 public class File2IcebergExample extends BaseExample {
@@ -110,9 +107,7 @@ public class File2IcebergExample extends BaseExample {
         return streamFieldList;
     }
 
-    /**
-     * Create iceberg sink
-     */
+    /** Create iceberg sink */
     public IcebergSink createIcebergSink() throws Exception {
         IcebergSink sink = new IcebergSink();
 
@@ -122,13 +117,29 @@ public class File2IcebergExample extends BaseExample {
         sink.setCatalogUri("thrift://{ip:port}");
         sink.setWarehouse("hdfs://{ip:port}/user/iceberg/warehouse/");
 
-        final SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
-        final SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(),
-                "name");
-        final SinkField field3 = new SinkField(3, FieldType.DECIMAL.toString(), "score", FieldType.DECIMAL.toString(),
-                "score");
-        final SinkField field4 = new SinkField(3, FieldType.TIMESTAMP.toString(), "ts", FieldType.TIMESTAMP.toString(),
-                "ts");
+        final SinkField field1 =
+                new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
+        final SinkField field2 =
+                new SinkField(
+                        1,
+                        FieldType.STRING.toString(),
+                        "name",
+                        FieldType.STRING.toString(),
+                        "name");
+        final SinkField field3 =
+                new SinkField(
+                        3,
+                        FieldType.DECIMAL.toString(),
+                        "score",
+                        FieldType.DECIMAL.toString(),
+                        "score");
+        final SinkField field4 =
+                new SinkField(
+                        3,
+                        FieldType.TIMESTAMP.toString(),
+                        "ts",
+                        FieldType.TIMESTAMP.toString(),
+                        "ts");
 
         // field ext param
         // field1: bucket partition example
@@ -141,7 +152,7 @@ public class File2IcebergExample extends BaseExample {
         // field3: decimal column example
         IcebergColumnInfo info3 = new IcebergColumnInfo();
         info3.setScale(5);
-        info3.setPrecision(10);  //NOTE: scale must be less than or equal to precision
+        info3.setPrecision(10); // NOTE: scale must be less than or equal to precision
         field3.setExtParams(OBJECT_MAPPER.writeValueAsString(info3));
 
         // field4: hour parititon example

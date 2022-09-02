@@ -28,8 +28,8 @@ public class AcceptAssignmentsParam {
 
     public String bootstrapServers;
 
-    public AcceptAssignmentsParam(String taskId, String bootstrapServers,
-            InLongTopic inLongTopic, boolean callListener) {
+    public AcceptAssignmentsParam(
+            String taskId, String bootstrapServers, InLongTopic inLongTopic, boolean callListener) {
         this.taskId = taskId;
         this.inLongTopic = inLongTopic;
         this.bootstrapServers = bootstrapServers;
@@ -39,10 +39,16 @@ public class AcceptAssignmentsParam {
     @Override
     public String toString() {
         return "AcceptAssignmentsParam{"
-                + "taskId='" + taskId + '\''
-                + ", callListener=" + callListener
-                + ", callListenerTimeoutMs=" + callListenerTimeoutMs
-                + ", bootstrapServers='" + bootstrapServers + '\''
+                + "taskId='"
+                + taskId
+                + '\''
+                + ", callListener="
+                + callListener
+                + ", callListenerTimeoutMs="
+                + callListenerTimeoutMs
+                + ", bootstrapServers='"
+                + bootstrapServers
+                + '\''
                 + '}';
     }
 }

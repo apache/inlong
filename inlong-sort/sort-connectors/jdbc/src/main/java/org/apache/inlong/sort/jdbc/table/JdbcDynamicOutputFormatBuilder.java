@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import static org.apache.flink.table.data.RowData.createFieldGetter;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.function.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -40,19 +47,11 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.function.Function;
-
-import static org.apache.flink.table.data.RowData.createFieldGetter;
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
- * Builder for {@link JdbcBatchingOutputFormat} for Table/SQL.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * <p>Builder for {@link JdbcBatchingOutputFormat} for Table/SQL. Add an option
+ * `sink.ignore.changelog` to support insert-only mode without primaryKey.
  */
 public class JdbcDynamicOutputFormatBuilder implements Serializable {
 
@@ -67,9 +66,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private String inLongMetric;
     private String auditHostAndPorts;
 
-    public JdbcDynamicOutputFormatBuilder() {
-
-    }
+    public JdbcDynamicOutputFormatBuilder() {}
 
     private static JdbcBatchStatementExecutor<RowData> createBufferReduceExecutor(
             JdbcDmlOptions opt,
@@ -255,7 +252,9 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                 Arrays.stream(fieldDataTypes)
                         .map(DataType::getLogicalType)
                         .toArray(LogicalType[]::new);
-        if (dmlOptions.getKeyFields().isPresent() && dmlOptions.getKeyFields().get().length > 0 && !appendMode) {
+        if (dmlOptions.getKeyFields().isPresent()
+                && dmlOptions.getKeyFields().get().length > 0
+                && !appendMode) {
             // upsert query
             return new JdbcBatchingOutputFormat<>(
                     new SimpleJdbcConnectionProvider(jdbcOptions),

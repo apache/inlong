@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -48,58 +52,82 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for filter parse
- */
+/** Test for filter parse */
 public class FilterParseTest extends AbstractTestBase {
 
     private Node buildMySQLExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo())
-        );
-        return new MySqlExtractNode("1", "mysql_input", fields, null, null,
-                "id", Collections.singletonList("mysql_table"),
-                "localhost", "inlong", "inlong",
-                "inlong", null, null, null, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        return new MySqlExtractNode(
+                "1",
+                "mysql_input",
+                fields,
+                null,
+                null,
+                "id",
+                Collections.singletonList("mysql_table"),
+                "localhost",
+                "inlong",
+                "inlong",
+                "inlong",
+                null,
+                null,
+                null,
+                null);
     }
 
     private Node buildKafkaLoadNode(FilterStrategy filterStrategy) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo())
-        );
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        List<FilterFunction> filters = Arrays.asList(
-                new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                        new FieldInfo("age", new IntFormatInfo()),
-                        LessThanOperator.getInstance(), new ConstantParam(25)),
-                new SingleValueFilterFunction(AndOperator.getInstance(),
-                        new FieldInfo("age", new IntFormatInfo()),
-                        MoreThanOrEqualOperator.getInstance(), new ConstantParam(18))
-        );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, filters,
-                filterStrategy, "topic1", "localhost:9092",
-                new CanalJsonFormat(), null,
-                null, "id");
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        List<FilterFunction> filters =
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("age", new IntFormatInfo()),
+                                LessThanOperator.getInstance(),
+                                new ConstantParam(25)),
+                        new SingleValueFilterFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("age", new IntFormatInfo()),
+                                MoreThanOrEqualOperator.getInstance(),
+                                new ConstantParam(18)));
+        return new KafkaLoadNode(
+                "2",
+                "kafka_output",
+                fields,
+                relations,
+                filters,
+                filterStrategy,
+                "topic1",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                null,
+                null,
+                "id");
     }
 
     public NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -115,24 +143,22 @@ public class FilterParseTest extends AbstractTestBase {
      */
     @Test
     public void testFilterWithRetainParse() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mysqlInputNode = buildMySQLExtractNode();
         Node kafkaOutputNode = buildKafkaLoadNode(FilterStrategy.RETAIN);
-        StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(mysqlInputNode, kafkaOutputNode),
-                Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(mysqlInputNode),
-                                Collections.singletonList(kafkaOutputNode))
-                )
-        );
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(mysqlInputNode, kafkaOutputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(mysqlInputNode),
+                                        Collections.singletonList(kafkaOutputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -146,24 +172,22 @@ public class FilterParseTest extends AbstractTestBase {
      */
     @Test
     public void testFilterWithRemoveParse() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mysqlInputNode = buildMySQLExtractNode();
         Node kafkaOutputNode = buildKafkaLoadNode(FilterStrategy.REMOVE);
-        StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(mysqlInputNode, kafkaOutputNode),
-                Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(mysqlInputNode),
-                                Collections.singletonList(kafkaOutputNode))
-                )
-        );
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(mysqlInputNode, kafkaOutputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(mysqlInputNode),
+                                        Collections.singletonList(kafkaOutputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

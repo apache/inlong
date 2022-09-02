@@ -20,8 +20,7 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 public class ProxysdkException extends Exception {
 
-    public ProxysdkException() {
-    }
+    public ProxysdkException() {}
 
     public ProxysdkException(String message) {
         super(message);

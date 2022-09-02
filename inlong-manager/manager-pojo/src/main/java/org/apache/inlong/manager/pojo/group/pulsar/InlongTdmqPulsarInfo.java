@@ -25,9 +25,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-/**
- * Inlong group info for Tdmq Pulsar
- */
+/** Inlong group info for Tdmq Pulsar */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -43,5 +41,4 @@ public class InlongTdmqPulsarInfo extends InlongPulsarInfo {
     public InlongTdmqPulsarRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongTdmqPulsarRequest::new);
     }
-
 }

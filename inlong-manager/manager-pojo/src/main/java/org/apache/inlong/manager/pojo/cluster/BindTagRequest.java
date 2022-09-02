@@ -19,14 +19,11 @@ package org.apache.inlong.manager.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import java.util.List;
-
-/**
- * Inlong cluster bind or unbind tag request
- */
+/** Inlong cluster bind or unbind tag request */
 @Data
 @ApiModel("Cluster bind and unbind tag request")
 public class BindTagRequest {
@@ -40,5 +37,4 @@ public class BindTagRequest {
 
     @ApiModelProperty(value = "Cluster-ID list which needs to unbind tag")
     private List<Integer> unbindClusters;
-
 }

@@ -20,9 +20,7 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
-/**
- * Builder to build single topic fetcher
- */
+/** Builder to build single topic fetcher */
 public abstract class SingleTopicFetcherBuilder implements TopicFetcherBuilder {
     protected Interceptor interceptor;
     protected Deserializer deserializer;

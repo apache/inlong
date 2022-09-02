@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.enumerator;
 
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigning;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.flink.api.connector.source.SplitEnumerator;
@@ -43,19 +55,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigning;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
 
 /**
  * A MySQL CDC source enumerator that enumerates receive the split request and assign the split to

@@ -19,16 +19,13 @@ package org.apache.inlong.agent.plugin.fetcher;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * check manager interface result with json formatter.
- */
+/** check manager interface result with json formatter. */
 public class ManagerResultFormatter {
 
     public static final String SUCCESS_CODE = "true";
@@ -44,11 +41,14 @@ public class ManagerResultFormatter {
      */
     public static JsonObject getResultData(String jsonStr) {
         JsonObject object = GSON.fromJson(jsonStr, JsonObject.class);
-        if (object == null || !object.has(RESULT_CODE) || !object.has(RESULT_DATA)
+        if (object == null
+                || !object.has(RESULT_CODE)
+                || !object.has(RESULT_DATA)
                 || !SUCCESS_CODE.equals(object.get(RESULT_CODE).getAsString())) {
-            throw new IllegalArgumentException("cannot get result data,"
-                    + " please check manager status, return str is " + jsonStr);
-
+            throw new IllegalArgumentException(
+                    "cannot get result data,"
+                            + " please check manager status, return str is "
+                            + jsonStr);
         }
         return object;
     }

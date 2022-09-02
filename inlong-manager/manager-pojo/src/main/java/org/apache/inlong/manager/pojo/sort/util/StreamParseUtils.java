@@ -28,15 +28,13 @@ import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.deduplication.DeDuplicationDefinition;
+import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
-import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
 
-/**
- * Utils of stream parse.
- */
+/** Utils of stream parse. */
 public class StreamParseUtils {
 
     public static final String LEFT_NODE = "leftNode";
@@ -50,8 +48,8 @@ public class StreamParseUtils {
 
     private static final Gson GSON = new Gson();
 
-    public static TransformDefinition parseTransformDefinition(String transformDefinition,
-            TransformType transformType) {
+    public static TransformDefinition parseTransformDefinition(
+            String transformDefinition, TransformType transformType) {
         switch (transformType) {
             case FILTER:
                 return GSON.fromJson(transformDefinition, FilterDefinition.class);
@@ -66,12 +64,14 @@ public class StreamParseUtils {
             case ENCRYPT:
                 return GSON.fromJson(transformDefinition, EncryptDefinition.class);
             default:
-                throw new IllegalArgumentException(String.format("Unsupported transformType for %s", transformType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported transformType for %s", transformType));
         }
     }
 
     public static JoinerDefinition parseJoinerDefinition(String transformDefinition) {
-        JoinerDefinition joinerDefinition = GSON.fromJson(transformDefinition, JoinerDefinition.class);
+        JoinerDefinition joinerDefinition =
+                GSON.fromJson(transformDefinition, JoinerDefinition.class);
         JsonObject joinerJson = GSON.fromJson(transformDefinition, JsonObject.class);
         JsonObject leftNode = joinerJson.getAsJsonObject(LEFT_NODE);
         StreamNode leftStreamNode = parseNode(leftNode);
@@ -85,33 +85,31 @@ public class StreamParseUtils {
     private static StreamNode parseNode(JsonObject jsonObject) {
         if (jsonObject.has(SOURCE_TYPE)) {
             String sourceName = jsonObject.get(SOURCE_NAME).getAsString();
-            StreamSource source = new StreamSource() {
-            };
+            StreamSource source = new StreamSource() {};
             source.setSourceName(sourceName);
             return source;
         } else if (jsonObject.has(SINK_TYPE)) {
             String sinkName = jsonObject.get(SINK_NAME).getAsString();
-            StreamSink sink = new StreamSink() {
-            };
+            StreamSink sink = new StreamSink() {};
             sink.setSinkName(sinkName);
             return sink;
         } else {
             String transformName = jsonObject.get(TRANSFORM_NAME).getAsString();
-            StreamTransform transform = new StreamTransform() {
-                @Override
-                public String getTransformName() {
-                    return super.getTransformName();
-                }
-            };
+            StreamTransform transform =
+                    new StreamTransform() {
+                        @Override
+                        public String getTransformName() {
+                            return super.getTransformName();
+                        }
+                    };
             transform.setTransformName(transformName);
             return transform;
         }
     }
 
     public static StreamPipeline parseStreamPipeline(String tempView, String inlongStreamId) {
-        Preconditions.checkNotEmpty(tempView,
-                String.format(" should not be null for streamId=%s", inlongStreamId));
+        Preconditions.checkNotEmpty(
+                tempView, String.format(" should not be null for streamId=%s", inlongStreamId));
         return GSON.fromJson(tempView, StreamPipeline.class);
     }
-
 }

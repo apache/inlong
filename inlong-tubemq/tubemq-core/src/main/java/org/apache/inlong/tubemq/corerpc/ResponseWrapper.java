@@ -1,29 +1,24 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corerpc;
 
 import java.io.Serializable;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
-/**
- *  Response message wrapper class.
- */
+/** Response message wrapper class. */
 public class ResponseWrapper implements Serializable {
 
     private static final long serialVersionUID = -3852197088007144687L;
@@ -39,18 +34,22 @@ public class ResponseWrapper implements Serializable {
     private String stackTrace;
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param locVersion     the local protocol version
-     * @param methodId       the method id
-     * @param responseData   the response data
+     * @param flagId the flag id
+     * @param serialNo the serial no.
+     * @param serviceType the service type
+     * @param locVersion the local protocol version
+     * @param methodId the method id
+     * @param responseData the response data
      */
-    public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           int methodId, Object responseData) {
+    public ResponseWrapper(
+            int flagId,
+            int serialNo,
+            int serviceType,
+            int locVersion,
+            int methodId,
+            Object responseData) {
         this.serialNo = serialNo;
         this.serviceType = serviceType;
         this.protocolVersion = locVersion;
@@ -61,26 +60,29 @@ public class ResponseWrapper implements Serializable {
     }
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param rmtVersion     the remote protocol version
-     * @param locVersion     the local protocol version
-     * @param exception      the exception
+     * @param flagId the flag id
+     * @param serialNo the serial no.
+     * @param serviceType the service type
+     * @param rmtVersion the remote protocol version
+     * @param locVersion the local protocol version
+     * @param exception the exception
      */
-    public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int rmtVersion,
-                           int locVersion, Throwable exception) {
+    public ResponseWrapper(
+            int flagId,
+            int serialNo,
+            int serviceType,
+            int rmtVersion,
+            int locVersion,
+            Throwable exception) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
         this.protocolVersion = locVersion;
         String errorClass = null;
         String error = null;
-        if (exception.getCause() != null
-                && exception.getCause() instanceof StandbyException) {
+        if (exception.getCause() != null && exception.getCause() instanceof StandbyException) {
             errorClass = exception.getCause().getClass().getName();
             error = exception.getCause().getMessage();
         } else {
@@ -99,18 +101,22 @@ public class ResponseWrapper implements Serializable {
     }
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param locVersion     the local protocol version
-     * @param errorMsg       the text error message
-     * @param stackTrace     the stack trace information
+     * @param flagId the flag id
+     * @param serialNo the serial no.
+     * @param serviceType the service type
+     * @param locVersion the local protocol version
+     * @param errorMsg the text error message
+     * @param stackTrace the stack trace information
      */
-    public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           String errorMsg, String stackTrace) {
+    public ResponseWrapper(
+            int flagId,
+            int serialNo,
+            int serviceType,
+            int locVersion,
+            String errorMsg,
+            String stackTrace) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
@@ -196,5 +202,4 @@ public class ResponseWrapper implements Serializable {
     public void setStackTrace(String stackTrace) {
         this.stackTrace = stackTrace;
     }
-
 }

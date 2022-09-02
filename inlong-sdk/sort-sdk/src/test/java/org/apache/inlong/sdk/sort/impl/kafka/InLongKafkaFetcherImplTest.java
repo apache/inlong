@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.sort.impl.kafka;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.util.HashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
@@ -36,8 +37,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-
 @PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
@@ -48,9 +47,7 @@ public class InLongKafkaFetcherImplTest {
     private SortClientConfig sortClientConfig;
     private StatManager statManager;
 
-    /**
-     * setUp
-     */
+    /** setUp */
     @Before
     public void setUp() throws Exception {
         System.setProperty("log4j2.disable.jmx", Boolean.TRUE.toString());
@@ -61,7 +58,8 @@ public class InLongKafkaFetcherImplTest {
         inLongTopic.setTopicType("pulsar");
         inLongTopic.setProperties(new HashMap<>());
 
-        CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
+        CacheZoneCluster cacheZoneCluster =
+                new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
@@ -70,29 +68,32 @@ public class InLongKafkaFetcherImplTest {
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
         when(clientContext.getStatManager()).thenReturn(statManager);
-        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
-                cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
-        when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
+        SortClientStateCounter sortClientStateCounter =
+                new SortClientStateCounter(
+                        "sortTaskId", cacheZoneCluster.getClusterId(), inLongTopic.getTopic(), 0);
+        when(statManager.getStatistics(anyString(), anyString(), anyString()))
+                .thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
-
     }
 
     @Test
     public void pause() {
-        InLongKafkaFetcherImpl inLongTopicFetcher = new InLongKafkaFetcherImpl(inLongTopic, clientContext);
+        InLongKafkaFetcherImpl inLongTopicFetcher =
+                new InLongKafkaFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongKafkaFetcherImpl inLongTopicFetcher = new InLongKafkaFetcherImpl(inLongTopic, clientContext);
+        InLongKafkaFetcherImpl inLongTopicFetcher =
+                new InLongKafkaFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongKafkaFetcherImpl inLongTopicFetcher = new InLongKafkaFetcherImpl(inLongTopic, clientContext);
+        InLongKafkaFetcherImpl inLongTopicFetcher =
+                new InLongKafkaFetcherImpl(inLongTopic, clientContext);
         boolean close = inLongTopicFetcher.close();
         Assert.assertTrue(close);
     }

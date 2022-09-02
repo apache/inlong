@@ -28,23 +28,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * MongoDB source service test
- */
+/** MongoDB source service test */
 public class MongoDBSourceServiceTest extends ServiceBaseTest {
 
     private static final String hostname = "127.0.0.1";
     private static final String database = "mongo_database";
     private static final String collection = "mongo_collection";
     private final String sourceName = "stream_source_service_test";
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save source info.
-     */
+    /** Save source info. */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
@@ -84,11 +78,11 @@ public class MongoDBSourceServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         MongoDBSource mongoDBSource = (MongoDBSource) response;
-        MongoDBSourceRequest request = CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
+        MongoDBSourceRequest request =
+                CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
-
 }

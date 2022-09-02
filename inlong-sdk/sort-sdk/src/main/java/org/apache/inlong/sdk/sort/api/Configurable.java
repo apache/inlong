@@ -19,13 +19,12 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
-/**
- * Interface that enable components the ability to be configured by {@link InLongTopic}
- */
+/** Interface that enable components the ability to be configured by {@link InLongTopic} */
 public interface Configurable {
 
     /**
      * Configure by topic
+     *
      * @param topic Topic info.
      */
     void configure(InLongTopic topic);

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
@@ -35,21 +36,19 @@ import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
-import java.util.List;
-
 public class StreamTransformTransfer {
 
-    /**
-     * Create request of transformation.
-     */
-    public static TransformRequest createTransformRequest(StreamTransform streamTransform,
-            InlongStreamInfo streamInfo) {
+    /** Create request of transformation. */
+    public static TransformRequest createTransformRequest(
+            StreamTransform streamTransform, InlongStreamInfo streamInfo) {
         TransformRequest transformRequest = new TransformRequest();
-        Preconditions.checkNotEmpty(streamTransform.getTransformName(), "TransformName should not be null");
+        Preconditions.checkNotEmpty(
+                streamTransform.getTransformName(), "TransformName should not be null");
         transformRequest.setTransformName(streamTransform.getTransformName());
         transformRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         transformRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        Preconditions.checkNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
+        Preconditions.checkNotNull(
+                streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
         transformRequest.setVersion(InlongConstants.INITIAL_VERSION);
@@ -66,24 +65,24 @@ public class StreamTransformTransfer {
         return transformRequest;
     }
 
-    /**
-     * Parse stream of transformation.
-     */
+    /** Parse stream of transformation. */
     public static StreamTransform parseStreamTransform(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         String transformDefinitionStr = transformResponse.getTransformDefinition();
-        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
-                transformDefinitionStr, transformType);
+        TransformDefinition transformDefinition =
+                StreamParseUtils.parseTransformDefinition(transformDefinitionStr, transformType);
         String transformName = transformResponse.getTransformName();
         String preNodeNames = transformResponse.getPreNodeNames();
         List<String> preNodes = Splitter.on(",").splitToList(preNodeNames);
         StreamTransform streamTransform;
         if (preNodes.size() > 1) {
-            streamTransform = new MultiDependencyTransform(transformName, transformDefinition,
-                    preNodes.toArray(new String[]{}));
+            streamTransform =
+                    new MultiDependencyTransform(
+                            transformName, transformDefinition, preNodes.toArray(new String[] {}));
         } else {
-            streamTransform = new SingleDependencyTransform(transformName, transformDefinition,
-                    preNodes.get(0));
+            streamTransform =
+                    new SingleDependencyTransform(
+                            transformName, transformDefinition, preNodes.get(0));
         }
         String postNodeNames = transformResponse.getPostNodeNames();
         if (StringUtils.isNotEmpty(postNodeNames)) {
@@ -95,5 +94,4 @@ public class StreamTransformTransfer {
         }
         return streamTransform;
     }
-
 }

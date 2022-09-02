@@ -20,9 +20,7 @@ package org.apache.inlong.manager.pojo.common;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-/**
- * Pagination request
- */
+/** Pagination request */
 @ApiModel(value = "Pagination request")
 public class PageRequest {
 
@@ -32,7 +30,8 @@ public class PageRequest {
     @ApiModelProperty(value = "Page size, default is 10")
     private int pageSize = 10;
 
-    @ApiModelProperty(value = "Order field, support create_time and modify_time, default is create_time")
+    @ApiModelProperty(
+            value = "Order field, support create_time and modify_time, default is create_time")
     private String orderField = "create_time";
 
     @ApiModelProperty(value = "Order type, only support asc and desc, default is desc")

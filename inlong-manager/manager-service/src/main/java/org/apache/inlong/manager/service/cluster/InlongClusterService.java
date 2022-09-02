@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import java.util.List;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -30,11 +31,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 
-import java.util.List;
-
-/**
- * Inlong cluster service layer interface
- */
+/** Inlong cluster service layer interface */
 public interface InlongClusterService {
 
     /**
@@ -221,5 +218,4 @@ public interface InlongClusterService {
      * @return data proxy config
      */
     String getAllConfig(String clusterName, String md5);
-
 }

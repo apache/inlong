@@ -19,6 +19,12 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,16 +35,7 @@ import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
-/**
- * TubeMQ extract node for extracting data from Tube.
- */
+/** TubeMQ extract node for extracting data from Tube. */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tubeMQExtract")
 @Data
@@ -65,12 +62,10 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("sessionKey")
     private String sessionKey;
 
-    /**
-     * The tubemq consumers use this tid set to filter records reading from server.
-     */
+    /** The tubemq consumers use this tid set to filter records reading from server. */
     @JsonProperty("tid")
     private TreeSet<String> tid;
-    
+
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -83,8 +78,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") String format,
             @Nonnull @JsonProperty("groupId") String groupId,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> tid
-    ) {
+            @JsonProperty("tid") TreeSet<String> tid) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");
@@ -113,5 +107,4 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
     public String genTableName() {
         return String.format("table_%s", super.getId());
     }
-
 }

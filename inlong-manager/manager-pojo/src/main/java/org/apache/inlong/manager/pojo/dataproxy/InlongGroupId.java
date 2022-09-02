@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.pojo.dataproxy;
 
-/**
- * InlongGroupId
- */
+/** InlongGroupId */
 public class InlongGroupId {
 
     private String inlongGroupId;
@@ -29,6 +27,7 @@ public class InlongGroupId {
 
     /**
      * get inlongGroupId
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -37,6 +36,7 @@ public class InlongGroupId {
 
     /**
      * set inlongGroupId
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -45,6 +45,7 @@ public class InlongGroupId {
 
     /**
      * get clusterTag
+     *
      * @return the clusterTag
      */
     public String getClusterTag() {
@@ -53,6 +54,7 @@ public class InlongGroupId {
 
     /**
      * set clusterTag
+     *
      * @param clusterTag the clusterTag to set
      */
     public void setClusterTag(String clusterTag) {
@@ -61,6 +63,7 @@ public class InlongGroupId {
 
     /**
      * get topic
+     *
      * @return the topic
      */
     public String getTopic() {
@@ -69,6 +72,7 @@ public class InlongGroupId {
 
     /**
      * set topic
+     *
      * @param topic the topic to set
      */
     public void setTopic(String topic) {
@@ -77,6 +81,7 @@ public class InlongGroupId {
 
     /**
      * get extParams
+     *
      * @return the extParams
      */
     public String getExtParams() {
@@ -85,10 +90,10 @@ public class InlongGroupId {
 
     /**
      * set extParams
+     *
      * @param extParams the extParams to set
      */
     public void setExtParams(String extParams) {
         this.extParams = extParams;
     }
-
 }

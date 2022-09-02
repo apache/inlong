@@ -23,16 +23,15 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NettyClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
@@ -54,8 +53,8 @@ public class NettyClient {
         this.serverIP = serverIP;
     }
 
-    public NettyClient(Bootstrap bootstrap, String serverIP,
-                       int serverPort, ProxyClientConfig configure) {
+    public NettyClient(
+            Bootstrap bootstrap, String serverIP, int serverPort, ProxyClientConfig configure) {
         this.bootstrap = bootstrap;
         this.serverIP = serverIP;
         this.serverPort = serverPort;
@@ -76,19 +75,18 @@ public class NettyClient {
 
         setState(ConnState.INIT);
         final CountDownLatch awaitLatch = new CountDownLatch(1);
-        ChannelFuture future = bootstrap.connect(new InetSocketAddress(
-                serverIP, serverPort));
-        future.addListener(new ChannelFutureListener() {
-            public void operationComplete(ChannelFuture arg0) throws Exception {
-                logger.info("connect ack! {}", serverIP);
-                awaitLatch.countDown();
-            }
-        });
+        ChannelFuture future = bootstrap.connect(new InetSocketAddress(serverIP, serverPort));
+        future.addListener(
+                new ChannelFutureListener() {
+                    public void operationComplete(ChannelFuture arg0) throws Exception {
+                        logger.info("connect ack! {}", serverIP);
+                        awaitLatch.countDown();
+                    }
+                });
 
         try {
             // Wait until the connection is built.
-            awaitLatch.await(configure.getConnectTimeoutMillis(),
-                    TimeUnit.MILLISECONDS);
+            awaitLatch.await(configure.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             logger.error("create connect exception! {}", e.getMessage());
             e.printStackTrace();
@@ -112,29 +110,31 @@ public class NettyClient {
         try {
             if (channel != null) {
                 ChannelFuture future = channel.close();
-                future.addListener(new ChannelFutureListener() {
-                    public void operationComplete(ChannelFuture arg0)
-                            throws Exception {
-                        logger.info("close client ack {}", serverIP);
-                        awaitLatch.countDown();
-                    }
-                });
+                future.addListener(
+                        new ChannelFutureListener() {
+                            public void operationComplete(ChannelFuture arg0) throws Exception {
+                                logger.info("close client ack {}", serverIP);
+                                awaitLatch.countDown();
+                            }
+                        });
                 // Wait until the connection is close.
-                awaitLatch.await(configure.getRequestTimeoutMillis(),
-                        TimeUnit.MILLISECONDS);
+                awaitLatch.await(configure.getRequestTimeoutMillis(), TimeUnit.MILLISECONDS);
                 // Return if close this connection fail.
                 if (!future.isSuccess()) {
                     ret = false;
                 }
             }
         } catch (Exception e) {
-            logger.error("close connect {" + serverIP + ":" + serverPort + "} exception! {}", e.getMessage());
+            logger.error(
+                    "close connect {" + serverIP + ":" + serverPort + "} exception! {}",
+                    e.getMessage());
             e.printStackTrace();
             ret = false;
         } finally {
             setState(ConnState.DEAD);
         }
-        logger.info("end to close {" + serverIP + ":" + serverPort + "} 's channel, bSuccess = " + ret);
+        logger.info(
+                "end to close {" + serverIP + ":" + serverPort + "} 's channel, bSuccess = " + ret);
         return ret;
     }
 
@@ -146,7 +146,10 @@ public class NettyClient {
     public boolean isActive() {
         stateLock.lock();
         try {
-            return (connState == ConnState.READY && channel != null && channel.isOpen() && channel.isActive());
+            return (connState == ConnState.READY
+                    && channel != null
+                    && channel.isOpen()
+                    && channel.isActive());
         } catch (Exception e) {
             logger.error("channel maybe null!{}", e.getMessage());
             return false;
@@ -168,7 +171,11 @@ public class NettyClient {
     }
 
     private enum ConnState {
-        INIT, READY, FROZEN, DEAD, BUSY
+        INIT,
+        READY,
+        FROZEN,
+        DEAD,
+        BUSY
     }
 
     public ChannelFuture write(EncodeObject encodeObject) {
@@ -208,7 +215,6 @@ public class NettyClient {
     public void setFrozen() {
         // TODO Auto-generated method stub
         setState(ConnState.FROZEN);
-
     }
 
     public void setBusy() {
@@ -220,5 +226,4 @@ public class NettyClient {
                 (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         return operatingSystemMXBean.getSystemLoadAverage();
     }
-
 }

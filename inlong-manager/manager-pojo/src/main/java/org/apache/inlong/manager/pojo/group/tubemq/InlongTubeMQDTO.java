@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Inlong group info for TubeMQ
- */
+/** Inlong group info for TubeMQ */
 @Data
 @NoArgsConstructor
 @ApiModel("Inlong group info for TubeMQ")

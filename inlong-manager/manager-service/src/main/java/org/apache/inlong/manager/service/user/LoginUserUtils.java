@@ -20,15 +20,11 @@ package org.apache.inlong.manager.service.user;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
-/**
- * User info for login
- */
+/** User info for login */
 @Slf4j
 public class LoginUserUtils {
 
-    /**
-     * ThreadLocal for user info
-     */
+    /** ThreadLocal for user info */
     private static final ThreadLocal<UserInfo> LOGIN_USER_DETAIL_TL = new ThreadLocal<>();
 
     public static UserInfo getLoginUser() {
@@ -43,5 +39,4 @@ public class LoginUserUtils {
     public static void removeUserLoginInfo() {
         LOGIN_USER_DETAIL_TL.remove();
     }
-
 }

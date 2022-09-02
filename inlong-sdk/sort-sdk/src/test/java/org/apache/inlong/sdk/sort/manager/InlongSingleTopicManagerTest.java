@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sdk.sort.manager;
 
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -35,13 +41,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ClientContext.class})
@@ -61,7 +60,8 @@ public class InlongSingleTopicManagerTest {
         inLongTopic.setTopicType("pulsar");
         inLongTopic.setProperties(new HashMap<>());
 
-        CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
+        CacheZoneCluster cacheZoneCluster =
+                new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
 
         clientContext = PowerMockito.mock(ClientContextImpl.class);
@@ -71,14 +71,16 @@ public class InlongSingleTopicManagerTest {
         when(sortClientConfig.getSortTaskId()).thenReturn("test");
         when(sortClientConfig.getUpdateMetaDataIntervalSec()).thenReturn(60);
         queryConsumeConfig = PowerMockito.mock(QueryConsumeConfigImpl.class);
-        topicManager = InlongTopicManagerFactory
-                .createSingleTopicManager(clientContext, queryConsumeConfig);
+        topicManager =
+                InlongTopicManagerFactory.createSingleTopicManager(
+                        clientContext, queryConsumeConfig);
     }
 
     @Test
     public void testAddFetcher() {
-        TopicManager inLongTopicManager = InlongTopicManagerFactory
-                .createSingleTopicManager(clientContext, queryConsumeConfig);
+        TopicManager inLongTopicManager =
+                InlongTopicManagerFactory.createSingleTopicManager(
+                        clientContext, queryConsumeConfig);
 
         TopicFetcher inLongTopicFetcher = inLongTopicManager.addTopic(inLongTopic);
         Assert.assertNull(inLongTopicFetcher);
@@ -98,7 +100,6 @@ public class InlongSingleTopicManagerTest {
 
         topicFetcher = topicManager.removeTopic(inLongTopic, true);
         Assert.assertNotNull(topicFetcher);
-
     }
 
     @Test
@@ -113,7 +114,6 @@ public class InlongSingleTopicManagerTest {
 
         fetcher = topicManager.getFetcher(inLongTopic.getTopicKey());
         Assert.assertNotNull(fetcher);
-
     }
 
     @Test
@@ -127,7 +127,6 @@ public class InlongSingleTopicManagerTest {
         Whitebox.setInternalState(topicManager, "fetchers", fetchers);
         managedInLongTopics = topicManager.getManagedInLongTopics();
         Assert.assertEquals(1, managedInLongTopics.size());
-
     }
 
     @Test
@@ -158,5 +157,4 @@ public class InlongSingleTopicManagerTest {
     public void testClose() {
         topicManager.close();
     }
-
 }

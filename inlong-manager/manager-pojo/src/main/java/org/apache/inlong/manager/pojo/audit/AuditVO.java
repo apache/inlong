@@ -21,19 +21,17 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.Data;
 
-/**
- * The VO of audit.
- */
+/** The VO of audit. */
 @Data
 public class AuditVO {
 
     @ApiModelProperty(value = "Audit id")
     private String auditId;
+
     @ApiModelProperty(value = "Audit set")
     private List<AuditInfo> auditSet;
 
-    public AuditVO() {
-    }
+    public AuditVO() {}
 
     public AuditVO(String auditId, List<AuditInfo> auditSet) {
         this.auditId = auditId;

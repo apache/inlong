@@ -17,27 +17,23 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Class resource common properties loader
- */
+/** Class resource common properties loader */
 public class ClassResourceCommonPropertiesLoader implements CommonPropertiesLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClassResourceCommonPropertiesLoader.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ClassResourceCommonPropertiesLoader.class);
     private static final String FILE_NAME = "common.properties";
 
-    /**
-     * load properties
-     */
+    /** load properties */
     @Override
     public Map<String, String> load() {
         return this.loadProperties();

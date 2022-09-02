@@ -26,8 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.inlong.audit.file.holder.ConfigUpdateCallback;
 import org.apache.inlong.audit.consts.AttributeConstants;
+import org.apache.inlong.audit.file.holder.ConfigUpdateCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,8 @@ public abstract class ConfigHolder {
 
     public static final Splitter.MapSplitter MAP_SPLITTER =
             Splitter.on(AttributeConstants.SEPARATOR)
-                    .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+                    .trimResults()
+                    .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
     private static final Logger LOG = LoggerFactory.getLogger(ConfigHolder.class);
     private final String fileName;
     private final AtomicBoolean fileChanged = new AtomicBoolean(false);
@@ -64,18 +65,14 @@ public abstract class ConfigHolder {
         callbackList.add(callback);
     }
 
-    /**
-     * execute callbacks
-     */
+    /** execute callbacks */
     public void executeCallbacks() {
         for (ConfigUpdateCallback callback : callbackList) {
             callback.update();
         }
     }
 
-    /**
-     * load from file to holder
-     */
+    /** load from file to holder */
     public abstract void loadFromFileToHolder();
 
     /**
@@ -125,8 +122,10 @@ public abstract class ConfigHolder {
         if (url != null) {
             this.filePath = url.getPath();
             this.configFile = new File(this.filePath);
-            LOG.info("set file path lastTime: {}, currentTime: {}",
-                    lastModifyTime, configFile.lastModified());
+            LOG.info(
+                    "set file path lastTime: {}, currentTime: {}",
+                    lastModifyTime,
+                    configFile.lastModified());
         }
     }
 

@@ -18,6 +18,9 @@
 package org.apache.inlong.sdk.dataproxy.pb.config;
 
 import com.alibaba.fastjson.JSON;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigBySdkResponse;
@@ -27,40 +30,32 @@ import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-/**
- * Data Proxy cluster config loader
- */
+/** Data Proxy cluster config loader */
 public class ContextProxyClusterConfigLoader implements ProxyClusterConfigLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ContextProxyClusterConfigLoader.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ContextProxyClusterConfigLoader.class);
     private Context context;
 
-    /**
-     * configure the context
-     */
+    /** configure the context */
     @Override
     public void configure(Context context) {
         this.context = context;
     }
 
-    /**
-     * Load data proxy cluster info by inlong group and inlong stream
-     */
+    /** Load data proxy cluster info by inlong group and inlong stream */
     @Override
     public ProxyClusterResult loadByStream(String inlongGroupId, String inlongStreamId) {
         try {
             String jsonString = this.context.getString(KEY_LOADER_TYPE_CONTEXT_KEY);
             LOG.info("get data proxy cluster from inlong group and stream result: {}", jsonString);
 
-            GetProxyConfigBySdkResponse configResponse = JSON.parseObject(jsonString,
-                    GetProxyConfigBySdkResponse.class);
+            GetProxyConfigBySdkResponse configResponse =
+                    JSON.parseObject(jsonString, GetProxyConfigBySdkResponse.class);
             // result
             for (Entry<String, ProxyClusterResult> entry : configResponse.getData().entrySet()) {
-                for (InlongStreamConfig stream : entry.getValue().getConfig().getInlongStreamList()) {
+                for (InlongStreamConfig stream :
+                        entry.getValue().getConfig().getInlongStreamList()) {
                     if (StringUtils.equals(inlongGroupId, stream.getInlongGroupId())
                             && StringUtils.equals(inlongStreamId, stream.getInlongStreamId())) {
                         return entry.getValue();
@@ -74,17 +69,15 @@ public class ContextProxyClusterConfigLoader implements ProxyClusterConfigLoader
         }
     }
 
-    /**
-     * Load data proxy cluster info by cluster IDs
-     */
+    /** Load data proxy cluster info by cluster IDs */
     @Override
     public Map<String, ProxyClusterResult> loadByClusterIds(List<ProxyInfo> proxyInfos) {
         try {
             String jsonString = this.context.getString(KEY_LOADER_TYPE_CONTEXT_KEY);
             LOG.info("get data proxy cluster from cluster result: {}", jsonString);
 
-            GetProxyConfigBySdkResponse configResponse = JSON.parseObject(jsonString,
-                    GetProxyConfigBySdkResponse.class);
+            GetProxyConfigBySdkResponse configResponse =
+                    JSON.parseObject(jsonString, GetProxyConfigBySdkResponse.class);
             return configResponse.getData();
         } catch (Exception e) {
             LOG.error("get data proxy cluster from cluster failed: ", e);

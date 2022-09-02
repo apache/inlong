@@ -19,13 +19,10 @@ package org.apache.inlong.manager.pojo.user;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-
-/**
- * Login user and password
- */
+/** Login user and password */
 @Data
 @ApiModel("Login user and password")
 public class UserLoginRequest {

@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.client.consumer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.TubeBaseSessionFactory;

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
 import java.io.File;
@@ -33,12 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Segment file. Topic contains multi FileSegments. Each FileSegment contains data file and index file.
- * It is mini particle of topic expire policy. It will be marked deleted when expired.
+ * Segment file. Topic contains multi FileSegments. Each FileSegment contains data file and index
+ * file. It is mini particle of topic expire policy. It will be marked deleted when expired.
  */
 public class FileSegment implements Segment {
-    private static final Logger logger =
-            LoggerFactory.getLogger(FileSegment.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileSegment.class);
     private final long start;
     private final File file;
     private final RandomAccessFile randFile;
@@ -51,28 +47,26 @@ public class FileSegment implements Segment {
     private final AtomicBoolean expired = new AtomicBoolean(false);
     private final AtomicBoolean closed = new AtomicBoolean(false);
     // the first record append time
-    private final AtomicLong leftAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong leftAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // the latest record append time
-    private final AtomicLong rightAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong rightAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     public FileSegment(long start, File file, SegmentType type) throws IOException {
         this(start, file, true, type, Long.MAX_VALUE);
     }
 
-    public FileSegment(long start, File file,
-                       boolean mutable, SegmentType type) throws IOException {
+    public FileSegment(long start, File file, boolean mutable, SegmentType type)
+            throws IOException {
         this(start, file, mutable, type, Long.MAX_VALUE);
     }
 
-    public FileSegment(long start, File file,
-                       SegmentType type, long checkOffset) throws IOException {
+    public FileSegment(long start, File file, SegmentType type, long checkOffset)
+            throws IOException {
         this(start, file, true, type, checkOffset);
     }
 
-    private FileSegment(long start, File file, boolean mutable,
-                        SegmentType type, long checkOffset) throws IOException {
+    private FileSegment(long start, File file, boolean mutable, SegmentType type, long checkOffset)
+            throws IOException {
         super();
         this.segmentType = type;
         this.start = start;
@@ -88,15 +82,17 @@ public class FileSegment implements Segment {
             if (this.segmentType == SegmentType.DATA) {
                 RecoverResult recoverResult = this.recoverData(remaining);
                 if (recoverResult.isEqual()) {
-                    logger.info(
-                            "[File Store] Data Segment recover success, ignore content check!");
+                    logger.info("[File Store] Data Segment recover success, ignore content check!");
                 } else {
                     if (recoverResult.getTruncated() > 0) {
-                        logger.info(new StringBuilder(512)
-                                .append("[File Store] Recover DATA Segment succeeded in ")
-                                .append((System.currentTimeMillis() - startMs) / 1000)
-                                .append(" seconds. ").append(recoverResult.getTruncated())
-                                .append(" bytes truncated.").toString());
+                        logger.info(
+                                new StringBuilder(512)
+                                        .append("[File Store] Recover DATA Segment succeeded in ")
+                                        .append((System.currentTimeMillis() - startMs) / 1000)
+                                        .append(" seconds. ")
+                                        .append(recoverResult.getTruncated())
+                                        .append(" bytes truncated.")
+                                        .toString());
                     }
                 }
             } else {
@@ -106,11 +102,14 @@ public class FileSegment implements Segment {
                             "[File Store] Index Segment recover success, ignore content check!");
                 } else {
                     if (recoverResult.getTruncated() > 0) {
-                        logger.info(new StringBuilder(512)
-                                .append("[File Store] Recover Index Segment succeeded in ")
-                                .append((System.currentTimeMillis() - startMs) / 1000)
-                                .append(" seconds. ").append(recoverResult.getTruncated())
-                                .append(" bytes truncated.").toString());
+                        logger.info(
+                                new StringBuilder(512)
+                                        .append("[File Store] Recover Index Segment succeeded in ")
+                                        .append((System.currentTimeMillis() - startMs) / 1000)
+                                        .append(" seconds. ")
+                                        .append(recoverResult.getTruncated())
+                                        .append(" bytes truncated.")
+                                        .toString());
                     }
                 }
             }
@@ -138,8 +137,11 @@ public class FileSegment implements Segment {
                 }
             } else {
                 this.leftAppendTime.set(getRecordTime(this.start));
-                this.rightAppendTime.set(getRecordTime(this.start
-                        + this.cachedSize.get() - DataStoreUtils.STORE_INDEX_HEAD_LEN));
+                this.rightAppendTime.set(
+                        getRecordTime(
+                                this.start
+                                        + this.cachedSize.get()
+                                        - DataStoreUtils.STORE_INDEX_HEAD_LEN));
             }
         }
     }
@@ -160,9 +162,15 @@ public class FileSegment implements Segment {
                     ServiceStatusHolder.addReadIOErrCnt();
                     BrokerSrvStatsHolder.incDiskIOExcCnt();
                 }
-                logger.error(new StringBuilder(512).append("[File Store] Close ")
-                        .append(this.file.getAbsoluteFile().toString())
-                        .append("'s ").append(segmentType).append(" file failure").toString(), ee);
+                logger.error(
+                        new StringBuilder(512)
+                                .append("[File Store] Close ")
+                                .append(this.file.getAbsoluteFile().toString())
+                                .append("'s ")
+                                .append(segmentType)
+                                .append(" file failure")
+                                .toString(),
+                        ee);
             }
         }
     }
@@ -186,9 +194,11 @@ public class FileSegment implements Segment {
             logger.error("[File Store] failure to close channel ", e1);
         }
         try {
-            logger.info(new StringBuilder(512)
-                    .append("[File Store] delete file ")
-                    .append(file.getAbsoluteFile()).toString());
+            logger.info(
+                    new StringBuilder(512)
+                            .append("[File Store] delete file ")
+                            .append(file.getAbsoluteFile())
+                            .toString());
             this.file.delete();
         } catch (Throwable ee) {
             if (ee instanceof IOException) {
@@ -200,14 +210,14 @@ public class FileSegment implements Segment {
     }
 
     /**
-     * Messages can only be appended to the last FileSegment.
-     * The last FileSegment is writable, the others are mutable.
+     * Messages can only be appended to the last FileSegment. The last FileSegment is writable, the
+     * others are mutable.
      *
-     * @param buf            data buffer
-     * @param leftTime       the first record timestamp
-     * @param rightTime      the latest record timestamp
-     * @return               latest writable position
-     * @throws IOException   exception while force data to disk
+     * @param buf data buffer
+     * @param leftTime the first record timestamp
+     * @param rightTime the latest record timestamp
+     * @return latest writable position
+     * @throws IOException exception while force data to disk
      */
     @Override
     public long append(ByteBuffer buf, long leftTime, long rightTime) throws IOException {
@@ -215,8 +225,7 @@ public class FileSegment implements Segment {
             if (this.segmentType == SegmentType.DATA) {
                 throw new UnsupportedOperationException("[File Store] Data Segment is immutable!");
             } else {
-                throw new UnsupportedOperationException(
-                        "[File Store] Index Segment is immutable!");
+                throw new UnsupportedOperationException("[File Store] Index Segment is immutable!");
             }
         }
         if (this.closed.get()) {
@@ -242,7 +251,6 @@ public class FileSegment implements Segment {
      *
      * @param force whether to brush
      * @return the latest writable position
-     *
      * @throws IOException exception while force data to disk
      */
     @Override
@@ -269,21 +277,18 @@ public class FileSegment implements Segment {
 
     @Override
     public boolean contains(long offset) {
-        return (this.getCachedSize() == 0
-                && offset == this.start
+        return (this.getCachedSize() == 0 && offset == this.start
                 || this.getCachedSize() > 0
-                && offset >= this.start
-                && offset <= this.start + this.getCachedSize() - 1);
+                        && offset >= this.start
+                        && offset <= this.start + this.getCachedSize() - 1);
     }
 
     /**
-     * Release reference to this FileSegment.
-     * File's channel will be closed when the reference decreased to 0.
+     * Release reference to this FileSegment. File's channel will be closed when the reference
+     * decreased to 0.
      */
     @Override
-    public void relViewRef() {
-
-    }
+    public void relViewRef() {}
 
     @Override
     public long getStart() {
@@ -362,10 +367,10 @@ public class FileSegment implements Segment {
     @Override
     public void read(ByteBuffer bf, long absOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
-        long startPos  = absOffset - start;
+        long startPos = absOffset - start;
         while (bf.hasRemaining()) {
             final int l = this.channel.read(bf, startPos + size);
             if (l < 0) {
@@ -378,7 +383,7 @@ public class FileSegment implements Segment {
     @Override
     public void relRead(final ByteBuffer bf, long relOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
         while (bf.hasRemaining()) {
@@ -392,6 +397,7 @@ public class FileSegment implements Segment {
 
     /**
      * read index record's append time.
+     *
      * @param reqOffset request offset.
      * @return message append time.
      */
@@ -411,8 +417,8 @@ public class FileSegment implements Segment {
     }
 
     /**
-     * Check whether this FileSegment is expired, and set expire status.
-     * The last FileSegment cannot be marked expired.
+     * Check whether this FileSegment is expired, and set expire status. The last FileSegment cannot
+     * be marked expired.
      *
      * @param checkTimestamp check timestamp.
      * @param maxValidTimeMs the max expire interval in milliseconds.
@@ -581,5 +587,4 @@ public class FileSegment implements Segment {
             return isEqual;
         }
     }
-
 }

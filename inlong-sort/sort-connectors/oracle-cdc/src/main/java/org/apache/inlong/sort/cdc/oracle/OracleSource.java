@@ -18,15 +18,14 @@
 
 package org.apache.inlong.sort.cdc.oracle;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.ververica.cdc.connectors.oracle.OracleValidator;
 import com.ververica.cdc.connectors.oracle.table.StartupOptions;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.internal.DebeziumOffset;
 import io.debezium.connector.oracle.OracleConnector;
-
 import java.util.Properties;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume log miner.
@@ -183,7 +182,12 @@ public class OracleSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new OracleValidator(props), inlongMetric, inlongAudit);
+                    deserializer,
+                    props,
+                    specificOffset,
+                    new OracleValidator(props),
+                    inlongMetric,
+                    inlongAudit);
         }
     }
 }

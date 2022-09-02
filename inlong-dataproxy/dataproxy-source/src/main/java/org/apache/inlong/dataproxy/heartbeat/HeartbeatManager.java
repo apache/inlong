@@ -17,8 +17,15 @@
 
 package org.apache.inlong.dataproxy.heartbeat;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
@@ -36,17 +43,7 @@ import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-/**
- * Heartbeat management logic.
- */
+/** Heartbeat management logic. */
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
@@ -64,16 +61,18 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     }
 
     public void start() {
-        Thread reportHeartbeatThread = new Thread(() -> {
-            while (true) {
-                reportHeartbeat(buildHeartbeat());
-                try {
-                    SECONDS.sleep(heartbeatInterval());
-                } catch (InterruptedException e) {
-                    log.error("interrupted while report heartbeat", e);
-                }
-            }
-        });
+        Thread reportHeartbeatThread =
+                new Thread(
+                        () -> {
+                            while (true) {
+                                reportHeartbeat(buildHeartbeat());
+                                try {
+                                    SECONDS.sleep(heartbeatInterval());
+                                } catch (InterruptedException e) {
+                                    log.error("interrupted while report heartbeat", e);
+                                }
+                            }
+                        });
         reportHeartbeatThread.setDaemon(true);
         reportHeartbeatThread.start();
     }
@@ -81,9 +80,13 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
         ConfigManager configManager = ConfigManager.getInstance();
-        final String managerHost = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
+        final String managerHost =
+                configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
         final String url =
-                "http://" + managerHost + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
+                "http://"
+                        + managerHost
+                        + ConfigConstants.MANAGER_PATH
+                        + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
         try {
             HttpPost post = new HttpPost(url);
             String body = gson.toJson(heartbeat);
@@ -95,7 +98,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             if (StringUtils.isNotEmpty(isSuccess)
                     && response.getStatusLine().getStatusCode() == 200) {
                 if (log.isDebugEnabled()) {
-                    log.debug("reportHeartbeat url {}, heartbeat: {}, return str {}", url, body, isSuccess);
+                    log.debug(
+                            "reportHeartbeat url {}, heartbeat: {}, return str {}",
+                            url,
+                            body,
+                            isSuccess);
                 }
             }
         } catch (Exception ex) {
@@ -105,9 +112,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private synchronized CloseableHttpClient constructHttpClient() {
         long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout((int) timeoutInMs)
-                .setSocketTimeout((int) timeoutInMs).build();
+        RequestConfig requestConfig =
+                RequestConfig.custom()
+                        .setConnectTimeout((int) timeoutInMs)
+                        .setSocketTimeout((int) timeoutInMs)
+                        .build();
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         httpClientBuilder.setDefaultRequestConfig(requestConfig);
         return httpClientBuilder.build();
@@ -118,20 +127,27 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setIp(commonProperties.get(ConfigConstants.PROXY_REPORT_IP));
-        heartbeatMsg.setPort(Integer.parseInt(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT)));
+        heartbeatMsg.setPort(
+                Integer.parseInt(
+                        commonProperties.getOrDefault(
+                                ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT)));
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
-        heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
-        heartbeatMsg.setClusterName(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
-        heartbeatMsg.setInCharges(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
+        heartbeatMsg.setClusterTag(
+                commonProperties.getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
+        heartbeatMsg.setClusterName(
+                commonProperties.getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
+        heartbeatMsg.setInCharges(
+                commonProperties.getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
-        Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();
-        Map<String, String> groupIdEnableMappings = configManager.getGroupIdEnableMappingProperties();
+        Map<String, Map<String, String>> streamIdMappings =
+                configManager.getStreamIdMappingProperties();
+        Map<String, String> groupIdEnableMappings =
+                configManager.getGroupIdEnableMappingProperties();
         List<GroupHeartbeat> groupHeartbeats = new ArrayList<>();
         for (Entry<String, String> entry : groupIdMappings.entrySet()) {
             String groupIdNum = entry.getKey();

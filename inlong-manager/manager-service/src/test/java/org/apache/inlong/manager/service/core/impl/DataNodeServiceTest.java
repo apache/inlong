@@ -28,18 +28,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Data node service test for {@link DataNodeService}
- */
+/** Data node service test for {@link DataNodeService} */
 public class DataNodeServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private DataNodeService dataNodeService;
+    @Autowired private DataNodeService dataNodeService;
 
-    /**
-     * Save data node info.
-     */
-    public Integer saveOpt(String nodeName, String type, String url, String username, String password) {
+    /** Save data node info. */
+    public Integer saveOpt(
+            String nodeName, String type, String url, String username, String password) {
         HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setName(nodeName);
         request.setType(type);
@@ -53,9 +49,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Get data node list info.
-     */
+    /** Get data node list info. */
     public PageResult<DataNodeInfo> listOpt(String type, String name) {
         DataNodePageRequest request = new DataNodePageRequest();
         request.setType(type);
@@ -63,10 +57,14 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         return dataNodeService.list(request);
     }
 
-    /**
-     * update data node info.
-     */
-    public Boolean updateOpt(Integer id, String nodeName, String type, String url, String username, String password,
+    /** update data node info. */
+    public Boolean updateOpt(
+            Integer id,
+            String nodeName,
+            String type,
+            String url,
+            String username,
+            String password,
             Integer version) {
         HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setId(id);
@@ -79,9 +77,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         return dataNodeService.update(request, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Delete data node info.
-     */
+    /** Delete data node info. */
     public Boolean deleteOpt(Integer id) {
         return dataNodeService.delete(id, GLOBAL_OPERATOR);
     }
@@ -115,12 +111,12 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         String newPassword = "456";
         Integer version = listDataNode.getList().get(0).getVersion();
         System.out.println(version);
-        Boolean updateSuccess = this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword, version);
+        Boolean updateSuccess =
+                this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword, version);
         Assertions.assertTrue(updateSuccess);
 
         // test delete data node
         Boolean deleteSuccess = this.deleteOpt(id);
         Assertions.assertTrue(deleteSuccess);
     }
-
 }

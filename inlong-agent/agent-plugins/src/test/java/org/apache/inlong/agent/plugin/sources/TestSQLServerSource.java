@@ -17,6 +17,15 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static org.powermock.api.support.membermodification.MemberMatcher.field;
+
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -33,32 +42,17 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-import static org.powermock.api.support.membermodification.MemberMatcher.field;
-
-/**
- * Test cases for {@link SQLServerSource}.
- */
+/** Test cases for {@link SQLServerSource}. */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SQLServerSource.class, MetricRegister.class})
 @PowerMockIgnore({"javax.management.*"})
 public class TestSQLServerSource {
 
-    @Mock
-    JobProfile jobProfile;
+    @Mock JobProfile jobProfile;
 
-    @Mock
-    private AgentMetricItemSet agentMetricItemSet;
+    @Mock private AgentMetricItemSet agentMetricItemSet;
 
-    @Mock
-    private AgentMetricItem agentMetricItem;
+    @Mock private AgentMetricItem agentMetricItem;
 
     private AtomicLong sourceSuccessCount;
 
@@ -75,23 +69,22 @@ public class TestSQLServerSource {
         field(AgentMetricItem.class, "sourceSuccessCount").set(agentMetricItem, sourceSuccessCount);
         field(AgentMetricItem.class, "sourceFailCount").set(agentMetricItem, sourceFailCount);
         PowerMockito.mockStatic(MetricRegister.class);
-        PowerMockito.doNothing().when(
-                MetricRegister.class, "register", any(MetricItem.class));
+        PowerMockito.doNothing().when(MetricRegister.class, "register", any(MetricItem.class));
     }
 
-    /**
-     * Test cases for {@link SQLServerSource#split(JobProfile)}.
-     */
+    /** Test cases for {@link SQLServerSource#split(JobProfile)}. */
     @Test
     public void testSplit() {
         final String sql1 = "select * from dbo.test01";
         final String sql2 = "select * from dbo.test${01,99}";
 
         // build mock
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn("test_group");
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn("test_stream");
-        when(jobProfile.get(eq(SQLServerSource.JOB_DATABASE_SQL), eq(StringUtils.EMPTY))).thenReturn(StringUtils.EMPTY,
-                sql1, sql2);
+        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString()))
+                .thenReturn("test_group");
+        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString()))
+                .thenReturn("test_stream");
+        when(jobProfile.get(eq(SQLServerSource.JOB_DATABASE_SQL), eq(StringUtils.EMPTY)))
+                .thenReturn(StringUtils.EMPTY, sql1, sql2);
 
         final SQLServerSource source = new SQLServerSource();
 

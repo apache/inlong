@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase.cluster;
 
 import java.util.ArrayList;
@@ -27,15 +24,12 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 public class MasterInfo {
 
-    private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover =
-            new HashMap<>();
+    private final Map<String /* ip:port */, NodeAddrInfo> addrMap4Failover = new HashMap<>();
     private final List<String> nodeHostPortList;
     private NodeAddrInfo firstNodeAddr = null;
     private final String masterClusterStr;
 
-    /**
-     * masterAddrInfo: "ip1:port,ip2:port"
-     */
+    /** masterAddrInfo: "ip1:port,ip2:port" */
     public MasterInfo(final String masterAddrInfo) {
         if (TStringUtils.isBlank(masterAddrInfo)) {
             throw new IllegalArgumentException("Illegal parameter: masterAddrInfo is Blank!");
@@ -44,8 +38,7 @@ public class MasterInfo {
             throw new IllegalArgumentException(
                     "Illegal parameter: masterAddrInfo's value must like \"ip1:port,ip2:port\"!");
         }
-        String[] hostAndPortArray =
-                masterAddrInfo.split(TokenConstants.ARRAY_SEP);
+        String[] hostAndPortArray = masterAddrInfo.split(TokenConstants.ARRAY_SEP);
         for (String addr : hostAndPortArray) {
             if (TStringUtils.isBlank(addr)) {
                 throw new IllegalArgumentException(
@@ -89,8 +82,10 @@ public class MasterInfo {
         this.masterClusterStr = builder.toString();
     }
 
-    private MasterInfo(Map<String, NodeAddrInfo> addressMap4Failover,
-                       NodeAddrInfo firstNodeAddr, String masterClusterStr) {
+    private MasterInfo(
+            Map<String, NodeAddrInfo> addressMap4Failover,
+            NodeAddrInfo firstNodeAddr,
+            String masterClusterStr) {
         for (Map.Entry<String, NodeAddrInfo> entry : addressMap4Failover.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                 continue;

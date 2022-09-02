@@ -18,63 +18,48 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Set;
 
-/**
- * WorkflowTask status
- */
+/** WorkflowTask status */
 public enum TaskStatus {
 
-    /**
-     * Pending
-     */
+    /** Pending */
     PENDING,
 
-    /**
-     * Approved
-     */
+    /** Approved */
     APPROVED,
 
-    /**
-     * Rejected
-     */
+    /** Rejected */
     REJECTED,
 
-    /**
-     * Cancelled
-     */
+    /** Cancelled */
     CANCELED,
 
-    /**
-     * Transferred
-     */
+    /** Transferred */
     TRANSFERRED,
 
-    /**
-     * Terminated
-     */
+    /** Terminated */
     TERMINATED,
 
-    /**
-     * Completed
-     */
+    /** Completed */
     COMPLETED,
 
-    /**
-     * System task: execution failed
-     */
+    /** System task: execution failed */
     FAILED,
 
-    /**
-     * Skipped
-     */
+    /** Skipped */
     SKIPPED,
     ;
 
-    /**
-     * Completed
-     */
-    public static Set<TaskStatus> COMPLETED_STATUS = ImmutableSet
-            .of(APPROVED, REJECTED, CANCELED, TRANSFERRED, TERMINATED, COMPLETED, FAILED, SKIPPED);
+    /** Completed */
+    public static Set<TaskStatus> COMPLETED_STATUS =
+            ImmutableSet.of(
+                    APPROVED,
+                    REJECTED,
+                    CANCELED,
+                    TRANSFERRED,
+                    TERMINATED,
+                    COMPLETED,
+                    FAILED,
+                    SKIPPED);
 }

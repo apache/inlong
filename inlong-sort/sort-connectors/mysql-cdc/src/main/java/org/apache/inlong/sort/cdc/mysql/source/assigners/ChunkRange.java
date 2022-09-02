@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
+
+import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * An internal structure describes a chunk range with a chunk start (inclusive) and chunk end

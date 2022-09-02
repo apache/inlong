@@ -17,23 +17,22 @@
 
 package org.apache.inlong.sdk.sort.metrics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SortSdkPrometheusMetricListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SortSdkPrometheusMetricListener.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(SortSdkPrometheusMetricListener.class);
 
     private SortSdkMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
@@ -42,8 +41,13 @@ public class SortSdkPrometheusMetricListener {
         this.metricItem = new SortSdkMetricItem(sortTaskId);
 
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        String strBeanName = JMX_DOMAIN + DOMAIN_SEPARATOR + "type=SortSdk" + ",name=" + sortTaskId
-                + metricItem.hashCode();
+        String strBeanName =
+                JMX_DOMAIN
+                        + DOMAIN_SEPARATOR
+                        + "type=SortSdk"
+                        + ",name="
+                        + sortTaskId
+                        + metricItem.hashCode();
         try {
             ObjectName objName = new ObjectName(strBeanName);
             mbs.registerMBean(metricItem, objName);
@@ -67,16 +71,21 @@ public class SortSdkPrometheusMetricListener {
         metricValueMap.put(SortSdkMetricItem.M_ACK_FAIL_COUNT, metricItem.ackFailCount);
         metricValueMap.put(SortSdkMetricItem.M_ACK_SUCC_COUNT, metricItem.ackSuccCount);
         // request manager
-        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_COUNT, metricItem.requestManagerCount);
-        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_TIME_COST, metricItem.requestManagerTimeCost);
-        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_FAIL_COUNT, metricItem.requestManagerFailCount);
-        metricValueMap.put(SortSdkMetricItem.M_REQUEST_MANAGER_CONF_CHANAGED_COUNT,
+        metricValueMap.put(
+                SortSdkMetricItem.M_REQUEST_MANAGER_COUNT, metricItem.requestManagerCount);
+        metricValueMap.put(
+                SortSdkMetricItem.M_REQUEST_MANAGER_TIME_COST, metricItem.requestManagerTimeCost);
+        metricValueMap.put(
+                SortSdkMetricItem.M_REQUEST_MANAGER_FAIL_COUNT, metricItem.requestManagerFailCount);
+        metricValueMap.put(
+                SortSdkMetricItem.M_REQUEST_MANAGER_CONF_CHANAGED_COUNT,
                 metricItem.requestManagerConfChangedCount);
-        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_COMMON_ERROR_COUNT,
+        metricValueMap.put(
+                SortSdkMetricItem.M_RQUEST_MANAGER_COMMON_ERROR_COUNT,
                 metricItem.requestManagerCommonErrorCount);
-        metricValueMap.put(SortSdkMetricItem.M_RQUEST_MANAGER_PARAM_ERROR_COUNT,
+        metricValueMap.put(
+                SortSdkMetricItem.M_RQUEST_MANAGER_PARAM_ERROR_COUNT,
                 metricItem.requestManagerParamErrorCount);
-
     }
 
     /**
@@ -95,5 +104,4 @@ public class SortSdkPrometheusMetricListener {
             }
         }
     }
-
 }

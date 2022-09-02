@@ -17,13 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-/**
- * update callback
- */
+/** update callback */
 public interface ConfigUpdateCallback {
 
-    /**
-     * update
-     */
+    /** update */
     void update();
 }

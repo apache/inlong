@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,11 +31,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
-
-/**
- * Hive data node info
- */
+/** Hive data node info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -52,7 +49,8 @@ public class HiveDataNodeDTO {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
+    @ApiModelProperty(
+            "Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
     @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
@@ -64,9 +62,7 @@ public class HiveDataNodeDTO {
     @ApiModelProperty("User and group information for writing data to HDFS")
     private String hdfsUgi;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request) throws Exception {
         return HiveDataNodeDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -78,9 +74,7 @@ public class HiveDataNodeDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the JSON string.
-     */
+    /** Get the dto instance from the JSON string. */
     public static HiveDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -90,5 +84,4 @@ public class HiveDataNodeDTO {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }
     }
-
 }

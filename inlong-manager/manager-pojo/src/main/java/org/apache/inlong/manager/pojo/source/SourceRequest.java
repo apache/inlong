@@ -20,21 +20,18 @@ package org.apache.inlong.manager.pojo.source;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Data;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Stream source request
- */
+/** Stream source request */
 @Data
 @ApiModel("Stream source request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
@@ -58,7 +55,8 @@ public class SourceRequest {
 
     @NotBlank(message = "sourceName cannot be blank")
     @Length(min = 1, max = 100, message = "sourceName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+    @Pattern(
+            regexp = "^[a-z0-9_-]{1,100}$",
             message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
@@ -89,5 +87,4 @@ public class SourceRequest {
 
     @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = new LinkedHashMap<>();
-
 }

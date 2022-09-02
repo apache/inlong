@@ -17,6 +17,15 @@
 
 package org.apache.inlong.agent.core.task;
 
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -29,20 +38,7 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
-/**
- * TaskWrapper is used in taskManager, it maintains the life cycle of
- * running task.
- */
+/** TaskWrapper is used in taskManager, it maintains the life cycle of running task. */
 public class TaskWrapper extends AbstractStateWrapper {
 
     public static final int WAIT_FINISH_TIME_OUT = 1;
@@ -63,18 +59,28 @@ public class TaskWrapper extends AbstractStateWrapper {
         this.taskManager = manager.getTaskManager();
         this.task = task;
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        maxRetryTime = conf.getInt(
-                AgentConstants.TASK_MAX_RETRY_TIME, AgentConstants.DEFAULT_TASK_MAX_RETRY_TIME);
-        pushMaxWaitTime = conf.getInt(
-                AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
-        pullMaxWaitTime = conf.getInt(
-                AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
+        maxRetryTime =
+                conf.getInt(
+                        AgentConstants.TASK_MAX_RETRY_TIME,
+                        AgentConstants.DEFAULT_TASK_MAX_RETRY_TIME);
+        pushMaxWaitTime =
+                conf.getInt(
+                        AgentConstants.TASK_PUSH_MAX_SECOND,
+                        AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
+        pullMaxWaitTime =
+                conf.getInt(
+                        AgentConstants.TASK_PULL_MAX_SECOND,
+                        AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
         readWaitTime = conf.getInt(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
         if (executorService == null) {
-            executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                    60L, TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(),
-                    new AgentThreadFactory("task-reader-writer"));
+            executorService =
+                    new ThreadPoolExecutor(
+                            0,
+                            Integer.MAX_VALUE,
+                            60L,
+                            TimeUnit.SECONDS,
+                            new SynchronousQueue<Runnable>(),
+                            new AgentThreadFactory("task-reader-writer"));
         }
         doChangeState(State.ACCEPTED);
     }
@@ -85,26 +91,31 @@ public class TaskWrapper extends AbstractStateWrapper {
      * @return CompletableFuture
      */
     private CompletableFuture<?> submitReadThread() {
-        return CompletableFuture.runAsync(() -> {
-            Message message = null;
-            while (!isException() && !task.isReadFinished()) {
-                // if source deleted,then failed
-                if (!task.getReader().isSourceExist()) {
-                    doChangeState(State.FAILED);
-                } else {
-                    if (message == null
-                            || task.getChannel().push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
-                        message = task.getReader().read();
+        return CompletableFuture.runAsync(
+                () -> {
+                    Message message = null;
+                    while (!isException() && !task.isReadFinished()) {
+                        // if source deleted,then failed
+                        if (!task.getReader().isSourceExist()) {
+                            doChangeState(State.FAILED);
+                        } else {
+                            if (message == null
+                                    || task.getChannel()
+                                            .push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
+                                message = task.getReader().read();
+                            }
+                        }
+                        AgentUtils.silenceSleepInMs(readWaitTime);
                     }
-                }
-                AgentUtils.silenceSleepInMs(readWaitTime);
-            }
-            LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
-                    task.isReadFinished());
-            // write end message
-            task.getChannel().push(new EndMessage());
-            task.getReader().destroy();
-        }, executorService);
+                    LOGGER.info(
+                            "read end, task exception status is {}, read finish status is {}",
+                            isException(),
+                            task.isReadFinished());
+                    // write end message
+                    task.getChannel().push(new EndMessage());
+                    task.getReader().destroy();
+                },
+                executorService);
     }
 
     /**
@@ -113,52 +124,49 @@ public class TaskWrapper extends AbstractStateWrapper {
      * @return CompletableFuture
      */
     private CompletableFuture<?> submitWriteThread() {
-        return CompletableFuture.runAsync(() -> {
-            while (!isException()) {
-                Message message = task.getChannel().pull(pullMaxWaitTime, TimeUnit.SECONDS);
-                if (message instanceof EndMessage) {
-                    break;
-                }
-                task.getSink().write(message);
-            }
-        }, executorService);
+        return CompletableFuture.runAsync(
+                () -> {
+                    while (!isException()) {
+                        Message message = task.getChannel().pull(pullMaxWaitTime, TimeUnit.SECONDS);
+                        if (message instanceof EndMessage) {
+                            break;
+                        }
+                        task.getSink().write(message);
+                    }
+                },
+                executorService);
     }
 
-    /**
-     * submit reader/writer
-     */
+    /** submit reader/writer */
     private void submitThreadsAndWait() {
         CompletableFuture<?> reader = submitReadThread();
         CompletableFuture<?> writer = submitWriteThread();
         CompletableFuture.allOf(reader, writer)
-                .exceptionally(ex -> {
-                    doChangeState(State.FAILED);
-                    LOGGER.error("exception caught", ex);
-                    return null;
-                }).join();
+                .exceptionally(
+                        ex -> {
+                            doChangeState(State.FAILED);
+                            LOGGER.error("exception caught", ex);
+                            return null;
+                        })
+                .join();
     }
 
-    /**
-     * kill task
-     */
+    /** kill task */
     void kill() {
         LOGGER.info("task id {} is killed", task.getTaskId());
         doChangeState(State.KILLED);
     }
 
     /**
-     * In standalone mode, the job to be removed should wait until the read is finished, set
-     * timeout to WAIT_FINISH_TIME_OUT minute to wait for finishing
+     * In standalone mode, the job to be removed should wait until the read is finished, set timeout
+     * to WAIT_FINISH_TIME_OUT minute to wait for finishing
      */
     void waitForFinish() {
         LOGGER.info("set readTime out to 1 minute task id is {}", task.getTaskId());
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
     }
 
-
-    /**
-     * destroy task
-     */
+    /** destroy task */
     void destroyTask() {
         LOGGER.info("destroy task id is {}", task.getTaskId());
         task.getReader().finishRead();
@@ -179,24 +187,22 @@ public class TaskWrapper extends AbstractStateWrapper {
 
     @Override
     public void addCallbacks() {
-        this.addCallback(State.ACCEPTED, State.RUNNING, (before, after) -> {
-
-        }).addCallback(State.RUNNING, State.FAILED, (before, after) -> {
-            LOGGER.info("task {} is failed, please check it", task.getTaskId());
-            retryTime.incrementAndGet();
-            if (!shouldRetry()) {
-                doChangeState(State.FATAL);
-                taskManager.getTaskMetrics().taskFatalCount.incrementAndGet();
-            }
-        }).addCallback(State.FAILED, State.FATAL, (before, after) -> {
-
-        }).addCallback(State.FAILED, State.ACCEPTED, (before, after) -> {
-
-        }).addCallback(State.FAILED, State.RUNNING, ((before, after) -> {
-
-        })).addCallback(State.RUNNING, State.SUCCEEDED, (before, after) -> {
-
-        });
+        this.addCallback(State.ACCEPTED, State.RUNNING, (before, after) -> {})
+                .addCallback(
+                        State.RUNNING,
+                        State.FAILED,
+                        (before, after) -> {
+                            LOGGER.info("task {} is failed, please check it", task.getTaskId());
+                            retryTime.incrementAndGet();
+                            if (!shouldRetry()) {
+                                doChangeState(State.FATAL);
+                                taskManager.getTaskMetrics().taskFatalCount.incrementAndGet();
+                            }
+                        })
+                .addCallback(State.FAILED, State.FATAL, (before, after) -> {})
+                .addCallback(State.FAILED, State.ACCEPTED, (before, after) -> {})
+                .addCallback(State.FAILED, State.RUNNING, ((before, after) -> {}))
+                .addCallback(State.RUNNING, State.SUCCEEDED, (before, after) -> {});
     }
 
     @Override

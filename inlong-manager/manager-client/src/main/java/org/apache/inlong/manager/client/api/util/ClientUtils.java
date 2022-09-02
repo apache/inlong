@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import java.io.IOException;
+import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -26,19 +28,14 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.Response;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import java.io.IOException;
-import java.util.Optional;
-
-/**
- * Utils for client
- */
+/** Utils for client */
 @Slf4j
 @UtilityClass
 public class ClientUtils {
@@ -69,18 +66,23 @@ public class ClientUtils {
 
         Authentication authentication = configuration.getAuthentication();
         Preconditions.checkNotNull(authentication, "inlong should be authenticated");
-        Preconditions.checkTrue(authentication instanceof DefaultAuthentication,
+        Preconditions.checkTrue(
+                authentication instanceof DefaultAuthentication,
                 "inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(
-                        new AuthInterceptor(defaultAuthentication.getUsername(), defaultAuthentication.getPassword()))
-                .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
-                .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
-                .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())
-                .retryOnConnectionFailure(true)
-                .build();
+        OkHttpClient okHttpClient =
+                new OkHttpClient.Builder()
+                        .addInterceptor(
+                                new AuthInterceptor(
+                                        defaultAuthentication.getUsername(),
+                                        defaultAuthentication.getPassword()))
+                        .connectTimeout(
+                                configuration.getConnectTimeout(), configuration.getTimeUnit())
+                        .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
+                        .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())
+                        .retryOnConnectionFailure(true)
+                        .build();
 
         return new Retrofit.Builder()
                 .baseUrl("http://" + host + ":" + port + "/inlong/manager/api/")
@@ -101,7 +103,8 @@ public class ClientUtils {
         String url = request.url().encodedPath();
         try {
             retrofit2.Response<T> response = call.execute();
-            Preconditions.checkTrue(response.isSuccessful(),
+            Preconditions.checkTrue(
+                    response.isSuccessful(),
                     String.format(REQUEST_FAILED_MSG, url, response.message()));
             return response.body();
         } catch (IOException e) {
@@ -116,6 +119,8 @@ public class ClientUtils {
      * @param response response
      */
     public static void assertRespSuccess(Response<?> response) {
-        Preconditions.checkTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
+        Preconditions.checkTrue(
+                response.isSuccess(),
+                String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
     }
 }

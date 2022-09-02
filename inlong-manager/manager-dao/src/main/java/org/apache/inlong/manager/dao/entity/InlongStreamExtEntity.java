@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * InlongStreamExtEntity, including key name, key value, etc.
- */
+/** InlongStreamExtEntity, including key name, key value, etc. */
 @Data
 public class InlongStreamExtEntity implements Serializable {
 

@@ -17,17 +17,21 @@
 
 package org.apache.inlong.manager.service.resource.sink.iceberg;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -35,32 +39,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-
-/**
- * iceberg resource operator
- */
+/** iceberg resource operator */
 @Service
 public class IcebergResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergResourceOperator.class);
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
         return SinkType.ICEBERG.equals(sinkType);
     }
 
-    /**
-     * Create iceberg table according to the sink config
-     */
+    /** Create iceberg table according to the sink config */
     public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
@@ -70,8 +63,10 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
 
@@ -87,7 +82,8 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         if (CollectionUtils.isEmpty(columnInfoList)) {
             throw new IllegalArgumentException("no iceberg columns specified");
         }
-        IcebergTableInfo tableInfo = IcebergSinkDTO.getIcebergTableInfo(icebergInfo, columnInfoList);
+        IcebergTableInfo tableInfo =
+                IcebergSinkDTO.getIcebergTableInfo(icebergInfo, columnInfoList);
 
         String metastoreUri = icebergInfo.getCatalogUri();
         String warehouse = icebergInfo.getWarehouse();
@@ -106,16 +102,18 @@ public class IcebergResourceOperator implements SinkResourceOperator {
                 IcebergCatalogUtils.createTable(metastoreUri, warehouse, tableInfo);
             } else {
                 // 4. or update table columns
-                List<IcebergColumnInfo> existColumns = IcebergCatalogUtils.getColumns(metastoreUri, dbName, tableName);
-                List<IcebergColumnInfo> needAddColumns = tableInfo.getColumns().stream().skip(existColumns.size())
-                        .collect(toList());
+                List<IcebergColumnInfo> existColumns =
+                        IcebergCatalogUtils.getColumns(metastoreUri, dbName, tableName);
+                List<IcebergColumnInfo> needAddColumns =
+                        tableInfo.getColumns().stream().skip(existColumns.size()).collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     IcebergCatalogUtils.addColumns(metastoreUri, dbName, tableName, needAddColumns);
                     LOGGER.info("{} columns added for table {}", needAddColumns.size(), tableName);
                 }
             }
             String info = "success to create iceberg resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo = {}", info);
         } catch (Throwable e) {
             String errMsg = "create iceberg table failed: " + e.getMessage();

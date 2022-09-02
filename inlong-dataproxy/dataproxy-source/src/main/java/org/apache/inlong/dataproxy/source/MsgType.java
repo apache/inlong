@@ -18,9 +18,7 @@
 package org.apache.inlong.dataproxy.source;
 
 public enum MsgType {
-    /**
-     * heartbeat
-     */
+    /** heartbeat */
     MSG_HEARTBEAT(1),
     MSG_COMMON_SERVICE(2),
     MSG_ACK_SERVICE(3),

@@ -24,8 +24,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -53,13 +53,18 @@ public class TestDateFormatRegex {
     @Test
     public void testRegex() {
         File file = Paths.get(helper.getParentPath().toString(), "aad20201201_11.log").toFile();
-        DateFormatRegex dateFormatRegex = DateFormatRegex
-            .ofRegex(helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log").withFile(file);
+        DateFormatRegex dateFormatRegex =
+                DateFormatRegex.ofRegex(
+                                helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log")
+                        .withFile(file);
         dateFormatRegex.match();
         dateFormatRegex.getFormattedTime();
-        Assert.assertEquals(helper.getParentPath().toString() + "/\\w{3}"
-                        + AgentUtils.formatCurrentTime("yyyyMMdd_HH") + ".log",
-            dateFormatRegex.getFormattedRegex());
+        Assert.assertEquals(
+                helper.getParentPath().toString()
+                        + "/\\w{3}"
+                        + AgentUtils.formatCurrentTime("yyyyMMdd_HH")
+                        + ".log",
+                dateFormatRegex.getFormattedRegex());
     }
 
     @Test
@@ -68,7 +73,8 @@ public class TestDateFormatRegex {
         Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
         TextFileSource source = new TextFileSource();
         JobProfile profile = new JobProfile();
-        profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
+        profile.set(
+                JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");
 
         List<Reader> readerList = source.split(profile);

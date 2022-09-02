@@ -29,9 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * HBase sink service test
- */
+/** HBase sink service test */
 public class HBaseSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
@@ -42,14 +40,10 @@ public class HBaseSinkServiceTest extends ServiceBaseTest {
     private static final String rowKey = "rowKey1";
     private static final String zookeeperQuorum = "127.0.0.1:9092";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
@@ -66,9 +60,7 @@ public class HBaseSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -96,5 +88,4 @@ public class HBaseSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 }

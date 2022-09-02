@@ -17,44 +17,30 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import lombok.Getter;
-
 import java.util.Locale;
+import lombok.Getter;
 
 public enum TransformType {
 
-    /**
-     * Replace string field based on regex
-     */
+    /** Replace string field based on regex */
     STRING_REPLACER("string_replacer"),
 
-    /**
-     * Split field by separator
-     */
+    /** Split field by separator */
     SPLITTER("splitter"),
 
-    /**
-     * Filter stream records on given regulations
-     */
+    /** Filter stream records on given regulations */
     FILTER("filter"),
 
-    /**
-     * Remove duplication records on given fields
-     */
+    /** Remove duplication records on given fields */
     DE_DUPLICATION("de_duplication"),
 
-    /**
-     * Joins different sources in one stream
-     */
+    /** Joins different sources in one stream */
     JOINER("joiner"),
 
-    /**
-     * Encrypt records on given fields
-     */
+    /** Encrypt records on given fields */
     ENCRYPT("encrypt");
 
-    @Getter
-    private final String type;
+    @Getter private final String type;
 
     TransformType(String type) {
         this.type = type;
@@ -62,11 +48,11 @@ public enum TransformType {
 
     public static TransformType forType(String type) {
         for (TransformType transformType : values()) {
-            if (transformType.getType().equals(type) || transformType.getType().toUpperCase(Locale.ROOT).equals(type)) {
+            if (transformType.getType().equals(type)
+                    || transformType.getType().toUpperCase(Locale.ROOT).equals(type)) {
                 return transformType;
             }
         }
         throw new IllegalArgumentException(String.format("Unsupported transformType=%s", type));
     }
-
 }

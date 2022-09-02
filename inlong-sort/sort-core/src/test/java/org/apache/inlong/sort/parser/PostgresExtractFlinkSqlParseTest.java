@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -41,14 +45,7 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for {@link PostgresExtractNode}
- */
+/** Test for {@link PostgresExtractNode} */
 public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
 
     /**
@@ -57,17 +54,30 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
      * @return
      */
     private PostgresExtractNode buildPostgresNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
-                new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
-                new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
-                new MetaFieldInfo("op_ts", MetaField.OP_TS),
-                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
-        );
-        return new PostgresExtractNode("1", "postgres_input", fields, null, null, null, Arrays.asList("user"),
-                "localhost", "postgres", "inlong", "postgres", "public", 5432, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
+                        new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
+                        new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
+                        new MetaFieldInfo("op_ts", MetaField.OP_TS),
+                        new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
+        return new PostgresExtractNode(
+                "1",
+                "postgres_input",
+                fields,
+                null,
+                null,
+                null,
+                Arrays.asList("user"),
+                "localhost",
+                "postgres",
+                "inlong",
+                "postgres",
+                "public",
+                5432,
+                null);
     }
 
     /**
@@ -76,7 +86,9 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
      * @return hbase load node
      */
     private HbaseLoadNode buildHbaseLoadNode() {
-        return new HbaseLoadNode("2", "hbase_output",
+        return new HbaseLoadNode(
+                "2",
+                "hbase_output",
                 Arrays.asList(
                         new FieldInfo("cf:age", new LongFormatInfo()),
                         new FieldInfo("cf:name", new StringFormatInfo()),
@@ -84,27 +96,41 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
                         new FieldInfo("cf:database_name", new StringFormatInfo()),
                         new FieldInfo("cf:table_name", new StringFormatInfo()),
                         new FieldInfo("cf:op_ts", new TimestampFormatInfo()),
-                        new FieldInfo("cf:schema_name", new StringFormatInfo())
-                ),
+                        new FieldInfo("cf:schema_name", new StringFormatInfo())),
                 Arrays.asList(
-                        new FieldRelation(new FieldInfo("age", new LongFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new LongFormatInfo()),
                                 new FieldInfo("cf:age", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("cf:name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("proctime", new TimestampFormatInfo()),
                                 new FieldInfo("cf:proctime", new TimestampFormatInfo())),
-                        new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("database_name", new StringFormatInfo()),
                                 new FieldInfo("cf:database_name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("table_name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("table_name", new StringFormatInfo()),
                                 new FieldInfo("cf:table_name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("op_ts", new TimestampFormatInfo()),
                                 new FieldInfo("cf:op_ts", new TimestampFormatInfo())),
-                        new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                                new FieldInfo("cf:schema_name", new StringFormatInfo()))
-                ),
-                null, null, 1, null, "user",
+                        new FieldRelation(
+                                new FieldInfo("schema_name", new StringFormatInfo()),
+                                new FieldInfo("cf:schema_name", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
+                "user",
                 "default",
-                "localhost:2181", "MD5(`name`)", null, "/hbase", null, null);
+                "localhost:2181",
+                "MD5(`name`)",
+                null,
+                "/hbase",
+                null,
+                null);
     }
 
     /**
@@ -121,7 +147,8 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is postgres {@link PostgresExtractNode} and load is hbase {@link HbaseLoadNode}
+     * Test flink sql task for extract is postgres {@link PostgresExtractNode} and load is hbase
+     * {@link HbaseLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -131,21 +158,22 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildPostgresNode();
         Node outputNode = buildHbaseLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

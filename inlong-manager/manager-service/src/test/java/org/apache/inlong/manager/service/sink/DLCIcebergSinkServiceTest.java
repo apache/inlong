@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -30,12 +32,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * DLCIceberg sink service test..
- */
+/** DLCIceberg sink service test.. */
 public class DLCIcebergSinkServiceTest extends ServiceBaseTest {
 
     private static final String fieldName = "dlc_field";
@@ -45,14 +42,10 @@ public class DLCIcebergSinkServiceTest extends ServiceBaseTest {
     private final String globalStreamId = "stream1_dlciceberg";
     private final String globalOperator = "admin";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         DLCIcebergSinkRequest sinkInfo = new DLCIcebergSinkRequest();
@@ -103,5 +96,4 @@ public class DLCIcebergSinkServiceTest extends ServiceBaseTest {
 
         sinkService.delete(sinkId, globalOperator);
     }
-
 }

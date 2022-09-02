@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.tools.cli;
 
 import java.util.ArrayList;
@@ -45,15 +42,10 @@ import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class is use to process CLI Producer process for script #{bin/tubemq-producer-test.sh}.
- *
- *
- */
+/** This class is use to process CLI Producer process for script #{bin/tubemq-producer-test.sh}. */
 public class CliProducer extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliProducer.class);
     // start time
     private long startTime = System.currentTimeMillis();
     // statistic data index
@@ -89,17 +81,15 @@ public class CliProducer extends CliAbstractBase {
         initCommandOptions();
     }
 
-    /**
-     * Init command options
-     */
+    /** Init command options */
     @Override
     protected void initCommandOptions() {
         // add the cli required parameters
         addCommandOption(CliArgDef.MASTERSERVER);
         addCommandOption(CliArgDef.MESSAGES);
         addCommandOption(CliArgDef.MSGDATASIZE);
-        //addCommandOption(CliArgDef.PAYLOADFILE);
-        //addCommandOption(CliArgDef.PAYLOADDELIM);
+        // addCommandOption(CliArgDef.PAYLOADFILE);
+        // addCommandOption(CliArgDef.PAYLOADDELIM);
         addCommandOption(CliArgDef.PRDTOPIC);
         addCommandOption(CliArgDef.RPCTIMEOUT);
         addCommandOption(CliArgDef.CONNREUSE);
@@ -165,9 +155,8 @@ public class CliProducer extends CliAbstractBase {
         if (TStringUtils.isNotBlank(printIntMsStr)) {
             printIntervalMs = Long.parseLong(printIntMsStr);
             if (printIntervalMs < 5000) {
-                throw new Exception("Invalid "
-                        + CliArgDef.OUTPUTINTERVAL.longOpt
-                        + " parameter value!");
+                throw new Exception(
+                        "Invalid " + CliArgDef.OUTPUTINTERVAL.longOpt + " parameter value!");
             }
         }
         if (cli.hasOption(CliArgDef.SYNCPRODUCE.longOpt)) {
@@ -179,9 +168,7 @@ public class CliProducer extends CliAbstractBase {
         return true;
     }
 
-    /**
-     * Initializes the TubeMQ producer client(s) with the specified requirements.
-     */
+    /** Initializes the TubeMQ producer client(s) with the specified requirements. */
     public void initTask() throws Exception {
         // initial client configure
         TubeClientConfig clientConfig = new TubeClientConfig(masterServers);
@@ -193,17 +180,18 @@ public class CliProducer extends CliAbstractBase {
         startTime = System.currentTimeMillis();
         // initial send thread service
         sendExecutorService =
-                Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable runnable) {
-                        return new Thread(runnable, "sender_" + producerMap.size());
-                    }
-                });
+                Executors.newFixedThreadPool(
+                        sendThreadCnt,
+                        new ThreadFactory() {
+                            @Override
+                            public Thread newThread(Runnable runnable) {
+                                return new Thread(runnable, "sender_" + producerMap.size());
+                            }
+                        });
         // initial producer object
         if (reuseConn) {
             // if resue connection, use TubeSingleSessionFactory class
-            MessageSessionFactory msgSessionFactory =
-                    new TubeSingleSessionFactory(clientConfig);
+            MessageSessionFactory msgSessionFactory = new TubeSingleSessionFactory(clientConfig);
             this.sessionFactoryList.add(msgSessionFactory);
             for (int i = 0; i < clientCount; i++) {
                 MessageProducer producer = msgSessionFactory.createProducer();
@@ -215,8 +203,7 @@ public class CliProducer extends CliAbstractBase {
         } else {
             for (int i = 0; i < clientCount; i++) {
                 // if not resue connection, use TubeMultiSessionFactory class
-                MessageSessionFactory msgSessionFactory =
-                        new TubeMultiSessionFactory(clientConfig);
+                MessageSessionFactory msgSessionFactory = new TubeMultiSessionFactory(clientConfig);
                 this.sessionFactoryList.add(msgSessionFactory);
                 MessageProducer producer = msgSessionFactory.createProducer();
                 producer.publish(topicAndFiltersMap.keySet());
@@ -260,12 +247,12 @@ public class CliProducer extends CliAbstractBase {
                 roundIndex = (int) (sentCount++ % topicAndCondCnt);
                 try {
                     Tuple2<String, String> target = topicSendRounds.get(roundIndex);
-                    Message message = MixedUtils.buildMessage(
-                            target.getF0(), target.getF1(), sentData, sentCount);
+                    Message message =
+                            MixedUtils.buildMessage(
+                                    target.getF0(), target.getF1(), sentData, sentCount);
                     // use sync or async process
                     if (syncProduction) {
-                        MessageSentResult procResult =
-                                producer.sendMessage(message);
+                        MessageSentResult procResult = producer.sendMessage(message);
                         TOTAL_COUNTER.incrementAndGet();
                         if (procResult.isSuccess()) {
                             SENT_SUCC_COUNTER.incrementAndGet();
@@ -316,8 +303,9 @@ public class CliProducer extends CliAbstractBase {
 
     /**
      * Produce messages called by the tubemq-producer-test.sh script.
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     *
+     * @param args Call parameter array, the relevant parameters are dynamic mode, which is parsed
+     *     by CommandLine.
      */
     public static void main(String[] args) {
         CliProducer cliProducer = new CliProducer();
@@ -331,31 +319,40 @@ public class CliProducer extends CliAbstractBase {
             while (cliProducer.msgCount < 0
                     || TOTAL_COUNTER.get() < cliProducer.msgCount * cliProducer.clientCount) {
                 ThreadUtils.sleep(cliProducer.printIntervalMs);
-                System.out.println("Continue, cost time: "
-                        + (System.currentTimeMillis() - cliProducer.startTime)
-                        + "ms, required count VS sent count = "
-                        + (cliProducer.msgCount * cliProducer.clientCount)
-                        + " : " + TOTAL_COUNTER.get()
-                        + " (" + SENT_SUCC_COUNTER.get()
-                        + ":" + SENT_FAIL_COUNTER.get()
-                        + ":" + SENT_EXCEPT_COUNTER.get()
-                        + ")");
+                System.out.println(
+                        "Continue, cost time: "
+                                + (System.currentTimeMillis() - cliProducer.startTime)
+                                + "ms, required count VS sent count = "
+                                + (cliProducer.msgCount * cliProducer.clientCount)
+                                + " : "
+                                + TOTAL_COUNTER.get()
+                                + " ("
+                                + SENT_SUCC_COUNTER.get()
+                                + ":"
+                                + SENT_FAIL_COUNTER.get()
+                                + ":"
+                                + SENT_EXCEPT_COUNTER.get()
+                                + ")");
             }
             cliProducer.shutdown();
-            System.out.println("Finished, cost time: "
-                    + (System.currentTimeMillis() - cliProducer.startTime)
-                    + "ms, required count VS sent count = "
-                    + (cliProducer.msgCount * cliProducer.clientCount)
-                    + " : " + TOTAL_COUNTER.get()
-                    + " (" + SENT_SUCC_COUNTER.get()
-                    + ":" + SENT_FAIL_COUNTER.get()
-                    + ":" + SENT_EXCEPT_COUNTER.get()
-                    + ")");
+            System.out.println(
+                    "Finished, cost time: "
+                            + (System.currentTimeMillis() - cliProducer.startTime)
+                            + "ms, required count VS sent count = "
+                            + (cliProducer.msgCount * cliProducer.clientCount)
+                            + " : "
+                            + TOTAL_COUNTER.get()
+                            + " ("
+                            + SENT_SUCC_COUNTER.get()
+                            + ":"
+                            + SENT_FAIL_COUNTER.get()
+                            + ":"
+                            + SENT_EXCEPT_COUNTER.get()
+                            + ")");
         } catch (Throwable ex) {
             ex.printStackTrace();
             logger.error(ex.getMessage());
             cliProducer.help();
         }
-
     }
 }

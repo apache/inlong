@@ -32,16 +32,20 @@ public class TubeUtils {
     /**
      * Build TubeMQ's client configure
      *
-     * @param clusterAddr    the TubeMQ cluster address
-     * @param tubeConfig     the TubeMQ cluster configure
-     * @return   the TubeClientConfig object
+     * @param clusterAddr the TubeMQ cluster address
+     * @param tubeConfig the TubeMQ cluster configure
+     * @return the TubeClientConfig object
      */
-    public static TubeClientConfig buildClientConfig(String clusterAddr, MQClusterConfig tubeConfig) {
+    public static TubeClientConfig buildClientConfig(
+            String clusterAddr, MQClusterConfig tubeConfig) {
         final TubeClientConfig tubeClientConfig = new TubeClientConfig(clusterAddr);
-        tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(tubeConfig.getLinkMaxAllowedDelayedMsgCount());
+        tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(
+                tubeConfig.getLinkMaxAllowedDelayedMsgCount());
         tubeClientConfig.setSessionWarnDelayedMsgCount(tubeConfig.getSessionWarnDelayedMsgCount());
-        tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(tubeConfig.getSessionMaxAllowedDelayedMsgCount());
-        tubeClientConfig.setNettyWriteBufferHighWaterMark(tubeConfig.getNettyWriteBufferHighWaterMark());
+        tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(
+                tubeConfig.getSessionMaxAllowedDelayedMsgCount());
+        tubeClientConfig.setNettyWriteBufferHighWaterMark(
+                tubeConfig.getNettyWriteBufferHighWaterMark());
         tubeClientConfig.setHeartbeatPeriodMs(tubeConfig.getTubeHeartbeatPeriodMs());
         tubeClientConfig.setRpcTimeoutMs(tubeConfig.getTubeRpcTimeoutMs());
         return tubeClientConfig;
@@ -50,13 +54,12 @@ public class TubeUtils {
     /**
      * Build TubeMQ's message
      *
-     * @param topicName      the topic name of message
-     * @param event          the DataProxy event
-     * @param addExtraAttrs  whether to add extra attributes
-     * @return   the message object
+     * @param topicName the topic name of message
+     * @param event the DataProxy event
+     * @param addExtraAttrs whether to add extra attributes
+     * @return the message object
      */
-    public static Message buildMessage(String topicName,
-                                       Event event, boolean addExtraAttrs) {
+    public static Message buildMessage(String topicName, Event event, boolean addExtraAttrs) {
         Message message = new Message(topicName, event.getBody());
         message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
         String streamId = "";
@@ -69,11 +72,15 @@ public class TubeUtils {
         if (addExtraAttrs) {
             // common attributes
             Map<String, String> headers = event.getHeaders();
-            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
-            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
+            message.setAttrKeyVal(
+                    Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
+            message.setAttrKeyVal(
+                    Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
             message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
-            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
-            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
+            message.setAttrKeyVal(
+                    Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
+            message.setAttrKeyVal(
+                    Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
         }
         return message;
     }

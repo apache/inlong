@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -37,12 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.List;
-
-/**
- * PostgreSQL's resource operator
- */
+/** PostgreSQL's resource operator */
 @Service
 public class PostgreSQLResourceOperator implements SinkResourceOperator {
 
@@ -50,11 +47,9 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
 
     private static final String POSTGRESQL_DEFAULT_SCHEMA = "public";
 
-    @Autowired
-    private StreamSinkService sinkService;
+    @Autowired private StreamSinkService sinkService;
 
-    @Autowired
-    private StreamSinkFieldEntityMapper postgresFieldMapper;
+    @Autowired private StreamSinkFieldEntityMapper postgresFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -65,49 +60,64 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
     public void createSinkResource(SinkInfo sinkInfo) {
         LOGGER.info("begin to create postgresql resources sinkId={}", sinkInfo.getId());
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
-            LOGGER.warn("postgresql resource [" + sinkInfo.getId() + "] already success, skip to create");
+            LOGGER.warn(
+                    "postgresql resource ["
+                            + sinkInfo.getId()
+                            + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
         this.createTable(sinkInfo);
     }
 
-    /**
-     * Create PostgreSQL table
-     */
+    /** Create PostgreSQL table */
     private void createTable(SinkInfo sinkInfo) {
         LOGGER.info("begin to create postgresql table for sinkId={}", sinkInfo.getId());
-        List<StreamSinkFieldEntity> fieldList = postgresFieldMapper.selectBySinkId(sinkInfo.getId());
+        List<StreamSinkFieldEntity> fieldList =
+                postgresFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no postgresql fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOGGER.warn(
+                    "no postgresql fields found, skip to create table for sinkId={}",
+                    sinkInfo.getId());
         }
 
         // set columns
         final List<PostgreSQLColumnInfo> columnList = Lists.newArrayList();
-        fieldList.forEach(field -> {
-            columnList.add(
-                    new PostgreSQLColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment())
-            );
-        });
+        fieldList.forEach(
+                field -> {
+                    columnList.add(
+                            new PostgreSQLColumnInfo(
+                                    field.getFieldName(),
+                                    field.getFieldType(),
+                                    field.getFieldComment()));
+                });
 
         PostgreSQLSinkDTO postgreSQLSink = PostgreSQLSinkDTO.getFromJson(sinkInfo.getExtParams());
         PostgreSQLTableInfo tableInfo = PostgreSQLSinkDTO.getTableInfo(postgreSQLSink, columnList);
         if (StringUtils.isEmpty(tableInfo.getSchemaName())) {
             tableInfo.setSchemaName(POSTGRESQL_DEFAULT_SCHEMA);
         }
-        try (Connection conn = PostgreSQLJdbcUtils.getConnection(postgreSQLSink.getJdbcUrl(),
-                postgreSQLSink.getUsername(), postgreSQLSink.getPassword())) {
+        try (Connection conn =
+                PostgreSQLJdbcUtils.getConnection(
+                        postgreSQLSink.getJdbcUrl(),
+                        postgreSQLSink.getUsername(),
+                        postgreSQLSink.getPassword())) {
             // 1.If schema not exists,create it
-            PostgreSQLJdbcUtils.createSchema(conn, tableInfo.getTableName(), tableInfo.getUserName());
+            PostgreSQLJdbcUtils.createSchema(
+                    conn, tableInfo.getTableName(), tableInfo.getUserName());
             // 2.If table not exists, create it
             PostgreSQLJdbcUtils.createTable(conn, tableInfo);
             // 3.Table exists, add columns - skip the exists columns
-            PostgreSQLJdbcUtils.addColumns(conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
+            PostgreSQLJdbcUtils.addColumns(
+                    conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
             // 4.Update the sink status to success
             final String info = "success to create PostgreSQL resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
             // 4. close connection.
         } catch (Throwable e) {
@@ -118,5 +128,4 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
         }
         LOGGER.info("success create PostgreSQL table for data sink [" + sinkInfo.getId() + "]");
     }
-
 }

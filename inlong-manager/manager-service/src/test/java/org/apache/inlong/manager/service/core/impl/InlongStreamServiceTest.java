@@ -19,18 +19,16 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 
-/**
- * Inlong stream service test
- */
+/** Inlong stream service test */
 @TestComponent
 public class InlongStreamServiceTest {
 
@@ -38,14 +36,10 @@ public class InlongStreamServiceTest {
 
     private final String globalOperator = "admin";
 
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private InlongGroupServiceTest groupServiceTest;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private InlongGroupServiceTest groupServiceTest;
 
-    /**
-     * Test save inlong stream
-     */
+    /** Test save inlong stream */
     public Integer saveInlongStream(String groupId, String streamId, String operator) {
         try {
             InlongStreamInfo response = streamService.get(groupId, streamId);
@@ -81,5 +75,4 @@ public class InlongStreamServiceTest {
     public void test() {
         LOGGER.info("If you don't add test, UnusedImports: Unused import: org.junit.Test.");
     }
-
 }

@@ -17,15 +17,11 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import java.util.Locale;
 import lombok.Getter;
 
-import java.util.Locale;
-
-/**
- * Enum of data format.
- */
+/** Enum of data format. */
 public enum DataFormat {
-
     CSV("csv"),
     AVRO("avro"),
     CANAL("canal"),
@@ -33,16 +29,13 @@ public enum DataFormat {
     DEBEZIUM_JSON("debezium_json"),
     NONE("none");
 
-    @Getter
-    private final String name;
+    @Getter private final String name;
 
     DataFormat(String name) {
         this.name = name;
     }
 
-    /**
-     * Get data format by name.
-     */
+    /** Get data format by name. */
     public static DataFormat forName(String name) {
         for (DataFormat dataFormat : values()) {
             if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {

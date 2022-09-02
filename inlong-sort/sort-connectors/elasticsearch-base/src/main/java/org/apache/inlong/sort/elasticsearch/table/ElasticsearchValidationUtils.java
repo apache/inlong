@@ -19,19 +19,18 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.DistinctType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeFamily;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
 
 /** Utility methods for validating Elasticsearch properties. */
 public class ElasticsearchValidationUtils {
@@ -93,7 +92,5 @@ public class ElasticsearchValidationUtils {
                         });
     }
 
-    private ElasticsearchValidationUtils() {
-
-    }
+    private ElasticsearchValidationUtils() {}
 }

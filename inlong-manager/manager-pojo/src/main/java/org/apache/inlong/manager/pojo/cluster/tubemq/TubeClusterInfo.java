@@ -27,9 +27,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
-/**
- * Inlong cluster info for TubeMQ
- */
+/** Inlong cluster info for TubeMQ */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -37,7 +35,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 @ApiModel("Inlong cluster info for TubeMQ")
 public class TubeClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
+    @ApiModelProperty(
+            value = "Master Web URL http://120.0.0.1:8080",
             notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
@@ -49,5 +48,4 @@ public class TubeClusterInfo extends ClusterInfo {
     public TubeClusterRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, TubeClusterRequest::new);
     }
-
 }

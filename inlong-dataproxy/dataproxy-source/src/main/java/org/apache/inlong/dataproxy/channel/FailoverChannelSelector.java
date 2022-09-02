@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -64,8 +63,8 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
             retChannels.add(agentFileMetricChannels.get(0));
         } else if (event.getHeaders().containsKey(ConfigConstants.SLA_METRIC_DATA)) {
             retChannels.add(slaMetricChannels.get(0));
-        } else if (MessageUtils.isSyncSendForOrder(event.getHeaders()
-                .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+        } else if (MessageUtils.isSyncSendForOrder(
+                event.getHeaders().get(AttributeConstants.MESSAGE_SYNC_SEND))) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             if (partitionKey == null) {
                 partitionKey = "";
@@ -113,7 +112,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
 
     @Override
     public void configure(Context context) {
-//        LOG.info(context.toString());
+        //        LOG.info(context.toString());
         String masters = context.getString(MASTER_CHANNEL);
         String transfer = context.getString(TRANSFER_CHANNEL);
         String fileMertic = context.getString(FILE_METRIC_CHANNEL);

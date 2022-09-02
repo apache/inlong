@@ -21,9 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.TransformType;
 
-/**
- * A class to define operation to transform.
- */
+/** A class to define operation to transform. */
 @Data
 public abstract class TransformDefinition {
 
@@ -31,16 +29,25 @@ public abstract class TransformDefinition {
 
     @JsonFormat
     public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null
+        lt,
+        le,
+        eq,
+        ne,
+        ge,
+        gt,
+        is_null,
+        not_null
     }
 
     @JsonFormat
     public enum ScriptType {
-        PYTHON, JAVA
+        PYTHON,
+        JAVA
     }
 
     @JsonFormat
     public enum RuleRelation {
-        AND, OR
+        AND,
+        OR
     }
 }

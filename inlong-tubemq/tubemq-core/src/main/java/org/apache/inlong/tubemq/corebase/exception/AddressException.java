@@ -34,5 +34,4 @@ public class AddressException extends RuntimeException {
     public AddressException(Throwable cause) {
         super(cause);
     }
-
 }

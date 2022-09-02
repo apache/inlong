@@ -18,6 +18,17 @@
 
 package org.apache.inlong.sort.filesystem;
 
+import static java.time.ZoneId.SHORT_IDS;
+import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.ValidationException;
@@ -40,18 +51,6 @@ import org.apache.flink.table.factories.TableFactory;
 import org.apache.flink.table.filesystem.FileSystemOptions;
 import org.apache.flink.table.filesystem.FileSystemTableSource;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.time.ZoneId.SHORT_IDS;
-import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-
 /**
  * File system {@link TableFactory}.
  *
@@ -59,8 +58,8 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
  * or a catalog table. 2.Support insert into (append) and insert overwrite. 3.Support static and
  * dynamic partition inserting.
  *
- * copy from flink-table-runtime-blink:1.13.2-rc2
- * Add inlong metric option and inlong audit option for computing metric
+ * <p>copy from flink-table-runtime-blink:1.13.2-rc2 Add inlong metric option and inlong audit
+ * option for computing metric
  */
 public class FileSystemTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 

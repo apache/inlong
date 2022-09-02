@@ -38,9 +38,7 @@ public class WakeupReaderEvent implements SourceEvent {
         return target;
     }
 
-    /**
-     * Wake up target.
-     */
+    /** Wake up target. */
     public enum WakeUpTarget {
         SNAPSHOT_READER,
         BINLOG_READER

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -71,8 +68,7 @@ public class BaseEntityTest {
         String modifyUser = "modifyUser";
         Date modifyDate = new Date();
         String modifyDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(modifyDate);
-        BaseEntity baseEntity4 =
-                new BaseEntity(createUser, createDate, modifyUser, modifyDate);
+        BaseEntity baseEntity4 = new BaseEntity(createUser, createDate, modifyUser, modifyDate);
         Assert.assertEquals(baseEntity4.getDataVerId(), TServerConstants.DEFAULT_DATA_VERSION);
         Assert.assertNotEquals(baseEntity4.getSerialId(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(baseEntity4.getCreateUser(), createUser);
@@ -84,8 +80,8 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity4.getModifyDateStr(), modifyDateStr);
         // case 5
         dataVersionId = 10;
-        BaseEntity baseEntity5 = new BaseEntity(dataVersionId,
-                createUser, createDate, modifyUser, modifyDate);
+        BaseEntity baseEntity5 =
+                new BaseEntity(dataVersionId, createUser, createDate, modifyUser, modifyDate);
         Assert.assertEquals(baseEntity5.getDataVerId(), dataVersionId);
         Assert.assertNotEquals(baseEntity5.getSerialId(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(baseEntity5.getCreateUser(), createUser);
@@ -135,7 +131,7 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity8.getCreateDateStr(), "");
         Assert.assertEquals(baseEntity8.getModifyDateStr(), "");
         // case 9
-        BaseEntity baseEntity9 =  baseEntity6.clone();
+        BaseEntity baseEntity9 = baseEntity6.clone();
         Assert.assertEquals(baseEntity9, baseEntity6);
         baseEntity9.updSerialId();
         baseEntity9.setDataVersionId(222223333);
@@ -169,10 +165,8 @@ public class BaseEntityTest {
         BaseEntity entity2 = new BaseEntity(createUser, createDate);
         entity2.getConfigureInfo(paramMap, true);
         Assert.assertEquals(paramMap.size(), 6);
-        Assert.assertEquals(paramMap.get("dataVersionId"),
-                String.valueOf(entity2.getDataVerId()));
-        Assert.assertEquals(paramMap.get("serialId"),
-                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("dataVersionId"), String.valueOf(entity2.getDataVerId()));
+        Assert.assertEquals(paramMap.get("serialId"), String.valueOf(entity2.getSerialId()));
         Assert.assertEquals(paramMap.get("createUser"), createUser);
         Assert.assertEquals(paramMap.get("createDate"), entity2.getCreateDateStr());
         Assert.assertEquals(paramMap.get("modifyUser"), createUser);
@@ -182,19 +176,15 @@ public class BaseEntityTest {
         String modifyUser = "modifyUser";
         String dateStr2 = "20220302111925";
         Date modifyDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr2);
-        BaseEntity entity3 = new BaseEntity(55,
-                createUser, createDate, modifyUser, modifyDate);
+        BaseEntity entity3 = new BaseEntity(55, createUser, createDate, modifyUser, modifyDate);
         entity3.getConfigureInfo(paramMap, false);
         Assert.assertEquals(paramMap.size(), 6);
-        Assert.assertEquals(paramMap.get("dVerId"),
-                String.valueOf(entity3.getDataVerId()));
-        Assert.assertEquals(paramMap.get("serialId"),
-                String.valueOf(entity3.getSerialId()));
+        Assert.assertEquals(paramMap.get("dVerId"), String.valueOf(entity3.getDataVerId()));
+        Assert.assertEquals(paramMap.get("serialId"), String.valueOf(entity3.getSerialId()));
         Assert.assertEquals(paramMap.get("cur"), createUser);
         Assert.assertEquals(paramMap.get("cDate"), entity3.getCreateDateStr());
         Assert.assertEquals(paramMap.get("mur"), entity3.getModifyUser());
         Assert.assertEquals(paramMap.get("mDate"), entity3.getModifyDateStr());
         paramMap.clear();
     }
-
 }

@@ -18,21 +18,18 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.connector.jdbc.dialect.MySQLDialect;
 import org.apache.inlong.sort.jdbc.dialect.OracleDialect;
 import org.apache.inlong.sort.jdbc.dialect.SqlServerDialect;
 import org.apache.inlong.sort.jdbc.dialect.TDSQLPostgresDialect;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-/**
- * Default JDBC dialects.
- */
+/** Default JDBC dialects. */
 public final class JdbcDialects {
 
     private static final List<JdbcDialect> DIALECTS = new ArrayList<>();
@@ -46,9 +43,7 @@ public final class JdbcDialects {
         DIALECTS.add(new OracleDialect());
     }
 
-    /**
-     * Fetch the JdbcDialect class corresponding to a given database url.
-     */
+    /** Fetch the JdbcDialect class corresponding to a given database url. */
     public static Optional<JdbcDialect> get(String url) {
         for (JdbcDialect dialect : DIALECTS) {
             if (dialect.canHandle(url)) {
@@ -66,16 +61,15 @@ public final class JdbcDialects {
         return Optional.empty();
     }
 
-    /**
-     * Fetch the JdbcDialect class corresponding to a given database url.
-     */
+    /** Fetch the JdbcDialect class corresponding to a given database url. */
     public static Optional<JdbcDialect> register(String dialectImpl) {
         try {
             JdbcDialect dialect = (JdbcDialect) Class.forName(dialectImpl).newInstance();
             CUSTOM_DIALECTS.put(dialectImpl, dialect);
             return Optional.of(dialect);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new IllegalArgumentException("Cannot register such dialect impl: " + dialectImpl, e);
+            throw new IllegalArgumentException(
+                    "Cannot register such dialect impl: " + dialectImpl, e);
         }
     }
 }

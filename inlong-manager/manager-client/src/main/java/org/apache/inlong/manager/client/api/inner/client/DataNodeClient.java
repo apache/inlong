@@ -26,9 +26,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 
-/**
- * Client for {@link DataNodeApi}.
- */
+/** Client for {@link DataNodeApi}. */
 public class DataNodeClient {
 
     private final DataNodeApi dataNodeApi;
@@ -73,7 +71,8 @@ public class DataNodeClient {
      */
     public PageResult<DataNodeResponse> list(DataNodeRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
-        Response<PageResult<DataNodeResponse>> response = ClientUtils.executeHttpCall(dataNodeApi.list(request));
+        Response<PageResult<DataNodeResponse>> response =
+                ClientUtils.executeHttpCall(dataNodeApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -106,5 +105,4 @@ public class DataNodeClient {
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
-
 }

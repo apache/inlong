@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -25,25 +29,30 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Test for {@link OracleExtractNode}
- */
+/** Test for {@link OracleExtractNode} */
 public class OracleExtractNodeTest extends SerializeBaseTest<OracleExtractNode> {
 
     @Override
     public OracleExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("NAME", new StringFormatInfo()),
-                new FieldInfo("AGE", new IntFormatInfo()));
-        return new OracleExtractNode("1", "oracle_input", fields,
-                null, null, "id", "localhost",
-                "username", "password", "database", "schema_name",
-                "table_name", null, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("NAME", new StringFormatInfo()),
+                        new FieldInfo("AGE", new IntFormatInfo()));
+        return new OracleExtractNode(
+                "1",
+                "oracle_input",
+                fields,
+                null,
+                null,
+                "id",
+                "localhost",
+                "username",
+                "password",
+                "database",
+                "schema_name",
+                "table_name",
+                null,
+                null);
     }
 
     @Test

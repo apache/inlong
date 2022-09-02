@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.jdbc.internal;
 
+import java.io.IOException;
+import javax.annotation.Nonnull;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -28,13 +30,10 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.Preconditions;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-
 /**
  * A generic SinkFunction for JDBC.
  *
- * Add an option `inlong.metric` to support metrics.
+ * <p>Add an option `inlong.metric` to support metrics.
  */
 @Internal
 public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
@@ -60,8 +59,7 @@ public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
     }
 
     @Override
-    public void initializeState(FunctionInitializationContext context) {
-    }
+    public void initializeState(FunctionInitializationContext context) {}
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {

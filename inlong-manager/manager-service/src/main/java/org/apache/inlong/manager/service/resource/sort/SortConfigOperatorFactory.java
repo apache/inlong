@@ -17,20 +17,16 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import java.util.List;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Factory for {@link SortConfigOperator}.
- */
+/** Factory for {@link SortConfigOperator}. */
 @Service
 public class SortConfigOperatorFactory {
 
-    @Autowired
-    private List<SortConfigOperator> operatorList;
+    @Autowired private List<SortConfigOperator> operatorList;
 
     /**
      * Get a Sort config operator instance.
@@ -41,8 +37,10 @@ public class SortConfigOperatorFactory {
         return operatorList.stream()
                 .filter(inst -> inst.accept(enableZk))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException("not found any instance of SortConfigOperator when enableZk="
-                        + enableZk));
+                .orElseThrow(
+                        () ->
+                                new BusinessException(
+                                        "not found any instance of SortConfigOperator when enableZk="
+                                                + enableZk));
     }
-
 }

@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * DataProxyChannel
- */
+/** DataProxyChannel */
 public class ProxyChannel {
 
     private String name;
@@ -82,5 +80,4 @@ public class ProxyChannel {
     public void setParams(Map<String, String> params) {
         this.params = params;
     }
-
 }

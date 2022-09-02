@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The format information for booleans.
- */
+/** The format information for booleans. */
 public class BooleanFormatInfo implements BasicFormatInfo<Boolean> {
 
     private static final long serialVersionUID = 1L;

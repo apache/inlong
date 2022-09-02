@@ -17,28 +17,6 @@
 
 package org.apache.inlong.agent.metrics;
 
-import io.prometheus.client.Collector;
-import io.prometheus.client.CounterMetricFamily;
-import io.prometheus.client.exporter.HTTPServer;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.common.metric.MetricItemValue;
-import org.apache.inlong.common.metric.MetricListener;
-import org.apache.inlong.common.metric.MetricValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.M_JOB_FATAL_COUNT;
@@ -59,12 +37,32 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_RUNNING_COU
 import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
 import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
-/**
- * prometheus metric listener
- */
+import io.prometheus.client.Collector;
+import io.prometheus.client.CounterMetricFamily;
+import io.prometheus.client.exporter.HTTPServer;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** prometheus metric listener */
 public class AgentPrometheusMetricListener extends Collector implements MetricListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
     protected HTTPServer httpServer;
     private AgentMetricItem metricItem;
@@ -105,46 +103,63 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         metricValueMap.put(M_PLUGIN_READ_SUCCESS_COUNT, metricItem.pluginReadSuccessCount);
         metricValueMap.put(M_PLUGIN_SEND_SUCCESS_COUNT, metricItem.pluginSendSuccessCount);
 
-        int metricsServerPort = AgentConfiguration.getAgentConf()
-                .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
+        int metricsServerPort =
+                AgentConfiguration.getAgentConf()
+                        .getInt(PROMETHEUS_EXPORTER_PORT, DEFAULT_PROMETHEUS_EXPORTER_PORT);
         try {
             this.httpServer = new HTTPServer(metricsServerPort);
             this.register();
             LOGGER.info("Starting prometheus metrics server on port {}", metricsServerPort);
         } catch (IOException e) {
-            LOGGER.error("exception while register agent prometheus http server,error:{}", e.getMessage());
+            LOGGER.error(
+                    "exception while register agent prometheus http server,error:{}",
+                    e.getMessage());
         }
         this.dimensionKeys.add(DEFAULT_DIMENSION_LABEL);
-
     }
 
     @Override
     public List<MetricFamilySamples> collect() {
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily("group=total",
-                "The metrics of agent node.",
-                Arrays.asList("dimension"));
-        totalCounter.addMetric(Arrays.asList(M_JOB_RUNNING_COUNT), metricItem.jobRunningCount.get());
+        CounterMetricFamily totalCounter =
+                new CounterMetricFamily(
+                        "group=total", "The metrics of agent node.", Arrays.asList("dimension"));
+        totalCounter.addMetric(
+                Arrays.asList(M_JOB_RUNNING_COUNT), metricItem.jobRunningCount.get());
         totalCounter.addMetric(Arrays.asList(M_JOB_FATAL_COUNT), metricItem.jobFatalCount.get());
-        totalCounter.addMetric(Arrays.asList(M_TASK_RUNNING_COUNT), metricItem.taskRunningCount.get());
-        totalCounter.addMetric(Arrays.asList(M_TASK_RETRYING_COUNT), metricItem.taskRetryingCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_TASK_RUNNING_COUNT), metricItem.taskRunningCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_TASK_RETRYING_COUNT), metricItem.taskRetryingCount.get());
         totalCounter.addMetric(Arrays.asList(M_TASK_FATAL_COUNT), metricItem.taskFatalCount.get());
-        totalCounter.addMetric(Arrays.asList(M_SINK_SUCCESS_COUNT), metricItem.sinkSuccessCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_SINK_SUCCESS_COUNT), metricItem.sinkSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_SINK_FAIL_COUNT), metricItem.sinkFailCount.get());
-        totalCounter.addMetric(Arrays.asList(M_SOURCE_SUCCESS_COUNT), metricItem.sourceSuccessCount.get());
-        totalCounter.addMetric(Arrays.asList(M_SOURCE_FAIL_COUNT), metricItem.sourceFailCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_READ_COUNT), metricItem.pluginReadCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_SEND_COUNT), metricItem.pluginSendCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_READ_FAIL_COUNT), metricItem.pluginReadFailCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_SEND_FAIL_COUNT), metricItem.pluginSendFailCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_READ_SUCCESS_COUNT), metricItem.pluginReadSuccessCount.get());
-        totalCounter.addMetric(Arrays.asList(M_PLUGIN_SEND_SUCCESS_COUNT), metricItem.pluginSendSuccessCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_SOURCE_SUCCESS_COUNT), metricItem.sourceSuccessCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_SOURCE_FAIL_COUNT), metricItem.sourceFailCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_READ_COUNT), metricItem.pluginReadCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_SEND_COUNT), metricItem.pluginSendCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_READ_FAIL_COUNT), metricItem.pluginReadFailCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_SEND_FAIL_COUNT), metricItem.pluginSendFailCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_READ_SUCCESS_COUNT),
+                metricItem.pluginReadSuccessCount.get());
+        totalCounter.addMetric(
+                Arrays.asList(M_PLUGIN_SEND_SUCCESS_COUNT),
+                metricItem.pluginSendSuccessCount.get());
         List<MetricFamilySamples> mfs = new ArrayList<>();
         mfs.add(totalCounter);
 
         // id dimension
-        CounterMetricFamily idCounter = new CounterMetricFamily("group=id",
-                "The metrics of agent dimensions.", this.dimensionKeys);
+        CounterMetricFamily idCounter =
+                new CounterMetricFamily(
+                        "group=id", "The metrics of agent dimensions.", this.dimensionKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
 
@@ -188,8 +203,9 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
             String dimensionKey = itemValue.getKey();
             MetricItemValue dimensionMetricValue = this.dimensionMetricValueMap.get(dimensionKey);
             if (dimensionMetricValue == null) {
-                dimensionMetricValue = new MetricItemValue(dimensionKey, new ConcurrentHashMap<>(),
-                        new ConcurrentHashMap<>());
+                dimensionMetricValue =
+                        new MetricItemValue(
+                                dimensionKey, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
                 this.dimensionMetricValueMap.putIfAbsent(dimensionKey, dimensionMetricValue);
                 dimensionMetricValue = this.dimensionMetricValueMap.get(dimensionKey);
                 dimensionMetricValue.getDimensions().putAll(itemValue.getDimensions());
@@ -212,11 +228,10 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
                 metricValue.value += entry.getValue().value;
             }
         }
-
     }
 
-    private void addCounterMetricFamily(String defaultDimension, MetricItemValue itemValue,
-            CounterMetricFamily idCounter) {
+    private void addCounterMetricFamily(
+            String defaultDimension, MetricItemValue itemValue, CounterMetricFamily idCounter) {
         List<String> labelValues = new ArrayList<>(this.dimensionKeys.size());
         labelValues.add(defaultDimension);
         Map<String, String> dimensions = itemValue.getDimensions();

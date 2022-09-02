@@ -17,13 +17,10 @@
 
 package org.apache.inlong.agent.plugin;
 
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 
-import java.util.List;
-
-/**
- * Source can be split into multiple reader.
- */
+/** Source can be split into multiple reader. */
 public interface Source {
 
     /**

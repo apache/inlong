@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
+
+import java.util.Map;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandlerServices;
@@ -34,14 +39,7 @@ import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
 import org.apache.inlong.sort.redis.table.SchemaValidator;
 
-import java.util.Map;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
-
-/**
- * Redis dynamic table source
- */
+/** Redis dynamic table source */
 public class RedisDynamicTableSource implements LookupTableSource {
 
     private final FlinkJedisConfigBase flinkJedisConfigBase;
@@ -52,26 +50,30 @@ public class RedisDynamicTableSource implements LookupTableSource {
     private final RedisLookupOptions redisLookupOptions;
     private final Map<String, String> properties;
 
-    public RedisDynamicTableSource(Map<String, String> properties, ResolvedSchema tableSchema,
-            ReadableConfig config, RedisLookupOptions redisLookupOptions) {
+    public RedisDynamicTableSource(
+            Map<String, String> properties,
+            ResolvedSchema tableSchema,
+            ReadableConfig config,
+            RedisLookupOptions redisLookupOptions) {
         this.properties = properties;
         Preconditions.checkNotNull(properties, "properties should not be null");
         this.tableSchema = tableSchema;
         Preconditions.checkNotNull(tableSchema, "tableSchema should not be null");
         this.config = config;
         properties.putIfAbsent(RedisOptions.REDIS_MODE.key(), config.get(RedisOptions.REDIS_MODE));
-        redisMapper = RedisHandlerServices
-                .findRedisHandler(RedisMapperHandler.class, properties)
-                .createRedisMapper(properties);
+        redisMapper =
+                RedisHandlerServices.findRedisHandler(RedisMapperHandler.class, properties)
+                        .createRedisMapper(properties);
         RedisCommand command = redisMapper.getCommandDescription().getCommand();
         new SchemaValidator()
-                .register(RedisCommand.GET, new LogicalTypeRoot[]{VARCHAR, VARCHAR})
-                .register(RedisCommand.HGET, new LogicalTypeRoot[]{VARCHAR, VARCHAR})
-                .register(RedisCommand.ZSCORE, new LogicalTypeRoot[]{VARCHAR, DOUBLE})
-                .register(RedisCommand.ZREVRANK, new LogicalTypeRoot[]{VARCHAR, BIGINT})
+                .register(RedisCommand.GET, new LogicalTypeRoot[] {VARCHAR, VARCHAR})
+                .register(RedisCommand.HGET, new LogicalTypeRoot[] {VARCHAR, VARCHAR})
+                .register(RedisCommand.ZSCORE, new LogicalTypeRoot[] {VARCHAR, DOUBLE})
+                .register(RedisCommand.ZREVRANK, new LogicalTypeRoot[] {VARCHAR, BIGINT})
                 .validate(command, tableSchema);
-        flinkJedisConfigBase = RedisHandlerServices
-                .findRedisHandler(InlongJedisConfigHandler.class, properties).createFlinkJedisConfig(config);
+        flinkJedisConfigBase =
+                RedisHandlerServices.findRedisHandler(InlongJedisConfigHandler.class, properties)
+                        .createFlinkJedisConfig(config);
         this.redisLookupOptions = redisLookupOptions;
     }
 
@@ -87,7 +89,10 @@ public class RedisDynamicTableSource implements LookupTableSource {
 
     @Override
     public LookupRuntimeProvider getLookupRuntimeProvider(LookupContext context) {
-        return TableFunctionProvider.of(new RedisRowDataLookupFunction(
-                redisMapper.getCommandDescription(), flinkJedisConfigBase, this.redisLookupOptions));
+        return TableFunctionProvider.of(
+                new RedisRowDataLookupFunction(
+                        redisMapper.getCommandDescription(),
+                        flinkJedisConfigBase,
+                        this.redisLookupOptions));
     }
 }

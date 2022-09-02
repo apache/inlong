@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.client.consumer;
 
 import java.util.HashMap;
@@ -27,11 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class ClientSubInfo {
-    private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
+    private final ConcurrentHashMap<String /* topic */, TopicProcessor> topicCondRegistry =
             new ConcurrentHashMap<>();
     private boolean requireBound = false;
-    private AtomicBoolean isNotAllocated =
-            new AtomicBoolean(true);
+    private AtomicBoolean isNotAllocated = new AtomicBoolean(true);
     private int sourceCount = -1;
     private String sessionKey;
     private long subscribedTime;
@@ -41,9 +37,7 @@ public class ClientSubInfo {
     private Map<String, Long> assignedPartMap = new HashMap<>();
     private Map<String, Boolean> topicFilterMap = new HashMap<>();
 
-    public ClientSubInfo() {
-
-    }
+    public ClientSubInfo() {}
 
     public boolean getIsNotAllocated() {
         return isNotAllocated.get();
@@ -71,17 +65,15 @@ public class ClientSubInfo {
             topicProcessor = new TopicProcessor(null, entry.getValue());
             this.topicCondRegistry.put(entry.getKey(), topicProcessor);
             this.subscribedTopics.add(entry.getKey());
-            this.topicFilterMap.put(entry.getKey(),
-                    (!(entry.getValue() == null || entry.getValue().isEmpty())));
+            this.topicFilterMap.put(
+                    entry.getKey(), (!(entry.getValue() == null || entry.getValue().isEmpty())));
         }
         this.requireBound = false;
         this.subscribedTime = System.currentTimeMillis();
     }
 
-    public TopicProcessor putIfAbsentTopicProcessor(String topic,
-                                                    TopicProcessor topicProcessor) {
-        TopicProcessor topicProcessor1 =
-                this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
+    public TopicProcessor putIfAbsentTopicProcessor(String topic, TopicProcessor topicProcessor) {
+        TopicProcessor topicProcessor1 = this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
         if (topicProcessor1 == null) {
             this.subscribedTopics.add(topic);
             Set<String> condSet = topicProcessor.getFilterConds();
@@ -142,16 +134,16 @@ public class ClientSubInfo {
     /**
      * Set Bound Consumption information
      *
-     * @param sessionKey     consume session key
-     * @param sourceCount    the client count of consume group
-     * @param isSelectBig    whether select a bigger data If there is reset conflict
-     * @param partOffsetMap  the map of partitionKey and bootstrap offset
-     *
+     * @param sessionKey consume session key
+     * @param sourceCount the client count of consume group
+     * @param isSelectBig whether select a bigger data If there is reset conflict
+     * @param partOffsetMap the map of partitionKey and bootstrap offset
      */
-    public void setRequireBound(final String sessionKey,
-                                final int sourceCount,
-                                final boolean isSelectBig,
-                                final Map<String, Long> partOffsetMap) {
+    public void setRequireBound(
+            final String sessionKey,
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) {
         this.requireBound = true;
         this.subscribedTime = System.currentTimeMillis();
         this.sessionKey = sessionKey;
@@ -165,7 +157,9 @@ public class ClientSubInfo {
                 if (count++ > 0) {
                     sBuilder.append(TokenConstants.ARRAY_SEP);
                 }
-                sBuilder.append(entry.getKey().trim()).append(TokenConstants.EQ).append(entry.getValue());
+                sBuilder.append(entry.getKey().trim())
+                        .append(TokenConstants.EQ)
+                        .append(entry.getValue());
             }
         }
         this.requiredPartition = sBuilder.toString();

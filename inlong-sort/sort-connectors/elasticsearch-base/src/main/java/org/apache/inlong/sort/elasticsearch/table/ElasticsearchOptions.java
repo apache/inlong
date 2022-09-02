@@ -18,16 +18,15 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import static org.apache.flink.configuration.description.TextElement.text;
+
+import java.time.Duration;
+import java.util.List;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.description.Description;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
-
-import java.time.Duration;
-import java.util.List;
-
-import static org.apache.flink.configuration.description.TextElement.text;
 
 /**
  * Options for {@link org.apache.flink.table.factories.DynamicTableSinkFactory} for Elasticsearch.
@@ -145,9 +144,7 @@ public class ElasticsearchOptions {
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
 
-    private ElasticsearchOptions() {
-
-    }
+    private ElasticsearchOptions() {}
 
     /**
      * Backoff strategy. Extends {@link ElasticsearchSinkBase.FlushBackoffType} with {@code

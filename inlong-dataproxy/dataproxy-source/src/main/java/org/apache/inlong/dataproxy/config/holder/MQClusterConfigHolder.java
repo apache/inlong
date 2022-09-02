@@ -18,16 +18,13 @@
 package org.apache.inlong.dataproxy.config.holder;
 
 import com.google.common.base.Splitter;
-import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 
-/**
- * Holder of the MQ cluster config.
- */
+/** Holder of the MQ cluster config. */
 public class MQClusterConfigHolder extends PropertiesConfigHolder {
 
     public static final String URL_STORE_PREFIX = "mq_cluster.index";
@@ -38,17 +35,17 @@ public class MQClusterConfigHolder extends PropertiesConfigHolder {
         super(fileName);
     }
 
-    /**
-     * load from file
-     */
+    /** load from file */
     @Override
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();
         Map<String, String> tmpUrl2token = new HashMap<>();
         for (Map.Entry<String, String> entry : getHolder().entrySet()) {
             if (entry.getKey().startsWith(URL_STORE_PREFIX)) {
-                List<String> kv = Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
-                        .trimResults().splitToList(entry.getValue());
+                List<String> kv =
+                        Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
+                                .trimResults()
+                                .splitToList(entry.getValue());
                 tmpUrl2token.put(kv.get(0), kv.get(1));
             }
         }

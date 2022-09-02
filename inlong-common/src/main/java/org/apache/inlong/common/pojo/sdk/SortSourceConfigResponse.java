@@ -31,7 +31,4 @@ public class SortSourceConfigResponse {
     int code;
     String md5;
     CacheZoneConfig data;
-
 }
-
-

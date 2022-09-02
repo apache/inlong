@@ -41,9 +41,7 @@ public class ConfigurationTest extends TestLogger {
     private static final long TOO_LONG = Integer.MAX_VALUE + 10L;
     private static final double TOO_LONG_DOUBLE = Double.MAX_VALUE;
 
-    /**
-     * This test checks the serialization/deserialization of configuration objects.
-     */
+    /** This test checks the serialization/deserialization of configuration objects. */
     @Test
     public void testConfigurationSerializationAndGetters() {
         try {
@@ -54,11 +52,12 @@ public class ConfigurationTest extends TestLogger {
             orig.setFloat("PI", 3.1415926f);
             orig.setDouble("E", Math.E);
             orig.setBoolean("shouldbetrue", true);
-            orig.setBytes("bytes sequence", new byte[]{1, 2, 3, 4, 5});
+            orig.setBytes("bytes sequence", new byte[] {1, 2, 3, 4, 5});
             orig.setClass("myclass", this.getClass());
 
-            final Configuration copy = InstantiationUtil
-                    .deserializeObject(InstantiationUtil.serializeObject(orig),
+            final Configuration copy =
+                    InstantiationUtil.deserializeObject(
+                            InstantiationUtil.serializeObject(orig),
                             Thread.currentThread().getContextClassLoader());
             assertEquals("myvalue", copy.getString("mykey", "null"));
             assertEquals(100, copy.getInteger("mynumber", 0));
@@ -66,7 +65,7 @@ public class ConfigurationTest extends TestLogger {
             assertEquals(3.1415926f, copy.getFloat("PI", 3.1415926f), 0.0);
             assertEquals(Math.E, copy.getDouble("E", 0.0), 0.0);
             assertEquals(true, copy.getBoolean("shouldbetrue", false));
-            assertArrayEquals(new byte[]{1, 2, 3, 4, 5}, copy.getBytes("bytes sequence", null));
+            assertArrayEquals(new byte[] {1, 2, 3, 4, 5}, copy.getBytes("bytes sequence", null));
             assertEquals(getClass(), copy.getClass("myclass", null, getClass().getClassLoader()));
 
             assertEquals(orig, copy);
@@ -224,8 +223,8 @@ public class ConfigurationTest extends TestLogger {
         cfg.setInteger("int-key", 11);
         cfg.setString("string-key", "abc");
 
-        ConfigOption<String> presentStringOption = ConfigOptions.key("string-key")
-                .defaultValue("my-beautiful-default");
+        ConfigOption<String> presentStringOption =
+                ConfigOptions.key("string-key").defaultValue("my-beautiful-default");
         ConfigOption<Integer> presentIntOption = ConfigOptions.key("int-key").defaultValue(87);
 
         assertEquals("abc", cfg.getString(presentStringOption));
@@ -236,8 +235,8 @@ public class ConfigurationTest extends TestLogger {
 
         // test getting default when no value is present
 
-        ConfigOption<String> stringOption = ConfigOptions.key("test")
-                .defaultValue("my-beautiful-default");
+        ConfigOption<String> stringOption =
+                ConfigOptions.key("test").defaultValue("my-beautiful-default");
         final ConfigOption<Integer> intOption = ConfigOptions.key("test2").defaultValue(87);
 
         // getting strings with default value should work
@@ -282,25 +281,25 @@ public class ConfigurationTest extends TestLogger {
         cfg.setInteger("old-key", 12);
         cfg.setInteger("older-key", 13);
 
-        ConfigOption<Integer> matchesFirst = ConfigOptions
-                .key("the-key")
-                .defaultValue(-1)
-                .withDeprecatedKeys("old-key", "older-key");
+        ConfigOption<Integer> matchesFirst =
+                ConfigOptions.key("the-key")
+                        .defaultValue(-1)
+                        .withDeprecatedKeys("old-key", "older-key");
 
-        ConfigOption<Integer> matchesSecond = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withDeprecatedKeys("old-key", "older-key");
+        ConfigOption<Integer> matchesSecond =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withDeprecatedKeys("old-key", "older-key");
 
-        ConfigOption<Integer> matchesThird = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withDeprecatedKeys("foo", "older-key");
+        ConfigOption<Integer> matchesThird =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withDeprecatedKeys("foo", "older-key");
 
-        final ConfigOption<Integer> notContained = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withDeprecatedKeys("not-there", "also-not-there");
+        final ConfigOption<Integer> notContained =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withDeprecatedKeys("not-there", "also-not-there");
 
         assertEquals(11, cfg.getInteger(matchesFirst));
         assertEquals(12, cfg.getInteger(matchesSecond));
@@ -315,25 +314,25 @@ public class ConfigurationTest extends TestLogger {
         cfg.setInteger("old-key", 12);
         cfg.setInteger("older-key", 13);
 
-        ConfigOption<Integer> matchesFirst = ConfigOptions
-                .key("the-key")
-                .defaultValue(-1)
-                .withFallbackKeys("old-key", "older-key");
+        ConfigOption<Integer> matchesFirst =
+                ConfigOptions.key("the-key")
+                        .defaultValue(-1)
+                        .withFallbackKeys("old-key", "older-key");
 
-        ConfigOption<Integer> matchesSecond = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withFallbackKeys("old-key", "older-key");
+        ConfigOption<Integer> matchesSecond =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withFallbackKeys("old-key", "older-key");
 
-        ConfigOption<Integer> matchesThird = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withFallbackKeys("foo", "older-key");
+        ConfigOption<Integer> matchesThird =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withFallbackKeys("foo", "older-key");
 
-        final ConfigOption<Integer> notContained = ConfigOptions
-                .key("does-not-exist")
-                .defaultValue(-1)
-                .withFallbackKeys("not-there", "also-not-there");
+        final ConfigOption<Integer> notContained =
+                ConfigOptions.key("does-not-exist")
+                        .defaultValue(-1)
+                        .withFallbackKeys("not-there", "also-not-there");
 
         assertEquals(11, cfg.getInteger(matchesFirst));
         assertEquals(12, cfg.getInteger(matchesSecond));
@@ -343,19 +342,15 @@ public class ConfigurationTest extends TestLogger {
 
     @Test
     public void testFallbackAndDeprecatedKeys() {
-        final ConfigOption<Integer> fallback = ConfigOptions
-                .key("fallback")
-                .defaultValue(-1);
+        final ConfigOption<Integer> fallback = ConfigOptions.key("fallback").defaultValue(-1);
 
-        final ConfigOption<Integer> deprecated = ConfigOptions
-                .key("deprecated")
-                .defaultValue(-1);
+        final ConfigOption<Integer> deprecated = ConfigOptions.key("deprecated").defaultValue(-1);
 
-        final ConfigOption<Integer> mainOption = ConfigOptions
-                .key("main")
-                .defaultValue(-1)
-                .withFallbackKeys(fallback.key())
-                .withDeprecatedKeys(deprecated.key());
+        final ConfigOption<Integer> mainOption =
+                ConfigOptions.key("main")
+                        .defaultValue(-1)
+                        .withFallbackKeys(fallback.key())
+                        .withDeprecatedKeys(deprecated.key());
 
         final Configuration fallbackCfg = new Configuration();
         fallbackCfg.setInteger(fallback, 1);
@@ -367,11 +362,11 @@ public class ConfigurationTest extends TestLogger {
 
         // reverse declaration of fallback and deprecated keys, fallback keys should always be
         // used first
-        final ConfigOption<Integer> reversedMainOption = ConfigOptions
-                .key("main")
-                .defaultValue(-1)
-                .withDeprecatedKeys(deprecated.key())
-                .withFallbackKeys(fallback.key());
+        final ConfigOption<Integer> reversedMainOption =
+                ConfigOptions.key("main")
+                        .defaultValue(-1)
+                        .withDeprecatedKeys(deprecated.key())
+                        .withFallbackKeys(fallback.key());
 
         final Configuration deprecatedAndFallBackConfig = new Configuration();
         deprecatedAndFallBackConfig.setInteger(fallback, 1);
@@ -386,19 +381,13 @@ public class ConfigurationTest extends TestLogger {
         cfg.setInteger("a", 1);
         cfg.setInteger("b", 2);
 
-        ConfigOption<Integer> validOption = ConfigOptions
-                .key("a")
-                .defaultValue(-1);
+        ConfigOption<Integer> validOption = ConfigOptions.key("a").defaultValue(-1);
 
-        final ConfigOption<Integer> deprecatedOption = ConfigOptions
-                .key("c")
-                .defaultValue(-1)
-                .withDeprecatedKeys("d", "b");
+        final ConfigOption<Integer> deprecatedOption =
+                ConfigOptions.key("c").defaultValue(-1).withDeprecatedKeys("d", "b");
 
-        final ConfigOption<Integer> unexistedOption = ConfigOptions
-                .key("e")
-                .defaultValue(-1)
-                .withDeprecatedKeys("f", "g", "j");
+        final ConfigOption<Integer> unexistedOption =
+                ConfigOptions.key("e").defaultValue(-1).withDeprecatedKeys("f", "g", "j");
 
         assertEquals("Wrong expectation about size", cfg.keySet().size(), 2);
         assertTrue("Expected 'validOption' is removed", cfg.removeConfig(validOption));
@@ -442,9 +431,12 @@ public class ConfigurationTest extends TestLogger {
             configuration.getEnum(TestEnum.class, configOption);
             fail("Expected exception not thrown");
         } catch (IllegalArgumentException e) {
-            final String expectedMessage = "Value for config option "
-                    + configOption.key() + " must be one of [VALUE1, VALUE2] (was "
-                    + invalidValueForTestEnum + ")";
+            final String expectedMessage =
+                    "Value for config option "
+                            + configOption.key()
+                            + " must be one of [VALUE1, VALUE2] (was "
+                            + invalidValueForTestEnum
+                            + ")";
             assertThat(e.getMessage(), containsString(expectedMessage));
         }
     }
@@ -455,8 +447,6 @@ public class ConfigurationTest extends TestLogger {
     }
 
     private static ConfigOption<String> createStringConfigOption() {
-        return ConfigOptions
-                .key("test-string-key")
-                .noDefaultValue();
+        return ConfigOptions.key("test-string-key").noDefaultValue();
     }
 }

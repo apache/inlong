@@ -1,24 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.util.List;
-
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.elasticsearch.action.DocWriteRequest;
@@ -28,10 +24,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.slf4j.Logger;
 
-/**
- * EsCallbackListener
- *
- */
+/** EsCallbackListener */
 public class EsCallbackListener implements BulkProcessor.Listener {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(EsCallbackListener.class);
@@ -40,7 +33,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      */
     public EsCallbackListener(EsSinkContext context) {
@@ -49,7 +42,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
 
     /**
      * beforeBulk
-     * 
+     *
      * @param executionId
      * @param request
      */
@@ -60,19 +53,25 @@ public class EsCallbackListener implements BulkProcessor.Listener {
 
     /**
      * afterBulk
-     * 
+     *
      * @param executionId
      * @param request
      * @param response
      */
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-        LOG.debug("afterBulk,executionId,executionId:{},request:{},response:{}", executionId, request, response);
+        LOG.debug(
+                "afterBulk,executionId,executionId:{},request:{},response:{}",
+                executionId,
+                request,
+                response);
         BulkItemResponse[] itemResponses = response.getItems();
         List<DocWriteRequest<?>> requests = request.requests();
         if (itemResponses.length != requests.size()) {
-            LOG.error("BulkItemResponse size is not equal to IndexRequest size:requestSize:{},responseSize:{}",
-                    requests.size(), itemResponses.length);
+            LOG.error(
+                    "BulkItemResponse size is not equal to IndexRequest size:requestSize:{},responseSize:{}",
+                    requests.size(),
+                    itemResponses.length);
         }
         for (int i = 0; i < itemResponses.length; i++) {
             // parameter
@@ -94,7 +93,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
 
     /**
      * afterBulk
-     * 
+     *
      * @param executionId
      * @param request
      * @param failure
@@ -102,8 +101,10 @@ public class EsCallbackListener implements BulkProcessor.Listener {
     @Override
     public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
         LOG.error("afterBulk,executionId:" + executionId + ",failure:" + failure, failure);
-        String errorMsg = String.format("EsSenderError,whole bulk,errorMsg:%s,count:%d", failure.getMessage(),
-                request.numberOfActions());
+        String errorMsg =
+                String.format(
+                        "EsSenderError,whole bulk,errorMsg:%s,count:%d",
+                        failure.getMessage(), request.numberOfActions());
         LOG.error(errorMsg, failure);
 
         // monitor
@@ -116,5 +117,4 @@ public class EsCallbackListener implements BulkProcessor.Listener {
             context.backDispatchQueue(requestItem);
         }
     }
-
 }

@@ -20,9 +20,7 @@ package org.apache.inlong.manager.workflow.event;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * WorkflowProcess event listener
- */
+/** WorkflowProcess event listener */
 public interface EventListener<EventType extends WorkflowEvent> {
 
     /**
@@ -58,5 +56,4 @@ public interface EventListener<EventType extends WorkflowEvent> {
     default boolean ignoreRecordLog() {
         return false;
     }
-
 }

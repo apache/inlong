@@ -25,19 +25,17 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-/**
- * Log aspect
- */
+/** Log aspect */
 @Slf4j
 @Aspect
 @Component
 public class LogAspect {
 
-    /**
-     * Record the operation log of all controllers
-     */
-    @Around(("execution(public * org.apache.inlong.manager.web.controller.*.*(..)) && @annotation(operationLog)"))
-    public Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
+    /** Record the operation log of all controllers */
+    @Around(
+            ("execution(public * org.apache.inlong.manager.web.controller.*.*(..)) && @annotation(operationLog)"))
+    public Object doAround(ProceedingJoinPoint joinPoint, OperationLog operationLog)
+            throws Throwable {
         return OperationLogRecorder.doAround(joinPoint, operationLog);
     }
 }

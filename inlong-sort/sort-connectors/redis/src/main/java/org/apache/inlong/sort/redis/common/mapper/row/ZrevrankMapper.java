@@ -19,9 +19,7 @@ package org.apache.inlong.sort.redis.common.mapper.row;
 
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
-/**
- * Zrevrank mapper that used to get rank number from a specified key with member
- */
+/** Zrevrank mapper that used to get rank number from a specified key with member */
 public class ZrevrankMapper extends RowRedisMapper {
 
     public ZrevrankMapper(String additionalKey) {
@@ -31,5 +29,4 @@ public class ZrevrankMapper extends RowRedisMapper {
     public ZrevrankMapper() {
         super(RedisCommand.ZREVRANK);
     }
-
 }

@@ -18,25 +18,22 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
-
-/**
- * The format information for {@link Time}s.
- */
+/** The format information for {@link Time}s. */
 public class TimeFormatInfo implements BasicFormatInfo<Time> {
 
     private static final long serialVersionUID = 1L;
@@ -44,12 +41,13 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     private static final String FIELD_FORMAT = "format";
     // to support avro format, precision must be less than 3
     private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
+
     @JsonProperty(FIELD_FORMAT)
     @Nonnull
     private final String format;
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
+
+    @JsonIgnore @Nullable private final SimpleDateFormat simpleDateFormat;
+
     @JsonProperty("precision")
     private int precision;
 
@@ -91,55 +89,63 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     @Override
     public String serialize(Time time) {
         switch (format) {
-            case "MICROS": {
-                long millis = time.getTime();
-                long micros = TimeUnit.MILLISECONDS.toMicros(millis);
-                return Long.toString(micros);
-            }
-            case "MILLIS": {
-                long millis = time.getTime();
-                return Long.toString(millis);
-            }
-            case "SECONDS": {
-                long millis = time.getTime();
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-                return Long.toString(seconds);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long millis = time.getTime();
+                    long micros = TimeUnit.MILLISECONDS.toMicros(millis);
+                    return Long.toString(micros);
                 }
+            case "MILLIS":
+                {
+                    long millis = time.getTime();
+                    return Long.toString(millis);
+                }
+            case "SECONDS":
+                {
+                    long millis = time.getTime();
+                    long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+                    return Long.toString(seconds);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                return simpleDateFormat.format(time);
-            }
+                    return simpleDateFormat.format(time);
+                }
         }
     }
 
     @Override
     public Time deserialize(String text) throws ParseException {
         switch (format) {
-            case "MICROS": {
-                long micros = Long.parseLong(text);
-                long millis = TimeUnit.MICROSECONDS.toMillis(micros);
-                return new Time(millis);
-            }
-            case "MILLIS": {
-                long millis = Long.parseLong(text);
-                return new Time(millis);
-            }
-            case "SECONDS": {
-                long seconds = Long.parseLong(text);
-                long millis = TimeUnit.SECONDS.toMillis(seconds);
-                return new Time(millis);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long micros = Long.parseLong(text);
+                    long millis = TimeUnit.MICROSECONDS.toMillis(micros);
+                    return new Time(millis);
                 }
+            case "MILLIS":
+                {
+                    long millis = Long.parseLong(text);
+                    return new Time(millis);
+                }
+            case "SECONDS":
+                {
+                    long seconds = Long.parseLong(text);
+                    long millis = TimeUnit.SECONDS.toMillis(seconds);
+                    return new Time(millis);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                Date date = simpleDateFormat.parse(text);
-                return new Time(date.getTime());
-            }
+                    Date date = simpleDateFormat.parse(text);
+                    return new Time(date.getTime());
+                }
         }
     }
 

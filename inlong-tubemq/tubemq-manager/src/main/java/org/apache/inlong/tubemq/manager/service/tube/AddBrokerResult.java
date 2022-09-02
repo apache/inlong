@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.service.tube;
 
 import java.util.List;
-
 import lombok.Data;
 
 @Data

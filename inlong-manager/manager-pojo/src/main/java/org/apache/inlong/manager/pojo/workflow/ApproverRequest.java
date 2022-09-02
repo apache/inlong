@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Workflow approver request
- */
+/** Workflow approver request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -48,5 +46,4 @@ public class ApproverRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

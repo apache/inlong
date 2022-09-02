@@ -19,17 +19,11 @@ package org.apache.inlong.sort.redis.common.descriptor;
 
 import org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator;
 
-/**
- * InLong redis validator expand from {@link RedisValidator}
- */
+/** InLong redis validator expand from {@link RedisValidator} */
 public class InlongRedisValidator extends RedisValidator {
 
-    /**
-     * The standalone of redis deploy mode
-     */
+    /** The standalone of redis deploy mode */
     public static final String REDIS_STANDALONE = "standalone";
-    /**
-     * Redis additional key used in hash or sorted-set
-     */
+    /** Redis additional key used in hash or sorted-set */
     public static final String REDIS_ADDITIONAL_KEY = "additional.key";
 }

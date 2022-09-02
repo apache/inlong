@@ -18,7 +18,20 @@
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.math3.util.Pair;
 import org.apache.flume.Channel;
@@ -37,25 +50,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-
-/**
- * 
- * ClickHouseSinkContext
- */
+/** ClickHouseSinkContext */
 public class ClickHouseSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClickHouseSinkContext.class);
@@ -79,12 +74,15 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param context
      * @param channel
      */
-    public ClickHouseSinkContext(String sinkName, Context context, Channel channel,
+    public ClickHouseSinkContext(
+            String sinkName,
+            Context context,
+            Channel channel,
             LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.parentContext = context;
@@ -92,13 +90,13 @@ public class ClickHouseSinkContext extends SinkContext {
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, NetworkUtils.getLocalIp());
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
-            LOG.info("start to get SortTaskConfig:taskName:{}:config:{}", taskName,
+            LOG.info(
+                    "start to get SortTaskConfig:taskName:{}:config:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newSortTaskConfig));
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
                 return;
@@ -112,7 +110,8 @@ public class ClickHouseSinkContext extends SinkContext {
                 String inlongStreamId = idParam.get(Constants.INLONG_STREAM_ID);
                 String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
                 String jsonIdConfig = objectMapper.writeValueAsString(idParam);
-                ClickHouseIdConfig idConfig = objectMapper.readValue(jsonIdConfig, ClickHouseIdConfig.class);
+                ClickHouseIdConfig idConfig =
+                        objectMapper.readValue(jsonIdConfig, ClickHouseIdConfig.class);
                 newIdConfigMap.put(uid, idConfig);
             }
             // jdbc config
@@ -128,8 +127,11 @@ public class ClickHouseSinkContext extends SinkContext {
             // change current config
             this.sortTaskConfig = newSortTaskConfig;
             this.idConfigMap = newIdConfigMap;
-            LOG.info("end to get SortTaskConfig,taskName:{},newIdConfigMap:{},currentContext:{}", taskName,
-                    new ObjectMapper().writeValueAsString(newIdConfigMap), currentContext);
+            LOG.info(
+                    "end to get SortTaskConfig,taskName:{},newIdConfigMap:{},currentContext:{}",
+                    taskName,
+                    new ObjectMapper().writeValueAsString(newIdConfigMap),
+                    currentContext);
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
@@ -137,16 +139,18 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * initIdConfig
+     *
      * @param newIdConfigMap
      * @throws SQLException
      */
     private void initIdConfig(Map<String, ClickHouseIdConfig> newIdConfigMap) throws SQLException {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
-                Statement stat = conn.createStatement();) {
+                Statement stat = conn.createStatement(); ) {
             for (Entry<String, ClickHouseIdConfig> entry : newIdConfigMap.entrySet()) {
                 // parse field list
                 ClickHouseIdConfig idConfig = entry.getValue();
-                idConfig.setContentFieldList(ClickHouseIdConfig.parseFieldNames(idConfig.getContentFieldNames()));
+                idConfig.setContentFieldList(
+                        ClickHouseIdConfig.parseFieldNames(idConfig.getContentFieldNames()));
                 // load db field type
                 Map<String, Integer> fullTypeMap = new HashMap<>();
                 try (ResultSet rs = stat.executeQuery("select * from " + idConfig.getTableName())) {
@@ -156,27 +160,40 @@ public class ClickHouseSinkContext extends SinkContext {
                         fullTypeMap.put(meta.getColumnName(i), meta.getColumnType(i));
                     }
                 } catch (Exception e) {
-                    LOG.error("Can not get metadata,group:{},stream:{},error:{}", idConfig.getInlongGroupId(),
-                            idConfig.getInlongStreamId(), e.getMessage(), e);
+                    LOG.error(
+                            "Can not get metadata,group:{},stream:{},error:{}",
+                            idConfig.getInlongGroupId(),
+                            idConfig.getInlongStreamId(),
+                            e.getMessage(),
+                            e);
                 }
                 // parse db field type
-                List<String> dbFieldNameList = ClickHouseIdConfig.parseFieldNames(idConfig.getDbFieldNames());
+                List<String> dbFieldNameList =
+                        ClickHouseIdConfig.parseFieldNames(idConfig.getDbFieldNames());
                 List<Pair<String, Integer>> dbFieldList = new ArrayList<>(dbFieldNameList.size());
-                dbFieldNameList.forEach((fieldName) -> {
-                    dbFieldList.add(new Pair<>(fieldName, fullTypeMap.getOrDefault(fieldName, Types.VARCHAR)));
-                });
+                dbFieldNameList.forEach(
+                        (fieldName) -> {
+                            dbFieldList.add(
+                                    new Pair<>(
+                                            fieldName,
+                                            fullTypeMap.getOrDefault(fieldName, Types.VARCHAR)));
+                        });
                 idConfig.setDbFieldList(dbFieldList);
                 // load db sql
                 StringBuilder insertSql = new StringBuilder();
                 insertSql.append("insert into ").append(idConfig.getTableName()).append(" (");
-                idConfig.getDbFieldList().forEach((field) -> {
-                    insertSql.append(field.getKey()).append(',');
-                });
+                idConfig.getDbFieldList()
+                        .forEach(
+                                (field) -> {
+                                    insertSql.append(field.getKey()).append(',');
+                                });
                 insertSql.deleteCharAt(insertSql.length() - 1);
                 insertSql.append(") values (");
-                idConfig.getDbFieldList().forEach((field) -> {
-                    insertSql.append("?,");
-                });
+                idConfig.getDbFieldList()
+                        .forEach(
+                                (field) -> {
+                                    insertSql.append("?,");
+                                });
                 insertSql.deleteCharAt(insertSql.length() - 1);
                 insertSql.append(")");
                 idConfig.setInsertSql(insertSql.toString());
@@ -186,7 +203,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      */
     public void addSendMetric(DispatchProfile currentRecord) {
@@ -211,6 +228,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addReadFailMetric
+     *
      * @param errorMsg
      * @param currentRecord
      */
@@ -236,6 +254,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addReadFailMetric
+     *
      * @param errorMsg
      * @param event
      */
@@ -259,9 +278,7 @@ public class ClickHouseSinkContext extends SinkContext {
         metricItem.readFailSize.addAndGet(event.getBody().length);
     }
 
-    /**
-     * addReadFailMetric
-     */
+    /** addReadFailMetric */
     public void addSendFailMetric(String errorMsg) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
@@ -283,7 +300,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addSendSuccessMetric
-     * 
+     *
      * @param currentRecord
      * @param sendTime
      */
@@ -300,7 +317,8 @@ public class ClickHouseSinkContext extends SinkContext {
         long currentTime = System.currentTimeMillis();
         for (ProfileEvent event : currentRecord.getEvents()) {
             long msgTime = event.getRawLogTime();
-            long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+            long auditFormatTime =
+                    msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
             dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
             SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
             metricItem.sendSuccessCount.incrementAndGet();
@@ -317,6 +335,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get nodeId
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -325,6 +344,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set nodeId
+     *
      * @param nodeId the nodeId to set
      */
     public void setNodeId(String nodeId) {
@@ -333,6 +353,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcDriver
+     *
      * @return the jdbcDriver
      */
     public String getJdbcDriver() {
@@ -341,6 +362,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcDriver
+     *
      * @param jdbcDriver the jdbcDriver to set
      */
     public void setJdbcDriver(String jdbcDriver) {
@@ -349,6 +371,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcUrl
+     *
      * @return the jdbcUrl
      */
     public String getJdbcUrl() {
@@ -357,6 +380,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcUrl
+     *
      * @param jdbcUrl the jdbcUrl to set
      */
     public void setJdbcUrl(String jdbcUrl) {
@@ -365,6 +389,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcUsername
+     *
      * @return the jdbcUsername
      */
     public String getJdbcUsername() {
@@ -373,6 +398,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcUsername
+     *
      * @param jdbcUsername the jdbcUsername to set
      */
     public void setJdbcUsername(String jdbcUsername) {
@@ -381,6 +407,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcPassword
+     *
      * @return the jdbcPassword
      */
     public String getJdbcPassword() {
@@ -389,6 +416,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcPassword
+     *
      * @param jdbcPassword the jdbcPassword to set
      */
     public void setJdbcPassword(String jdbcPassword) {
@@ -397,6 +425,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get dispatchQueue
+     *
      * @return the dispatchQueue
      */
     public LinkedBlockingQueue<DispatchProfile> getDispatchQueue() {
@@ -405,8 +434,8 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * getIdConfig
-     * 
-     * @param  uid
+     *
+     * @param uid
      * @return
      */
     public ClickHouseIdConfig getIdConfig(String uid) {
@@ -415,13 +444,14 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * create createEventHandler
-     * 
+     *
      * @return the IEventHandler
      */
     public IEventHandler createEventHandler() {
         // IEventHandler
-        String eventHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HANDLER,
-                DefaultEventHandler.class.getName());
+        String eventHandlerClass =
+                CommonPropertiesHolder.getString(
+                        KEY_EVENT_HANDLER, DefaultEventHandler.class.getName());
         try {
             Class<?> handlerClass = ClassUtils.getClass(eventHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
@@ -430,8 +460,11 @@ public class ClickHouseSinkContext extends SinkContext {
                 return handler;
             }
         } catch (Throwable t) {
-            LOG.error("Fail to init IEventHandler,handlerClass:{},error:{}",
-                    eventHandlerClass, t.getMessage(), t);
+            LOG.error(
+                    "Fail to init IEventHandler,handlerClass:{},error:{}",
+                    eventHandlerClass,
+                    t.getMessage(),
+                    t);
         }
         return null;
     }

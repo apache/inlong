@@ -36,5 +36,4 @@ public class NotExistException extends Exception {
     public NotExistException(Throwable cause) {
         super(cause);
     }
-
 }

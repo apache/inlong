@@ -24,20 +24,28 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-/**
- * test for elasticserach load node
- */
-public class ElasticSearchNodeTest extends SerializeBaseTest<Node>  {
+/** test for elasticserach load node */
+public class ElasticSearchNodeTest extends SerializeBaseTest<Node> {
 
     public ElasticsearchLoadNode getTestObject() {
         return new ElasticsearchLoadNode(
-            "1", "test",
-            Collections.singletonList(new FieldInfo("id", new StringFormatInfo())),
-            Collections.singletonList(
-                new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
-                    new FieldInfo("id", new StringFormatInfo()))),
-            null, null, 1, null,
-            "index", "hosts", "username",
-            "password", "documentType", "age", 7);
+                "1",
+                "test",
+                Collections.singletonList(new FieldInfo("id", new StringFormatInfo())),
+                Collections.singletonList(
+                        new FieldRelation(
+                                new FieldInfo("id", new StringFormatInfo()),
+                                new FieldInfo("id", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
+                "index",
+                "hosts",
+                "username",
+                "password",
+                "documentType",
+                "age",
+                7);
     }
 }

@@ -19,24 +19,15 @@ package org.apache.inlong.manager.workflow.core;
 
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 
-/**
- * WorkflowProcess definition memory
- */
+/** WorkflowProcess definition memory */
 public interface ProcessDefinitionRepository {
 
-    /**
-     * Get process definition by name
-     */
+    /** Get process definition by name */
     WorkflowProcess get(String name);
 
-    /**
-     * Add process definition
-     */
+    /** Add process definition */
     void add(WorkflowProcess process);
 
-    /**
-     * Delete process by name
-     */
+    /** Delete process by name */
     void delete(String name);
-
 }

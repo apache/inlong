@@ -17,16 +17,10 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-/**
- * order direction used in a flink sql
- */
+/** order direction used in a flink sql */
 public enum OrderDirection {
-    /**
-     * Asc for order direction
-     */
+    /** Asc for order direction */
     ASC,
-    /**
-     * Desc for order direction
-     */
+    /** Desc for order direction */
     DESC
 }

@@ -30,5 +30,4 @@ public interface RoleEntityMapper {
     int updateById(RoleEntity record);
 
     int deleteById(Integer id);
-
 }

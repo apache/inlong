@@ -42,18 +42,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Data consumption interface
- */
+/** Data consumption interface */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Consumption-API")
 public class ConsumptionController {
 
-    @Autowired
-    private ConsumptionService consumptionService;
-    @Autowired
-    private ConsumptionProcessService processOperation;
+    @Autowired private ConsumptionService consumptionService;
+    @Autowired private ConsumptionProcessService processOperation;
 
     @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")
@@ -71,7 +67,11 @@ public class ConsumptionController {
 
     @GetMapping("/consumption/get/{id}")
     @ApiOperation(value = "Get consumption details")
-    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Consumption ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ConsumptionInfo> getDetail(@PathVariable(name = "id") Integer id) {
         return Response.success(consumptionService.get(id));
     }
@@ -79,7 +79,11 @@ public class ConsumptionController {
     @DeleteMapping("/consumption/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data consumption")
-    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Consumption ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<Object> delete(@PathVariable(name = "id") Integer id) {
         this.consumptionService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success();
@@ -96,7 +100,8 @@ public class ConsumptionController {
     @PostMapping("/consumption/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data consumption")
-    public Response<String> update(@PathVariable(name = "id") Integer id,
+    public Response<String> update(
+            @PathVariable(name = "id") Integer id,
             @Validated @RequestBody ConsumptionInfo consumptionInfo) {
         consumptionInfo.setId(id);
         consumptionService.update(consumptionInfo, LoginUserUtils.getLoginUser().getName());
@@ -106,10 +111,13 @@ public class ConsumptionController {
     @PostMapping("/consumption/startProcess/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Start approval process")
-    @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Consumption ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(processOperation.startProcess(id, username));
     }
-
 }

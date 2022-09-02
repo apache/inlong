@@ -17,19 +17,15 @@
 
 package org.apache.inlong.manager.service.group;
 
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 
-/**
- * Interface of the inlong group operator.
- */
+/** Interface of the inlong group operator. */
 public interface InlongGroupOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String mqType);
 
     /**
@@ -71,5 +67,4 @@ public interface InlongGroupOperator {
      * @return topic info
      */
     InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo);
-
 }

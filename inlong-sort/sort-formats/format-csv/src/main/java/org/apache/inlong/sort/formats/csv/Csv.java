@@ -30,16 +30,14 @@ import org.apache.inlong.sort.formats.base.TableFormatConstants;
 /**
  * Format descriptor for comma-separated values (CSV).
  *
- * <p>This descriptor aims to comply with RFC-4180 ("Common Format and MIME Type
- * for Comma-Separated Values (CSV) Files") proposed by the Internet Engineering
- * Task Force (IETF).
+ * <p>This descriptor aims to comply with RFC-4180 ("Common Format and MIME Type for Comma-Separated
+ * Values (CSV) Files") proposed by the Internet Engineering Task Force (IETF).
  */
 public class Csv extends FormatDescriptor {
 
     public static final String FORMAT_TYPE_VALUE = "tdcsv";
 
-    private DescriptorProperties internalProperties =
-            new DescriptorProperties(true);
+    private DescriptorProperties internalProperties = new DescriptorProperties(true);
 
     public Csv() {
         super(FORMAT_TYPE_VALUE, 1);
@@ -61,8 +59,8 @@ public class Csv extends FormatDescriptor {
      * @param escapeCharacter escaping character (e.g. backslash).
      */
     public Csv escapeCharacter(char escapeCharacter) {
-        internalProperties
-                .putCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, escapeCharacter);
+        internalProperties.putCharacter(
+                TableFormatConstants.FORMAT_ESCAPE_CHARACTER, escapeCharacter);
         return this;
     }
 
@@ -72,13 +70,13 @@ public class Csv extends FormatDescriptor {
      * @param quoteCharacter quoting character (e.g. quotation).
      */
     public Csv quoteCharacter(char quoteCharacter) {
-        internalProperties.putCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
+        internalProperties.putCharacter(
+                TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
         return this;
     }
 
     /**
-     * Sets the null literal string that is interpreted as a null value
-     * (disabled by default).
+     * Sets the null literal string that is interpreted as a null value (disabled by default).
      *
      * @param nullLiteral null literal (e.g. "null" or "n/a")
      */
@@ -99,9 +97,7 @@ public class Csv extends FormatDescriptor {
         return this;
     }
 
-    /**
-     * Ignores the errors in the serialization and deserialization.
-     */
+    /** Ignores the errors in the serialization and deserialization. */
     public Csv ignoreErrors() {
         internalProperties.putBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS, true);
         return this;
@@ -119,15 +115,13 @@ public class Csv extends FormatDescriptor {
     }
 
     /**
-     * Derives the format schema from the table's schema. Required if no format
-     * schema is defined.
+     * Derives the format schema from the table's schema. Required if no format schema is defined.
      *
      * <p>This allows for defining schema information only once.
      *
-     * <p>The names, types, and fields' order of the format are determined by
-     * the table's schema. Time attributes are ignored if their origin is not a
-     * field. A "from" definition is interpreted as a field renaming in the
-     * format.
+     * <p>The names, types, and fields' order of the format are determined by the table's schema.
+     * Time attributes are ignored if their origin is not a field. A "from" definition is
+     * interpreted as a field renaming in the format.
      */
     public Csv deriveSchema() {
         internalProperties.putBoolean(FORMAT_DERIVE_SCHEMA, true);

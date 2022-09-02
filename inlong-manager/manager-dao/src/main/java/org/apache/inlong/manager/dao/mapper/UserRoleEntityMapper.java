@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.inlong.manager.dao.entity.UserRoleEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface UserRoleEntityMapper {
@@ -34,5 +33,4 @@ public interface UserRoleEntityMapper {
     int updateById(UserRoleEntity record);
 
     int deleteById(Integer id);
-
 }

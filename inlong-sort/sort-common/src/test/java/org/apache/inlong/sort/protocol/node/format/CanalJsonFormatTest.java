@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.node.format;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link CanalJsonFormat}
- */
+/** Test for {@link CanalJsonFormat} */
 public class CanalJsonFormatTest extends SerializeBaseTest<CanalJsonFormat> {
 
     @Override

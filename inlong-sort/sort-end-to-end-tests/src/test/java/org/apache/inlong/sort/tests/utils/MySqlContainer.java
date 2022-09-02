@@ -18,12 +18,11 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Docker container for MySQL. The difference between this class and {@link

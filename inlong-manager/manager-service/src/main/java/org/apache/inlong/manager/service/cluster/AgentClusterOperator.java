@@ -28,9 +28,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterInfo;
 import org.springframework.stereotype.Service;
 
-/**
- * Agent cluster operator.
- */
+/** Agent cluster operator. */
 @Slf4j
 @Service
 public class AgentClusterOperator extends AbstractClusterOperator {
@@ -57,5 +55,4 @@ public class AgentClusterOperator extends AbstractClusterOperator {
         }
         return CommonBeanUtils.copyProperties(entity, AgentClusterInfo::new);
     }
-
 }

@@ -18,17 +18,14 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Unit testing of {@link ThreadSafeCounter}.
- */
+/** Unit testing of {@link ThreadSafeCounter}. */
 public class ThreadSafeCounterTest {
 
     @Test
@@ -52,12 +49,13 @@ public class ThreadSafeCounterTest {
         final ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         final CountDownLatch finished = new CountDownLatch(threadCount);
         for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                for (int j = 0; j < incTimes; j++) {
-                    counter.inc();
-                }
-                finished.countDown();
-            });
+            executorService.submit(
+                    () -> {
+                        for (int j = 0; j < incTimes; j++) {
+                            counter.inc();
+                        }
+                        finished.countDown();
+                    });
         }
         finished.await();
         assertEquals(threadCount * incTimes, counter.getCount());

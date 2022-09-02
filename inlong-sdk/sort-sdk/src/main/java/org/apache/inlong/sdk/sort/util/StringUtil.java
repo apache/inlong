@@ -56,7 +56,8 @@ public class StringUtil {
         if (dateStr == null) {
             return "";
         } else {
-            if (dateStr.matches("\\d{1,4}\\-\\d{1,2}\\-\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{1,3}")) {
+            if (dateStr.matches(
+                    "\\d{1,4}\\-\\d{1,2}\\-\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{1,3}")) {
                 inputFormat = "yyyy-MM-dd HH:mm:ss.SSS";
             } else if (dateStr.matches("\\d{4}\\-\\d{1,2}\\-\\d{1,2} +\\d{1,2}:\\d{1,2}")) {
                 inputFormat = "yyyy-MM-dd HH:mm:ss";
@@ -66,7 +67,8 @@ public class StringUtil {
                 inputFormat = "yyyy-MM-dd HH";
             } else if (dateStr.matches("\\d{4}\\-\\d{1,2}\\-\\d{1,2} +\\d{1,2}")) {
                 inputFormat = "yyyy-MM-dd";
-            } else if (dateStr.matches("\\d{1,4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{1,3}")) {
+            } else if (dateStr.matches(
+                    "\\d{1,4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{1,2}:\\d{1,2}\\.\\d{1,3}")) {
                 inputFormat = "yyyy/MM/dd HH:mm:ss.SSS";
             } else if (dateStr.matches("\\d{4}/\\d{1,2}/\\d{1,2} +\\d{1,2}:\\d{1,2}")) {
                 inputFormat = "yyyy/MM/dd HH:mm:ss";
@@ -105,5 +107,4 @@ public class StringUtil {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(date);
     }
-
 }

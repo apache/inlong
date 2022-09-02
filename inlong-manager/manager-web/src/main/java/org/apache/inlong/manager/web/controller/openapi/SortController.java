@@ -28,22 +28,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Sort controller.
- */
+/** Sort controller. */
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Open-Sort-API")
 public class SortController {
 
-    @Autowired
-    private SortService sortService;
+    @Autowired private SortService sortService;
 
     @GetMapping("/sort/getClusterConfig")
     @ApiOperation(value = "get sort cluster config")
     public SortClusterResponse getSortClusterConfig(
-            @RequestParam String clusterName,
-            @RequestParam String md5) {
+            @RequestParam String clusterName, @RequestParam String md5) {
         return sortService.getClusterConfig(clusterName, md5);
     }
 
@@ -55,5 +51,4 @@ public class SortController {
             @RequestParam String md5) {
         return sortService.getSourceConfig(clusterName, sortTaskId, md5);
     }
-
 }

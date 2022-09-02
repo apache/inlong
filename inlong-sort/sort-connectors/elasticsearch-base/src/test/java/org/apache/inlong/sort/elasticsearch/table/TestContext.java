@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Schema;
@@ -28,10 +31,6 @@ import org.apache.flink.table.catalog.ResolvedCatalogTable;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.factories.DynamicTableFactory;
 import org.apache.flink.table.factories.FactoryUtil;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /** A utility class for mocking {@link DynamicTableFactory.Context}. */
 public class TestContext {

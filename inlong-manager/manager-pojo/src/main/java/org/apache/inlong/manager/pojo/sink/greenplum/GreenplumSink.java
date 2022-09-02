@@ -23,14 +23,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * Greenplum sink info
- */
+/** Greenplum sink info */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -61,5 +59,4 @@ public class GreenplumSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, GreenplumSinkRequest::new);
     }
-
 }

@@ -17,12 +17,7 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.ChannelException;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -31,7 +26,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.ChannelException;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageFilter implements Filter {
 
@@ -44,11 +43,11 @@ public class MessageFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
@@ -90,7 +89,9 @@ public class MessageFilter implements Filter {
             } else if (body.length() > maxMsgLength) {
                 LOG.warn("Received bad request from client. Body length is " + body.length());
                 code = StatusCode.EXCEED_LEN;
-                message = "Bad request from client. Body length is exceeding the limit:" + maxMsgLength;
+                message =
+                        "Bad request from client. Body length is exceeding the limit:"
+                                + maxMsgLength;
             } else {
                 chain.doFilter(request, response);
             }
@@ -111,8 +112,7 @@ public class MessageFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 
     private String getResultContent(int code, String message) {
         StringBuilder builder = new StringBuilder();
@@ -124,5 +124,4 @@ public class MessageFilter implements Filter {
 
         return builder.toString();
     }
-
 }

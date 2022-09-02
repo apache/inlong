@@ -29,12 +29,9 @@ import org.apache.inlong.tubemq.manager.enums.ErrorCode;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TubeMQResult {
-    @Builder.Default
-    private String errMsg = "";
-    @Builder.Default
-    private int errCode = 0;
-    @Builder.Default
-    private boolean result = true;
+    @Builder.Default private String errMsg = "";
+    @Builder.Default private int errCode = 0;
+    @Builder.Default private boolean result = true;
     private Object data;
 
     public static final int ERR_CODE = -1;
@@ -42,32 +39,36 @@ public class TubeMQResult {
     private static Gson json = new Gson();
 
     public static TubeMQResult errorResult(String errorMsg) {
-        return TubeMQResult.builder().errCode(-1)
-                .errMsg(errorMsg).result(false).data("").build();
+        return TubeMQResult.builder().errCode(-1).errMsg(errorMsg).result(false).data("").build();
     }
 
     public static TubeMQResult errorResult(ErrorCode errorCode) {
-        return TubeMQResult.builder().errCode(errorCode.getCode())
-                .errMsg(errorCode.getMessage()).result(false).data("").build();
+        return TubeMQResult.builder()
+                .errCode(errorCode.getCode())
+                .errMsg(errorCode.getMessage())
+                .result(false)
+                .data("")
+                .build();
     }
 
     public static TubeMQResult errorResult(String errorMsg, Integer errorCode) {
-        return TubeMQResult.builder().errCode(errorCode)
-                .errMsg(errorMsg).result(false).data("").build();
+        return TubeMQResult.builder()
+                .errCode(errorCode)
+                .errMsg(errorMsg)
+                .result(false)
+                .data("")
+                .build();
     }
 
     public static TubeMQResult successResult() {
-        return TubeMQResult.builder().errCode(0)
-                .result(true).data("").build();
+        return TubeMQResult.builder().errCode(0).result(true).data("").build();
     }
 
     public static TubeMQResult successResult(Object data) {
-        return TubeMQResult.builder().errCode(0)
-                .result(true).data(data).build();
+        return TubeMQResult.builder().errCode(0).result(true).data(data).build();
     }
 
     public boolean isError() {
         return ERR_CODE == errCode;
     }
-
 }

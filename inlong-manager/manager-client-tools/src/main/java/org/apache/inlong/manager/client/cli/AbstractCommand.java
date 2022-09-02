@@ -21,14 +21,15 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-/**
- * Class for parse command.
- */
+/** Class for parse command. */
 public abstract class AbstractCommand {
 
     protected final JCommander jcommander;
 
-    @Parameter(names = {"-h", "--help"}, help = true, hidden = true)
+    @Parameter(
+            names = {"-h", "--help"},
+            help = true,
+            hidden = true)
     private boolean help;
 
     public AbstractCommand(String cmdName) {

@@ -27,22 +27,22 @@ import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Apply consumption process handler
- */
+/** Apply consumption process handler */
 @Component
 public class ApplyConsumptionProcessHandler implements ProcessDetailHandler {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private ProcessDefinitionService processDefinitionService;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private ProcessDefinitionService processDefinitionService;
 
     @Override
     public ProcessDetailResponse handle(ProcessDetailResponse processResponse) {
-        WorkflowProcess process = processDefinitionService.getByName(processResponse.getWorkflow().getName());
-        ApplyConsumptionProcessForm processForm = WorkflowUtils.parseProcessForm(objectMapper,
-                processResponse.getProcessInfo().getFormData().toString(), process);
+        WorkflowProcess process =
+                processDefinitionService.getByName(processResponse.getWorkflow().getName());
+        ApplyConsumptionProcessForm processForm =
+                WorkflowUtils.parseProcessForm(
+                        objectMapper,
+                        processResponse.getProcessInfo().getFormData().toString(),
+                        process);
         if (processForm == null) {
             return processResponse;
         }
@@ -50,5 +50,4 @@ public class ApplyConsumptionProcessHandler implements ProcessDetailHandler {
         processResponse.getProcessInfo().setFormData(processForm);
         return processResponse;
     }
-
 }

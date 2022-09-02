@@ -22,31 +22,30 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicType;
 import org.apache.inlong.sdk.sort.manager.InlongSingleTopicManager;
 
 /**
- * Inlong topic manager factory.
- * To create single or multi topic fetcher manager according to the {@link TopicType}
+ * Inlong topic manager factory. To create single or multi topic fetcher manager according to the
+ * {@link TopicType}
  */
 public class InlongTopicManagerFactory {
 
     public static TopicManager createInLongTopicManager(
-            TopicType type,
-            ClientContext context,
-            QueryConsumeConfig queryConsumeConfig) {
+            TopicType type, ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         switch (type) {
-            case SINGLE_TOPIC: return createSingleTopicManager(context, queryConsumeConfig);
-            case MULTI_TOPIC: return createMultiTopicManager(context, queryConsumeConfig);
-            default: return createSingleTopicManager(context, queryConsumeConfig);
+            case SINGLE_TOPIC:
+                return createSingleTopicManager(context, queryConsumeConfig);
+            case MULTI_TOPIC:
+                return createMultiTopicManager(context, queryConsumeConfig);
+            default:
+                return createSingleTopicManager(context, queryConsumeConfig);
         }
     }
 
     public static TopicManager createSingleTopicManager(
-            ClientContext context,
-            QueryConsumeConfig queryConsumeConfig) {
+            ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         return new InlongSingleTopicManager(context, queryConsumeConfig);
     }
 
     public static TopicManager createMultiTopicManager(
-            ClientContext context,
-            QueryConsumeConfig queryConsumeConfig) {
+            ClientContext context, QueryConsumeConfig queryConsumeConfig) {
         return null;
     }
 }

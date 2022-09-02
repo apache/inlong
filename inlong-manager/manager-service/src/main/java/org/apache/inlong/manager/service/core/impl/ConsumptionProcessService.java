@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -38,16 +38,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumptionProcessService {
 
-    @Autowired
-    private ConsumptionService consumptionService;
-    @Autowired
-    private WorkflowService workflowService;
-    @Autowired
-    private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
+    @Autowired private ConsumptionService consumptionService;
+    @Autowired private WorkflowService workflowService;
+    @Autowired private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
 
     public WorkflowResult startProcess(Integer id, String operator) {
         ConsumptionInfo consumptionInfo = consumptionService.get(id);
-        Preconditions.checkTrue(ConsumptionStatus.ALLOW_START_WORKFLOW_STATUS.contains(
+        Preconditions.checkTrue(
+                ConsumptionStatus.ALLOW_START_WORKFLOW_STATUS.contains(
                         ConsumptionStatus.fromStatus(consumptionInfo.getStatus())),
                 "current status not allow start workflow");
 
@@ -55,7 +53,9 @@ public class ConsumptionProcessService {
         boolean rowCount = consumptionService.update(consumptionInfo, operator);
         Preconditions.checkTrue(rowCount, "update consumption failed");
 
-        return workflowService.start(ProcessName.APPLY_CONSUMPTION_PROCESS, operator,
+        return workflowService.start(
+                ProcessName.APPLY_CONSUMPTION_PROCESS,
+                operator,
                 genConsumptionProcessForm(consumptionInfo));
     }
 
@@ -64,9 +64,11 @@ public class ConsumptionProcessService {
         Integer id = consumptionInfo.getId();
         String mqType = consumptionInfo.getMqType();
         if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
-            ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(consumptionPulsarEntity,
-                    ConsumptionPulsarInfo::new);
+            ConsumptionPulsarEntity consumptionPulsarEntity =
+                    consumptionPulsarMapper.selectByConsumptionId(id);
+            ConsumptionPulsarInfo pulsarInfo =
+                    CommonBeanUtils.copyProperties(
+                            consumptionPulsarEntity, ConsumptionPulsarInfo::new);
             consumptionInfo.setMqExtInfo(pulsarInfo);
         }
         form.setConsumptionInfo(consumptionInfo);

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
 import com.sleepycat.persist.model.Entity;
@@ -31,8 +28,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 public class BdbTopicAuthControlEntity implements Serializable {
 
     private static final long serialVersionUID = 7356175918639562340L;
-    @PrimaryKey
-    private String topicName;
+    @PrimaryKey private String topicName;
     private int enableAuthControl = -1; // -1 : undefine; 0: disable, 1: enable
     // ** Based on the data compatibility consideration of the original version:
     //     the creation information in this example is the last modified information,
@@ -41,12 +37,10 @@ public class BdbTopicAuthControlEntity implements Serializable {
     private Date createDate;
     private String attributes;
 
-    public BdbTopicAuthControlEntity() {
+    public BdbTopicAuthControlEntity() {}
 
-    }
-
-    public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String modifyUser, Date modifyDate) {
+    public BdbTopicAuthControlEntity(
+            String topicName, boolean enableAuthControl, String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
@@ -57,8 +51,12 @@ public class BdbTopicAuthControlEntity implements Serializable {
         this.createDate = modifyDate;
     }
 
-    public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String attributes,  String modifyUser, Date modifyDate) {
+    public BdbTopicAuthControlEntity(
+            String topicName,
+            boolean enableAuthControl,
+            String attributes,
+            String modifyUser,
+            Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
@@ -112,8 +110,8 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public long getDataVerId() {
         String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+                TStringUtils.getAttrValFrmAttributes(
+                        this.attributes, TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -122,15 +120,16 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public void setDataVerId(long dataVerId) {
         this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
+                TStringUtils.setAttrValToAttributes(
+                        this.attributes,
                         TStoreConstants.TOKEN_DATA_VERSION_ID,
                         String.valueOf(dataVerId));
     }
 
     public int getTopicId() {
         String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TOPICNAME_ID);
+                TStringUtils.getAttrValFrmAttributes(
+                        this.attributes, TStoreConstants.TOKEN_TOPICNAME_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -139,15 +138,16 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public void setTopicId(int topicId) {
         this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
+                TStringUtils.setAttrValToAttributes(
+                        this.attributes,
                         TStoreConstants.TOKEN_TOPICNAME_ID,
                         String.valueOf(topicId));
     }
 
     public int getMaxMsgSize() {
         String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
+                TStringUtils.getAttrValFrmAttributes(
+                        this.attributes, TStoreConstants.TOKEN_MAX_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -156,7 +156,8 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public void setMaxMsgSize(int maxMsgSize) {
         this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
+                TStringUtils.setAttrValToAttributes(
+                        this.attributes,
                         TStoreConstants.TOKEN_MAX_MSG_SIZE,
                         String.valueOf(maxMsgSize));
     }
@@ -164,14 +165,14 @@ public class BdbTopicAuthControlEntity implements Serializable {
     public void setCreateInfo(String createUser, Date createDate) {
         if (TStringUtils.isNotBlank(createUser)) {
             this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+                    TStringUtils.setAttrValToAttributes(
+                            this.attributes, TStoreConstants.TOKEN_CREATE_USER, createUser);
         }
         if (createDate != null) {
             String dataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
             this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+                    TStringUtils.setAttrValToAttributes(
+                            this.attributes, TStoreConstants.TOKEN_CREATE_DATE, dataStr);
         }
     }
 
@@ -181,8 +182,9 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public Date getCreateDate() {
-        String dateStr = TStringUtils.getAttrValFrmAttributes(
-                this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        String dateStr =
+                TStringUtils.getAttrValFrmAttributes(
+                        this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
         return DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr);
     }
 
@@ -197,13 +199,21 @@ public class BdbTopicAuthControlEntity implements Serializable {
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         return sBuilder.append("{\"type\":\"BdbConsumerGroupEntity\",")
-                .append("\"topicName\":\"").append(topicName)
-                .append("\",\"enableAuthControl\":\"").append(enableAuthControl)
-                .append("\",\"createUser\":\"").append(getCreateUser())
-                .append("\",\"createDate\":\"").append(getStrCreateDate())
-                .append("\",\"modifyUser\":\"").append(createUser)
-                .append("\",\"modifyDate\":\"").append(getStrModifyDate())
-                .append("\",\"attributes\":\"").append(attributes).append("\"}");
+                .append("\"topicName\":\"")
+                .append(topicName)
+                .append("\",\"enableAuthControl\":\"")
+                .append(enableAuthControl)
+                .append("\",\"createUser\":\"")
+                .append(getCreateUser())
+                .append("\",\"createDate\":\"")
+                .append(getStrCreateDate())
+                .append("\",\"modifyUser\":\"")
+                .append(createUser)
+                .append("\",\"modifyDate\":\"")
+                .append(getStrModifyDate())
+                .append("\",\"attributes\":\"")
+                .append(attributes)
+                .append("\"}");
     }
 
     @Override

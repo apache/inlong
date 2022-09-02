@@ -30,13 +30,12 @@ public interface InLongTopicChangeListener {
      * @param removedInLongTopics Set
      * @return true/false
      */
-    boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics,
+    boolean onAssignmentsChange(
+            Set<InLongTopic> allInLongTopics,
             Set<InLongTopic> newInLongTopics,
             Set<InLongTopic> removedInLongTopics);
 
-    /**
-     * callbak sort to ack
-     */
+    /** callbak sort to ack */
     boolean requestAck(String sortTaskId);
 
     /**
@@ -46,5 +45,4 @@ public interface InLongTopicChangeListener {
      * @return String Offset
      */
     String offlineAndGetAckOffset(String msgKey);
-
 }

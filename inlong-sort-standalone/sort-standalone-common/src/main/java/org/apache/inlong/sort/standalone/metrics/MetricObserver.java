@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.metrics;
 
 import java.util.ArrayList;
@@ -24,17 +21,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-/**
- * 
- * MetricObserver
- */
+/** MetricObserver */
 public class MetricObserver {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(MetricObserver.class);
@@ -43,7 +36,7 @@ public class MetricObserver {
 
     /**
      * init
-     * 
+     *
      * @param commonProperties
      */
     public static void init(Map<String, String> commonProperties) {
@@ -61,28 +54,36 @@ public class MetricObserver {
         String[] domains = metricDomains.split("\\s+");
         for (String domain : domains) {
             // get domain parameters
-            Context domainContext = new Context(
-                    context.getSubProperties(MetricListener.KEY_METRIC_DOMAINS + "." + domain + "."));
+            Context domainContext =
+                    new Context(
+                            context.getSubProperties(
+                                    MetricListener.KEY_METRIC_DOMAINS + "." + domain + "."));
             List<MetricListener> listenerList = parseDomain(domain, domainContext);
             // no listener
             if (listenerList == null || listenerList.size() <= 0) {
                 continue;
             }
             // get snapshot interval
-            long snapshotInterval = domainContext.getLong(MetricListener.KEY_SNAPSHOT_INTERVAL, 60000L);
-            LOG.info("begin to register domain:{},MetricListeners:{},snapshotInterval:{}", domain, listenerList,
+            long snapshotInterval =
+                    domainContext.getLong(MetricListener.KEY_SNAPSHOT_INTERVAL, 60000L);
+            LOG.info(
+                    "begin to register domain:{},MetricListeners:{},snapshotInterval:{}",
+                    domain,
+                    listenerList,
                     snapshotInterval);
-            statExecutor.scheduleWithFixedDelay(new MetricListenerRunnable(domain, listenerList), snapshotInterval,
-                    snapshotInterval, TimeUnit.MILLISECONDS);
+            statExecutor.scheduleWithFixedDelay(
+                    new MetricListenerRunnable(domain, listenerList),
+                    snapshotInterval,
+                    snapshotInterval,
+                    TimeUnit.MILLISECONDS);
         }
-
     }
 
     /**
      * parseDomain
-     * 
-     * @param  domain
-     * @param  context
+     *
+     * @param domain
+     * @param context
      * @return
      */
     private static List<MetricListener> parseDomain(String domain, Context domainContext) {
@@ -104,8 +105,7 @@ public class MetricObserver {
                 final MetricListener listener = (MetricListener) listenerObject;
                 listenerList.add(listener);
             } catch (Throwable t) {
-                LOG.error("Fail to init MetricListener:{},error:{}",
-                        listenerType, t.getMessage());
+                LOG.error("Fail to init MetricListener:{},error:{}", listenerType, t.getMessage());
                 continue;
             }
         }

@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
+import java.util.List;
+import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -25,17 +27,10 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
-/**
- * Interface of the sink operator
- */
+/** Interface of the sink operator */
 public interface StreamSinkOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String sinkType);
 
     /**
@@ -82,9 +77,9 @@ public interface StreamSinkOperator {
 
     /**
      * Update the sink fields.
-     * <p/>
-     * If `onlyAdd` is <code>true</code>, only adding is allowed, modification and deletion are not allowed,
-     * and the order of existing fields cannot be changed
+     *
+     * <p>If `onlyAdd` is <code>true</code>, only adding is allowed, modification and deletion are
+     * not allowed, and the order of existing fields cannot be changed
      *
      * @param onlyAdd whether to add fields only.
      * @param request sink request info needs to update

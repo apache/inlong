@@ -18,20 +18,17 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.PartitionInfo;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-
-/**
- * Test for PartitionerSelector
- */
+/** Test for PartitionerSelector */
 public class PartitionerSelectorTest {
 
     private static final String V_INLONG_ID = "testId";
@@ -46,20 +43,30 @@ public class PartitionerSelectorTest {
             List<Node> nodes = new ArrayList<>();
             nodes.add(node);
             List<PartitionInfo> partitionInfos = new ArrayList<>();
-            partitionInfos.add(new PartitionInfo(V_INLONG_ID_TOPIC, 0,
-                    node, new Node[0], new Node[0]));
-            partitionInfos.add(new PartitionInfo(V_INLONG_ID_TOPIC, 1,
-                    node, new Node[0], new Node[0]));
+            partitionInfos.add(
+                    new PartitionInfo(V_INLONG_ID_TOPIC, 0, node, new Node[0], new Node[0]));
+            partitionInfos.add(
+                    new PartitionInfo(V_INLONG_ID_TOPIC, 1, node, new Node[0], new Node[0]));
 
             PartitionerSelector obj = new PartitionerSelector();
             HashMap<String, Object> configs = new HashMap<>();
             configs.put(ProducerConfig.CLIENT_ID_CONFIG, "clientId");
             obj.configure(configs);
-            Cluster cluster = new Cluster("clusterId", nodes, partitionInfos,
-                    new HashSet<String>(), new HashSet<String>());
-            obj.partition(V_INLONG_ID_TOPIC, null, null, null,null, cluster);
-            obj.partition(V_INLONG_ID_TOPIC, "", V_INLONG_ID.getBytes(),
-                    V_INLONG_ID.getBytes(), V_INLONG_ID.getBytes(), cluster);
+            Cluster cluster =
+                    new Cluster(
+                            "clusterId",
+                            nodes,
+                            partitionInfos,
+                            new HashSet<String>(),
+                            new HashSet<String>());
+            obj.partition(V_INLONG_ID_TOPIC, null, null, null, null, cluster);
+            obj.partition(
+                    V_INLONG_ID_TOPIC,
+                    "",
+                    V_INLONG_ID.getBytes(),
+                    V_INLONG_ID.getBytes(),
+                    V_INLONG_ID.getBytes(),
+                    cluster);
             obj.onNewBatch(V_INLONG_ID_TOPIC, cluster, 0);
             obj.close();
         } catch (Exception e) {

@@ -18,20 +18,6 @@
 
 package org.apache.inlong.sort.tests;
 
-import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
-import org.apache.inlong.sort.tests.utils.JdbcProxy;
-import org.apache.inlong.sort.tests.utils.PlaceholderResolver;
-import org.apache.inlong.sort.tests.utils.TestUtils;
-import org.junit.AfterClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.Container.ExecResult;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.utility.DockerImageName;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -47,10 +33,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
+import org.apache.inlong.sort.tests.utils.JdbcProxy;
+import org.apache.inlong.sort.tests.utils.PlaceholderResolver;
+import org.apache.inlong.sort.tests.utils.TestUtils;
+import org.junit.AfterClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.Container.ExecResult;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.utility.DockerImageName;
 
-/**
- * End-to-end tests for sort-connector-kafka uber jar.
- */
+/** End-to-end tests for sort-connector-kafka uber jar. */
 public class KafkaE2ECase extends FlinkContainerTestEnv {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaE2ECase.class);
 
@@ -96,9 +93,10 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
     private String getCreateStatement(String fileName, Map<String, Object> properties) {
         try {
             Path file = Paths.get(KafkaE2ECase.class.getResource("/env/" + fileName).toURI());
-            return PlaceholderResolver.getDefaultResolver().resolveByMap(
-                    new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
-                    properties);
+            return PlaceholderResolver.getDefaultResolver()
+                    .resolveByMap(
+                            new String(Files.readAllBytes(file), StandardCharsets.UTF_8),
+                            properties);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -110,7 +108,8 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
             ExecResult result = KAFKA.execInContainer("bash", "-c", createKafkaStatement);
             LOG.info("Create kafka topic: {}, std: {}", createKafkaStatement, result.getStdout());
             if (result.getExitCode() != 0) {
-                throw new RuntimeException("Init kafka topic failed. Exit code:" + result.getExitCode());
+                throw new RuntimeException(
+                        "Init kafka topic failed. Exit code:" + result.getExitCode());
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -119,7 +118,8 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
     private void initializeMysqlTable(String fileName, Map<String, Object> properties) {
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                        DriverManager.getConnection(
+                                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             String createMysqlStatement = getCreateStatement(fileName, properties);
             stat.execute(createMysqlStatement);
@@ -138,25 +138,30 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String topic = "test-topic";
         final String mysqlInputTable = "test_input";
         final String mysqlOutputTable = "test_output";
-        initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
-            {
-                put("MYSQL_INPUT_TABLE", mysqlInputTable);
-                put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
-            }
-        });
-        initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
-            {
-                put("TOPIC", topic);
-                put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
-            }
-        });
+        initializeMysqlTable(
+                "kafka_test_mysql_init.txt",
+                new HashMap() {
+                    {
+                        put("MYSQL_INPUT_TABLE", mysqlInputTable);
+                        put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
+                    }
+                });
+        initializeKafkaTable(
+                "kafka_test_kafka_init.txt",
+                new HashMap() {
+                    {
+                        put("TOPIC", topic);
+                        put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
+                    }
+                });
         String sqlFile = getSql("kafka_test.sql", new HashMap<>()).toString();
         submitSQLJob(sqlFile, kafkaJar, jdbcJar, mysqlJar, mysqlJdbcJar);
         waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                        DriverManager.getConnection(
+                                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input "
@@ -170,16 +175,16 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
         // validate output
         JdbcProxy proxy =
-                new JdbcProxy(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword(), MYSQL_DRIVER_CLASS);
+                new JdbcProxy(
+                        MYSQL.getJdbcUrl(),
+                        MYSQL.getUsername(),
+                        MYSQL.getPassword(),
+                        MYSQL_DRIVER_CLASS);
         List<String> expectResult =
                 Arrays.asList(
                         "1,jacket,water resistent white wind breaker,0.2,,,",
                         "2,scooter,Big 2-wheel scooter ,5.18,,,");
-        proxy.checkResultWithTimeout(
-                expectResult,
-                "test_output",
-                7,
-                60000L);
+        proxy.checkResultWithTimeout(expectResult, "test_output", 7, 60000L);
     }
 
     @Test
@@ -187,32 +192,41 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String topic = "test_topic_for_group_file";
         final String mysqlInputTable = "test_input_for_group_file";
         final String mysqlOutputTable = "test_output_for_group_file";
-        initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
-            {
-                put("MYSQL_INPUT_TABLE", mysqlInputTable);
-                put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
-            }
-        });
-        initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
-            {
-                put("TOPIC", topic);
-                put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
-            }
-        });
-        String groupFile = getGroupFile("kafka_test.json", new HashMap() {
-            {
-                put("MYSQL_INPUT_TABLE", mysqlInputTable);
-                put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
-                put("TOPIC", topic);
-                put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
-            }
-        }).toString();
+        initializeMysqlTable(
+                "kafka_test_mysql_init.txt",
+                new HashMap() {
+                    {
+                        put("MYSQL_INPUT_TABLE", mysqlInputTable);
+                        put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
+                    }
+                });
+        initializeKafkaTable(
+                "kafka_test_kafka_init.txt",
+                new HashMap() {
+                    {
+                        put("TOPIC", topic);
+                        put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
+                    }
+                });
+        String groupFile =
+                getGroupFile(
+                                "kafka_test.json",
+                                new HashMap() {
+                                    {
+                                        put("MYSQL_INPUT_TABLE", mysqlInputTable);
+                                        put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
+                                        put("TOPIC", topic);
+                                        put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
+                                    }
+                                })
+                        .toString();
         submitGroupFileJob(groupFile, kafkaJar, jdbcJar, mysqlJar, mysqlJdbcJar);
         waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
         try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+                        DriverManager.getConnection(
+                                MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input_for_group_file "
@@ -227,15 +241,15 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
 
         // validate output
         JdbcProxy proxy =
-                new JdbcProxy(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword(), MYSQL_DRIVER_CLASS);
+                new JdbcProxy(
+                        MYSQL.getJdbcUrl(),
+                        MYSQL.getUsername(),
+                        MYSQL.getPassword(),
+                        MYSQL_DRIVER_CLASS);
         List<String> expectResult =
                 Arrays.asList(
                         "1,jacket,water resistent white wind breaker,0.2,null,null,null",
                         "2,scooter,Big 2-wheel scooter ,5.18,null,null,null");
-        proxy.checkResultWithTimeout(
-                expectResult,
-                mysqlOutputTable,
-                7,
-                60000L);
+        proxy.checkResultWithTimeout(expectResult, mysqlOutputTable, 7, 60000L);
     }
 }

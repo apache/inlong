@@ -19,19 +19,16 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * WorkflowTask
- */
+/** WorkflowTask */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public abstract class WorkflowTask extends NextableElement {
@@ -41,9 +38,7 @@ public abstract class WorkflowTask extends NextableElement {
     private Map<TaskEvent, List<TaskEventListener>> listeners = Maps.newHashMap();
     private Map<String, TaskEventListener> nameToListenerMap = Maps.newHashMap();
 
-    /**
-     * Add listener for workflow task.
-     */
+    /** Add listener for workflow task. */
     public WorkflowTask addListener(TaskEventListener listener) {
         if (nameToListenerMap.containsKey(listener.name())) {
             throw new WorkflowListenerException(
@@ -55,9 +50,7 @@ public abstract class WorkflowTask extends NextableElement {
         return this;
     }
 
-    /**
-     * Get sync task event listener list.
-     */
+    /** Get sync task event listener list. */
     public List<TaskEventListener> listeners(TaskEvent taskEvent) {
         return this.listeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LISTENERS);
     }
@@ -79,5 +72,4 @@ public abstract class WorkflowTask extends NextableElement {
         cloneTask.setNameToListenerMap(new HashMap<>(nameToListenerMap));
         return cloneTask;
     }
-
 }

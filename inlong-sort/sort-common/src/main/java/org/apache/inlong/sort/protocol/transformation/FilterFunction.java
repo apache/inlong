@@ -23,18 +23,11 @@ import org.apache.inlong.sort.protocol.transformation.function.BetweenFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 
-/**
- * interface for filter functions
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** interface for filter functions */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
-        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
-        @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction")
+    @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
+    @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
+    @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction")
 })
-public interface FilterFunction extends Function {
-
-}
+public interface FilterFunction extends Function {}

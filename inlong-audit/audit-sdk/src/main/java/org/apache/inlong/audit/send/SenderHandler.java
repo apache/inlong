@@ -35,11 +35,9 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         this.manager = manager;
     }
 
-    /**
-     * Message Received
-     */
+    /** Message Received */
     @Override
-    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e)  {
+    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e) {
         try {
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {
@@ -47,9 +45,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         }
     }
 
-    /**
-     * Caught exception
-     */
+    /** Caught exception */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
         try {
@@ -59,9 +55,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         }
     }
 
-    /**
-     * Disconnected channel
-     */
+    /** Disconnected channel */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         try {
@@ -71,9 +65,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         }
     }
 
-    /**
-     * Closed channel
-     */
+    /** Closed channel */
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         try {

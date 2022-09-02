@@ -29,40 +29,25 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 
-/**
- * The deserializer for the records in InLongMsgCsv format.
- */
-public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsgMixedFormatDeserializer {
+/** The deserializer for the records in InLongMsgCsv format. */
+public final class InLongMsgCsvMixedFormatDeserializer
+        extends AbstractInLongMsgMixedFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * The delimiter between fields.
-     */
-    @Nonnull
-    private final Character delimiter;
+    /** The delimiter between fields. */
+    @Nonnull private final Character delimiter;
 
-    /**
-     * The charset of the text.
-     */
-    @Nonnull
-    private final String charset;
+    /** The charset of the text. */
+    @Nonnull private final String charset;
 
-    /**
-     * Escape character. Null if escaping is disabled.
-     */
-    @Nullable
-    private final Character escapeChar;
+    /** Escape character. Null if escaping is disabled. */
+    @Nullable private final Character escapeChar;
 
-    /**
-     * Quote character. Null if quoting is disabled.
-     */
-    @Nullable
-    private final Character quoteChar;
+    /** Quote character. Null if quoting is disabled. */
+    @Nullable private final Character quoteChar;
 
-    /**
-     * True if the head delimiter should be removed.
-     */
+    /** True if the head delimiter should be removed. */
     private final boolean deleteHeadDelimiter;
 
     public InLongMsgCsvMixedFormatDeserializer(
@@ -71,8 +56,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             boolean deleteHeadDelimiter,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         super(ignoreErrors);
 
         this.delimiter = delimiter;
@@ -89,8 +73,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
                 null,
                 null,
                 InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
-                TableFormatConstants.DEFAULT_IGNORE_ERRORS
-        );
+                TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
@@ -106,13 +89,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
     @Override
     protected InLongMsgBody parseBody(byte[] bytes) {
         return InLongMsgCsvUtils.parseBody(
-                bytes,
-                charset,
-                delimiter,
-                escapeChar,
-                quoteChar,
-                deleteHeadDelimiter
-        );
+                bytes, charset, delimiter, escapeChar, quoteChar, deleteHeadDelimiter);
     }
 
     @Override
@@ -136,15 +113,15 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
 
         InLongMsgCsvMixedFormatDeserializer that = (InLongMsgCsvMixedFormatDeserializer) o;
         return deleteHeadDelimiter == that.deleteHeadDelimiter
-                       && charset.equals(that.charset)
-                       && delimiter.equals(that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar);
+                && charset.equals(that.charset)
+                && delimiter.equals(that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), charset, delimiter, escapeChar,
-                quoteChar, deleteHeadDelimiter);
+        return Objects.hash(
+                super.hashCode(), charset, delimiter, escapeChar, quoteChar, deleteHeadDelimiter);
     }
 }

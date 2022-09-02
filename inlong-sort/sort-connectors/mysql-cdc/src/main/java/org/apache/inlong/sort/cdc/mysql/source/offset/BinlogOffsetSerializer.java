@@ -18,11 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.offset;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.util.Map;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Serializer implementation for a {@link BinlogOffset}. */
 @Internal

@@ -18,6 +18,13 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -39,17 +46,7 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Kafka extract node for extract data from kafka
- */
+/** Kafka extract node for extract data from kafka */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaExtract")
 @Data
@@ -60,9 +57,11 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     @Nonnull
     @JsonProperty("topic")
     private String topic;
+
     @Nonnull
     @JsonProperty("bootstrapServers")
     private String bootstrapServers;
+
     @Nonnull
     @JsonProperty("format")
     private Format format;
@@ -80,7 +79,8 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     private String scanSpecificOffsets;
 
     @JsonCreator
-    public KafkaExtractNode(@JsonProperty("id") String id,
+    public KafkaExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
@@ -94,13 +94,16 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             @JsonProperty("scanSpecificOffsets") String scanSpecificOffsets) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
-        this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
+        this.bootstrapServers =
+                Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
         this.format = Preconditions.checkNotNull(format, "kafka format is empty");
-        this.kafkaScanStartupMode = Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
+        this.kafkaScanStartupMode =
+                Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
         this.primaryKey = primaryKey;
         this.groupId = groupId;
         if (kafkaScanStartupMode == KafkaScanStartupMode.SPECIFIC_OFFSETS) {
-            Preconditions.checkArgument(StringUtils.isNotEmpty(scanSpecificOffsets), "scanSpecificOffsets is empty");
+            Preconditions.checkArgument(
+                    StringUtils.isNotEmpty(scanSpecificOffsets), "scanSpecificOffsets is empty");
             this.scanSpecificOffsets = scanSpecificOffsets;
         }
     }
@@ -115,7 +118,9 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         Map<String, String> options = super.tableOptions();
         options.put(KafkaConstant.TOPIC, topic);
         options.put(KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
-        if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
+        if (format instanceof JsonFormat
+                || format instanceof AvroFormat
+                || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
                 options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
@@ -194,8 +199,10 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
                 metadataKey = "value.update-before";
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                        this.getClass().getSimpleName(), metaField));
+                throw new UnsupportedOperationException(
+                        String.format(
+                                "Unsupport meta field for %s: %s",
+                                this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
     }
@@ -207,8 +214,18 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
-                MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
-                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.OP_TYPE,
+                MetaField.DATABASE_NAME,
+                MetaField.SQL_TYPE,
+                MetaField.PK_NAMES,
+                MetaField.TS,
+                MetaField.OP_TS,
+                MetaField.IS_DDL,
+                MetaField.MYSQL_TYPE,
+                MetaField.BATCH_ID,
+                MetaField.UPDATE_BEFORE);
     }
 }

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class to create instances from class objects and checking failure reasons.
  *
- * <p>Copied from Flink project.</p>
+ * <p>Copied from Flink project.
  */
 public class InstantiationUtil {
 
@@ -93,9 +93,10 @@ public class InstantiationUtil {
         final ClassLoader old = Thread.currentThread().getContextClassLoader();
         // not using resource try to avoid AutoClosable's close() on the given stream
         try {
-            ObjectInputStream oois = isFailureTolerant
-                    ? new InstantiationUtil.FailureTolerantObjectInputStream(in, cl)
-                    : new InstantiationUtil.ClassLoaderObjectInputStream(in, cl);
+            ObjectInputStream oois =
+                    isFailureTolerant
+                            ? new InstantiationUtil.FailureTolerantObjectInputStream(in, cl)
+                            : new InstantiationUtil.ClassLoaderObjectInputStream(in, cl);
             Thread.currentThread().setContextClassLoader(cl);
             return (T) oois.readObject();
         } finally {
@@ -103,9 +104,7 @@ public class InstantiationUtil {
         }
     }
 
-    /**
-     * A custom ObjectInputStream that can load classes using a specific ClassLoader.
-     */
+    /** A custom ObjectInputStream that can load classes using a specific ClassLoader. */
     public static class ClassLoaderObjectInputStream extends ObjectInputStream {
 
         protected final ClassLoader classLoader;
@@ -197,15 +196,15 @@ public class InstantiationUtil {
      * GenericData.Array (from Avro) by a dummy class so that the KryoSerializer can still be
      * deserialized without Avro being on the classpath.
      *
-     * <p>Uses this specific object input stream to read serializers,
-     * so that mismatching serialVersionUIDs of anonymous classes / Scala serializers are ignored.
-     * This is a required workaround to maintain backwards compatibility for our pre-1.3 Scala
-     * serializers. See FLINK-6869 for details.</p>
+     * <p>Uses this specific object input stream to read serializers, so that mismatching
+     * serialVersionUIDs of anonymous classes / Scala serializers are ignored. This is a required
+     * workaround to maintain backwards compatibility for our pre-1.3 Scala serializers. See
+     * FLINK-6869 for details.
      *
      * @see <a href="https://issues.apache.org/jira/browse/FLINK-6869">FLINK-6869</a>
      */
-    public static class FailureTolerantObjectInputStream extends
-            InstantiationUtil.ClassLoaderObjectInputStream {
+    public static class FailureTolerantObjectInputStream
+            extends InstantiationUtil.ClassLoaderObjectInputStream {
 
         // initialize this set to support compatible manually
         private static final Set<String> compatibleClasses = new HashSet<>();
@@ -230,9 +229,10 @@ public class InstantiationUtil {
             if (compatibleClasses.contains(name) || isAnonymousClass(localClass)) {
                 final ObjectStreamClass localClassDescriptor = ObjectStreamClass.lookup(localClass);
                 if (localClassDescriptor != null
-                        && localClassDescriptor.getSerialVersionUID() != streamClassDescriptor
-                        .getSerialVersionUID()) {
-                    LOG.warn("Ignoring serialVersionUID mismatch for class {}; was {}, now {}.",
+                        && localClassDescriptor.getSerialVersionUID()
+                                != streamClassDescriptor.getSerialVersionUID()) {
+                    LOG.warn(
+                            "Ignoring serialVersionUID mismatch for class {}; was {}, now {}.",
                             streamClassDescriptor.getName(),
                             streamClassDescriptor.getSerialVersionUID(),
                             localClassDescriptor.getSerialVersionUID());
@@ -243,7 +243,6 @@ public class InstantiationUtil {
 
             return streamClassDescriptor;
         }
-
     }
 
     private static boolean isAnonymousClass(Class clazz) {
@@ -264,5 +263,4 @@ public class InstantiationUtil {
             return false;
         }
     }
-
 }

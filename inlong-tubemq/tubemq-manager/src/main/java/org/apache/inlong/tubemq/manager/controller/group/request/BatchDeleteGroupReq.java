@@ -17,17 +17,14 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.request;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.GroupAuthItem;
 
-import java.util.List;
-
-/**
- * Batch delete group info
- */
+/** Batch delete group info */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

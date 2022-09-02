@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,29 +34,25 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * MySql load node can load data into MySql
- */
+/** MySql load node can load data into MySql */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlLoad")
 @Data
 @NoArgsConstructor
 public class MySqlLoadNode extends LoadNode implements InlongMetric, Serializable {
-    /**
-     * jdbc:mysql://host:port/database
-     */
+    /** jdbc:mysql://host:port/database */
     @JsonProperty("url")
     private String url;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("tableName")
     private String tableName;
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -72,7 +71,15 @@ public class MySqlLoadNode extends LoadNode implements InlongMetric, Serializabl
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");

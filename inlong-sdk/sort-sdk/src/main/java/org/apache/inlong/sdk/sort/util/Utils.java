@@ -47,8 +47,8 @@ public class Utils {
 
     public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
 
-
-    private static ConcurrentHashMap<String, AtomicLong> timeMap = new ConcurrentHashMap<String, AtomicLong>();
+    private static ConcurrentHashMap<String, AtomicLong> timeMap =
+            new ConcurrentHashMap<String, AtomicLong>();
 
     public static double toKB(long bytes) {
         return bytes / 1024d;
@@ -68,8 +68,14 @@ public class Utils {
         bytes[1] = (byte) ((ipInt >>> 16) & 0xFF);
         bytes[2] = (byte) ((ipInt >>> 8) & 0xFF);
         bytes[3] = (byte) (ipInt & 0xFF);
-        return "" + (bytes[0] & 0x00FF) + '.' + (bytes[1] & 0x00FF) + '.' + (bytes[2] & 0x00FF)
-                + '.' + (bytes[3] & 0x00FF);
+        return ""
+                + (bytes[0] & 0x00FF)
+                + '.'
+                + (bytes[1] & 0x00FF)
+                + '.'
+                + (bytes[2] & 0x00FF)
+                + '.'
+                + (bytes[3] & 0x00FF);
     }
 
     public static String bytesToStr(byte[] value, String charsetName, String defaultValue) {
@@ -129,7 +135,6 @@ public class Utils {
     public static String getUUID() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString().replaceAll("-", "");
-
     }
 
     public static String toStr(String splitChar, Object... objs) {
@@ -188,7 +193,7 @@ public class Utils {
         GZIPInputStream gzip = null;
         int initBufSize = 8192;
         try {
-            //int inputLength=(data.length-(startOffset==0? 0:startOffset));
+            // int inputLength=(data.length-(startOffset==0? 0:startOffset));
             ByteArrayInputStream in = new ByteArrayInputStream(data, startOffset, dataLength);
             gzip = new GZIPInputStream(in, 8192);
 
@@ -261,5 +266,4 @@ public class Utils {
         V v = map.get(k);
         return (v != null ? v : defaultV);
     }
-
 }

@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-/**
- * Oracle source request
- */
+/** Oracle source request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -69,5 +67,4 @@ public class OracleSourceRequest extends SourceRequest {
     public OracleSourceRequest() {
         this.setSourceType(SourceType.ORACLE);
     }
-
 }

@@ -27,12 +27,9 @@ import java.util.function.Function;
 import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * Data consumption status
- */
+/** Data consumption status */
 @ApiModel("Data consumption status")
 public enum ConsumptionStatus {
-
     @ApiModelProperty(value = "To be allocated: 10")
     WAIT_ASSIGN(10),
 
@@ -48,16 +45,17 @@ public enum ConsumptionStatus {
     @ApiModelProperty(value = "Cancel application: 22")
     CANCELED(22);
 
-    public static final Set<ConsumptionStatus> ALLOW_SAVE_UPDATE_STATUS = ImmutableSet
-            .of(WAIT_ASSIGN, REJECTED, CANCELED);
+    public static final Set<ConsumptionStatus> ALLOW_SAVE_UPDATE_STATUS =
+            ImmutableSet.of(WAIT_ASSIGN, REJECTED, CANCELED);
 
-    public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAIT_ASSIGN);
+    public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS =
+            ImmutableSet.of(WAIT_ASSIGN);
 
-    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InlongCollectionUtils.transformToImmutableMap(
-            Lists.newArrayList(ConsumptionStatus.values()),
-            ConsumptionStatus::getStatus,
-            Function.identity()
-    );
+    private static final Map<Integer, ConsumptionStatus> STATUS_MAP =
+            InlongCollectionUtils.transformToImmutableMap(
+                    Lists.newArrayList(ConsumptionStatus.values()),
+                    ConsumptionStatus::getStatus,
+                    Function.identity());
 
     private final int status;
 
@@ -74,5 +72,4 @@ public enum ConsumptionStatus {
     public int getStatus() {
         return status;
     }
-
 }

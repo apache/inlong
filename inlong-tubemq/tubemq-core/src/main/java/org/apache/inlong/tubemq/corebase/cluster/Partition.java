@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase.cluster;
 
 import java.io.Serializable;
@@ -41,9 +38,7 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param topic
      * @param partitionId
      */
-    public Partition(final BrokerInfo broker,
-                     final String topic,
-                     final int partitionId) {
+    public Partition(final BrokerInfo broker, final String topic, final int partitionId) {
         super();
         this.broker = broker;
         this.topic = topic;
@@ -54,11 +49,10 @@ public class Partition implements Comparable<Partition>, Serializable {
     /**
      * create a Partition with full part info String
      *
-     * @param strPartInfo   the partition information in string format
+     * @param strPartInfo the partition information in string format
      */
     public Partition(String strPartInfo) {
-        this.broker =
-                new BrokerInfo(strPartInfo.split(TokenConstants.SEGMENT_SEP)[0]);
+        this.broker = new BrokerInfo(strPartInfo.split(TokenConstants.SEGMENT_SEP)[0]);
         String strInfo = strPartInfo.split(TokenConstants.SEGMENT_SEP)[1];
         this.topic = strInfo.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(strInfo.split(TokenConstants.ATTR_SEP)[1]);
@@ -71,8 +65,7 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param broker
      * @param partStr
      */
-    public Partition(BrokerInfo broker,
-                     String partStr) {
+    public Partition(BrokerInfo broker, String partStr) {
         this.broker = broker;
         this.topic = partStr.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(partStr.split(TokenConstants.ATTR_SEP)[1]);
@@ -192,23 +185,32 @@ public class Partition implements Comparable<Partition>, Serializable {
         return true;
     }
 
-    /**
-     * init some string info of partition
-     */
+    /** init some string info of partition */
     private void builderPartitionStr() {
         StringBuilder sBuilder = new StringBuilder(256);
-        this.partitionKey = sBuilder.append(this.broker.getBrokerId())
-                .append(TokenConstants.ATTR_SEP).append(this.topic)
-                .append(TokenConstants.ATTR_SEP).append(this.partitionId).toString();
+        this.partitionKey =
+                sBuilder.append(this.broker.getBrokerId())
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.topic)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.partitionId)
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.partitionFullStr = sBuilder.append(this.broker.toString())
-                .append(TokenConstants.SEGMENT_SEP).append(this.topic)
-                .append(TokenConstants.ATTR_SEP).append(this.partitionId).toString();
+        this.partitionFullStr =
+                sBuilder.append(this.broker.toString())
+                        .append(TokenConstants.SEGMENT_SEP)
+                        .append(this.topic)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.partitionId)
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.partitionTLSFullStr = sBuilder.append(this.broker.getFullTLSInfo())
-                .append(TokenConstants.SEGMENT_SEP).append(this.topic)
-                .append(TokenConstants.ATTR_SEP).append(this.partitionId).toString();
-
+        this.partitionTLSFullStr =
+                sBuilder.append(this.broker.getFullTLSInfo())
+                        .append(TokenConstants.SEGMENT_SEP)
+                        .append(this.topic)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.partitionId)
+                        .toString();
     }
 
     @Override
@@ -228,7 +230,5 @@ public class Partition implements Comparable<Partition>, Serializable {
         } else {
             return this.partitionFullStr;
         }
-
     }
-
 }

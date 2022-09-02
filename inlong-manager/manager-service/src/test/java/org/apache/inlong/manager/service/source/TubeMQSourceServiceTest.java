@@ -29,19 +29,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * TubeMQ source service test.
- */
+/** TubeMQ source service test. */
 public class TubeMQSourceServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save source info.
-     */
+    /** Save source info. */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
         TubeMQSourceRequest sourceInfo = new TubeMQSourceRequest();
@@ -78,10 +72,10 @@ public class TubeMQSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
         TubeMQSource tubeMQSource = (TubeMQSource) response;
-        TubeMQSourceRequest request = CommonBeanUtils.copyProperties(tubeMQSource, TubeMQSourceRequest::new);
+        TubeMQSourceRequest request =
+                CommonBeanUtils.copyProperties(tubeMQSource, TubeMQSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
-
 }

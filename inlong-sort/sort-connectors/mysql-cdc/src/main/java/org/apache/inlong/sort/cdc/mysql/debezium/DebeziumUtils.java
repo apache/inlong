@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils.listTables;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnection;
@@ -33,6 +35,10 @@ import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.connection.JdbcConnectionFactory;
@@ -40,23 +46,12 @@ import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils.listTables;
-
-/**
- * Utilities related to Debezium.
- */
+/** Utilities related to Debezium. */
 public class DebeziumUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DebeziumUtils.class);
 
-    /**
-     * Creates and opens a new {@link JdbcConnection} backing connection pool.
-     */
+    /** Creates and opens a new {@link JdbcConnection} backing connection pool. */
     public static JdbcConnection openJdbcConnection(MySqlSourceConfig sourceConfig) {
         JdbcConnection jdbc =
                 new JdbcConnection(
@@ -71,25 +66,20 @@ public class DebeziumUtils {
         return jdbc;
     }
 
-    /**
-     * Creates a new {@link MySqlConnection}, but not open the connection.
-     */
+    /** Creates a new {@link MySqlConnection}, but not open the connection. */
     public static MySqlConnection createMySqlConnection(MySqlSourceConfig sourceConfig) {
         return new MySqlConnection(
-                new MySqlConnection.MySqlConnectionConfiguration(sourceConfig.getDbzConfiguration()));
+                new MySqlConnection.MySqlConnectionConfiguration(
+                        sourceConfig.getDbzConfiguration()));
     }
 
-    /**
-     * Creates a new {@link MySqlConnection}, but not open the connection.
-     */
+    /** Creates a new {@link MySqlConnection}, but not open the connection. */
     public static MySqlConnection createMySqlConnection(Configuration dbzConfiguration) {
         return new MySqlConnection(
                 new MySqlConnection.MySqlConnectionConfiguration(dbzConfiguration));
     }
 
-    /**
-     * Creates a new {@link BinaryLogClient} for consuming mysql binlog.
-     */
+    /** Creates a new {@link BinaryLogClient} for consuming mysql binlog. */
     public static BinaryLogClient createBinaryClient(Configuration dbzConfiguration) {
         final MySqlConnectorConfig connectorConfig = new MySqlConnectorConfig(dbzConfiguration);
         return new BinaryLogClient(
@@ -99,9 +89,7 @@ public class DebeziumUtils {
                 connectorConfig.password());
     }
 
-    /**
-     * Creates a new {@link MySqlDatabaseSchema} to monitor the latest MySql database schemas.
-     */
+    /** Creates a new {@link MySqlDatabaseSchema} to monitor the latest MySql database schemas. */
     public static MySqlDatabaseSchema createMySqlDatabaseSchema(
             MySqlConnectorConfig dbzMySqlConfig, boolean isTableIdCaseSensitive) {
         TopicSelector<TableId> topicSelector = MySqlTopicSelector.defaultSelector(dbzMySqlConfig);
@@ -115,9 +103,7 @@ public class DebeziumUtils {
                 isTableIdCaseSensitive);
     }
 
-    /**
-     * Fetch current binlog offsets in MySql Server.
-     */
+    /** Fetch current binlog offsets in MySql Server. */
     public static BinlogOffset currentBinlogOffset(JdbcConnection jdbc) {
         final String showMasterStmt = "SHOW MASTER STATUS";
         try {

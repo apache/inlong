@@ -17,20 +17,20 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The Avro format.
  *
- * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/avro/">Avro
- *         Format</a>
+ * @see <a
+ *     href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/avro/">Avro
+ *     Format</a>
  */
 @JsonTypeName("avroFormat")
 @Data
@@ -47,8 +47,7 @@ public class AvroFormat implements Format {
     }
 
     @JsonCreator
-    public AvroFormat() {
-    }
+    public AvroFormat() {}
 
     /**
      * Return avro

@@ -27,7 +27,7 @@ public interface ServiceDecoder {
 
     /**
      * extract data from buffer and convert it into map.
-     * 
+     *
      * @param cb
      * @param channel
      * @return Map

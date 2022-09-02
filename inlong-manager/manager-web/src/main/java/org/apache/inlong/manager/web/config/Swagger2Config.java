@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.web.config;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -27,13 +30,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-/**
- * Swagger2 API Configuration
- */
+/** Swagger2 API Configuration */
 @Configuration
 @EnableSwagger2
 public class Swagger2Config {
@@ -58,5 +55,4 @@ public class Swagger2Config {
                 .version("2.0")
                 .build();
     }
-
 }

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
@@ -24,13 +27,7 @@ import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * Make database as Source
- */
+/** Make database as Source */
 public class DatabaseSqlSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSqlSource.class);
@@ -41,8 +38,7 @@ public class DatabaseSqlSource extends AbstractSource {
 
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
-    public DatabaseSqlSource() {
-    }
+    public DatabaseSqlSource() {}
 
     /**
      * Use SQL to read data.

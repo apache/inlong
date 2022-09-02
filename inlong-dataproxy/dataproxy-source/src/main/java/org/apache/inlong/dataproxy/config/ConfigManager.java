@@ -17,7 +17,14 @@
 
 package org.apache.inlong.dataproxy.config;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
+
 import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -42,38 +49,34 @@ import org.apache.inlong.dataproxy.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
-
-/**
- * Config manager class.
- */
+/** Config manager class. */
 public class ConfigManager {
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
     private static volatile boolean isInit = false;
     private static ConfigManager instance = null;
 
-    private final PropertiesConfigHolder commonConfig = new PropertiesConfigHolder("common.properties");
-    private final MQClusterConfigHolder mqClusterConfigHolder = new MQClusterConfigHolder("mq_cluster.properties");
-    private final PropertiesConfigHolder topicConfig = new PropertiesConfigHolder("topics.properties");
+    private final PropertiesConfigHolder commonConfig =
+            new PropertiesConfigHolder("common.properties");
+    private final MQClusterConfigHolder mqClusterConfigHolder =
+            new MQClusterConfigHolder("mq_cluster.properties");
+    private final PropertiesConfigHolder topicConfig =
+            new PropertiesConfigHolder("topics.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
 
-    private final GroupIdPropertiesHolder groupIdConfig = new GroupIdPropertiesHolder("groupid_mapping.properties");
-    private final PropertiesConfigHolder dcConfig = new PropertiesConfigHolder("dc_mapping.properties");
-    private final PropertiesConfigHolder transferConfig = new PropertiesConfigHolder("transfer.properties");
-    private final PropertiesConfigHolder tubeSwitchConfig = new PropertiesConfigHolder("tube_switch.properties");
-    private final PropertiesConfigHolder weightHolder = new PropertiesConfigHolder("weight.properties");
+    private final GroupIdPropertiesHolder groupIdConfig =
+            new GroupIdPropertiesHolder("groupid_mapping.properties");
+    private final PropertiesConfigHolder dcConfig =
+            new PropertiesConfigHolder("dc_mapping.properties");
+    private final PropertiesConfigHolder transferConfig =
+            new PropertiesConfigHolder("transfer.properties");
+    private final PropertiesConfigHolder tubeSwitchConfig =
+            new PropertiesConfigHolder("tube_switch.properties");
+    private final PropertiesConfigHolder weightHolder =
+            new PropertiesConfigHolder("weight.properties");
     private final FileConfigHolder blackListConfig = new FileConfigHolder("blacklist.properties");
 
-    /**
-     * get instance for config manager
-     */
+    /** get instance for config manager */
     public static ConfigManager getInstance() {
         if (isInit && instance != null) {
             return instance;
@@ -109,8 +112,8 @@ public class ConfigManager {
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
-    private boolean updatePropertiesHolder(Map<String, String> result, PropertiesConfigHolder holder,
-            boolean addElseRemove) {
+    private boolean updatePropertiesHolder(
+            Map<String, String> result, PropertiesConfigHolder holder, boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
 
@@ -207,9 +210,7 @@ public class ConfigManager {
         return mqClusterConfigHolder.getUrl2token();
     }
 
-    /**
-     * load worker
-     */
+    /** load worker */
     public static class ReloadConfigWorker extends Thread {
 
         private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
@@ -229,9 +230,11 @@ public class ConfigManager {
 
         private synchronized CloseableHttpClient constructHttpClient() {
             long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout((int) timeoutInMs)
-                    .setSocketTimeout((int) timeoutInMs).build();
+            RequestConfig requestConfig =
+                    RequestConfig.custom()
+                            .setConnectTimeout((int) timeoutInMs)
+                            .setSocketTimeout((int) timeoutInMs)
+                            .build();
             HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
             httpClientBuilder.setDefaultRequestConfig(requestConfig);
             return httpClientBuilder.build();
@@ -242,7 +245,8 @@ public class ConfigManager {
         }
 
         private long getSleepTime() {
-            String sleepTimeInMsStr = configManager.getCommonProperties().get(CONFIG_CHECK_INTERVAL);
+            String sleepTimeInMsStr =
+                    configManager.getCommonProperties().get(CONFIG_CHECK_INTERVAL);
             long sleepTimeInMs = 10000;
             try {
                 if (sleepTimeInMsStr != null) {
@@ -275,7 +279,11 @@ public class ConfigManager {
 
             HttpPost httpPost = null;
             try {
-                String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
+                String url =
+                        "http://"
+                                + host
+                                + ConfigConstants.MANAGER_PATH
+                                + ConfigConstants.MANAGER_GET_CONFIG_PATH;
                 httpPost = new HttpPost(url);
                 httpPost.addHeader(HttpHeaders.CONNECTION, "close");
                 httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
@@ -315,7 +323,9 @@ public class ConfigManager {
                     for (MQClusterInfo mqCluster : clusterSet) {
                         String key = MQClusterConfigHolder.URL_STORE_PREFIX + index;
                         String value =
-                                mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR + mqCluster.getToken();
+                                mqCluster.getUrl()
+                                        + AttributeConstants.KEY_VALUE_SEPARATOR
+                                        + mqCluster.getToken();
                         mqConfig.put(key, value);
                         ++index;
                     }
@@ -336,7 +346,8 @@ public class ConfigManager {
 
                     // store mq common configs and url2token
                     configManager.getMqClusterConfig().putAll(mqConfig);
-                    configManager.getMqClusterHolder()
+                    configManager
+                            .getMqClusterHolder()
                             .setUrl2token(configManager.getMqClusterHolder().getUrl2token());
                 } else {
                     LOG.error("getConfig from manager error: {}", configJson.getErrMsg());
@@ -354,9 +365,12 @@ public class ConfigManager {
 
         private void checkRemoteConfig() {
             try {
-                String managerHosts = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
-                String proxyClusterName = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_NAME);
-                String proxyClusterTag = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_TAG);
+                String managerHosts =
+                        configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
+                String proxyClusterName =
+                        configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_NAME);
+                String proxyClusterTag =
+                        configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_TAG);
                 if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
                     return;
                 }

@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
+import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -46,10 +49,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
-
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * A {@link DynamicTableSink} that describes how to create a {@link ElasticsearchSink} from a
@@ -84,7 +83,13 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             TableSchema schema,
             String inLongMetric,
             String auditHostAndPorts) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new), inLongMetric, auditHostAndPorts);
+        this(
+                format,
+                config,
+                schema,
+                (ElasticsearchSink.Builder::new),
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     Elasticsearch6DynamicSink(
@@ -213,9 +218,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                 List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
     }
 
-    /**
-     * Serializable {@link RestClientFactory} used by the sink.
-     */
+    /** Serializable {@link RestClientFactory} used by the sink. */
     @VisibleForTesting
     static class DefaultRestClientFactory implements RestClientFactory {
 
@@ -250,9 +253,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         }
     }
 
-    /**
-     * Serializable {@link RestClientFactory} used by the sink which enable authentication.
-     */
+    /** Serializable {@link RestClientFactory} used by the sink which enable authentication. */
     @VisibleForTesting
     static class AuthRestClientFactory implements RestClientFactory {
 

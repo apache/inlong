@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.client.api.inner.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApproverApi;
@@ -30,20 +32,15 @@ import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Client for {@link org.apache.inlong.manager.client.api.service.WorkflowApproverApi}.
- */
+/** Client for {@link org.apache.inlong.manager.client.api.service.WorkflowApproverApi}. */
 @Slf4j
 public class WorkflowApproverClient {
 
     private final WorkflowApproverApi workflowApproverApi;
 
     public WorkflowApproverClient(ClientConfiguration configuration) {
-        workflowApproverApi = ClientUtils.createRetrofit(configuration)
-                .create(WorkflowApproverApi.class);
+        workflowApproverApi =
+                ClientUtils.createRetrofit(configuration).create(WorkflowApproverApi.class);
     }
 
     /**
@@ -71,7 +68,8 @@ public class WorkflowApproverClient {
     public ApproverResponse get(Integer id) {
         Preconditions.checkNotNull(id, "id cannot be null");
 
-        Response<ApproverResponse> response = ClientUtils.executeHttpCall(workflowApproverApi.get(id));
+        Response<ApproverResponse> response =
+                ClientUtils.executeHttpCall(workflowApproverApi.get(id));
         ClientUtils.assertRespSuccess(response);
 
         return response.getData();
@@ -87,11 +85,11 @@ public class WorkflowApproverClient {
         Preconditions.checkNotNull(request.getPageNum(), "page num cannot be null");
         Preconditions.checkNotNull(request.getPageSize(), "page size cannot be null");
 
-        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
-                new TypeReference<Map<String, Object>>() {
-                });
-        Response<PageResult<ApproverResponse>> response = ClientUtils.executeHttpCall(
-                workflowApproverApi.listByCondition(requestMap));
+        Map<String, Object> requestMap =
+                JsonUtils.OBJECT_MAPPER.convertValue(
+                        request, new TypeReference<Map<String, Object>>() {});
+        Response<PageResult<ApproverResponse>> response =
+                ClientUtils.executeHttpCall(workflowApproverApi.listByCondition(requestMap));
         ClientUtils.assertRespSuccess(response);
 
         return response.getData().getList();
@@ -119,10 +117,10 @@ public class WorkflowApproverClient {
     public Integer update(ApproverRequest request) {
         Preconditions.checkNotNull(request.getId(), "id cannot be null");
 
-        Response<Integer> response = ClientUtils.executeHttpCall(workflowApproverApi.update(request));
+        Response<Integer> response =
+                ClientUtils.executeHttpCall(workflowApproverApi.update(request));
         ClientUtils.assertRespSuccess(response);
 
         return response.getData();
     }
-
 }

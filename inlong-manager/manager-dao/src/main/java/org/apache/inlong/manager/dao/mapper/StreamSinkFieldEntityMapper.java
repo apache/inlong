@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface StreamSinkFieldEntityMapper {
@@ -32,7 +31,8 @@ public interface StreamSinkFieldEntityMapper {
 
     StreamSinkFieldEntity selectByPrimaryKey(Integer id);
 
-    List<StreamSinkFieldEntity> selectFields(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSinkFieldEntity> selectFields(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * According to the sink id, query the sink field.
@@ -57,5 +57,4 @@ public interface StreamSinkFieldEntityMapper {
      * @return rows deleted.
      */
     int deleteAll(@Param("sinkId") Integer sinkId);
-
 }

@@ -17,6 +17,15 @@
 
 package org.apache.inlong.sort.jdbc.internal;
 
+import static org.apache.flink.connector.jdbc.utils.JdbcUtils.getPrimaryKey;
+import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
+import static org.apache.flink.util.Preconditions.checkArgument;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.function.Function;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -30,24 +39,14 @@ import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.function.Function;
-
-import static org.apache.flink.connector.jdbc.utils.JdbcUtils.getPrimaryKey;
-import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
-import static org.apache.flink.util.Preconditions.checkArgument;
-
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
- * Add an option `inlong.metric` to support metrics.
+ * <p>Add an option `inlong.metric` to support metrics.
  */
 class TableJdbcUpsertOutputFormat
         extends JdbcBatchingOutputFormat<
-        Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
+                Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableJdbcUpsertOutputFormat.class);
     private final StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
@@ -77,10 +76,14 @@ class TableJdbcUpsertOutputFormat
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
                     deleteStatementExecutorFactory,
             String inLongMetric,
-            String auditHostAndPorts
-    ) {
-        super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
-                inLongMetric, auditHostAndPorts);
+            String auditHostAndPorts) {
+        super(
+                connectionProvider,
+                batchOptions,
+                statementExecutorFactory,
+                tuple2 -> tuple2.f1,
+                inLongMetric,
+                auditHostAndPorts);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
     }
 

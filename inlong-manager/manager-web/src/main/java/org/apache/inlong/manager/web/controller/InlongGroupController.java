@@ -46,18 +46,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Inlong group control layer
- */
+/** Inlong group control layer */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Inlong-Group-API")
 public class InlongGroupController {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupProcessService groupProcessOperation;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongGroupProcessService groupProcessOperation;
 
     @RequestMapping(value = "/group/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
@@ -69,30 +65,41 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/get/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong group")
-    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @ApiImplicitParam(
+            name = "groupId",
+            value = "Inlong group id",
+            dataTypeClass = String.class,
+            required = true)
     public Response<InlongGroupInfo> get(@PathVariable String groupId) {
         return Response.success(groupService.get(groupId));
     }
 
     @RequestMapping(value = "/group/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong groups by paginating")
-    public Response<PageResult<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
+    public Response<PageResult<InlongGroupBriefInfo>> listBrief(
+            @RequestBody InlongGroupPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(groupService.listBrief(request));
     }
 
     @RequestMapping(value = "/group/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong group")
-    public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
+    public Response<String> update(
+            @Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupService.update(groupRequest, operator));
     }
 
     @RequestMapping(value = "/group/exist/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Is the inlong group id exists")
-    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @ApiImplicitParam(
+            name = "groupId",
+            value = "Inlong group id",
+            dataTypeClass = String.class,
+            required = true)
     public Response<Boolean> exist(@PathVariable String groupId) {
         return Response.success(groupService.exist(groupId));
     }
@@ -131,7 +138,11 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/delete/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @ApiImplicitParam(
+            name = "groupId",
+            value = "Inlong group id",
+            dataTypeClass = String.class,
+            required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
@@ -156,7 +167,11 @@ public class InlongGroupController {
     @RequestMapping(value = "/group/deleteAsync/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    @ApiImplicitParam(
+            name = "groupId",
+            value = "Inlong group id",
+            dataTypeClass = String.class,
+            required = true)
     public Response<String> deleteAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
@@ -169,7 +184,8 @@ public class InlongGroupController {
     }
 
     @PostMapping(value = "/group/reset")
-    @ApiOperation(value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
+    @ApiOperation(
+            value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
     public Response<Boolean> reset(@RequestBody @Validated InlongGroupResetRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.resetGroupStatus(request, operator));

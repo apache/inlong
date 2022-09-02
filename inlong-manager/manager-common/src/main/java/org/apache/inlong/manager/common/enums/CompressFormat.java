@@ -19,11 +19,8 @@ package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
 
-/**
- * Enum of data compress.
- */
+/** Enum of data compress. */
 public enum CompressFormat {
-
     NONE("none"),
     DEFLATE("deflate"),
     GZIP("gzip"),
@@ -31,16 +28,13 @@ public enum CompressFormat {
     LZ4("lz4"),
     SNAPPY("snappy");
 
-    @Getter
-    private final String name;
+    @Getter private final String name;
 
     CompressFormat(String name) {
         this.name = name;
     }
 
-    /**
-     * Get data compress format by name.
-     */
+    /** Get data compress format by name. */
     public static CompressFormat forName(String name) {
         for (CompressFormat compressFormat : values()) {
             if (compressFormat.getName().equalsIgnoreCase(name)) {
@@ -49,5 +43,4 @@ public enum CompressFormat {
         }
         throw new IllegalArgumentException(String.format("Unsupport CompressionFormat:%s", name));
     }
-
 }

@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.controller.node.request;
 
 import java.util.List;
-
 import lombok.Data;
 import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
 

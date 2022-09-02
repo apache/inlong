@@ -17,6 +17,12 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
@@ -24,16 +30,7 @@ import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Utils for Hive JDBC.
- */
+/** Utils for Hive JDBC. */
 public class HiveJdbcUtils {
 
     private static final String HIVE_DRIVER_CLASS = "org.apache.hive.jdbc.HiveDriver";
@@ -43,10 +40,9 @@ public class HiveJdbcUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveJdbcUtils.class);
 
-    /**
-     * Get Hive connection from hive url and user
-     */
-    public static Connection getConnection(String url, String user, String password) throws Exception {
+    /** Get Hive connection from hive url and user */
+    public static Connection getConnection(String url, String user, String password)
+            throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(HIVE_JDBC_PREFIX)) {
             throw new Exception("hive server url should start with " + HIVE_JDBC_PREFIX);
         }
@@ -57,7 +53,8 @@ public class HiveJdbcUtils {
             LOGGER.info("get hive connection success, url={}", url);
             return conn;
         } catch (Exception e) {
-            String errMsg = "get hive connection error, please check hive jdbc url, username or password";
+            String errMsg =
+                    "get hive connection error, please check hive jdbc url, username or password";
             LOGGER.error(errMsg, e);
             throw new Exception(errMsg + ", error: " + e.getMessage());
         }
@@ -72,7 +69,8 @@ public class HiveJdbcUtils {
      * @param password password of hive server
      * @throws Exception when executing error
      */
-    public static void executeSql(String sql, String url, String user, String password) throws Exception {
+    public static void executeSql(String sql, String url, String user, String password)
+            throws Exception {
         try (Connection conn = getConnection(url, user, password);
                 Statement stmt = conn.createStatement()) {
 
@@ -81,29 +79,26 @@ public class HiveJdbcUtils {
         }
     }
 
-    /**
-     * Create Hive database
-     */
-    public static void createDb(String url, String user, String password, String dbName) throws Exception {
+    /** Create Hive database */
+    public static void createDb(String url, String user, String password, String dbName)
+            throws Exception {
         String createDbSql = SqlBuilder.buildCreateDbSql(dbName);
         executeSql(createDbSql, url, user, password);
     }
 
-    /**
-     * Create Hive table
-     */
-    public static void createTable(String url, String user, String password, HiveTableInfo tableInfo) throws Exception {
+    /** Create Hive table */
+    public static void createTable(
+            String url, String user, String password, HiveTableInfo tableInfo) throws Exception {
         String createTableSql = SqlBuilder.buildCreateTableSql(tableInfo);
         HiveJdbcUtils.executeSql(createTableSql, url, user, password);
     }
 
-    /**
-     * Get Hive tables from the Hive metadata
-     */
-    public static List<String> getTables(String url, String user, String password, String dbName) throws Exception {
+    /** Get Hive tables from the Hive metadata */
+    public static List<String> getTables(String url, String user, String password, String dbName)
+            throws Exception {
         try (Connection conn = getConnection(url, user, password)) {
             HiveDatabaseMetaData metaData = (HiveDatabaseMetaData) conn.getMetaData();
-            ResultSet rs = metaData.getTables(dbName, dbName, null, new String[]{METADATA_TYPE});
+            ResultSet rs = metaData.getTables(dbName, dbName, null, new String[] {METADATA_TYPE});
             List<String> tables = new ArrayList<>();
             while (rs.next()) {
                 String tableName = rs.getString(COLUMN_LABEL);
@@ -115,11 +110,10 @@ public class HiveJdbcUtils {
         }
     }
 
-    /**
-     * Query Hive columns
-     */
-    public static List<HiveColumnInfo> getColumns(String url, String user, String password, String dbName,
-            String tableName) throws Exception {
+    /** Query Hive columns */
+    public static List<HiveColumnInfo> getColumns(
+            String url, String user, String password, String dbName, String tableName)
+            throws Exception {
 
         String querySql = SqlBuilder.buildDescTableSql(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
@@ -137,13 +131,16 @@ public class HiveJdbcUtils {
         }
     }
 
-    /**
-     * Add columns for Hive table
-     */
-    public static void addColumns(String url, String user, String password, String dbName, String tableName,
-            List<HiveColumnInfo> columnList) throws Exception {
+    /** Add columns for Hive table */
+    public static void addColumns(
+            String url,
+            String user,
+            String password,
+            String dbName,
+            String tableName,
+            List<HiveColumnInfo> columnList)
+            throws Exception {
         String addColumnSql = SqlBuilder.buildAddColumnSql(dbName, tableName, columnList);
         HiveJdbcUtils.executeSql(addColumnSql, url, user, password);
     }
-
 }

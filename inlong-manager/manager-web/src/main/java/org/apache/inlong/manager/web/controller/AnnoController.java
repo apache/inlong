@@ -36,22 +36,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Anno controller, such as login, register, etc.
- */
+/** Anno controller, such as login, register, etc. */
 @Slf4j
 @RestController
 @RequestMapping("/api")
 @Api(tags = "User-Anno-API")
 public class AnnoController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
     @PostMapping("/anno/login")
     public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(loginRequest.getUsername(), loginRequest.getPassword());
+        UsernamePasswordToken token =
+                new UsernamePasswordToken(loginRequest.getUsername(), loginRequest.getPassword());
         subject.login(token);
         LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
 
@@ -69,5 +67,4 @@ public class AnnoController {
         SecurityUtils.getSubject().logout();
         return Response.success(true);
     }
-
 }

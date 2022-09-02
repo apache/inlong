@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *     .withDeprecatedKeys("cpu.threshold");
  * }</pre>
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.
  */
 public class ConfigOptions {
 
@@ -70,9 +70,7 @@ public class ConfigOptions {
      */
     public static final class OptionBuilder {
 
-        /**
-         * The key for the config option.
-         */
+        /** The key for the config option. */
         private final String key;
 
         /**
@@ -87,8 +85,8 @@ public class ConfigOptions {
         /**
          * Creates a ConfigOption with the given default value.
          *
-         * <p>This method does not accept "null". For options with no default value, choose
-         * one of the {@code noDefaultValue} methods.</p>
+         * <p>This method does not accept "null". For options with no default value, choose one of
+         * the {@code noDefaultValue} methods.
          *
          * @param value The default value for the config option
          * @param <T> The type of the default value.
@@ -112,9 +110,6 @@ public class ConfigOptions {
 
     // ------------------------------------------------------------------------
 
-    /**
-     * Not intended to be instantiated.
-     */
-    private ConfigOptions() {
-    }
+    /** Not intended to be instantiated. */
+    private ConfigOptions() {}
 }

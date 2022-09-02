@@ -20,6 +20,8 @@ package org.apache.inlong.manager.pojo.sink.dlciceberg;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,12 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.Map;
-
-/**
- * DLCIceberg sink info
- */
+/** DLCIceberg sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -59,9 +56,7 @@ public class DLCIcebergSinkDTO {
     @ApiModelProperty("Properties for DLCIceberg")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static DLCIcebergSinkDTO getFromRequest(DLCIcebergSinkRequest request) {
         return DLCIcebergSinkDTO.builder()
                 .catalogUri(request.getCatalogUri())
@@ -73,16 +68,14 @@ public class DLCIcebergSinkDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from json
-     */
+    /** Get the dto instance from json */
     public static DLCIcebergSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, DLCIcebergSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

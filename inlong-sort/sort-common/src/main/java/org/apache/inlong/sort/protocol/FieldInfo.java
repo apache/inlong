@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import javax.annotation.Nullable;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -30,38 +32,31 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
-        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField")
+    @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
+    @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField")
 })
 @Data
 public class FieldInfo implements FunctionParam, Serializable {
 
     private static final long serialVersionUID = 5871970550803344673L;
+
     @JsonProperty("name")
     private final String name;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("nodeId")
     private String nodeId;
-    @JsonIgnore
-    private String tableNameAlias;
-    /**
-     * It will be null if the field is a meta field
-     */
+
+    @JsonIgnore private String tableNameAlias;
+    /** It will be null if the field is a meta field */
     @Nullable
     @JsonProperty("formatInfo")
     private FormatInfo formatInfo;
 
     public FieldInfo(
-            @JsonProperty("name") String name,
-            @JsonProperty("formatInfo") FormatInfo formatInfo) {
+            @JsonProperty("name") String name, @JsonProperty("formatInfo") FormatInfo formatInfo) {
         this(name, null, formatInfo);
     }
 

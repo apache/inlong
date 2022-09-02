@@ -17,16 +17,15 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import java.io.IOException;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.io.IOException;
-
 /**
- * AuthInterceptor
- * Before okhttp call a request, uniformly encapsulate the relevant parameters of authentication
+ * AuthInterceptor Before okhttp call a request, uniformly encapsulate the relevant parameters of
+ * authentication
  */
 public class AuthInterceptor implements Interceptor {
 
@@ -41,15 +40,19 @@ public class AuthInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request oldRequest = chain.request();
-        HttpUrl.Builder builder = oldRequest.url()
-                .newBuilder()
-                .addEncodedQueryParameter("username", username)
-                .addEncodedQueryParameter("password", password);
+        HttpUrl.Builder builder =
+                oldRequest
+                        .url()
+                        .newBuilder()
+                        .addEncodedQueryParameter("username", username)
+                        .addEncodedQueryParameter("password", password);
 
-        Request newRequest = oldRequest.newBuilder()
-                .method(oldRequest.method(), oldRequest.body())
-                .url(builder.build())
-                .build();
+        Request newRequest =
+                oldRequest
+                        .newBuilder()
+                        .method(oldRequest.method(), oldRequest.body())
+                        .url(builder.build())
+                        .build();
 
         return chain.proceed(newRequest);
     }

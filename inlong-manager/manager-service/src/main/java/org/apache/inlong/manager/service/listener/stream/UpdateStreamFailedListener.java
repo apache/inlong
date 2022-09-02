@@ -29,15 +29,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongStream when update operates failed.
- */
+/** The listener of InlongStream when update operates failed. */
 @Slf4j
 @Component
 public class UpdateStreamFailedListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -51,9 +48,9 @@ public class UpdateStreamFailedListener implements ProcessEventListener {
         final String operator = context.getOperator();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), operator);
+        streamService.updateStatus(
+                groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), operator);
         streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
-
 }

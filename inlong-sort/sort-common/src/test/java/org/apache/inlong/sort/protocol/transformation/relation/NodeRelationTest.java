@@ -17,13 +17,10 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.SerializeBaseTest;
 
-import java.util.Arrays;
-
-/**
- * Tests for {@link NodeRelation}
- */
+/** Tests for {@link NodeRelation} */
 public class NodeRelationTest extends SerializeBaseTest<NodeRelation> {
 
     @Override

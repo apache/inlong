@@ -19,9 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 
-/**
- * Sort source service.
- */
+/** Sort source service. */
 public interface SortSourceService {
 
     /**

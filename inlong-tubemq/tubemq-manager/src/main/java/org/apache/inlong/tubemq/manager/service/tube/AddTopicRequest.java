@@ -19,9 +19,7 @@ package org.apache.inlong.tubemq.manager.service.tube;
 
 import lombok.Data;
 
-/**
- * Request of add topic
- */
+/** Request of add topic */
 @Data
 public class AddTopicRequest {
     private Integer brokerId;

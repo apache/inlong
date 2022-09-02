@@ -20,7 +20,6 @@ package org.apache.inlong.sort.protocol.enums;
 import java.util.Locale;
 
 public enum PulsarScanStartupMode {
-
     EARLIEST("earliest"),
     LATEST("latest"),
     EXTERNAL_SUBSCRIPTION("external-subscription"),
@@ -42,7 +41,7 @@ public enum PulsarScanStartupMode {
                 return startupMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported PulsarScanStartupMode=%s for Inlong", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupported PulsarScanStartupMode=%s for Inlong", name));
     }
-
 }

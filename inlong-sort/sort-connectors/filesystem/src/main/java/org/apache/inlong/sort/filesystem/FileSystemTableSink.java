@@ -18,6 +18,27 @@
 
 package org.apache.inlong.sort.filesystem;
 
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
+import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
+import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.io.FileInputFormat;
 import org.apache.flink.api.common.io.InputFormat;
 import org.apache.flink.api.common.io.OutputFormat;
@@ -80,54 +101,24 @@ import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 import org.apache.inlong.sort.filesystem.stream.StreamingSink;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
-import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
-import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-
-/**
- * File system {@link DynamicTableSink}.
- */
+/** File system {@link DynamicTableSink}. */
 public class FileSystemTableSink extends AbstractFileSystemTable
         implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
 
     // For compaction reading
-    @Nullable
-    private final DecodingFormat<BulkFormat<RowData, FileSourceSplit>> bulkReaderFormat;
-    @Nullable
-    private final DecodingFormat<DeserializationSchema<RowData>> deserializationFormat;
-    @Nullable
-    private final FileSystemFormatFactory formatFactory;
+    @Nullable private final DecodingFormat<BulkFormat<RowData, FileSourceSplit>> bulkReaderFormat;
+    @Nullable private final DecodingFormat<DeserializationSchema<RowData>> deserializationFormat;
+    @Nullable private final FileSystemFormatFactory formatFactory;
 
     // For Writing
-    @Nullable
-    private final EncodingFormat<BulkWriter.Factory<RowData>> bulkWriterFormat;
-    @Nullable
-    private final EncodingFormat<SerializationSchema<RowData>> serializationFormat;
+    @Nullable private final EncodingFormat<BulkWriter.Factory<RowData>> bulkWriterFormat;
+    @Nullable private final EncodingFormat<SerializationSchema<RowData>> serializationFormat;
 
     private boolean overwrite = false;
     private boolean dynamicGrouping = false;
     private LinkedHashMap<String, String> staticPartitions = new LinkedHashMap<>();
 
-    @Nullable
-    private Integer configuredParallelism;
+    @Nullable private Integer configuredParallelism;
 
     private String inlongMetric;
     private String inlongAudit;
@@ -287,7 +278,12 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         } else {
             writerStream =
                     StreamingSink.writer(
-                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism, inlongMetric, inlongAudit);
+                            dataStream,
+                            bucketCheckInterval,
+                            bucketsBuilder,
+                            parallelism,
+                            inlongMetric,
+                            inlongAudit);
         }
 
         return StreamingSink.sink(
@@ -367,7 +363,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
             @Override
             public Path[] getPaths() {
-                return new Path[]{path};
+                return new Path[] {path};
             }
 
             @Override
@@ -447,8 +443,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             private transient BulkWriter<RowData> writer;
 
             @Override
-            public void configure(Configuration parameters) {
-            }
+            public void configure(Configuration parameters) {}
 
             @Override
             public void open(int taskNumber, int numTasks) throws IOException {
@@ -479,8 +474,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             private transient FSDataOutputStream output;
 
             @Override
-            public void configure(Configuration parameters) {
-            }
+            public void configure(Configuration parameters) {}
 
             @Override
             public void open(int taskNumber, int numTasks) throws IOException {
@@ -563,9 +557,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         this.staticPartitions = toPartialLinkedPartSpec(partition);
     }
 
-    /**
-     * Table bucket assigner, wrap {@link PartitionComputer}.
-     */
+    /** Table bucket assigner, wrap {@link PartitionComputer}. */
     public static class TableBucketAssigner implements BucketAssigner<RowData, String> {
 
         private final PartitionComputer<RowData> computer;
@@ -590,9 +582,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         }
     }
 
-    /**
-     * Table {@link RollingPolicy}, it extends {@link CheckpointRollingPolicy} for bulk writers.
-     */
+    /** Table {@link RollingPolicy}, it extends {@link CheckpointRollingPolicy} for bulk writers. */
     public static class TableRollingPolicy extends CheckpointRollingPolicy<RowData, String> {
 
         private final boolean rollOnCheckpoint;
@@ -646,9 +636,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         }
     }
 
-    /**
-     * Project row to non-partition fields.
-     */
+    /** Project row to non-partition fields. */
     public static class ProjectionBulkFactory implements BulkWriter.Factory<RowData> {
 
         private final BulkWriter.Factory<RowData> factory;

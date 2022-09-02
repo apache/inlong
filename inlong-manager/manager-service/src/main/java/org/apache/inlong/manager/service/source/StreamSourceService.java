@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.source;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
@@ -24,12 +26,7 @@ import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Service layer interface for stream source
- */
+/** Service layer interface for stream source */
 public interface StreamSourceService {
 
     /**
@@ -60,15 +57,17 @@ public interface StreamSourceService {
 
     /**
      * Get the StreamSource Map by the inlong group info and inlong stream info list.
-     * <p/>
-     * If the group mode is LIGHTWEIGHT, means not using any MQ as a cached source, then just get all related sources.
-     * Otherwise, if the group mode is STANDARD, need get the cached MQ sources.
+     *
+     * <p>If the group mode is LIGHTWEIGHT, means not using any MQ as a cached source, then just get
+     * all related sources. Otherwise, if the group mode is STANDARD, need get the cached MQ
+     * sources.
      *
      * @param groupInfo inlong group info
      * @param streamInfos inlong stream info list
      * @return map of StreamSource list, key-inlongStreamId, value-StreamSourceList
      */
-    Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
+    Map<String, List<StreamSource>> getSourcesMap(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
 
     /**
      * Query the number of undeleted source info based on inlong group and inlong stream id.
@@ -172,5 +171,4 @@ public interface StreamSourceService {
     default Boolean updateAfterApprove(String operator) {
         return true;
     }
-
 }

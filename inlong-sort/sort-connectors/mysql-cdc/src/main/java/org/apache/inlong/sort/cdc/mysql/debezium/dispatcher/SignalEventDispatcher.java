@@ -21,6 +21,7 @@ package org.apache.inlong.sort.cdc.mysql.debezium.dispatcher;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.util.SchemaNameAdjuster;
+import java.util.Map;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.kafka.connect.data.Schema;
@@ -28,13 +29,11 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import java.util.Map;
-
 /**
  * A dispatcher to dispatch watermark signal events.
  *
  * <p>The watermark signal event is used to describe the start point and end point of a split scan.
- * The Watermark Signal Algorithm is inspired by https://arxiv.org/pdf/2010.12597v1.pdf.</p>
+ * The Watermark Signal Algorithm is inspired by https://arxiv.org/pdf/2010.12597v1.pdf.
  */
 public class SignalEventDispatcher {
 
@@ -105,9 +104,7 @@ public class SignalEventDispatcher {
         return result;
     }
 
-    /**
-     * The watermark kind.
-     */
+    /** The watermark kind. */
     public enum WatermarkKind {
         LOW,
         HIGH,

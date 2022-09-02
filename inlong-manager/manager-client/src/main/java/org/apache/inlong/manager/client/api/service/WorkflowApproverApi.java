@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import java.util.Map;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
@@ -28,8 +29,6 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-import java.util.Map;
-
 public interface WorkflowApproverApi {
 
     @POST("workflow/approver/save")
@@ -39,12 +38,12 @@ public interface WorkflowApproverApi {
     Call<Response<ApproverResponse>> get(@Path("id") Integer id);
 
     @GET("workflow/approver/list")
-    Call<Response<PageResult<ApproverResponse>>> listByCondition(@Query("map") Map<String, Object> map);
+    Call<Response<PageResult<ApproverResponse>>> listByCondition(
+            @Query("map") Map<String, Object> map);
 
     @POST("workflow/approver/update")
     Call<Response<Integer>> update(@Body ApproverRequest request);
 
     @POST("workflow/approver/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
-
 }

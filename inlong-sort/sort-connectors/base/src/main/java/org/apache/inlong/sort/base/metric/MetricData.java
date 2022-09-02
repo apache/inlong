@@ -17,20 +17,18 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import static org.apache.inlong.sort.base.Constants.GROUP_ID;
+import static org.apache.inlong.sort.base.Constants.NODE_ID;
+import static org.apache.inlong.sort.base.Constants.STREAM_ID;
+import static org.apache.inlong.sort.base.Constants.TIME_SPAN_IN_SECONDS;
+
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 
-import static org.apache.inlong.sort.base.Constants.GROUP_ID;
-import static org.apache.inlong.sort.base.Constants.NODE_ID;
-import static org.apache.inlong.sort.base.Constants.STREAM_ID;
-import static org.apache.inlong.sort.base.Constants.TIME_SPAN_IN_SECONDS;
-
-/**
- * This class is the top-level interface of metric data, it defines common metric data methods.
- */
+/** This class is the top-level interface of metric data, it defines common metric data methods. */
 public interface MetricData {
 
     /**
@@ -69,8 +67,11 @@ public interface MetricData {
      * @return Counter of registered
      */
     default Counter registerCounter(String metricName, Counter counter) {
-        return getMetricGroup().addGroup(GROUP_ID, getGroupId()).addGroup(STREAM_ID, getStreamId())
-                .addGroup(NODE_ID, getNodeId()).counter(metricName, counter);
+        return getMetricGroup()
+                .addGroup(GROUP_ID, getGroupId())
+                .addGroup(STREAM_ID, getStreamId())
+                .addGroup(NODE_ID, getNodeId())
+                .counter(metricName, counter);
     }
 
     /**
@@ -90,8 +91,10 @@ public interface MetricData {
      * @return Meter of registered
      */
     default Meter registerMeter(String metricName, Counter counter) {
-        return getMetricGroup().addGroup(GROUP_ID, getGroupId()).addGroup(STREAM_ID, getStreamId())
-                .addGroup(NODE_ID, getNodeId()).meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
+        return getMetricGroup()
+                .addGroup(GROUP_ID, getGroupId())
+                .addGroup(STREAM_ID, getStreamId())
+                .addGroup(NODE_ID, getNodeId())
+                .meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
     }
-
 }

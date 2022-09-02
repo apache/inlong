@@ -17,18 +17,15 @@
 
 package org.apache.inlong.manager.common.util;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import javax.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-/**
- * Utils for Network
- */
+/** Utils for Network */
 @Slf4j
 @UtilityClass
 public class NetworkUtils {
@@ -89,10 +86,11 @@ public class NetworkUtils {
      */
     public static boolean ipCheck(String text) {
         if (text != null && !text.isEmpty()) {
-            String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
-                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
-                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
-                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+            String regex =
+                    "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
+                            + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                            + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                            + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
             return text.matches(regex);
         }
         return false;
@@ -107,5 +105,4 @@ public class NetworkUtils {
     public static boolean portCheck(int port) {
         return port > 0 && port < 65535;
     }
-
 }

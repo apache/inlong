@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-
-/**
- * Interface of the Sort config operator
- */
+/** Interface of the Sort config operator */
 public interface SortConfigOperator {
 
     /**
@@ -41,6 +38,7 @@ public interface SortConfigOperator {
      * @param streamInfos inlong stream info list
      * @param isStream is the config built for inlong stream
      */
-    void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream) throws Exception;
-
+    void buildConfig(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
+            throws Exception;
 }

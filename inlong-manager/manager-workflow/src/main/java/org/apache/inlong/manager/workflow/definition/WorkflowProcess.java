@@ -19,6 +19,11 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,21 +31,13 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-/**
- * WorkflowProcess definition
- */
+/** WorkflowProcess definition */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -52,15 +49,12 @@ public class WorkflowProcess extends Element {
 
     private EndEvent endEvent;
 
-    @Getter
-    private Map<String, WorkflowTask> nameToTaskMap = Maps.newHashMap();
+    @Getter private Map<String, WorkflowTask> nameToTaskMap = Maps.newHashMap();
 
     private Class<? extends ProcessForm> formClass;
 
     private ProcessDetailHandler processDetailHandler;
-    /**
-     * Whether to hide, for example, some processes initiated by the system
-     */
+    /** Whether to hide, for example, some processes initiated by the system */
     private Integer hidden = 0;
 
     private Map<ProcessEvent, List<ProcessEventListener>> listeners = Maps.newHashMap();
@@ -68,9 +62,7 @@ public class WorkflowProcess extends Element {
 
     private int version;
 
-    /**
-     * Add listener to workflow process.
-     */
+    /** Add listener to workflow process. */
     public WorkflowProcess addListener(ProcessEventListener listener) {
         if (nameToListenerMap.containsKey(listener.name())) {
             throw new WorkflowListenerException("duplicate listener:" + listener.name());
@@ -80,9 +72,7 @@ public class WorkflowProcess extends Element {
         return this;
     }
 
-    /**
-     * Get sync process event listener list.
-     */
+    /** Get sync process event listener list. */
     public List<ProcessEventListener> listeners(ProcessEvent processEvent) {
         return this.listeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
     }
@@ -97,9 +87,7 @@ public class WorkflowProcess extends Element {
         return this.nameToListenerMap.get(listenerName);
     }
 
-    /**
-     * Add workflow task.
-     */
+    /** Add workflow task. */
     public WorkflowProcess addTask(WorkflowTask task) {
         if (this.nameToTaskMap.containsKey(task.getName())) {
             throw new WorkflowException("task name cannot duplicate " + task.getName());
@@ -142,14 +130,16 @@ public class WorkflowProcess extends Element {
         Map<String, WorkflowTask> nameToTaskMap = new HashMap<>();
 
         StartEvent startEvent = cloneProcess.getStartEvent();
-        Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap = startEvent.getActionToNextElementMap();
+        Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap =
+                startEvent.getActionToNextElementMap();
         Queue<Map<WorkflowAction, List<ConditionNextElement>>> queue = new LinkedBlockingQueue<>();
         if (MapUtils.isNotEmpty(workflowActionListMap)) {
             queue.add(workflowActionListMap);
         }
         while (!queue.isEmpty()) {
             workflowActionListMap = queue.remove();
-            for (List<ConditionNextElement> conditionNextElements : workflowActionListMap.values()) {
+            for (List<ConditionNextElement> conditionNextElements :
+                    workflowActionListMap.values()) {
                 for (ConditionNextElement conditionNextElement : conditionNextElements) {
                     Element element = conditionNextElement.getElement();
                     if (element instanceof WorkflowTask) {
@@ -175,5 +165,4 @@ public class WorkflowProcess extends Element {
 
         return cloneProcess;
     }
-
 }

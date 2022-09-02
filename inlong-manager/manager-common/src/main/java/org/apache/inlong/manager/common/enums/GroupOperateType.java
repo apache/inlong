@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Operate Type for Inlong group
- */
+/** Operate Type for Inlong group */
 public enum GroupOperateType {
-    INIT, SUSPEND, RESTART, DELETE
+    INIT,
+    SUSPEND,
+    RESTART,
+    DELETE
 }

@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-/**
- * MongoDB source request
- */
+/** MongoDB source request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -57,5 +55,4 @@ public class MongoDBSourceRequest extends SourceRequest {
     public MongoDBSourceRequest() {
         this.setSourceType(SourceType.MONGODB);
     }
-
 }

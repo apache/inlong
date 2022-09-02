@@ -18,16 +18,23 @@
 
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
@@ -40,17 +47,7 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-/**
- * Pulsar single topic fetcher.
- */
+/** Pulsar single topic fetcher. */
 public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSingleTopicFetcher.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
@@ -110,12 +107,17 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                 }
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
-                        .exceptionally(exception -> {
-                            LOGGER.error("ack fail:{} {},error:{}",
-                                    topic, msgOffset, exception.getMessage(), exception);
-                            context.getStateCounterByTopic(topic).addAckFailTimes(1L);
-                            return null;
-                        });
+                        .exceptionally(
+                                exception -> {
+                                    LOGGER.error(
+                                            "ack fail:{} {},error:{}",
+                                            topic,
+                                            msgOffset,
+                                            exception.getMessage(),
+                                            exception);
+                                    context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                                    return null;
+                                });
             } catch (Exception e) {
                 context.getStateCounterByTopic(topic).addAckFailTimes(1L);
                 LOGGER.error(e.getMessage(), e);
@@ -141,26 +143,33 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
         }
         try {
             SubscriptionInitialPosition position = SubscriptionInitialPosition.Latest;
-            SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+            SortClientConfig.ConsumeStrategy offsetResetStrategy =
+                    context.getConfig().getOffsetResetStrategy();
             if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
-                    || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
+                    || offsetResetStrategy
+                            == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
                 LOGGER.info("the subscription initial position is earliest!");
                 position = SubscriptionInitialPosition.Earliest;
             }
 
-            consumer = client.newConsumer(Schema.BYTES)
-                    .topic(topic.getTopic())
-                    .subscriptionName(context.getConfig().getSortTaskId())
-                    .subscriptionType(SubscriptionType.Shared)
-                    .startMessageIdInclusive()
-                    .subscriptionInitialPosition(position)
-                    .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
-                    .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
-                    .subscribe();
+            consumer =
+                    client.newConsumer(Schema.BYTES)
+                            .topic(topic.getTopic())
+                            .subscriptionName(context.getConfig().getSortTaskId())
+                            .subscriptionType(SubscriptionType.Shared)
+                            .startMessageIdInclusive()
+                            .subscriptionInitialPosition(position)
+                            .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
+                            .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
+                            .subscribe();
 
             this.seeker = SeekerFactory.createPulsarSeeker(consumer, topic);
-            String threadName = String.format("sort_sdk_pulsar_single_topic_fetch_thread_%s_%s_%d",
-                    this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
+            String threadName =
+                    String.format(
+                            "sort_sdk_pulsar_single_topic_fetch_thread_%s_%s_%d",
+                            this.topic.getInLongCluster().getClusterId(),
+                            topic.getTopic(),
+                            this.hashCode());
             this.fetchThread = new Thread(new PulsarSingleTopicFetcher.Fetcher(), threadName);
             this.fetchThread.start();
         } catch (Exception e) {
@@ -170,9 +179,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
         return true;
     }
 
-    /**
-     * pause
-     */
+    /** pause */
     @Override
     public void pause() {
         if (consumer != null) {
@@ -180,9 +187,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
         }
     }
 
-    /**
-     * resume
-     */
+    /** resume */
     @Override
     public void resume() {
         if (consumer != null) {
@@ -235,7 +240,8 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                 context.getStateCounterByTopic(topic).addCallbackTimes(1L);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
                 context.getStateCounterByTopic(topic)
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                        .addCallbackTimeCost(System.currentTimeMillis() - start)
+                        .addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getStateCounterByTopic(topic).addCallbackErrorTimes(1L);
                 LOGGER.error("failed to callback {}", e.getMessage(), e);
@@ -268,7 +274,8 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> messages = consumer.batchReceive();
 
-                    context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+                    context.getStateCounterByTopic(topic)
+                            .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != messages && messages.size() != 0) {
                         for (Message<byte[]> msg : messages) {
                             // if need seek
@@ -279,9 +286,10 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
-                            //deserialize
-                            List<InLongMessage> inLongMessages = deserializer
-                                    .deserialize(context, topic, msg.getProperties(), msg.getData());
+                            // deserialize
+                            List<InLongMessage> inLongMessages =
+                                    deserializer.deserialize(
+                                            context, topic, msg.getProperties(), msg.getData());
                             // intercept
                             inLongMessages = interceptor.intercept(inLongMessages);
                             if (inLongMessages.isEmpty()) {
@@ -289,10 +297,14 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                                 continue;
                             }
                             List<MessageRecord> msgs = new ArrayList<>();
-                            msgs.add(new MessageRecord(topic.getTopicKey(),
-                                    inLongMessages,
-                                    offsetKey, System.currentTimeMillis()));
-                            context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
+                            msgs.add(
+                                    new MessageRecord(
+                                            topic.getTopicKey(),
+                                            inLongMessages,
+                                            offsetKey,
+                                            System.currentTimeMillis()));
+                            context.getStateCounterByTopic(topic)
+                                    .addConsumeSize(msg.getData().length);
                             context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
                             handleAndCallbackMsg(msgs);
                         }
@@ -301,8 +313,11 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                         context.getStateCounterByTopic(topic).addEmptyFetchTimes(1L);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                            sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                                    context.getConfig().getMaxEmptyPollSleepMs());
+                            sleepTime =
+                                    Math.min(
+                                            (sleepTime +=
+                                                    context.getConfig().getEmptyPollSleepStepMs()),
+                                            context.getConfig().getMaxEmptyPollSleepMs());
                             emptyFetchTimes = 0;
                         }
                     }

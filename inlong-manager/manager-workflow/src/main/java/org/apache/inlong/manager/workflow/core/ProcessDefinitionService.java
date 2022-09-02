@@ -19,9 +19,7 @@ package org.apache.inlong.manager.workflow.core;
 
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 
-/**
- * WorkflowProcess definition service
- */
+/** WorkflowProcess definition service */
 public interface ProcessDefinitionService {
 
     /**
@@ -38,5 +36,4 @@ public interface ProcessDefinitionService {
      * @return WorkflowProcess definition
      */
     WorkflowProcess getByName(String name);
-
 }

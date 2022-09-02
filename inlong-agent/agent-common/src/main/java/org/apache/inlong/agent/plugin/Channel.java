@@ -19,24 +19,15 @@ package org.apache.inlong.agent.plugin;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Channel is used as data buffer between source and sink.
- */
+/** Channel is used as data buffer between source and sink. */
 public interface Channel extends Stage {
 
-    /**
-     * write message
-     */
+    /** write message */
     void push(Message message);
 
-    /**
-     * write message with timeout
-     */
+    /** write message with timeout */
     boolean push(Message message, long timeout, TimeUnit unit);
 
-    /**
-     * read message with timeout
-     */
+    /** read message with timeout */
     Message pull(long timeout, TimeUnit unit);
-
 }

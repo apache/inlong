@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition.OperationType;
@@ -28,7 +31,6 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterMode;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterRule;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.TargetValue;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
@@ -49,21 +51,15 @@ import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOp
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Util for creat filter function.
- */
+/** Util for creat filter function. */
 public class FilterFunctionUtils {
 
-    /**
-     * Create functions of filter.
-     */
+    /** Create functions of filter. */
     public static List<FilterFunction> createFilterFunctions(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
-        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
-                transformResponse.getTransformDefinition(), transformType);
+        TransformDefinition transformDefinition =
+                StreamParseUtils.parseTransformDefinition(
+                        transformResponse.getTransformDefinition(), transformType);
         String transformName = transformResponse.getTransformName();
         switch (transformType) {
             case FILTER:
@@ -76,40 +72,48 @@ public class FilterFunctionUtils {
             case ENCRYPT:
                 return Lists.newArrayList();
             default:
-                throw new UnsupportedOperationException(String.format("Unsupported transformType=%s", transformType));
+                throw new UnsupportedOperationException(
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 
-    /**
-     * Create functions of filter.
-     */
-    public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
+    /** Create functions of filter. */
+    public static List<FilterFunction> createFilterFunctions(
+            FilterDefinition filterDefinition, String transformName) {
         FilterMode filterMode = filterDefinition.getFilterMode();
-        Preconditions.checkFalse(filterMode == FilterMode.SCRIPT,
+        Preconditions.checkFalse(
+                filterMode == FilterMode.SCRIPT,
                 String.format("Unsupported filterMode=%s for inlong", filterMode));
         List<FilterRule> filterRules = filterDefinition.getFilterRules();
-        List<FilterFunction> filterFunctions = filterRules.stream()
-                .map(filterRule -> createFilterFunction(filterRule, transformName)).collect(Collectors.toList());
+        List<FilterFunction> filterFunctions =
+                filterRules.stream()
+                        .map(filterRule -> createFilterFunction(filterRule, transformName))
+                        .collect(Collectors.toList());
         // Move logicOperator to preFunction
         for (int index = filterFunctions.size() - 1; index > 0; index--) {
-            SingleValueFilterFunction function = (SingleValueFilterFunction) filterFunctions.get(index);
-            SingleValueFilterFunction preFunction = (SingleValueFilterFunction) filterFunctions.get(index - 1);
+            SingleValueFilterFunction function =
+                    (SingleValueFilterFunction) filterFunctions.get(index);
+            SingleValueFilterFunction preFunction =
+                    (SingleValueFilterFunction) filterFunctions.get(index - 1);
             function.setLogicOperator(preFunction.getLogicOperator());
         }
-        ((SingleValueFilterFunction) filterFunctions.get(0)).setLogicOperator(EmptyOperator.getInstance());
+        ((SingleValueFilterFunction) filterFunctions.get(0))
+                .setLogicOperator(EmptyOperator.getInstance());
         return filterFunctions;
     }
 
     /**
-     * Parse filter strategy from TransformResponse and convert to the filter strategy of sort protocol
+     * Parse filter strategy from TransformResponse and convert to the filter strategy of sort
+     * protocol
      *
      * @param transformResponse The transform response that may contain filter operation
      * @return The filter strategy, see {@link FilterStrategy}
      */
     public static FilterStrategy parseFilterStrategy(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
-        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
-                transformResponse.getTransformDefinition(), transformType);
+        TransformDefinition transformDefinition =
+                StreamParseUtils.parseTransformDefinition(
+                        transformResponse.getTransformDefinition(), transformType);
         switch (transformType) {
             case FILTER:
                 FilterDefinition filterDefinition = (FilterDefinition) transformDefinition;
@@ -133,20 +137,25 @@ public class FilterFunctionUtils {
         }
     }
 
-    private static FilterFunction createFilterFunction(FilterRule filterRule, String transformName) {
+    private static FilterFunction createFilterFunction(
+            FilterRule filterRule, String transformName) {
         StreamField streamField = filterRule.getSourceField();
         String fieldType = streamField.getFieldType();
         String fieldFormat = streamField.getFieldFormat();
         String fieldName = streamField.getFieldName();
-        FieldInfo sourceFieldInfo = new FieldInfo(fieldName, transformName,
-                FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+        FieldInfo sourceFieldInfo =
+                new FieldInfo(
+                        fieldName,
+                        transformName,
+                        FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
         OperationType operationType = filterRule.getOperationType();
         SingleValueCompareOperator compareOperator = parseCompareOperator(operationType);
         TargetValue targetValue = filterRule.getTargetValue();
         FunctionParam target = parseTargetValue(targetValue, transformName);
         RuleRelation relationWithPost = filterRule.getRelationWithPost();
         LogicOperator logicOperator = parseLogicOperator(relationWithPost);
-        return new SingleValueFilterFunction(logicOperator, sourceFieldInfo, compareOperator, target);
+        return new SingleValueFilterFunction(
+                logicOperator, sourceFieldInfo, compareOperator, target);
     }
 
     private static LogicOperator parseLogicOperator(RuleRelation relation) {
@@ -176,7 +185,9 @@ public class FilterFunctionUtils {
             String fieldType = targetField.getFieldType();
             String fieldFormat = targetField.getFieldFormat();
             String fieldName = targetField.getFieldName();
-            return new FieldInfo(fieldName, transformName,
+            return new FieldInfo(
+                    fieldName,
+                    transformName,
                     FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
         }
     }
@@ -200,7 +211,8 @@ public class FilterFunctionUtils {
             case not_null:
                 return IsNotNullOperator.getInstance();
             default:
-                throw new IllegalArgumentException(String.format("Unsupported operateType=%s", operationType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported operateType=%s", operationType));
         }
     }
 }

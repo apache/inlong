@@ -17,33 +17,21 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * Doris options constant
- */
+/** Doris options constant */
 public class DorisConstant {
 
-    /**
-     * 'connector' = 'doris'
-     */
+    /** 'connector' = 'doris' */
     public static final String CONNECTOR = "connector";
 
-    /**
-     * Doris FE http address, support multiple addresses, separated by commas
-     */
+    /** Doris FE http address, support multiple addresses, separated by commas */
     public static final String FE_NODES = "fenodes";
 
-    /**
-     * Doris table identifier, eg, db1.tbl1
-     */
+    /** Doris table identifier, eg, db1.tbl1 */
     public static final String TABLE_IDENTIFIER = "table.identifier";
 
-    /**
-     * Doris username
-     */
+    /** Doris username */
     public static final String USERNAME = "username";
 
-    /**
-     * Doris password
-     */
+    /** Doris password */
     public static final String PASSWORD = "password";
 }

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
@@ -36,23 +39,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-/**
- * End event handler
- */
+/** End event handler */
 @Slf4j
 @Service
 public class EndEventProcessor implements ElementProcessor<EndEvent> {
 
-    @Autowired
-    private ProcessEventNotifier processEventNotifier;
-    @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
-    @Autowired
-    private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired private ProcessEventNotifier processEventNotifier;
+    @Autowired private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired private WorkflowProcessEntityMapper processEntityMapper;
 
     @Override
     public Class<EndEvent> watch() {
@@ -61,7 +55,7 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
 
     @Override
     public boolean create(EndEvent element, WorkflowContext context) {
-        //do nothing
+        // do nothing
         return true;
     }
 
@@ -73,8 +67,9 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
     @Override
     public boolean complete(WorkflowContext context) {
         WorkflowProcessEntity processEntity = context.getProcessEntity();
-        List<WorkflowTaskEntity> tasks = taskEntityMapper.selectByProcess(processEntity.getId(), TaskStatus.PENDING);
-        //If there are unfinished tasks, the process cannot be ended
+        List<WorkflowTaskEntity> tasks =
+                taskEntityMapper.selectByProcess(processEntity.getId(), TaskStatus.PENDING);
+        // If there are unfinished tasks, the process cannot be ended
         if (!CollectionUtils.isEmpty(tasks)) {
             log.warn("have pending task, end event not execute");
             return true;
@@ -83,7 +78,8 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
         processEntity.setStatus(getProcessStatus(actionContext.getAction()).name());
         processEntity.setEndTime(new Date());
         processEntityMapper.update(processEntity);
-        ListenerResult listenerResult = processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
+        ListenerResult listenerResult =
+                processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
 
         return listenerResult.isSuccess();
     }
@@ -124,5 +120,4 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
                 throw new WorkflowException("unknown workflowAction " + workflowAction);
         }
     }
-
 }

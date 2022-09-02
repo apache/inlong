@@ -17,22 +17,20 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 
-/**
- * Sort Service
- */
+/** Sort Service */
 public interface SortService {
     /**
      * Get sort cluster config.
      *
-     * <p>For a specific sort cluster, there are a series of tasks that defined how dataflow into and
-     * out from sort.</p>
+     * <p>For a specific sort cluster, there are a series of tasks that defined how dataflow into
+     * and out from sort.
      *
-     * <p>The param of md5 represents the md5 value of last update response.
-     * if the md5 is same with the newest one, which means all configs are not updated,
-     * the detailed config in response will be <b>NULL</b>.</p>
+     * <p>The param of md5 represents the md5 value of last update response. if the md5 is same with
+     * the newest one, which means all configs are not updated, the detailed config in response will
+     * be <b>NULL</b>.
      *
      * @param clusterName Name of sort cluster.
      * @param md5 Last update md5.

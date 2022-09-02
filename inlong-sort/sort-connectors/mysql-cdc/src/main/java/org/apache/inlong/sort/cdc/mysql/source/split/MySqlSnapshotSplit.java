@@ -20,36 +20,27 @@ package org.apache.inlong.sort.cdc.mysql.source.split;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-/**
- * The split to describe a split of a MySql table snapshot.
- */
+/** The split to describe a split of a MySql table snapshot. */
 public class MySqlSnapshotSplit extends MySqlSplit {
 
     private final TableId tableId;
     private final RowType splitKeyType;
     private final Map<TableId, TableChange> tableSchemas;
 
-    @Nullable
-    private final Object[] splitStart;
-    @Nullable
-    private final Object[] splitEnd;
-    /**
-     * The high watermark is not bull when the split read finished.
-     */
-    @Nullable
-    private final BinlogOffset highWatermark;
+    @Nullable private final Object[] splitStart;
+    @Nullable private final Object[] splitEnd;
+    /** The high watermark is not bull when the split read finished. */
+    @Nullable private final BinlogOffset highWatermark;
 
-    @Nullable
-    transient byte[] serializedFormCache;
+    @Nullable transient byte[] serializedFormCache;
 
     public MySqlSnapshotSplit(
             TableId tableId,

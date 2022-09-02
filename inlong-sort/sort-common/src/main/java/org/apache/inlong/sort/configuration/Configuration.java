@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Lightweight configuration object which stores key/value pairs.
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.
  */
 public class Configuration implements java.io.Serializable, Cloneable {
 
@@ -47,21 +47,15 @@ public class Configuration implements java.io.Serializable, Cloneable {
     private static final byte TYPE_DOUBLE = 5;
     private static final byte TYPE_BYTES = 6;
 
-    /**
-     * The log object used for debugging.
-     */
+    /** The log object used for debugging. */
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
-    /**
-     * Stores the concrete key/value pairs of this configuration object.
-     */
+    /** Stores the concrete key/value pairs of this configuration object. */
     protected final HashMap<String, Object> confData;
 
     // --------------------------------------------------------------------------------------------
 
-    /**
-     * Creates a new empty configuration.
-     */
+    /** Creates a new empty configuration. */
     public Configuration() {
         confData = new HashMap<>();
     }
@@ -85,11 +79,12 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * @param defaultValue The optional default value returned if no entry exists
      * @param classLoader The class loader used to resolve the class.
      * @return The value associated with the given key, or the default value, if to entry for the
-     *         key exists.
+     *     key exists.
      */
     @SuppressWarnings("unchecked")
-    public <T> Class<T> getClass(String key, Class<? extends T> defaultValue,
-            ClassLoader classLoader) throws ClassNotFoundException {
+    public <T> Class<T> getClass(
+            String key, Class<? extends T> defaultValue, ClassLoader classLoader)
+            throws ClassNotFoundException {
         Object o = getRawValue(key);
         if (o == null) {
             return (Class<T>) defaultValue;
@@ -120,8 +115,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a string.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public String getString(String key, String defaultValue) {
@@ -182,8 +177,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as an integer.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public int getInteger(String key, int defaultValue) {
@@ -212,8 +207,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * default value.
      *
      * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
+     * @param overrideDefault The value to return if no value was mapper for any key of the option
      * @return the configured value associated with the given config option, or the overrideDefault
      */
     public int getInteger(ConfigOption<Integer> configOption, int overrideDefault) {
@@ -249,8 +243,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a long.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public long getLong(String key, long defaultValue) {
@@ -279,8 +273,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * default value.
      *
      * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
+     * @param overrideDefault The value to return if no value was mapper for any key of the option
      * @return the configured value associated with the given config option, or the overrideDefault
      */
     public long getLong(ConfigOption<Long> configOption, long overrideDefault) {
@@ -316,8 +309,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a boolean.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public boolean getBoolean(String key, boolean defaultValue) {
@@ -346,8 +339,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * value.
      *
      * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
+     * @param overrideDefault The value to return if no value was mapper for any key of the option
      * @return the configured value associated with the given config option, or the overrideDefault
      */
     public boolean getBoolean(ConfigOption<Boolean> configOption, boolean overrideDefault) {
@@ -383,8 +375,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a float.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public float getFloat(String key, float defaultValue) {
@@ -413,8 +405,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * value.
      *
      * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
+     * @param overrideDefault The value to return if no value was mapper for any key of the option
      * @return the configured value associated with the given config option, or the overrideDefault
      */
     public float getFloat(ConfigOption<Float> configOption, float overrideDefault) {
@@ -450,8 +441,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a double.
      *
      * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param defaultValue the default value which is returned in case there is no value associated
+     *     with the given key
      * @return the (default) value associated with the given key
      */
     public double getDouble(String key, double defaultValue) {
@@ -480,8 +471,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * default value.
      *
      * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
+     * @param overrideDefault The value to return if no value was mapper for any key of the option
      * @return the configured value associated with the given config option, or the overrideDefault
      */
     public double getDouble(ConfigOption<Double> configOption, double overrideDefault) {
@@ -517,8 +507,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
      * Returns the value associated with the given key as a byte array.
      *
      * @param key The key pointing to the associated value.
-     * @param defaultValue The default value which is returned in case there is no value
-     *         associated with the given key.
+     * @param defaultValue The default value which is returned in case there is no value associated
+     *     with the given key.
      * @return the (default) value associated with the given key.
      */
     @SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -562,12 +552,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
      *
      * @param enumClass The return enum class
      * @param configOption The configuration option
-     * @throws IllegalArgumentException If the string associated with the given config
-     *         option cannot be parsed as a value of the provided enum class.
+     * @throws IllegalArgumentException If the string associated with the given config option cannot
+     *     be parsed as a value of the provided enum class.
      */
     public <T extends Enum<T>> T getEnum(
-            final Class<T> enumClass,
-            final ConfigOption<String> configOption) {
+            final Class<T> enumClass, final ConfigOption<String> configOption) {
         checkNotNull(enumClass, "enumClass must not be null");
         checkNotNull(configOption, "configOption must not be null");
 
@@ -575,8 +564,9 @@ public class Configuration implements java.io.Serializable, Cloneable {
         try {
             return Enum.valueOf(enumClass, configValue.toUpperCase(Locale.ROOT));
         } catch (final IllegalArgumentException | NullPointerException e) {
-            final String errorMessage = String
-                    .format("Value for config option %s must be one of %s (was %s)",
+            final String errorMessage =
+                    String.format(
+                            "Value for config option %s must be one of %s (was %s)",
                             configOption.key(),
                             Arrays.toString(enumClass.getEnumConstants()),
                             configValue);
@@ -597,9 +587,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
         }
     }
 
-    /**
-     * Adds all entries in this {@code Configuration} to the given {@link Properties}.
-     */
+    /** Adds all entries in this {@code Configuration} to the given {@link Properties}. */
     public void addAllToProperties(Properties props) {
         synchronized (this.confData) {
             for (Map.Entry<String, Object> entry : this.confData.entrySet()) {
@@ -670,7 +658,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
      *
      * @param configOption The configuration option
      * @return <tt>true</tt> if a valid (current or deprecated) key of the config option is stored,
-     *         <tt>false</tt> otherwise
+     *     <tt>false</tt> otherwise
      */
     public boolean contains(ConfigOption<?> configOption) {
         synchronized (this.confData) {
@@ -781,11 +769,15 @@ public class Configuration implements java.io.Serializable, Cloneable {
 
     private void loggingFallback(FallbackKey fallbackKey, ConfigOption<?> configOption) {
         if (fallbackKey.isDeprecated()) {
-            LOG.warn("Config uses deprecated configuration key '{}' instead of proper key '{}'",
-                    fallbackKey.getKey(), configOption.key());
+            LOG.warn(
+                    "Config uses deprecated configuration key '{}' instead of proper key '{}'",
+                    fallbackKey.getKey(),
+                    configOption.key());
         } else {
-            LOG.info("Config uses fallback configuration key '{}' instead of key '{}'",
-                    fallbackKey.getKey(), configOption.key());
+            LOG.info(
+                    "Config uses fallback configuration key '{}' instead of key '{}'",
+                    fallbackKey.getKey(),
+                    configOption.key());
         }
     }
 

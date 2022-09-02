@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * InLongId
- */
+/** InLongId */
 public class InLongIdObject {
 
     private String inlongId;
@@ -82,5 +80,4 @@ public class InLongIdObject {
     public void setParams(Map<String, String> params) {
         this.params = params;
     }
-
 }

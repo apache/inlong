@@ -17,24 +17,20 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * binlog source, split binlog source job into multi readers
- */
+/** binlog source, split binlog source job into multi readers */
 public class BinlogSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSource.class);
 
-    public BinlogSource() {
-    }
+    public BinlogSource() {}
 
     @Override
     public List<Reader> split(JobProfile conf) {
@@ -45,5 +41,4 @@ public class BinlogSource extends AbstractSource {
         sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
     }
-
 }

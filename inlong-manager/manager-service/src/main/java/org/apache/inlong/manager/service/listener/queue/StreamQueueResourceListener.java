@@ -36,19 +36,14 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Create task listener for Pulsar Topic
- */
+/** Create task listener for Pulsar Topic */
 @Slf4j
 @Component
 public class StreamQueueResourceListener implements QueueOperateListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private QueueResourceOperatorFactory queueOperatorFactory;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private QueueResourceOperatorFactory queueOperatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -62,16 +57,20 @@ public class StreamQueueResourceListener implements QueueOperateListener {
             return false;
         }
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
-        return InlongConstants.STANDARD_MODE.equals(streamProcessForm.getGroupInfo().getLightweight());
+        return InlongConstants.STANDARD_MODE.equals(
+                streamProcessForm.getGroupInfo().getLightweight());
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) context.getProcessForm();
+        StreamResourceProcessForm streamProcessForm =
+                (StreamResourceProcessForm) context.getProcessForm();
         final String groupId = streamProcessForm.getInlongGroupId();
         InlongStreamInfo streamInfo = streamProcessForm.getStreamInfo();
         if (streamInfo == null) {
-            String msg = "inlong stream cannot be null in StreamResourceProcessForm with groupId=" + groupId;
+            String msg =
+                    "inlong stream cannot be null in StreamResourceProcessForm with groupId="
+                            + groupId;
             log.error(msg);
             throw new WorkflowListenerException(msg);
         }
@@ -85,11 +84,14 @@ public class StreamQueueResourceListener implements QueueOperateListener {
         }
 
         if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(groupInfo.getEnableCreateResource())) {
-            log.warn("skip to execute StreamQueueResourceListener as disable create resource for groupId={}", groupId);
+            log.warn(
+                    "skip to execute StreamQueueResourceListener as disable create resource for groupId={}",
+                    groupId);
             return ListenerResult.success("skip - disable create resource");
         }
 
-        QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupInfo.getMqType());
+        QueueResourceOperator queueOperator =
+                queueOperatorFactory.getInstance(groupInfo.getMqType());
         GroupOperateType operateType = streamProcessForm.getGroupOperateType();
         String operator = context.getOperator();
         switch (operateType) {
@@ -104,8 +106,10 @@ public class StreamQueueResourceListener implements QueueOperateListener {
                 break;
         }
 
-        log.info("success to execute StreamQueueResourceListener for groupId={}, operateType={}", groupId, operateType);
+        log.info(
+                "success to execute StreamQueueResourceListener for groupId={}, operateType={}",
+                groupId,
+                operateType);
         return ListenerResult.success("success");
     }
-
 }

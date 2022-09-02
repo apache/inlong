@@ -17,14 +17,12 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Test for {@link StringConstantParam}
- */
+/** Test for {@link StringConstantParam} */
 public class StringConstantParamTest extends SerializeBaseTest<StringConstantParam> {
 
     @Override

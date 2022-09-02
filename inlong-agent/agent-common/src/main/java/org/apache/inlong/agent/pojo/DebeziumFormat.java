@@ -23,20 +23,12 @@ import lombok.Data;
 @Data
 public class DebeziumFormat {
 
-    /**
-     * no need to deserialize
-     */
+    /** no need to deserialize */
     private Map<String, String> before;
 
-    /**
-     * no need to deserialize
-     */
+    /** no need to deserialize */
     private Map<String, String> after;
 
-
-    /**
-     * extra info about db
-     */
+    /** extra info about db */
     private DebeziumSourceFormat source;
-
 }

@@ -19,6 +19,10 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -31,11 +35,6 @@ import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("pulsarExtract")
 @Data
@@ -45,11 +44,14 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
     @Nonnull
     @JsonProperty("topic")
     private String topic;
+
     @JsonProperty("adminUrl")
     private String adminUrl;
+
     @Nonnull
     @JsonProperty("serviceUrl")
     private String serviceUrl;
+
     @Nonnull
     @JsonProperty("format")
     private Format format;
@@ -61,7 +63,8 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
     private String primaryKey;
 
     @JsonCreator
-    public PulsarExtractNode(@JsonProperty("id") String id,
+    public PulsarExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
@@ -76,8 +79,8 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
         this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
-        this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
-                "pulsar scanStartupMode is null.");
+        this.scanStartupMode =
+                Preconditions.checkNotNull(scanStartupMode, "pulsar scanStartupMode is null.");
         this.adminUrl = adminUrl;
         this.primaryKey = primaryKey;
     }

@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Heartbeat query request
- */
+/** Heartbeat query request */
 @Data
 @ApiModel("Heartbeat query request")
 public class HeartbeatQueryRequest {
@@ -39,5 +37,4 @@ public class HeartbeatQueryRequest {
 
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
-
 }

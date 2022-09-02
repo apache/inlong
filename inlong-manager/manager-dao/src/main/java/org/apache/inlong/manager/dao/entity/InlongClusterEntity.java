@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * Inlong cluster entity, including name, type, cluster tag, etc.
- */
+/** Inlong cluster entity, including name, type, cluster tag, etc. */
 @Data
 public class InlongClusterEntity implements Serializable {
 
@@ -50,5 +47,4 @@ public class InlongClusterEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer version;
-
 }

@@ -17,16 +17,17 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * The simple stream source status, more readable for users
- */
+/** The simple stream source status, more readable for users */
 public enum SimpleSourceStatus {
+    INIT,
+    NORMAL,
+    FREEZING,
+    FROZEN,
+    FAILED,
+    DELETING,
+    DELETE;
 
-    INIT, NORMAL, FREEZING, FROZEN, FAILED, DELETING, DELETE;
-
-    /**
-     * Parse status of stream source.
-     */
+    /** Parse status of stream source. */
     public static SimpleSourceStatus parseByStatus(int status) {
         SourceStatus sourceStatus = SourceStatus.forCode(status);
         switch (sourceStatus) {
@@ -51,8 +52,8 @@ public enum SimpleSourceStatus {
             case SOURCE_DISABLE:
                 return DELETE;
             default:
-                throw new IllegalStateException(String.format("Unsupported source status [%s]", sourceStatus));
+                throw new IllegalStateException(
+                        String.format("Unsupported source status [%s]", sourceStatus));
         }
     }
-
 }

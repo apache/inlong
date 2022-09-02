@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.auth;
 
+import java.util.Collection;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
@@ -24,8 +25,6 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.WebSessionManager;
-
-import java.util.Collection;
 
 public interface InlongShiro {
 
@@ -39,5 +38,6 @@ public interface InlongShiro {
 
     ShiroFilterFactoryBean getShiroFilter(SecurityManager securityManager);
 
-    AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(SecurityManager securityManager);
+    AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(
+            SecurityManager securityManager);
 }

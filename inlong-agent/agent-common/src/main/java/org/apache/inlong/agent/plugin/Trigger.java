@@ -17,14 +17,11 @@
 
 package org.apache.inlong.agent.plugin;
 
+import java.io.IOException;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
-import java.io.IOException;
-
-/**
- * Trigger interface, which generates job in condition.
- */
+/** Trigger interface, which generates job in condition. */
 public interface Trigger {
 
     /**
@@ -34,14 +31,10 @@ public interface Trigger {
      */
     void init(TriggerProfile profile) throws IOException;
 
-    /**
-     * run trigger.
-     */
+    /** run trigger. */
     void run();
 
-    /**
-     * destroy trigger.
-     */
+    /** destroy trigger. */
     void destroy();
 
     /**
@@ -51,8 +44,6 @@ public interface Trigger {
      */
     JobProfile fetchJobProfile();
 
-    /**
-     * get trigger profile
-     */
+    /** get trigger profile */
     TriggerProfile getTriggerProfile();
 }

@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.sink.es;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,13 +32,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 
-import javax.validation.constraints.NotNull;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-/**
- * Sink info of Elasticsearch
- */
+/** Sink info of Elasticsearch */
 @Data
 @Builder
 @NoArgsConstructor
@@ -86,15 +83,15 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Properties for elasticsearch")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception {
+    /** Get the dto instance from the request */
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request)
+            throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
+            passwd =
+                    AESUtils.encryptToString(
+                            request.getPassword().getBytes(StandardCharsets.UTF_8), encryptVersion);
         }
         return ElasticsearchSinkDTO.builder()
                 .host(request.getHost())
@@ -112,15 +109,14 @@ public class ElasticsearchSinkDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the json
-     */
+    /** Get the dto instance from the json */
     public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -131,5 +127,4 @@ public class ElasticsearchSinkDTO {
         }
         return this;
     }
-
 }

@@ -18,6 +18,13 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -34,17 +41,7 @@ import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Mysql extract node using debezium engine
- */
+/** Mysql extract node using debezium engine */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
 @Data
@@ -55,32 +52,43 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
     private String primaryKey;
+
     @JsonProperty("tableNames")
     @Nonnull
     private List<String> tableNames;
+
     @JsonProperty("hostname")
     private String hostname;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("database")
     private String database;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("port")
     private Integer port;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("serverId")
     private Integer serverId;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("incrementalSnapshotEnabled")
     private Boolean incrementalSnapshotEnabled;
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
+
     @Nonnull
     @JsonProperty("extractMode")
     private ExtractMode extractMode;
+
     @JsonProperty("url")
     private String url;
 
@@ -100,11 +108,13 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
      * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
      * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
      * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
-     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
-     *         only used for {@link ExtractMode#CDC}
-     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql only used
+     *     for {@link ExtractMode#CDC}
+     * @param serverTimeZone The server time zone connect to mysql only used for {@link
+     *     ExtractMode#CDC}
      */
-    public MySqlExtractNode(@Nonnull @JsonProperty("id") String id,
+    public MySqlExtractNode(
+            @Nonnull @JsonProperty("id") String id,
             @Nonnull @JsonProperty("name") String name,
             @Nonnull @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
@@ -117,10 +127,27 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nonnull @JsonProperty("database") String database,
             @Nullable @JsonProperty("port") Integer port,
             @Nullable @JsonProperty("serverId") Integer serverId,
-            @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
+            @Nullable @JsonProperty("incrementalSnapshotEnabled")
+                    Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone) {
-        this(id, name, fields, watermarkField, properties, primaryKey, tableNames, hostname, username, password,
-                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null);
+        this(
+                id,
+                name,
+                fields,
+                watermarkField,
+                properties,
+                primaryKey,
+                tableNames,
+                hostname,
+                username,
+                password,
+                database,
+                port,
+                serverId,
+                incrementalSnapshotEnabled,
+                serverTimeZone,
+                ExtractMode.CDC,
+                null);
     }
 
     /**
@@ -136,7 +163,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
      * @param password The password connect to mysql
      * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
      */
-    public MySqlExtractNode(@JsonProperty("id") String id,
+    public MySqlExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("properties") Map<String, String> properties,
@@ -145,9 +173,24 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
             @Nullable @JsonProperty("url") String url) {
-        this(id, name, fields, null, properties, primaryKey, tableNames, null, username,
-                password, null, null, null, null, null,
-                ExtractMode.SCAN, url);
+        this(
+                id,
+                name,
+                fields,
+                null,
+                properties,
+                primaryKey,
+                tableNames,
+                null,
+                username,
+                password,
+                null,
+                null,
+                null,
+                null,
+                null,
+                ExtractMode.SCAN,
+                url);
     }
 
     /**
@@ -166,14 +209,16 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
      * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
      * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
      * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
-     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
-     *         only used for {@link ExtractMode#CDC}
-     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql only used
+     *     for {@link ExtractMode#CDC}
+     * @param serverTimeZone The server time zone connect to mysql only used for {@link
+     *     ExtractMode#CDC}
      * @param extractMode The extract mode connect mysql {@link ExtractMode}
      * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
      */
     @JsonCreator
-    public MySqlExtractNode(@JsonProperty("id") String id,
+    public MySqlExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
@@ -186,7 +231,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("database") String database,
             @Nullable @JsonProperty("port") Integer port,
             @Nullable @JsonProperty("serverId") Integer serverId,
-            @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
+            @Nullable @JsonProperty("incrementalSnapshotEnabled")
+                    Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone,
             @Nonnull @JsonProperty("extractMode") ExtractMode extractMode,
             @Nullable @JsonProperty("url") String url) {
@@ -235,7 +281,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 options.put("server-id", serverId.toString());
             }
             if (incrementalSnapshotEnabled != null) {
-                options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
+                options.put(
+                        "scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
             }
             if (serverTimeZone != null) {
                 options.put("server-time-zone", serverTimeZone);
@@ -243,13 +290,15 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         } else {
             options.put("connector", "jdbc-inlong");
             options.put("url", url);
-            Preconditions.checkState(tableNames.size() == 1,
-                    "Only support one table for scan extract mode");
+            Preconditions.checkState(
+                    tableNames.size() == 1, "Only support one table for scan extract mode");
         }
         options.put("username", username);
         options.put("password", password);
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable =
+                tableNames.size() == 1
+                        ? tableNames.get(0)
+                        : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put("table-name", String.format("%s", formatTable));
         return options;
     }
@@ -295,8 +344,10 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 metadataKey = "meta.update_before";
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                        this.getClass().getSimpleName(), metaField));
+                throw new UnsupportedOperationException(
+                        String.format(
+                                "Unsupport meta field for %s: %s",
+                                this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
     }
@@ -308,8 +359,19 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA, MetaField.DATABASE_NAME,
-                MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL, MetaField.TS, MetaField.SQL_TYPE,
-                MetaField.MYSQL_TYPE, MetaField.PK_NAMES, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.DATA,
+                MetaField.DATABASE_NAME,
+                MetaField.OP_TYPE,
+                MetaField.OP_TS,
+                MetaField.IS_DDL,
+                MetaField.TS,
+                MetaField.SQL_TYPE,
+                MetaField.MYSQL_TYPE,
+                MetaField.PK_NAMES,
+                MetaField.BATCH_ID,
+                MetaField.UPDATE_BEFORE);
     }
 }

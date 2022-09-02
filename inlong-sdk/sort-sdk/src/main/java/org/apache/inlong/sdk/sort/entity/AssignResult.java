@@ -35,10 +35,14 @@ public class AssignResult {
 
     @Override
     public String toString() {
-        return "AssignResult [succ=" + succ
-                + ", costTime=" + costTime
-                + ", errorMsg=" + errorMsg
-                + ", callListenerSucc=" + callListenerSucc + "]";
+        return "AssignResult [succ="
+                + succ
+                + ", costTime="
+                + costTime
+                + ", errorMsg="
+                + errorMsg
+                + ", callListenerSucc="
+                + callListenerSucc
+                + "]";
     }
-
 }

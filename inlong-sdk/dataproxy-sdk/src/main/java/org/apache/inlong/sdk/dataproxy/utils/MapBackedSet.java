@@ -25,9 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * A {@link Map}-backed {@link Set}.
- */
+/** A {@link Map}-backed {@link Set}. */
 public class MapBackedSet<E> extends AbstractSet<E> implements Serializable {
 
     private static final long serialVersionUID = -8347878570391674042L;

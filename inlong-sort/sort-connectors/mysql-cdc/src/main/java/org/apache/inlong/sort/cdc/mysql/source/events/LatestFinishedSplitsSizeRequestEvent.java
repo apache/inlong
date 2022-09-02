@@ -30,7 +30,5 @@ public class LatestFinishedSplitsSizeRequestEvent implements SourceEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public LatestFinishedSplitsSizeRequestEvent() {
-
-    }
+    public LatestFinishedSplitsSizeRequestEvent() {}
 }

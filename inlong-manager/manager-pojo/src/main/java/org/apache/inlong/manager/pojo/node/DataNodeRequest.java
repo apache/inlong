@@ -20,17 +20,14 @@ package org.apache.inlong.manager.pojo.node;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-/**
- * Data node request
- */
+/** Data node request */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,5 +68,4 @@ public abstract class DataNodeRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

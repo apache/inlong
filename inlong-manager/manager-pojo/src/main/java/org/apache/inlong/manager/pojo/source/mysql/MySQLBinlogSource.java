@@ -31,9 +31,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * MySQL binlog source info
- */
+/** MySQL binlog source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -62,10 +60,13 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 
-    @ApiModelProperty(value = "List of DBs to be collected, seperated by ',', supporting regular expressions")
+    @ApiModelProperty(
+            value = "List of DBs to be collected, seperated by ',', supporting regular expressions")
     private String databaseWhiteList;
 
-    @ApiModelProperty(value = "List of tables to be collected, seperated by ',',supporting regular expressions")
+    @ApiModelProperty(
+            value =
+                    "List of tables to be collected, seperated by ',',supporting regular expressions")
     private String tableWhiteList;
 
     @ApiModelProperty("Database time zone, Default is UTC")
@@ -74,7 +75,8 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("The interval for recording an offset")
     private String intervalMs;
 
-    @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
+    @ApiModelProperty(
+            "Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
     private String snapshotMode;
 
     @ApiModelProperty("The file path to store offset info")

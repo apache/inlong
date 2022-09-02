@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
@@ -42,9 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * elasticsearch template service
- */
+/** elasticsearch template service */
 @Component
 public class ElasticsearchApi {
 
@@ -52,8 +49,7 @@ public class ElasticsearchApi {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApi.class);
 
-    @Autowired
-    private ElasticsearchConfig esConfig;
+    @Autowired private ElasticsearchConfig esConfig;
 
     /**
      * Search
@@ -74,7 +70,8 @@ public class ElasticsearchApi {
      * @return Search reponse of Elasticsearch
      * @throws IOException The io exception may throws
      */
-    public SearchResponse search(SearchRequest searchRequest, RequestOptions options) throws IOException {
+    public SearchResponse search(SearchRequest searchRequest, RequestOptions options)
+            throws IOException {
         LOG.info("get es search request of {}", searchRequest.source().toString());
         return getEsClient().search(searchRequest, options);
     }
@@ -101,8 +98,8 @@ public class ElasticsearchApi {
     public void createIndex(String indexName) throws IOException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
 
-        CreateIndexResponse createIndexResponse = getEsClient().indices()
-                .create(createIndexRequest, RequestOptions.DEFAULT);
+        CreateIndexResponse createIndexResponse =
+                getEsClient().indices().create(createIndexRequest, RequestOptions.DEFAULT);
         LOG.info("create es index:{} result: {}", indexName, createIndexResponse.isAcknowledged());
     }
 
@@ -116,27 +113,35 @@ public class ElasticsearchApi {
     private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
         List<String> fieldList = new ArrayList<>();
         for (ElasticsearchFieldInfo field : fieldsInfo) {
-            StringBuilder fieldStr = new StringBuilder().append("        \"").append(field.getName())
-                    .append("\" : {\n          \"type\" : \"")
-                    .append(field.getType()).append("\"");
+            StringBuilder fieldStr =
+                    new StringBuilder()
+                            .append("        \"")
+                            .append(field.getName())
+                            .append("\" : {\n          \"type\" : \"")
+                            .append(field.getType())
+                            .append("\"");
             if (field.getType().equals("text")) {
                 if (StringUtils.isNotEmpty(field.getAnalyzer())) {
                     fieldStr.append(",\n          \"analyzer\" : \"")
-                            .append(field.getAnalyzer()).append("\"");
+                            .append(field.getAnalyzer())
+                            .append("\"");
                 }
                 if (StringUtils.isNotEmpty(field.getSearchAnalyzer())) {
                     fieldStr.append(",\n          \"search_analyzer\" : \"")
-                            .append(field.getSearchAnalyzer()).append("\"");
+                            .append(field.getSearchAnalyzer())
+                            .append("\"");
                 }
             } else if (field.getType().equals("date")) {
                 if (StringUtils.isNotEmpty(field.getFormat())) {
                     fieldStr.append(",\n          \"format\" : \"")
-                            .append(field.getFormat()).append("\"");
+                            .append(field.getFormat())
+                            .append("\"");
                 }
             } else if (field.getType().equals("scaled_float")) {
                 if (StringUtils.isNotEmpty(field.getScalingFactor())) {
                     fieldStr.append(",\n          \"scaling_factor\" : \"")
-                            .append(field.getScalingFactor()).append("\"");
+                            .append(field.getScalingFactor())
+                            .append("\"");
                 }
             }
             fieldStr.append("\n        }");
@@ -152,16 +157,19 @@ public class ElasticsearchApi {
      * @param fieldInfos Field infos
      * @throws IOException The exception may throws
      */
-    public void createIndexAndMapping(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+    public void createIndexAndMapping(String indexName, List<ElasticsearchFieldInfo> fieldInfos)
+            throws IOException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
         List<String> fieldList = getMappingInfo(fieldInfos);
-        StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
+        StringBuilder mapping =
+                new StringBuilder()
+                        .append("{\n      \"properties\" : {\n")
+                        .append(StringUtils.join(fieldList, ",\n"))
+                        .append("\n      }\n}");
         createIndexRequest.mapping(mapping.toString(), XContentType.JSON);
 
-        CreateIndexResponse createIndexResponse = getEsClient().indices()
-                .create(createIndexRequest, RequestOptions.DEFAULT);
+        CreateIndexResponse createIndexResponse =
+                getEsClient().indices().create(createIndexRequest, RequestOptions.DEFAULT);
         LOG.info("create {}:{}", indexName, createIndexResponse.isAcknowledged());
     }
 
@@ -169,8 +177,8 @@ public class ElasticsearchApi {
      * Get fields
      *
      * @param indexName The index name of Elasticsearch
-     * @return a {@link Map} collection that contains {@link String}
-     *     as key and {@link MappingMetaData} as value.
+     * @return a {@link Map} collection that contains {@link String} as key and {@link
+     *     MappingMetaData} as value.
      * @throws IOException The exception may throws
      */
     public Map<String, MappingMetaData> getFields(String indexName) throws IOException {
@@ -185,17 +193,24 @@ public class ElasticsearchApi {
      * @param fieldInfos The fields info of Elasticsearch
      * @throws IOException The exception may throws
      */
-    public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+    public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos)
+            throws IOException {
         if (CollectionUtils.isNotEmpty(fieldInfos)) {
             List<String> fieldList = getMappingInfo(fieldInfos);
-            StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                    .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
+            StringBuilder mapping =
+                    new StringBuilder()
+                            .append("{\n      \"properties\" : {\n")
+                            .append(StringUtils.join(fieldList, ",\n"))
+                            .append("\n      }\n}");
             System.out.println(mapping.toString());
-            PutMappingRequest indexRequest = new PutMappingRequest(indexName)
-                    .source(mapping.toString(), XContentType.JSON);
-            AcknowledgedResponse acknowledgedResponse = getEsClient().indices()
-                    .putMapping(indexRequest, RequestOptions.DEFAULT);
-            LOG.info("put mapping: {} result: {}", mapping.toString(), acknowledgedResponse.toString());
+            PutMappingRequest indexRequest =
+                    new PutMappingRequest(indexName).source(mapping.toString(), XContentType.JSON);
+            AcknowledgedResponse acknowledgedResponse =
+                    getEsClient().indices().putMapping(indexRequest, RequestOptions.DEFAULT);
+            LOG.info(
+                    "put mapping: {} result: {}",
+                    mapping.toString(),
+                    acknowledgedResponse.toString());
         }
     }
 
@@ -206,11 +221,12 @@ public class ElasticsearchApi {
      * @param fieldInfos The fields info of elasticsearch
      * @throws IOException The exception may throws
      */
-    public void addNotExistFields(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+    public void addNotExistFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos)
+            throws IOException {
         List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>(fieldInfos);
         Map<String, MappingMetaData> mapping = getFields(indexName);
-        Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
+        Map<String, Object> filedMap =
+                (Map<String, Object>) mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
             for (ElasticsearchFieldInfo field : notExistFieldInfos) {
                 if (field.getName().equals(key)) {

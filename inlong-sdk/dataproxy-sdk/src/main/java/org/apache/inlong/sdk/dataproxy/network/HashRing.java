@@ -17,17 +17,16 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.SortedMap;
-import java.util.stream.Collectors;
 
 public class HashRing {
     private static final Logger LOGGER = LoggerFactory.getLogger(HashRing.class);
@@ -103,8 +102,14 @@ public class HashRing {
     public synchronized void updateNode(List<HostInfo> nodes) {
         List<HostInfo> newHosts = new ArrayList<>(nodes);
         List<HostInfo> oldHosts = new ArrayList<>(this.nodeList);
-        List<HostInfo> append = newHosts.stream().filter(host -> !oldHosts.contains(host)).collect(Collectors.toList());
-        List<HostInfo> remove = oldHosts.stream().filter(host -> !newHosts.contains(host)).collect(Collectors.toList());
+        List<HostInfo> append =
+                newHosts.stream()
+                        .filter(host -> !oldHosts.contains(host))
+                        .collect(Collectors.toList());
+        List<HostInfo> remove =
+                oldHosts.stream()
+                        .filter(host -> !newHosts.contains(host))
+                        .collect(Collectors.toList());
         extendNode(append);
         removeNode(remove);
     }

@@ -80,9 +80,7 @@ public class SeekBinlogToTimestampFilter<T> implements DebeziumDeserializationSc
 
     @Override
     public void deserialize(SourceRecord record, Collector<T> out, TableChange tableChange)
-            throws Exception {
-
-    }
+            throws Exception {}
 
     @Override
     public TypeInformation<T> getProducedType() {

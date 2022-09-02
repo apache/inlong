@@ -18,18 +18,12 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * Collection type of data content
- */
+/** Collection type of data content */
 public class DataCollectType {
 
-    /**
-     * increment of data
-     */
+    /** increment of data */
     public static final String INCREMENT = "INCREMENT";
 
-    /**
-     * full data
-     */
+    /** full data */
     public static final String FULL = "FULL";
 }

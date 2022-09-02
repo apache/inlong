@@ -22,10 +22,6 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.types.Row;
 
-/**
- * The converter for a mixed inlongmsg format.
- */
+/** The converter for a mixed inlongmsg format. */
 public interface InLongMsgMixedFormatConverter
-        extends FlatMapFunction<Row, Row>, ResultTypeQueryable<Row> {
-
-}
+        extends FlatMapFunction<Row, Row>, ResultTypeQueryable<Row> {}

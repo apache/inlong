@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.enums;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 public enum FieldType {
-
     INT,
     TINYINT,
     SMALLINT,

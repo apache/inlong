@@ -20,26 +20,17 @@ package org.apache.inlong.common.pojo.dataproxy;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Data proxy config request info.
- */
+/** Data proxy config request info. */
 @Data
 @NoArgsConstructor
 public class DataProxyConfigRequest {
 
-    /**
-     * DataProxy cluster name
-     */
+    /** DataProxy cluster name */
     private String clusterName;
 
-    /**
-     * DataProxy cluster tag
-     */
+    /** DataProxy cluster tag */
     private String clusterTag;
 
-    /**
-     * DataProxy cluster md5
-     */
+    /** DataProxy cluster md5 */
     private String md5;
-
 }

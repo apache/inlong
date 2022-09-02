@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
 import com.sleepycat.je.rep.ReplicatedEnvironment;
@@ -32,14 +29,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopic
 public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
     // Topic configure store
     private EntityStore topicConfStore;
-    private final PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
+    private final PrimaryIndex<String /* recordKey */, BdbTopicConfEntity> topicConfIndex;
 
     public BdbTopicDeployMapperImpl(ReplicatedEnvironment repEnv, StoreConfig storeConfig) {
         super();
-        topicConfStore = new EntityStore(repEnv,
-                TBDBStoreTables.BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
-        topicConfIndex =
-                topicConfStore.getPrimaryIndex(String.class, BdbTopicConfEntity.class);
+        topicConfStore =
+                new EntityStore(repEnv, TBDBStoreTables.BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
+        topicConfIndex = topicConfStore.getPrimaryIndex(String.class, BdbTopicConfEntity.class);
     }
 
     @Override
@@ -80,22 +76,26 @@ public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
                 cursor.close();
             }
         }
-        logger.info(strBuff.append("[BDB Impl] loaded ").append(totalCnt)
-                .append(" topic deploy configure successfully...").toString());
+        logger.info(
+                strBuff.append("[BDB Impl] loaded ")
+                        .append(totalCnt)
+                        .append(" topic deploy configure successfully...")
+                        .toString());
         strBuff.delete(0, strBuff.length());
     }
 
-    protected boolean putConfig2Persistent(TopicDeployEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbTopicConfEntity bdbEntity =
-                entity.buildBdbTopicConfEntity();
+    protected boolean putConfig2Persistent(
+            TopicDeployEntity entity, StringBuilder strBuff, ProcessResult result) {
+        BdbTopicConfEntity bdbEntity = entity.buildBdbTopicConfEntity();
         try {
             topicConfIndex.put(bdbEntity);
         } catch (Throwable e) {
             logger.error("[BDB Impl] put topic deploy configure failure ", e);
-            result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
+            result.setFailResult(
+                    DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
                     strBuff.append("Put topic deploy configure failure: ")
-                            .append(e.getMessage()).toString());
+                            .append(e.getMessage())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }

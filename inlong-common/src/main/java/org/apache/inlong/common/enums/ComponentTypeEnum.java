@@ -20,7 +20,6 @@ package org.apache.inlong.common.enums;
 import lombok.Getter;
 
 public enum ComponentTypeEnum {
-
     Agent("AGENT"),
 
     DataProxy("DATAPROXY"),
@@ -31,8 +30,7 @@ public enum ComponentTypeEnum {
 
     SDK("SDK");
 
-    @Getter
-    private final String name;
+    @Getter private final String name;
 
     ComponentTypeEnum(String name) {
         this.name = name;
@@ -44,6 +42,7 @@ public enum ComponentTypeEnum {
                 return componentType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport componentName for Inlong:%s", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupport componentName for Inlong:%s", name));
     }
 }

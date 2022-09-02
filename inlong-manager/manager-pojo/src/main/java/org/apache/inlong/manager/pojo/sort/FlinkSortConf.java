@@ -20,16 +20,13 @@ package org.apache.inlong.manager.pojo.sort;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import java.util.Map;
-
-/**
- * Flink sort base config.
- */
+/** Flink sort base config. */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for flink cluster")
@@ -39,10 +36,12 @@ public class FlinkSortConf extends BaseSortConf {
     @ApiModelProperty("Authentication")
     private Authentication authentication;
 
-    @ApiModelProperty("ServiceUrl for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing")
+    @ApiModelProperty(
+            "ServiceUrl for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing")
     private String serviceUrl;
 
-    @ApiModelProperty("Region for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing or null if not exists")
+    @ApiModelProperty(
+            "Region for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing or null if not exists")
     private String region;
 
     @ApiModelProperty("Other properties if needed")

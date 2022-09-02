@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.sink.iceberg;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +30,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Iceberg sink info
- */
+/** Iceberg sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -73,9 +70,7 @@ public class IcebergSinkDTO {
     @ApiModelProperty("Properties for iceberg")
     private Map<String, Object> properties;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static IcebergSinkDTO getFromRequest(IcebergSinkRequest request) {
         return IcebergSinkDTO.builder()
                 .catalogUri(request.getCatalogUri())
@@ -95,14 +90,14 @@ public class IcebergSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, IcebergSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
-    /**
-     * Get Iceberg table info
-     */
-    public static IcebergTableInfo getIcebergTableInfo(IcebergSinkDTO icebergInfo, List<IcebergColumnInfo> columnList) {
+    /** Get Iceberg table info */
+    public static IcebergTableInfo getIcebergTableInfo(
+            IcebergSinkDTO icebergInfo, List<IcebergColumnInfo> columnList) {
         IcebergTableInfo info = new IcebergTableInfo();
         info.setDbName(icebergInfo.getDbName());
         info.setTableName(icebergInfo.getTableName());
@@ -111,5 +106,4 @@ public class IcebergSinkDTO {
         info.setColumns(columnList);
         return info;
     }
-
 }

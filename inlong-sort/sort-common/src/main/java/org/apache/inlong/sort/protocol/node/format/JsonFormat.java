@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -24,16 +26,13 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgn
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The Json format
  *
- * @see <a herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/json/">
- *         Json Format</a>
+ * @see <a
+ *     herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/json/">
+ *     Json Format</a>
  */
-
 @JsonTypeName("jsonFormat")
 @Data
 @ToString
@@ -43,23 +42,33 @@ public class JsonFormat implements Format {
 
     @JsonProperty(value = "failOnMissingField", defaultValue = "false")
     private Boolean failOnMissingField;
+
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
     private Boolean ignoreParseErrors;
+
     @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
     private String timestampFormatStandard;
+
     @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP")
     private String mapNullKeyMode;
+
     @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
     private String mapNullKeyLiteral;
+
     @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
     private Boolean encodeDecimalAsPlainNumber;
 
     @JsonCreator
-    public JsonFormat(@JsonProperty(value = "failOnMissingField", defaultValue = "false") Boolean failOnMissingField,
-            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true") Boolean ignoreParseErrors,
-            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
+    public JsonFormat(
+            @JsonProperty(value = "failOnMissingField", defaultValue = "false")
+                    Boolean failOnMissingField,
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
+                    Boolean ignoreParseErrors,
+            @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL")
+                    String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
-            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
+            @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null")
+                    String mapNullKeyLiteral,
             @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
                     Boolean encodeDecimalAsPlainNumber) {
         this.failOnMissingField = failOnMissingField;

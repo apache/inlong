@@ -23,12 +23,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
-/**
- * DLCIceberg sink request.
- */
+/** DLCIceberg sink request. */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -50,5 +48,4 @@ public class DLCIcebergSinkRequest extends SinkRequest {
 
     @ApiModelProperty(value = "Primary key")
     private String primaryKey;
-
 }

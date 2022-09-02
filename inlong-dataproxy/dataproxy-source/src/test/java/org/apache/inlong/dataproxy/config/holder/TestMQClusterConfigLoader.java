@@ -17,17 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Test for {@link MQClusterConfigHolder}
- */
+/** Test for {@link MQClusterConfigHolder} */
 public class TestMQClusterConfigLoader {
 
     @Test
@@ -68,8 +65,8 @@ public class TestMQClusterConfigLoader {
     @Test
     public void testPulsarUrl() {
         Map<String, String> url2token = ConfigManager.getInstance().getMqClusterUrl2Token();
-        Assert.assertEquals("pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650,pulsar2://127.0.0.1:6600"));
+        Assert.assertEquals(
+                "pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650,pulsar2://127.0.0.1:6600"));
         Assert.assertEquals("pulsartoken2", url2token.get("pulsar2://127.0.0.1:6680"));
     }
-
 }

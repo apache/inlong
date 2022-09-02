@@ -22,9 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
-/**
- * Consumer group flow control rules
- */
+/** Consumer group flow control rules */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

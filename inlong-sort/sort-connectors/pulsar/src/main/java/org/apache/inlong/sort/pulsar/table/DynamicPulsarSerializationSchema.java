@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkArgument;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -39,24 +46,13 @@ import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.apache.pulsar.common.schema.SchemaInfo;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkArgument;
-
-/**
- * A specific Serializer for {@link PulsarDynamicTableSink}.
- */
+/** A specific Serializer for {@link PulsarDynamicTableSink}. */
 class DynamicPulsarSerializationSchema
         implements PulsarSerializationSchema<RowData>, PulsarContextAware<RowData> {
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    SerializationSchema<RowData> keySerialization;
+    private final @Nullable SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -69,8 +65,8 @@ class DynamicPulsarSerializationSchema
     private final boolean upsertMode;
 
     /**
-     * Contains the position for each value of {@link PulsarDynamicTableSink.WritableMetadata} in the consumed row or
-     * -1 if this metadata key is not used.
+     * Contains the position for each value of {@link PulsarDynamicTableSink.WritableMetadata} in
+     * the consumed row or -1 if this metadata key is not used.
      */
     private final int[] metadataPositions;
 
@@ -86,9 +82,7 @@ class DynamicPulsarSerializationSchema
 
     private volatile Schema<RowData> schema;
 
-    /**
-     * delay milliseconds message.
-     */
+    /** delay milliseconds message. */
     private long delayMilliseconds;
 
     DynamicPulsarSerializationSchema(
@@ -103,7 +97,8 @@ class DynamicPulsarSerializationSchema
             String valueFormatType,
             long delayMilliseconds) {
         if (upsertMode) {
-            checkArgument(keySerialization != null && keyFieldGetters.length > 0,
+            checkArgument(
+                    keySerialization != null && keyFieldGetters.length > 0,
                     "Key must be set in upsert mode for serialization schema.");
         }
         this.keySerialization = keySerialization;
@@ -118,7 +113,8 @@ class DynamicPulsarSerializationSchema
         this.delayMilliseconds = delayMilliseconds;
     }
 
-    private static RowData createProjectedRow(RowData consumedRow, RowKind kind, RowData.FieldGetter[] fieldGetters) {
+    private static RowData createProjectedRow(
+            RowData consumedRow, RowKind kind, RowData.FieldGetter[] fieldGetters) {
         final int arity = fieldGetters.length;
         final GenericRowData genericRowData = new GenericRowData(kind, arity);
         for (int fieldPos = 0; fieldPos < arity; fieldPos++) {
@@ -168,23 +164,26 @@ class DynamicPulsarSerializationSchema
             messageBuilder.value(valueRow);
         }
 
-        Map<String, String> properties = readMetadata(consumedRow, PulsarDynamicTableSink.WritableMetadata.PROPERTIES);
+        Map<String, String> properties =
+                readMetadata(consumedRow, PulsarDynamicTableSink.WritableMetadata.PROPERTIES);
         if (properties != null) {
             messageBuilder.properties(properties);
         }
-        final Long eventTime = readMetadata(consumedRow, PulsarDynamicTableSink.WritableMetadata.EVENT_TIME);
+        final Long eventTime =
+                readMetadata(consumedRow, PulsarDynamicTableSink.WritableMetadata.EVENT_TIME);
         if (eventTime != null && eventTime >= 0) {
             messageBuilder.eventTime(eventTime);
         }
     }
 
     public Optional<String> getTargetTopic(RowData element) {
-        //TODO need get topic from row.
+        // TODO need get topic from row.
         return Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T readMetadata(RowData consumedRow, PulsarDynamicTableSink.WritableMetadata metadata) {
+    private <T> T readMetadata(
+            RowData consumedRow, PulsarDynamicTableSink.WritableMetadata metadata) {
         final int pos = metadataPositions[metadata.ordinal()];
         if (pos < 0) {
             return null;
@@ -226,7 +225,8 @@ class DynamicPulsarSerializationSchema
         }
         Configuration configuration = new Configuration();
         hackPbSerializationSchema(configuration);
-        SchemaInfo schemaInfo = SchemaUtils.tableSchemaToSchemaInfo(valueFormatType, valueDataType, configuration);
+        SchemaInfo schemaInfo =
+                SchemaUtils.tableSchemaToSchemaInfo(valueFormatType, valueDataType, configuration);
         return new FlinkSchema<>(schemaInfo, valueSerialization, null);
     }
 
@@ -235,7 +235,9 @@ class DynamicPulsarSerializationSchema
         if (valueSerialization instanceof PbRowDataSerializationSchema) {
             try {
                 final String messageClassName =
-                        (String) FieldUtils.readDeclaredField(valueSerialization, "messageClassName", true);
+                        (String)
+                                FieldUtils.readDeclaredField(
+                                        valueSerialization, "messageClassName", true);
                 configuration.set(PbFormatOptions.MESSAGE_CLASS_NAME, messageClassName);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();

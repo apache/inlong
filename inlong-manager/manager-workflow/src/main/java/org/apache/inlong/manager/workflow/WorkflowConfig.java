@@ -25,23 +25,15 @@ import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * Workflow config
- */
+/** Workflow config */
 public class WorkflowConfig {
 
-    @JsonIgnore
-    private WorkflowQueryService queryService;
-    @JsonIgnore
-    private WorkflowProcessEntityMapper processEntityMapper;
-    @JsonIgnore
-    private WorkflowTaskEntityMapper taskEntityMapper;
-    @JsonIgnore
-    private WorkflowEventLogEntityMapper eventLogMapper;
-    @JsonIgnore
-    private ProcessDefinitionRepository definitionRepository;
-    @JsonIgnore
-    private PlatformTransactionManager transactionManager;
+    @JsonIgnore private WorkflowQueryService queryService;
+    @JsonIgnore private WorkflowProcessEntityMapper processEntityMapper;
+    @JsonIgnore private WorkflowTaskEntityMapper taskEntityMapper;
+    @JsonIgnore private WorkflowEventLogEntityMapper eventLogMapper;
+    @JsonIgnore private ProcessDefinitionRepository definitionRepository;
+    @JsonIgnore private PlatformTransactionManager transactionManager;
 
     public WorkflowQueryService getQueryService() {
         return queryService;
@@ -83,7 +75,8 @@ public class WorkflowConfig {
         return definitionRepository;
     }
 
-    public WorkflowConfig setDefinitionRepository(ProcessDefinitionRepository definitionRepository) {
+    public WorkflowConfig setDefinitionRepository(
+            ProcessDefinitionRepository definitionRepository) {
         this.definitionRepository = definitionRepository;
         return this;
     }
@@ -96,5 +89,4 @@ public class WorkflowConfig {
         this.transactionManager = transactionManager;
         return this;
     }
-
 }

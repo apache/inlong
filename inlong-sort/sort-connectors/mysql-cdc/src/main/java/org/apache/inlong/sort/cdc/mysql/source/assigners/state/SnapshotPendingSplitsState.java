@@ -19,22 +19,17 @@
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
 import io.debezium.relational.TableId;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-/**
- * A {@link PendingSplitsState} for pending snapshot splits.
- */
+/** A {@link PendingSplitsState} for pending snapshot splits. */
 public class SnapshotPendingSplitsState extends PendingSplitsState {
 
-    /**
-     * The tables in the checkpoint.
-     */
+    /** The tables in the checkpoint. */
     private final List<TableId> remainingTables;
 
     /**
@@ -43,9 +38,7 @@ public class SnapshotPendingSplitsState extends PendingSplitsState {
      */
     private final List<TableId> alreadyProcessedTables;
 
-    /**
-     * The splits in the checkpoint.
-     */
+    /** The splits in the checkpoint. */
     private final List<MySqlSnapshotSplit> remainingSplits;
 
     /**
@@ -60,19 +53,13 @@ public class SnapshotPendingSplitsState extends PendingSplitsState {
      */
     private final Map<String, BinlogOffset> splitFinishedOffsets;
 
-    /**
-     * The {@link AssignerStatus} that indicates the snapshot assigner status.
-     */
+    /** The {@link AssignerStatus} that indicates the snapshot assigner status. */
     private final AssignerStatus assignerStatus;
 
-    /**
-     * Whether the table identifier is case-sensitive.
-     */
+    /** Whether the table identifier is case-sensitive. */
     private final boolean isTableIdCaseSensitive;
 
-    /**
-     * Whether the remaining tables are keep when snapshot state.
-     */
+    /** Whether the remaining tables are keep when snapshot state. */
     private final boolean isRemainingTablesCheckpointed;
 
     public SnapshotPendingSplitsState(

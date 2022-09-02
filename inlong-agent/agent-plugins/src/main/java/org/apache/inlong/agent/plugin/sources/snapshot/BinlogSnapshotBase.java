@@ -17,10 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
-import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,10 +26,11 @@ import java.io.OutputStream;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import org.apache.inlong.agent.utils.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * binlog snapshot
- */
+/** binlog snapshot */
 public class BinlogSnapshotBase implements SnapshotBase {
 
     public static final int BUFFER_SIZE = 1024;
@@ -55,12 +52,9 @@ public class BinlogSnapshotBase implements SnapshotBase {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 
-    /**
-     * load binlog offset from local file
-     */
+    /** load binlog offset from local file */
     public void load() {
         try {
             if (!file.exists()) {
@@ -93,9 +87,7 @@ public class BinlogSnapshotBase implements SnapshotBase {
         }
     }
 
-    /**
-     * save binlog offset to local file
-     */
+    /** save binlog offset to local file */
     public void save(String snapshot) {
         byte[] bytes = decoder.decode(snapshot);
         if (bytes.length != 0) {
@@ -105,9 +97,7 @@ public class BinlogSnapshotBase implements SnapshotBase {
             } catch (Throwable e) {
                 log.error("save offset to file error", e);
                 ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-
             }
         }
     }
-
 }

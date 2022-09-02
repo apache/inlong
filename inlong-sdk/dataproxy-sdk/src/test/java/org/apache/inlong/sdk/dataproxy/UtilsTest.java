@@ -29,5 +29,4 @@ public class UtilsTest {
         String ip = Utils.getLocalIp();
         Assert.assertNotNull(ip);
     }
-
 }

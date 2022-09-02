@@ -17,19 +17,19 @@
 
 package org.apache.inlong.audit.sink.pulsar;
 
-/**
- * call back interface for create pulsar client
- */
+/** call back interface for create pulsar client */
 public interface CreatePulsarClientCallBack {
 
     /**
      * call after create pulsar client success
+     *
      * @param url
      */
     void handleCreateClientSuccess(String url);
 
     /**
      * call after create pulsar client has exception
+     *
      * @param url
      */
     void handleCreateClientException(String url);

@@ -23,21 +23,20 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test for {@link BaseSortConf}
- */
+/** Test for {@link BaseSortConf} */
 public class BaseSortConfTest {
 
     @Test
     public void testSerde() {
         FlinkSortConf flinkSortConf = new FlinkSortConf();
-        BaseSortConf baseSortConf = JsonUtils.parseObject(JsonUtils.toJsonString(flinkSortConf), BaseSortConf.class);
+        BaseSortConf baseSortConf =
+                JsonUtils.parseObject(JsonUtils.toJsonString(flinkSortConf), BaseSortConf.class);
         Assertions.assertEquals(baseSortConf.getType(), SortType.FLINK);
 
         UserDefinedSortConf userDefinedSortConf = new UserDefinedSortConf();
-        BaseSortConf baseSortConf1 = JsonUtils.parseObject(JsonUtils.toJsonString(userDefinedSortConf),
-                BaseSortConf.class);
+        BaseSortConf baseSortConf1 =
+                JsonUtils.parseObject(
+                        JsonUtils.toJsonString(userDefinedSortConf), BaseSortConf.class);
         Assertions.assertEquals(baseSortConf1.getType(), SortType.USER_DEFINED);
     }
-
 }

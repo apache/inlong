@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
+import java.io.Closeable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
@@ -30,14 +34,7 @@ import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-/**
- * metric worker
- */
+/** metric worker */
 public class MetricWorkerThread extends Thread implements Closeable {
 
     private static final String DEFAULT_KEY_ITEM = "";
@@ -46,11 +43,14 @@ public class MetricWorkerThread extends Thread implements Closeable {
 
     private final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
 
-    private final ConcurrentHashMap<String, MessageRecord> metricValueCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, MessageRecord> metricValueCache =
+            new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, MetricTimeNumSummary> metricPackTimeMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, MetricTimeNumSummary> metricPackTimeMap =
+            new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, MetricTimeNumSummary> metricDtMap =
+            new ConcurrentHashMap<>();
 
     private final ProxyClientConfig proxyClientConfig;
 
@@ -74,18 +74,20 @@ public class MetricWorkerThread extends Thread implements Closeable {
         return keyTime - keyTime % proxyClientConfig.getMetricIntervalInMs();
     }
 
-    /**
-     * get string key
-     */
-    private String getKeyStringByConfig(String groupId, String streamId, String localIp, long keyTime) {
+    /** get string key */
+    private String getKeyStringByConfig(
+            String groupId, String streamId, String localIp, long keyTime) {
         StringBuilder builder = new StringBuilder();
         String groupIdStr = proxyClientConfig.isUseGroupIdAsKey() ? groupId : DEFAULT_KEY_ITEM;
         String streamIdStr = proxyClientConfig.isUseStreamIdAsKey() ? streamId : DEFAULT_KEY_ITEM;
         String localIpStr = proxyClientConfig.isUseLocalIpAsKey() ? localIp : DEFAULT_KEY_ITEM;
 
-        builder.append(groupIdStr).append(DEFAULT_KEY_SPLITTER)
-                .append(streamIdStr).append(DEFAULT_KEY_SPLITTER)
-                .append(localIpStr).append(DEFAULT_KEY_SPLITTER)
+        builder.append(groupIdStr)
+                .append(DEFAULT_KEY_SPLITTER)
+                .append(streamIdStr)
+                .append(DEFAULT_KEY_SPLITTER)
+                .append(localIpStr)
+                .append(DEFAULT_KEY_SPLITTER)
                 .append(keyTime);
         return builder.toString();
     }
@@ -101,18 +103,33 @@ public class MetricWorkerThread extends Thread implements Closeable {
      * @param dt dt
      * @param num num
      */
-    public void recordNumByKey(String msgId, String groupId, String streamId,
-            String localIp, long packTime, long dt, int num) {
+    public void recordNumByKey(
+            String msgId,
+            String groupId,
+            String streamId,
+            String localIp,
+            long packTime,
+            long dt,
+            int num) {
         if (!enableSlaMetric) {
             return;
         }
-        MessageRecord messageRecord = new MessageRecord(groupId, streamId, localIp, msgId,
-                getFormatKeyTime(dt), getFormatKeyTime(packTime), num);
+        MessageRecord messageRecord =
+                new MessageRecord(
+                        groupId,
+                        streamId,
+                        localIp,
+                        msgId,
+                        getFormatKeyTime(dt),
+                        getFormatKeyTime(packTime),
+                        num);
 
         metricValueCache.putIfAbsent(msgId, messageRecord);
     }
 
-    private MetricTimeNumSummary getMetricSummary(String keyName, MetricTimeNumSummary summary,
+    private MetricTimeNumSummary getMetricSummary(
+            String keyName,
+            MetricTimeNumSummary summary,
             ConcurrentHashMap<String, MetricTimeNumSummary> cacheMap) {
         MetricTimeNumSummary finalSummary = cacheMap.putIfAbsent(keyName, summary);
         if (finalSummary == null) {
@@ -132,18 +149,33 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
         MessageRecord messageRecord = metricValueCache.remove(msgId);
         if (messageRecord != null) {
-            String packTimeKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
-                    messageRecord.getLocalIp(), messageRecord.getPackTime());
-            String dtKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
-                    messageRecord.getLocalIp(), messageRecord.getDt());
+            String packTimeKeyName =
+                    getKeyStringByConfig(
+                            messageRecord.getGroupId(),
+                            messageRecord.getStreamId(),
+                            messageRecord.getLocalIp(),
+                            messageRecord.getPackTime());
+            String dtKeyName =
+                    getKeyStringByConfig(
+                            messageRecord.getGroupId(),
+                            messageRecord.getStreamId(),
+                            messageRecord.getLocalIp(),
+                            messageRecord.getDt());
 
-            MetricTimeNumSummary packTimeSummary = getMetricSummary(packTimeKeyName,
-                    new MetricTimeNumSummary(messageRecord.getPackTime()), metricPackTimeMap);
+            MetricTimeNumSummary packTimeSummary =
+                    getMetricSummary(
+                            packTimeKeyName,
+                            new MetricTimeNumSummary(messageRecord.getPackTime()),
+                            metricPackTimeMap);
 
-            MetricTimeNumSummary dtSummary = getMetricSummary(dtKeyName,
-                    new MetricTimeNumSummary(messageRecord.getDt()), metricDtMap);
+            MetricTimeNumSummary dtSummary =
+                    getMetricSummary(
+                            dtKeyName,
+                            new MetricTimeNumSummary(messageRecord.getDt()),
+                            metricDtMap);
 
-            packTimeSummary.recordSuccessSendTime(messageRecord.getMessageTime(), messageRecord.getMsgCount());
+            packTimeSummary.recordSuccessSendTime(
+                    messageRecord.getMessageTime(), messageRecord.getMsgCount());
             dtSummary.increaseSuccessNum(messageRecord.getMsgCount());
         }
     }
@@ -156,16 +188,30 @@ public class MetricWorkerThread extends Thread implements Closeable {
     public void recordFailedByMessageId(String msgId) {
         MessageRecord messageRecord = metricValueCache.remove(msgId);
         if (messageRecord != null) {
-            String packTimeKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
-                    messageRecord.getLocalIp(), messageRecord.getPackTime());
-            String dtKeyName = getKeyStringByConfig(messageRecord.getGroupId(), messageRecord.getStreamId(),
-                    messageRecord.getLocalIp(), messageRecord.getDt());
+            String packTimeKeyName =
+                    getKeyStringByConfig(
+                            messageRecord.getGroupId(),
+                            messageRecord.getStreamId(),
+                            messageRecord.getLocalIp(),
+                            messageRecord.getPackTime());
+            String dtKeyName =
+                    getKeyStringByConfig(
+                            messageRecord.getGroupId(),
+                            messageRecord.getStreamId(),
+                            messageRecord.getLocalIp(),
+                            messageRecord.getDt());
 
-            MetricTimeNumSummary packTimeSummary = getMetricSummary(packTimeKeyName,
-                    new MetricTimeNumSummary(messageRecord.getMessageTime()), metricPackTimeMap);
+            MetricTimeNumSummary packTimeSummary =
+                    getMetricSummary(
+                            packTimeKeyName,
+                            new MetricTimeNumSummary(messageRecord.getMessageTime()),
+                            metricPackTimeMap);
 
-            MetricTimeNumSummary dtSummary = getMetricSummary(dtKeyName,
-                    new MetricTimeNumSummary(messageRecord.getDt()), metricDtMap);
+            MetricTimeNumSummary dtSummary =
+                    getMetricSummary(
+                            dtKeyName,
+                            new MetricTimeNumSummary(messageRecord.getDt()),
+                            metricDtMap);
 
             packTimeSummary.increaseFailedNum(messageRecord.getMsgCount());
             dtSummary.increaseFailedNum(messageRecord.getMsgCount());
@@ -198,10 +244,17 @@ public class MetricWorkerThread extends Thread implements Closeable {
         try {
 
             if (callBack.getRetryCount() < 4) {
-                sender.asyncSendMessageIndex(encodeObject, callBack,
-                        String.valueOf(System.currentTimeMillis()), 20, TimeUnit.SECONDS);
+                sender.asyncSendMessageIndex(
+                        encodeObject,
+                        callBack,
+                        String.valueOf(System.currentTimeMillis()),
+                        20,
+                        TimeUnit.SECONDS);
             } else {
-                logger.error("error while sending {} {}", encodeObject.getBodyBytes(), encodeObject.getBodylist());
+                logger.error(
+                        "error while sending {} {}",
+                        encodeObject.getBodyBytes(),
+                        encodeObject.getBodylist());
             }
         } catch (Exception ex) {
             logger.warn("exception caught {}", ex.getMessage());
@@ -210,26 +263,44 @@ public class MetricWorkerThread extends Thread implements Closeable {
     }
 
     private void sendSingleLine(String line, String streamId, long dtTime) {
-        EncodeObject encodeObject = new EncodeObject(line.getBytes(), 7,
-                false, false, false,
-                dtTime, idGenerator.getNextInt(),
-                proxyClientConfig.getMetricGroupId(), streamId, "", "", Utils.getLocalIp());
+        EncodeObject encodeObject =
+                new EncodeObject(
+                        line.getBytes(),
+                        7,
+                        false,
+                        false,
+                        false,
+                        dtTime,
+                        idGenerator.getNextInt(),
+                        proxyClientConfig.getMetricGroupId(),
+                        streamId,
+                        "",
+                        "",
+                        Utils.getLocalIp());
         MetricSendCallBack callBack = new MetricSendCallBack(encodeObject);
         tryToSendMetricToManager(encodeObject, callBack);
     }
 
-    private void flushMapRecords(boolean isClosing, ConcurrentHashMap<String, MetricTimeNumSummary> cacheMap) {
+    private void flushMapRecords(
+            boolean isClosing, ConcurrentHashMap<String, MetricTimeNumSummary> cacheMap) {
         for (String keyName : cacheMap.keySet()) {
             MetricTimeNumSummary summary = cacheMap.get(keyName);
-            if (isClosing || (summary != null && summary.getSummaryTime()
-                    + delayTime > proxyClientConfig.getMetricIntervalInMs())) {
+            if (isClosing
+                    || (summary != null
+                            && summary.getSummaryTime() + delayTime
+                                    > proxyClientConfig.getMetricIntervalInMs())) {
                 summary = cacheMap.remove(keyName);
                 if (summary != null) {
                     long metricDtTime = summary.getStartCalculateTime() / 1000;
                     // send to manager cluster.
-                    String countLine = keyName + DEFAULT_KEY_SPLITTER + summary.getSuccessNum()
-                            + DEFAULT_KEY_SPLITTER + summary.getFailedNum()
-                            + DEFAULT_KEY_SPLITTER + summary.getTotalNum();
+                    String countLine =
+                            keyName
+                                    + DEFAULT_KEY_SPLITTER
+                                    + summary.getSuccessNum()
+                                    + DEFAULT_KEY_SPLITTER
+                                    + summary.getFailedNum()
+                                    + DEFAULT_KEY_SPLITTER
+                                    + summary.getTotalNum();
                     String timeLine = keyName + DEFAULT_KEY_SPLITTER + summary.getTimeString();
 
                     logger.info("sending {}", countLine);
@@ -241,22 +312,20 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
     }
 
-    /**
-     * flush records
-     */
+    /** flush records */
     private void flushRecords(boolean isClosing) {
         flushMapRecords(isClosing, metricDtMap);
         flushMapRecords(isClosing, metricPackTimeMap);
     }
 
-    /**
-     * check cache records
-     */
+    /** check cache records */
     private void checkCacheRecords() {
         for (String msgId : metricValueCache.keySet()) {
             MessageRecord record = metricValueCache.get(msgId);
 
-            if (record != null && record.getMessageTime() + delayTime > proxyClientConfig.getMetricIntervalInMs()) {
+            if (record != null
+                    && record.getMessageTime() + delayTime
+                            > proxyClientConfig.getMetricIntervalInMs()) {
                 recordFailedByMessageId(msgId);
             }
         }
@@ -303,8 +372,6 @@ public class MetricWorkerThread extends Thread implements Closeable {
         }
 
         @Override
-        public void onMessageAck(SendResult result) {
-
-        }
+        public void onMessageAck(SendResult result) {}
     }
 }

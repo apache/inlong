@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
 import java.util.HashMap;
@@ -53,22 +50,17 @@ import org.slf4j.LoggerFactory;
  * Broker run manager
  */
 public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
-    private static final Logger logger =
-            LoggerFactory.getLogger(DefBrokerRunManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefBrokerRunManager.class);
     // meta data manager
     private final MetaDataService metaDataService;
     private final HeartbeatManager heartbeatManager;
     // broker string info
-    private final AtomicLong brokerInfoCheckSum =
-            new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong brokerInfoCheckSum = new AtomicLong(System.currentTimeMillis());
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
-    private final ConcurrentHashMap<Integer, String> brokersMap =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, String> brokersTLSMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, String> brokersMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, String> brokersTLSMap = new ConcurrentHashMap<>();
     // broker sync FSM
-    private final AtomicInteger brokerTotalCount =
-            new AtomicInteger(0);
+    private final AtomicInteger brokerTotalCount = new AtomicInteger(0);
     // brokerId -- broker run status info map
     private final ConcurrentHashMap<Integer, BrokerRunStatusInfo> brokerRunSyncManageMap =
             new ConcurrentHashMap<>();
@@ -80,7 +72,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     /**
      * Constructor by TMaster
      *
-     * @param tMaster  the initial TMaster object
+     * @param tMaster the initial TMaster object
      */
     public DefBrokerRunManager(TMaster tMaster) {
         this.metaDataService = tMaster.getMetaDataService();
@@ -88,14 +80,19 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         MasterConfig masterConfig = tMaster.getMasterConfig();
         this.brokerAbnHolder =
                 new BrokerAbnHolder(masterConfig.getMaxAutoForbiddenCnt(), this.metaDataService);
-        heartbeatManager.regBrokerCheckBusiness(masterConfig.getBrokerHeartbeatTimeoutMs(),
+        heartbeatManager.regBrokerCheckBusiness(
+                masterConfig.getBrokerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
                     @Override
-                    public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
-                        logger.info(new StringBuilder(512).append("[Broker Timeout] ")
-                                .append(nodeId).toString());
-                        releaseBrokerRunInfo(Integer.parseInt(nodeId),
-                                nodeInfo.getSecondKey(), true);
+                    public void onTimeout(final String nodeId, TimeoutInfo nodeInfo)
+                            throws Exception {
+                        logger.info(
+                                new StringBuilder(512)
+                                        .append("[Broker Timeout] ")
+                                        .append(nodeId)
+                                        .toString());
+                        releaseBrokerRunInfo(
+                                Integer.parseInt(nodeId), nodeInfo.getSecondKey(), true);
                     }
                 });
         this.metaDataService.regMetaConfigObserver(this);
@@ -136,11 +133,10 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
             return;
         }
         String brokerReg =
-                this.brokersMap.putIfAbsent(entity.getBrokerId(),
-                        entity.getSimpleBrokerInfo());
+                this.brokersMap.putIfAbsent(entity.getBrokerId(), entity.getSimpleBrokerInfo());
         String brokerTLSReg =
-                this.brokersTLSMap.putIfAbsent(entity.getBrokerId(),
-                        entity.getSimpleTLSBrokerInfo());
+                this.brokersTLSMap.putIfAbsent(
+                        entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
         if (brokerReg == null
                 || brokerTLSReg == null
                 || !brokerReg.equals(entity.getSimpleBrokerInfo())
@@ -152,8 +148,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
                     this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
                 }
             }
-            if (brokerTLSReg != null
-                    && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
+            if (brokerTLSReg != null && !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
                 this.brokersTLSMap.put(entity.getBrokerId(), entity.getSimpleTLSBrokerInfo());
             }
             SerialIdUtils.updTimeStampSerialIdValue(this.brokerInfoCheckSum);
@@ -183,114 +178,164 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public boolean brokerRegister2M(String clientId, BrokerInfo brokerInfo,
-                                    long reportConfigId, int reportCheckSumId,
-                                    boolean isTackData, String repBrokerConfInfo,
-                                    List<String> repTopicConfInfo, boolean isOnline,
-                                    boolean isOverTLS, StringBuilder sBuffer,
-                                    ProcessResult result) {
+    public boolean brokerRegister2M(
+            String clientId,
+            BrokerInfo brokerInfo,
+            long reportConfigId,
+            int reportCheckSumId,
+            boolean isTackData,
+            String repBrokerConfInfo,
+            List<String> repTopicConfInfo,
+            boolean isOnline,
+            boolean isOverTLS,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         BrokerConfEntity brokerEntry =
                 metaDataService.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
         if (brokerEntry == null) {
-            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(
+                    TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Not found broker configure info, please create first!")
                             .append(" the connecting client id is:")
-                            .append(clientId).toString());
+                            .append(clientId)
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if ((!brokerInfo.getHost().equals(brokerEntry.getBrokerIp()))
                 || (brokerInfo.getPort() != brokerEntry.getBrokerPort())) {
-            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(
+                    TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Inconsistent broker configure,please confirm first!")
-                            .append(" the connecting client id is:").append(clientId)
+                            .append(" the connecting client id is:")
+                            .append(clientId)
                             .append(", the configured broker address by brokerId is:")
-                            .append(brokerEntry.getBrokerIdAndAddress()).toString());
+                            .append(brokerEntry.getBrokerIdAndAddress())
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         int confTLSPort = brokerEntry.getBrokerTLSPort();
         if (confTLSPort != brokerInfo.getTlsPort()) {
-            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(
+                    TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Inconsistent TLS configure, please confirm first!")
-                            .append(" the connecting client id is:").append(clientId)
-                            .append(", the configured TLS port is:").append(confTLSPort)
+                            .append(" the connecting client id is:")
+                            .append(clientId)
+                            .append(", the configured TLS port is:")
+                            .append(confTLSPort)
                             .append(", the broker reported TLS port is ")
-                            .append(brokerInfo.getTlsPort()).toString());
+                            .append(brokerInfo.getTlsPort())
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
         if (brokerEntry.getManageStatus() == ManageStatus.STATUS_MANAGE_APPLY) {
-            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(
+                    TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Broker's configure not online, please online configure first!")
-                            .append(" the connecting client id is:").append(clientId).toString());
+                            .append(" the connecting client id is:")
+                            .append(clientId)
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        brokerEntry.getBrokerDefaultConfInfo(
-                metaDataService.getClusterDefSetting(false), sBuffer);
+        brokerEntry.getBrokerDefaultConfInfo(metaDataService.getClusterDefSetting(false), sBuffer);
         String brokerConfInfo = sBuffer.toString();
         sBuffer.delete(0, sBuffer.length());
         Map<String, String> topicConfInfoMap =
                 metaDataService.getBrokerTopicStrConfigInfo(brokerEntry, sBuffer);
         //
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerInfo.getBrokerId());
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerInfo.getBrokerId());
         if (runStatusInfo == null) {
             BrokerRunStatusInfo tmpRunStatusInfo =
-                    new BrokerRunStatusInfo(this, brokerInfo,
-                            brokerEntry.getManageStatus(), brokerConfInfo,
-                            topicConfInfoMap, isOverTLS);
+                    new BrokerRunStatusInfo(
+                            this,
+                            brokerInfo,
+                            brokerEntry.getManageStatus(),
+                            brokerConfInfo,
+                            topicConfInfoMap,
+                            isOverTLS);
             runStatusInfo =
-                    brokerRunSyncManageMap.putIfAbsent(
-                            brokerInfo.getBrokerId(), tmpRunStatusInfo);
+                    brokerRunSyncManageMap.putIfAbsent(brokerInfo.getBrokerId(), tmpRunStatusInfo);
             if (runStatusInfo == null) {
                 brokerTotalCount.incrementAndGet();
                 MasterSrvStatsHolder.incBrokerOnlineCnt();
                 runStatusInfo = tmpRunStatusInfo;
             }
         } else {
-            runStatusInfo.reInitRunStatusInfo(brokerInfo,
-                    brokerEntry.getManageStatus(), brokerConfInfo,
-                    topicConfInfoMap, isOverTLS);
+            runStatusInfo.reInitRunStatusInfo(
+                    brokerInfo,
+                    brokerEntry.getManageStatus(),
+                    brokerConfInfo,
+                    topicConfInfoMap,
+                    isOverTLS);
         }
-        runStatusInfo.bookBrokerReportInfo(true, isOnline, reportConfigId,
-                reportCheckSumId, isTackData, repBrokerConfInfo, repTopicConfInfo, sBuffer);
-        heartbeatManager.regBrokerNode(String.valueOf(brokerInfo.getBrokerId()),
-                runStatusInfo.getCreateId());
+        runStatusInfo.bookBrokerReportInfo(
+                true,
+                isOnline,
+                reportConfigId,
+                reportCheckSumId,
+                isTackData,
+                repBrokerConfInfo,
+                repTopicConfInfo,
+                sBuffer);
+        heartbeatManager.regBrokerNode(
+                String.valueOf(brokerInfo.getBrokerId()), runStatusInfo.getCreateId());
         result.setSuccResult(null);
         return result.isSuccess();
     }
 
     @Override
-    public boolean brokerHeartBeat2M(int brokerId, long reportConfigId, int reportCheckSumId,
-                                     boolean isTackData, String repBrokerConfInfo,
-                                     List<String> repTopicConfInfo,
-                                     boolean isTackRmvInfo, List<String> removedTopics,
-                                     int rptReadStatus, int rptWriteStatus, boolean isOnline,
-                                     StringBuilder sBuffer, ProcessResult result) {
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+    public boolean brokerHeartBeat2M(
+            int brokerId,
+            long reportConfigId,
+            int reportCheckSumId,
+            boolean isTackData,
+            String repBrokerConfInfo,
+            List<String> repTopicConfInfo,
+            boolean isTackRmvInfo,
+            List<String> removedTopics,
+            int rptReadStatus,
+            int rptWriteStatus,
+            boolean isOnline,
+            StringBuilder sBuffer,
+            ProcessResult result) {
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
-            result.setFailResult(TErrCodeConstants.HB_NO_NODE, sBuffer
-                    .append("Not found Broker run status info, please register broker first!")
-                    .append(" the connecting client id is:").append(brokerId).toString());
+            result.setFailResult(
+                    TErrCodeConstants.HB_NO_NODE,
+                    sBuffer.append(
+                                    "Not found Broker run status info, please register broker first!")
+                            .append(" the connecting client id is:")
+                            .append(brokerId)
+                            .toString());
             return result.isSuccess();
         }
         // update heartbeat
-        if (!heartbeatManager.updBrokerNode(String.valueOf(brokerId),
-                runStatusInfo.getCreateId(), sBuffer, result)) {
+        if (!heartbeatManager.updBrokerNode(
+                String.valueOf(brokerId), runStatusInfo.getCreateId(), sBuffer, result)) {
             return result.isSuccess();
         }
         // update broker status
-        runStatusInfo.bookBrokerReportInfo(false, isOnline, reportConfigId,
-                reportCheckSumId, isTackData, repBrokerConfInfo, repTopicConfInfo, sBuffer);
+        runStatusInfo.bookBrokerReportInfo(
+                false,
+                isOnline,
+                reportConfigId,
+                reportCheckSumId,
+                isTackData,
+                repBrokerConfInfo,
+                repTopicConfInfo,
+                sBuffer);
         // process removed topic info
         if (isTackRmvInfo) {
             metaDataService.delCleanedTopicDeployInfo(brokerId, removedTopics, sBuffer, result);
-            logger.info(sBuffer.append("[Broker Report] receive broker removed topics = ")
-                    .append(removedTopics.toString()).append(", removed result is ")
-                    .append(result.getErrMsg()).toString());
+            logger.info(
+                    sBuffer.append("[Broker Report] receive broker removed topics = ")
+                            .append(removedTopics.toString())
+                            .append(", removed result is ")
+                            .append(result.getErrMsg())
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
         }
         brokerAbnHolder.updateBrokerReportStatus(brokerId, rptReadStatus, rptWriteStatus);
@@ -300,25 +345,35 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public boolean brokerClose2M(int brokerId, StringBuilder sBuffer, ProcessResult result) {
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
-            result.setFailResult(TErrCodeConstants.HB_NO_NODE, sBuffer
-                    .append("Not found Broker run status info, please register broker first!")
-                    .append(" the connecting client id is:").append(brokerId).toString());
+            result.setFailResult(
+                    TErrCodeConstants.HB_NO_NODE,
+                    sBuffer.append(
+                                    "Not found Broker run status info, please register broker first!")
+                            .append(" the connecting client id is:")
+                            .append(brokerId)
+                            .toString());
             return result.isSuccess();
         }
-        if (!heartbeatManager.unRegBrokerNode(String.valueOf(brokerId),
-                runStatusInfo.getCreateId())) {
-            logger.info(sBuffer.append("[Broker Closed] brokerId=").append(brokerId)
-                    .append(" unregister failure, run-info has been replaced by new request!")
-                    .toString());
+        if (!heartbeatManager.unRegBrokerNode(
+                String.valueOf(brokerId), runStatusInfo.getCreateId())) {
+            logger.info(
+                    sBuffer.append("[Broker Closed] brokerId=")
+                            .append(brokerId)
+                            .append(
+                                    " unregister failure, run-info has been replaced by new request!")
+                            .toString());
             return result.isSuccess();
         }
         boolean isOverTls = runStatusInfo.isOverTLS();
         releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId(), false);
-        logger.info(sBuffer.append("[Broker Closed]").append(brokerId)
-                .append(" unregister success, isOverTLS=").append(isOverTls).toString());
+        logger.info(
+                sBuffer.append("[Broker Closed]")
+                        .append(brokerId)
+                        .append(" unregister success, isOverTLS=")
+                        .append(isOverTls)
+                        .toString());
         result.setSuccResult(null);
         return result.isSuccess();
     }
@@ -328,8 +383,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         String brokerConfInfo = null;
         ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
         StringBuilder sBuffer = new StringBuilder(512);
-        BrokerConfEntity brokerConfEntity =
-                metaDataService.getBrokerConfByBrokerId(brokerId);
+        BrokerConfEntity brokerConfEntity = metaDataService.getBrokerConfByBrokerId(brokerId);
         if (brokerConfEntity != null) {
             brokerConfEntity.getBrokerDefaultConfInfo(
                     metaDataService.getClusterDefSetting(false), sBuffer);
@@ -343,23 +397,22 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public void setRegisterDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                        RegisterResponseM2B.Builder builder) {
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+    public void setRegisterDownConfInfo(
+            int brokerId, StringBuilder sBuffer, RegisterResponseM2B.Builder builder) {
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
-            logger.info(sBuffer.append("Get Broker run-info failure, brokerId=")
-                    .append(brokerId).append(", please check the implement first!")
-                    .toString());
+            logger.info(
+                    sBuffer.append("Get Broker run-info failure, brokerId=")
+                            .append(brokerId)
+                            .append(", please check the implement first!")
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return;
         }
-        Tuple4<Long, Integer, String, List<String>> retTuple =
-                runStatusInfo.getNeedSyncData();
+        Tuple4<Long, Integer, String, List<String>> retTuple = runStatusInfo.getNeedSyncData();
         builder.setCurBrokerConfId(retTuple.getF0());
         builder.setConfCheckSumId(retTuple.getF1());
-        Tuple2<Boolean, Boolean> autoFbdTuple =
-                brokerAbnHolder.getBrokerAutoFbdStatus(brokerId);
+        Tuple2<Boolean, Boolean> autoFbdTuple = brokerAbnHolder.getBrokerAutoFbdStatus(brokerId);
         builder.setStopWrite(autoFbdTuple.getF0());
         builder.setStopRead(autoFbdTuple.getF1());
         if (retTuple.getF2() == null) {
@@ -368,35 +421,43 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
             builder.setTakeConfInfo(true);
             builder.setBrokerDefaultConfInfo(retTuple.getF2());
             builder.addAllBrokerTopicSetConfInfo(retTuple.getF3());
-            logger.info(sBuffer.append("[TMaster sync] push broker configure: brokerId = ")
-                    .append(brokerId).append(",configureId=").append(retTuple.getF0())
-                    .append(",stopWrite=").append(builder.getStopWrite())
-                    .append(",stopRead=").append(builder.getStopRead())
-                    .append(",checksumId=").append(retTuple.getF1())
-                    .append(",default configure is ").append(retTuple.getF2())
-                    .append(",topic configure is ").append(retTuple.getF3()).toString());
+            logger.info(
+                    sBuffer.append("[TMaster sync] push broker configure: brokerId = ")
+                            .append(brokerId)
+                            .append(",configureId=")
+                            .append(retTuple.getF0())
+                            .append(",stopWrite=")
+                            .append(builder.getStopWrite())
+                            .append(",stopRead=")
+                            .append(builder.getStopRead())
+                            .append(",checksumId=")
+                            .append(retTuple.getF1())
+                            .append(",default configure is ")
+                            .append(retTuple.getF2())
+                            .append(",topic configure is ")
+                            .append(retTuple.getF3())
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
         }
     }
 
     @Override
-    public void setHeatBeatDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                        HeartResponseM2B.Builder builder) {
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+    public void setHeatBeatDownConfInfo(
+            int brokerId, StringBuilder sBuffer, HeartResponseM2B.Builder builder) {
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
-            logger.info(sBuffer.append("Get Broker run-info failure, brokerId=")
-                    .append(brokerId).append(", please check the implement first!")
-                    .toString());
+            logger.info(
+                    sBuffer.append("Get Broker run-info failure, brokerId=")
+                            .append(brokerId)
+                            .append(", please check the implement first!")
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
             return;
         }
-        Tuple4<Long, Integer, String, List<String>> retTuple =
-                runStatusInfo.getNeedSyncData();
+        Tuple4<Long, Integer, String, List<String>> retTuple = runStatusInfo.getNeedSyncData();
         builder.setCurBrokerConfId(retTuple.getF0());
         builder.setConfCheckSumId(retTuple.getF1());
-        Tuple2<Boolean, Boolean> autoFbdTuple =
-                brokerAbnHolder.getBrokerAutoFbdStatus(brokerId);
+        Tuple2<Boolean, Boolean> autoFbdTuple = brokerAbnHolder.getBrokerAutoFbdStatus(brokerId);
         builder.setStopWrite(autoFbdTuple.getF0());
         builder.setStopRead(autoFbdTuple.getF1());
         if (retTuple.getF2() == null) {
@@ -407,13 +468,22 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
             builder.setTakeConfInfo(true);
             builder.setBrokerDefaultConfInfo(retTuple.getF2());
             builder.addAllBrokerTopicSetConfInfo(retTuple.getF3());
-            logger.info(sBuffer.append("[TMaster sync] heartbeat sync config: brokerId = ")
-                    .append(brokerId).append(",configureId=").append(retTuple.getF0())
-                    .append(",stopWrite=").append(builder.getStopWrite())
-                    .append(",stopRead=").append(builder.getStopRead())
-                    .append(",checksumId=").append(retTuple.getF1())
-                    .append(",default configure is ").append(retTuple.getF2())
-                    .append(",topic configure is ").append(retTuple.getF3()).toString());
+            logger.info(
+                    sBuffer.append("[TMaster sync] heartbeat sync config: brokerId = ")
+                            .append(brokerId)
+                            .append(",configureId=")
+                            .append(retTuple.getF0())
+                            .append(",stopWrite=")
+                            .append(builder.getStopWrite())
+                            .append(",stopRead=")
+                            .append(builder.getStopRead())
+                            .append(",checksumId=")
+                            .append(retTuple.getF1())
+                            .append(",default configure is ")
+                            .append(retTuple.getF2())
+                            .append(",topic configure is ")
+                            .append(retTuple.getF3())
+                            .toString());
             sBuffer.delete(0, sBuffer.length());
         }
     }
@@ -425,8 +495,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public BrokerInfo getBrokerInfo(int brokerId) {
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
             return null;
         }
@@ -446,8 +515,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
             }
         } else {
             for (Integer brokerId : brokerIds) {
-                BrokerRunStatusInfo runStatusInfo =
-                        brokerRunSyncManageMap.get(brokerId);
+                BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
                 if (runStatusInfo == null) {
                     continue;
                 }
@@ -460,19 +528,26 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     @Override
     public boolean releaseBrokerRunInfo(int brokerId, String blockId, boolean isTimeout) {
         StringBuilder sBuffer = new StringBuilder(512);
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunSyncManageMap.get(brokerId);
+        BrokerRunStatusInfo runStatusInfo = brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
-            logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
-                    .append(", isTimeout=").append(isTimeout)
-                    .append(", release failure, run-info has deleted before!").toString());
+            logger.info(
+                    sBuffer.append("[Broker Release] brokerId=")
+                            .append(brokerId)
+                            .append(", isTimeout=")
+                            .append(isTimeout)
+                            .append(", release failure, run-info has deleted before!")
+                            .toString());
             return false;
         }
         if (!blockId.equals(runStatusInfo.getCreateId())) {
-            logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
-                    .append(", isTimeout=").append(isTimeout)
-                    .append(", release failure, run-info has been replaced by new register!")
-                    .toString());
+            logger.info(
+                    sBuffer.append("[Broker Release] brokerId=")
+                            .append(brokerId)
+                            .append(", isTimeout=")
+                            .append(isTimeout)
+                            .append(
+                                    ", release failure, run-info has been replaced by new register!")
+                            .toString());
             return false;
         }
         runStatusInfo = brokerRunSyncManageMap.remove(brokerId);
@@ -483,22 +558,26 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         brokerTotalCount.decrementAndGet();
         brokerAbnHolder.removeBroker(brokerId);
         brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId);
-        logger.info(sBuffer.append("[Broker Release] brokerId=").append(brokerId)
-                .append(", isTimeout=").append(isTimeout)
-                .append(", release success!").toString());
+        logger.info(
+                sBuffer.append("[Broker Release] brokerId=")
+                        .append(brokerId)
+                        .append(", isTimeout=")
+                        .append(isTimeout)
+                        .append(", release success!")
+                        .toString());
         return true;
     }
 
     @Override
-    public boolean updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
-                                        Map<String, TopicInfo> topicInfoMap) {
+    public boolean updBrokerCsmConfInfo(
+            int brokerId, ManageStatus mngStatus, Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
         return brokerPubSubInfo.updBrokerSubTopicConfInfo(brokerId, topicInfoMap);
     }
 
     @Override
-    public void updBrokerPrdConfInfo(int brokerId, ManageStatus mngStatus,
-                                     Map<String, TopicInfo> topicInfoMap) {
+    public void updBrokerPrdConfInfo(
+            int brokerId, ManageStatus mngStatus, Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerPubTopicConfInfo(brokerId, topicInfoMap);
     }
 
@@ -531,5 +610,4 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     public List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId) {
         return brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId);
     }
-
 }

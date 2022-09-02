@@ -54,9 +54,14 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
      * @param maxCons
      * @param name
      */
-    public ServerMessageFactory(AbstractSource source,
-            ChannelGroup allChannels, ServiceDecoder serviceDecoder,
-            String messageHandlerName, Integer maxMsgLength, Integer maxCons, String name) {
+    public ServerMessageFactory(
+            AbstractSource source,
+            ChannelGroup allChannels,
+            ServiceDecoder serviceDecoder,
+            String messageHandlerName,
+            Integer maxMsgLength,
+            Integer maxCons,
+            String name) {
         this.source = source;
         this.processor = source.getChannelProcessor();
         this.allChannels = allChannels;
@@ -69,23 +74,32 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline().addLast("messageDecoder",
-                new LengthFieldBasedFrameDecoder(this.maxMsgLength,
-                        0, 4, 0, 0, true));
-        ch.pipeline().addLast("readTimeoutHandler",
-                new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
+        ch.pipeline()
+                .addLast(
+                        "messageDecoder",
+                        new LengthFieldBasedFrameDecoder(this.maxMsgLength, 0, 4, 0, 0, true));
+        ch.pipeline()
+                .addLast(
+                        "readTimeoutHandler",
+                        new ReadTimeoutHandler(DEFAULT_READ_IDLE_TIME, TimeUnit.MILLISECONDS));
 
         if (processor != null) {
             try {
                 Class<? extends ChannelInboundHandlerAdapter> clazz =
-                        (Class<? extends ChannelInboundHandlerAdapter>) Class.forName(messageHandlerName);
+                        (Class<? extends ChannelInboundHandlerAdapter>)
+                                Class.forName(messageHandlerName);
 
                 Constructor<?> ctor =
-                        clazz.getConstructor(AbstractSource.class, ServiceDecoder.class,
-                                ChannelGroup.class, Integer.class);
+                        clazz.getConstructor(
+                                AbstractSource.class,
+                                ServiceDecoder.class,
+                                ChannelGroup.class,
+                                Integer.class);
 
-                ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
-                        .newInstance(source, serviceDecoder, allChannels, maxConnections);
+                ChannelInboundHandlerAdapter messageHandler =
+                        (ChannelInboundHandlerAdapter)
+                                ctor.newInstance(
+                                        source, serviceDecoder, allChannels, maxConnections);
 
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {

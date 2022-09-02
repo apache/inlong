@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,13 +33,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-/**
- * MySQL sink info
- */
+/** MySQL sink info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -94,7 +91,8 @@ public class MySQLSinkDTO {
             return OBJECT_MAPPER.readValue(extParams, MySQLSinkDTO.class);
         } catch (Exception e) {
             LOGGER.error("fetch mysql sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -105,7 +103,8 @@ public class MySQLSinkDTO {
      * @param columnList MySQL column info list,{@link MySQLColumnInfo}
      * @return {@link MySQLTableInfo}
      */
-    public static MySQLTableInfo getTableInfo(MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
+    public static MySQLTableInfo getTableInfo(
+            MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
         MySQLTableInfo tableInfo = new MySQLTableInfo();
         String dbName = getDbNameFromUrl(mySQLSink.getJdbcUrl());
         tableInfo.setDbName(dbName);
@@ -118,7 +117,7 @@ public class MySQLSinkDTO {
     /**
      * Get DbName from jdbcUrl
      *
-     * @param jdbcUrl  MySQL JDBC url, such as jdbc:mysql://host:port/database
+     * @param jdbcUrl MySQL JDBC url, such as jdbc:mysql://host:port/database
      * @return database name
      */
     public static String getDbNameFromUrl(String jdbcUrl) {
@@ -134,8 +133,7 @@ public class MySQLSinkDTO {
         }
 
         int pos1;
-        if (!jdbcUrl.startsWith("jdbc:")
-                || (pos1 = jdbcUrl.indexOf(':', 5)) == -1) {
+        if (!jdbcUrl.startsWith("jdbc:") || (pos1 = jdbcUrl.indexOf(':', 5)) == -1) {
             throw new IllegalArgumentException("Invalid JDBC url.");
         }
 

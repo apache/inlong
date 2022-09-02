@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.source.autopush;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,11 +28,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-
-/**
- * SDK source info
- */
+/** SDK source info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -40,7 +37,8 @@ public class AutoPushSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
+    @ApiModelProperty(
+            value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
@@ -53,9 +51,7 @@ public class AutoPushSourceDTO {
     private String dataEscapeChar;
 
     public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {
-        return AutoPushSourceDTO.builder()
-                .dataProxyGroup(request.getDataProxyGroup())
-                .build();
+        return AutoPushSourceDTO.builder().dataProxyGroup(request.getDataProxyGroup()).build();
     }
 
     public static AutoPushSourceDTO getFromJson(@NotNull String extParams) {
@@ -63,7 +59,8 @@ public class AutoPushSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, AutoPushSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

@@ -19,20 +19,23 @@ package org.apache.inlong.manager.workflow.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.apache.inlong.manager.pojo.workflow.TaskRequest;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.task.ServiceTaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.ServiceTaskForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.WorkflowContext.ActionContext;
@@ -47,30 +50,19 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-/**
- * System task processor
- */
+/** System task processor */
 @Service
 @NoArgsConstructor
 @Slf4j
 public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
-    private static final Set<TaskStatus> ALLOW_COMPLETE_STATE = ImmutableSet.of(
-            TaskStatus.PENDING, TaskStatus.FAILED
-    );
+    private static final Set<TaskStatus> ALLOW_COMPLETE_STATE =
+            ImmutableSet.of(TaskStatus.PENDING, TaskStatus.FAILED);
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
-    @Autowired
-    private TaskEventNotifier taskEventNotifier;
-    @Autowired
-    private ProcessEventNotifier processEventNotifier;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired private TaskEventNotifier taskEventNotifier;
+    @Autowired private ProcessEventNotifier processEventNotifier;
 
     @Override
     public Class<ServiceTask> watch() {
@@ -107,10 +99,12 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             resetActionContext(context);
         }
         WorkflowTaskEntity workflowTaskEntity = actionContext.getTaskEntity();
-        Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
+        Preconditions.checkTrue(
+                ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
                 "task status should allow complete");
         try {
-            ListenerResult listenerResult = this.taskEventNotifier.notify(TaskEvent.COMPLETE, context);
+            ListenerResult listenerResult =
+                    this.taskEventNotifier.notify(TaskEvent.COMPLETE, context);
             if (!listenerResult.isSuccess()) {
                 failedTask(context, workflowTaskEntity);
             } else {
@@ -145,10 +139,11 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         } else {
             taskEntity = taskEntities.get(0);
         }
-        ActionContext actionContext = new WorkflowContext.ActionContext()
-                .setTask((WorkflowTask) context.getCurrentElement())
-                .setAction(WorkflowAction.COMPLETE)
-                .setTaskEntity(taskEntity);
+        ActionContext actionContext =
+                new WorkflowContext.ActionContext()
+                        .setTask((WorkflowTask) context.getCurrentElement())
+                        .setAction(WorkflowAction.COMPLETE)
+                        .setTaskEntity(taskEntity);
         context.setActionContext(actionContext);
         return taskEntity;
     }
@@ -164,7 +159,8 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskEntity.setName(serviceTask.getName());
         taskEntity.setDisplayName(serviceTask.getDisplayName());
         taskEntity.setApplicant(workflowProcessEntity.getApplicant());
-        taskEntity.setApprovers(StringUtils.join(approvers, WorkflowTaskEntity.APPROVERS_DELIMITER));
+        taskEntity.setApprovers(
+                StringUtils.join(approvers, WorkflowTaskEntity.APPROVERS_DELIMITER));
         taskEntity.setStatus(TaskStatus.PENDING.name());
         taskEntity.setStartTime(new Date());
 
@@ -173,7 +169,8 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         return taskEntity;
     }
 
-    private void completeTaskEntity(WorkflowContext context, WorkflowTaskEntity taskEntity, TaskStatus taskStatus) {
+    private void completeTaskEntity(
+            WorkflowContext context, WorkflowTaskEntity taskEntity, TaskStatus taskStatus) {
         ActionContext actionContext = context.getActionContext();
         taskEntity.setStatus(taskStatus.name());
         taskEntity.setOperator(taskEntity.getApprovers());
@@ -184,7 +181,8 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
                 ProcessForm form = context.getProcessForm();
                 serviceTaskForm.setInlongGroupId(form.getInlongGroupId());
                 if (form instanceof StreamResourceProcessForm) {
-                    String streamId = ((StreamResourceProcessForm) form).getStreamInfo().getInlongStreamId();
+                    String streamId =
+                            ((StreamResourceProcessForm) form).getStreamInfo().getInlongStreamId();
                     serviceTaskForm.setInlongStreamId(streamId);
                 }
                 actionContext.setForm(serviceTaskForm);
@@ -196,5 +194,4 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskEntity.setEndTime(new Date());
         taskEntityMapper.update(taskEntity);
     }
-
 }

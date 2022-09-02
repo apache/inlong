@@ -17,31 +17,29 @@
 
 package org.apache.inlong.manager.service.source;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * Factory for {@link StreamSourceOperator}.
- */
+/** Factory for {@link StreamSourceOperator}. */
 @Service
 public class SourceOperatorFactory {
 
-    @Autowired
-    private List<StreamSourceOperator> sourceOperatorList;
+    @Autowired private List<StreamSourceOperator> sourceOperatorList;
 
-    /**
-     * Get a sink operator instance via the given sourceType
-     */
+    /** Get a sink operator instance via the given sourceType */
     public StreamSourceOperator getInstance(String sourceType) {
         return sourceOperatorList.stream()
                 .filter(inst -> inst.accept(sourceType))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
-                        String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(), sourceType)));
+                .orElseThrow(
+                        () ->
+                                new BusinessException(
+                                        ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
+                                        String.format(
+                                                ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(),
+                                                sourceType)));
     }
-
 }

@@ -18,7 +18,11 @@
 package org.apache.inlong.sdk.sort.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -39,12 +43,6 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
     private static final int NOUPDATE_VALUE = 1;
@@ -63,9 +61,15 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     private String getRequestUrlWithParam() {
-        return clientContext.getConfig().getManagerApiUrl() + "?clusterName=" + clientContext.getConfig()
-                .getSortClusterName() + "&sortTaskId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
-                + "&apiVersion=" + clientContext.getConfig().getManagerApiVersion();
+        return clientContext.getConfig().getManagerApiUrl()
+                + "?clusterName="
+                + clientContext.getConfig().getSortClusterName()
+                + "&sortTaskId="
+                + clientContext.getConfig().getSortTaskId()
+                + "&md5="
+                + md5
+                + "&apiVersion="
+                + clientContext.getConfig().getManagerApiVersion();
     }
 
     // HTTP GET
@@ -84,13 +88,13 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
             String result = EntityUtils.toString(entity);
             logger.debug("response String result:{}", result);
             try {
-                managerResponse = new ObjectMapper().readValue(result, SortSourceConfigResponse.class);
+                managerResponse =
+                        new ObjectMapper().readValue(result, SortSourceConfigResponse.class);
                 return managerResponse;
             } catch (Exception e) {
                 logger.error("parse json to ManagerResponse error:{}", e.getMessage(), e);
                 e.printStackTrace();
             }
-
         }
         return null;
     }
@@ -103,9 +107,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         return request;
     }
 
-    /**
-     * get new sortTask conf from inlong manager
-     */
+    /** get new sortTask conf from inlong manager */
     public void reload() {
         logger.debug("start to reload sort task config.");
         try {
@@ -119,9 +121,10 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 return;
             }
         } catch (Throwable e) {
-            String msg = MessageFormat
-                    .format("Fail to reload atta configuration in {0} error:{1}.", getRequestUrlWithParam(),
-                            e.getMessage());
+            String msg =
+                    MessageFormat.format(
+                            "Fail to reload atta configuration in {0} error:{1}.",
+                            getRequestUrlWithParam(), e.getMessage());
             logger.error(msg, e);
         }
     }
@@ -129,36 +132,45 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * handle request response
      *
-     * UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same REQ_PARAMS_ERROR = -101; request
-     * params error FAIL = -1; common error
+     * <p>UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same
+     * REQ_PARAMS_ERROR = -101; request params error FAIL = -1; common error
      *
-     * @param  getUrl
-     * @param  response      ManagerResponse
-     * @param  respCodeValue int
-     * @return               true/false
+     * @param getUrl
+     * @param response ManagerResponse
+     * @param respCodeValue int
+     * @return true/false
      */
-    private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
-            throws Exception {
+    private boolean handleSortTaskConfResult(
+            String getUrl, SortSourceConfigResponse response, int respCodeValue) throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE :
+            case NOUPDATE_VALUE:
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE :
+            case UPDATE_VALUE:
                 logger.info("manager conf update");
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
+                clientContext
+                        .getStatManager()
+                        .getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR :
+            case REQ_PARAMS_ERROR:
                 logger.error("return code error:{}", respCodeValue);
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
+                clientContext
+                        .getStatManager()
+                        .getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default :
-                logger.error("return code error:{},request:{},response:{}",
-                        respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
+            default:
+                logger.error(
+                        "return code error:{},request:{},response:{}",
+                        respCodeValue,
+                        getUrl,
+                        new ObjectMapper().writeValueAsString(response));
+                clientContext
+                        .getStatManager()
+                        .getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerCommonErrorTimes(1);
                 return true;
         }
@@ -171,10 +183,14 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {
             CacheZone cacheZone = entry.getValue();
 
-            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
-                    k -> new ArrayList<>());
-            CacheZoneCluster cacheZoneCluster = new CacheZoneCluster(cacheZone.getZoneName(),
-                    cacheZone.getServiceUrl(), cacheZone.getAuthentication());
+            List<InLongTopic> topics =
+                    newGroupTopicsMap.computeIfAbsent(
+                            cacheZoneConfig.getSortTaskId(), k -> new ArrayList<>());
+            CacheZoneCluster cacheZoneCluster =
+                    new CacheZoneCluster(
+                            cacheZone.getZoneName(),
+                            cacheZone.getServiceUrl(),
+                            cacheZone.getAuthentication());
             for (Topic topicInfo : cacheZone.getTopics()) {
                 InLongTopic topic = new InLongTopic();
                 topic.setInLongCluster(cacheZoneCluster);
@@ -191,8 +207,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * query ConsumeConfig
      *
-     * @param  sortTaskId String
-     * @return            ConsumeConfig
+     * @param sortTaskId String
+     * @return ConsumeConfig
      */
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {

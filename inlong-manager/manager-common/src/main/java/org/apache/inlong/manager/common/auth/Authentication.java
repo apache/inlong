@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.Locale;
 import java.util.Map;
 

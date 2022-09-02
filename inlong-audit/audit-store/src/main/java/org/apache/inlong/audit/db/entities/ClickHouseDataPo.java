@@ -18,7 +18,6 @@
 package org.apache.inlong.audit.db.entities;
 
 import java.sql.Timestamp;
-
 import lombok.Getter;
 import lombok.Setter;
 

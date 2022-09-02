@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Exception for JSON
- */
+/** Exception for JSON */
 public class JsonException extends RuntimeException {
 
     public JsonException() {
@@ -38,7 +36,11 @@ public class JsonException extends RuntimeException {
         super(cause);
     }
 
-    protected JsonException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected JsonException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -23,25 +23,25 @@ import java.util.Map;
 import java.util.function.Function;
 import org.apache.commons.collections.CollectionUtils;
 
-/**
- * Utils of inlong collection.
- */
+/** Utils of inlong collection. */
 public class InlongCollectionUtils {
 
     /**
-     * Transform input collection to ImmutableMap, if input collection is null, then return empty map
+     * Transform input collection to ImmutableMap, if input collection is null, then return empty
+     * map
      *
-     * @param originCollection       origin collection
-     * @param keyTransformFunction   key transform function
+     * @param originCollection origin collection
+     * @param keyTransformFunction key transform function
      * @param valueTransformFunction value transform function
-     * @param <K>                    key type
-     * @param <V>                    value type
-     * @param <T>                    origin type
+     * @param <K> key type
+     * @param <V> value type
+     * @param <T> origin type
      * @return {@link ImmutableMap}
      */
-    public static <K, V, T> Map<K, V> transformToImmutableMap(Collection<T> originCollection,
-                                                              Function<T, K> keyTransformFunction,
-                                                              Function<T, V> valueTransformFunction) {
+    public static <K, V, T> Map<K, V> transformToImmutableMap(
+            Collection<T> originCollection,
+            Function<T, K> keyTransformFunction,
+            Function<T, V> valueTransformFunction) {
         if (CollectionUtils.isEmpty(originCollection)) {
             return ImmutableMap.of();
         }
@@ -49,9 +49,11 @@ public class InlongCollectionUtils {
         Preconditions.checkNotNull(valueTransformFunction, "ValueTransformFunction cannot be null");
 
         ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
-        originCollection.forEach(originObject ->
-                builder.put(keyTransformFunction.apply(originObject), valueTransformFunction.apply(originObject))
-        );
+        originCollection.forEach(
+                originObject ->
+                        builder.put(
+                                keyTransformFunction.apply(originObject),
+                                valueTransformFunction.apply(originObject)));
         return builder.build();
     }
 }

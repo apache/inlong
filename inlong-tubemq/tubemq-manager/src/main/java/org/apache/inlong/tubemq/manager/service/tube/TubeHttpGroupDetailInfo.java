@@ -18,9 +18,7 @@
 package org.apache.inlong.tubemq.manager.service.tube;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import lombok.Data;
 
 @Data
@@ -53,15 +51,14 @@ public class TubeHttpGroupDetailInfo {
             private String topic;
             private Integer partId;
         }
-
     }
 
     public List<String> getConsumerIds() {
         List<String> consumerIds = Lists.newArrayList();
-        data.forEach(consumerInfo -> {
-            consumerIds.add(consumerInfo.getConsumerId());
-        });
+        data.forEach(
+                consumerInfo -> {
+                    consumerIds.add(consumerInfo.getConsumerId());
+                });
         return consumerIds;
     }
-
 }

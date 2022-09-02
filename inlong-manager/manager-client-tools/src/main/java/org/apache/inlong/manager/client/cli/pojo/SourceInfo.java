@@ -18,14 +18,11 @@
 package org.apache.inlong.manager.client.cli.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
 import lombok.Data;
 import org.apache.inlong.manager.client.cli.util.ParseStatus;
 
-import java.util.Date;
-
-/**
- * Source info, including source type, source name, etc.
- */
+/** Source info, including source type, source name, etc. */
 @Data
 public class SourceInfo {
 
@@ -36,8 +33,8 @@ public class SourceInfo {
     private String sourceName;
     private String serializationType;
 
-    @ParseStatus
-    private String status;
+    @ParseStatus private String status;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 }

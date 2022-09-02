@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -37,24 +43,17 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * test DLC search sql parse
- */
+/** test DLC search sql parse */
 public class DLCIcebergSqlParseTest {
     private MySqlExtractNode buildMySQLExtractNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()));
         // if you hope hive load mode of append, please add this config
         Map<String, String> map = new HashMap<>();
-        return new MySqlExtractNode(id,
+        return new MySqlExtractNode(
+                id,
                 "mysql_input",
                 fields,
                 null,
@@ -81,14 +80,18 @@ public class DLCIcebergSqlParseTest {
         properties.put(DLCConstant.FS_COS_REGION, "ap-beijing");
         properties.put(DLCConstant.FS_COS_SECRET_ID, "XXXXXXXXXXX");
         properties.put(DLCConstant.FS_COS_SECRET_KEY, "XXXXXXXXXXX");
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()));
         return new DLCIcebergLoadNode(
                 "iceberg",
                 "iceberg_output",
@@ -108,7 +111,7 @@ public class DLCIcebergSqlParseTest {
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -125,23 +128,26 @@ public class DLCIcebergSqlParseTest {
      */
     @Test
     public void testDLCIceberg() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMySQLExtractNode("1");
         Node outputNode = buildDLCLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(inputNode, outputNode),
-                Arrays.asList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1L",
+                        Arrays.asList(inputNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         FlinkSqlParseResult result = (FlinkSqlParseResult) parser.parse();
-        Assert.assertTrue(!result.getLoadSqls().isEmpty() && !result.getCreateTableSqls().isEmpty());
+        Assert.assertTrue(
+                !result.getLoadSqls().isEmpty() && !result.getCreateTableSqls().isEmpty());
     }
 }

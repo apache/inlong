@@ -49,13 +49,14 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat
  * RowData}. The deserialization schema knows Canal's schema definition and can extract the database
  * data and convert into {@link RowData} with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
+ * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
+ * <p>Failures during deserialization are forwarded as wrapped IOExceptions.
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
-public final class CanalJsonEnhancedDeserializationSchema implements DeserializationSchema<RowData> {
+public final class CanalJsonEnhancedDeserializationSchema
+        implements DeserializationSchema<RowData> {
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";

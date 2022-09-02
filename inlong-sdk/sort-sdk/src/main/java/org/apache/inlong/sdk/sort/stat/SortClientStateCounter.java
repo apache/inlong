@@ -35,7 +35,8 @@ public class SortClientStateCounter {
      * @param topic String
      * @param partitionId int
      */
-    public SortClientStateCounter(String sortTaskId, String cacheClusterId, String topic, int partitionId) {
+    public SortClientStateCounter(
+            String sortTaskId, String cacheClusterId, String topic, int partitionId) {
         this.sortTaskId = sortTaskId;
         this.cacheClusterId = cacheClusterId;
         this.topic = topic;
@@ -48,7 +49,8 @@ public class SortClientStateCounter {
      * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter reset() {
-        SortClientStateCounter counter = new SortClientStateCounter(sortTaskId, cacheClusterId, topic, partitionId);
+        SortClientStateCounter counter =
+                new SortClientStateCounter(sortTaskId, cacheClusterId, topic, partitionId);
         for (int i = 0, len = counter.count.length(); i < len; i++) {
             counter.count.set(i, this.count.getAndSet(i, 0));
         }
@@ -290,6 +292,7 @@ public class SortClientStateCounter {
 
     /**
      * count decompression consume size
+     *
      * @param num long
      * @return {@link SortClientStateCounter}
      */

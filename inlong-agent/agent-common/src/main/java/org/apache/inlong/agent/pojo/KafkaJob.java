@@ -64,6 +64,6 @@ public class KafkaJob {
         private String groupId;
         private String recordSpeedLimit;
         private String byteSpeedLimit;
-        private  String autoOffsetReset;
+        private String autoOffsetReset;
     }
 }

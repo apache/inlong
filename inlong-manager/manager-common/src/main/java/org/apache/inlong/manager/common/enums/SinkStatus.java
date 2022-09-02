@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Sink status enum
- */
+/** Sink status enum */
 public enum SinkStatus {
-
     DRAFT(0, "draft"),
     DELETED(10, "deleted"),
 
@@ -30,7 +27,6 @@ public enum SinkStatus {
     CONFIG_ING(110, "in configure"),
     CONFIG_FAILED(120, "configuration failed"),
     CONFIG_SUCCESSFUL(130, "configuration successful"),
-
     ;
 
     private final Integer code;
@@ -48,5 +44,4 @@ public enum SinkStatus {
     public String getDescription() {
         return description;
     }
-
 }

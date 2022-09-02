@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.config;
 
 import java.util.ArrayList;
@@ -25,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
@@ -36,9 +32,7 @@ import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * ProxyClusterConfigHolder
- */
+/** ProxyClusterConfigHolder */
 public class ProxyClusterConfigHolder {
 
     public static final Logger LOG = LoggerFactory.getLogger(ProxyClusterConfigHolder.class);
@@ -55,16 +49,12 @@ public class ProxyClusterConfigHolder {
     // Map<proxyClusterId, ProxyInfo>
     private Map<String, ProxyClusterResult> proxyClusterMap = new ConcurrentHashMap<>();
 
-    /**
-     * Constructor
-     */
-    private ProxyClusterConfigHolder() {
-
-    }
+    /** Constructor */
+    private ProxyClusterConfigHolder() {}
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     private void configure(Context context) {
@@ -73,15 +63,17 @@ public class ProxyClusterConfigHolder {
         String strLoaderType = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE);
         LoaderType loaderType = LoaderType.valueOf(strLoaderType);
         switch (loaderType) {
-            case File :
+            case File:
                 this.loader = new FileProxyClusterConfigLoader();
                 break;
-            case Manager :
+            case Manager:
                 this.loader = new ManagerProxyClusterConfigLoader();
                 break;
-            case Plugin :
+            case Plugin:
                 try {
-                    String strLoaderClass = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE_PLUGIN_CLASS);
+                    String strLoaderClass =
+                            context.getString(
+                                    ProxyClusterConfigLoader.KEY_LOADER_TYPE_PLUGIN_CLASS);
                     Class<?> loaderClass = ClassUtils.getClass(strLoaderClass);
                     Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
                     if (loaderObject instanceof ManagerProxyClusterConfigLoader) {
@@ -91,17 +83,15 @@ public class ProxyClusterConfigHolder {
                     LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t);
                 }
                 break;
-            case Context :
-            default :
+            case Context:
+            default:
                 this.loader = new ContextProxyClusterConfigLoader();
                 break;
         }
         this.loader.configure(context);
     }
 
-    /**
-     * start
-     */
+    /** start */
     public static void start(Context context) {
         if (instance != null) {
             return;
@@ -121,9 +111,7 @@ public class ProxyClusterConfigHolder {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public static void close() {
         try {
             instance.reloadTimer.cancel();
@@ -132,30 +120,26 @@ public class ProxyClusterConfigHolder {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            /**
-             * run
-             */
-            public void run() {
-                try {
-                    reload();
-                } catch (Throwable e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+                    /** run */
+                    public void run() {
+                        try {
+                            reload();
+                        } catch (Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+                    }
+                };
+        reloadTimer.schedule(
+                task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     private void reload() {
         // prepare parameters
         Map<String, ProxyClusterResult> currentProxyMap = this.proxyClusterMap;
@@ -187,7 +171,8 @@ public class ProxyClusterConfigHolder {
         for (Entry<String, ProxyClusterResult> entry : newProxyMap.entrySet()) {
             ProxyClusterResult result = entry.getValue();
             for (InlongStreamConfig stream : result.getConfig().getInlongStreamList()) {
-                String newUid = InlongId.generateUid(stream.getInlongGroupId(), stream.getInlongStreamId());
+                String newUid =
+                        InlongId.generateUid(stream.getInlongGroupId(), stream.getInlongStreamId());
                 newStreamMap.put(newUid, result);
             }
         }
@@ -197,12 +182,13 @@ public class ProxyClusterConfigHolder {
 
     /**
      * getConfigByStream
-     * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     *
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
-    public static ProxyClusterConfig getConfigByStream(String inlongGroupId, String inlongStreamId) {
+    public static ProxyClusterConfig getConfigByStream(
+            String inlongGroupId, String inlongStreamId) {
         String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         Map<String, ProxyClusterResult> currentStreamMap = instance.inlongStreamMap;
         ProxyClusterResult result = currentStreamMap.get(uid);
@@ -217,7 +203,8 @@ public class ProxyClusterConfigHolder {
             currentStreamMap.put(uid, result);
         } else {
             for (InlongStreamConfig stream : result.getConfig().getInlongStreamList()) {
-                String newUid = InlongId.generateUid(stream.getInlongGroupId(), stream.getInlongStreamId());
+                String newUid =
+                        InlongId.generateUid(stream.getInlongGroupId(), stream.getInlongStreamId());
                 currentStreamMap.put(newUid, result);
             }
             Map<String, ProxyClusterResult> newProxyMap = new ConcurrentHashMap<>();
@@ -230,8 +217,8 @@ public class ProxyClusterConfigHolder {
 
     /**
      * getConfigByClusterId
-     * 
-     * @param  clusterId
+     *
+     * @param clusterId
      * @return
      */
     public static ProxyClusterConfig getConfigByClusterId(String clusterId) {
@@ -244,7 +231,7 @@ public class ProxyClusterConfigHolder {
 
     /**
      * get inlongStreamMap
-     * 
+     *
      * @return the inlongStreamMap
      */
     public static Map<String, ProxyClusterResult> getInlongStreamMap() {
@@ -253,11 +240,10 @@ public class ProxyClusterConfigHolder {
 
     /**
      * get proxyClusterMap
-     * 
+     *
      * @return the proxyClusterMap
      */
     public static Map<String, ProxyClusterResult> getProxyClusterMap() {
         return instance.proxyClusterMap;
     }
-
 }

@@ -22,48 +22,36 @@ import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link RowFormatInfo}.
- */
+/** Unit tests for {@link RowFormatInfo}. */
 public class RowFormatInfoTest extends FormatInfoTestBase {
 
     @Override
     Collection<FormatInfo> createFormatInfos() {
         RowFormatInfo formatInfo1 =
                 new RowFormatInfo(
-                        new String[]{"f1", "f2", "f3"},
-                        new FormatInfo[]{
-                                StringFormatInfo.INSTANCE,
-                                IntFormatInfo.INSTANCE,
-                                StringFormatInfo.INSTANCE
-                        }
-                );
+                        new String[] {"f1", "f2", "f3"},
+                        new FormatInfo[] {
+                            StringFormatInfo.INSTANCE,
+                            IntFormatInfo.INSTANCE,
+                            StringFormatInfo.INSTANCE
+                        });
 
         RowFormatInfo formatInfo2 =
                 new RowFormatInfo(
-                        new String[]{"f1"},
-                        new FormatInfo[]{
-                                new MapFormatInfo(
-                                        StringFormatInfo.INSTANCE,
-                                        IntFormatInfo.INSTANCE
-                                )
-                        }
-                );
+                        new String[] {"f1"},
+                        new FormatInfo[] {
+                            new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE)
+                        });
 
         RowFormatInfo formatInfo3 =
                 new RowFormatInfo(
-                        new String[]{"f1", "f2"},
-                        new FormatInfo[]{
-                                new RowFormatInfo(
-                                        new String[]{"f1"},
-                                        new FormatInfo[]{IntFormatInfo.INSTANCE}
-                                ),
-                                new MapFormatInfo(
-                                        StringFormatInfo.INSTANCE,
-                                        new TimeFormatInfo("hh:mm:ss.SSS")
-                                )
-                        }
-                );
+                        new String[] {"f1", "f2"},
+                        new FormatInfo[] {
+                            new RowFormatInfo(
+                                    new String[] {"f1"}, new FormatInfo[] {IntFormatInfo.INSTANCE}),
+                            new MapFormatInfo(
+                                    StringFormatInfo.INSTANCE, new TimeFormatInfo("hh:mm:ss.SSS"))
+                        });
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }
@@ -71,22 +59,14 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
     @Test(expected = IllegalArgumentException.class)
     public void testDuplicateFields() {
         new RowFormatInfo(
-                new String[]{"f", "f"},
-                new FormatInfo[]{
-                        StringFormatInfo.INSTANCE,
-                        IntFormatInfo.INSTANCE
-                }
-        );
+                new String[] {"f", "f"},
+                new FormatInfo[] {StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE});
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInconsistentFields() {
         new RowFormatInfo(
-                new String[]{"f"},
-                new FormatInfo[]{
-                        StringFormatInfo.INSTANCE,
-                        IntFormatInfo.INSTANCE
-                }
-        );
+                new String[] {"f"},
+                new FormatInfo[] {StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE});
     }
 }

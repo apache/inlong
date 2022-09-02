@@ -17,30 +17,28 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionBaseTest;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-import java.util.Arrays;
-
-/**
- * Test for {@link CascadeFunctionWrapper}
- */
+/** Test for {@link CascadeFunctionWrapper} */
 public class CascadeFunctionWrapperTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
         return new CascadeFunctionWrapper(
                 Arrays.asList(
-                        new RegexpReplaceFirstFunction(new FieldInfo("replace_field", new StringFormatInfo()),
+                        new RegexpReplaceFirstFunction(
+                                new FieldInfo("replace_field", new StringFormatInfo()),
                                 new StringConstantParam("replace_str"),
                                 new StringConstantParam("target_str")),
-                        new RegexpReplaceFunction(new FieldInfo("replace_field", new StringFormatInfo()),
+                        new RegexpReplaceFunction(
+                                new FieldInfo("replace_field", new StringFormatInfo()),
                                 new StringConstantParam("replace_str"),
-                                new StringConstantParam("target_str"))
-                ));
+                                new StringConstantParam("target_str"))));
     }
 
     @Override

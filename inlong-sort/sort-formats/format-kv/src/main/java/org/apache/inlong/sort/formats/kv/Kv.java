@@ -27,15 +27,12 @@ import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.FormatDescriptor;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 
-/**
- * Format descriptor for KVs.
- */
+/** Format descriptor for KVs. */
 public class Kv extends FormatDescriptor {
 
     public static final String FORMAT_TYPE_VALUE = "tdkv";
 
-    private DescriptorProperties internalProperties =
-            new DescriptorProperties(true);
+    private DescriptorProperties internalProperties = new DescriptorProperties(true);
 
     public Kv() {
         super(FORMAT_TYPE_VALUE, 1);
@@ -67,8 +64,8 @@ public class Kv extends FormatDescriptor {
      * @param escapeCharacter escaping character (e.g. backslash).
      */
     public Kv escapeCharacter(char escapeCharacter) {
-        internalProperties
-                .putCharacter(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, escapeCharacter);
+        internalProperties.putCharacter(
+                TableFormatConstants.FORMAT_ESCAPE_CHARACTER, escapeCharacter);
         return this;
     }
 
@@ -78,13 +75,13 @@ public class Kv extends FormatDescriptor {
      * @param quoteCharacter quoting character (e.g. quotation).
      */
     public Kv quoteCharacter(char quoteCharacter) {
-        internalProperties.putCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
+        internalProperties.putCharacter(
+                TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
         return this;
     }
 
     /**
-     * Sets the null literal string that is interpreted as a null value
-     * (disabled by default).
+     * Sets the null literal string that is interpreted as a null value (disabled by default).
      *
      * @param nullLiteral null literal (e.g. "null" or "n/a")
      */
@@ -105,9 +102,7 @@ public class Kv extends FormatDescriptor {
         return this;
     }
 
-    /**
-     * Ignores the errors in the serialization and deserialization.
-     */
+    /** Ignores the errors in the serialization and deserialization. */
     public Kv ignoreErrors() {
         internalProperties.putBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS, true);
         return this;
@@ -125,15 +120,13 @@ public class Kv extends FormatDescriptor {
     }
 
     /**
-     * Derives the format schema from the table's schema. Required if no format
-     * schema is defined.
+     * Derives the format schema from the table's schema. Required if no format schema is defined.
      *
      * <p>This allows for defining schema information only once.
      *
-     * <p>The names, types, and fields' order of the format are determined by
-     * the table's schema. Time attributes are ignored if their origin is not a
-     * field. A "from" definition is interpreted as a field renaming in the
-     * format.
+     * <p>The names, types, and fields' order of the format are determined by the table's schema.
+     * Time attributes are ignored if their origin is not a field. A "from" definition is
+     * interpreted as a field renaming in the format.
      */
     public Kv deriveSchema() {
         internalProperties.putBoolean(FORMAT_DERIVE_SCHEMA, true);

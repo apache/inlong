@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -40,18 +44,12 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for kafka sql parse
- */
+/** Test for kafka sql parse */
 public class KafkaSqlParseTest extends AbstractTestBase {
 
     /**
-     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is mysql {@link
+     * MySqlLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -61,17 +59,19 @@ public class KafkaSqlParseTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractSpecificOffset();
         Node outputNode = buildMysqlLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -79,37 +79,63 @@ public class KafkaSqlParseTest extends AbstractTestBase {
     }
 
     private KafkaExtractNode buildKafkaExtractSpecificOffset() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
-        return new KafkaExtractNode("1", "kafka_input", fields, null,
-                null, "topic_input", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.SPECIFIC_OFFSETS, null, "groupId",
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                null,
+                null,
+                "topic_input",
+                "localhost:9092",
+                new JsonFormat(),
+                KafkaScanStartupMode.SPECIFIC_OFFSETS,
+                null,
+                "groupId",
                 "partition:0,offset:42;partition:1,offset:300");
     }
 
     private Node buildMysqlLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
-        return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
-                null, null, null, "jdbc:mysql://localhost:3306/inlong",
-                "inlong", "inlong", "table_output", "id");
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())));
+        return new MySqlLoadNode(
+                "2",
+                "mysql_output",
+                fields,
+                relations,
+                null,
+                null,
+                null,
+                null,
+                "jdbc:mysql://localhost:3306/inlong",
+                "inlong",
+                "inlong",
+                "table_output",
+                "id");
     }
 
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */

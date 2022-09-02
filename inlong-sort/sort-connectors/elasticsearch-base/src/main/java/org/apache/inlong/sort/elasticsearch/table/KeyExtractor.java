@@ -18,12 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.flink.table.api.TableColumn;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.DistinctType;
-import org.apache.flink.table.types.logical.LogicalType;
-
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -33,6 +27,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.flink.table.api.TableColumn;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.DistinctType;
+import org.apache.flink.table.types.logical.LogicalType;
 
 /** An extractor for a Elasticsearch key from a {@link RowData}. */
 public class KeyExtractor implements Function<RowData, String>, Serializable {

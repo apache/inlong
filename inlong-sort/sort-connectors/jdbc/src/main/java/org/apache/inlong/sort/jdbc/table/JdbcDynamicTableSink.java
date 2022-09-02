@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+
+import java.util.Objects;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
@@ -31,15 +34,11 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
 
-import java.util.Objects;
-
-import static org.apache.flink.util.Preconditions.checkState;
-
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
- * A {@link DynamicTableSink} for JDBC.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * <p>A {@link DynamicTableSink} for JDBC. Add an option `sink.ignore.changelog` to support
+ * insert-only mode without primaryKey.
  */
 @Internal
 public class JdbcDynamicTableSink implements DynamicTableSink {
@@ -85,7 +84,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private void validatePrimaryKey(ChangelogMode requestedMode) {
         checkState(
                 ChangelogMode.insertOnly().equals(requestedMode)
-                        || dmlOptions.getKeyFields().isPresent() || appendMode,
+                        || dmlOptions.getKeyFields().isPresent()
+                        || appendMode,
                 "please declare primary key or appendMode for sink table when query contains update/delete record.");
     }
 
@@ -109,8 +109,14 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
 
     @Override
     public DynamicTableSink copy() {
-        return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions,
-                tableSchema, appendMode, inLongMetric, auditHostAndPorts);
+        return new JdbcDynamicTableSink(
+                jdbcOptions,
+                executionOptions,
+                dmlOptions,
+                tableSchema,
+                appendMode,
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     @Override
@@ -138,7 +144,13 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
 
     @Override
     public int hashCode() {
-        return Objects.hash(jdbcOptions, executionOptions, dmlOptions, tableSchema, dialectName,
-                inLongMetric, auditHostAndPorts);
+        return Objects.hash(
+                jdbcOptions,
+                executionOptions,
+                dmlOptions,
+                tableSchema,
+                dialectName,
+                inLongMetric,
+                auditHostAndPorts);
     }
 }

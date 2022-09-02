@@ -17,17 +17,16 @@
 
 package org.apache.inlong.dataproxy.http;
 
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class MessageProcessServlet extends HttpServlet {
 
@@ -51,8 +50,10 @@ public class MessageProcessServlet extends HttpServlet {
         try {
             Context context = new MappedContext();
             context.put(AttributeConstants.GROUP_ID, req.getParameter(AttributeConstants.GROUP_ID));
-            context.put(AttributeConstants.STREAM_ID, req.getParameter(AttributeConstants.STREAM_ID));
-            context.put(AttributeConstants.DATA_TIME, req.getParameter(AttributeConstants.DATA_TIME));
+            context.put(
+                    AttributeConstants.STREAM_ID, req.getParameter(AttributeConstants.STREAM_ID));
+            context.put(
+                    AttributeConstants.DATA_TIME, req.getParameter(AttributeConstants.DATA_TIME));
             context.put(AttributeConstants.BODY, req.getParameter(AttributeConstants.BODY));
 
             context.put(AttributeConstants.HTTP_REQUEST, req);

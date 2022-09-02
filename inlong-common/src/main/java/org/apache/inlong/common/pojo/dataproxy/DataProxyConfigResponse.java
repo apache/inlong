@@ -17,9 +17,7 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-/**
- * DataProxyConfigResponse
- */
+/** DataProxyConfigResponse */
 public class DataProxyConfigResponse {
 
     public static final int SUCC = 0; // success
@@ -103,5 +101,4 @@ public class DataProxyConfigResponse {
     public void setData(DataProxyCluster data) {
         this.data = data;
     }
-
 }

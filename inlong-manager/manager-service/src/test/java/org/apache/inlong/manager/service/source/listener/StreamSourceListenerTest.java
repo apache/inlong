@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -31,7 +32,6 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -41,29 +41,27 @@ import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Test class for operate StreamSource, such as frozen or restart.
- */
+/** Test class for operate StreamSource, such as frozen or restart. */
 public class StreamSourceListenerTest extends ServiceBaseTest {
 
     private static final String GROUP_ID = "test-source-group-id";
     private static final String STREAM_ID = "test-source-stream-id";
 
-    @Autowired
-    private ProcessService processService;
-    @Autowired
-    private StreamSourceService sourceService;
+    @Autowired private ProcessService processService;
+    @Autowired private StreamSourceService sourceService;
 
     private InlongGroupInfo groupInfo;
 
     /**
-     * There will be concurrency problems in the overall operation,This method temporarily fails the test
+     * There will be concurrency problems in the overall operation,This method temporarily fails the
+     * test
      */
     // @Test
     public void testAllOperate() {
         groupInfo = createInlongGroup(GROUP_ID, MQType.PULSAR);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_ING.getCode(), GLOBAL_OPERATOR);
-        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(
+                GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
         groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
 
         Integer sourceId = this.createBinlogSource(groupInfo);
@@ -81,12 +79,15 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
     }
 
     private void testFrozenSource(Integer sourceId) {
-        sourceService.updateStatus(GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
+        sourceService.updateStatus(
+                GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
 
         GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
-        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
+        WorkflowContext context =
+                processService.start(
+                        ProcessName.SUSPEND_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
         WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -96,7 +97,8 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         Assertions.assertTrue(task instanceof ServiceTask);
 
         StreamSource streamSource = sourceService.get(sourceId);
-        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
+        Assertions.assertSame(
+                SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
     private void testRestartSource(Integer sourceId) {
@@ -105,12 +107,15 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         groupService.updateStatus(GROUP_ID, GroupStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
         groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
 
-        sourceService.updateStatus(GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
+        sourceService.updateStatus(
+                GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
 
         GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
-        WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
+        WorkflowContext context =
+                processService.start(
+                        ProcessName.RESTART_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
         WorkflowResult result = WorkflowUtils.getResult(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -120,7 +125,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         Assertions.assertTrue(task instanceof ServiceTask);
 
         StreamSource streamSource = sourceService.get(sourceId);
-        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_RETRY);
+        Assertions.assertSame(
+                SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_RETRY);
     }
-
 }

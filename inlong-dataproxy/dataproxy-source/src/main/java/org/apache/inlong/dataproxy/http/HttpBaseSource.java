@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
+
 import com.google.common.base.Preconditions;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -71,10 +72,9 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
             setChannelProcessor(newProcessor);
         }
         if (statIntervalSec > 0) {
-            monitorIndex = new MonitorIndex("Source",
-                    statIntervalSec, maxMonitorCnt);
-            monitorIndexExt = new MonitorIndexExt("DataProxy_monitors#http",
-                    statIntervalSec, maxMonitorCnt);
+            monitorIndex = new MonitorIndex("Source", statIntervalSec, maxMonitorCnt);
+            monitorIndexExt =
+                    new MonitorIndexExt("DataProxy_monitors#http", statIntervalSec, maxMonitorCnt);
         }
         // register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
@@ -97,9 +97,7 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         logger.info("{} stopped!", this.getName());
     }
 
-    /**
-     * configure
-     */
+    /** configure */
     public void configure(Context context) {
         this.context = context;
         port = context.getInteger(ConfigConstants.CONFIG_PORT);
@@ -124,8 +122,10 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         attr = attr.trim();
         Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
 
-        messageHandlerName = context.getString(ConfigConstants.MESSAGE_HANDLER_NAME,
-                "org.apache.inlong.dataproxy.source.ServerMessageHandler");
+        messageHandlerName =
+                context.getString(
+                        ConfigConstants.MESSAGE_HANDLER_NAME,
+                        "org.apache.inlong.dataproxy.source.ServerMessageHandler");
         messageHandlerName = messageHandlerName.trim();
         Preconditions.checkArgument(!messageHandlerName.isEmpty(), "messageHandlerName is empty");
 
@@ -142,7 +142,8 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         try {
             maxConnections = context.getInteger(CONNECTIONS, 5000);
         } catch (NumberFormatException e) {
-            logger.warn("BaseSource connections property must specify an integer value {}",
+            logger.warn(
+                    "BaseSource connections property must specify an integer value {}",
                     context.getString(CONNECTIONS));
         }
     }

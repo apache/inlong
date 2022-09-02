@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -23,25 +22,18 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-/**
- * Interface of deserialization info.
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Interface of deserialization info. */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @Type(value = CsvDeserializationInfo.class, name = "csv"),
-        @Type(value = AvroDeserializationInfo.class, name = "avro"),
-        @Type(value = JsonDeserializationInfo.class, name = "json"),
-        @Type(value = CanalDeserializationInfo.class, name = "canal"),
-        @Type(value = DebeziumDeserializationInfo.class, name = "debezium_json"),
-        @Type(value = InLongMsgCsvDeserializationInfo.class, name = "inlong_msg_csv"),
-        @Type(value = InLongMsgCsv2DeserializationInfo.class, name = "inlong_msg_csv2"),
-        @Type(value = InLongMsgKvDeserializationInfo.class, name = "inlong_msg_kv"),
-        @Type(value = InLongMsgTlogCsvDeserializationInfo.class, name = "inlong_msg_tlog_csv"),
-        @Type(value = InLongMsgTlogKvDeserializationInfo.class, name = "inlong_msg_tlog_kv")
+    @Type(value = CsvDeserializationInfo.class, name = "csv"),
+    @Type(value = AvroDeserializationInfo.class, name = "avro"),
+    @Type(value = JsonDeserializationInfo.class, name = "json"),
+    @Type(value = CanalDeserializationInfo.class, name = "canal"),
+    @Type(value = DebeziumDeserializationInfo.class, name = "debezium_json"),
+    @Type(value = InLongMsgCsvDeserializationInfo.class, name = "inlong_msg_csv"),
+    @Type(value = InLongMsgCsv2DeserializationInfo.class, name = "inlong_msg_csv2"),
+    @Type(value = InLongMsgKvDeserializationInfo.class, name = "inlong_msg_kv"),
+    @Type(value = InLongMsgTlogCsvDeserializationInfo.class, name = "inlong_msg_tlog_csv"),
+    @Type(value = InLongMsgTlogKvDeserializationInfo.class, name = "inlong_msg_tlog_kv")
 })
-public interface DeserializationInfo extends Serializable {
-
-}
+public interface DeserializationInfo extends Serializable {}

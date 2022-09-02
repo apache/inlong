@@ -18,14 +18,15 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
@@ -35,21 +36,14 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * WorkflowProcess service
- */
+/** WorkflowProcess service */
 @Service
 @Slf4j
 public class ProcessServiceImpl implements ProcessService {
 
-    @Autowired
-    private ProcessorExecutor processorExecutor;
-    @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
-    @Autowired
-    private WorkflowContextBuilder workflowContextBuilder;
+    @Autowired private ProcessorExecutor processorExecutor;
+    @Autowired private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired private WorkflowContextBuilder workflowContextBuilder;
 
     @Override
     public WorkflowContext start(String name, String applicant, ProcessForm form) {
@@ -58,7 +52,8 @@ public class ProcessServiceImpl implements ProcessService {
         Preconditions.checkNotNull(form, "form cannot be null");
 
         // build context
-        WorkflowContext context = workflowContextBuilder.buildContextForProcess(name, applicant, form);
+        WorkflowContext context =
+                workflowContextBuilder.buildContextForProcess(name, applicant, form);
         this.processorExecutor.executeStart(context.getProcess().getStartEvent(), context);
         return context;
     }
@@ -70,7 +65,8 @@ public class ProcessServiceImpl implements ProcessService {
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         WorkflowProcessEntity processEntity = context.getProcessEntity();
         ProcessStatus processStatus = ProcessStatus.valueOf(processEntity.getStatus());
-        Preconditions.checkTrue(processStatus == ProcessStatus.PROCESSING,
+        Preconditions.checkTrue(
+                processStatus == ProcessStatus.PROCESSING,
                 String.format("processId=%s should be in processing", processId));
         List<WorkflowTaskEntity> startElements = Lists.newArrayList();
         startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING));
@@ -78,13 +74,13 @@ public class ProcessServiceImpl implements ProcessService {
         for (WorkflowTaskEntity taskEntity : startElements) {
             String taskName = taskEntity.getName();
             WorkflowTask task = context.getProcess().getTaskByName(taskName);
-            context.setActionContext(new WorkflowContext.ActionContext()
-                    .setAction(WorkflowAction.COMPLETE)
-                    .setTaskEntity(taskEntity)
-                    .setOperator(operator)
-                    .setRemark(remark)
-                    .setTask(task)
-            );
+            context.setActionContext(
+                    new WorkflowContext.ActionContext()
+                            .setAction(WorkflowAction.COMPLETE)
+                            .setTaskEntity(taskEntity)
+                            .setOperator(operator)
+                            .setRemark(remark)
+                            .setTask(task));
             this.processorExecutor.executeStart(task, context);
         }
         return context;
@@ -96,20 +92,20 @@ public class ProcessServiceImpl implements ProcessService {
         Preconditions.checkNotNull(processId, "processId cannot be null");
 
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
-        List<WorkflowTaskEntity> pendingTasks = taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING);
+        List<WorkflowTaskEntity> pendingTasks =
+                taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING);
         for (WorkflowTaskEntity taskEntity : pendingTasks) {
             WorkflowTask task = context.getProcess().getTaskByName(taskEntity.getName());
-            context.setActionContext(new WorkflowContext.ActionContext()
-                    .setAction(WorkflowAction.CANCEL)
-                    .setTaskEntity(taskEntity)
-                    .setOperator(operator)
-                    .setRemark(remark)
-                    .setTask(task)
-            );
+            context.setActionContext(
+                    new WorkflowContext.ActionContext()
+                            .setAction(WorkflowAction.CANCEL)
+                            .setTaskEntity(taskEntity)
+                            .setOperator(operator)
+                            .setRemark(remark)
+                            .setTask(task));
             this.processorExecutor.executeComplete(task, context);
         }
 
         return context;
     }
-
 }

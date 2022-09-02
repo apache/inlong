@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.tools.cli;
 
 import com.google.gson.JsonArray;
@@ -32,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -55,10 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * CliMetaDataBRU, metadata backup and recovery utility.
- * The utility class for script #{bin/tubemq-metadata-bru.sh} to
- * backup and recovery metadata from Masters.
- *
+ * CliMetaDataBRU, metadata backup and recovery utility. The utility class for script
+ * #{bin/tubemq-metadata-bru.sh} to backup and recovery metadata from Masters.
  */
 public class CliMetaDataBRU extends CliAbstractBase {
 
@@ -85,9 +79,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
         initCommandOptions();
     }
 
-    /**
-     * Init command options
-     */
+    /** Init command options */
     @Override
     protected void initCommandOptions() {
         // add the cli required parameters
@@ -118,7 +110,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
         if (TStringUtils.isBlank(masterServers)) {
             throw new Exception(CliArgDef.MASTERSERVER.longOpt + " is not allowed blank!");
         }
-        masterInfo =  new MasterInfo(masterServers.trim());
+        masterInfo = new MasterInfo(masterServers.trim());
         // get operation-type
         if (!cli.hasOption(CliArgDef.OPERATIONTYPE.longOpt)) {
             throw new Exception(CliArgDef.OPERATIONTYPE.longOpt + " is required!");
@@ -128,8 +120,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             throw new Exception(CliArgDef.OPERATIONTYPE.longOpt + " is not allowed blank!");
         }
         if (!allowedOpTypeList.contains(operationType)) {
-            throw new Exception(CliArgDef.OPERATIONTYPE.longOpt
-                    + " only supports " + allowedOpTypeList);
+            throw new Exception(
+                    CliArgDef.OPERATIONTYPE.longOpt + " only supports " + allowedOpTypeList);
         }
         // get metadata backup and recovery path
         if (cli.hasOption(CliArgDef.METAFILEPATH.longOpt)) {
@@ -143,21 +135,29 @@ public class CliMetaDataBRU extends CliAbstractBase {
         if (!metaDataDir.exists()) {
             if (operationType.equalsIgnoreCase("backup")) {
                 if (!metaDataDir.mkdirs()) {
-                    throw new IOException(new StringBuilder(512)
-                            .append("Creates the directory named ")
-                            .append(metaDataDir.getAbsolutePath())
-                            .append(" failure!").toString());
+                    throw new IOException(
+                            new StringBuilder(512)
+                                    .append("Creates the directory named ")
+                                    .append(metaDataDir.getAbsolutePath())
+                                    .append(" failure!")
+                                    .toString());
                 }
             } else {
-                throw new RuntimeException(new StringBuilder(512)
-                        .append("Path ").append(backupAndRecoveryPath)
-                        .append(" is not existed!").toString());
+                throw new RuntimeException(
+                        new StringBuilder(512)
+                                .append("Path ")
+                                .append(backupAndRecoveryPath)
+                                .append(" is not existed!")
+                                .toString());
             }
         }
         if (!metaDataDir.isDirectory() || !metaDataDir.canRead()) {
-            throw new RuntimeException(new StringBuilder(512)
-                    .append("Path ").append(backupAndRecoveryPath)
-                    .append(" is not a readable directory!").toString());
+            throw new RuntimeException(
+                    new StringBuilder(512)
+                            .append("Path ")
+                            .append(backupAndRecoveryPath)
+                            .append(" is not a readable directory!")
+                            .toString());
         }
         // get auth-token code
         if (operationType.equalsIgnoreCase("recovery")) {
@@ -194,13 +194,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
     }
 
     /**
-     * Backup meta data from Masters
-     * The Master currently has 6 types of metadata.
-     * First, query the metadata from the Master, then save it to the specified storage location,
-     * and finally read the saved result and compare it with the queried data to confirm that
-     * the saved content is consistent with the query result.
+     * Backup meta data from Masters The Master currently has 6 types of metadata. First, query the
+     * metadata from the Master, then save it to the specified storage location, and finally read
+     * the saved result and compare it with the queried data to confirm that the saved content is
+     * consistent with the query result.
      *
-     * @param strBuff  the string buffer
+     * @param strBuff the string buffer
      */
     private void backupMetaData(StringBuilder strBuff) {
         logger.info("[Backup meta-data] begin, start query data from remote");
@@ -232,13 +231,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
     }
 
     /**
-     * Recovery meta data to Masters
-     * For each type of metadata, they follow the same set of processing procedures:
-     * read metadata locally, write the data to the Master, read the written data from the Master,
-     * and then compare the data read from the Master and the  locally stored data,
-     * determine whether the two are consistent
+     * Recovery meta data to Masters For each type of metadata, they follow the same set of
+     * processing procedures: read metadata locally, write the data to the Master, read the written
+     * data from the Master, and then compare the data read from the Master and the locally stored
+     * data, determine whether the two are consistent
      *
-     * @param strBuff  the string buffer
+     * @param strBuff the string buffer
      */
     private void recoveryMetaData(StringBuilder strBuff) {
         ProcessResult result = new ProcessResult();
@@ -273,8 +271,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup Cluster configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupClusterConfig(StringBuilder strBuff) {
         logger.info("[Backup Cluster Conf] begin ");
@@ -287,12 +285,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(clusterSettingMap, backupAndRecoveryPath, storeFileNameClusterConf);
         logger.info("[Backup Cluster Conf] verify configurations ");
         Map<String, ClusterSettingEntity> storedSettingMap =
-                (Map<String, ClusterSettingEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameClusterConf);
+                (Map<String, ClusterSettingEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameClusterConf);
         if (storedSettingMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameClusterConf).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameClusterConf)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -303,11 +305,14 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, ClusterSettingEntity> qryEntry : clusterSettingMap.entrySet()) {
             ClusterSettingEntity targetEntity = storedSettingMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored cluster configure value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append(
+                                        "  verify failure, stored cluster configure value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -319,26 +324,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery Cluster configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
     private boolean recoveryClusterConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Cluster Conf] begin ");
         Map<String, ClusterSettingEntity> storedSettingMap =
-                (Map<String, ClusterSettingEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameClusterConf);
+                (Map<String, ClusterSettingEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameClusterConf);
         if (storedSettingMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameClusterConf).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameClusterConf)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Cluster Conf] upload cluster configurations to master");
         if (!writeClusterConfInfo(storedSettingMap, strBuff, result)) {
-            logger.error(strBuff.append("  write cluster configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write cluster configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -356,11 +367,14 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, ClusterSettingEntity> qryEntry : storedSettingMap.entrySet()) {
             ClusterSettingEntity targetEntity = clusterSettingMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored cluster configure value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append(
+                                        "  verify failure, stored cluster configure value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 return false;
             }
         }
@@ -371,17 +385,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query cluster setting configurations.
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, ClusterSettingEntity> getClusterConfInfo(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_cluster_default_setting
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_cluster_default_setting", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_cluster_default_setting", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query cluster configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query cluster configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -408,15 +424,26 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 JsonArray flowCtrlInfoArray = jsonItem.get("flowCtrlInfo").getAsJsonArray();
                 String flowCtrlInfoStr = flowCtrlInfoArray.toString();
                 // build cluster setting entity
-                ClusterSettingEntity settingEntity =
-                        new ClusterSettingEntity(baseEntity);
-                settingEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        brokerPort, brokerTlsPort, brokerWebPort, maxMsgSizeInMB,
-                        qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfoStr, defTopicProps);
+                ClusterSettingEntity settingEntity = new ClusterSettingEntity(baseEntity);
+                settingEntity.updModifyInfo(
+                        baseEntity.getDataVerId(),
+                        brokerPort,
+                        brokerTlsPort,
+                        brokerWebPort,
+                        maxMsgSizeInMB,
+                        qryPriorityId,
+                        flowCtrlEnable,
+                        flowRuleCnt,
+                        flowCtrlInfoStr,
+                        defTopicProps);
                 clusterSettingMap.put(settingEntity.getRecordKey(), settingEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse cluster configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse cluster configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -427,13 +454,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write cluster setting configurations to Master
      *
-     * @param clusterConfMap  the cluster configures that needs to be stored
-     * @param strBuff          the string buffer
-     * @param result           the process result
-     * @return         the process result
+     * @param clusterConfMap the cluster configures that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeClusterConfInfo(Map<String, ClusterSettingEntity> clusterConfMap,
-                                         StringBuilder strBuff, ProcessResult result) {
+    private boolean writeClusterConfInfo(
+            Map<String, ClusterSettingEntity> clusterConfMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (clusterConfMap.isEmpty()) {
             return true;
         }
@@ -441,8 +470,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (ClusterSettingEntity entity : clusterConfMap.values()) {
             // build cluster setting configurations
             entity.getConfigureInfo(inParamMap, true);
-            if (!writeDataToMaster("admin_set_cluster_default_setting",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_set_cluster_default_setting", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
             inParamMap.clear();
@@ -453,8 +482,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup broker configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupBrokerConfig(StringBuilder strBuff) {
         logger.info("[Backup Broker Conf] begin ");
@@ -467,12 +496,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(brokerConfMap, backupAndRecoveryPath, storeFileNameBrokerConf);
         logger.info("[Backup Broker Conf] verify configurations");
         Map<String, BrokerConfEntity> storedBrokerConfigMap =
-                (Map<String, BrokerConfEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameBrokerConf);
+                (Map<String, BrokerConfEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameBrokerConf);
         if (storedBrokerConfigMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameBrokerConf).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameBrokerConf)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -483,11 +516,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, BrokerConfEntity> qryEntry : brokerConfMap.entrySet()) {
             BrokerConfEntity targetEntity = storedBrokerConfigMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored brokerConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored brokerConfig value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -499,26 +534,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery broker configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
     private boolean recoveryBrokerConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Broker Conf] begin ");
         Map<String, BrokerConfEntity> storedBrokerConfigMap =
-                (Map<String, BrokerConfEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameBrokerConf);
+                (Map<String, BrokerConfEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameBrokerConf);
         if (storedBrokerConfigMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameBrokerConf).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameBrokerConf)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Broker Conf]  upload broker configurations to master");
         if (!writeBrokerConfInfo(storedBrokerConfigMap, strBuff, result)) {
-            logger.error(strBuff.append("  write broker configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write broker configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -536,11 +577,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, BrokerConfEntity> qryEntry : storedBrokerConfigMap.entrySet()) {
             BrokerConfEntity targetEntity = brokerConfMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored brokerConfig value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored brokerConfig value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 return false;
             }
         }
@@ -551,17 +594,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query broker configurations
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, BrokerConfEntity> getBrokerConfInfos(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_broker_configure
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_broker_configure", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_broker_configure", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query broker configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query broker configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -591,13 +636,23 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 String statusInfo = jsonItem.get("manageStatus").getAsString();
                 ManageStatus mngStatus = ManageStatus.descOf(statusInfo);
                 // build broker configurations
-                brokerConfEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        brokerPort, brokerTlsPort, brokerWebPort, regionId,
-                        groupId, mngStatus, topicPropGroup);
+                brokerConfEntity.updModifyInfo(
+                        baseEntity.getDataVerId(),
+                        brokerPort,
+                        brokerTlsPort,
+                        brokerWebPort,
+                        regionId,
+                        groupId,
+                        mngStatus,
+                        topicPropGroup);
                 brokerInfoMap.put(brokerIp, brokerConfEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse broker configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse broker configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -608,13 +663,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write broker configurations to Master
      *
-     * @param brokerConfigMap  the broker configurations that needs to be stored
-     * @param strBuff          the string buffer
-     * @param result           the process result
-     * @return         the process result
+     * @param brokerConfigMap the broker configurations that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeBrokerConfInfo(Map<String, BrokerConfEntity> brokerConfigMap,
-                                        StringBuilder strBuff, ProcessResult result) {
+    private boolean writeBrokerConfInfo(
+            Map<String, BrokerConfEntity> brokerConfigMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (brokerConfigMap.isEmpty()) {
             return true;
         }
@@ -632,8 +689,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 strBuff.delete(0, strBuff.length());
                 inParamMap.put("createUser", curOperator);
                 inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_batch_add_broker_configure",
-                        authToken, inParamMap, strBuff, result)) {
+                if (!writeDataToMaster(
+                        "admin_batch_add_broker_configure",
+                        authToken,
+                        inParamMap,
+                        strBuff,
+                        result)) {
                     return false;
                 }
                 count = 0;
@@ -646,8 +707,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             strBuff.delete(0, strBuff.length());
             inParamMap.put("createUser", curOperator);
             inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_batch_add_broker_configure",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_batch_add_broker_configure", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
             strBuff.delete(0, strBuff.length());
@@ -658,8 +719,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup topic control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupTopicCtrlConfig(StringBuilder strBuff) {
         logger.info("[Backup Topic Ctrl] begin ");
@@ -672,12 +733,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(topicCtrlMap, backupAndRecoveryPath, storeFileNameTopicCtrl);
         logger.info("[Backup Topic Ctrl] verify configurations");
         Map<String, TopicCtrlEntity> storedTopicCtrlMap =
-                (Map<String, TopicCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameTopicCtrl);
+                (Map<String, TopicCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameTopicCtrl);
         if (storedTopicCtrlMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameTopicCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameTopicCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -688,11 +753,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, TopicCtrlEntity> qryEntry : topicCtrlMap.entrySet()) {
             TopicCtrlEntity targetEntity = storedTopicCtrlMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -704,27 +771,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery topic control configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
-    private boolean recoveryTopicCtrlConfig(StringBuilder strBuff,
-                                            ProcessResult result) {
+    private boolean recoveryTopicCtrlConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Topic Ctrl] begin ");
         Map<String, TopicCtrlEntity> storedTopicCtrlMap =
-                (Map<String, TopicCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameTopicCtrl);
+                (Map<String, TopicCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameTopicCtrl);
         if (storedTopicCtrlMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameTopicCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameTopicCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Topic Ctrl] upload topic-control configurations to master");
         if (!writeTopicCtrlInfo(storedTopicCtrlMap, strBuff, result)) {
-            logger.error(strBuff.append("  write topic-control configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write topic-control configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -746,21 +818,26 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, TopicCtrlEntity> qryEntry : storedTopicCtrlMap.entrySet()) {
             TopicCtrlEntity targetEntity = topicCtrlMap.get(qryEntry.getKey());
             if (targetEntity == null) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is null").toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is null")
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
             if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && (!targetEntity.isMatched(qryEntry.getValue(), false)))
+                            && (!targetEntity.isMatched(qryEntry.getValue(), false)))
                     || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append(targetEntity).toString());
+                            && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append(targetEntity)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -772,17 +849,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query topic control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, TopicCtrlEntity> getTopicControlInfos(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_control_info
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_topic_control_info", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_topic_control_info", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query topic control configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query topic control configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -803,12 +882,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 int maxMsgSizeInMB = jsonItem.get("maxMsgSizeInMB").getAsInt();
                 // build topic control entity
                 TopicCtrlEntity topicCtrlEntity = new TopicCtrlEntity(baseEntity, topicName);
-                topicCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        topicNameId, maxMsgSizeInMB, enableAuthCtrl);
+                topicCtrlEntity.updModifyInfo(
+                        baseEntity.getDataVerId(), topicNameId, maxMsgSizeInMB, enableAuthCtrl);
                 topicCtrlMap.put(topicCtrlEntity.getTopicName(), topicCtrlEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse topic control configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse topic control configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -819,13 +902,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write topic control configurations to Master
      *
-     * @param topicCtrlMap     the topic control configurations that needs to be stored
-     * @param strBuff          the string buffer
-     * @param result           the process result
-     * @return         the process result
+     * @param topicCtrlMap the topic control configurations that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeTopicCtrlInfo(Map<String, TopicCtrlEntity> topicCtrlMap,
-                                       StringBuilder strBuff, ProcessResult result) {
+    private boolean writeTopicCtrlInfo(
+            Map<String, TopicCtrlEntity> topicCtrlMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (topicCtrlMap.isEmpty()) {
             return true;
         }
@@ -846,8 +931,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 strBuff.delete(0, strBuff.length());
                 inParamMap.put("createUser", curOperator);
                 inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_batch_add_topic_control_info",
-                        authToken, inParamMap, strBuff, result)) {
+                if (!writeDataToMaster(
+                        "admin_batch_add_topic_control_info",
+                        authToken,
+                        inParamMap,
+                        strBuff,
+                        result)) {
                     return false;
                 }
                 count = 0;
@@ -860,15 +949,14 @@ public class CliMetaDataBRU extends CliAbstractBase {
             strBuff.delete(0, strBuff.length());
             inParamMap.put("createUser", curOperator);
             inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_batch_add_topic_control_info",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_batch_add_topic_control_info", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
             strBuff.delete(0, strBuff.length());
         }
         // modify system topic
-        TopicCtrlEntity entity =
-                topicCtrlMap.get(TServerConstants.OFFSET_HISTORY_NAME);
+        TopicCtrlEntity entity = topicCtrlMap.get(TServerConstants.OFFSET_HISTORY_NAME);
         if (entity == null) {
             return true;
         }
@@ -878,8 +966,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
         strBuff.delete(0, strBuff.length());
         inParamMap.put("createUser", curOperator);
         inParamMap.put("modifyUser", curOperator);
-        if (!writeDataToMaster("admin_batch_update_topic_control_info",
-                authToken, inParamMap, strBuff, result)) {
+        if (!writeDataToMaster(
+                "admin_batch_update_topic_control_info", authToken, inParamMap, strBuff, result)) {
             return false;
         }
         strBuff.delete(0, strBuff.length());
@@ -889,8 +977,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup topic deploy configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupTopicDeployConfig(StringBuilder strBuff) {
         logger.info("[Backup Topic Deploy] begin ");
@@ -903,12 +991,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(topicDeployMap, backupAndRecoveryPath, storeFileNameTopicDeploy);
         logger.info("[Backup Topic Deploy] verify configurations");
         Map<String, TopicDeployEntity> storedTopicDeployMap =
-                (Map<String, TopicDeployEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameTopicDeploy);
+                (Map<String, TopicDeployEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameTopicDeploy);
         if (storedTopicDeployMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameTopicDeploy).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameTopicDeploy)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -919,11 +1011,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, TopicDeployEntity> qryEntry : topicDeployMap.entrySet()) {
             TopicDeployEntity targetEntity = storedTopicDeployMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-deploy value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-deploy value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 return false;
             }
         }
@@ -934,26 +1028,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery topic deploy configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
     private boolean recoveryTopicDeployConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Topic Deploy] begin ");
         Map<String, TopicDeployEntity> storedTopicDeployMap =
-                (Map<String, TopicDeployEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameTopicDeploy);
+                (Map<String, TopicDeployEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameTopicDeploy);
         if (storedTopicDeployMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameTopicDeploy).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameTopicDeploy)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Topic Deploy] upload topic-deploy configurations to master");
         if (!writeTopicDeployInfo(storedTopicDeployMap, strBuff, result)) {
-            logger.error(strBuff.append("  write topic-deploy configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write topic-deploy configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -985,20 +1085,25 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, TopicDeployEntity> qryEntry : storedTopicDeployMap.entrySet()) {
             TopicDeployEntity targetEntity = topicDeployMap.get(qryEntry.getKey());
             if (targetEntity == null) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-deploy value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is null!").toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-deploy value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is null!")
+                                .toString());
                 return false;
             }
             if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && (!targetEntity.isMatched(qryEntry.getValue(), false)))
+                            && (!targetEntity.isMatched(qryEntry.getValue(), false)))
                     || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
-                logger.error(strBuff
-                        .append("  verify failure, stored topic-deploy value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append(targetEntity).toString());
+                            && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                logger.error(
+                        strBuff.append("  verify failure, stored topic-deploy value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append(targetEntity)
+                                .toString());
                 return false;
             }
         }
@@ -1009,17 +1114,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query topic deploy configurations
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, TopicDeployEntity> getTopicDeployInfos(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_deploy_configure
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_topic_deploy_configure", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_topic_deploy_configure", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query topic deploy configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query topic deploy configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -1046,13 +1153,21 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 // build topic deploy entity
                 TopicDeployEntity topicDeployEntity =
                         new TopicDeployEntity(baseEntity, brokerId, topicName);
-                topicDeployEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        topicNameId, brokerPort, brokerIp, deployStatus,
+                topicDeployEntity.updModifyInfo(
+                        baseEntity.getDataVerId(),
+                        topicNameId,
+                        brokerPort,
+                        brokerIp,
+                        deployStatus,
                         topicPropGroup);
                 topicDeployMap.put(topicDeployEntity.getRecordKey(), topicDeployEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse topic deploy configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse topic deploy configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1063,13 +1178,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write topic deploy configurations to Master
      *
-     * @param topicDeployMap     the topic deploy configurations that needs to be stored
-     * @param strBuff          the string buffer
-     * @param result           the process result
-     * @return         the process result
+     * @param topicDeployMap the topic deploy configurations that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeTopicDeployInfo(Map<String, TopicDeployEntity> topicDeployMap,
-                                         StringBuilder strBuff, ProcessResult result) {
+    private boolean writeTopicDeployInfo(
+            Map<String, TopicDeployEntity> topicDeployMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (topicDeployMap.isEmpty()) {
             return true;
         }
@@ -1092,8 +1209,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 strBuff.delete(0, strBuff.length());
                 inParamMap.put("createUser", curOperator);
                 inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_bath_add_topic_deploy_info",
-                        authToken, inParamMap, strBuff, result)) {
+                if (!writeDataToMaster(
+                        "admin_bath_add_topic_deploy_info",
+                        authToken,
+                        inParamMap,
+                        strBuff,
+                        result)) {
                     return false;
                 }
                 count = 0;
@@ -1106,8 +1227,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             strBuff.delete(0, strBuff.length());
             inParamMap.put("createUser", curOperator);
             inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_bath_add_topic_deploy_info",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_bath_add_topic_deploy_info", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
             strBuff.delete(0, strBuff.length());
@@ -1127,8 +1248,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 strBuff.delete(0, strBuff.length());
                 inParamMap.put("createUser", curOperator);
                 inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_batch_update_topic_deploy_info",
-                        authToken, inParamMap, strBuff, result)) {
+                if (!writeDataToMaster(
+                        "admin_batch_update_topic_deploy_info",
+                        authToken,
+                        inParamMap,
+                        strBuff,
+                        result)) {
                     return false;
                 }
                 count = 0;
@@ -1141,8 +1266,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
             strBuff.delete(0, strBuff.length());
             inParamMap.put("createUser", curOperator);
             inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_batch_update_topic_deploy_info",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_batch_update_topic_deploy_info",
+                    authToken,
+                    inParamMap,
+                    strBuff,
+                    result)) {
                 return false;
             }
             strBuff.delete(0, strBuff.length());
@@ -1153,8 +1282,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup group control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupGroupCtrlConfig(StringBuilder strBuff) {
         logger.info("[Backup Group Ctrl] begin ");
@@ -1167,12 +1296,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(groupCtrlMap, backupAndRecoveryPath, storeFileNameGroupCtrl);
         logger.info("[Backup Group Ctrl] verify configurations");
         Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
-                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameGroupCtrl);
+                (Map<String, GroupResCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameGroupCtrl);
         if (storedGroupCtrlMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameGroupCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameGroupCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -1183,11 +1316,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, GroupResCtrlEntity> qryEntry : groupCtrlMap.entrySet()) {
             GroupResCtrlEntity targetEntity = storedGroupCtrlMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored group-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored group-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1199,26 +1334,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery group control configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
     private boolean recoveryGroupCtrlConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Group Ctrl] begin ");
         Map<String, GroupResCtrlEntity> storedGroupCtrlMap =
-                (Map<String, GroupResCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameGroupCtrl);
+                (Map<String, GroupResCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameGroupCtrl);
         if (storedGroupCtrlMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameGroupCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameGroupCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Group Ctrl] upload group-control configurations to master");
         if (!writeGroupResCtrlInfo(storedGroupCtrlMap, strBuff, result)) {
-            logger.error(strBuff.append("  write group-control configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write group-control configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -1236,11 +1377,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, GroupResCtrlEntity> qryEntry : storedGroupCtrlMap.entrySet()) {
             GroupResCtrlEntity targetEntity = groupCtrlMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored group-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored group-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 return false;
             }
         }
@@ -1251,17 +1394,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query group resource control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, GroupResCtrlEntity> getGroupResCtrlInfos(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_group_resctrl_info
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_group_resctrl_info", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_group_resctrl_info", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query group resource control configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query group resource control configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -1287,13 +1432,22 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 // build group resource control entity
                 GroupResCtrlEntity groupResCtrlEntity =
                         new GroupResCtrlEntity(baseEntity, groupName);
-                groupResCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        resCheckEnable, alwdBCRate, qryPriorityId,
-                        flowCtrlEnable, flowCtrlRuleCount, flowCtrlInfoStr);
+                groupResCtrlEntity.updModifyInfo(
+                        baseEntity.getDataVerId(),
+                        resCheckEnable,
+                        alwdBCRate,
+                        qryPriorityId,
+                        flowCtrlEnable,
+                        flowCtrlRuleCount,
+                        flowCtrlInfoStr);
                 groupResCtrlMap.put(groupResCtrlEntity.getGroupName(), groupResCtrlEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse group resource control configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse group resource control configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1304,13 +1458,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write group resource control configurations to Master
      *
-     * @param groupResCtrlMap  the group resource control configurations that needs to be stored
-     * @param strBuff          the string buffer
-     * @param result           the process result
-     * @return         the process result
+     * @param groupResCtrlMap the group resource control configurations that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeGroupResCtrlInfo(Map<String, GroupResCtrlEntity> groupResCtrlMap,
-                                          StringBuilder strBuff, ProcessResult result) {
+    private boolean writeGroupResCtrlInfo(
+            Map<String, GroupResCtrlEntity> groupResCtrlMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (groupResCtrlMap.isEmpty()) {
             return true;
         }
@@ -1319,7 +1475,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             inParamMap.clear();
             inParamMap.put("groupName", entity.getGroupName());
             inParamMap.put("resCheckEnable", String.valueOf(entity.isEnableResCheck()));
-            inParamMap.put("alwdBrokerClientRate", String.valueOf(entity.getAllowedBrokerClientRate()));
+            inParamMap.put(
+                    "alwdBrokerClientRate", String.valueOf(entity.getAllowedBrokerClientRate()));
             inParamMap.put("qryPriorityId", String.valueOf(entity.getQryPriorityId()));
             inParamMap.put("flowCtrlEnable", String.valueOf(entity.isFlowCtrlEnable()));
             inParamMap.put("flowCtrlInfo", String.valueOf(entity.getFlowCtrlInfo()));
@@ -1328,8 +1485,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             inParamMap.put("createDate", String.valueOf(entity.getCreateDateStr()));
             inParamMap.put("modifyUser", String.valueOf(entity.getModifyUser()));
             inParamMap.put("modifyDate", String.valueOf(entity.getModifyDateStr()));
-            if (!writeDataToMaster("admin_add_group_resctrl_info",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_add_group_resctrl_info", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
         }
@@ -1339,8 +1496,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Backup consume control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @return true for success, false for failure
      */
     private boolean backupConsumeCtrlConfig(StringBuilder strBuff) {
         logger.info("[Backup Csm Ctrl] begin ");
@@ -1353,12 +1510,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
         storeObjectToFile(groupCsmInfoMap, backupAndRecoveryPath, storeFileNameCsmCtrl);
         logger.info("[Backup Csm Ctrl] verify configurations");
         Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
-                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameCsmCtrl);
+                (Map<String, GroupConsumeCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameCsmCtrl);
         if (storedGroupCsmMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameCsmCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameCsmCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -1369,11 +1530,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
         for (Map.Entry<String, GroupConsumeCtrlEntity> qryEntry : groupCsmInfoMap.entrySet()) {
             GroupConsumeCtrlEntity targetEntity = storedGroupCsmMap.get(qryEntry.getKey());
             if (targetEntity == null || !targetEntity.isDataEquals(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored consume-ctrl value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored consume-ctrl value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1385,26 +1548,32 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Recovery consume control configurations
      *
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         true for success, false for failure
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return true for success, false for failure
      */
     private boolean recoveryConsumeCtrlConfig(StringBuilder strBuff, ProcessResult result) {
         logger.info("[Recovery Csm Ctrl] begin ");
         Map<String, GroupConsumeCtrlEntity> storedGroupCsmMap =
-                (Map<String, GroupConsumeCtrlEntity>) readObjectFromFile(
-                        backupAndRecoveryPath, storeFileNameCsmCtrl);
+                (Map<String, GroupConsumeCtrlEntity>)
+                        readObjectFromFile(backupAndRecoveryPath, storeFileNameCsmCtrl);
         if (storedGroupCsmMap == null) {
-            logger.error(strBuff.append("  read configure file ")
-                    .append(backupAndRecoveryPath).append("/")
-                    .append(storeFileNameCsmCtrl).append(" failure!").toString());
+            logger.error(
+                    strBuff.append("  read configure file ")
+                            .append(backupAndRecoveryPath)
+                            .append("/")
+                            .append(storeFileNameCsmCtrl)
+                            .append(" failure!")
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
         logger.info("[Recovery Csm Ctrl] upload consume-control configurations to master");
         if (!writeGroupCsmInfo(storedGroupCsmMap, strBuff, result)) {
-            logger.error(strBuff.append("  write consume-control configurations failure!")
-                    .append(result.getErrMsg()).toString());
+            logger.error(
+                    strBuff.append("  write consume-control configurations failure!")
+                            .append(result.getErrMsg())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return false;
         }
@@ -1424,11 +1593,13 @@ public class CliMetaDataBRU extends CliAbstractBase {
             if (targetEntity == null
                     || !targetEntity.isDataEquals(qryEntry.getValue())
                     || !targetEntity.isMatched(qryEntry.getValue())) {
-                logger.error(strBuff
-                        .append("  verify failure, stored consume-control value not equal!")
-                        .append(" data in server is ").append(qryEntry.getValue().toString())
-                        .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                logger.error(
+                        strBuff.append("  verify failure, stored consume-control value not equal!")
+                                .append(" data in server is ")
+                                .append(qryEntry.getValue().toString())
+                                .append(", data stored is ")
+                                .append((targetEntity == null) ? null : targetEntity.toString())
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1440,17 +1611,19 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Query group consume control configurations
      *
-     * @param strBuff  the string buffer
-     * @return         the query result, null if query failure
+     * @param strBuff the string buffer
+     * @return the query result, null if query failure
      */
     private Map<String, GroupConsumeCtrlEntity> getGroupCsmCtrlInfos(StringBuilder strBuff) {
         // http://127.0.0.1:8080/webapi.htm?method=admin_query_group_csmctrl_info
-        JsonObject jsonRes = qryDataFromMaster(
-                "admin_query_group_csmctrl_info", new HashMap<>(), strBuff);
+        JsonObject jsonRes =
+                qryDataFromMaster("admin_query_group_csmctrl_info", new HashMap<>(), strBuff);
         // check return result
         if (!jsonRes.get("result").getAsBoolean()) {
-            logger.info(strBuff.append("Query group consume control configurations info failure:")
-                    .append(jsonRes.get("result").getAsString()).toString());
+            logger.info(
+                    strBuff.append("Query group consume control configurations info failure:")
+                            .append(jsonRes.get("result").getAsString())
+                            .toString());
             strBuff.delete(0, strBuff.length());
             return null;
         }
@@ -1474,12 +1647,20 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 // build group consume control entity
                 GroupConsumeCtrlEntity groupCsmCtrlEntity =
                         new GroupConsumeCtrlEntity(baseEntity, groupName, topicName);
-                groupCsmCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        consumeEnable, disableCsmRsn, filterEnable, filterConds);
+                groupCsmCtrlEntity.updModifyInfo(
+                        baseEntity.getDataVerId(),
+                        consumeEnable,
+                        disableCsmRsn,
+                        filterEnable,
+                        filterConds);
                 groupCsmCtrlMap.put(groupCsmCtrlEntity.getRecordKey(), groupCsmCtrlEntity);
             } catch (Throwable e) {
-                logger.error(strBuff.append("Parse group consume control configurations(")
-                        .append(jsonItem).append(") throw exception ").append(e).toString());
+                logger.error(
+                        strBuff.append("Parse group consume control configurations(")
+                                .append(jsonItem)
+                                .append(") throw exception ")
+                                .append(e)
+                                .toString());
                 strBuff.delete(0, strBuff.length());
                 throw e;
             }
@@ -1490,13 +1671,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write group consume control configurations to Master
      *
-     * @param groupCsmMap  the group consume control configurations that needs to be stored
-     * @param strBuff      the string buffer
-     * @param result       the process result
-     * @return         the process result
+     * @param groupCsmMap the group consume control configurations that needs to be stored
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return the process result
      */
-    private boolean writeGroupCsmInfo(Map<String, GroupConsumeCtrlEntity> groupCsmMap,
-                                      StringBuilder strBuff, ProcessResult result) {
+    private boolean writeGroupCsmInfo(
+            Map<String, GroupConsumeCtrlEntity> groupCsmMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (groupCsmMap.isEmpty()) {
             return true;
         }
@@ -1514,8 +1697,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 strBuff.delete(0, strBuff.length());
                 inParamMap.put("createUser", curOperator);
                 inParamMap.put("modifyUser", curOperator);
-                if (!writeDataToMaster("admin_batch_add_group_csmctrl_info",
-                        authToken, inParamMap, strBuff, result)) {
+                if (!writeDataToMaster(
+                        "admin_batch_add_group_csmctrl_info",
+                        authToken,
+                        inParamMap,
+                        strBuff,
+                        result)) {
                     return false;
                 }
                 count = 0;
@@ -1528,8 +1715,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             strBuff.delete(0, strBuff.length());
             inParamMap.put("createUser", curOperator);
             inParamMap.put("modifyUser", curOperator);
-            if (!writeDataToMaster("admin_batch_add_group_csmctrl_info",
-                    authToken, inParamMap, strBuff, result)) {
+            if (!writeDataToMaster(
+                    "admin_batch_add_group_csmctrl_info", authToken, inParamMap, strBuff, result)) {
                 return false;
             }
             strBuff.delete(0, strBuff.length());
@@ -1540,8 +1727,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Get BaseEntity information from JsonObject
      *
-     * @param jsonItem  the json object
-     * @return         the BaseEntity object
+     * @param jsonItem the json object
+     * @return the BaseEntity object
      */
     private BaseEntity getBaseEntityInfo(JsonObject jsonItem) {
         long dataVersionId = jsonItem.get("dataVersionId").getAsInt();
@@ -1557,8 +1744,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Get TopicPropGroup information from JsonObject
      *
-     * @param jsonItem  the json object
-     * @return         the TopicPropGroup object
+     * @param jsonItem the json object
+     * @return the TopicPropGroup object
      */
     private TopicPropGroup getTopicProps(JsonObject jsonItem) {
         int numTopicStores = jsonItem.get("numTopicStores").getAsInt();
@@ -1574,29 +1761,42 @@ public class CliMetaDataBRU extends CliAbstractBase {
         String deletePolicy = jsonItem.get("deletePolicy").getAsString();
         int dataStoreType = jsonItem.get("dataStoreType").getAsInt();
         String dataPath = jsonItem.get("dataPath").getAsString();
-        return new TopicPropGroup(numTopicStores, numPartitions,
-                unflushThreshold, unflushInterval, unflushDataHold,
-                memCacheMsgSizeInMB, memCacheMsgCntInK, memCacheFlushIntvl,
-                acceptPublish, acceptSubscribe, deletePolicy, dataStoreType, dataPath);
+        return new TopicPropGroup(
+                numTopicStores,
+                numPartitions,
+                unflushThreshold,
+                unflushInterval,
+                unflushDataHold,
+                memCacheMsgSizeInMB,
+                memCacheMsgCntInK,
+                memCacheFlushIntvl,
+                acceptPublish,
+                acceptSubscribe,
+                deletePolicy,
+                dataStoreType,
+                dataPath);
     }
 
     /**
      * Query data from Masters
      *
-     * @param method      the method name
-     * @param inParamMap  the parameter map
-     * @param strBuff     the string buffer
-     * @return            the query result of Json format, null if failure
+     * @param method the method name
+     * @param inParamMap the parameter map
+     * @param strBuff the string buffer
+     * @return the query result of Json format, null if failure
      */
-    private JsonObject qryDataFromMaster(String method,
-                                         Map<String, String> inParamMap,
-                                         StringBuilder strBuff) {
+    private JsonObject qryDataFromMaster(
+            String method, Map<String, String> inParamMap, StringBuilder strBuff) {
         String visitUrl;
         JsonObject jsonRes = null;
         // call master nodes
         for (String address : masterInfo.getNodeHostPortList()) {
-            visitUrl = strBuff.append("http://").append(address)
-                    .append("/webapi.htm?method=").append(method).toString();
+            visitUrl =
+                    strBuff.append("http://")
+                            .append(address)
+                            .append("/webapi.htm?method=")
+                            .append(method)
+                            .toString();
             strBuff.delete(0, strBuff.length());
             try {
                 jsonRes = HttpUtils.requestWebService(visitUrl, inParamMap);
@@ -1614,24 +1814,31 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write data to Masters
      *
-     * @param method      the method name
-     * @param opCode      the operation code
-     * @param inParamMap  the parameter map
-     * @param strBuff     the string buffer
-     * @param result      the process result
-     * @return            success or failure
+     * @param method the method name
+     * @param opCode the operation code
+     * @param inParamMap the parameter map
+     * @param strBuff the string buffer
+     * @param result the process result
+     * @return success or failure
      */
-    private boolean writeDataToMaster(String method, String opCode,
-                                      Map<String, String> inParamMap,
-                                      StringBuilder strBuff,
-                                      ProcessResult result) {
+    private boolean writeDataToMaster(
+            String method,
+            String opCode,
+            Map<String, String> inParamMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         String visitUrl;
         JsonObject jsonRes = null;
         // call master nodes
         for (String address : masterInfo.getNodeHostPortList()) {
-            visitUrl = strBuff.append("http://").append(address)
-                    .append("/webapi.htm?method=").append(method)
-                    .append("&confModAuthToken=").append(opCode).toString();
+            visitUrl =
+                    strBuff.append("http://")
+                            .append(address)
+                            .append("/webapi.htm?method=")
+                            .append(method)
+                            .append("&confModAuthToken=")
+                            .append(opCode)
+                            .toString();
             strBuff.delete(0, strBuff.length());
             try {
                 jsonRes = HttpUtils.requestWebService(visitUrl, inParamMap);
@@ -1649,8 +1856,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
             if (jsonRes.get("result").getAsBoolean()) {
                 result.setSuccResult();
             } else {
-                result.setFailResult(jsonRes.get("errCode").getAsInt(),
-                        jsonRes.get("errMsg").getAsString());
+                result.setFailResult(
+                        jsonRes.get("errCode").getAsInt(), jsonRes.get("errMsg").getAsString());
             }
         }
         return result.isSuccess();
@@ -1659,9 +1866,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Read object data from specified file path
      *
-     * @param configPath    the stored file path
-     * @param fileName      the stored file name
-     * @return              the stored object
+     * @param configPath the stored file path
+     * @param fileName the stored file name
+     * @return the stored object
      */
     private Object readObjectFromFile(String configPath, String fileName) {
         FileInputStream fis = null;
@@ -1699,9 +1906,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
     /**
      * Write object data to specified file path
      *
-     * @param storeObj      the object to be stored
-     * @param configPath    the stored file path
-     * @param fileName      the stored file name
+     * @param storeObj the object to be stored
+     * @param configPath the stored file path
+     * @param fileName the stored file name
      */
     private void storeObjectToFile(Object storeObj, String configPath, String fileName) {
         FileOutputStream fos = null;

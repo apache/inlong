@@ -17,22 +17,26 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
+import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
-import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.queue.QueueResourceListener;
 import org.apache.inlong.manager.service.listener.sink.SinkResourceListener;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -46,42 +50,27 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/**
- * Test class for workflow service.
- */
+/** Test class for workflow service. */
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String OPERATOR = "admin";
     public static final String GROUP_ID = "test_group";
     public static final String STREAM_ID = "test_stream";
 
-    @Autowired
-    protected WorkflowServiceImpl workflowService;
-    @Autowired
-    protected ProcessService processService;
-    @Autowired
-    protected InlongGroupService groupService;
-    @Autowired
-    protected GroupTaskListenerFactory taskListenerFactory;
-    @Autowired
-    protected WorkflowProcessEntityMapper processEntityMapper;
-    @Autowired
-    protected WorkflowTaskEntityMapper taskEntityMapper;
-    @Autowired
-    protected InlongStreamService streamService;
+    @Autowired protected WorkflowServiceImpl workflowService;
+    @Autowired protected ProcessService processService;
+    @Autowired protected InlongGroupService groupService;
+    @Autowired protected GroupTaskListenerFactory taskListenerFactory;
+    @Autowired protected WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired protected WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired protected InlongStreamService streamService;
 
     protected String applicant;
     protected String subType = "default";
     private ProcessName processName;
     private GroupResourceProcessForm form;
 
-    /**
-     * Init inlong group form
-     */
+    /** Init inlong group form */
     public InlongGroupInfo createInlongGroup(String inlongGroupId, String mqType) {
         processName = ProcessName.CREATE_GROUP_RESOURCE;
         applicant = OPERATOR;
@@ -93,18 +82,18 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         return groupInfo;
     }
 
-    /**
-     * Mock the task listener factory
-     */
+    /** Mock the task listener factory */
     public void mockTaskListenerFactory() {
         QueueResourceListener queueResourceListener = mock(QueueResourceListener.class);
-        when(queueResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(queueResourceListener.listen(any(WorkflowContext.class)))
+                .thenReturn(ListenerResult.success());
         when(queueResourceListener.name()).thenReturn(QueueResourceListener.class.getSimpleName());
         when(queueResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setQueueResourceListener(queueResourceListener);
 
         SinkResourceListener sinkResourceListener = mock(SinkResourceListener.class);
-        when(sinkResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(sinkResourceListener.listen(any(WorkflowContext.class)))
+                .thenReturn(ListenerResult.success());
         when(sinkResourceListener.name()).thenReturn(SinkResourceListener.class.getSimpleName());
         when(sinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setSinkResourceListener(sinkResourceListener);
@@ -144,5 +133,4 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowTask task = process.getTaskByName("InitMQ");
         Assertions.assertTrue(task instanceof ServiceTask);
     }
-
 }

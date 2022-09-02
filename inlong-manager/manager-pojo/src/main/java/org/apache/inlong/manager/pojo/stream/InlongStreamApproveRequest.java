@@ -19,14 +19,11 @@ package org.apache.inlong.manager.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import lombok.Data;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 
-import java.util.List;
-
-/**
- * Inlong stream approval info
- */
+/** Inlong stream approval info */
 @Data
 @ApiModel("Inlong stream approval info")
 public class InlongStreamApproveRequest {
@@ -42,5 +39,4 @@ public class InlongStreamApproveRequest {
 
     @ApiModelProperty(value = "Stream sink approve list")
     private List<SinkApproveDTO> sinkList;
-
 }

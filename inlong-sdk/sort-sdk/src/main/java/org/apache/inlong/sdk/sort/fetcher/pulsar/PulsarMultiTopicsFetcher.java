@@ -18,6 +18,14 @@
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
@@ -42,18 +50,7 @@ import org.apache.pulsar.client.api.SubscriptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-/**
- * MultiTopicsFetcher for pulsar.
- */
+/** MultiTopicsFetcher for pulsar. */
 public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private PulsarConsumer currentConsumer;
@@ -80,10 +77,12 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         this.currentConsumer = new PulsarConsumer(newConsumer);
         InLongTopic firstTopic = onlineTopics.values().stream().findFirst().get();
         this.seeker = SeekerFactory.createPulsarSeeker(newConsumer, firstTopic);
-        String threadName = String.format("sort_sdk_pulsar_multi_topic_fetch_thread_%d", this.hashCode());
+        String threadName =
+                String.format("sort_sdk_pulsar_multi_topic_fetch_thread_%d", this.hashCode());
         this.fetchThread = new Thread(new PulsarMultiTopicsFetcher.Fetcher(), threadName);
         this.fetchThread.start();
-        this.executor.scheduleWithFixedDelay(this::clearRemovedConsumerList,
+        this.executor.scheduleWithFixedDelay(
+                this::clearRemovedConsumerList,
                 context.getConfig().getCleanOldConsumerIntervalSec(),
                 context.getConfig().getCleanOldConsumerIntervalSec(),
                 TimeUnit.SECONDS);
@@ -93,20 +92,24 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
     private void clearRemovedConsumerList() {
         long cur = System.currentTimeMillis();
         List<PulsarConsumer> newList = new LinkedList<>();
-        toBeRemovedConsumers.forEach(consumer -> {
-            long diff = cur - consumer.getStopTime();
-            if (diff > context.getConfig().getCleanOldConsumerIntervalSec() * 1000L || consumer.isEmpty()) {
-                try {
-                    consumer.close();
-                } catch (PulsarClientException e) {
-                    LOGGER.warn("got exception in close old consumer", e);
-                }
-                return;
-            }
-            newList.add(consumer);
-        });
-        LOGGER.info("after clear old consumers, the old size is {}, current size is {}",
-                toBeRemovedConsumers.size(), newList.size());
+        toBeRemovedConsumers.forEach(
+                consumer -> {
+                    long diff = cur - consumer.getStopTime();
+                    if (diff > context.getConfig().getCleanOldConsumerIntervalSec() * 1000L
+                            || consumer.isEmpty()) {
+                        try {
+                            consumer.close();
+                        } catch (PulsarClientException e) {
+                            LOGGER.warn("got exception in close old consumer", e);
+                        }
+                        return;
+                    }
+                    newList.add(consumer);
+                });
+        LOGGER.info(
+                "after clear old consumers, the old size is {}, current size is {}",
+                toBeRemovedConsumers.size(),
+                newList.size());
         this.toBeRemovedConsumers = newList;
     }
 
@@ -136,7 +139,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         this.currentConsumer = newConsumerWrapper;
         this.seeker = newSeeker;
         this.interceptor.configure(firstTopic);
-        this.onlineTopics = newTopics.stream().collect(Collectors.toMap(InLongTopic::getTopic, t -> t));
+        this.onlineTopics =
+                newTopics.stream().collect(Collectors.toMap(InLongTopic::getTopic, t -> t));
         // resume
         this.setStopConsume(false);
         return true;
@@ -149,25 +153,28 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         }
         try {
             SubscriptionInitialPosition position = SubscriptionInitialPosition.Latest;
-            SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+            SortClientConfig.ConsumeStrategy offsetResetStrategy =
+                    context.getConfig().getOffsetResetStrategy();
             if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest
-                    || offsetResetStrategy == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
+                    || offsetResetStrategy
+                            == SortClientConfig.ConsumeStrategy.earliest_absolutely) {
                 LOGGER.info("the subscription initial position is earliest!");
                 position = SubscriptionInitialPosition.Earliest;
             }
 
-            List<String> topicNames = newTopics.stream()
-                    .map(InLongTopic::getTopic)
-                    .collect(Collectors.toList());
-            Consumer<byte[]> consumer = pulsarClient.newConsumer(Schema.BYTES)
-                    .topics(topicNames)
-                    .subscriptionName(context.getConfig().getSortTaskId())
-                    .subscriptionType(SubscriptionType.Shared)
-                    .startMessageIdInclusive()
-                    .subscriptionInitialPosition(position)
-                    .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
-                    .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
-                    .subscribe();
+            List<String> topicNames =
+                    newTopics.stream().map(InLongTopic::getTopic).collect(Collectors.toList());
+            Consumer<byte[]> consumer =
+                    pulsarClient
+                            .newConsumer(Schema.BYTES)
+                            .topics(topicNames)
+                            .subscriptionName(context.getConfig().getSortTaskId())
+                            .subscriptionType(SubscriptionType.Shared)
+                            .startMessageIdInclusive()
+                            .subscriptionInitialPosition(position)
+                            .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
+                            .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
+                            .subscribe();
             LOGGER.info("create consumer for topics {}", topicNames);
             return consumer;
         } catch (Exception e) {
@@ -214,11 +221,18 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         InLongTopic topic = consumer.getTopic(msgOffset);
         consumer.acknowledgeAsync(messageId)
                 .thenAccept(ctx -> ackSucc(msgOffset, topic, this.currentConsumer))
-                .exceptionally(exception -> {
-                    LOGGER.error("topic " + topic + " ack failed for offset " + msgOffset + ", error: ", exception);
-                    context.getStateCounterByTopic(topic).addAckFailTimes(1L);
-                    return null;
-                });
+                .exceptionally(
+                        exception -> {
+                            LOGGER.error(
+                                    "topic "
+                                            + topic
+                                            + " ack failed for offset "
+                                            + msgOffset
+                                            + ", error: ",
+                                    exception);
+                            context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                            return null;
+                        });
     }
 
     private void ackSucc(String offset, InLongTopic topic, PulsarConsumer consumer) {
@@ -260,13 +274,14 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             }
             toBeRemovedConsumers.stream()
                     .filter(Objects::nonNull)
-                    .forEach(c -> {
-                        try {
-                            c.close();
-                        } catch (PulsarClientException e) {
-                            LOGGER.warn("close pulsar client: ", e);
-                        }
-                    });
+                    .forEach(
+                            c -> {
+                                try {
+                                    c.close();
+                                } catch (PulsarClientException e) {
+                                    LOGGER.warn("close pulsar client: ", e);
+                                }
+                            });
             toBeRemovedConsumers.clear();
             return true;
         } finally {
@@ -317,7 +332,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 context.getDefaultStateCounter().addCallbackTimes(1L);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
                 context.getDefaultStateCounter()
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                        .addCallbackTimeCost(System.currentTimeMillis() - start)
+                        .addCallbackDoneTimes(1L);
             } catch (Exception e) {
                 context.getDefaultStateCounter().addCallbackErrorTimes(1L);
                 LOGGER.error("failed to handle callback: ", e);
@@ -344,9 +360,10 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 String offsetKey = getOffset(msg.getMessageId());
                 currentConsumer.put(offsetKey, topic, msg.getMessageId());
 
-                //deserialize
-                List<InLongMessage> inLongMessages = deserializer
-                        .deserialize(context, topic, msg.getProperties(), msg.getData());
+                // deserialize
+                List<InLongMessage> inLongMessages =
+                        deserializer.deserialize(
+                                context, topic, msg.getProperties(), msg.getData());
                 // intercept
                 inLongMessages = interceptor.intercept(inLongMessages);
                 if (inLongMessages.isEmpty()) {
@@ -354,9 +371,12 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     continue;
                 }
                 List<MessageRecord> msgs = new ArrayList<>();
-                msgs.add(new MessageRecord(topic.getTopicKey(),
-                        inLongMessages,
-                        offsetKey, System.currentTimeMillis()));
+                msgs.add(
+                        new MessageRecord(
+                                topic.getTopicKey(),
+                                inLongMessages,
+                                offsetKey,
+                                System.currentTimeMillis()));
                 context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
                 context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
                 handleAndCallbackMsg(msgs);
@@ -385,7 +405,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> pulsarMessages = currentConsumer.batchReceive();
 
-                    context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+                    context.getDefaultStateCounter()
+                            .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != pulsarMessages && pulsarMessages.size() != 0) {
                         processPulsarMsg(pulsarMessages);
                         sleepTime = 0L;
@@ -393,8 +414,11 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                         context.getDefaultStateCounter().addEmptyFetchTimes(1L);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                            sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                                    context.getConfig().getMaxEmptyPollSleepMs());
+                            sleepTime =
+                                    Math.min(
+                                            (sleepTime +=
+                                                    context.getConfig().getEmptyPollSleepStepMs()),
+                                            context.getConfig().getMaxEmptyPollSleepMs());
                             emptyFetchTimes = 0;
                         }
                     }

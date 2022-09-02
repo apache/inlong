@@ -24,9 +24,7 @@ import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcess
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.springframework.stereotype.Component;
 
-/**
- * Listener of source stop event.
- */
+/** Listener of source stop event. */
 @Component
 public class SourceStopListener extends AbstractSourceOperateListener {
 

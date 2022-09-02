@@ -23,6 +23,20 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -36,44 +50,29 @@ import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Comparator;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 public class ClientMgr {
-    private static final Logger logger = LoggerFactory
-            .getLogger(ClientMgr.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientMgr.class);
     private static final int[] weight = {
-            1, 1, 1, 1, 1,
-            2, 2, 2, 2, 2,
-            3, 3, 3, 3, 3,
-            6, 6, 6, 6, 6,
-            12, 12, 12, 12, 12,
-            48, 96, 192, 384, 1000};
+        1, 1, 1, 1, 1,
+        2, 2, 2, 2, 2,
+        3, 3, 3, 3, 3,
+        6, 6, 6, 6, 6,
+        12, 12, 12, 12, 12,
+        48, 96, 192, 384, 1000
+    };
     private final Map<HostInfo, NettyClient> clientMapData = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMapHB = new ConcurrentHashMap<>();
     // clientMapData + clientMapHB = clientMap
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<HostInfo, AtomicLong> lastBadHostMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<HostInfo, AtomicLong> lastBadHostMap =
+            new ConcurrentHashMap<>();
     // clientList is the valueSet of clientMapData
     private final ArrayList<NettyClient> clientList = new ArrayList<>();
     private final Map<HostInfo, int[]> channelLoadMapData = new ConcurrentHashMap<>();
     private final Map<HostInfo, int[]> channelLoadMapHB = new ConcurrentHashMap<>();
-    /**
-     * Lock to protect FSNamesystem.
-     */
+    /** Lock to protect FSNamesystem. */
     private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
+
     private List<HostInfo> proxyInfoList = new ArrayList<>();
     private Bootstrap bootstrap;
     private int currentIndex = 0;
@@ -95,17 +94,19 @@ public class ClientMgr {
         this(configure, sender, null);
     }
 
-    /**
-     * Build up the connection between the server and client.
-     */
-    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
+    /** Build up the connection between the server and client. */
+    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory)
+            throws Exception {
         /* Initialize the bootstrap. */
         if (selfDefineFactory == null) {
-            selfDefineFactory = new DefaultThreadFactory("agent-client-io",
-                    Thread.currentThread().isDaemon());
+            selfDefineFactory =
+                    new DefaultThreadFactory("agent-client-io", Thread.currentThread().isDaemon());
         }
-        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(configure.getIoThreadNum(),
-                configure.isEnableBusyWait(), selfDefineFactory);
+        EventLoopGroup eventLoopGroup =
+                EventLoopUtil.newEventLoopGroup(
+                        configure.getIoThreadNum(),
+                        configure.isEnableBusyWait(),
+                        selfDefineFactory);
         bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup);
         bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
@@ -211,7 +212,8 @@ public class ClientMgr {
                     logger.error("there is no idle proxy to choose for balancing!");
                 } else if ((aliveConnections + 4) > proxyInfoList.size()) {
                     realSize = proxyInfoList.size();
-                    logger.warn("there is only {} idle proxy to choose for balancing!",
+                    logger.warn(
+                            "there is only {} idle proxy to choose for balancing!",
                             proxyInfoList.size() - aliveConnections);
                 } else {
                     realSize = aliveConnections + 4;
@@ -225,7 +227,8 @@ public class ClientMgr {
 
             logger.info(
                     "update all connection ,client map size {},client list size {}",
-                    clientMapData.size(), clientList.size());
+                    clientMapData.size(),
+                    clientList.size());
 
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -288,11 +291,9 @@ public class ClientMgr {
         NettyClient client = clientMap.get(host);
         if (client != null && client.isActive()) {
             logger.info("this client {} has open!", host.getHostName());
-            throw new IllegalStateException(
-                    "The channel has already been opened");
+            throw new IllegalStateException("The channel has already been opened");
         }
-        client = new NettyClient(bootstrap, host.getHostName(),
-                host.getPortNumber(), configure);
+        client = new NettyClient(bootstrap, host.getHostName(), host.getPortNumber(), configure);
         boolean bSuccess = client.connect();
 
         if (clientMapData.size() < aliveConnections) {
@@ -301,17 +302,26 @@ public class ClientMgr {
                 clientMapData.put(host, client);
                 clientList.add(client);
                 clientMap.put(host, client);
-                logger.info("build a connection success! {},channel {}", host.getHostName(), client.getChannel());
+                logger.info(
+                        "build a connection success! {},channel {}",
+                        host.getHostName(),
+                        client.getChannel());
             } else {
                 logger.info("build a connection fail! {}", host.getHostName());
             }
-            logger.info("client map size {},client list size {}", clientMapData.size(), clientList.size());
+            logger.info(
+                    "client map size {},client list size {}",
+                    clientMapData.size(),
+                    clientList.size());
         } else {
             // data channel list is enough, create hb channel
             if (bSuccess) {
                 clientMapHB.put(host, client);
                 clientMap.put(host, client);
-                logger.info("build a HBconnection success! {},channel {}", host.getHostName(), client.getChannel());
+                logger.info(
+                        "build a HBconnection success! {},channel {}",
+                        host.getHostName(),
+                        client.getChannel());
             } else {
                 logger.info("build a HBconnection fail! {}", host.getHostName());
             }
@@ -329,7 +339,8 @@ public class ClientMgr {
                 continue;
             }
             NettyClient client = clientMap.get(hostInfo);
-            if (client != null && client.getChannel() != null
+            if (client != null
+                    && client.getChannel() != null
                     && client.getChannel().id().equals(channel.id())) {
                 client.reconnect();
                 break;
@@ -347,7 +358,8 @@ public class ClientMgr {
                 continue;
             }
             NettyClient client = clientMap.get(hostInfo);
-            if (client != null && client.getChannel() != null
+            if (client != null
+                    && client.getChannel() != null
                     && client.getChannel().id().equals(channel.id())) {
                 client.setFrozen();
                 logger.info("end to froze this channel {}", client.getChannel().toString());
@@ -366,7 +378,8 @@ public class ClientMgr {
                 continue;
             }
             NettyClient client = clientMap.get(hostInfo);
-            if (client != null && client.getChannel() != null
+            if (client != null
+                    && client.getChannel() != null
                     && client.getChannel().id().equals(channel.id())) {
                 client.setBusy();
                 break;
@@ -390,7 +403,7 @@ public class ClientMgr {
         if (client == null || !client.isActive()) {
             return null;
         }
-        //logger.info("get a client {}", client.getChannel());
+        // logger.info("get a client {}", client.getChannel());
         return client;
     }
 
@@ -416,7 +429,7 @@ public class ClientMgr {
         return client;
     }
 
-//    public synchronized NettyClient getClientByLeastConnections() {}
+    //    public synchronized NettyClient getClientByLeastConnections() {}
 
     public synchronized NettyClient getClientByConsistencyHash(String messageId) {
         NettyClient client;
@@ -451,7 +464,7 @@ public class ClientMgr {
         return clientList.get(clientId);
     }
 
-//    public synchronized NettyClient getClientByWeightLeastConnections(){}
+    //    public synchronized NettyClient getClientByWeightLeastConnections(){}
 
     public synchronized NettyClient getClientByWeightRandom() {
         NettyClient client;
@@ -483,7 +496,9 @@ public class ClientMgr {
             return null;
         }
         for (NettyClient tmpClient : clientList) {
-            if (tmpClient != null && tmpClient.getServerIP() != null && tmpClient.getServerIP().equals(proxyip)) {
+            if (tmpClient != null
+                    && tmpClient.getServerIP() != null
+                    && tmpClient.getServerIP().equals(proxyip)) {
                 return tmpClient;
             }
         }
@@ -491,14 +506,13 @@ public class ClientMgr {
     }
 
     public void shutDown() {
-//        bootstrap.shutdown();
+        //        bootstrap.shutdown();
 
         ipManager.shutDown();
 
-//        connectionCheckThread.shutDown();
+        //        connectionCheckThread.shutDown();
         sendHBThread.shutDown();
         closeAllConnection();
-
     }
 
     private void closeAllConnection() {
@@ -541,9 +555,11 @@ public class ClientMgr {
                 for (Map.Entry<HostInfo, NettyClient> entry : clientMapData.entrySet()) {
                     NettyClient client = entry.getValue();
                     HostInfo hostInfo = entry.getKey();
-                    if (client != null && client.getChannel() != null
+                    if (client != null
+                            && client.getChannel() != null
                             && client.getChannel().id().equals(channel.id())) {
-//                        logger.info("channel" + channel + "; Load:" + load);
+                        //                        logger.info("channel" + channel + "; Load:" +
+                        // load);
                         if (!channelLoadMapData.containsKey(hostInfo)) {
                             channelLoadMapData.put(hostInfo, new int[ConfigConstants.CYCLE]);
                         }
@@ -559,9 +575,11 @@ public class ClientMgr {
                 for (Map.Entry<HostInfo, NettyClient> entry : clientMapHB.entrySet()) {
                     NettyClient client = entry.getValue();
                     HostInfo hostInfo = entry.getKey();
-                    if (client != null && client.getChannel() != null
+                    if (client != null
+                            && client.getChannel() != null
                             && client.getChannel().id().equals(channel.id())) {
-//                        logger.info("HBchannel" + channel + "; Load:" + load);
+                        //                        logger.info("HBchannel" + channel + "; Load:" +
+                        // load);
                         if (!channelLoadMapHB.containsKey(hostInfo)) {
                             channelLoadMapHB.put(hostInfo, new int[ConfigConstants.CYCLE]);
                         }
@@ -624,48 +642,66 @@ public class ClientMgr {
             loadHBInfo(loadHB);
 
             List<Map.Entry<HostInfo, Integer>> listData = new ArrayList<>(loadData.entrySet());
-            Collections.sort(listData, new Comparator<Map.Entry<HostInfo, Integer>>() {
-                @Override
-                public int compare(Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
-                    if (o2.getValue() != null && o1.getValue() != null && o1.getValue() > o2.getValue()) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            });
+            Collections.sort(
+                    listData,
+                    new Comparator<Map.Entry<HostInfo, Integer>>() {
+                        @Override
+                        public int compare(
+                                Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
+                            if (o2.getValue() != null
+                                    && o1.getValue() != null
+                                    && o1.getValue() > o2.getValue()) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }
+                        }
+                    });
             List<Map.Entry<HostInfo, Integer>> listHB = new ArrayList<>(loadHB.entrySet());
-            Collections.sort(listHB, new Comparator<Map.Entry<HostInfo, Integer>>() {
-                @Override
-                public int compare(Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
-                    if (o2.getValue() != null && o1.getValue() != null && o2.getValue() > o1.getValue()) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            });
+            Collections.sort(
+                    listHB,
+                    new Comparator<Map.Entry<HostInfo, Integer>>() {
+                        @Override
+                        public int compare(
+                                Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
+                            if (o2.getValue() != null
+                                    && o1.getValue() != null
+                                    && o2.getValue() > o1.getValue()) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }
+                        }
+                    });
 
             logger.info("show info: last compute result!");
             for (Map.Entry<HostInfo, Integer> item : listData) {
-//                System.out.println("listData:"+listData.get(i));
+                //                System.out.println("listData:"+listData.get(i));
                 logger.info("Client:" + item.getKey() + ";" + item.getValue());
             }
             for (Map.Entry<HostInfo, Integer> item : listHB) {
-//                System.out.println("listHB:"+listHB.get(i));
+                //                System.out.println("listHB:"+listHB.get(i));
                 logger.info("HBClient:" + item.getKey() + ";" + item.getValue());
             }
             boolean isLoadSwitch = false;
 
-//            int smallSize = listData.size() < listHB.size() ? listData.size() : listHB.size();
+            //            int smallSize = listData.size() < listHB.size() ? listData.size() :
+            // listHB.size();
             int smallSize = 1;
             for (int i = 0; i < smallSize; i++) {
                 if ((listData.get(i).getValue() - listHB.get(i).getValue()) >= this.loadThreshold) {
                     isLoadSwitch = true;
                     HostInfo dataHost = listData.get(i).getKey();
                     HostInfo hbHost = listHB.get(i).getKey();
-                    logger.info("balancing client:" + dataHost.getHostName() + ",load: " + listData.get(i).getValue()
-                            + "; HBclient:" + hbHost.getHostName() + ",load: " + listHB.get(i).getValue());
+                    logger.info(
+                            "balancing client:"
+                                    + dataHost.getHostName()
+                                    + ",load: "
+                                    + listData.get(i).getValue()
+                                    + "; HBclient:"
+                                    + hbHost.getHostName()
+                                    + ",load: "
+                                    + listHB.get(i).getValue());
 
                     NettyClient client = clientMapData.get(dataHost);
                     client.setFrozen();
@@ -675,9 +711,9 @@ public class ClientMgr {
                     clientList.remove(clientMapData.get(dataHost));
                     clientMap.remove(dataHost);
                     clientMapData.remove(dataHost);
-//                    channelLoadMapData.remove(dataHost);
+                    //                    channelLoadMapData.remove(dataHost);
                     clientMapData.put(hbHost, clientMapHB.get(hbHost));
-//                    channelLoadMapData.put(hbHost,listHB.get(i).getValue());
+                    //                    channelLoadMapData.put(hbHost,listHB.get(i).getValue());
                     clientList.add(clientMapHB.get(hbHost));
                     clientMapHB.remove(hbHost);
                 }
@@ -725,7 +761,6 @@ public class ClientMgr {
                 sendHeartBeat(clientEntry.getKey(), clientEntry.getValue());
             }
         }
-
     }
 
     private void sendHeartBeat(HostInfo hostInfo, NettyClient client) {
@@ -735,27 +770,41 @@ public class ClientMgr {
         }
         logger.debug("active host to send heartbeat! {}", hostInfo.getReferenceName());
         String hbMsg = "heartbeat:" + hostInfo.getHostName();
-        EncodeObject encodeObject = new EncodeObject(hbMsg.getBytes(StandardCharsets.UTF_8),
-                8, false, false, false, System.currentTimeMillis() / 1000, 1, "", "", "");
+        EncodeObject encodeObject =
+                new EncodeObject(
+                        hbMsg.getBytes(StandardCharsets.UTF_8),
+                        8,
+                        false,
+                        false,
+                        false,
+                        System.currentTimeMillis() / 1000,
+                        1,
+                        "",
+                        "",
+                        "");
         try {
             if (configure.isNeedAuthentication()) {
-                encodeObject.setAuth(configure.isNeedAuthentication(),
-                        configure.getUserName(), configure.getSecretKey());
+                encodeObject.setAuth(
+                        configure.isNeedAuthentication(),
+                        configure.getUserName(),
+                        configure.getSecretKey());
             }
             client.write(encodeObject);
         } catch (Throwable e) {
-            logger.error("sendHeartBeat to " + hostInfo.getReferenceName()
-                    + " exception {}, {}", e.toString(), e.getStackTrace());
+            logger.error(
+                    "sendHeartBeat to " + hostInfo.getReferenceName() + " exception {}, {}",
+                    e.toString(),
+                    e.getStackTrace());
         }
     }
 
-    /**
-     * fill up client with hb client
-     */
+    /** fill up client with hb client */
     private void fillUpWorkClientWithHBClient() {
         if (clientMapHB.size() > 0) {
-            logger.info("fill up work client with HB, clientMapData {}, clientMapHB {}",
-                    clientMapData.size(), clientMapHB.size());
+            logger.info(
+                    "fill up work client with HB, clientMapData {}, clientMapHB {}",
+                    clientMapData.size(),
+                    clientMapHB.size());
         }
         Iterator<Map.Entry<HostInfo, NettyClient>> it = clientMapHB.entrySet().iterator();
         while (it.hasNext() && clientMapData.size() < aliveConnections) {
@@ -778,8 +827,8 @@ public class ClientMgr {
             } else {
                 for (int index = 0; index < pendingBadList.size(); index++) {
 
-                    if (entry.getValue().get() < lastBadHostMap
-                            .get(pendingBadList.get(index)).get()) {
+                    if (entry.getValue().get()
+                            < lastBadHostMap.get(pendingBadList.get(index)).get()) {
                         pendingBadList.set(index, entry.getKey());
                     }
                 }
@@ -787,9 +836,11 @@ public class ClientMgr {
         }
         List<HostInfo> replaceHostLists = getRealHosts(pendingBadList, currentRealSize);
         if (replaceHostLists.size() > 0) {
-            logger.info("replace bad connection, use last bad list, "
+            logger.info(
+                    "replace bad connection, use last bad list, "
                             + "last bad list {}, client Map data {}",
-                    lastBadHostMap.size(), clientMapData.size());
+                    lastBadHostMap.size(),
+                    clientMapData.size());
         }
         for (HostInfo hostInfo : replaceHostLists) {
 
@@ -803,12 +854,18 @@ public class ClientMgr {
 
     private void fillUpWorkClientWithBadClient(List<HostInfo> badHostLists) {
         if (badHostLists.isEmpty()) {
-            logger.warn("badHostLists is empty, current hostList size {}, dataClient size {}, hbClient size {}",
-                    proxyInfoList.size(), clientMapData.size(), clientMapHB.size());
+            logger.warn(
+                    "badHostLists is empty, current hostList size {}, dataClient size {}, hbClient size {}",
+                    proxyInfoList.size(),
+                    clientMapData.size(),
+                    clientMapHB.size());
             return;
         }
-        logger.info("all hosts are bad, dataClient is empty, reuse them, badHostLists size {}, "
-                + "proxyInfoList size {}", badHostLists.size(), proxyInfoList.size());
+        logger.info(
+                "all hosts are bad, dataClient is empty, reuse them, badHostLists size {}, "
+                        + "proxyInfoList size {}",
+                badHostLists.size(),
+                proxyInfoList.size());
 
         List<HostInfo> replaceHostLists = getRealHosts(badHostLists, aliveConnections);
         boolean isSuccess = false;
@@ -881,12 +938,12 @@ public class ClientMgr {
     }
 
     /**
-     * 1. check all inactive conn, including dataConn and HBConn
-     * 2.1. if there is no any bad conn, do dataConn<->hbConn balance every ConfigConstants.CYCLE, according to load
-     * 2.2. close and remove all inactive conn
-     * 3. fillUp dataConn and HBConn using remaining hosts(excludes lastBadHostMap)
-     * 4. if dataConns are still not full, try to using HBConns (then lastBadHostMap) to fillUp
-     * 5. update lastBadHostMap, including increase, remove and update badValue
+     * 1. check all inactive conn, including dataConn and HBConn 2.1. if there is no any bad conn,
+     * do dataConn<->hbConn balance every ConfigConstants.CYCLE, according to load 2.2. close and
+     * remove all inactive conn 3. fillUp dataConn and HBConn using remaining hosts(excludes
+     * lastBadHostMap) 4. if dataConns are still not full, try to using HBConns (then
+     * lastBadHostMap) to fillUp 5. update lastBadHostMap, including increase, remove and update
+     * badValue
      */
     public void replaceBadConnectionHB() {
         try {
@@ -898,7 +955,9 @@ public class ClientMgr {
             removeBadHBClients(badHostLists, normalHostLists);
             removeBadClients(badHostLists);
 
-            if (badHostLists.size() == 0 && normalHostLists.size() != 0 && clientMapData.size() >= aliveConnections) {
+            if (badHostLists.size() == 0
+                    && normalHostLists.size() != 0
+                    && clientMapData.size() >= aliveConnections) {
                 logger.info("hasn't bad host! so keep it");
                 if (loadCycle >= ConfigConstants.CYCLE) {
                     if (loadThreshold == 0) {
@@ -931,7 +990,8 @@ public class ClientMgr {
             List<HostInfo> hostLists = new ArrayList<HostInfo>(this.proxyInfoList);
             hostLists.removeAll(badHostLists);
             hostLists.removeAll(lastBadHostMap.keySet());
-            hostLists.removeAll(normalHostLists); // now, all hosts in this hostLists are not built conn
+            hostLists.removeAll(
+                    normalHostLists); // now, all hosts in this hostLists are not built conn
 
             int realSize = this.realSize - clientMap.size();
             if (realSize > hostLists.size()) {
@@ -974,14 +1034,14 @@ public class ClientMgr {
 
             logger.info(
                     "replace bad connection ,client map size {},client list size {}",
-                    clientMapData.size(), clientList.size());
+                    clientMapData.size(),
+                    clientList.size());
 
         } catch (Exception e) {
             logger.error("replaceBadConnection exception {}, {}", e.toString(), e.getStackTrace());
         } finally {
             writeUnlock();
         }
-
     }
 
     private List<HostInfo> getRealHosts(List<HostInfo> hostList, int realSize) {
@@ -1053,5 +1113,4 @@ public class ClientMgr {
             }
         }
     }
-
 }

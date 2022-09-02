@@ -47,5 +47,4 @@ public class NullFormatInfo implements FormatInfo {
     public String toString() {
         return "NullFormatInfo";
     }
-
 }

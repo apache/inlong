@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.heartbeat;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -33,18 +34,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-import java.util.List;
-
 @Slf4j
 @EnableAutoConfiguration
 public class HeartbeatManagerTest extends ServiceBaseTest {
 
-    @Autowired
-    private HeartbeatManager heartbeatManager;
-    @Autowired
-    private InlongClusterEntityMapper clusterMapper;
-    @Autowired
-    private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired private HeartbeatManager heartbeatManager;
+    @Autowired private InlongClusterEntityMapper clusterMapper;
+    @Autowired private InlongClusterNodeEntityMapper clusterNodeMapper;
 
     @Test
     void testReportHeartbeat() throws InterruptedException {
@@ -52,8 +48,8 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         heartbeatManager.reportHeartbeat(msg);
         InlongClusterEntity entity = clusterMapper.selectById(1);
         log.info(JsonUtils.toJsonString(entity));
-        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(null, msg.getClusterName(),
-                msg.getComponentType());
+        List<InlongClusterEntity> clusterEntities =
+                clusterMapper.selectByKey(null, msg.getClusterName(), msg.getComponentType());
         Assertions.assertEquals(1, clusterEntities.size());
         Assertions.assertEquals(clusterEntities.get(0).getName(), msg.getClusterName());
 
@@ -72,7 +68,8 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
 
         clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         log.debug(JsonUtils.toJsonString(clusterNode));
-        Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
+        Assertions.assertEquals(
+                (int) clusterNode.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
 
         heartbeatManager.reportHeartbeat(msg);
         clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
@@ -87,5 +84,4 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         return heartbeatMsg;
     }
-
 }

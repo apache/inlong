@@ -19,6 +19,9 @@
 package org.apache.inlong.sort.parser.impl;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.function.EncryptFunction;
 import org.apache.inlong.sort.function.JsonGetterFunction;
@@ -30,14 +33,7 @@ import org.apache.inlong.sort.parser.result.ParseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-/**
- * parse flink sql script file
- * script file include CREATE TABLE statement
- */
+/** parse flink sql script file script file include CREATE TABLE statement */
 public class NativeFlinkSqlParser implements Parser {
 
     private static final Logger log = LoggerFactory.getLogger(FlinkSqlParser.class);
@@ -62,11 +58,10 @@ public class NativeFlinkSqlParser implements Parser {
         return new NativeFlinkSqlParser(tableEnv, statements);
     }
 
-    /**
-     * Register udf
-     */
+    /** Register udf */
     private void registerUDF() {
-        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
+        tableEnv.createTemporarySystemFunction(
+                "REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
         tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         tableEnv.createTemporarySystemFunction("ENCRYPT", EncryptFunction.class);
         tableEnv.createTemporarySystemFunction("JSON_GETTER", JsonGetterFunction.class);
@@ -86,8 +81,8 @@ public class NativeFlinkSqlParser implements Parser {
         String[] statementSet = statements.split(";");
         for (String statement : statementSet) {
             statement = statement.trim();
-            if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE") || statement.toUpperCase(Locale.ROOT)
-                    .startsWith("CREATE VIEW")) {
+            if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE")
+                    || statement.toUpperCase(Locale.ROOT).startsWith("CREATE VIEW")) {
                 createTableSqls.add(statement);
             } else if (statement.toUpperCase(Locale.ROOT).startsWith("INSERT INTO")) {
                 insertSqls.add(statement);

@@ -69,5 +69,4 @@ public class TestConfiguration {
         assertEquals("1", jobJsonConf.get(JobConstants.JOB_ID));
         assertEquals("test", jobJsonConf.get(JobConstants.JOB_NAME));
     }
-
 }

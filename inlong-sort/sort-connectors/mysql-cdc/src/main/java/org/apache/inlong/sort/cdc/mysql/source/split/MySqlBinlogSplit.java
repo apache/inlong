@@ -20,18 +20,15 @@ package org.apache.inlong.sort.cdc.mysql.source.split;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-/**
- * The split to describe the binlog of MySql table(s).
- */
+/** The split to describe the binlog of MySql table(s). */
 public class MySqlBinlogSplit extends MySqlSplit {
 
     private final BinlogOffset startingOffset;
@@ -40,8 +37,7 @@ public class MySqlBinlogSplit extends MySqlSplit {
     private final Map<TableId, TableChange> tableSchemas;
     private final int totalFinishedSplitSize;
     private final boolean isSuspended;
-    @Nullable
-    transient byte[] serializedFormCache;
+    @Nullable transient byte[] serializedFormCache;
 
     public MySqlBinlogSplit(
             String splitId,

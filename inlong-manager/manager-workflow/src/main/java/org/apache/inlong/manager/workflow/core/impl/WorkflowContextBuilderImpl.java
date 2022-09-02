@@ -20,6 +20,8 @@ package org.apache.inlong.manager.workflow.core.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,24 +43,15 @@ import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Workflow context builder
- */
+/** Workflow context builder */
 @Slf4j
 @Service
 public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private ProcessDefinitionRepository definitionRepository;
-    @Autowired
-    private WorkflowProcessEntityMapper processEntityMapper;
-    @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private ProcessDefinitionRepository definitionRepository;
+    @Autowired private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired private WorkflowTaskEntityMapper taskEntityMapper;
 
     @SneakyThrows
     @Override
@@ -81,24 +74,35 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         return new WorkflowContext()
                 .setOperator(processEntity.getApplicant())
                 .setProcess(process)
-                .setProcessForm(WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process))
+                .setProcessForm(
+                        WorkflowUtils.parseProcessForm(
+                                objectMapper, processEntity.getFormData(), process))
                 .setProcessEntity(processEntity);
     }
 
     @Override
-    public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, String remark, String operator) {
+    public WorkflowContext buildContextForTask(
+            Integer taskId, WorkflowAction action, String remark, String operator) {
         return buildContextForTask(taskId, action, null, null, remark, operator);
     }
 
     @Override
-    public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, TaskForm taskForm, String remark,
+    public WorkflowContext buildContextForTask(
+            Integer taskId,
+            WorkflowAction action,
+            TaskForm taskForm,
+            String remark,
             String operator) {
         return buildContextForTask(taskId, action, taskForm, null, remark, operator);
     }
 
     @Override
-    public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, List<String> transferToUsers,
-            String remark, String operator) {
+    public WorkflowContext buildContextForTask(
+            Integer taskId,
+            WorkflowAction action,
+            List<String> transferToUsers,
+            String remark,
+            String operator) {
         return buildContextForTask(taskId, action, null, transferToUsers, remark, operator);
     }
 
@@ -109,34 +113,47 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         WorkflowProcess process = definitionRepository.get(taskEntity.getProcessName()).clone();
         TaskForm taskForm = WorkflowUtils.parseTaskForm(objectMapper, taskEntity, process);
         List<String> transferToUsers = getTransferToUsers(taskEntity.getExtParams());
-        return buildContextForTask(taskId, action, taskForm, transferToUsers, taskEntity.getRemark(),
+        return buildContextForTask(
+                taskId,
+                action,
+                taskForm,
+                transferToUsers,
+                taskEntity.getRemark(),
                 taskEntity.getOperator());
     }
 
     @SneakyThrows
-    private WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, TaskForm taskForm,
-            List<String> transferToUsers, String remark, String operator) {
+    private WorkflowContext buildContextForTask(
+            Integer taskId,
+            WorkflowAction action,
+            TaskForm taskForm,
+            List<String> transferToUsers,
+            String remark,
+            String operator) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
         Preconditions.checkNotNull(taskEntity, "task not exist with id: " + taskId);
 
-        WorkflowProcessEntity processEntity = processEntityMapper.selectById(taskEntity.getProcessId());
+        WorkflowProcessEntity processEntity =
+                processEntityMapper.selectById(taskEntity.getProcessId());
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
-        ProcessForm processForm = WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process);
+        ProcessForm processForm =
+                WorkflowUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process);
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
-        return new WorkflowContext().setProcess(process)
+        return new WorkflowContext()
+                .setProcess(process)
                 .setOperator(processEntity.getApplicant())
                 .setProcessForm(processForm)
                 .setProcessEntity(processEntity)
                 .setCurrentElement(task)
-                .setActionContext(new WorkflowContext.ActionContext()
-                        .setAction(action)
-                        .setTaskEntity(taskEntity)
-                        .setTask(task)
-                        .setForm(taskForm)
-                        .setTransferToUsers(transferToUsers)
-                        .setOperator(operator)
-                        .setRemark(remark)
-                );
+                .setActionContext(
+                        new WorkflowContext.ActionContext()
+                                .setAction(action)
+                                .setTaskEntity(taskEntity)
+                                .setTask(task)
+                                .setForm(taskForm)
+                                .setTransferToUsers(transferToUsers)
+                                .setOperator(operator)
+                                .setRemark(remark));
     }
 
     @SuppressWarnings("unchecked")
@@ -145,8 +162,12 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
             return Lists.newArrayList();
         }
         try {
-            Map<String, Object> extMap = objectMapper.readValue(ext,
-                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+            Map<String, Object> extMap =
+                    objectMapper.readValue(
+                            ext,
+                            objectMapper
+                                    .getTypeFactory()
+                                    .constructMapType(Map.class, String.class, Object.class));
             if (!extMap.containsKey(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY)) {
                 return Lists.newArrayList();
             }
@@ -160,5 +181,4 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
         return null;
     }
-
 }

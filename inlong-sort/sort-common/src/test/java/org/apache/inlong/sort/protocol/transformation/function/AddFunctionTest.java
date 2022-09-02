@@ -25,16 +25,15 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link AddFunction}
- */
+/** Test for {@link AddFunction} */
 public class AddFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new AddFunction(new FieldInfo("event_time", new TimestampFormatInfo()),
-                new IntervalFunction(new StringConstantParam("5"),
-                        new TimeUnitConstantParam(TimeUnit.SECOND)));
+        return new AddFunction(
+                new FieldInfo("event_time", new TimestampFormatInfo()),
+                new IntervalFunction(
+                        new StringConstantParam("5"), new TimeUnitConstantParam(TimeUnit.SECOND)));
     }
 
     @Override

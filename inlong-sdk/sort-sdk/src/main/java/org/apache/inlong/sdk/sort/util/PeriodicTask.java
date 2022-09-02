@@ -40,8 +40,7 @@ public abstract class PeriodicTask implements Runnable {
 
     protected abstract void doWork();
 
-    protected void beforeExit() {
-    }
+    protected void beforeExit() {}
 
     @Override
     public void run() {
@@ -92,5 +91,4 @@ public abstract class PeriodicTask implements Runnable {
     public void setRunInterval(long runInterval) {
         this.runInterval = runInterval;
     }
-
 }

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import java.io.File;
@@ -37,7 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebApiServlet extends HttpServlet {
-    public static final int MAX_MULTIPART_POST_DATA_SIZE = 67108864; // 64M, could be bigger if needed
+    public static final int MAX_MULTIPART_POST_DATA_SIZE =
+            67108864; // 64M, could be bigger if needed
     private static final Logger logger = LoggerFactory.getLogger(WebFilter.class);
     private static final String DEFAULT_CONFIG_PATH = "/WEB-INF/simple-mvc.xml";
     private static final String DEFAULT_LOG_CONFIG_PATH = "/WEB-INF/log4j.xml";
@@ -51,15 +49,18 @@ public class WebApiServlet extends HttpServlet {
         this.config = config;
     }
 
-    protected void doRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doRequest(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         if (req instanceof MultipartHttpServletRequest) {
             // We need to manually fix config if it's "form-data" by jetty's requirement,
             // as this jetty is an embedded one, there's no XML config to read
             req.setAttribute(Request.MULTIPART_CONFIG_ELEMENT, multipartConfig);
         }
 
-        String charset = (req.getCharacterEncoding() == null)
-                ? TBaseConstants.META_DEFAULT_CHARSET_NAME : req.getCharacterEncoding();
+        String charset =
+                (req.getCharacterEncoding() == null)
+                        ? TBaseConstants.META_DEFAULT_CHARSET_NAME
+                        : req.getCharacterEncoding();
         resp.setCharacterEncoding(charset);
         RequestContext context = new RequestContext(this.config, req, resp);
         if (this.config.containsType(context.requestType())) {
@@ -78,12 +79,14 @@ public class WebApiServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         doRequest(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         doRequest(req, resp);
     }
 
@@ -101,12 +104,13 @@ public class WebApiServlet extends HttpServlet {
                     }
                     this.configFilePath = filePath;
                 }
-                URL configFileURL =
-                        config.getServletContext().getResource(this.configFilePath);
+                URL configFileURL = config.getServletContext().getResource(this.configFilePath);
                 if (configFileURL == null) {
-                    throw new ServletException(new StringBuilder(256)
-                            .append("can not found config file:")
-                            .append(this.configFilePath).toString());
+                    throw new ServletException(
+                            new StringBuilder(256)
+                                    .append("can not found config file:")
+                                    .append(this.configFilePath)
+                                    .toString());
                 }
                 this.configFile = new File(configFileURL.toURI());
                 ConfigFileParser configParser = new ConfigFileParser(this.configFile);
@@ -115,8 +119,9 @@ public class WebApiServlet extends HttpServlet {
             checkConfig(this.config, config.getServletContext());
             this.dispatcher = new RequestDispatcher(this.config);
             this.dispatcher.init();
-            this.multipartConfig = new MultipartConfigElement(null, 0,
-                    MAX_MULTIPART_POST_DATA_SIZE, MAX_MULTIPART_POST_DATA_SIZE);
+            this.multipartConfig =
+                    new MultipartConfigElement(
+                            null, 0, MAX_MULTIPART_POST_DATA_SIZE, MAX_MULTIPART_POST_DATA_SIZE);
         } catch (ServletException se) {
             throw se;
         } catch (Throwable t) {
@@ -126,19 +131,22 @@ public class WebApiServlet extends HttpServlet {
     }
 
     private void checkConfig(WebConfig config, ServletContext servletContext) throws Exception {
-        URL resourcesURL =
-                servletContext.getResource(config.getResourcePath());
+        URL resourcesURL = servletContext.getResource(config.getResourcePath());
         if (resourcesURL == null) {
-            throw new ServletException(new StringBuilder(256)
-                    .append("Invalid resources path:")
-                    .append(config.getResourcePath()).toString());
+            throw new ServletException(
+                    new StringBuilder(256)
+                            .append("Invalid resources path:")
+                            .append(config.getResourcePath())
+                            .toString());
         }
         config.setResourcePath(resourcesURL.getPath());
         URL templatesURL = servletContext.getResource(config.getTemplatePath());
         if (templatesURL == null) {
-            throw new ServletException(new StringBuilder(256)
-                    .append("Invalid templates path:")
-                    .append(config.getTemplatePath()).toString());
+            throw new ServletException(
+                    new StringBuilder(256)
+                            .append("Invalid templates path:")
+                            .append(config.getTemplatePath())
+                            .toString());
         }
         config.setTemplatePath(templatesURL.getPath());
 
@@ -148,9 +156,11 @@ public class WebApiServlet extends HttpServlet {
             if (velocityConfigFilePath != null) {
                 config.setVelocityConfigFilePath(velocityConfigFilePath.getPath());
             } else {
-                logger.warn(new StringBuilder(256)
-                        .append("Invalid velocity config file path:")
-                        .append(config.getVelocityConfigFilePath()).toString());
+                logger.warn(
+                        new StringBuilder(256)
+                                .append("Invalid velocity config file path:")
+                                .append(config.getVelocityConfigFilePath())
+                                .toString());
                 config.setVelocityConfigFilePath(null);
             }
         }

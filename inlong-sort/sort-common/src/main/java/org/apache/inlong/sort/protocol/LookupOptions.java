@@ -17,54 +17,39 @@
 
 package org.apache.inlong.sort.protocol;
 
+import javax.annotation.Nullable;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import javax.annotation.Nullable;
-
-/**
- * Lookup options
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = LookupOptions.class, name = "lookupOptions")
-})
+/** Lookup options */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = LookupOptions.class, name = "lookupOptions")})
 @Data
 public class LookupOptions {
 
-    /**
-     * Lookup cache max rows
-     */
+    /** Lookup cache max rows */
     @Nullable
     @JsonProperty("lookupCacheMaxRows")
     private Long lookupCacheMaxRows;
-    /**
-     * Lookup cache ttl
-     */
+    /** Lookup cache ttl */
     @Nullable
     @JsonProperty("lookupCacheTtl")
     private Long lookupCacheTtl;
-    /**
-     * Lookup max retries
-     */
+    /** Lookup max retries */
     @Nullable
     @JsonProperty("lookupMaxRetries")
     private Integer lookupMaxRetries;
-    /**
-     * Lookup async
-     */
+    /** Lookup async */
     @Nullable
     @JsonProperty("lookupAsync")
     private Boolean lookupAsync;
 
     @JsonCreator
-    public LookupOptions(@JsonProperty("lookupCacheMaxRows") @Nullable Long lookupCacheMaxRows,
+    public LookupOptions(
+            @JsonProperty("lookupCacheMaxRows") @Nullable Long lookupCacheMaxRows,
             @JsonProperty("lookupCacheTtl") @Nullable Long lookupCacheTtl,
             @JsonProperty("lookupMaxRetries") @Nullable Integer lookupMaxRetries,
             @JsonProperty("lookupAsync") @Nullable Boolean lookupAsync) {

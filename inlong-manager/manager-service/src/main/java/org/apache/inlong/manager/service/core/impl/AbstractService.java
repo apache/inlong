@@ -34,7 +34,6 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractService.class);
 
-
     @Value("${msg.to.db.batch.size:10}")
     private int batchSize = 10;
 
@@ -85,9 +84,14 @@ public abstract class AbstractService<T> implements AutoCloseable, InitializingB
     @Override
     public void afterPropertiesSet() {
         dataQueue = new LinkedBlockingQueue(queueSize);
-        pool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize,
-                60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(syncSendQueueSize),
-                Executors.defaultThreadFactory());
+        pool =
+                new ThreadPoolExecutor(
+                        corePoolSize,
+                        maximumPoolSize,
+                        60,
+                        TimeUnit.SECONDS,
+                        new LinkedBlockingDeque<>(syncSendQueueSize),
+                        Executors.defaultThreadFactory());
         for (int i = 0; i < corePoolSize; i++) {
             pool.execute(new Task());
         }

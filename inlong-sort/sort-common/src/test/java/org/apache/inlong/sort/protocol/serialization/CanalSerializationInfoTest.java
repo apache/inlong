@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.serialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link CanalSerializationInfo}
- */
+/** Test for {@link CanalSerializationInfo} */
 public class CanalSerializationInfoTest extends SerializeBaseTest<CanalSerializationInfo> {
 
     @Override

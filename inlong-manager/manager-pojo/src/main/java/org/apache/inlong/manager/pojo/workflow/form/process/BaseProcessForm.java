@@ -22,17 +22,19 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import lombok.Data;
 
-/**
- * The main form of the process-submitted when the process is initiated
- */
+/** The main form of the process-submitted when the process is initiated */
 @Data
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ApplyGroupProcessForm.class, name = ApplyGroupProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = ApplyConsumptionProcessForm.class, name = ApplyConsumptionProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = GroupResourceProcessForm.class, name = GroupResourceProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = StreamResourceProcessForm.class, name = StreamResourceProcessForm.FORM_NAME),
+    @JsonSubTypes.Type(value = ApplyGroupProcessForm.class, name = ApplyGroupProcessForm.FORM_NAME),
+    @JsonSubTypes.Type(
+            value = ApplyConsumptionProcessForm.class,
+            name = ApplyConsumptionProcessForm.FORM_NAME),
+    @JsonSubTypes.Type(
+            value = GroupResourceProcessForm.class,
+            name = GroupResourceProcessForm.FORM_NAME),
+    @JsonSubTypes.Type(
+            value = StreamResourceProcessForm.class,
+            name = StreamResourceProcessForm.FORM_NAME),
 })
-public abstract class BaseProcessForm implements ProcessForm {
-
-}
+public abstract class BaseProcessForm implements ProcessForm {}

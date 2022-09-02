@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.internals.StickyPartitionCache;
@@ -24,46 +30,30 @@ import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
- * Divide partitions by client.id.
- * The default partitioning strategy: if the number of producers is bigger than 1,
- * and the number of partitions bigger than producers, the producers divide partitions equally.
- * <li>If a partition is specified in the record, use it</li>
- * <li>If no partition is specified but a key is present choose a partition based on a hash of the key</li>
- * <li>If no partition or key is present choose the sticky partition that changes when the batch is full.</li>
- *
- * See KIP-480 for details about sticky partitioning.
+ * Divide partitions by client.id. The default partitioning strategy: if the number of producers is
+ * bigger than 1, and the number of partitions bigger than producers, the producers divide
+ * partitions equally.
+ * <li>If a partition is specified in the record, use it
+ * <li>If no partition is specified but a key is present choose a partition based on a hash of the
+ *     key
+ * <li>If no partition or key is present choose the sticky partition that changes when the batch is
+ *     full. See KIP-480 for details about sticky partitioning.
  */
 public class PartitionerSelector implements Partitioner {
 
     private final StickyPartitionCache stickyPartitionCache = new MyStickyPartitionCache();
 
-    /**
-     * clientId and number of producers
-     */
+    /** clientId and number of producers */
     private static Map<String, AtomicInteger> clientIdIndex = new ConcurrentHashMap<>();
 
-    /**
-     * index of current producer.
-     */
+    /** index of current producer. */
     private int index;
 
-    /**
-     * clientId
-     */
+    /** clientId */
     private String clientId;
 
-    /**
-     * assign index for each producer.
-     *
-     */
+    /** assign index for each producer. */
     @Override
     public void configure(Map<String, ?> configs) {
         clientId = (String) configs.get(ProducerConfig.CLIENT_ID_CONFIG);
@@ -86,16 +76,21 @@ public class PartitionerSelector implements Partitioner {
     /**
      * Compute the partition for the given record.
      *
-     * @param topic      The topic name
-     * @param key        The key to partition on (or null if no key)
-     * @param keyBytes   serialized key to partition on (or null if no key)
-     * @param value      The value to partition on or null
+     * @param topic The topic name
+     * @param key The key to partition on (or null if no key)
+     * @param keyBytes serialized key to partition on (or null if no key)
+     * @param value The value to partition on or null
      * @param valueBytes serialized value to partition on or null
-     * @param cluster    The current cluster metadata
+     * @param cluster The current cluster metadata
      */
     @Override
-    public int partition(String topic, Object key, byte[] keyBytes,
-            Object value, byte[] valueBytes, Cluster cluster) {
+    public int partition(
+            String topic,
+            Object key,
+            byte[] keyBytes,
+            Object value,
+            byte[] valueBytes,
+            Cluster cluster) {
         if (keyBytes == null) {
             return stickyPartitionCache.partition(topic, cluster);
         }
@@ -111,9 +106,7 @@ public class PartitionerSelector implements Partitioner {
         return Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;
     }
 
-    /**
-     * reduce the number of total producer when this one is closed.
-     */
+    /** reduce the number of total producer when this one is closed. */
     @Override
     public void close() {
         AtomicInteger atomicInteger = clientIdIndex.get(clientId);
@@ -124,17 +117,15 @@ public class PartitionerSelector implements Partitioner {
     }
 
     /**
-     * If a batch completed for the current sticky partition, change the sticky partition. Alternately, if
-     * no sticky partition has been determined, set one.
+     * If a batch completed for the current sticky partition, change the sticky partition.
+     * Alternately, if no sticky partition has been determined, set one.
      */
     @Override
     public void onNewBatch(String topic, Cluster cluster, int prevPartition) {
         stickyPartitionCache.nextPartition(topic, cluster, prevPartition);
     }
 
-    /**
-     * Customized sticky partition selector.
-     */
+    /** Customized sticky partition selector. */
     class MyStickyPartitionCache extends StickyPartitionCache {
 
         private final ConcurrentMap<String, Integer> indexCache;
@@ -219,9 +210,9 @@ public class PartitionerSelector implements Partitioner {
     /**
      * group a batch of source, and get the part of given index.
      *
-     * @param  source   source to be grouped
-     * @param  pageSize size of group
-     * @param  index    current index
+     * @param source source to be grouped
+     * @param pageSize size of group
+     * @param index current index
      */
     public static <T> List<T> averageAssign(List<T> source, int pageSize, int index) {
 
@@ -247,5 +238,4 @@ public class PartitionerSelector implements Partitioner {
 
         return source.subList(fromIndex, toIndex);
     }
-
 }

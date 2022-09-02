@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The format information for floats.
- */
+/** The format information for floats. */
 public class FloatFormatInfo implements BasicFormatInfo<Float> {
 
     private static final long serialVersionUID = 1L;

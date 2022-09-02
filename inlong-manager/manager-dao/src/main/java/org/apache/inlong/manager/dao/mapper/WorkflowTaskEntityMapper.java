@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -25,11 +26,7 @@ import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-/**
- * Workflow task mapper
- */
+/** Workflow task mapper */
 @Repository
 public interface WorkflowTaskEntityMapper {
 
@@ -37,15 +34,17 @@ public interface WorkflowTaskEntityMapper {
 
     WorkflowTaskEntity selectById(Integer id);
 
-    List<WorkflowTaskEntity> selectByProcess(@Param("processId") Integer processId, @Param("status") TaskStatus status);
+    List<WorkflowTaskEntity> selectByProcess(
+            @Param("processId") Integer processId, @Param("status") TaskStatus status);
 
     List<WorkflowTaskEntity> selectByQuery(TaskRequest query);
 
-    int countByStatus(@Param("processId") Integer processId, @Param("name") String name,
+    int countByStatus(
+            @Param("processId") Integer processId,
+            @Param("name") String name,
             @Param("status") TaskStatus status);
 
     List<CountInfo> countByQuery(TaskCountRequest query);
 
     int update(WorkflowTaskEntity workflowTaskEntity);
-
 }

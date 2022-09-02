@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.workflow.event.task;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -27,18 +29,12 @@ import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * WorkflowProcess event notifier
- */
+/** WorkflowProcess event notifier */
 @Slf4j
 @Service
 public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
 
-    @Autowired
-    private WorkflowEventLogEntityMapper eventLogMapper;
+    @Autowired private WorkflowEventLogEntityMapper eventLogMapper;
 
     public TaskEventNotifier(WorkflowEventLogEntityMapper eventLogMapper) {
         this.eventLogMapper = eventLogMapper;
@@ -47,9 +43,10 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
     @Override
     public ListenerResult notify(TaskEvent event, WorkflowContext context) {
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
-        List<LogableTaskEventListener> logableListeners = task.listeners(event).stream()
-                .map(listener -> logableEventListener(listener))
-                .collect(Collectors.toList());
+        List<LogableTaskEventListener> logableListeners =
+                task.listeners(event).stream()
+                        .map(listener -> logableEventListener(listener))
+                        .collect(Collectors.toList());
 
         for (LogableTaskEventListener listener : logableListeners) {
             ListenerResult result = listener.listen(context);
@@ -58,7 +55,6 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
             }
         }
         return ListenerResult.success();
-
     }
 
     @Override
@@ -77,5 +73,4 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
         }
         return new LogableTaskEventListener(listener, eventLogMapper);
     }
-
 }

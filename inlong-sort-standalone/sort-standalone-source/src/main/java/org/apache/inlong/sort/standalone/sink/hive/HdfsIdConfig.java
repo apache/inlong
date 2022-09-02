@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.hive;
 
 import java.text.SimpleDateFormat;
@@ -22,10 +19,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 
- * HdfsIdConfig
- */
+/** HdfsIdConfig */
 public class HdfsIdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
@@ -36,34 +30,38 @@ public class HdfsIdConfig {
     public static final String REGEX_MINUTE = "\\{yyyyMMddHHmm\\}";
     public static final long HOUR_MS = 60L * 60 * 1000;
     public static final int SEPARATOR_LENGTH = 1;
-    private static ThreadLocal<SimpleDateFormat> FORMAT_DAY = new ThreadLocal<SimpleDateFormat>() {
+    private static ThreadLocal<SimpleDateFormat> FORMAT_DAY =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMdd");
-        }
-    };
-    private static ThreadLocal<SimpleDateFormat> FORMAT_HOUR = new ThreadLocal<SimpleDateFormat>() {
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMdd");
+                }
+            };
+    private static ThreadLocal<SimpleDateFormat> FORMAT_HOUR =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHH");
-        }
-    };
-    private static ThreadLocal<SimpleDateFormat> FORMAT_MINUTE = new ThreadLocal<SimpleDateFormat>() {
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMddHH");
+                }
+            };
+    private static ThreadLocal<SimpleDateFormat> FORMAT_MINUTE =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHHmm");
-        }
-    };
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMddHHmm");
+                }
+            };
     // format repository
     private static ThreadLocal<Map<String, SimpleDateFormat>> FORMAT_REPOSITORY;
 
     static {
-        FORMAT_REPOSITORY = new ThreadLocal<Map<String, SimpleDateFormat>>() {
+        FORMAT_REPOSITORY =
+                new ThreadLocal<Map<String, SimpleDateFormat>>() {
 
-            protected Map<String, SimpleDateFormat> initialValue() {
-                return new ConcurrentHashMap<String, SimpleDateFormat>();
-            }
-        };
+                    protected Map<String, SimpleDateFormat> initialValue() {
+                        return new ConcurrentHashMap<String, SimpleDateFormat>();
+                    }
+                };
     }
 
     private String inlongGroupId;
@@ -83,7 +81,7 @@ public class HdfsIdConfig {
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -92,7 +90,7 @@ public class HdfsIdConfig {
 
     /**
      * set inlongGroupId
-     * 
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -101,7 +99,7 @@ public class HdfsIdConfig {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -110,7 +108,7 @@ public class HdfsIdConfig {
 
     /**
      * set inlongStreamId
-     * 
+     *
      * @param inlongStreamId the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
@@ -119,7 +117,7 @@ public class HdfsIdConfig {
 
     /**
      * get separator
-     * 
+     *
      * @return the separator
      */
     public String getSeparator() {
@@ -128,7 +126,7 @@ public class HdfsIdConfig {
 
     /**
      * set separator
-     * 
+     *
      * @param separator the separator to set
      */
     public void setSeparator(String separator) {
@@ -137,7 +135,7 @@ public class HdfsIdConfig {
 
     /**
      * get partitionIntervalMs
-     * 
+     *
      * @return the partitionIntervalMs
      */
     public long getPartitionIntervalMs() {
@@ -146,7 +144,7 @@ public class HdfsIdConfig {
 
     /**
      * set partitionIntervalMs
-     * 
+     *
      * @param partitionIntervalMs the partitionIntervalMs to set
      */
     public void setPartitionIntervalMs(long partitionIntervalMs) {
@@ -155,7 +153,7 @@ public class HdfsIdConfig {
 
     /**
      * get idRootPath
-     * 
+     *
      * @return the idRootPath
      */
     public String getIdRootPath() {
@@ -164,7 +162,7 @@ public class HdfsIdConfig {
 
     /**
      * set idRootPath
-     * 
+     *
      * @param idRootPath the idRootPath to set
      */
     public void setIdRootPath(String idRootPath) {
@@ -173,7 +171,7 @@ public class HdfsIdConfig {
 
     /**
      * get partitionSubPath
-     * 
+     *
      * @return the partitionSubPath
      */
     public String getPartitionSubPath() {
@@ -182,7 +180,7 @@ public class HdfsIdConfig {
 
     /**
      * set partitionSubPath
-     * 
+     *
      * @param partitionSubPath the partitionSubPath to set
      */
     public void setPartitionSubPath(String partitionSubPath) {
@@ -191,7 +189,7 @@ public class HdfsIdConfig {
 
     /**
      * get partitionFieldName
-     * 
+     *
      * @return the partitionFieldName
      */
     public String getPartitionFieldName() {
@@ -200,7 +198,7 @@ public class HdfsIdConfig {
 
     /**
      * set partitionFieldName
-     * 
+     *
      * @param partitionFieldName the partitionFieldName to set
      */
     public void setPartitionFieldName(String partitionFieldName) {
@@ -209,17 +207,18 @@ public class HdfsIdConfig {
 
     /**
      * get partitionFieldPattern
-     * 
+     *
      * @return the partitionFieldPattern
      */
     public String getPartitionFieldPattern() {
-        partitionFieldPattern = (partitionFieldPattern == null) ? "yyyyMMddHH" : partitionFieldPattern;
+        partitionFieldPattern =
+                (partitionFieldPattern == null) ? "yyyyMMddHH" : partitionFieldPattern;
         return partitionFieldPattern;
     }
 
     /**
      * set partitionFieldPattern
-     * 
+     *
      * @param partitionFieldPattern the partitionFieldPattern to set
      */
     public void setPartitionFieldPattern(String partitionFieldPattern) {
@@ -228,17 +227,18 @@ public class HdfsIdConfig {
 
     /**
      * get msgTimeFieldPattern
-     * 
+     *
      * @return the msgTimeFieldPattern
      */
     public String getMsgTimeFieldPattern() {
-        msgTimeFieldPattern = (msgTimeFieldPattern == null) ? "yyyy-MM-dd HH:mm:ss" : msgTimeFieldPattern;
+        msgTimeFieldPattern =
+                (msgTimeFieldPattern == null) ? "yyyy-MM-dd HH:mm:ss" : msgTimeFieldPattern;
         return msgTimeFieldPattern;
     }
 
     /**
      * set msgTimeFieldPattern
-     * 
+     *
      * @param msgTimeFieldPattern the msgTimeFieldPattern to set
      */
     public void setMsgTimeFieldPattern(String msgTimeFieldPattern) {
@@ -247,7 +247,7 @@ public class HdfsIdConfig {
 
     /**
      * get maxPartitionOpenDelayHour
-     * 
+     *
      * @return the maxPartitionOpenDelayHour
      */
     public long getMaxPartitionOpenDelayHour() {
@@ -256,7 +256,7 @@ public class HdfsIdConfig {
 
     /**
      * set maxPartitionOpenDelayHour
-     * 
+     *
      * @param maxPartitionOpenDelayHour the maxPartitionOpenDelayHour to set
      */
     public void setMaxPartitionOpenDelayHour(long maxPartitionOpenDelayHour) {
@@ -265,7 +265,7 @@ public class HdfsIdConfig {
 
     /**
      * get hiveTableName
-     * 
+     *
      * @return the hiveTableName
      */
     public String getHiveTableName() {
@@ -274,7 +274,7 @@ public class HdfsIdConfig {
 
     /**
      * set hiveTableName
-     * 
+     *
      * @param hiveTableName the hiveTableName to set
      */
     public void setHiveTableName(String hiveTableName) {
@@ -283,8 +283,8 @@ public class HdfsIdConfig {
 
     /**
      * parsePartitionPath
-     * 
-     * @param  msgTime
+     *
+     * @param msgTime
      * @return
      */
     public String parsePartitionPath(long msgTime) {
@@ -307,8 +307,8 @@ public class HdfsIdConfig {
 
     /**
      * parsePartitionField
-     * 
-     * @param  msgTime
+     *
+     * @param msgTime
      * @return
      */
     public String parsePartitionField(long msgTime) {
@@ -323,8 +323,8 @@ public class HdfsIdConfig {
 
     /**
      * parseMsgTimeField
-     * 
-     * @param  msgTime
+     *
+     * @param msgTime
      * @return
      */
     public String parseMsgTimeField(long msgTime) {
@@ -334,6 +334,5 @@ public class HdfsIdConfig {
             FORMAT_REPOSITORY.get().put(msgTimeFieldPattern, format);
         }
         return format.format(new Date(msgTime));
-
     }
 }

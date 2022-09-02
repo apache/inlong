@@ -26,9 +26,7 @@ import org.apache.inlong.sort.parser.result.ParseResult;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Test for {@link NativeFlinkSqlParser}
- */
+/** Test for {@link NativeFlinkSqlParser} */
 public class NativeFlinkSqlParserTest {
 
     @Test
@@ -37,45 +35,42 @@ public class NativeFlinkSqlParserTest {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        String data = "  CREATe TABLE `table_1`(\n"
-                + "    `age` INT,\n"
-                + "    `name` STRING)\n"
-                + "    WITH (\n"
-                + "    'connector' = 'mysql-cdc-inlong',\n"
-                + "    'hostname' = 'localhost',\n"
-                + "    'username' = 'root',\n"
-                + "    'password' = 'inlong',\n"
-                + "    'database-name' = 'test',\n"
-                + "    'scan.incremental.snapshot.enabled' = 'false',\n"
-                + "    'server-time-zone' = 'GMT+8',\n"
-                + "    'table-name' = 'user',\n"
-                + "    'port' = '3306'\n"
-                + ");\n"
-                + "CREATE TABLE `table_2`(\n"
-                + "    PRIMARY KEY (`name`,`age`) NOT ENFORCED,\n"
-                + "    `name` STRING,\n"
-                + "    `age` INT)\n"
-                + "    WITH (\n"
-                + "    'connector' = 'jdbc',\n"
-                + "    'url' = 'jdbc:postgresql://localhost:5432/postgres',\n"
-                + "    'username' = 'postgres',\n"
-                + "    'password' = 'inlong',\n"
-                + "    'table-name' = 'public.user'\n"
-                + ");\n"
-                + "INSERT INTO `table_2` \n"
-                + "    SELECT \n"
-                + "    `name` AS `name`,\n"
-                + "    `age` AS `age`\n"
-                + "    FROM `table_1`;";
+        String data =
+                "  CREATe TABLE `table_1`(\n"
+                        + "    `age` INT,\n"
+                        + "    `name` STRING)\n"
+                        + "    WITH (\n"
+                        + "    'connector' = 'mysql-cdc-inlong',\n"
+                        + "    'hostname' = 'localhost',\n"
+                        + "    'username' = 'root',\n"
+                        + "    'password' = 'inlong',\n"
+                        + "    'database-name' = 'test',\n"
+                        + "    'scan.incremental.snapshot.enabled' = 'false',\n"
+                        + "    'server-time-zone' = 'GMT+8',\n"
+                        + "    'table-name' = 'user',\n"
+                        + "    'port' = '3306'\n"
+                        + ");\n"
+                        + "CREATE TABLE `table_2`(\n"
+                        + "    PRIMARY KEY (`name`,`age`) NOT ENFORCED,\n"
+                        + "    `name` STRING,\n"
+                        + "    `age` INT)\n"
+                        + "    WITH (\n"
+                        + "    'connector' = 'jdbc',\n"
+                        + "    'url' = 'jdbc:postgresql://localhost:5432/postgres',\n"
+                        + "    'username' = 'postgres',\n"
+                        + "    'password' = 'inlong',\n"
+                        + "    'table-name' = 'public.user'\n"
+                        + ");\n"
+                        + "INSERT INTO `table_2` \n"
+                        + "    SELECT \n"
+                        + "    `name` AS `name`,\n"
+                        + "    `age` AS `age`\n"
+                        + "    FROM `table_1`;";
         NativeFlinkSqlParser parser = NativeFlinkSqlParser.getInstance(tableEnv, data);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 }

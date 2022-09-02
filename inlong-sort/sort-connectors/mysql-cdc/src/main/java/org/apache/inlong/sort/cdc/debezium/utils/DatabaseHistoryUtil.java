@@ -19,15 +19,15 @@
 package org.apache.inlong.sort.cdc.debezium.utils;
 
 import io.debezium.relational.history.DatabaseHistory;
-import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
 
 /**
- * Util to safely visit schema history between {@link DatabaseHistory} and {@link DebeziumSourceFunction}.
+ * Util to safely visit schema history between {@link DatabaseHistory} and {@link
+ * DebeziumSourceFunction}.
  */
 public class DatabaseHistoryUtil {
 
@@ -46,9 +46,7 @@ public class DatabaseHistoryUtil {
         // do nothing
     }
 
-    /**
-     * Registers history of schema safely.
-     */
+    /** Registers history of schema safely. */
     public static void registerHistory(String engineName, Collection<SchemaRecord> engineHistory) {
         synchronized (HISTORY) {
             HISTORY.put(engineName, engineHistory);
@@ -56,9 +54,7 @@ public class DatabaseHistoryUtil {
         }
     }
 
-    /**
-     * Remove history of schema safely.
-     */
+    /** Remove history of schema safely. */
     public static void removeHistory(String engineName) {
         synchronized (HISTORY) {
             HISTORY_CLEANUP_STATUS.put(engineName, true);

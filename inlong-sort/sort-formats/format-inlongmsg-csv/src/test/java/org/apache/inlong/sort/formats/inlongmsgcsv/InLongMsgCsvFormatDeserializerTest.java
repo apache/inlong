@@ -44,23 +44,20 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link InLongMsgCsvFormatDeserializer}.
- */
+/** Unit tests for {@link InLongMsgCsvFormatDeserializer}. */
 public class InLongMsgCsvFormatDeserializerTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4", "f5", "f6"},
-                    new FormatInfo[]{
-                            IntFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE
-                    }
-            );
+                    new String[] {"f1", "f2", "f3", "f4", "f5", "f6"},
+                    new FormatInfo[] {
+                        IntFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE
+                    });
 
     @Test
     public void testRowType() {
@@ -69,15 +66,15 @@ public class InLongMsgCsvFormatDeserializerTest {
 
         TypeInformation<Row> expectedRowType =
                 Types.ROW_NAMED(
-                        new String[]{
-                                DEFAULT_TIME_FIELD_NAME,
-                                DEFAULT_ATTRIBUTES_FIELD_NAME,
-                                "f1",
-                                "f2",
-                                "f3",
-                                "f4",
-                                "f5",
-                                "f6"
+                        new String[] {
+                            DEFAULT_TIME_FIELD_NAME,
+                            DEFAULT_ATTRIBUTES_FIELD_NAME,
+                            "f1",
+                            "f2",
+                            "f3",
+                            "f4",
+                            "f5",
+                            "f6"
                         },
                         Types.SQL_TIMESTAMP,
                         Types.MAP(Types.STRING, Types.STRING),
@@ -86,8 +83,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                         Types.INT,
                         Types.STRING,
                         Types.STRING,
-                        Types.STRING
-                );
+                        Types.STRING);
 
         assertEquals(expectedRowType, deserializer.getProducedType());
     }
@@ -99,7 +95,10 @@ public class InLongMsgCsvFormatDeserializerTest {
                 new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
-        String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs =
+                "m=0&"
+                        + INLONGMSG_ATTR_STREAM_ID
+                        + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12,field13";
         String body2 = "123,field21,field22,field23";
         inLongMsg.addMsg(attrs, body1.getBytes());
@@ -112,33 +111,30 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
-        Row expectedRow1 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field11",
-                "field12",
-                "field13"
-        );
+        Row expectedRow1 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field11",
+                        "field12",
+                        "field13");
 
-        Row expectedRow2 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field21",
-                "field22",
-                "field23"
-        );
+        Row expectedRow2 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field21",
+                        "field22",
+                        "field23");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                deserializer, inLongMsg.buildArray(), Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
@@ -148,7 +144,10 @@ public class InLongMsgCsvFormatDeserializerTest {
                 new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
-        String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs =
+                "m=0&"
+                        + INLONGMSG_ATTR_STREAM_ID
+                        + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12,";
         String body2 = "123,field21,,field23";
         inLongMsg.addMsg(attrs, body1.getBytes());
@@ -161,33 +160,30 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
-        Row expectedRow1 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field11",
-                "field12",
-                ""
-        );
+        Row expectedRow1 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field11",
+                        "field12",
+                        "");
 
-        Row expectedRow2 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field21",
-                "",
-                "field23"
-        );
+        Row expectedRow2 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field21",
+                        "",
+                        "field23");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                deserializer, inLongMsg.buildArray(), Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
@@ -208,33 +204,30 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put(INLONGMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
-        Row expectedRow1 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field11",
-                "field12",
-                ""
-        );
+        Row expectedRow1 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field11",
+                        "field12",
+                        "");
 
-        Row expectedRow2 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field21",
-                "",
-                "field23"
-        );
+        Row expectedRow2 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field21",
+                        "",
+                        "field23");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                deserializer, inLongMsg.buildArray(), Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
@@ -250,19 +243,14 @@ public class InLongMsgCsvFormatDeserializerTest {
                         null,
                         null,
                         true,
-                        true
-                );
+                        true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&&&&";
         String body1 = "123,field11,field12,field13";
         inLongMsg.addMsg(attrs, body1.getBytes());
 
-        testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Collections.emptyList()
-        );
+        testRowDeserialization(deserializer, inLongMsg.buildArray(), Collections.emptyList());
     }
 
     @Test
@@ -278,11 +266,13 @@ public class InLongMsgCsvFormatDeserializerTest {
                         null,
                         null,
                         true,
-                        true
-                );
+                        true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
-        String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs =
+                "m=0&"
+                        + INLONGMSG_ATTR_STREAM_ID
+                        + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "aaa,field11,field12,field13";
         String body2 = "123,field21,field22,field23";
         inLongMsg.addMsg(attrs, body1.getBytes());
@@ -295,22 +285,19 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
-        Row expectedRow2 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field21",
-                "field22",
-                "field23"
-        );
+        Row expectedRow2 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field21",
+                        "field22",
+                        "field23");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow2)
-        );
+                deserializer, inLongMsg.buildArray(), Collections.singletonList(expectedRow2));
     }
 
     @Test
@@ -326,8 +313,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                         null,
                         null,
                         true,
-                        true
-                );
+                        true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
@@ -340,22 +326,19 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put(INLONGMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
-        Row expectedRow = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                3,
-                "field1",
-                "field2",
-                "field3"
-        );
+        Row expectedRow =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        3,
+                        "field1",
+                        "field2",
+                        "field3");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                deserializer, inLongMsg.buildArray(), Collections.singletonList(expectedRow));
     }
 
     @Test
@@ -371,8 +354,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                         null,
                         null,
                         false,
-                        false
-                );
+                        false);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
@@ -385,22 +367,19 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put(INLONGMSG_ATTR_STREAM_ID, "testInterfaceId");
         expectedAttributes.put("t", "20200322");
 
-        Row expectedRow = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                null,
-                1,
-                2,
-                "field1",
-                "field2",
-                "field3"
-        );
+        Row expectedRow =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        null,
+                        1,
+                        2,
+                        "field1",
+                        "field2",
+                        "field3");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                deserializer, inLongMsg.buildArray(), Collections.singletonList(expectedRow));
     }
 
     @Test
@@ -409,7 +388,10 @@ public class InLongMsgCsvFormatDeserializerTest {
                 new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
-        String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
+        String attrs =
+                "m=0&"
+                        + INLONGMSG_ATTR_STREAM_ID
+                        + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
         String body1 = "123,field11,field12";
         String body2 = "123,field21,field22,field23,field24";
         inLongMsg.addMsg(attrs, body1.getBytes());
@@ -422,33 +404,30 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol1__", "1");
         expectedAttributes.put("__addcol2__", "2");
 
-        Row expectedRow1 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field11",
-                "field12",
-                null
-        );
+        Row expectedRow1 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field11",
+                        "field12",
+                        null);
 
-        Row expectedRow2 = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                123,
-                "field21",
-                "field22",
-                "field23"
-        );
+        Row expectedRow2 =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        123,
+                        "field21",
+                        "field22",
+                        "field23");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                deserializer, inLongMsg.buildArray(), Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
@@ -457,8 +436,11 @@ public class InLongMsgCsvFormatDeserializerTest {
                 new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
-        String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&"
-               + "__addcol2__=2&__addcol3__=3&__addcol4__=4&__addcol5__=5&__addcol6__=6&__addcol7__=7";
+        String attrs =
+                "m=0&"
+                        + INLONGMSG_ATTR_STREAM_ID
+                        + "=testInterfaceId&t=20200322&__addcol1__=1&"
+                        + "__addcol2__=2&__addcol3__=3&__addcol4__=4&__addcol5__=5&__addcol6__=6&__addcol7__=7";
         String body = "field11,field12";
         inLongMsg.addMsg(attrs, body.getBytes());
 
@@ -474,29 +456,24 @@ public class InLongMsgCsvFormatDeserializerTest {
         expectedAttributes.put("__addcol6__", "6");
         expectedAttributes.put("__addcol7__", "7");
 
-        Row expectedRow = Row.of(
-                Timestamp.valueOf("2020-03-22 00:00:00"),
-                expectedAttributes,
-                1,
-                2,
-                3,
-                "4",
-                "5",
-                "6"
-        );
+        Row expectedRow =
+                Row.of(
+                        Timestamp.valueOf("2020-03-22 00:00:00"),
+                        expectedAttributes,
+                        1,
+                        2,
+                        3,
+                        "4",
+                        "5",
+                        "6");
 
         testRowDeserialization(
-                deserializer,
-                inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                deserializer, inLongMsg.buildArray(), Collections.singletonList(expectedRow));
     }
 
     private void testRowDeserialization(
-            InLongMsgCsvFormatDeserializer deserializer,
-            byte[] bytes,
-            List<Row> expectedRows
-    ) throws Exception {
+            InLongMsgCsvFormatDeserializer deserializer, byte[] bytes, List<Row> expectedRows)
+            throws Exception {
 
         List<Row> actualRows = new ArrayList<>();
         Collector<Row> collector = new ListCollector<>(actualRows);

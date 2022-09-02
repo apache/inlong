@@ -17,8 +17,8 @@
 
 package org.apache.inlong.common.metric;
 
-import javax.management.MXBean;
 import java.util.Map;
+import javax.management.MXBean;
 
 /**
  * MetricItemMBean<br>
@@ -53,8 +53,9 @@ public interface MetricItemMBean {
     /**
      * snapshot
      *
-     * @return get snapshot all metric of item, CountMetric will get metric value and set 0 to value, <br>
-     *         GaugeMetric will only get metric value.
+     * @return get snapshot all metric of item, CountMetric will get metric value and set 0 to
+     *     value, <br>
+     *     GaugeMetric will only get metric value.
      */
     Map<String, MetricValue> snapshot();
 }

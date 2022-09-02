@@ -45,5 +45,4 @@ public abstract class InlongTopicManager implements Cleanable {
     public abstract void offlineAllTopicsAndPartitions();
 
     public abstract void close();
-
 }

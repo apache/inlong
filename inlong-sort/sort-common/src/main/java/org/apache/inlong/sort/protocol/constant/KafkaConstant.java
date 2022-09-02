@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * kafka option constant
- */
+/** kafka option constant */
 public class KafkaConstant {
 
     public static final String TOPIC = "topic";
@@ -39,10 +37,10 @@ public class KafkaConstant {
 
     /**
      * upsert-kafka
-     * 
-     * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
-     *         Upsert Kafka</a>
+     *
+     * @see <a
+     *     href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
+     *     Upsert Kafka</a>
      */
     public static final String UPSERT_KAFKA = "upsert-kafka-inlong";
-
 }

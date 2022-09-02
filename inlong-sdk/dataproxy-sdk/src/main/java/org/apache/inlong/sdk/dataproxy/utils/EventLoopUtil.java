@@ -40,71 +40,66 @@ import java.util.concurrent.ThreadFactory;
 
 public class EventLoopUtil {
 
-    public EventLoopUtil() {
-    }
+    public EventLoopUtil() {}
 
-    /**
-     * Create loop of event about group.
-     */
-    public static EventLoopGroup newEventLoopGroup(int nThreads, boolean enableBusyWait, ThreadFactory threadFactory) {
+    /** Create loop of event about group. */
+    public static EventLoopGroup newEventLoopGroup(
+            int nThreads, boolean enableBusyWait, ThreadFactory threadFactory) {
         if (!Epoll.isAvailable()) {
             return new NioEventLoopGroup(nThreads, threadFactory);
         } else if (!enableBusyWait) {
             return new EpollEventLoopGroup(nThreads, threadFactory);
         } else {
-            EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(nThreads, threadFactory, () -> {
-                return (selectSupplier, hasTasks) -> {
-                    return -3;
-                };
-            });
+            EpollEventLoopGroup eventLoopGroup =
+                    new EpollEventLoopGroup(
+                            nThreads,
+                            threadFactory,
+                            () -> {
+                                return (selectSupplier, hasTasks) -> {
+                                    return -3;
+                                };
+                            });
             return eventLoopGroup;
         }
     }
 
-    /**
-     * Get class of socket's channel about client.
-     */
-    public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
+    /** Get class of socket's channel about client. */
+    public static Class<? extends SocketChannel> getClientSocketChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollSocketChannel.class : NioSocketChannel.class;
+                ? EpollSocketChannel.class
+                : NioSocketChannel.class;
     }
 
-    /**
-     * Get class of socket's channel about server.
-     */
-    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
+    /** Get class of socket's channel about server. */
+    public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+                ? EpollServerSocketChannel.class
+                : NioServerSocketChannel.class;
     }
 
-    /**
-     * Get class of datagram's channel.
-     */
-    public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
+    /** Get class of datagram's channel. */
+    public static Class<? extends DatagramChannel> getDatagramChannelClass(
+            EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollDatagramChannel.class : NioDatagramChannel.class;
+                ? EpollDatagramChannel.class
+                : NioDatagramChannel.class;
     }
 
-    /**
-     * Epoll mode.
-     */
+    /** Epoll mode. */
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {
         if (Epoll.isAvailable()) {
             bootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         }
-
     }
 
-    /**
-     * Gracefully close the thread pool.
-     */
+    /** Gracefully close the thread pool. */
     public static CompletableFuture<Void> shutdownGracefully(EventLoopGroup eventLoopGroup) {
         return toCompletableFutureVoid(eventLoopGroup.shutdownGracefully());
     }
 
-    /**
-     * Convert to CompletableFuture.
-     */
+    /** Convert to CompletableFuture. */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {
         Objects.requireNonNull(future, "future cannot be null");
 
@@ -116,13 +111,14 @@ public class EventLoopUtil {
                 adapter.completeExceptionally(future.cause());
             }
         } else {
-            future.addListener(f -> {
-                if (f.isSuccess()) {
-                    adapter.complete(null);
-                } else {
-                    adapter.completeExceptionally(f.cause());
-                }
-            });
+            future.addListener(
+                    f -> {
+                        if (f.isSuccess()) {
+                            adapter.complete(null);
+                        } else {
+                            adapter.completeExceptionally(f.cause());
+                        }
+                    });
         }
         return adapter;
     }

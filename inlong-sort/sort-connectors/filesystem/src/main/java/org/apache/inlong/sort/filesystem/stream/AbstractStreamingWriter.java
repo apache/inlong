@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.filesystem.stream;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.state.StateInitializationContext;
 import org.apache.flink.runtime.state.StateSnapshotContext;
@@ -35,8 +37,6 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-
 /**
  * Operator for file system sink. It is a operator version of {@link StreamingFileSink}. It can send
  * file and bucket information to downstream.
@@ -51,7 +51,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     private final long bucketCheckInterval;
 
     private final StreamingFileSink.BucketsBuilder<
-            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
             bucketsBuilder;
 
     private String inlongMetric;
@@ -71,8 +71,10 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     public AbstractStreamingWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+                            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                    bucketsBuilder,
+            String inlongMetric,
+            String inlongAudit) {
         this.bucketCheckInterval = bucketCheckInterval;
         this.bucketsBuilder = bucketsBuilder;
         this.inlongMetric = inlongMetric;
@@ -80,9 +82,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
 
-    /**
-     * Notifies a partition created.
-     */
+    /** Notifies a partition created. */
     protected abstract void partitionCreated(String partition);
 
     /**
@@ -107,8 +107,13 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            metricData = new SinkMetricData(
-                    groupId, streamId, nodeId, getRuntimeContext().getMetricGroup(), inlongAudit);
+            metricData =
+                    new SinkMetricData(
+                            groupId,
+                            streamId,
+                            nodeId,
+                            getRuntimeContext().getMetricGroup(),
+                            inlongAudit);
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
@@ -118,9 +123,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         }
     }
 
-    /**
-     * Commit up to this checkpoint id.
-     */
+    /** Commit up to this checkpoint id. */
     protected void commitUpToCheckpoint(long checkpointId) throws Exception {
         helper.commitUpToCheckpoint(checkpointId);
     }

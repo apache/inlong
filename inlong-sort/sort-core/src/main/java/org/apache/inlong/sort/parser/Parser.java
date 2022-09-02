@@ -19,9 +19,7 @@ package org.apache.inlong.sort.parser;
 
 import org.apache.inlong.sort.parser.result.ParseResult;
 
-/**
- * The parse handler interface,it is the top-level interface abstraction of parse
- */
+/** The parse handler interface,it is the top-level interface abstraction of parse */
 public interface Parser {
 
     /**
@@ -30,5 +28,4 @@ public interface Parser {
      * @return ParseResult the result of parsing
      */
     ParseResult parse();
-
 }

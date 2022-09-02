@@ -30,30 +30,35 @@ public class Commands {
     public static int HEAD_LENGTH = 4;
 
     public static ByteBuf getPongChannelBuffer() {
-        BaseCommand cmdPong = BaseCommand.newBuilder()
-                .setType(Type.PONG)
-                .setPong(Pong.getDefaultInstance()).build();
+        BaseCommand cmdPong =
+                BaseCommand.newBuilder()
+                        .setType(Type.PONG)
+                        .setPong(Pong.getDefaultInstance())
+                        .build();
         return getChannelBuffer(cmdPong.toByteArray());
     }
 
     public static ByteBuf getPingChannelBuffer() {
-        BaseCommand cmdPing = BaseCommand.newBuilder()
-                .setType(Type.PING)
-                .setPong(Pong.getDefaultInstance()).build();
+        BaseCommand cmdPing =
+                BaseCommand.newBuilder()
+                        .setType(Type.PING)
+                        .setPong(Pong.getDefaultInstance())
+                        .build();
         return getChannelBuffer(cmdPing.toByteArray());
     }
 
     public static ByteBuf getAuditRequestBuffer(AuditRequest auditRequest) {
-        BaseCommand cmdAuditRequest = BaseCommand.newBuilder()
-                .setType(Type.AUDITREQUEST)
-                .setAuditRequest(auditRequest).build();
+        BaseCommand cmdAuditRequest =
+                BaseCommand.newBuilder()
+                        .setType(Type.AUDITREQUEST)
+                        .setAuditRequest(auditRequest)
+                        .build();
         return getChannelBuffer(cmdAuditRequest.toByteArray());
     }
 
     public static ByteBuf getAuditReplylBuffer(AuditReply auditReply) {
-        BaseCommand cmdAuditReply = BaseCommand.newBuilder()
-                .setType(Type.AUDITREPLY)
-                .setAuditReply(auditReply).build();
+        BaseCommand cmdAuditReply =
+                BaseCommand.newBuilder().setType(Type.AUDITREPLY).setAuditReply(auditReply).build();
         return getChannelBuffer(cmdAuditReply.toByteArray());
     }
 

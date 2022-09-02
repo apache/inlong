@@ -20,24 +20,20 @@ package org.apache.inlong.sort.cdc.mysql.source.utils;
 
 import io.debezium.DebeziumException;
 import io.debezium.util.HexConverter;
-import org.apache.flink.core.memory.DataInputDeserializer;
-import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetSerializer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import org.apache.flink.core.memory.DataInputDeserializer;
+import org.apache.flink.core.memory.DataOutputSerializer;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetSerializer;
 
-/**
- * Utils for serialization and deserialization.
- */
+/** Utils for serialization and deserialization. */
 public class SerializerUtils {
 
-    private SerializerUtils() {
-    }
+    private SerializerUtils() {}
 
     public static void writeBinlogPosition(BinlogOffset offset, DataOutputSerializer out)
             throws IOException {
@@ -77,7 +73,7 @@ public class SerializerUtils {
 
     public static String rowToSerializedString(Object[] splitBoundary) {
         try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                ObjectOutputStream oos = new ObjectOutputStream(bos)) {
             oos.writeObject(splitBoundary);
             return HexConverter.convertToHexString(bos.toByteArray());
         } catch (IOException e) {
@@ -88,8 +84,8 @@ public class SerializerUtils {
 
     public static Object[] serializedStringToRow(String serialized) {
         try (final ByteArrayInputStream bis =
-                     new ByteArrayInputStream(HexConverter.convertFromHex(serialized));
-             ObjectInputStream ois = new ObjectInputStream(bis)) {
+                        new ByteArrayInputStream(HexConverter.convertFromHex(serialized));
+                ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (Object[]) ois.readObject();
         } catch (Exception e) {
             throw new DebeziumException(

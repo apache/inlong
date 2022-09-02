@@ -17,29 +17,23 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortService;
+import org.apache.inlong.manager.service.core.SortSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-/**
- * Sort service implementation.
- */
+/** Sort service implementation. */
 @Lazy
 @Service
 public class SortServiceImpl implements SortService {
 
-    @Lazy
-    @Autowired
-    private SortSourceService sortSourceService;
+    @Lazy @Autowired private SortSourceService sortSourceService;
 
-    @Lazy
-    @Autowired
-    private SortClusterService sortClusterService;
+    @Lazy @Autowired private SortClusterService sortClusterService;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
@@ -48,7 +42,8 @@ public class SortServiceImpl implements SortService {
     }
 
     @Override
-    public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
+    public SortSourceConfigResponse getSourceConfig(
+            String clusterName, String sortTaskId, String md5) {
         return sortSourceService.getSourceConfig(clusterName, sortTaskId, md5);
     }
 }

@@ -19,15 +19,24 @@
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
 import com.google.gson.Gson;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -41,22 +50,11 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Kafka single topic fetcher.
- */
+/** Kafka single topic fetcher. */
 public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSingleTopicFetcher.class);
-    private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap =
+            new ConcurrentHashMap<>();
     private String bootstrapServers;
     private KafkaConsumer<byte[], byte[]> consumer;
 
@@ -77,20 +75,27 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
             if (consumer != null) {
                 LOGGER.info("start to subscribe topic:{}", new Gson().toJson(topic));
                 this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
-                consumer.subscribe(Collections.singletonList(topic.getTopic()),
-                        new AckOffsetOnRebalance(this.topic.getInLongCluster().getClusterId(), seeker,
+                consumer.subscribe(
+                        Collections.singletonList(topic.getTopic()),
+                        new AckOffsetOnRebalance(
+                                this.topic.getInLongCluster().getClusterId(),
+                                seeker,
                                 commitOffsetMap));
             } else {
                 LOGGER.info("consumer is null");
                 return false;
             }
-            String threadName = String.format("sort_sdk_kafka_single_topic_fetch_thread_%s_%s_%d",
-                    this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
+            String threadName =
+                    String.format(
+                            "sort_sdk_kafka_single_topic_fetch_thread_%s_%s_%d",
+                            this.topic.getInLongCluster().getClusterId(),
+                            topic.getTopic(),
+                            this.hashCode());
             this.fetchThread = new Thread(new KafkaSingleTopicFetcher.Fetcher(), threadName);
             fetchThread.start();
             LOGGER.info("start to start thread:{}", threadName);
         } catch (Exception e) {
-            LOGGER.error("fail to init kafka single topic fetcher: {}",e.getMessage(), e);
+            LOGGER.error("fail to init kafka single topic fetcher: {}", e.getMessage(), e);
             return false;
         }
         return true;
@@ -101,11 +106,14 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
         // the format of kafka msg offset is partitionId:offset, such as 20:1746839
         String[] offset = msgOffset.split(":");
         if (offset.length == 2) {
-            TopicPartition topicPartition = new TopicPartition(topic.getTopic(), Integer.parseInt(offset[0]));
+            TopicPartition topicPartition =
+                    new TopicPartition(topic.getTopic(), Integer.parseInt(offset[0]));
             OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(Long.parseLong(offset[1]));
             commitOffsetMap.put(topicPartition, offsetAndMetadata);
         } else {
-            throw new Exception("offset is illegal, the correct format is int:long ,the error offset is:" + msgOffset);
+            throw new Exception(
+                    "offset is illegal, the correct format is int:long ,the error offset is:"
+                            + msgOffset);
         }
     }
 
@@ -160,14 +168,18 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, context.getConfig().getSortTaskId());
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        properties.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        properties.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG,
+        properties.put(
+                ConsumerConfig.RECEIVE_BUFFER_CONFIG,
                 context.getConfig().getKafkaSocketRecvBufferSize());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+        SortClientConfig.ConsumeStrategy offsetResetStrategy =
+                context.getConfig().getOffsetResetStrategy();
         if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest
                 || offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
@@ -177,13 +189,14 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
         } else {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
         }
-        properties.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
+        properties.put(
+                ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
                 context.getConfig().getKafkaFetchSizeBytes());
-        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,
-                context.getConfig().getKafkaFetchWaitMs());
+        properties.put(
+                ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, context.getConfig().getKafkaFetchWaitMs());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        properties.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
-                RangeAssignor.class.getName());
+        properties.put(
+                ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RangeAssignor.class.getName());
         properties.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, 120000L);
         this.bootstrapServers = bootstrapServers;
         LOGGER.info("start to create kafka consumer:{}", properties);
@@ -271,25 +284,30 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
             context.getStateCounterByTopic(topic).addMsgCount(1).addFetchTimes(1);
 
             long startFetchTime = System.currentTimeMillis();
-            ConsumerRecords<byte[], byte[]> records = consumer
-                    .poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
-            context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+            ConsumerRecords<byte[], byte[]> records =
+                    consumer.poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
+            context.getStateCounterByTopic(topic)
+                    .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
             if (null != records && !records.isEmpty()) {
 
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
                     List<MessageRecord> msgs = new ArrayList<>();
                     String offsetKey = getOffset(msg.partition(), msg.offset());
-                    List<InLongMessage> inLongMessages = deserializer
-                            .deserialize(context, topic, getMsgHeaders(msg.headers()), msg.value());
+                    List<InLongMessage> inLongMessages =
+                            deserializer.deserialize(
+                                    context, topic, getMsgHeaders(msg.headers()), msg.value());
                     inLongMessages = interceptor.intercept(inLongMessages);
                     if (inLongMessages.isEmpty()) {
                         ack(offsetKey);
                         continue;
                     }
 
-                    msgs.add(new MessageRecord(topic.getTopicKey(),
-                            inLongMessages,
-                            offsetKey, System.currentTimeMillis()));
+                    msgs.add(
+                            new MessageRecord(
+                                    topic.getTopicKey(),
+                                    inLongMessages,
+                                    offsetKey,
+                                    System.currentTimeMillis()));
                     context.getStateCounterByTopic(topic).addConsumeSize(msg.value().length);
                     context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
                     handleAndCallbackMsg(msgs);
@@ -299,8 +317,10 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
                 context.getStateCounterByTopic(topic).addEmptyFetchTimes(1);
                 emptyFetchTimes++;
                 if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                    sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                            context.getConfig().getMaxEmptyPollSleepMs());
+                    sleepTime =
+                            Math.min(
+                                    (sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
+                                    context.getConfig().getMaxEmptyPollSleepMs());
                     emptyFetchTimes = 0;
                 }
             }

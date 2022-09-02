@@ -175,7 +175,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
         } else {
             synchronized (this) {
                 if (!producerMap.containsKey(topic)) {
-                    if (producer == null || currentPublishTopicNum.get() >= MAX_TOPICS_EACH_PRODUCER_HOLD) {
+                    if (producer == null
+                            || currentPublishTopicNum.get() >= MAX_TOPICS_EACH_PRODUCER_HOLD) {
                         producer = sessionFactory.createProducer();
                         currentPublishTopicNum.set(0);
                     }
@@ -190,8 +191,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     }
 
     private TubeClientConfig initTubeConfig() throws Exception {
-        final TubeClientConfig tubeClientConfig = new TubeClientConfig(NetworkUtils.getLocalIp(),
-                this.masterHostAndPortList);
+        final TubeClientConfig tubeClientConfig =
+                new TubeClientConfig(NetworkUtils.getLocalIp(), this.masterHostAndPortList);
         tubeClientConfig.setLinkMaxAllowedDelayedMsgCount(linkMaxAllowedDelayedMsgCount);
         tubeClientConfig.setSessionWarnDelayedMsgCount(sessionWarnDelayedMsgCount);
         tubeClientConfig.setSessionMaxAllowedDelayedMsgCount(sessionMaxAllowedDelayedMsgCount);
@@ -209,7 +210,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
      * @throws FlumeException if an RPC client connection could not be opened
      */
     private void createConnection() throws FlumeException {
-//        synchronized (tubeSessionLock) {
+        //        synchronized (tubeSessionLock) {
         // if already connected, just skip
         if (sessionFactory != null) {
             return;
@@ -217,26 +218,30 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
 
         try {
             TubeClientConfig conf = initTubeConfig();
-            //sessionFactory = new TubeMutilMessageSessionFactory(conf);
+            // sessionFactory = new TubeMutilMessageSessionFactory(conf);
             sessionFactory = new TubeMultiSessionFactory(conf);
         } catch (TubeClientException e) {
-            logger.error("create connnection error in metasink, "
-                    + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
-            throw new FlumeException("connect to Tube error1, "
-                    + "maybe zkstr/zkroot set error, please re-check");
+            logger.error(
+                    "create connnection error in metasink, "
+                            + "maybe tube master set error, please re-check. ex1 {}",
+                    e.getMessage());
+            throw new FlumeException(
+                    "connect to Tube error1, " + "maybe zkstr/zkroot set error, please re-check");
         } catch (Throwable e) {
-            logger.error("create connnection error in metasink, "
+            logger.error(
+                    "create connnection error in metasink, "
                             + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
                     e.getMessage());
-            throw new FlumeException("connect to meta error2, "
-                    + "maybe tube master set error/shutdown in progress, please re-check");
+            throw new FlumeException(
+                    "connect to meta error2, "
+                            + "maybe tube master set error/shutdown in progress, please re-check");
         }
 
         if (producerMap == null) {
             producerMap = new HashMap<String, MessageProducer>();
         }
         logger.debug("building tube producer");
-//        }
+        //        }
     }
 
     private void destroyConnection() {
@@ -245,7 +250,9 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             try {
                 producer.shutdown();
             } catch (TubeClientException e) {
-                logger.error("destroy producer error in metasink, MetaClientException {}", e.getMessage());
+                logger.error(
+                        "destroy producer error in metasink, MetaClientException {}",
+                        e.getMessage());
             } catch (Throwable e) {
                 logger.error("destroy producer error in metasink, ex {}", e.getMessage());
             }
@@ -256,7 +263,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             try {
                 sessionFactory.shutdown();
             } catch (TubeClientException e) {
-                logger.error("destroy sessionFactory error in metasink, MetaClientException {}",
+                logger.error(
+                        "destroy sessionFactory error in metasink, MetaClientException {}",
                         e.getMessage());
             } catch (Exception e) {
                 logger.error("destroy sessionFactory error in metasink, ex {}", e.getMessage());
@@ -300,7 +308,11 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                 logger.info(getName() + " meta sink initTopicSet fail.", e);
             }
         }
-        logger.info(getName() + " initTopicSet cost: " + (System.currentTimeMillis() - startTime) + "ms");
+        logger.info(
+                getName()
+                        + " initTopicSet cost: "
+                        + (System.currentTimeMillis() - startTime)
+                        + "ms");
         logger.info(getName() + " producer is ready for topics : " + producerMap.keySet());
     }
 
@@ -309,11 +321,11 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        //register metrics
+        // register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
-        
-        //create tube connection
+
+        // create tube connection
         try {
             createConnection();
         } catch (FlumeException e) {
@@ -341,30 +353,33 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             sinkThreadPool[i] = new Thread(new SinkTask(), getName() + "_tube_sink_sender-" + i);
             sinkThreadPool[i].start();
         }
-
     }
 
     class SinkTask implements Runnable {
 
         private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
-            throws TubeClientException, InterruptedException {
+                throws TubeClientException, InterruptedException {
             if (msgDedupHandler.judgeDupAndPutMsgSeqId(
                     event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
-                logger.info("{} agent package {} existed,just discard.",
-                        getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
+                logger.info(
+                        "{} agent package {} existed,just discard.",
+                        getName(),
+                        event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
             } else {
-                producer.sendMessage(TubeUtils.buildMessage(
-                        topic, event, true), new MyCallback(es));
+                producer.sendMessage(
+                        TubeUtils.buildMessage(topic, event, true), new MyCallback(es));
                 flag.set(true);
             }
             illegalTopicMap.remove(topic);
         }
 
-        private void handleException(Throwable t, String topic, boolean decrementFlag, EventStat es) {
+        private void handleException(
+                Throwable t, String topic, boolean decrementFlag, EventStat es) {
             if (t instanceof TubeClientException) {
                 String message = t.getMessage();
-                if (message != null && (message.contains("No available queue for topic")
-                    || message.contains("The brokers of topic are all forbidden"))) {
+                if (message != null
+                        && (message.contains("No available queue for topic")
+                                || message.contains("The brokers of topic are all forbidden"))) {
                     illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
                     logger.info("IllegalTopicMap.put " + topic);
                     return;
@@ -372,13 +387,18 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        //ignore..
+                        // ignore..
                     }
                 }
             }
-            logger.error("Sink task fail to send the message, decrementFlag=" + decrementFlag + ",sink.name="
-                + Thread.currentThread().getName()
-                + ",event.headers=" + es.getEvent().getHeaders(), t);
+            logger.error(
+                    "Sink task fail to send the message, decrementFlag="
+                            + decrementFlag
+                            + ",sink.name="
+                            + Thread.currentThread().getName()
+                            + ",event.headers="
+                            + es.getEvent().getHeaders(),
+                    t);
         }
 
         @Override
@@ -408,7 +428,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     } else {
                         event = eventQueue.take();
                         es = new EventStat(event);
-//                            sendCnt.incrementAndGet();
+                        //                            sendCnt.incrementAndGet();
                         if (event.getHeaders().containsKey(TOPIC)) {
                             topic = event.getHeaders().get(TOPIC);
                         }
@@ -431,7 +451,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                         if (expireTime > currentTime) {
 
                             // TODO: need to be improved.
-//                            reChannelEvent(es, topic);
+                            //                            reChannelEvent(es, topic);
                             continue;
                         } else {
 
@@ -455,7 +475,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     decrementFlag = flagAtomic.get();
 
                 } catch (InterruptedException e) {
-                    logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
+                    logger.info(
+                            "Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
                 } catch (Throwable t) {
                     handleException(t, topic, decrementFlag, es);
@@ -482,15 +503,19 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             } else {
                 this.addMetric(myEventStat.getEvent(), false, 0);
                 if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
-                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                            result.getErrMsg(), resendQueue.size(),
+                    logger.warn(
+                            "Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                            result.getErrMsg(),
+                            resendQueue.size(),
                             myEventStat.getEvent().hashCode());
 
                     return;
                 }
                 if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW) {
-                    logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                            result.getErrMsg(), resendQueue.size(),
+                    logger.warn(
+                            "Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                            result.getErrMsg(),
+                            resendQueue.size(),
                             myEventStat.getEvent().hashCode());
                 }
                 resendEvent(myEventStat, true);
@@ -499,30 +524,38 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
 
         /**
          * addMetric
-         * 
+         *
          * @param event
          * @param result
          * @param sendTime
          */
         private void addMetric(Event event, boolean result, long sendTime) {
             Map<String, String> dimensions = new HashMap<>();
-            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, SimpleMessageTubeSink.this.getName());
+            dimensions.put(
+                    DataProxyMetricItem.KEY_CLUSTER_ID, SimpleMessageTubeSink.this.getName());
             dimensions.put(DataProxyMetricItem.KEY_SINK_ID, SimpleMessageTubeSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+            dimensions.put(
+                    DataProxyMetricItem.KEY_SINK_DATA_ID,
+                    event.getHeaders().getOrDefault(TOPIC, ""));
             DataProxyMetricItem.fillInlongId(event, dimensions);
             DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-            
-            DataProxyMetricItem metricItem = SimpleMessageTubeSink.this.metricItemSet.findMetricItem(dimensions);
+
+            DataProxyMetricItem metricItem =
+                    SimpleMessageTubeSink.this.metricItemSet.findMetricItem(dimensions);
             if (result) {
                 metricItem.sendSuccessCount.incrementAndGet();
                 metricItem.sendSuccessSize.addAndGet(event.getBody().length);
                 AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                 if (sendTime > 0) {
                     long currentTime = System.currentTimeMillis();
-                    long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                            sendTime);
+                    long msgTime =
+                            NumberUtils.toLong(
+                                    event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
+                                    sendTime);
                     long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
+                    long nodeDuration =
+                            currentTime
+                                    - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
                     long wholeDuration = currentTime - msgTime;
                     metricItem.sinkDuration.addAndGet(sinkDuration);
                     metricItem.nodeDuration.addAndGet(nodeDuration);
@@ -561,9 +594,12 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             msgDedupHandler.invalidMsgSeqId(
                     es.getEvent().getHeaders().get(ConfigConstants.SEQUENCE_ID));
         } catch (Throwable throwable) {
-            logger.error(getName() + " Discard msg because put events to both of queue and "
-                    + "fileChannel fail,current resendQueue.size = "
-                    + resendQueue.size(), throwable);
+            logger.error(
+                    getName()
+                            + " Discard msg because put events to both of queue and "
+                            + "fileChannel fail,current resendQueue.size = "
+                            + resendQueue.size(),
+                    throwable);
         }
     }
 
@@ -583,15 +619,19 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     diskRateLimiter.acquire(event.getBody().length);
                 }
                 if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
-                    logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
-                            + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
-                            + "it will cause memoryChannel full and fileChannel write.)", getName());
+                    logger.info(
+                            "[{}] Channel --> Queue(has no enough space,current code point) "
+                                    + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
+                                    + "it will cause memoryChannel full and fileChannel write.)",
+                            getName());
                     tx.rollback();
                 } else {
                     tx.commit();
                     // metric
                     if (event.getHeaders().containsKey(TOPIC)) {
-                        dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(TOPIC));
+                        dimensions.put(
+                                DataProxyMetricItem.KEY_SINK_DATA_ID,
+                                event.getHeaders().get(TOPIC));
                     } else {
                         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
                     }
@@ -611,7 +651,6 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                 tx.rollback();
             } catch (Throwable e) {
                 logger.error("metasink transaction rollback exception", e);
-
             }
         } finally {
             tx.close();
@@ -622,21 +661,27 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     @Override
     public void configure(Context context) {
         logger.info(context.toString());
-//        logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
+        //        logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
-        configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
-            @Override
-            public void update() {
+        configManager
+                .getTopicConfig()
+                .addUpdateCallback(
+                        new ConfigUpdateCallback() {
+                            @Override
+                            public void update() {
 
-                diffSetPublish(new HashSet<String>(topicProperties.values()),
-                        new HashSet<String>(configManager.getTopicProperties().values()));
-            }
-        });
+                                diffSetPublish(
+                                        new HashSet<String>(topicProperties.values()),
+                                        new HashSet<String>(
+                                                configManager.getTopicProperties().values()));
+                            }
+                        });
 
         masterHostAndPortList = context.getString(MASTER_HOST_PORT_LIST);
-        Preconditions.checkState(masterHostAndPortList != null, "No master and port list specified");
+        Preconditions.checkState(
+                masterHostAndPortList != null, "No master and port list specified");
 
         producerMap = new HashMap<String, MessageProducer>();
 
@@ -657,7 +702,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             this.metaTopicFilePath = slaTopicFilePath;
         }
         // start message deduplication handler
-        msgDedupHandler.start(context.getBoolean(CLIENT_ID_CACHE, false),
+        msgDedupHandler.start(
+                context.getBoolean(CLIENT_ID_CACHE, false),
                 context.getInteger(MAX_SURVIVED_TIME, -1),
                 context.getInteger(MAX_SURVIVED_SIZE, -1));
 
@@ -689,24 +735,27 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             diskRateLimiter = RateLimiter.create(diskIORatePerSec);
         }
 
-        linkMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                80000L);
-        sessionWarnDelayedMsgCount = context.getLong(ConfigConstants.SESSION_WARN_DELAYED_MSG_COUNT,
-                2000000L);
-        sessionMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                4000000L);
-        nettyWriteBufferHighWaterMark = context.getLong(ConfigConstants.NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
-                15 * 1024 * 1024L);
-        recoverthreadcount = context.getInteger(ConfigConstants.RECOVER_THREAD_COUNT,
-                Runtime.getRuntime().availableProcessors() + 1);
+        linkMaxAllowedDelayedMsgCount =
+                context.getLong(ConfigConstants.LINK_MAX_ALLOWED_DELAYED_MSG_COUNT, 80000L);
+        sessionWarnDelayedMsgCount =
+                context.getLong(ConfigConstants.SESSION_WARN_DELAYED_MSG_COUNT, 2000000L);
+        sessionMaxAllowedDelayedMsgCount =
+                context.getLong(ConfigConstants.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT, 4000000L);
+        nettyWriteBufferHighWaterMark =
+                context.getLong(
+                        ConfigConstants.NETTY_WRITE_BUFFER_HIGH_WATER_MARK, 15 * 1024 * 1024L);
+        recoverthreadcount =
+                context.getInteger(
+                        ConfigConstants.RECOVER_THREAD_COUNT,
+                        Runtime.getRuntime().availableProcessors() + 1);
     }
 
     /**
      * get metricItemSet
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
-    
 }

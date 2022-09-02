@@ -24,10 +24,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
- * StringConstantParam class is used for the definition and encapsulation of time unit constant param.
- * The difference between {@link StringConstantParam} and ConstantParam is that it only accepts string constants,
- * and it will automatically add single quotes when formatting to make it conform
- * to the standard definition of strings in sql.
+ * StringConstantParam class is used for the definition and encapsulation of time unit constant
+ * param. The difference between {@link StringConstantParam} and ConstantParam is that it only
+ * accepts string constants, and it will automatically add single quotes when formatting to make it
+ * conform to the standard definition of strings in sql.
  */
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -54,5 +54,4 @@ public class StringConstantParam extends ConstantParam {
         }
         return value;
     }
-
 }

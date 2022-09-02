@@ -18,11 +18,10 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.nio.charset.StandardCharsets;
 
 public class EncryptUtilTest {
 
@@ -33,7 +32,8 @@ public class EncryptUtilTest {
         byte[] key = EncryptUtil.generateAesKey();
         Assert.assertEquals(key.length, EncryptUtil.AES_KEY_SIZE / 8);
 
-        byte[] encryptedData = EncryptUtil.aesEncrypt(plainText.getBytes(StandardCharsets.UTF_8), key);
+        byte[] encryptedData =
+                EncryptUtil.aesEncrypt(plainText.getBytes(StandardCharsets.UTF_8), key);
         Assert.assertTrue(encryptedData.length > 0);
 
         byte[] decryptedData = EncryptUtil.aesDecrypt(encryptedData, key);

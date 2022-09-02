@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -26,12 +28,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Inner stream context.
- */
+/** Inner stream context. */
 @Data
 @NoArgsConstructor
 public class InnerStreamContext {

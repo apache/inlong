@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Constant of cluster type.
- */
+/** Constant of cluster type. */
 public class ClusterType {
 
     public static final String AGENT = "AGENT";

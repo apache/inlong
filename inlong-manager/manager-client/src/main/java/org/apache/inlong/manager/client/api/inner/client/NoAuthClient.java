@@ -24,9 +24,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
-/**
- * Client for {@link NoAuthApi}.
- */
+/** Client for {@link NoAuthApi}. */
 public class NoAuthClient {
 
     private final NoAuthApi noAuthApi;

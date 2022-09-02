@@ -19,6 +19,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,17 +36,13 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 /**
  * TDSQLPostgres load node can load data into TDSQL Postgres
  *
- * @see <a href="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a>
- *         TDSQL Postgres is an enterprise-level distributed HTAP database. Through a single database cluster
- *         to provide users with highly consistent distributed database services and high-performance
- *         data warehouse services, a set of integrated enterprise-level solutions is formed.
+ * @see <a href="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a> TDSQL Postgres is an
+ *     enterprise-level distributed HTAP database. Through a single database cluster to provide
+ *     users with highly consistent distributed database services and high-performance data
+ *     warehouse services, a set of integrated enterprise-level solutions is formed.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tdsqlPostgresLoad")
@@ -53,23 +52,19 @@ public class TDSQLPostgresLoadNode extends LoadNode implements InlongMetric, Ser
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * jdbc:postgresql://host:port/database
-     */
+    /** jdbc:postgresql://host:port/database */
     @JsonProperty("url")
     private String url;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
-    /**
-     * Table name is "schema_name.table_name".
-     */
+    /** Table name is "schema_name.table_name". */
     @JsonProperty("tableName")
     private String tableName;
-    /**
-     * Please declare primary key for sink table when query contains update/delete record.
-     */
+    /** Please declare primary key for sink table when query contains update/delete record. */
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -88,7 +83,15 @@ public class TDSQLPostgresLoadNode extends LoadNode implements InlongMetric, Ser
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");

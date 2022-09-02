@@ -33,6 +33,7 @@ public class NetworkUtils {
 
     /**
      * get local ip
+     *
      * @return
      */
     public static String getLocalIp() {
@@ -46,13 +47,11 @@ public class NetworkUtils {
                     String interfaceName = oneInterface.getName();
                     if (oneInterface.isLoopback()
                             || !oneInterface.isUp()
-                            || !interfaceName
-                            .equalsIgnoreCase(INNER_NETWORK_INTERFACE)) {
+                            || !interfaceName.equalsIgnoreCase(INNER_NETWORK_INTERFACE)) {
                         continue;
                     }
 
-                    Enumeration<InetAddress> allAddress = oneInterface
-                            .getInetAddresses();
+                    Enumeration<InetAddress> allAddress = oneInterface.getInetAddresses();
                     for (; allAddress.hasMoreElements(); ) {
                         InetAddress oneAddress = allAddress.nextElement();
                         ip = oneAddress.getHostAddress();

@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.protocol.constant;
 
-/**
- * hbase option constant
- */
+/** hbase option constant */
 public class HBaseConstant {
 
     public static final String CONNECTOR = "connector";
@@ -38,5 +36,4 @@ public class HBaseConstant {
     public static final String SINK_BUFFER_FLUSH_MAX_ROWS = "sink.buffer-flush.max-rows";
 
     public static final String SINK_BUFFER_FLUSH_INTERVAL = "sink.buffer-flush.interval";
-
 }

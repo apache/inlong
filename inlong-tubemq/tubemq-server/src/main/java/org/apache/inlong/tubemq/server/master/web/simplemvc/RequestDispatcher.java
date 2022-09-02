@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import java.io.File;
@@ -51,7 +48,7 @@ public class RequestDispatcher {
     /**
      * Construct RequestDispatcher from web config
      *
-     * @param config  the web configure object
+     * @param config the web configure object
      */
     public RequestDispatcher(WebConfig config) {
         this.config = config;
@@ -91,13 +88,13 @@ public class RequestDispatcher {
 
     /**
      * Execute required method service
-     * @param context   the context
-     * @param target    the target information
-     * @param type      the operation type
+     *
+     * @param context the context
+     * @param target the target information
+     * @param type the operation type
      * @throws Exception the exception
      */
-    public void executeTarget(RequestContext context,
-                              String target, String type) throws Exception {
+    public void executeTarget(RequestContext context, String target, String type) throws Exception {
         String targetKey = getActionKey(type, target);
         if (actions.containsKey(targetKey)) {
             actions.get(targetKey).execute(context);
@@ -119,9 +116,13 @@ public class RequestDispatcher {
                 }
             } else {
                 if (!this.templates.containsKey(templatePath)) {
-                    throw new TemplateNotFoundException(new StringBuilder(256)
-                            .append("Invalid ").append(type)
-                            .append(" template path:").append(templatePath).toString());
+                    throw new TemplateNotFoundException(
+                            new StringBuilder(256)
+                                    .append("Invalid ")
+                                    .append(type)
+                                    .append(" template path:")
+                                    .append(templatePath)
+                                    .toString());
                 }
                 context.put(SCREEN_PLACEHOLDER, engine.renderTemplate(templatePath, context));
             }
@@ -131,8 +132,13 @@ public class RequestDispatcher {
                 realTemplatePath = getLayout(target);
             }
             if (realTemplatePath == null) {
-                throw new TemplateNotFoundException(new StringBuilder(256).append("Invalid ")
-                        .append(type).append(" template path:").append(templatePath).toString());
+                throw new TemplateNotFoundException(
+                        new StringBuilder(256)
+                                .append("Invalid ")
+                                .append(type)
+                                .append(" template path:")
+                                .append(templatePath)
+                                .toString());
             }
             if (!realTemplatePath.equals(templatePath)) {
                 String realTargetKey =
@@ -148,31 +154,35 @@ public class RequestDispatcher {
     /**
      * Build action key as "type/target"
      *
-     * @param type    the type value
-     * @param target  the target value
-     * @return    the key
+     * @param type the type value
+     * @param target the target value
+     * @return the key
      */
     public String getActionKey(String type, String target) {
-        return new StringBuilder(256).append(type)
-                .append("/").append(target).toString();
+        return new StringBuilder(256).append(type).append("/").append(target).toString();
     }
 
     /**
      * Build template name as "type/target.vm"
      *
-     * @param type     the type value
-     * @param target   the target value
-     * @return         the result
+     * @param type the type value
+     * @param target the target value
+     * @return the result
      */
     public String getTemplateName(String type, String target) {
-        return new StringBuilder(256).append(type)
-                .append("/").append(target).append(".vm").toString();
+        return new StringBuilder(256)
+                .append(type)
+                .append("/")
+                .append(target)
+                .append(".vm")
+                .toString();
     }
 
     /**
      * Get layout information
-     * @param target  the target information
-     * @return   the layout information
+     *
+     * @param target the target information
+     * @return the layout information
      */
     public String getLayout(String target) {
         String layout = null;
@@ -202,8 +212,8 @@ public class RequestDispatcher {
         String actionPath = config.getActionPackage();
         if (config.getActions().size() != 0) {
             for (Map.Entry<String, Action> entry : config.getActions().entrySet()) {
-                String actionKey = entry.getKey().substring(
-                        actionPath.length() + 1).replaceAll("\\.", "/");
+                String actionKey =
+                        entry.getKey().substring(actionPath.length() + 1).replaceAll("\\.", "/");
                 actions.put(TStringUtils.toCamelCase(actionKey), entry.getValue());
             }
         } else {
@@ -233,13 +243,18 @@ public class RequestDispatcher {
             }
             List<Class> actionClasses = getActionClasses(actionPath);
             for (Class clazz : actionClasses) {
-                String actionKey = clazz.getName().substring(
-                        actionPath.length() + 1).replaceAll("\\.", "/");
+                String actionKey =
+                        clazz.getName().substring(actionPath.length() + 1).replaceAll("\\.", "/");
                 Action action = null;
                 if (config.isSpringSupported()) {
                     action =
-                            (Action) this.applicationContext.getBeanFactory().autowire(clazz,
-                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, true);
+                            (Action)
+                                    this.applicationContext
+                                            .getBeanFactory()
+                                            .autowire(
+                                                    clazz,
+                                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                                    true);
                 } else {
                     action = (Action) clazz.newInstance();
                 }
@@ -271,8 +286,9 @@ public class RequestDispatcher {
         List<File> actionClassFileList = getFileList(url.getFile(), ".class");
         for (File f : actionClassFileList) {
             String pathStr = f.getPath().replaceAll("/|\\\\", ".");
-            Class clazz = Class.forName(
-                    pathStr.substring(pathStr.indexOf(packageName), pathStr.length() - 6));
+            Class clazz =
+                    Class.forName(
+                            pathStr.substring(pathStr.indexOf(packageName), pathStr.length() - 6));
             if (Action.class.isAssignableFrom(clazz)) {
                 classList.add(clazz);
             }

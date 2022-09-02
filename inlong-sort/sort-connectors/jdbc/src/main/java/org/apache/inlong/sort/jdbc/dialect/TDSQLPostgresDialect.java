@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
@@ -25,15 +29,7 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-/**
- * copy from flink-jdbc
- * modify upsert statement implement
- */
+/** copy from flink-jdbc modify upsert statement implement */
 public class TDSQLPostgresDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 1L;
@@ -84,11 +80,7 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
                         .collect(Collectors.joining(", "));
         String str = getInsertIntoStatement(tableName, fieldNames);
         if (StringUtils.isNotEmpty(updateClause)) {
-            str = str + " ON CONFLICT ("
-                    + uniqueColumns
-                    + ")"
-                    + " DO UPDATE SET "
-                    + updateClause;
+            str = str + " ON CONFLICT (" + uniqueColumns + ")" + " DO UPDATE SET " + updateClause;
         }
         return Optional.of(str);
     }
@@ -146,5 +138,4 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.SYMBOL,
                 LogicalTypeRoot.UNRESOLVED);
     }
-
 }

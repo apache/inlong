@@ -21,9 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * ThreadUtils, used for handle specified throwable, such as oom, etc.
- */
+/** ThreadUtils, used for handle specified throwable, such as oom, etc. */
 public class ThreadUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadUtils.class);
@@ -49,6 +47,4 @@ public class ThreadUtils {
             Runtime.getRuntime().halt(-2);
         }
     }
-
 }
-

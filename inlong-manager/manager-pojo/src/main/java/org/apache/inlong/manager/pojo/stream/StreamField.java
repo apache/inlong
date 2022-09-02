@@ -24,9 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Stream filed, including field name, field type, etc.
- */
+/** Stream filed, including field name, field type, etc. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -68,8 +66,9 @@ public class StreamField {
     @ApiModelProperty(value = "Meta field name")
     private String metaFieldName;
 
-    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    @ApiModelProperty(
+            "Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+                    + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
 
     @ApiModelProperty("Origin node name which stream fields belong")
@@ -81,7 +80,8 @@ public class StreamField {
     @ApiModelProperty("Extra Param in JSON style")
     private String extParams;
 
-    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue) {
+    public StreamField(
+            int index, String fieldType, String fieldName, String fieldComment, String fieldValue) {
         this.id = index;
         this.fieldType = fieldType;
         this.fieldName = fieldName;
@@ -89,28 +89,48 @@ public class StreamField {
         this.fieldValue = fieldValue;
     }
 
-    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String metaFieldName) {
+    public StreamField(
+            int index,
+            String fieldType,
+            String fieldName,
+            String fieldComment,
+            String fieldValue,
+            Integer isMetaField,
+            String metaFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
     }
 
-    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String metaFieldName, String originNodeName) {
+    public StreamField(
+            int index,
+            String fieldType,
+            String fieldName,
+            String fieldComment,
+            String fieldValue,
+            Integer isMetaField,
+            String metaFieldName,
+            String originNodeName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
     }
 
-    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
+    public StreamField(
+            int index,
+            String fieldType,
+            String fieldName,
+            String fieldComment,
+            String fieldValue,
+            Integer isMetaField,
+            String metaFieldName,
+            String originNodeName,
+            String originFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
         this.originFieldName = originFieldName;
     }
-
 }

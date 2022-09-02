@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongStreamFieldEntityMapper {
@@ -32,19 +31,15 @@ public interface InlongStreamFieldEntityMapper {
 
     InlongStreamFieldEntity selectByPrimaryKey(Integer id);
 
-    List<InlongStreamFieldEntity> selectByIdentifier(@Param("groupId") String groupId,
-            @Param("streamId") String streamId);
+    List<InlongStreamFieldEntity> selectByIdentifier(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
     int deleteByPrimaryKey(Integer id);
 
-    /**
-     * According to the inlong group id and inlong stream id, logically delete all fields
-     */
-    int logicDeleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    /** According to the inlong group id and inlong stream id, logically delete all fields */
+    int logicDeleteAllByIdentifier(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    /**
-     * According to the inlong group id and inlong stream id, physically delete all fields
-     */
+    /** According to the inlong group id and inlong stream id, physically delete all fields */
     int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
-
 }

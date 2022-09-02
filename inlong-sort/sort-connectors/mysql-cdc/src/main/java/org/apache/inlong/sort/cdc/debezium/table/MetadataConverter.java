@@ -19,16 +19,13 @@
 package org.apache.inlong.sort.cdc.debezium.table;
 
 import io.debezium.relational.history.TableChanges;
+import java.io.Serializable;
+import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.data.RowData;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-
-/**
- * A converter converts {@link SourceRecord} metadata into Flink internal data structures.
- */
+/** A converter converts {@link SourceRecord} metadata into Flink internal data structures. */
 @FunctionalInterface
 @Internal
 public interface MetadataConverter extends Serializable {
@@ -39,7 +36,8 @@ public interface MetadataConverter extends Serializable {
         return read(record);
     }
 
-    default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+    default Object read(
+            SourceRecord record, @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
         return read(record);
     }
 }

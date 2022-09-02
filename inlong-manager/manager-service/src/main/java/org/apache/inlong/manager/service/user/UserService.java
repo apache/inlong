@@ -21,9 +21,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
-/**
- * User service interface
- */
+/** User service interface */
 public interface UserService {
 
     /**
@@ -75,5 +73,4 @@ public interface UserService {
      * @return whether succeed
      */
     Boolean delete(Integer userId, String currentUser);
-
 }

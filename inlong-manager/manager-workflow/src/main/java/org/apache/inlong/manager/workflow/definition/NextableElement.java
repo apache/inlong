@@ -19,24 +19,22 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.workflow.WorkflowAction;
-import org.apache.inlong.manager.workflow.WorkflowContext;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.workflow.WorkflowAction;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * Non-terminal element
- */
+/** Non-terminal element */
 public abstract class NextableElement extends Element {
 
     public static final List<ConditionNextElement> EMPTY_NEXT = Lists.newArrayList();
 
-    private Map<WorkflowAction, List<ConditionNextElement>> actionToNextElementMap = Maps.newHashMap();
+    private Map<WorkflowAction, List<ConditionNextElement>> actionToNextElementMap =
+            Maps.newHashMap();
 
     public NextableElement addNext(Element element) {
         return this.addNext(defaultNextAction(), ConditionNextElement.TRUE, element);
@@ -50,10 +48,16 @@ public abstract class NextableElement extends Element {
         return this.addNext(defaultNextAction(), condition, element);
     }
 
-    public NextableElement addNext(WorkflowAction action, Predicate<WorkflowContext> condition, Element next) {
-        Preconditions.checkTrue(supportedActions().contains(action),
-                "not support workflow action " + action + ", it should in one of " + supportedActions());
-        actionToNextElementMap.computeIfAbsent(action, ac -> Lists.newArrayList())
+    public NextableElement addNext(
+            WorkflowAction action, Predicate<WorkflowContext> condition, Element next) {
+        Preconditions.checkTrue(
+                supportedActions().contains(action),
+                "not support workflow action "
+                        + action
+                        + ", it should in one of "
+                        + supportedActions());
+        actionToNextElementMap
+                .computeIfAbsent(action, ac -> Lists.newArrayList())
                 .add(new ConditionNextElement().setCondition(condition).setElement(next));
         return this;
     }
@@ -63,10 +67,13 @@ public abstract class NextableElement extends Element {
     }
 
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        Preconditions.checkTrue(supportedActions().contains(action),
-                "not support workflow action " + action + ", it should in one of " + supportedActions());
-        return this.actionToNextElementMap.getOrDefault(action, NextableElement.EMPTY_NEXT)
-                .stream()
+        Preconditions.checkTrue(
+                supportedActions().contains(action),
+                "not support workflow action "
+                        + action
+                        + ", it should in one of "
+                        + supportedActions());
+        return this.actionToNextElementMap.getOrDefault(action, NextableElement.EMPTY_NEXT).stream()
                 .filter(conditionNextElement -> conditionNextElement.getCondition().test(context))
                 .map(ConditionNextElement::getElement)
                 .collect(Collectors.toList());
@@ -78,7 +85,8 @@ public abstract class NextableElement extends Element {
 
     @Override
     public void validate() {
-        Preconditions.checkNotEmpty(actionToNextElementMap,
+        Preconditions.checkNotEmpty(
+                actionToNextElementMap,
                 "next elements cannot be null " + this.getClass().getName());
     }
 
@@ -95,17 +103,23 @@ public abstract class NextableElement extends Element {
     @Override
     public NextableElement clone() throws CloneNotSupportedException {
         NextableElement nextAbleElement = (NextableElement) super.clone();
-        Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap = Maps.newHashMap();
+        Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap =
+                Maps.newHashMap();
         actionToNextElementMap.forEach(
-                (k, v) -> cloneActionToNextElementMap.put(k, v.stream().map(ele -> {
-                    try {
-                        return (ConditionNextElement) ele.clone();
-                    } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }).collect(Collectors.toList())));
+                (k, v) ->
+                        cloneActionToNextElementMap.put(
+                                k,
+                                v.stream()
+                                        .map(
+                                                ele -> {
+                                                    try {
+                                                        return (ConditionNextElement) ele.clone();
+                                                    } catch (CloneNotSupportedException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    return null;
+                                                })
+                                        .collect(Collectors.toList())));
         return nextAbleElement.setActionToNextElementMap(cloneActionToNextElementMap);
     }
-
 }

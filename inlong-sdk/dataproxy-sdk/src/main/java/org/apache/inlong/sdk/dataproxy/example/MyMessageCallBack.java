@@ -25,14 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MyMessageCallBack extends FileCallback {
-    private static final Logger logger = LoggerFactory
-            .getLogger(MyMessageCallBack.class);
+    private static final Logger logger = LoggerFactory.getLogger(MyMessageCallBack.class);
     private DefaultMessageSender messageSender = null;
     private Event event = null;
 
-    public MyMessageCallBack() {
-
-    }
+    public MyMessageCallBack() {}
 
     public MyMessageCallBack(DefaultMessageSender messageSender, Event event) {
         super();
@@ -56,5 +53,4 @@ public class MyMessageCallBack extends FileCallback {
         logger.error("Send message failure, error {}", e.getMessage());
         e.printStackTrace();
     }
-
 }

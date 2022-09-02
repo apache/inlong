@@ -18,11 +18,22 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
+
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
@@ -37,21 +48,7 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
-
-/**
- * A {@link MySqlSplitAssigner} which only read binlog from current binlog position.
- */
+/** A {@link MySqlSplitAssigner} which only read binlog from current binlog position. */
 public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlBinlogSplitAssigner.class);
@@ -131,19 +128,13 @@ public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
     }
 
     @Override
-    public void suspend() {
-
-    }
+    public void suspend() {}
 
     @Override
-    public void wakeup() {
-
-    }
+    public void wakeup() {}
 
     @Override
-    public void close() {
-
-    }
+    public void close() {}
 
     // ------------------------------------------------------------------------------------------
 
@@ -174,8 +165,12 @@ public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
                     String.format(
                             "Can't find any matched tables,"
                                     + " please check your configured database-name: %s and table-name: %s",
-                            sourceConfig.getDbzConfiguration().getString(MySqlSourceOptions.DATABASE_NAME.key()),
-                            sourceConfig.getDbzConfiguration().getString(MySqlSourceOptions.TABLE_NAME.key())));
+                            sourceConfig
+                                    .getDbzConfiguration()
+                                    .getString(MySqlSourceOptions.DATABASE_NAME.key()),
+                            sourceConfig
+                                    .getDbzConfiguration()
+                                    .getString(MySqlSourceOptions.TABLE_NAME.key())));
         }
 
         // fetch table schemas

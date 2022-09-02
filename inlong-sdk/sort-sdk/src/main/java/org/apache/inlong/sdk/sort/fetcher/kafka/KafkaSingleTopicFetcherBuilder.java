@@ -18,16 +18,13 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
+import java.util.Optional;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
-import java.util.Optional;
-
-/**
- * Builder of kafka single topic fetcher.
- */
+/** Builder of kafka single topic fetcher. */
 public class KafkaSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
     private String bootstrapServers;
@@ -40,7 +37,10 @@ public class KafkaSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
     @Override
     public TopicFetcher subscribe() {
         Optional.ofNullable(topic)
-                .orElseThrow(() -> new IllegalStateException("subscribe kafka single topic, but never assign topic"));
+                .orElseThrow(
+                        () ->
+                                new IllegalStateException(
+                                        "subscribe kafka single topic, but never assign topic"));
         Optional.ofNullable(context)
                 .orElseThrow(() -> new IllegalStateException("context is null"));
         Optional.ofNullable(bootstrapServers)
@@ -49,11 +49,11 @@ public class KafkaSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
         TopicFetcher kafkaSingleTopicFetcher =
-                new KafkaSingleTopicFetcher(topic, context, interceptor, deserializer, bootstrapServers);
+                new KafkaSingleTopicFetcher(
+                        topic, context, interceptor, deserializer, bootstrapServers);
         if (!kafkaSingleTopicFetcher.init()) {
             throw new IllegalStateException("init kafka single topic fetcher failed");
         }
         return kafkaSingleTopicFetcher;
     }
-
 }

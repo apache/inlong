@@ -20,17 +20,14 @@ package org.apache.inlong.manager.pojo.stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
-
-/**
- * Inlong stream response.
- */
+/** Inlong stream response. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -68,9 +65,11 @@ public class InlongStreamResponse {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
-            notes = "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
+    @ApiModelProperty(
+            value = "Whether to send synchronously, 0: no, 1: yes",
+            notes =
+                    "Each task under this stream sends data synchronously, "
+                            + "which will affect the throughput of data collection, please choose carefully")
     private Integer syncSend;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
@@ -121,5 +120,4 @@ public class InlongStreamResponse {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

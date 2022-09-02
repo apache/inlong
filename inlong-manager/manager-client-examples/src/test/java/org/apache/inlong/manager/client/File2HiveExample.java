@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.client;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
@@ -32,12 +34,7 @@ import org.apache.shiro.util.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Test class for file to hive.
- */
+/** Test class for file to hive. */
 @Slf4j
 @Disabled
 public class File2HiveExample extends BaseExample {

@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -39,82 +43,94 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test for Tube{@link TubeMQExtractNode} SQL parser.
- */
+/** Test for Tube{@link TubeMQExtractNode} SQL parser. */
 public class TubeMQNodeSqlParseTest extends AbstractTestBase {
 
-    /**
-     * Build TubeMQ extract node.
-     */
+    /** Build TubeMQ extract node. */
     private TubeMQExtractNode buildTubeMQExtractNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()));
 
-        return new TubeMQExtractNode(id, "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715", "inlong", "json", "test", null, null);
+        return new TubeMQExtractNode(
+                id,
+                "tubeMQ_input",
+                fields,
+                null,
+                null,
+                "127.0.0.1:8715",
+                "inlong",
+                "json",
+                "test",
+                null,
+                null);
     }
 
-    /**
-     * Build Kafka load node.
-     */
+    /** Build Kafka load node. */
     private KafkaLoadNode buildKafkaNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
-        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
-                "workerJson", "localhost:9092",
-                new JsonFormat(), null,
-                null, null);
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())));
+        return new KafkaLoadNode(
+                id,
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "workerJson",
+                "localhost:9092",
+                new JsonFormat(),
+                null,
+                null,
+                null);
     }
 
-    /**
-     * Build node relation.
-     */
+    /** Build node relation. */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         return new NodeRelation(inputIds, outputIds);
     }
 
-    /**
-     * Test extract data from TubeMQ and load data to Kafka.
-     */
+    /** Test extract data from TubeMQ and load data to Kafka. */
     @Test
     public void testTubeMQToKafka() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node tubeMQExtractNode = buildTubeMQExtractNode("1");
         Node kafkaLoadNode = buildKafkaNode("2");
-        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(tubeMQExtractNode, kafkaLoadNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(tubeMQExtractNode),
-                        Collections.singletonList(kafkaLoadNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1L",
+                        Arrays.asList(tubeMQExtractNode, kafkaLoadNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(tubeMQExtractNode),
+                                        Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInf = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInf);
         Assert.assertTrue(parser.parse().tryExecute());
     }
-
 }

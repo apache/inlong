@@ -67,9 +67,9 @@ public class ConfigConstants {
     public static final int FLAG_ALLOW_ENCRYPT = 1 << 6;
     public static final int FLAG_ALLOW_COMPRESS = 1 << 5;
 
-    public static final String MANAGER_DATAPROXY_API = "/inlong/manager/openapi/dataproxy/getIpList/";
+    public static final String MANAGER_DATAPROXY_API =
+            "/inlong/manager/openapi/dataproxy/getIpList/";
     public static LoadBalance DEFAULT_LOAD_BALANCE = LoadBalance.ROBIN;
     public static int DEFAULT_VIRTUAL_NODE = 1000;
     public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
-
 }

@@ -24,9 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Test {@link Operator} base class
- */
+/** Test {@link Operator} base class */
 public abstract class OperatorBaseTest extends SerializeBaseTest<Operator> {
 
     private String expectFormat;
@@ -39,9 +37,7 @@ public abstract class OperatorBaseTest extends SerializeBaseTest<Operator> {
         this.expectFormat = Preconditions.checkNotNull(getExpectFormat());
     }
 
-    /**
-     * Test format
-     */
+    /** Test format */
     @Test
     public void testFormat() {
         Assert.assertEquals(expectFormat, getTestObject().format());

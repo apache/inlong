@@ -41,5 +41,4 @@ public class LocalZonedTimestampTypeInfo implements TypeInfo {
     public String toString() {
         return "LocalZonedTimestampTypeInfo";
     }
-
 }

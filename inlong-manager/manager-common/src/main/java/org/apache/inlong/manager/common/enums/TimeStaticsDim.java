@@ -17,33 +17,19 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Time static dim
- */
+/** Time static dim */
 public enum TimeStaticsDim {
 
-    /**
-     * Minute of time statics dim
-     */
+    /** Minute of time statics dim */
     MINUTE,
-    /**
-     * Hour of time statics dim
-     */
+    /** Hour of time statics dim */
     HOUR,
-    /**
-     * Day of time statics dim
-     */
+    /** Day of time statics dim */
     DAY,
-    /**
-     * Week of time statics dim
-     */
+    /** Week of time statics dim */
     WEEK,
-    /**
-     * Month of time statics dim
-     */
+    /** Month of time statics dim */
     MONTH,
-    /**
-     * Year of time statics dim
-     */
+    /** Year of time statics dim */
     YEAR;
 }

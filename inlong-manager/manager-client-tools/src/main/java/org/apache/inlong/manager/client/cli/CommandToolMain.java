@@ -19,16 +19,17 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-
 import java.util.Arrays;
 
-/**
- * Command tool main.
- */
+/** Command tool main. */
 public class CommandToolMain {
 
     private final JCommander jcommander;
-    @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
+
+    @Parameter(
+            names = {"-h", "--help"},
+            help = true,
+            description = "Get all command about managerctl.")
     boolean help;
 
     CommandToolMain() {

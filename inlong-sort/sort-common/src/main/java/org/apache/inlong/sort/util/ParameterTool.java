@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.util;
 
 import com.google.common.base.Preconditions;
-import org.apache.inlong.sort.configuration.Configuration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,12 +38,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.inlong.sort.configuration.Configuration;
 
 /**
  * This class provides simple utility methods for reading and parsing program arguments from
  * different sources.
  *
- * <p>Copied from Flink project with a bit of changing.</p>
+ * <p>Copied from Flink project with a bit of changing.
  */
 public class ParameterTool implements Serializable, Cloneable {
 
@@ -59,8 +59,7 @@ public class ParameterTool implements Serializable, Cloneable {
      * Returns {@link ParameterTool} for the given arguments. The arguments are keys followed by
      * values. Keys have to start with '-' or '--'
      *
-     * <p><strong>Example arguments:</strong>
-     * --key1 value1 --key2 value2 -key3 value3</p>
+     * <p><strong>Example arguments:</strong> --key1 value1 --key2 value2 -key3 value3
      *
      * @param args Input array arguments
      * @return A {@link ParameterTool}
@@ -187,8 +186,8 @@ public class ParameterTool implements Serializable, Cloneable {
 
         this.defaultData = new ConcurrentHashMap<>(data.size());
 
-        this.unrequestedParameters = Collections
-                .newSetFromMap(new ConcurrentHashMap<>(data.size()));
+        this.unrequestedParameters =
+                Collections.newSetFromMap(new ConcurrentHashMap<>(data.size()));
 
         unrequestedParameters.addAll(data.keySet());
     }
@@ -223,9 +222,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // ------------------ Get data from the util ----------------
 
-    /**
-     * Returns number of parameters in {@link ParameterTool}.
-     */
+    /** Returns number of parameters in {@link ParameterTool}. */
     public int getNumberOfParameters() {
         return data.size();
     }
@@ -266,9 +263,7 @@ public class ParameterTool implements Serializable, Cloneable {
         return value;
     }
 
-    /**
-     * Check if value is set.
-     */
+    /** Check if value is set. */
     public boolean has(String value) {
         addToDefaults(value, null);
         unrequestedParameters.remove(value);
@@ -302,9 +297,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- LONG
 
-    /**
-     * Returns the Long value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Long value for the given key. The method fails if the key does not exist. */
     public long getLong(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -326,9 +319,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- FLOAT
 
-    /**
-     * Returns the Float value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Float value for the given key. The method fails if the key does not exist. */
     public float getFloat(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -351,9 +342,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- DOUBLE
 
-    /**
-     * Returns the Double value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Double value for the given key. The method fails if the key does not exist. */
     public double getDouble(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -376,9 +365,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- BOOLEAN
 
-    /**
-     * Returns the Boolean value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Boolean value for the given key. The method fails if the key does not exist. */
     public boolean getBoolean(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -402,9 +389,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- SHORT
 
-    /**
-     * Returns the Short value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Short value for the given key. The method fails if the key does not exist. */
     public short getShort(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -427,9 +412,7 @@ public class ParameterTool implements Serializable, Cloneable {
 
     // -------------- BYTE
 
-    /**
-     * Returns the Byte value for the given key. The method fails if the key does not exist.
-     */
+    /** Returns the Byte value for the given key. The method fails if the key does not exist. */
     public byte getByte(String key) {
         addToDefaults(key, null);
         String value = getRequired(key);
@@ -498,7 +481,7 @@ public class ParameterTool implements Serializable, Cloneable {
      * Create a properties file with all the known parameters (call after the last get*() call). Set
      * the default value, if available.
      *
-     * <p>Use this method to create a properties file skeleton.</p>
+     * <p>Use this method to create a properties file skeleton.
      *
      * @param pathToFile Location of the default properties file.
      */
@@ -527,8 +510,8 @@ public class ParameterTool implements Serializable, Cloneable {
         final Properties defaultProps = new Properties();
         defaultProps.putAll(this.defaultData);
         try (final OutputStream out = new FileOutputStream(file)) {
-            defaultProps.store(out,
-                    "Default file created by Flink's ParameterUtil.createPropertiesFile()");
+            defaultProps.store(
+                    out, "Default file created by Flink's ParameterUtil.createPropertiesFile()");
         }
     }
 

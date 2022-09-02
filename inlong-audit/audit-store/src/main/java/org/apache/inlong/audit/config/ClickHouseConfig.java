@@ -17,11 +17,10 @@
 
 package org.apache.inlong.audit.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
@@ -42,7 +41,7 @@ public class ClickHouseConfig {
 
     @Value("${clickhouse.batchIntervalMs:1000}")
     private int batchIntervalMs;
-    
+
     @Value("${clickhouse.batchThreshold:500}")
     private int batchThreshold;
 

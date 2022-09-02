@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Topic view of TubeMQ
- */
+/** Topic view of TubeMQ */
 @Data
 public class ConsumerGroupResponse {
 
@@ -50,5 +47,4 @@ public class ConsumerGroupResponse {
         private String createDate; // 20150619115100
         private String modifyDate;
     }
-
 }

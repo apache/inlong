@@ -19,9 +19,7 @@ package org.apache.inlong.manager.common.conversion;
 
 import org.springframework.stereotype.Component;
 
-/**
- * Convert hours to minute.
- */
+/** Convert hours to minute. */
 @Component
 public class HoursToMinute implements ConversionStrategy {
 
@@ -30,4 +28,3 @@ public class HoursToMinute implements ConversionStrategy {
         return value * 60;
     }
 }
-

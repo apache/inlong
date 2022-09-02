@@ -17,21 +17,18 @@
 
 package org.apache.inlong.agent.metrics.audit;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.audit.util.AuditConfig;
-
-import java.util.HashSet;
-
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
 
-/**
- * AuditUtils
- */
+import java.util.HashSet;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.audit.util.AuditConfig;
+
+/** AuditUtils */
 public class AuditUtils {
 
     public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
@@ -43,9 +40,7 @@ public class AuditUtils {
 
     private static boolean IS_AUDIT = true;
 
-    /**
-     * initAudit
-     */
+    /** initAudit */
     public static void initAudit() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         // IS_AUDIT
@@ -69,19 +64,16 @@ public class AuditUtils {
         }
     }
 
-    /**
-     * add audit metric
-     */
-    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count) {
+    /** add audit metric */
+    public static void add(
+            int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count) {
         if (!IS_AUDIT) {
             return;
         }
         AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, 0);
     }
 
-    /**
-     * add
-     */
+    /** add */
     public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime) {
         if (!IS_AUDIT) {
             return;
@@ -89,9 +81,7 @@ public class AuditUtils {
         AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, 0);
     }
 
-    /**
-     * sendReport
-     */
+    /** sendReport */
     public static void sendReport() {
         if (!IS_AUDIT) {
             return;

@@ -28,38 +28,24 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * A file placeholder replacement tool.
- */
+/** A file placeholder replacement tool. */
 public class PlaceholderResolver {
-    /**
-     * Default placeholder prefix
-     */
+    /** Default placeholder prefix */
     public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
 
-    /**
-     * Default placeholder suffix
-     */
+    /** Default placeholder suffix */
     public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-    /**
-     * Default singleton resolver
-     */
+    /** Default singleton resolver */
     private static PlaceholderResolver defaultResolver = new PlaceholderResolver();
 
-    /**
-     * Placeholder prefix
-     */
+    /** Placeholder prefix */
     private String placeholderPrefix = DEFAULT_PLACEHOLDER_PREFIX;
 
-    /**
-     * Placeholder suffix
-     */
+    /** Placeholder suffix */
     private String placeholderSuffix = DEFAULT_PLACEHOLDER_SUFFIX;
 
-    private PlaceholderResolver() {
-
-    }
+    private PlaceholderResolver() {}
 
     private PlaceholderResolver(String placeholderPrefix, String placeholderSuffix) {
         this.placeholderPrefix = placeholderPrefix;
@@ -70,14 +56,16 @@ public class PlaceholderResolver {
         return defaultResolver;
     }
 
-    public static PlaceholderResolver getResolver(String placeholderPrefix, String placeholderSuffix) {
+    public static PlaceholderResolver getResolver(
+            String placeholderPrefix, String placeholderSuffix) {
         return new PlaceholderResolver(placeholderPrefix, placeholderSuffix);
     }
 
     /**
      * Replace template string with special placeholder according to replace function.
-     * @param content  template string with special placeholder
-     * @param rule  placeholder replacement rule
+     *
+     * @param content template string with special placeholder
+     * @param rule placeholder replacement rule
      * @return new replaced string
      */
     public String resolveByRule(String content, Function<String, String> rule) {
@@ -100,18 +88,22 @@ public class PlaceholderResolver {
 
     /**
      * Replace template string with special placeholder according to replace function.
-     * @param file  template file with special placeholder
-     * @param rule  placeholder replacement rule
+     *
+     * @param file template file with special placeholder
+     * @param rule placeholder replacement rule
      * @return new replaced string
      */
     public Path resolveByRule(Path file, Function<String, String> rule) {
         try {
-            List<String> newContents = Files.readAllLines(file, StandardCharsets.UTF_8)
-                    .stream()
-                    .map(content -> resolveByRule(content, rule))
-                    .collect(Collectors.toList());
+            List<String> newContents =
+                    Files.readAllLines(file, StandardCharsets.UTF_8).stream()
+                            .map(content -> resolveByRule(content, rule))
+                            .collect(Collectors.toList());
             Path newPath = Paths.get(file.getParent().toString(), file.getFileName() + "$");
-            Files.write(newPath, String.join(System.lineSeparator(), newContents).getBytes(StandardCharsets.UTF_8));
+            Files.write(
+                    newPath,
+                    String.join(System.lineSeparator(), newContents)
+                            .getBytes(StandardCharsets.UTF_8));
             return newPath;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -119,32 +111,36 @@ public class PlaceholderResolver {
     }
 
     /**
-     * Replace template string with special placeholder according to properties file.
-     * Key is the content of the placeholder <br/><br/>
-     * e.g: content = product:${id}:detail:${did}<br/>
-     *      valueMap = id -> 1; pid -> 2<br/>
-     *      return: product:1:detail:2<br/>
+     * Replace template string with special placeholder according to properties file. Key is the
+     * content of the placeholder <br>
+     * <br>
+     * e.g: content = product:${id}:detail:${did}<br>
+     * valueMap = id -> 1; pid -> 2<br>
+     * return: product:1:detail:2<br>
      *
      * @param content template string with special placeholder
      * @param valueMap placeholder replacement map
      * @return new replaced string
      */
     public String resolveByMap(String content, final Map<String, Object> valueMap) {
-        return resolveByRule(content, placeholderValue -> String.valueOf(valueMap.get(placeholderValue)));
+        return resolveByRule(
+                content, placeholderValue -> String.valueOf(valueMap.get(placeholderValue)));
     }
 
     /**
-     * Replace template string with special placeholder according to properties file.
-     * Key is the content of the placeholder <br/><br/>
-     * e.g: content = product:${id}:detail:${did}<br/>
-     *      valueMap = id -> 1; pid -> 2<br/>
-     *      return: product:1:detail:2<br/>
+     * Replace template string with special placeholder according to properties file. Key is the
+     * content of the placeholder <br>
+     * <br>
+     * e.g: content = product:${id}:detail:${did}<br>
+     * valueMap = id -> 1; pid -> 2<br>
+     * return: product:1:detail:2<br>
      *
      * @param file template string with special placeholder
      * @param valueMap placeholder replacement map
      * @return new replaced string
      */
     public Path resolveByMap(Path file, final Map<String, Object> valueMap) {
-        return resolveByRule(file, placeholderValue -> String.valueOf(valueMap.get(placeholderValue)));
+        return resolveByRule(
+                file, placeholderValue -> String.valueOf(valueMap.get(placeholderValue)));
     }
 }

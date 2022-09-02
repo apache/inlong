@@ -19,21 +19,19 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.util.List;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
-import java.util.List;
-
 /**
- * The delete command used for deleting inlong group instances.
- * Please refer to the document for parameters
+ * The delete command used for deleting inlong group instances. Please refer to the document for
+ * parameters
  */
 @Parameters(commandDescription = "Delete resource by json file")
 public class DeleteCommand extends AbstractCommand {
 
-    @Parameter()
-    private List<String> params;
+    @Parameter() private List<String> params;
 
     public DeleteCommand() {
         super("delete");
@@ -43,10 +41,12 @@ public class DeleteCommand extends AbstractCommand {
     @Parameters(commandDescription = "Delete group by group id")
     private static class DeleteGroup extends AbstractCommandRunner {
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"--group", "-g"},
+                required = true,
+                description = "inlong group id")
         private String inlongGroupId;
 
         @Override

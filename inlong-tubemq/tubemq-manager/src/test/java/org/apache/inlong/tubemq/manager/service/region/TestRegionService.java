@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.entry.BrokerEntry;
@@ -48,15 +47,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestRegionService {
 
-    @MockBean
-    private RegionRepository regionRepository;
+    @MockBean private RegionRepository regionRepository;
 
-    @MockBean
-    private BrokerRepository brokerRepository;
+    @MockBean private BrokerRepository brokerRepository;
 
-    @Autowired
-    @InjectMocks
-    private RegionServiceImpl regionService;
+    @Autowired @InjectMocks private RegionServiceImpl regionService;
 
     @Test
     public void testNoResource() {
@@ -86,12 +81,13 @@ public class TestRegionService {
         brokerEntry1.setBrokerId(1L);
         List<BrokerEntry> brokerEntries = new ArrayList<>();
         brokerEntries.add(brokerEntry1);
-        doReturn(regionEntries).when(regionRepository)
+        doReturn(regionEntries)
+                .when(regionRepository)
                 .findRegionEntriesByClusterIdEquals(any(Integer.class));
-        doReturn(brokerEntries).when(brokerRepository)
+        doReturn(brokerEntries)
+                .when(brokerRepository)
                 .findBrokerEntryByBrokerIdInAndClusterIdEquals(any(List.class), any(Long.class));
         TubeMQResult result = regionService.createNewRegion(regionEntry, brokerIdList);
         assertThat(result.getErrCode() == TubeConst.SUCCESS_CODE);
     }
-
 }

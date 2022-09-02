@@ -18,6 +18,19 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import static org.apache.flink.formats.json.JsonOptions.ENCODE_DECIMAL_AS_PLAIN_NUMBER;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.DATABASE_INCLUDE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_LITERAL;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_MODE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.TABLE_INCLUDE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.TIMESTAMP_FORMAT;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateDecodingFormatOptions;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateEncodingFormatOptions;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -32,24 +45,9 @@ import org.apache.flink.table.factories.DynamicTableFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.apache.flink.formats.json.JsonOptions.ENCODE_DECIMAL_AS_PLAIN_NUMBER;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.DATABASE_INCLUDE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_LITERAL;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_MODE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.TABLE_INCLUDE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.TIMESTAMP_FORMAT;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateDecodingFormatOptions;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateEncodingFormatOptions;
-
 /**
  * Format factory for providing configured instances of Canal JSON to RowData {@link
- * DeserializationSchema}.
- * Different from flink:1.13.5.This can sink metadata.
+ * DeserializationSchema}. Different from flink:1.13.5.This can sink metadata.
  */
 public class CanalJsonEnhancedFormatFactory
         implements DeserializationFormatFactory, SerializationFormatFactory {
@@ -67,7 +65,8 @@ public class CanalJsonEnhancedFormatFactory
         final boolean ignoreParseErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         final TimestampFormat timestampFormat = JsonOptions.getTimestampFormat(formatOptions);
 
-        return new CanalJsonEnhancedDecodingFormat(database, table, ignoreParseErrors, timestampFormat);
+        return new CanalJsonEnhancedDecodingFormat(
+                database, table, ignoreParseErrors, timestampFormat);
     }
 
     @Override
@@ -84,8 +83,8 @@ public class CanalJsonEnhancedFormatFactory
         final boolean encodeDecimalAsPlainNumber =
                 formatOptions.get(ENCODE_DECIMAL_AS_PLAIN_NUMBER);
 
-        return new CanalJsonEnhancedEncodingFormat(timestampFormat, mapNullKeyMode,
-                mapNullKeyLiteral, encodeDecimalAsPlainNumber);
+        return new CanalJsonEnhancedEncodingFormat(
+                timestampFormat, mapNullKeyMode, mapNullKeyLiteral, encodeDecimalAsPlainNumber);
     }
 
     @Override

@@ -25,7 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import lombok.Data;
 import org.apache.inlong.tubemq.manager.enums.TaskStatusEnum;
 import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
@@ -34,10 +33,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "createTopicTask", uniqueConstraints =
-        {
-                @UniqueConstraint(columnNames = {"id"})
-        })
+@Table(
+        name = "createTopicTask",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})})
 @Data
 @EntityListeners(AuditingEntityListener.class)
 public class TopicTaskEntry {
@@ -48,8 +46,7 @@ public class TopicTaskEntry {
 
     private Long clusterId;
 
-    @CreatedDate
-    private Date createDate;
+    @CreatedDate private Date createDate;
 
     private Integer status = TaskStatusEnum.ADDING.getCode();
 
@@ -57,8 +54,7 @@ public class TopicTaskEntry {
 
     private String topicName;
 
-    @LastModifiedDate
-    private Date modifyDate;
+    @LastModifiedDate private Date modifyDate;
 
     private String modifyUser;
 
@@ -69,5 +65,4 @@ public class TopicTaskEntry {
     public boolean legal() {
         return !ValidateUtils.isNull(clusterId);
     }
-
 }

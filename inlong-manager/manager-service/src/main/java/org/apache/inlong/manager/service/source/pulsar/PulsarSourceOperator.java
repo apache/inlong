@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -48,25 +50,19 @@ import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Pulsar stream source operator
- */
+/** Pulsar stream source operator */
 @Service
 public class PulsarSourceOperator extends AbstractSourceOperator {
 
     private static final String AUTH_CLASSNAME_KEY = "properties.auth-plugin-classname";
-    private static final String AUTH_CLASSNAME_VALUE = "org.apache.pulsar.client.impl.auth.AuthenticationToken";
+    private static final String AUTH_CLASSNAME_VALUE =
+            "org.apache.pulsar.client.impl.auth.AuthenticationToken";
     private static final String AUTH_PARAMS_KEY = "properties.auth-params";
     // the %s must be replaced by the actual value
     private static final String AUTH_PARAMS_VALUE = "token:%s";
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private InlongClusterService clusterService;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -86,7 +82,8 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             PulsarSourceDTO dto = PulsarSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -107,63 +104,75 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
-    public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
-        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
+    public Map<String, List<StreamSource>> getSourcesMap(
+            InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
+        ClusterInfo clusterInfo =
+                clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+        String tenant =
+                StringUtils.isEmpty(pulsarCluster.getTenant())
+                        ? InlongConstants.DEFAULT_PULSAR_TENANT
+                        : pulsarCluster.getTenant();
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
-        streamInfos.forEach(streamInfo -> {
-            PulsarSource pulsarSource = new PulsarSource();
-            String streamId = streamInfo.getInlongStreamId();
-            pulsarSource.setSourceName(streamId);
-            pulsarSource.setTenant(tenant);
-            pulsarSource.setNamespace(groupInfo.getMqResource());
-            pulsarSource.setTopic(streamInfo.getMqResource());
-            pulsarSource.setAdminUrl(adminUrl);
-            pulsarSource.setServiceUrl(serviceUrl);
-            pulsarSource.setInlongComponent(true);
+        streamInfos.forEach(
+                streamInfo -> {
+                    PulsarSource pulsarSource = new PulsarSource();
+                    String streamId = streamInfo.getInlongStreamId();
+                    pulsarSource.setSourceName(streamId);
+                    pulsarSource.setTenant(tenant);
+                    pulsarSource.setNamespace(groupInfo.getMqResource());
+                    pulsarSource.setTopic(streamInfo.getMqResource());
+                    pulsarSource.setAdminUrl(adminUrl);
+                    pulsarSource.setServiceUrl(serviceUrl);
+                    pulsarSource.setInlongComponent(true);
 
-            // set the token info
-            if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
-                Map<String, Object> properties = pulsarSource.getProperties();
-                properties.putIfAbsent(AUTH_CLASSNAME_KEY, AUTH_CLASSNAME_VALUE);
-                properties.putIfAbsent(AUTH_PARAMS_KEY, String.format(AUTH_PARAMS_VALUE, pulsarCluster.getToken()));
-            }
+                    // set the token info
+                    if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
+                        Map<String, Object> properties = pulsarSource.getProperties();
+                        properties.putIfAbsent(AUTH_CLASSNAME_KEY, AUTH_CLASSNAME_VALUE);
+                        properties.putIfAbsent(
+                                AUTH_PARAMS_KEY,
+                                String.format(AUTH_PARAMS_VALUE, pulsarCluster.getToken()));
+                    }
 
-            for (StreamSource sourceInfo : streamSources) {
-                if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
-                    continue;
-                }
-                if (StringUtils.isEmpty(pulsarSource.getSerializationType())
-                        && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
-                    pulsarSource.setSerializationType(sourceInfo.getSerializationType());
-                }
-                if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
-                    pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
-                }
-            }
+                    for (StreamSource sourceInfo : streamSources) {
+                        if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
+                            continue;
+                        }
+                        if (StringUtils.isEmpty(pulsarSource.getSerializationType())
+                                && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
+                            pulsarSource.setSerializationType(sourceInfo.getSerializationType());
+                        }
+                        if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
+                            pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
+                        }
+                    }
 
-            // if the SerializationType is still null, set it to the CSV
-            if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
-                pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
-            }
-            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
-                pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
-                if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
-                    pulsarSource.setDataSeparator(DataSeparator.COMMA.getAsciiCode().toString());
-                }
-            }
-            pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
-            pulsarSource.setFieldList(streamInfo.getFieldList());
-            sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);
-        });
+                    // if the SerializationType is still null, set it to the CSV
+                    if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
+                        pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+                    }
+                    if (DataTypeEnum.CSV
+                            .getName()
+                            .equalsIgnoreCase(pulsarSource.getSerializationType())) {
+                        pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
+                        if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
+                            pulsarSource.setDataSeparator(
+                                    DataSeparator.COMMA.getAsciiCode().toString());
+                        }
+                    }
+                    pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
+                    pulsarSource.setFieldList(streamInfo.getFieldList());
+                    sourceMap
+                            .computeIfAbsent(streamId, key -> Lists.newArrayList())
+                            .add(pulsarSource);
+                });
 
         return sourceMap;
     }
-
 }

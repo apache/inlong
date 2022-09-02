@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link LongFormatInfo}.
- */
+/** Unit tests for {@link LongFormatInfo}. */
 public class LongFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -36,17 +34,11 @@ public class LongFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testSerialize() {
-        assertEquals(
-                "2147483647",
-                LongFormatInfo.INSTANCE.serialize(2147483647L)
-        );
+        assertEquals("2147483647", LongFormatInfo.INSTANCE.serialize(2147483647L));
     }
 
     @Test
     public void testDeserialize() {
-        assertEquals(
-                Long.valueOf(2147483647L),
-                LongFormatInfo.INSTANCE.deserialize("2147483647")
-        );
+        assertEquals(Long.valueOf(2147483647L), LongFormatInfo.INSTANCE.deserialize("2147483647"));
     }
 }

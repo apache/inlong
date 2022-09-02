@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.dispatcher;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_FILENAME_OFFSET_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.SERVER_ID_KEY;
+
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.document.DocumentWriter;
@@ -34,21 +38,16 @@ import io.debezium.schema.HistorizedDatabaseSchema;
 import io.debezium.schema.SchemaChangeEvent;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_FILENAME_OFFSET_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.SERVER_ID_KEY;
 
 /**
  * A subclass implementation of {@link EventDispatcher}.
@@ -73,9 +72,7 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
     private final Schema schemaChangeKeySchema;
     private final Schema schemaChangeValueSchema;
 
-    /**
-     * Constructor of EventDispatcherImpl.
-     */
+    /** Constructor of EventDispatcherImpl. */
     public EventDispatcherImpl(
             CommonConnectorConfig connectorConfig,
             TopicSelector<T> topicSelector,
@@ -167,9 +164,7 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
         schemaChangeEventEmitter.emitSchemaChangeEvent(new SchemaChangeEventReceiver());
     }
 
-    /**
-     * A {@link SchemaChangeEventEmitter.Receiver} implementation for {@link SchemaChangeEvent}.
-     */
+    /** A {@link SchemaChangeEventEmitter.Receiver} implementation for {@link SchemaChangeEvent}. */
     private final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
 
         private Struct schemaChangeRecordKey(SchemaChangeEvent event) {

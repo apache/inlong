@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link ShortFormatInfo}.
- */
+/** Unit tests for {@link ShortFormatInfo}. */
 public class ShortFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -36,17 +34,11 @@ public class ShortFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testSerialize() {
-        assertEquals(
-                "32767",
-                ShortFormatInfo.INSTANCE.serialize((short) 32767)
-        );
+        assertEquals("32767", ShortFormatInfo.INSTANCE.serialize((short) 32767));
     }
 
     @Test
     public void testDeserialize() {
-        assertEquals(
-                Short.valueOf((short) 32767),
-                ShortFormatInfo.INSTANCE.deserialize("32767")
-        );
+        assertEquals(Short.valueOf((short) 32767), ShortFormatInfo.INSTANCE.deserialize("32767"));
     }
 }

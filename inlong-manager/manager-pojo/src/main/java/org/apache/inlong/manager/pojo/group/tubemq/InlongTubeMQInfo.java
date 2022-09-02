@@ -27,9 +27,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
-/**
- * Inlong group info for TubeMQ
- */
+/** Inlong group info for TubeMQ */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -54,5 +52,4 @@ public class InlongTubeMQInfo extends InlongGroupInfo {
     public InlongTubeMQRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongTubeMQRequest::new);
     }
-
 }

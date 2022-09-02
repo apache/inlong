@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import java.util.Collections;
+import java.util.Date;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -28,24 +30,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collections;
-import java.util.Date;
-
-/**
- * Agent service test
- */
+/** Agent service test */
 class AgentServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private AgentService agentService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private AgentService agentService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save source info.
-     */
+    /** Save source info. */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
         MySQLBinlogSourceRequest sourceInfo = new MySQLBinlogSourceRequest();
@@ -56,9 +48,7 @@ class AgentServiceTest extends ServiceBaseTest {
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
-    /**
-     * Test report snapshot.
-     */
+    /** Test report snapshot. */
     @Test
     void testReportSnapshot() {
         Integer id = this.saveSource();
@@ -77,5 +67,4 @@ class AgentServiceTest extends ServiceBaseTest {
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
-
 }

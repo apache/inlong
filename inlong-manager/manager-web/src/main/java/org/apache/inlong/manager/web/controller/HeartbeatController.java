@@ -33,32 +33,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Heartbeat controller.
- */
+/** Heartbeat controller. */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Heartbeat-API")
 public class HeartbeatController {
 
-    @Autowired
-    private HeartbeatService heartbeatService;
+    @Autowired private HeartbeatService heartbeatService;
 
     @RequestMapping(value = "/heartbeat/component/get", method = RequestMethod.POST)
     @ApiOperation(value = "Get component heartbeat")
-    public Response<ComponentHeartbeatResponse> getComponentHeartbeat(@RequestBody HeartbeatQueryRequest request) {
+    public Response<ComponentHeartbeatResponse> getComponentHeartbeat(
+            @RequestBody HeartbeatQueryRequest request) {
         return Response.success(heartbeatService.getComponentHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/group/get", method = RequestMethod.POST)
     @ApiOperation(value = "Get group heartbeat")
-    public Response<GroupHeartbeatResponse> getGroupHeartbeat(@RequestBody HeartbeatQueryRequest request) {
+    public Response<GroupHeartbeatResponse> getGroupHeartbeat(
+            @RequestBody HeartbeatQueryRequest request) {
         return Response.success(heartbeatService.getGroupHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/stream/get", method = RequestMethod.POST)
     @ApiOperation(value = "Get stream heartbeat")
-    public Response<StreamHeartbeatResponse> getStreamHeartbeat(@RequestBody HeartbeatQueryRequest request) {
+    public Response<StreamHeartbeatResponse> getStreamHeartbeat(
+            @RequestBody HeartbeatQueryRequest request) {
         return Response.success(heartbeatService.getStreamHeartbeat(request));
     }
 
@@ -71,15 +71,15 @@ public class HeartbeatController {
 
     @RequestMapping(value = "/heartbeat/group/list", method = RequestMethod.POST)
     @ApiOperation(value = "List group heartbeats")
-    public Response<PageResult<GroupHeartbeatResponse>> listGroupHeartbeat(@RequestBody HeartbeatPageRequest request) {
+    public Response<PageResult<GroupHeartbeatResponse>> listGroupHeartbeat(
+            @RequestBody HeartbeatPageRequest request) {
         return Response.success(heartbeatService.listGroupHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream heartbeats")
-    public Response<PageResult<StreamHeartbeatResponse>> listStreamHeartbeat(@RequestBody HeartbeatPageRequest req) {
+    public Response<PageResult<StreamHeartbeatResponse>> listStreamHeartbeat(
+            @RequestBody HeartbeatPageRequest req) {
         return Response.success(heartbeatService.listStreamHeartbeat(req));
     }
-
 }
-

@@ -18,25 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.catalog.ResolvedSchema;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.factories.DynamicTableSourceFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
-import org.apache.inlong.sort.cdc.debezium.table.DebeziumOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
-
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -68,9 +49,25 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.USERNAME;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils.doubleCompare;
 
-/**
- * Factory for creating configured instance of {@link MySqlTableSource}.
- */
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.catalog.ResolvedSchema;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.factories.DynamicTableSourceFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
+import org.apache.inlong.sort.cdc.debezium.table.DebeziumOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
+
+/** Factory for creating configured instance of {@link MySqlTableSource}. */
 public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "mysql-cdc-inlong";
@@ -274,9 +271,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         return serverIdValue;
     }
 
-    /**
-     * Checks the value of given integer option is valid.
-     */
+    /** Checks the value of given integer option is valid. */
     private void validateIntegerOption(
             ConfigOption<Integer> option, int optionValue, int exclusiveMin) {
         checkState(
@@ -304,9 +299,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         }
     }
 
-    /**
-     * Checks the value of given evenly distribution factor upper bound is valid.
-     */
+    /** Checks the value of given evenly distribution factor upper bound is valid. */
     private void validateDistributionFactorUpper(double distributionFactorUpper) {
         checkState(
                 doubleCompare(distributionFactorUpper, 1.0d) >= 0,
@@ -317,9 +310,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                         distributionFactorUpper));
     }
 
-    /**
-     * Checks the value of given evenly distribution factor lower bound is valid.
-     */
+    /** Checks the value of given evenly distribution factor lower bound is valid. */
     private void validateDistributionFactorLower(double distributionFactorLower) {
         checkState(
                 doubleCompare(distributionFactorLower, 0.0d) >= 0

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.aaaserver;
 
 import java.util.Map;
@@ -46,39 +43,47 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
         }
         ClientMaster.AuthenticateInfo authInfo = certificateInfo.getAuthInfo();
         if (authInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: AuthenticateInfo is null!");
             return result;
         }
         if (TStringUtils.isBlank(authInfo.getUserName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.userName is Blank!");
             return result;
         }
         String inUserName = authInfo.getUserName().trim();
         if (TStringUtils.isBlank(authInfo.getSignature())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.signature is Blank!");
             return result;
         }
         String inSignature = authInfo.getSignature().trim();
         if (!inUserName.equals(masterConfig.getVisitName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: userName is not equal in authenticateToken!");
             return result;
         }
         if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
                 > masterConfig.getAuthValidTimeStampPeriodMs()) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
         }
         String signature =
-                TStringUtils.getAuthSignature(inUserName,
+                TStringUtils.getAuthSignature(
+                        inUserName,
                         masterConfig.getVisitPassword(),
-                        authInfo.getTimestamp(), authInfo.getNonce());
+                        authInfo.getTimestamp(),
+                        authInfo.getNonce());
         if (!inSignature.equals(signature)) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: userName or password is not correct!");
             return result;
         }
@@ -87,8 +92,8 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
     }
 
     @Override
-    public CertifiedResult identityValidUserInfo(final ClientMaster.MasterCertificateInfo certificateInfo,
-                                                 boolean isProduce) {
+    public CertifiedResult identityValidUserInfo(
+            final ClientMaster.MasterCertificateInfo certificateInfo, boolean isProduce) {
         String inUserName = "";
         String authorizedToken = "";
         String othParams = "";
@@ -105,18 +110,21 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
             }
         }
         if (certificateInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Server required MasterCertificateInfo!");
             return result;
         }
         ClientMaster.AuthenticateInfo authInfo = certificateInfo.getAuthInfo();
         if (authInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: AuthenticateInfo is null!");
             return result;
         }
         if (TStringUtils.isBlank(authInfo.getUserName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.userName is Blank!");
             return result;
         }
@@ -125,14 +133,16 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
             othParams = authInfo.getOthParams().trim();
         }
         if (TStringUtils.isBlank(authInfo.getSignature())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.signature is Blank!");
             return result;
         }
         String inSignature = authInfo.getSignature().trim();
         if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
                 > masterConfig.getAuthValidTimeStampPeriodMs()) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailureResult(
+                    TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
         }
@@ -144,7 +154,8 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
     }
 
     @Override
-    public CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp) {
+    public CertifiedResult validProducerAuthorizeInfo(
+            String userName, Set<String> topics, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!masterConfig.isStartProduceAuthorize()) {
             result.setSuccessResult("", "");
@@ -157,8 +168,12 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
     }
 
     @Override
-    public CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-                                                      Map<String, TreeSet<String>> topicConds, String clientIp) {
+    public CertifiedResult validConsumerAuthorizeInfo(
+            String userName,
+            String groupName,
+            Set<String> topics,
+            Map<String, TreeSet<String>> topicConds,
+            String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!masterConfig.isStartProduceAuthorize()) {
             result.setSuccessResult("", "");
@@ -169,5 +184,4 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
         result.setSuccessResult("", "");
         return result;
     }
-
 }

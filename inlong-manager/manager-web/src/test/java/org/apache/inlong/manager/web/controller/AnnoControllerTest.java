@@ -17,11 +17,15 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import org.apache.inlong.manager.pojo.common.Response;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.junit.jupiter.api.Assertions;
@@ -31,10 +35,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class AnnoControllerTest extends WebBaseTest {
@@ -59,14 +59,14 @@ class AnnoControllerTest extends WebBaseTest {
         // Wrong pwd
         loginUser.setPassword("test_wrong_pwd");
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/login")
+                                        .content(JsonUtils.toJsonString(loginUser))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         Response<String> response = getResBody(mvcResult, String.class);
         Assertions.assertFalse(response.isSuccess());
@@ -75,21 +75,22 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testRegister() throws Exception {
-        UserRequest userInfo = UserRequest.builder()
-                .name("test_name")
-                .password(TEST_PWD)
-                .accountType(UserTypeEnum.ADMIN.getCode())
-                .validDays(88888)
-                .build();
+        UserRequest userInfo =
+                UserRequest.builder()
+                        .name("test_name")
+                        .password(TEST_PWD)
+                        .accountType(UserTypeEnum.ADMIN.getCode())
+                        .validDays(88888)
+                        .build();
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/register")
+                                        .content(JsonUtils.toJsonString(userInfo))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         Response<Integer> resBody = getResBody(mvcResult, Integer.class);
         Assertions.assertTrue(resBody.isSuccess() && resBody.getData() > 0);
@@ -97,22 +98,23 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testRegisterFailByExistName() throws Exception {
-        UserRequest userInfo = UserRequest.builder()
-                // Username already exists in the init sql
-                .name("admin")
-                .password(TEST_PWD)
-                .accountType(UserTypeEnum.ADMIN.getCode())
-                .validDays(88888)
-                .build();
+        UserRequest userInfo =
+                UserRequest.builder()
+                        // Username already exists in the init sql
+                        .name("admin")
+                        .password(TEST_PWD)
+                        .accountType(UserTypeEnum.ADMIN.getCode())
+                        .validDays(88888)
+                        .build();
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/register")
+                                        .content(JsonUtils.toJsonString(userInfo))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         Response<Integer> resBody = getResBody(mvcResult, Integer.class);
         Assertions.assertFalse(resBody.isSuccess());
@@ -123,13 +125,13 @@ class AnnoControllerTest extends WebBaseTest {
     void testLogout() throws Exception {
         testLogin();
 
-        MvcResult mvcResult = mockMvc.perform(
-                        get("/api/anno/logout")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                get("/api/anno/logout")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         Response<String> resBody = getResBody(mvcResult, String.class);
         Assertions.assertTrue(resBody.isSuccess());
@@ -138,26 +140,26 @@ class AnnoControllerTest extends WebBaseTest {
 
     @Test
     void testRegisterFailByInvalidType() throws Exception {
-        UserRequest userInfo = UserRequest.builder()
-                .name("admin11")
-                .password(TEST_PWD)
-                // invalidType
-                .accountType(3)
-                .validDays(88888)
-                .build();
+        UserRequest userInfo =
+                UserRequest.builder()
+                        .name("admin11")
+                        .password(TEST_PWD)
+                        // invalidType
+                        .accountType(3)
+                        .validDays(88888)
+                        .build();
 
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult =
+                mockMvc.perform(
+                                post("/api/anno/register")
+                                        .content(JsonUtils.toJsonString(userInfo))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andReturn();
 
         Response<Integer> resBody = getResBody(mvcResult, Integer.class);
         Assertions.assertFalse(resBody.isSuccess());
         Assertions.assertTrue(resBody.getErrMsg().contains("must in 0,1"));
     }
-
 }

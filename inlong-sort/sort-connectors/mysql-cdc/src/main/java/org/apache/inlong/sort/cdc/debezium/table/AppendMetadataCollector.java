@@ -19,6 +19,7 @@
 package org.apache.inlong.sort.cdc.debezium.table;
 
 import io.debezium.relational.history.TableChanges.TableChange;
+import java.io.Serializable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
@@ -26,11 +27,7 @@ import org.apache.flink.table.data.utils.JoinedRowData;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import java.io.Serializable;
-
-/**
- * Emits a row with physical fields and metadata fields.
- */
+/** Emits a row with physical fields and metadata fields. */
 @Internal
 public final class AppendMetadataCollector implements Collector<RowData>, Serializable {
 

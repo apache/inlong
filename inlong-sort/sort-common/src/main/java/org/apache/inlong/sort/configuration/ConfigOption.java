@@ -30,10 +30,10 @@ import java.util.stream.Stream;
  * key, deprecated older versions of the key, and an optional default value for the configuration
  * parameter.
  *
- * <p>{@code ConfigOptions} are built via the {@link ConfigOptions} class.
- * Once created, a config option is immutable.</p>
+ * <p>{@code ConfigOptions} are built via the {@link ConfigOptions} class. Once created, a config
+ * option is immutable.
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.
  *
  * @param <T> The type of value associated with the configuration option.
  */
@@ -43,24 +43,16 @@ public class ConfigOption<T> {
 
     // ------------------------------------------------------------------------
 
-    /**
-     * The current key for that config option.
-     */
+    /** The current key for that config option. */
     private final String key;
 
-    /**
-     * The list of deprecated keys, in the order to be checked.
-     */
+    /** The list of deprecated keys, in the order to be checked. */
     private final FallbackKey[] fallbackKeys;
 
-    /**
-     * The default value for this option.
-     */
+    /** The default value for this option. */
     private final T defaultValue;
 
-    /**
-     * The description for this option.
-     */
+    /** The description for this option. */
     private final String description;
 
     // ------------------------------------------------------------------------
@@ -99,23 +91,22 @@ public class ConfigOption<T> {
      * Creates a new config option, using this option's key and default value, and adding the given
      * fallback keys.
      *
-     * <p>When obtaining a value from the configuration via
-     * {@link Configuration#getValue(ConfigOption)}, the fallback keys will be checked in the order
+     * <p>When obtaining a value from the configuration via {@link
+     * Configuration#getValue(ConfigOption)}, the fallback keys will be checked in the order
      * provided to this method. The first key for which a value is found will be used - that value
-     * will be returned.</p>
+     * will be returned.
      *
      * @param fallbackKeys The fallback keys, in the order in which they should be checked.
      * @return A new config options, with the given fallback keys.
      */
     public ConfigOption<T> withFallbackKeys(String... fallbackKeys) {
-        final Stream<FallbackKey> newFallbackKeys = Arrays.stream(fallbackKeys)
-                .map(FallbackKey::createFallbackKey);
+        final Stream<FallbackKey> newFallbackKeys =
+                Arrays.stream(fallbackKeys).map(FallbackKey::createFallbackKey);
         final Stream<FallbackKey> currentAlternativeKeys = Arrays.stream(this.fallbackKeys);
 
         // put fallback keys first so that they are prioritized
-        final FallbackKey[] mergedAlternativeKeys = Stream
-                .concat(newFallbackKeys, currentAlternativeKeys)
-                .toArray(FallbackKey[]::new);
+        final FallbackKey[] mergedAlternativeKeys =
+                Stream.concat(newFallbackKeys, currentAlternativeKeys).toArray(FallbackKey[]::new);
         return new ConfigOption<>(key, description, defaultValue, mergedAlternativeKeys);
     }
 
@@ -123,24 +114,23 @@ public class ConfigOption<T> {
      * Creates a new config option, using this option's key and default value, and adding the given
      * deprecated keys.
      *
-     * <p>When obtaining a value from the configuration via
-     * {@link Configuration#getValue(ConfigOption)}, the deprecated keys will be checked in the
-     * order provided to this method. The first key for which a value is found will be used - that
-     * value will be returned.</p>
+     * <p>When obtaining a value from the configuration via {@link
+     * Configuration#getValue(ConfigOption)}, the deprecated keys will be checked in the order
+     * provided to this method. The first key for which a value is found will be used - that value
+     * will be returned.
      *
-     * @param deprecatedKeys The deprecated keys, in the order in which they should be
-     *         checked.
+     * @param deprecatedKeys The deprecated keys, in the order in which they should be checked.
      * @return A new config options, with the given deprecated keys.
      */
     public ConfigOption<T> withDeprecatedKeys(String... deprecatedKeys) {
-        final Stream<FallbackKey> newDeprecatedKeys = Arrays.stream(deprecatedKeys)
-                .map(FallbackKey::createDeprecatedKey);
+        final Stream<FallbackKey> newDeprecatedKeys =
+                Arrays.stream(deprecatedKeys).map(FallbackKey::createDeprecatedKey);
         final Stream<FallbackKey> currentAlternativeKeys = Arrays.stream(this.fallbackKeys);
 
         // put deprecated keys last so that they are de-prioritized
-        final FallbackKey[] mergedAlternativeKeys = Stream
-                .concat(currentAlternativeKeys, newDeprecatedKeys)
-                .toArray(FallbackKey[]::new);
+        final FallbackKey[] mergedAlternativeKeys =
+                Stream.concat(currentAlternativeKeys, newDeprecatedKeys)
+                        .toArray(FallbackKey[]::new);
         return new ConfigOption<>(key, description, defaultValue, mergedAlternativeKeys);
     }
 
@@ -192,8 +182,8 @@ public class ConfigOption<T> {
      */
     @Deprecated
     public boolean hasDeprecatedKeys() {
-        return fallbackKeys != EMPTY && Arrays.stream(fallbackKeys)
-                .anyMatch(FallbackKey::isDeprecated);
+        return fallbackKeys != EMPTY
+                && Arrays.stream(fallbackKeys).anyMatch(FallbackKey::isDeprecated);
     }
 
     /**
@@ -204,8 +194,9 @@ public class ConfigOption<T> {
      */
     @Deprecated
     public Iterable<String> deprecatedKeys() {
-        return fallbackKeys == EMPTY ? Collections.<String>emptyList() :
-                Arrays.stream(fallbackKeys)
+        return fallbackKeys == EMPTY
+                ? Collections.<String>emptyList()
+                : Arrays.stream(fallbackKeys)
                         .filter(FallbackKey::isDeprecated)
                         .map(FallbackKey::getKey)
                         .collect(Collectors.toList());
@@ -248,8 +239,10 @@ public class ConfigOption<T> {
             ConfigOption<?> that = (ConfigOption<?>) o;
             return this.key.equals(that.key)
                     && Arrays.equals(this.fallbackKeys, that.fallbackKeys)
-                    && (this.defaultValue == null ? that.defaultValue == null :
-                    (that.defaultValue != null && this.defaultValue.equals(that.defaultValue)));
+                    && (this.defaultValue == null
+                            ? that.defaultValue == null
+                            : (that.defaultValue != null
+                                    && this.defaultValue.equals(that.defaultValue)));
         } else {
             return false;
         }
@@ -264,7 +257,8 @@ public class ConfigOption<T> {
 
     @Override
     public String toString() {
-        return String.format("Key: '%s' , default: %s (fallback keys: %s)",
+        return String.format(
+                "Key: '%s' , default: %s (fallback keys: %s)",
                 key, defaultValue, Arrays.toString(fallbackKeys));
     }
 }

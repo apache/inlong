@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.listener.source;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,21 +41,14 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Event listener of operate resources, such as delete, stop, restart sources.
- */
+/** Event listener of operate resources, such as delete, stop, restart sources. */
 @Slf4j
 @Component
 public abstract class AbstractSourceOperateListener implements SourceOperateListener {
 
-    @Autowired
-    protected InlongStreamService streamService;
+    @Autowired protected InlongStreamService streamService;
 
-    @Autowired
-    protected StreamSourceService streamSourceService;
+    @Autowired protected StreamSourceService streamSourceService;
 
     @Override
     public TaskEvent event() {
@@ -67,13 +62,20 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         final String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamBriefInfo> streamResponses = streamService.listBriefWithSink(groupId);
         List<StreamSource> unOperatedSources = Lists.newArrayList();
-        streamResponses.forEach(stream ->
-                operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator(), unOperatedSources));
+        streamResponses.forEach(
+                stream ->
+                        operateStreamSources(
+                                groupId,
+                                stream.getInlongStreamId(),
+                                context.getOperator(),
+                                unOperatedSources));
 
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType operateType = getOperateType(context.getProcessForm());
-            StringBuilder builder = new StringBuilder("Unsupported operate ").append(operateType).append(" for (");
-            unOperatedSources.forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
+            StringBuilder builder =
+                    new StringBuilder("Unsupported operate ").append(operateType).append(" for (");
+            unOperatedSources.forEach(
+                    source -> builder.append(" ").append(source.getSourceName()).append(" "));
             String errMsg = builder.append(")").toString();
             throw new WorkflowListenerException(errMsg);
         }
@@ -81,33 +83,38 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         return ListenerResult.success();
     }
 
-    /**
-     * Operate stream sources, such as delete, stop, restart.
-     */
-    protected void operateStreamSources(String groupId, String streamId, String operator,
+    /** Operate stream sources, such as delete, stop, restart. */
+    protected void operateStreamSources(
+            String groupId,
+            String streamId,
+            String operator,
             List<StreamSource> unOperatedSources) {
         List<StreamSource> sources = streamSourceService.listSource(groupId, streamId);
-        sources.forEach(source -> {
-            if (checkIfOp(source, unOperatedSources)) {
-                operateStreamSource(source.genSourceRequest(), operator);
-            }
-        });
+        sources.forEach(
+                source -> {
+                    if (checkIfOp(source, unOperatedSources)) {
+                        operateStreamSource(source.genSourceRequest(), operator);
+                    }
+                });
     }
 
-    /**
-     * Check source status.
-     */
+    /** Check source status. */
     @SneakyThrows
     public boolean checkIfOp(StreamSource streamSource, List<StreamSource> unOperatedSources) {
         for (int retry = 0; retry < 60; retry++) {
             int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);
-            if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN) {
+            if (sourceStatus == SourceStatus.SOURCE_NORMAL
+                    || sourceStatus == SourceStatus.SOURCE_FROZEN) {
                 return true;
-            } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
+            } else if (sourceStatus == SourceStatus.SOURCE_FAILED
+                    || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;
             } else {
-                log.warn("stream source={} cannot be operated for status={}", streamSource, sourceStatus);
+                log.warn(
+                        "stream source={} cannot be operated for status={}",
+                        streamSource,
+                        sourceStatus);
                 TimeUnit.SECONDS.sleep(5);
                 streamSource = streamSourceService.get(streamSource.getId());
             }
@@ -117,34 +124,37 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
                 && sourceStatus != SourceStatus.SOURCE_FROZEN
                 && sourceStatus != SourceStatus.SOURCE_DISABLE
                 && sourceStatus != SourceStatus.SOURCE_FAILED) {
-            log.error("stream source ={} cannot be operated for status={}", streamSource, sourceStatus);
+            log.error(
+                    "stream source ={} cannot be operated for status={}",
+                    streamSource,
+                    sourceStatus);
             unOperatedSources.add(streamSource);
         }
         return false;
     }
 
-    /**
-     * Operate stream sources ,such as delete, stop, restart.
-     */
+    /** Operate stream sources ,such as delete, stop, restart. */
     public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
     private GroupOperateType getOperateType(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
             return ((GroupResourceProcessForm) processForm).getGroupOperateType();
         } else {
-            log.error("illegal process form {} to get inlong group info", processForm.getFormName());
+            log.error(
+                    "illegal process form {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException("Unsupported process form " + processForm.getFormName());
         }
     }
 
     private InlongGroupInfo getGroupInfo(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
-            GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
+            GroupResourceProcessForm groupResourceProcessForm =
+                    (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();
         } else {
-            log.error("illegal process form {} to get inlong group info", processForm.getFormName());
+            log.error(
+                    "illegal process form {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException("Unsupported process form " + processForm.getFormName());
         }
     }
-
 }

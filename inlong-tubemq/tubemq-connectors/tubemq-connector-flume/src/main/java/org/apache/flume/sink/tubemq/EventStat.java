@@ -23,9 +23,7 @@ import static org.apache.flume.sink.tubemq.ConfigOptions.TOPIC;
 import java.util.Map;
 import org.apache.flume.Event;
 
-/**
- * Event with retry time
- */
+/** Event with retry time */
 public class EventStat {
     private final Event event;
     private int retryCnt;

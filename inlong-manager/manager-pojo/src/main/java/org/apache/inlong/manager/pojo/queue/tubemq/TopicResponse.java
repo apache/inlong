@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Topic view of TubeMQ
- */
+/** Topic view of TubeMQ */
 @Data
 public class TopicResponse {
 
@@ -46,5 +43,4 @@ public class TopicResponse {
         private boolean isSrvAcceptSubscribe;
         private boolean enableAuthControl;
     }
-
 }

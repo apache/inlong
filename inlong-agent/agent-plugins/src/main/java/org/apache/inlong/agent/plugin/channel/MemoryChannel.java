@@ -17,6 +17,15 @@
 
 package org.apache.inlong.agent.plugin.channel;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.message.ProxyMessage;
@@ -28,30 +37,17 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
-
-/**
- * memory channel
- */
+/** memory channel */
 public class MemoryChannel implements Channel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
     private LinkedBlockingQueue<Message> queue;
-    //metric
+    // metric
     private AgentMetricItemSet metricItemSet;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
 
-    public MemoryChannel() {
-    }
+    public MemoryChannel() {}
 
     @Override
     public void push(Message message) {
@@ -121,11 +117,16 @@ public class MemoryChannel implements Channel {
 
     @Override
     public void init(JobProfile jobConf) {
-        queue = new LinkedBlockingQueue<>(
-                jobConf.getInt(AgentConstants.CHANNEL_MEMORY_CAPACITY,
-                        AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
-        String metricName = String.join("-", this.getClass().getSimpleName(),
-                String.valueOf(METRIC_INDEX.incrementAndGet()));
+        queue =
+                new LinkedBlockingQueue<>(
+                        jobConf.getInt(
+                                AgentConstants.CHANNEL_MEMORY_CAPACITY,
+                                AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
+        String metricName =
+                String.join(
+                        "-",
+                        this.getClass().getSimpleName(),
+                        String.valueOf(METRIC_INDEX.incrementAndGet()));
         this.metricItemSet = new AgentMetricItemSet(metricName);
         MetricRegister.register(metricItemSet);
     }

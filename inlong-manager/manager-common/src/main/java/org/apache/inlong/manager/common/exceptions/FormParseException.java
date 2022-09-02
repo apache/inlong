@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * WorkflowProcess form parsing exception
- */
+/** WorkflowProcess form parsing exception */
 public class FormParseException extends WorkflowException {
 
     public FormParseException() {
@@ -38,7 +36,10 @@ public class FormParseException extends WorkflowException {
         super(cause);
     }
 
-    protected FormParseException(String message, Throwable cause, boolean enableSuppression,
+    protected FormParseException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

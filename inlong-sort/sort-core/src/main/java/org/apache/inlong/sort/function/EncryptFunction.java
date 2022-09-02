@@ -26,9 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.flink.table.functions.ScalarFunction;
 
-/**
- * EncryptFunction class. It is a custom function, used to encrypt the value in the string.
- */
+/** EncryptFunction class. It is a custom function, used to encrypt the value in the string. */
 public class EncryptFunction extends ScalarFunction {
 
     private static final long serialVersionUID = -7185622027483662395L;
@@ -63,7 +61,8 @@ public class EncryptFunction extends ScalarFunction {
                     newValue = encryptAES(field, key);
                     break;
                 default:
-                    throw new UnsupportedOperationException(String.format("Unsupported %s encryption type", encrypt));
+                    throw new UnsupportedOperationException(
+                            String.format("Unsupported %s encryption type", encrypt));
             }
             return newValue;
         }
@@ -90,14 +89,14 @@ public class EncryptFunction extends ScalarFunction {
 
     /**
      * encrypt by 3DES
+     *
      * @param data it is data to be encrypted
-     * @param key  the key of encryption
+     * @param key the key of encryption
      * @return
      */
     public static String encrypt3DES(String data, String key) {
         try {
-            SecretKey desKey = new SecretKeySpec(build3DesKey(key),
-                    KEY_ALGORITHM_3DES);
+            SecretKey desKey = new SecretKeySpec(build3DesKey(key), KEY_ALGORITHM_3DES);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM_3DES);
             cipher.init(Cipher.ENCRYPT_MODE, desKey);
             return encryptBASE64(cipher.doFinal(data.getBytes(ENCODING)));
@@ -108,6 +107,7 @@ public class EncryptFunction extends ScalarFunction {
 
     /**
      * build 3DesKey
+     *
      * @param keyStr the key of encryption
      * @return
      */
@@ -171,24 +171,20 @@ public class EncryptFunction extends ScalarFunction {
         return null;
     }
 
-    /**
-     * Encryption Algorithm Enum
-     */
+    /** Encryption Algorithm Enum */
     private enum EncryptionType {
 
-        /**
-         * DESEDE
-         */
+        /** DESEDE */
         DESEDE,
 
-        /**
-         * AES
-         */
+        /** AES */
         AES;
 
         public static EncryptionType getInstance(String encrypt) {
-            return Arrays.stream(EncryptionType.values()).filter(v -> v.name().equalsIgnoreCase(encrypt))
-                    .findFirst().orElse(null);
+            return Arrays.stream(EncryptionType.values())
+                    .filter(v -> v.name().equalsIgnoreCase(encrypt))
+                    .findFirst()
+                    .orElse(null);
         }
     }
 }

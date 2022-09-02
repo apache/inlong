@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface WorkflowApproverEntityMapper {
@@ -36,5 +35,4 @@ public interface WorkflowApproverEntityMapper {
     int updateById(WorkflowApproverEntity record);
 
     int deleteByPrimaryKey(@Param("id") Integer id, @Param("modifier") String modifier);
-
 }

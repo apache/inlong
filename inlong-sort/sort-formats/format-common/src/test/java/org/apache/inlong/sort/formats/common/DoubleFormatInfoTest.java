@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Test;
 
-/**
- * Unit tests for {@link DoubleFormatInfo}.
- */
+/** Unit tests for {@link DoubleFormatInfo}. */
 public class DoubleFormatInfoTest extends FormatInfoTestBase {
 
     @Override
@@ -36,17 +34,13 @@ public class DoubleFormatInfoTest extends FormatInfoTestBase {
 
     @Test
     public void testSerialize() {
-        assertEquals(
-                "123.123456789",
-                DoubleFormatInfo.INSTANCE.serialize(123.123456789)
-        );
+        assertEquals("123.123456789", DoubleFormatInfo.INSTANCE.serialize(123.123456789));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 Double.valueOf(123.123456789),
-                DoubleFormatInfo.INSTANCE.deserialize("123.123456789")
-        );
+                DoubleFormatInfo.INSTANCE.deserialize("123.123456789"));
     }
 }

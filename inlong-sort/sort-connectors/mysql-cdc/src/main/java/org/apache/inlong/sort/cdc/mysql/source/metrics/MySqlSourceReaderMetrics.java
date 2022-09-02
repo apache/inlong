@@ -27,9 +27,7 @@ import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
-/**
- * A collection class for handling metrics in {@link MySqlSourceReader}.
- */
+/** A collection class for handling metrics in {@link MySqlSourceReader}. */
 public class MySqlSourceReaderMetrics {
 
     private final MetricGroup metricGroup;
@@ -78,29 +76,38 @@ public class MySqlSourceReaderMetrics {
 
     public void registerMetricsForNumRecordsIn(String metricName) {
         numRecordsIn =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
+                metricGroup
+                        .addGroup(GROUP_ID, this.inlongGroupId)
+                        .addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, this.nodeId)
                         .counter(metricName);
     }
 
     public void registerMetricsForNumBytesIn(String metricName) {
         numBytesIn =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
+                metricGroup
+                        .addGroup(GROUP_ID, this.inlongGroupId)
+                        .addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, this.nodeId)
                         .counter(metricName);
     }
 
     public void registerMetricsForNumRecordsInPerSecond(String metricName) {
         numRecordsInPerSecond =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
+                metricGroup
+                        .addGroup(GROUP_ID, this.inlongGroupId)
+                        .addGroup(STREAM_ID, this.inlongSteamId)
                         .addGroup(NODE_ID, nodeId)
                         .meter(metricName, new MeterView(this.numRecordsIn, TIME_SPAN_IN_SECONDS));
     }
 
     public void registerMetricsForNumBytesInPerSecond(String metricName) {
-        numBytesInPerSecond = metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
-                .addGroup(NODE_ID, this.nodeId)
-                .meter(metricName, new MeterView(this.numBytesIn, TIME_SPAN_IN_SECONDS));
+        numBytesInPerSecond =
+                metricGroup
+                        .addGroup(GROUP_ID, this.inlongGroupId)
+                        .addGroup(STREAM_ID, this.inlongSteamId)
+                        .addGroup(NODE_ID, this.nodeId)
+                        .meter(metricName, new MeterView(this.numBytesIn, TIME_SPAN_IN_SECONDS));
     }
 
     public long getFetchDelay() {

@@ -20,19 +20,16 @@ package org.apache.inlong.manager.pojo.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.Set;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Set;
-
-/**
- * User info
- */
+/** User info */
 @Data
 @Builder
 @AllArgsConstructor

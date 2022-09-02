@@ -17,14 +17,9 @@
 
 package org.apache.inlong.agent.plugin;
 
-/**
- * For every message, there might be validators to filter required ones
- */
+/** For every message, there might be validators to filter required ones */
 public interface Validator {
 
-    /**
-     * validate whether messageLine meets specified requirement
-     */
+    /** validate whether messageLine meets specified requirement */
     boolean validate(String messageLine);
-
 }

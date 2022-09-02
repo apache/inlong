@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Objects;
@@ -38,8 +35,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     // consume group flow control info
     private EnableStatus flowCtrlStatus = EnableStatus.STATUS_UNDEFINE;
-    private int ruleCnt = 0;           // flow control rule count
-    private String flowCtrlInfo = "";  // flow control info
+    private int ruleCnt = 0; // flow control rule count
+    private String flowCtrlInfo = ""; // flow control info
 
     // only for query
     public GroupResCtrlEntity() {
@@ -54,11 +51,10 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by BdbGroupFlowCtrlEntity
      *
-     * @param bdbEntity  the BdbGroupFlowCtrlEntity initial object
+     * @param bdbEntity the BdbGroupFlowCtrlEntity initial object
      */
     public GroupResCtrlEntity(BdbGroupFlowCtrlEntity bdbEntity) {
-        super(bdbEntity.getSerialId(),
-                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        super(bdbEntity.getSerialId(), bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
         setCreateInfo(bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.groupName = bdbEntity.getGroupName();
         this.qryPriorityId = bdbEntity.getQryPriorityId();
@@ -80,12 +76,19 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return the BdbGroupFlowCtrlEntity object
      */
     public BdbGroupFlowCtrlEntity buildBdbGroupFlowCtrlEntity() {
-        //Constructor
+        // Constructor
         int statusId = (this.flowCtrlStatus == EnableStatus.STATUS_ENABLE) ? 1 : 0;
         BdbGroupFlowCtrlEntity bdbEntity =
-                new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
-                        this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
-                        getAttributes(), getModifyUser(), getModifyDate());
+                new BdbGroupFlowCtrlEntity(
+                        getDataVerId(),
+                        this.groupName,
+                        this.flowCtrlInfo,
+                        statusId,
+                        this.ruleCnt,
+                        this.qryPriorityId,
+                        getAttributes(),
+                        getModifyUser(),
+                        getModifyDate());
         bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setResCheckStatus(resCheckStatus);
         bdbEntity.setAllowedBrokerClientRate(allowedBrokerClientRate);
@@ -188,31 +191,33 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @param dataVerId          new data version id
-     * @param resChkEnable       new resource check status
-     * @param allowedB2CRate     new B2C rate value
-     * @param qryPriorityId      new qryPriorityId value
-     * @param flowCtrlEnable     new flow control enable status
-     * @param flowRuleCnt        new flow control rule count
-     * @param flowCtrlRuleInfo   new flow control rule information
-     *
-     * @return  whether changed
+     * @param dataVerId new data version id
+     * @param resChkEnable new resource check status
+     * @param allowedB2CRate new B2C rate value
+     * @param qryPriorityId new qryPriorityId value
+     * @param flowCtrlEnable new flow control enable status
+     * @param flowRuleCnt new flow control rule count
+     * @param flowCtrlRuleInfo new flow control rule information
+     * @return whether changed
      */
-    public boolean updModifyInfo(long dataVerId,
-                                 Boolean resChkEnable, int allowedB2CRate,
-                                 int qryPriorityId, Boolean flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo) {
+    public boolean updModifyInfo(
+            long dataVerId,
+            Boolean resChkEnable,
+            int allowedB2CRate,
+            int qryPriorityId,
+            Boolean flowCtrlEnable,
+            int flowRuleCnt,
+            String flowCtrlRuleInfo) {
         boolean changed = false;
         // check and set dataVerId info
-        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
-                && this.getDataVerId() != dataVerId) {
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED && this.getDataVerId() != dataVerId) {
             changed = true;
             this.setDataVersionId(dataVerId);
         }
         // check and set resCheckStatus info
         if (resChkEnable != null
                 && (this.resCheckStatus == EnableStatus.STATUS_UNDEFINE
-                || this.resCheckStatus.isEnable() != resChkEnable)) {
+                        || this.resCheckStatus.isEnable() != resChkEnable)) {
             changed = true;
             setResCheckStatus(resChkEnable);
         }
@@ -231,13 +236,12 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         // check and set flowCtrl info
         if (flowCtrlEnable != null
                 && (this.flowCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.flowCtrlStatus.isEnable() != flowCtrlEnable)) {
+                        || this.flowCtrlStatus.isEnable() != flowCtrlEnable)) {
             changed = true;
             setFlowCtrlStatus(flowCtrlEnable);
         }
         // check and set flowCtrlInfo info
-        if (TStringUtils.isNotBlank(flowCtrlRuleInfo)
-                && !flowCtrlRuleInfo.equals(flowCtrlInfo)) {
+        if (TStringUtils.isNotBlank(flowCtrlRuleInfo) && !flowCtrlRuleInfo.equals(flowCtrlInfo)) {
             changed = true;
             setFlowCtrlRule(flowRuleCnt, flowCtrlRuleInfo);
         }
@@ -248,10 +252,9 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   groupName, qryPriorityId, resCheckStatus,
-     *   flowCtrlStatus, allowedBrokerClientRate
+     * Check whether the specified query item value matches Allowed query items: groupName,
+     * qryPriorityId, resCheckStatus, flowCtrlStatus, allowedBrokerClientRate
+     *
      * @return true: matched, false: not match
      */
     public boolean isMatched(GroupResCtrlEntity target) {
@@ -262,44 +265,59 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
             return false;
         }
         return (target.getQryPriorityId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getQryPriorityId() == this.qryPriorityId)
+                        || target.getQryPriorityId() == this.qryPriorityId)
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getResCheckStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getResCheckStatus() == this.resCheckStatus)
+                        || target.getResCheckStatus() == this.resCheckStatus)
                 && (target.getFlowCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getFlowCtrlStatus() == this.flowCtrlStatus)
+                        || target.getFlowCtrlStatus() == this.flowCtrlStatus)
                 && (target.getAllowedBrokerClientRate() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
+                        || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuffer   build container
+     * @param sBuffer build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return    process result
+     * @return process result
      */
-    public StringBuilder toWebJsonStr(StringBuilder sBuffer,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+    public StringBuilder toWebJsonStr(
+            StringBuilder sBuffer, boolean isLongName, boolean fullFormat) {
         if (isLongName) {
-            sBuffer.append("{\"groupName\":\"").append(groupName).append("\"")
-                    .append(",\"resCheckEnable\":").append(resCheckStatus.isEnable())
-                    .append(",\"alwdBrokerClientRate\":").append(allowedBrokerClientRate)
-                    .append(",\"qryPriorityId\":").append(qryPriorityId)
-                    .append(",\"flowCtrlEnable\":").append(flowCtrlStatus.isEnable())
-                    .append(",\"flowCtrlRuleCount\":").append(ruleCnt)
-                    .append(",\"flowCtrlInfo\":").append(flowCtrlInfo);
+            sBuffer.append("{\"groupName\":\"")
+                    .append(groupName)
+                    .append("\"")
+                    .append(",\"resCheckEnable\":")
+                    .append(resCheckStatus.isEnable())
+                    .append(",\"alwdBrokerClientRate\":")
+                    .append(allowedBrokerClientRate)
+                    .append(",\"qryPriorityId\":")
+                    .append(qryPriorityId)
+                    .append(",\"flowCtrlEnable\":")
+                    .append(flowCtrlStatus.isEnable())
+                    .append(",\"flowCtrlRuleCount\":")
+                    .append(ruleCnt)
+                    .append(",\"flowCtrlInfo\":")
+                    .append(flowCtrlInfo);
         } else {
-            sBuffer.append("{\"group\":\"").append(groupName).append("\"")
-                    .append(",\"resChkEn\":").append(resCheckStatus.isEnable())
-                    .append(",\"abcr\":").append(allowedBrokerClientRate)
-                    .append(",\"qryPriId\":").append(qryPriorityId)
-                    .append(",\"fCtrlEn\":").append(flowCtrlStatus.isEnable())
-                    .append(",\"fCtrlCnt\":").append(ruleCnt)
-                    .append(",\"fCtrlInfo\":").append(flowCtrlInfo);
+            sBuffer.append("{\"group\":\"")
+                    .append(groupName)
+                    .append("\"")
+                    .append(",\"resChkEn\":")
+                    .append(resCheckStatus.isEnable())
+                    .append(",\"abcr\":")
+                    .append(allowedBrokerClientRate)
+                    .append(",\"qryPriId\":")
+                    .append(qryPriorityId)
+                    .append(",\"fCtrlEn\":")
+                    .append(flowCtrlStatus.isEnable())
+                    .append(",\"fCtrlCnt\":")
+                    .append(ruleCnt)
+                    .append(",\"fCtrlInfo\":")
+                    .append(flowCtrlInfo);
         }
         super.toWebJsonStr(sBuffer, isLongName);
         if (fullFormat) {
@@ -311,25 +329,34 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Serialize field to old version json format
      *
-     * @param sBuffer   build container
+     * @param sBuffer build container
      * @param isLongName if return field key is long name
-     * @return   process result
+     * @return process result
      */
-    public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuffer,
-                                                    boolean isLongName) {
+    public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuffer, boolean isLongName) {
         int statusId = flowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
-            sBuffer.append("{\"groupName\":\"").append(groupName)
-                    .append("\",\"statusId\":").append(statusId)
-                    .append(",\"qryPriorityId\":").append(qryPriorityId)
-                    .append(",\"ruleCnt\":").append(ruleCnt)
-                    .append(",\"flowCtrlInfo\":").append(flowCtrlInfo);
+            sBuffer.append("{\"groupName\":\"")
+                    .append(groupName)
+                    .append("\",\"statusId\":")
+                    .append(statusId)
+                    .append(",\"qryPriorityId\":")
+                    .append(qryPriorityId)
+                    .append(",\"ruleCnt\":")
+                    .append(ruleCnt)
+                    .append(",\"flowCtrlInfo\":")
+                    .append(flowCtrlInfo);
         } else {
-            sBuffer.append("{\"group\":\"").append(groupName)
-                    .append("\",\"statusId\":").append(statusId)
-                    .append(",\"qryPriId\":").append(qryPriorityId)
-                    .append(",\"fCtrlCnt\":").append(ruleCnt)
-                    .append(",\"fCtrlInfo\":").append(flowCtrlInfo);
+            sBuffer.append("{\"group\":\"")
+                    .append(groupName)
+                    .append("\",\"statusId\":")
+                    .append(statusId)
+                    .append(",\"qryPriId\":")
+                    .append(qryPriorityId)
+                    .append(",\"fCtrlCnt\":")
+                    .append(ruleCnt)
+                    .append(",\"fCtrlInfo\":")
+                    .append(flowCtrlInfo);
         }
         super.toWebJsonStr(sBuffer, isLongName);
         sBuffer.append("}");
@@ -339,7 +366,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other check object
      * @return if equals
      */
     public boolean isDataEquals(GroupResCtrlEntity other) {
@@ -370,9 +397,15 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), groupName,
-                resCheckStatus, allowedBrokerClientRate,
-                qryPriorityId, flowCtrlStatus, ruleCnt, flowCtrlInfo);
+        return Objects.hash(
+                super.hashCode(),
+                groupName,
+                resCheckStatus,
+                allowedBrokerClientRate,
+                qryPriorityId,
+                flowCtrlStatus,
+                ruleCnt,
+                flowCtrlInfo);
     }
 
     @Override
@@ -382,5 +415,4 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         copy.setResCheckStatus(getResCheckStatus());
         return copy;
     }
-
 }

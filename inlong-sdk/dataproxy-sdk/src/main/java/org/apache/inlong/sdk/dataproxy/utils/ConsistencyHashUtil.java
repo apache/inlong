@@ -19,7 +19,6 @@ package org.apache.inlong.sdk.dataproxy.utils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 

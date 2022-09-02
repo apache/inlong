@@ -21,9 +21,7 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler;
 
-/**
- * handler to create flink jedis config.
- */
+/** handler to create flink jedis config. */
 public interface InlongJedisConfigHandler extends RedisHandler {
 
     /**
@@ -33,5 +31,4 @@ public interface InlongJedisConfigHandler extends RedisHandler {
      * @return flink jedis config
      */
     FlinkJedisConfigBase createFlinkJedisConfig(ReadableConfig config);
-
 }

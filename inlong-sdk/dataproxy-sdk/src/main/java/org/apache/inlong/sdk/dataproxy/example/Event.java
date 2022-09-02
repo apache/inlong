@@ -93,5 +93,4 @@ public class Event {
     public void setTryTimes(int tryTimes) {
         this.tryTimes = tryTimes;
     }
-
 }

@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
-/**
- * Inlong cluster request for Pulsar
- */
+/** Inlong cluster request for Pulsar */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -36,7 +34,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 @ApiModel("Inlong cluster request for Pulsar")
 public class PulsarClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
+    @ApiModelProperty(
+            value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
             notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
@@ -46,5 +45,4 @@ public class PulsarClusterRequest extends ClusterRequest {
     public PulsarClusterRequest() {
         this.setType(ClusterType.PULSAR);
     }
-
 }

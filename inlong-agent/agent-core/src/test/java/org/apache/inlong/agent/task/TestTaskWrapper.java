@@ -17,6 +17,11 @@
 
 package org.apache.inlong.agent.task;
 
+import static org.awaitility.Awaitility.await;
+
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.AgentManager;
@@ -34,12 +39,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class TestTaskWrapper {
 
@@ -76,10 +75,10 @@ public class TestTaskWrapper {
             LOGGER.info("waiting for success");
             TimeUnit.MILLISECONDS.sleep(100);
         }
-        await().atMost(80, TimeUnit.SECONDS).until(()
-                -> reader.getCount() == writer.getWriterCount() + 1);
-        Assert.assertEquals("reader is not equals to writer",
-                reader.getCount(), writer.getWriterCount() + 1);
+        await().atMost(80, TimeUnit.SECONDS)
+                .until(() -> reader.getCount() == writer.getWriterCount() + 1);
+        Assert.assertEquals(
+                "reader is not equals to writer", reader.getCount(), writer.getWriterCount() + 1);
     }
 
     public static class MockChannel implements Channel {
@@ -102,9 +101,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void init(JobProfile jobConf) {
-
-        }
+        public void init(JobProfile jobConf) {}
 
         @Override
         public void destroy() {
@@ -133,14 +130,10 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void setReadTimeout(long mill) {
-
-        }
+        public void setReadTimeout(long mill) {}
 
         @Override
-        public void setWaitMillisecond(long millis) {
-
-        }
+        public void setWaitMillisecond(long millis) {}
 
         @Override
         public String getSnapshot() {
@@ -148,9 +141,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void finishRead() {
-
-        }
+        public void finishRead() {}
 
         @Override
         public boolean isSourceExist() {
@@ -162,13 +153,10 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void init(JobProfile jobConf) {
-        }
+        public void init(JobProfile jobConf) {}
 
         @Override
-        public void destroy() {
-
-        }
+        public void destroy() {}
     }
 
     private static class WriterImpl implements Sink {
@@ -183,9 +171,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void setSourceName(String sourceFileName) {
-
-        }
+        public void setSourceName(String sourceFileName) {}
 
         @Override
         public MessageFilter initMessageFilter(JobProfile jobConf) {
@@ -197,13 +183,9 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void init(JobProfile jobConf) {
-
-        }
+        public void init(JobProfile jobConf) {}
 
         @Override
-        public void destroy() {
-
-        }
+        public void destroy() {}
     }
 }

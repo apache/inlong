@@ -23,9 +23,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Debezium deserialization info
- */
+/** Debezium deserialization info */
 public class DebeziumDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = 1L;
@@ -93,9 +91,13 @@ public class DebeziumDeserializationInfo implements DeserializationInfo {
     @Override
     public String toString() {
         return "DebeziumDeserializationInfo{"
-                + "ignoreParseErrors=" + ignoreParseErrors
-                + ", timestampFormatStandard='" + timestampFormatStandard + '\''
-                + ", includeUpdateBefore=" + includeUpdateBefore
+                + "ignoreParseErrors="
+                + ignoreParseErrors
+                + ", timestampFormatStandard='"
+                + timestampFormatStandard
+                + '\''
+                + ", includeUpdateBefore="
+                + includeUpdateBefore
                 + '}';
     }
 }

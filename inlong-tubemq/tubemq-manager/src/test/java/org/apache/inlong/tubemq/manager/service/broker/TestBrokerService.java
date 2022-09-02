@@ -22,7 +22,6 @@ import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.entry.BrokerEntry;
 import org.apache.inlong.tubemq.manager.repository.BrokerRepository;
@@ -42,12 +41,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TestBrokerService {
 
-    @MockBean
-    private BrokerRepository brokerRepository;
+    @MockBean private BrokerRepository brokerRepository;
 
-    @Autowired
-    @InjectMocks
-    private BrokerServiceImpl brokerService;
+    @Autowired @InjectMocks private BrokerServiceImpl brokerService;
 
     @Test
     public void testBrokerService() {
@@ -61,7 +57,8 @@ public class TestBrokerService {
         List<Long> brokerIdList = new ArrayList<>();
         brokerIdList.add(1L);
         brokerIdList.add(2L);
-        doReturn(brokers).when(brokerRepository)
+        doReturn(brokers)
+                .when(brokerRepository)
                 .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, 1L);
         assertThat(brokerService.checkIfBrokersAllExsit(brokerIdList, 1));
     }

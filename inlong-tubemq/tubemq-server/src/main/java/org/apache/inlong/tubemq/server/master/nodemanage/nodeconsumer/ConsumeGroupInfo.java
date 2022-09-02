@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
 import java.util.ArrayList;
@@ -40,16 +37,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumeGroupInfo {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ConsumeGroupInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsumeGroupInfo.class);
     private final String groupName;
     private final ConsumeType consumeType;
-    private final long createTime;                                        //create time
-    private final Set<String> topicSet = new HashSet<>();                 //topic set
-    private final Map<String, TreeSet<String>> topicConditions =          //filter condition set
+    private final long createTime; // create time
+    private final Set<String> topicSet = new HashSet<>(); // topic set
+    private final Map<String, TreeSet<String>> topicConditions = // filter condition set
             new HashMap<>();
     private final ReadWriteLock csmInfoRWLock = new ReentrantReadWriteLock();
-    private final Map<String, ConsumerInfo> consumerInfoMap =   //consumer info
+    private final Map<String, ConsumerInfo> consumerInfoMap = // consumer info
             new HashMap<>();
     // session key, the same batch consumer have the same session key
     private String sessionKey = "";
@@ -60,21 +56,17 @@ public class ConsumeGroupInfo {
     // select the bigger offset when offset conflict
     private boolean isSelectedBig = true;
     // allocate offset flag
-    private final AtomicBoolean notAllocate =
-            new AtomicBoolean(true);
+    private final AtomicBoolean notAllocate = new AtomicBoolean(true);
     // current check cycle
     private final AtomicLong curCheckCycle = new AtomicLong(0);
     // allocate times
     private final AtomicInteger allocatedTimes = new AtomicInteger(0);
     // partition info
-    private final ConcurrentHashMap<String, String> partitionInfoMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> partitionInfoMap = new ConcurrentHashMap<>();
     // partition offset
-    private final ConcurrentHashMap<String, Long> partOffsetMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> partOffsetMap = new ConcurrentHashMap<>();
     // load balance
-    private final ConcurrentHashMap<String, NodeRebInfo> balanceNodeMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, NodeRebInfo> balanceNodeMap = new ConcurrentHashMap<>();
     // config broker/client ratio
     private int confResourceRate = TBaseConstants.META_VALUE_UNDEFINED;
     // current broker/client ratio
@@ -86,19 +78,16 @@ public class ConsumeGroupInfo {
     // log print flag
     private boolean enableBalanceChkPrint = true;
     //
-    private final AtomicLong csmCtrlId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final AtomicLong topicMetaInfoId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final ConcurrentHashMap<String, String> topicMetaInfoMap =
-            new ConcurrentHashMap<>();
+    private final AtomicLong csmCtrlId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong topicMetaInfoId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final ConcurrentHashMap<String, String> topicMetaInfoMap = new ConcurrentHashMap<>();
     private final AtomicLong lastMetaInfoFreshTime =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     /**
-     *  Initial a Consume group node information.
+     * Initial a Consume group node information.
      *
-     * @param consumer   the consumer of consume group.
+     * @param consumer the consumer of consume group.
      */
     public ConsumeGroupInfo(ConsumerInfo consumer) {
         this.groupName = consumer.getGroupName();
@@ -112,13 +101,12 @@ public class ConsumeGroupInfo {
      * Add consumer to consume group
      *
      * @param inConsumer consumer object
-     * @param sBuffer    the string buffer
-     * @param result     the process result
-     * @return           whether the addition is successful
+     * @param sBuffer the string buffer
+     * @param result the process result
+     * @return whether the addition is successful
      */
-    public boolean addConsumer(ConsumerInfo inConsumer,
-                               StringBuilder sBuffer,
-                               ParamCheckResult result) {
+    public boolean addConsumer(
+            ConsumerInfo inConsumer, StringBuilder sBuffer, ParamCheckResult result) {
         try {
             csmInfoRWLock.writeLock().lock();
             if (this.consumerInfoMap.isEmpty()) {
@@ -135,8 +123,7 @@ public class ConsumeGroupInfo {
                 if (!validConsumerInfo(inConsumer, sBuffer, result)) {
                     return false;
                 }
-                ConsumerInfo curConsumerInfo =
-                        consumerInfoMap.get(inConsumer.getConsumerId());
+                ConsumerInfo curConsumerInfo = consumerInfoMap.get(inConsumer.getConsumerId());
                 if (curConsumerInfo != null) {
                     curConsumerInfo.updCurConsumerInfo(inConsumer);
                     result.setCheckData(false);
@@ -158,7 +145,7 @@ public class ConsumeGroupInfo {
      * Remove consumer
      *
      * @param consumerId consumer id
-     * @return  consumer object
+     * @return consumer object
      */
     public ConsumerInfo removeConsumer(String consumerId) {
         if (consumerId == null) {
@@ -202,8 +189,8 @@ public class ConsumeGroupInfo {
     /**
      * Add node balance info
      *
-     * @param clientId        need add client id
-     * @param waitDuration    wait duration
+     * @param clientId need add client id
+     * @param waitDuration wait duration
      */
     public void addNodeRelInfo(String clientId, int waitDuration) {
         NodeRebInfo nodeRebInfo = this.balanceNodeMap.get(clientId);
@@ -217,8 +204,7 @@ public class ConsumeGroupInfo {
         try {
             csmInfoRWLock.readLock().lock();
             if (consumerInfoMap.containsKey(clientId)) {
-                this.balanceNodeMap.putIfAbsent(clientId,
-                        new NodeRebInfo(clientId, waitDuration));
+                this.balanceNodeMap.putIfAbsent(clientId, new NodeRebInfo(clientId, waitDuration));
             }
         } finally {
             csmInfoRWLock.readLock().unlock();
@@ -228,7 +214,7 @@ public class ConsumeGroupInfo {
     /**
      * Get the client nodes that need to be balanced
      *
-     * @return     the client nodes
+     * @return the client nodes
      */
     public RebProcessInfo getNeedBalanceNodes() {
         List<String> needProcessList = new ArrayList<>();
@@ -239,8 +225,7 @@ public class ConsumeGroupInfo {
                 nodeRebInfo.setStatus(1);
                 needProcessList.add(nodeRebInfo.getClientId());
             } else {
-                if (nodeRebInfo.getReqType() == 1
-                        && nodeRebInfo.getStatus() == 2) {
+                if (nodeRebInfo.getReqType() == 1 && nodeRebInfo.getStatus() == 2) {
                     if (nodeRebInfo.decrAndGetWaitDuration() <= 0) {
                         nodeRebInfo.setStatus(4);
                         needRemoved.add(nodeRebInfo.getClientId());
@@ -262,9 +247,7 @@ public class ConsumeGroupInfo {
      * @param processList the client nodes that has completed balancing
      */
     public void setBalanceNodeProcessed(List<String> processList) {
-        if (processList == null
-                || processList.isEmpty()
-                || this.balanceNodeMap.isEmpty()) {
+        if (processList == null || processList.isEmpty() || this.balanceNodeMap.isEmpty()) {
             return;
         }
         List<String> needRemoved = new ArrayList<>();
@@ -290,7 +273,7 @@ public class ConsumeGroupInfo {
     /**
      * Update topic meta information
      *
-     * @param newMetaInfoMap  the newly acquired topic metadata
+     * @param newMetaInfoMap the newly acquired topic metadata
      */
     public void updCsmTopicMetaInfo(Map<String, String> newMetaInfoMap) {
         lastMetaInfoFreshTime.set(System.currentTimeMillis());
@@ -302,8 +285,7 @@ public class ConsumeGroupInfo {
         boolean isChanged = false;
         Set<String> newTopics = newMetaInfoMap.keySet();
         Set<String> curTopics = topicMetaInfoMap.keySet();
-        if (newTopics.size() != curTopics.size()
-                || !newTopics.containsAll(curTopics)) {
+        if (newTopics.size() != curTopics.size() || !newTopics.containsAll(curTopics)) {
             isChanged = true;
         } else {
             for (String topicKey : newTopics) {
@@ -419,17 +401,15 @@ public class ConsumeGroupInfo {
     }
 
     /**
-     * Set current consumer  broker/client ratio
+     * Set current consumer broker/client ratio
      *
      * @param confResourceRate configured broker/client ratio
-     * @param curResourceRate  current broker/client ratio
-     * @param minReqClientCnt  minimal client count
-     * @param isRebalanced     Whether balanced
+     * @param curResourceRate current broker/client ratio
+     * @param minReqClientCnt minimal client count
+     * @param isRebalanced Whether balanced
      */
-    public void setConsumeResourceInfo(int confResourceRate,
-                                       int curResourceRate,
-                                       int minReqClientCnt,
-                                       boolean isRebalanced) {
+    public void setConsumeResourceInfo(
+            int confResourceRate, int curResourceRate, int minReqClientCnt, boolean isRebalanced) {
         this.confResourceRate = confResourceRate;
         this.curResourceRate = curResourceRate;
         this.minReqClientCnt = minReqClientCnt;
@@ -599,12 +579,14 @@ public class ConsumeGroupInfo {
                         } else {
                             if (this.isSelectedBig) {
                                 if (entry.getValue() >= oldConsumerOff) {
-                                    this.partitionInfoMap.put(entry.getKey(), consumer.getConsumerId());
+                                    this.partitionInfoMap.put(
+                                            entry.getKey(), consumer.getConsumerId());
                                     this.partOffsetMap.put(entry.getKey(), entry.getValue());
                                 }
                             } else {
                                 if (entry.getValue() < oldConsumerOff) {
-                                    this.partitionInfoMap.put(entry.getKey(), consumer.getConsumerId());
+                                    this.partitionInfoMap.put(
+                                            entry.getKey(), consumer.getConsumerId());
                                     this.partOffsetMap.put(entry.getKey(), entry.getValue());
                                 }
                             }
@@ -623,18 +605,19 @@ public class ConsumeGroupInfo {
      * @param result process result
      * @return true if valid, or false if invalid
      */
-    private boolean validConsumerInfo(ConsumerInfo inConsumer,
-                                      StringBuilder sBuffer,
-                                      ParamCheckResult result) {
+    private boolean validConsumerInfo(
+            ConsumerInfo inConsumer, StringBuilder sBuffer, ParamCheckResult result) {
         // check whether the consumer behavior is consistent
         if (inConsumer.getConsumeType() != this.consumeType) {
-            sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                    .append(" using ").append(inConsumer.getConsumeType().getName())
+            sBuffer.append("[Inconsistency subscribe] ")
+                    .append(inConsumer.getConsumerId())
+                    .append(" using ")
+                    .append(inConsumer.getConsumeType().getName())
                     .append(" subscribe is inconsistency with other consumers using ")
                     .append(this.consumeType.getName())
                     .append(" subscribe in the group");
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_CONSUMETYPE, sBuffer.toString());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_CONSUMETYPE, sBuffer.toString());
             logger.warn(sBuffer.toString());
             sBuffer.delete(0, sBuffer.length());
             return false;
@@ -642,13 +625,15 @@ public class ConsumeGroupInfo {
         // check the topics of consumption
         if (CollectionUtils.isNotEmpty(topicSet)
                 && (topicSet.size() != inConsumer.getTopicSet().size()
-                || !topicSet.containsAll(inConsumer.getTopicSet()))) {
-            sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                    .append(" subscribed topics ").append(inConsumer.getTopicSet())
+                        || !topicSet.containsAll(inConsumer.getTopicSet()))) {
+            sBuffer.append("[Inconsistency subscribe] ")
+                    .append(inConsumer.getConsumerId())
+                    .append(" subscribed topics ")
+                    .append(inConsumer.getTopicSet())
                     .append(" is inconsistency with other consumers in the group, existedTopics: ")
                     .append(topicSet);
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_TOPICSET, sBuffer.toString());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_TOPICSET, sBuffer.toString());
             logger.warn(sBuffer.toString());
             sBuffer.delete(0, sBuffer.length());
             return false;
@@ -658,18 +643,22 @@ public class ConsumeGroupInfo {
         if (topicConditions.isEmpty()) {
             if (!inConsumer.getTopicConditions().isEmpty()) {
                 isCondEqual = false;
-                sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
+                sBuffer.append("[Inconsistency subscribe] ")
+                        .append(inConsumer.getConsumerId())
                         .append(" subscribe with filter condition ")
                         .append(inConsumer.getTopicConditions())
-                        .append(" is inconsistency with other consumers in the group: topic without conditions");
+                        .append(
+                                " is inconsistency with other consumers in the group: topic without conditions");
             }
         } else {
             // check the filter conditions of the topic
             if (inConsumer.getTopicConditions().isEmpty()) {
                 isCondEqual = false;
-                sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
+                sBuffer.append("[Inconsistency subscribe] ")
+                        .append(inConsumer.getConsumerId())
                         .append(" subscribe without filter condition ")
-                        .append(" is inconsistency with other consumers in the group, existed topic conditions is ")
+                        .append(
+                                " is inconsistency with other consumers in the group, existed topic conditions is ")
                         .append(topicConditions);
             } else {
                 Set<String> existedCondTopics = topicConditions.keySet();
@@ -677,17 +666,21 @@ public class ConsumeGroupInfo {
                 if (existedCondTopics.size() != reqCondTopics.size()
                         || !existedCondTopics.containsAll(reqCondTopics)) {
                     isCondEqual = false;
-                    sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
+                    sBuffer.append("[Inconsistency subscribe] ")
+                            .append(inConsumer.getConsumerId())
                             .append(" subscribe with filter condition ")
                             .append(inConsumer.getTopicConditions())
-                            .append(" is inconsistency with other consumers in the group, existed topic conditions is ")
+                            .append(
+                                    " is inconsistency with other consumers in the group, existed topic conditions is ")
                             .append(topicConditions);
                 } else {
                     for (String topicKey : existedCondTopics) {
                         if ((topicConditions.get(topicKey).size()
-                                != inConsumer.getTopicConditions().get(topicKey).size())
-                                || (!topicConditions.get(topicKey).containsAll(
-                                inConsumer.getTopicConditions().get(topicKey)))) {
+                                        != inConsumer.getTopicConditions().get(topicKey).size())
+                                || (!topicConditions
+                                        .get(topicKey)
+                                        .containsAll(
+                                                inConsumer.getTopicConditions().get(topicKey)))) {
                             isCondEqual = false;
                             sBuffer.append("[Inconsistency subscribe] ")
                                     .append(inConsumer.getConsumerId())
@@ -703,8 +696,8 @@ public class ConsumeGroupInfo {
             }
         }
         if (!isCondEqual) {
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_FILTERSET, sBuffer.toString());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_FILTERSET, sBuffer.toString());
             logger.warn(sBuffer.toString());
             return false;
         }
@@ -716,11 +709,17 @@ public class ConsumeGroupInfo {
         } else if (this.consumeType == ConsumeType.CONSUME_CLIENT_REB) {
             if (this.sourceCount > 0) {
                 if (this.sourceCount != inConsumer.getSourceCount()) {
-                    sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                            .append("'s sourceCount is inconsistency with other consumers in the group, required is ")
-                            .append(sourceCount).append(", request is ").append(inConsumer.getSourceCount());
-                    result.setCheckResult(false,
-                            TErrCodeConstants.CLIENT_INCONSISTENT_SOURCECOUNT, sBuffer.toString());
+                    sBuffer.append("[Inconsistency subscribe] ")
+                            .append(inConsumer.getConsumerId())
+                            .append(
+                                    "'s sourceCount is inconsistency with other consumers in the group, required is ")
+                            .append(sourceCount)
+                            .append(", request is ")
+                            .append(inConsumer.getSourceCount());
+                    result.setCheckResult(
+                            false,
+                            TErrCodeConstants.CLIENT_INCONSISTENT_SOURCECOUNT,
+                            sBuffer.toString());
                     logger.warn(sBuffer.toString());
                     return false;
                 }
@@ -738,12 +737,15 @@ public class ConsumeGroupInfo {
                     }
                 }
                 if (foundEqual) {
-                    sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                            .append("'s nodeId value(").append(inConsumer.getNodeId())
-                            .append(") is occupied by ").append(occupiedConsumerId)
+                    sBuffer.append("[Inconsistency subscribe] ")
+                            .append(inConsumer.getConsumerId())
+                            .append("'s nodeId value(")
+                            .append(inConsumer.getNodeId())
+                            .append(") is occupied by ")
+                            .append(occupiedConsumerId)
                             .append(" in the group!");
-                    result.setCheckResult(false,
-                            TErrCodeConstants.CLIENT_DUPLICATE_INDEXID, sBuffer.toString());
+                    result.setCheckResult(
+                            false, TErrCodeConstants.CLIENT_DUPLICATE_INDEXID, sBuffer.toString());
                     logger.warn(sBuffer.toString());
                     return false;
                 }
@@ -761,42 +763,55 @@ public class ConsumeGroupInfo {
      * @param result process result
      * @return true if valid, or false if invalid
      */
-    private boolean validBoundParameters(ConsumerInfo inConsumer,
-                                         StringBuilder sBuffer,
-                                         ParamCheckResult result) {
+    private boolean validBoundParameters(
+            ConsumerInfo inConsumer, StringBuilder sBuffer, ParamCheckResult result) {
         if (consumeType != ConsumeType.CONSUME_BAND) {
             result.setCheckData("");
             return true;
         }
-        // If the sessionKey is inconsistent, it means that the previous round of consumption has not completely
-        // exited. In order to avoid the incomplete offset setting, it is necessary to completely clear the above
+        // If the sessionKey is inconsistent, it means that the previous round of consumption has
+        // not completely
+        // exited. In order to avoid the incomplete offset setting, it is necessary to completely
+        // clear the above
         // data before resetting and consuming this round of consumption
         if (!sessionKey.equals(inConsumer.getSessionKey())) {
-            sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                    .append("'s sessionKey is inconsistency with other consumers in the group, required is ")
-                    .append(sessionKey).append(", request is ").append(inConsumer.getSessionKey());
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_SESSIONKEY, sBuffer.toString());
+            sBuffer.append("[Inconsistency subscribe] ")
+                    .append(inConsumer.getConsumerId())
+                    .append(
+                            "'s sessionKey is inconsistency with other consumers in the group, required is ")
+                    .append(sessionKey)
+                    .append(", request is ")
+                    .append(inConsumer.getSessionKey());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_SESSIONKEY, sBuffer.toString());
             logger.warn(sBuffer.toString());
             return false;
         }
         // check the offset config
         if (isSelectedBig != inConsumer.isSelectedBig()) {
-            sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                    .append("'s isSelectBig is inconsistency with other consumers in the group, required is ")
-                    .append(isSelectedBig).append(", request is ").append(inConsumer.isSelectedBig());
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_SELECTBIG, sBuffer.toString());
+            sBuffer.append("[Inconsistency subscribe] ")
+                    .append(inConsumer.getConsumerId())
+                    .append(
+                            "'s isSelectBig is inconsistency with other consumers in the group, required is ")
+                    .append(isSelectedBig)
+                    .append(", request is ")
+                    .append(inConsumer.isSelectedBig());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_SELECTBIG, sBuffer.toString());
             logger.warn(sBuffer.toString());
             return false;
         }
         // check the consumers count
         if (sourceCount != inConsumer.getSourceCount()) {
-            sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
-                    .append("'s sourceCount is inconsistency with other consumers in the group, required is ")
-                    .append(sourceCount).append(", request is ").append(inConsumer.getSourceCount());
-            result.setCheckResult(false,
-                    TErrCodeConstants.CLIENT_INCONSISTENT_SOURCECOUNT, sBuffer.toString());
+            sBuffer.append("[Inconsistency subscribe] ")
+                    .append(inConsumer.getConsumerId())
+                    .append(
+                            "'s sourceCount is inconsistency with other consumers in the group, required is ")
+                    .append(sourceCount)
+                    .append(", request is ")
+                    .append(inConsumer.getSourceCount());
+            result.setCheckResult(
+                    false, TErrCodeConstants.CLIENT_INCONSISTENT_SOURCECOUNT, sBuffer.toString());
             logger.warn(sBuffer.toString());
             return false;
         }

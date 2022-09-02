@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
 import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
@@ -26,8 +27,6 @@ import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 public class FieldFormatUtilsTest {
 
@@ -50,17 +49,20 @@ public class FieldFormatUtilsTest {
     @Test
     public void testArrayFormatOfDecimalElement() {
         String elementFormatJson = FieldFormatUtils.createDecimalFormat(5, 3);
-        String formatJson = FieldFormatUtils.createArrayFormat(FieldType.DECIMAL, elementFormatJson);
+        String formatJson =
+                FieldFormatUtils.createArrayFormat(FieldType.DECIMAL, elementFormatJson);
         ArrayFormat format = FieldFormatUtils.parseArrayFormat(formatJson);
         Assertions.assertTrue(format.getElementType() == FieldType.DECIMAL);
-        DecimalFormat elementFormat = FieldFormatUtils.parseDecimalFormat(format.getElementFormat());
+        DecimalFormat elementFormat =
+                FieldFormatUtils.parseDecimalFormat(format.getElementFormat());
         Assertions.assertTrue(elementFormat.getPrecision() == 5);
         Assertions.assertTrue(elementFormat.getScale() == 3);
     }
 
     @Test
     public void testMapFormat() {
-        String formatJson = FieldFormatUtils.createMapFormat(FieldType.STRING, null, FieldType.BIGINT, null);
+        String formatJson =
+                FieldFormatUtils.createMapFormat(FieldType.STRING, null, FieldType.BIGINT, null);
         MapFormat format = FieldFormatUtils.parseMapFormat(formatJson);
         Assertions.assertTrue(format.getKeyType() == FieldType.STRING);
         Assertions.assertTrue(format.getKeyFormat() == null);

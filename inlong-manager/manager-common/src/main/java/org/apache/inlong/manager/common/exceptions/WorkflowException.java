@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Workflow exception
- */
+/** Workflow exception */
 public class WorkflowException extends RuntimeException {
 
     public WorkflowException() {
@@ -38,7 +36,10 @@ public class WorkflowException extends RuntimeException {
         super(cause);
     }
 
-    protected WorkflowException(String message, Throwable cause, boolean enableSuppression,
+    protected WorkflowException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

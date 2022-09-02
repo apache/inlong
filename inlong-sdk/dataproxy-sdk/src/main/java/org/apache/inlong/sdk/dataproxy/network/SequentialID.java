@@ -44,5 +44,4 @@ public class SequentialID {
         id.incrementAndGet();
         return id.get();
     }
-
 }

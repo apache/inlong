@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
@@ -28,16 +29,11 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
-import java.util.List;
-
-/**
- * The log command was used to get log info for specified inlong groups.
- */
+/** The log command was used to get log info for specified inlong groups. */
 @Parameters(commandDescription = "Log resource")
 public class LogCommand extends AbstractCommand {
 
-    @Parameter()
-    private List<String> params;
+    @Parameter() private List<String> params;
 
     public LogCommand() {
         super("log");
@@ -47,20 +43,24 @@ public class LogCommand extends AbstractCommand {
     @Parameters(commandDescription = "Log group")
     private static class CreateGroup extends AbstractCommandRunner {
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"--query"}, required = true, description = "condition filters")
+        @Parameter(
+                names = {"--query"},
+                required = true,
+                description = "condition filters")
         private String input;
 
         @Override
         void run() {
             final int MAX_LOG_SIZE = 100;
             try {
-                // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
+                // for now only filter by one condition. TODO:support OR and AND, make a condition
+                // filter.
                 // sample input: inlongGroupId:test_group
                 if (StringUtils.isNotBlank(input)) {
-                    System.err.println("input cannot be empty, for example: inlongGroupId:test_group");
+                    System.err.println(
+                            "input cannot be empty, for example: inlongGroupId:test_group");
                     return;
                 }
                 String[] inputs = input.split(":");
@@ -75,7 +75,8 @@ public class LogCommand extends AbstractCommand {
                 pageRequest.setKeyword(inputs[1]);
                 PageResult<InlongGroupBriefInfo> pageResult = groupClient.listGroups(pageRequest);
                 if (pageResult.getPageSize() > MAX_LOG_SIZE) {
-                    System.err.println("the log is too large to print, please change the filter condition");
+                    System.err.println(
+                            "the log is too large to print, please change the filter condition");
                     return;
                 }
                 PrintUtils.print(pageResult.getList(), GroupInfo.class);

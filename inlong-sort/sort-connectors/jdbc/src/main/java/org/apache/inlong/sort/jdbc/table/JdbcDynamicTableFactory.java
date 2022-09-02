@@ -18,6 +18,15 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -37,24 +46,12 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
 
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
- * <p>
- * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
- * JdbcDynamicTableSink}.
- * We modify it to strengthen capacity of registering other dialect.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
- * </p>
+ *
+ * <p>Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
+ * JdbcDynamicTableSink}. We modify it to strengthen capacity of registering other dialect. Add an
+ * option `sink.ignore.changelog` to support insert-only mode without primaryKey.
  */
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
@@ -174,7 +171,8 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
             ConfigOptions.key("sink.ignore.changelog")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription("Whether to support sink update/delete data without primaryKey.");
+                    .withDescription(
+                            "Whether to support sink update/delete data without primaryKey.");
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -332,17 +330,19 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         // Register custom dialect first
         Optional<String> dialectImplOptional = config.getOptional(DIALECT_IMPL);
         String jdbcUrl = config.get(URL);
-        final Optional<JdbcDialect> dialect = dialectImplOptional.map(JdbcDialects::register)
-                .orElseGet(() -> JdbcDialects.get(jdbcUrl));
+        final Optional<JdbcDialect> dialect =
+                dialectImplOptional
+                        .map(JdbcDialects::register)
+                        .orElseGet(() -> JdbcDialects.get(jdbcUrl));
         checkState(dialect.isPresent(), "Cannot handle such jdbc url: " + jdbcUrl);
-        checkAllOrNone(config, new ConfigOption[]{USERNAME, PASSWORD});
+        checkAllOrNone(config, new ConfigOption[] {USERNAME, PASSWORD});
         checkAllOrNone(
                 config,
-                new ConfigOption[]{
-                        SCAN_PARTITION_COLUMN,
-                        SCAN_PARTITION_NUM,
-                        SCAN_PARTITION_LOWER_BOUND,
-                        SCAN_PARTITION_UPPER_BOUND
+                new ConfigOption[] {
+                    SCAN_PARTITION_COLUMN,
+                    SCAN_PARTITION_NUM,
+                    SCAN_PARTITION_LOWER_BOUND,
+                    SCAN_PARTITION_UPPER_BOUND
                 });
         if (config.getOptional(SCAN_PARTITION_LOWER_BOUND).isPresent()
                 && config.getOptional(SCAN_PARTITION_UPPER_BOUND).isPresent()) {
@@ -359,7 +359,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
             }
         }
 
-        checkAllOrNone(config, new ConfigOption[]{LOOKUP_CACHE_MAX_ROWS, LOOKUP_CACHE_TTL});
+        checkAllOrNone(config, new ConfigOption[] {LOOKUP_CACHE_MAX_ROWS, LOOKUP_CACHE_TTL});
 
         if (config.get(LOOKUP_MAX_RETRIES) < 0) {
             throw new IllegalArgumentException(

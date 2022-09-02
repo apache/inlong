@@ -26,24 +26,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Test class for workflow approver service.
- */
+/** Test class for workflow approver service. */
 public class WorkflowApproverServiceImplTest extends ServiceBaseTest {
 
-    @Autowired
-    protected WorkflowApproverServiceImpl workflowApproverService;
+    @Autowired protected WorkflowApproverServiceImpl workflowApproverService;
 
     @Test
     public void testListAndGet() {
         // The workflow approvers was init by SQL file.
-        PageResult<ApproverResponse> approverList = workflowApproverService.listByCondition(
-                ApproverPageRequest.builder().build());
+        PageResult<ApproverResponse> approverList =
+                workflowApproverService.listByCondition(ApproverPageRequest.builder().build());
         Assertions.assertTrue(approverList.getList().size() > 0);
 
         Integer id = approverList.getList().get(0).getId();
         ApproverResponse approverResponse = workflowApproverService.get(id);
         Assertions.assertEquals(id, approverResponse.getId());
     }
-
 }

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase;
 
 import java.io.Serializable;
@@ -23,17 +20,15 @@ import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
- * Message is a message object class passed in the Tube. The data of the
- * service setting is passed from the production end to the message receiving
- * end as it is. The attribute content is a field shared with the Tube system.
- * The content filled in the service is not lost or rewritten, but the field
- * has The contents of the Tube system may be added, and in subsequent versions,
- * the contents of the newly added Tube system may be removed without being
- * notified. This part needs to pay attention to the
- * Message.putSystemHeader(final String msgType, final String msgTime) interface,
- * which is used to set the message type and message sending time of the message,
- * msgType is used for consumer filtering, and msgTime is used as the pipe to send
- * and receive statistics. When the message time statistics dimension is used.
+ * Message is a message object class passed in the Tube. The data of the service setting is passed
+ * from the production end to the message receiving end as it is. The attribute content is a field
+ * shared with the Tube system. The content filled in the service is not lost or rewritten, but the
+ * field has The contents of the Tube system may be added, and in subsequent versions, the contents
+ * of the newly added Tube system may be removed without being notified. This part needs to pay
+ * attention to the Message.putSystemHeader(final String msgType, final String msgTime) interface,
+ * which is used to set the message type and message sending time of the message, msgType is used
+ * for consumer filtering, and msgTime is used as the pipe to send and receive statistics. When the
+ * message time statistics dimension is used.
  */
 public class Message implements Serializable {
     static final long serialVersionUID = -1L;
@@ -53,8 +48,8 @@ public class Message implements Serializable {
     /**
      * init with topic and data body
      *
-     * @param topic  topic name
-     * @param data   message content
+     * @param topic topic name
+     * @param data message content
      */
     public Message(final String topic, final byte[] data) {
         super();
@@ -65,11 +60,11 @@ public class Message implements Serializable {
     /**
      * init with indexId topic data attribute flag
      *
-     * @param indexId    index id
-     * @param topic      topic name
-     * @param data       message content
-     * @param attribute  message attribute
-     * @param flag       message flag
+     * @param indexId index id
+     * @param topic topic name
+     * @param data message content
+     * @param attribute message attribute
+     * @param flag message flag
      */
     protected Message(long indexId, String topic, byte[] data, String attribute, int flag) {
         this.indexId = indexId;
@@ -106,10 +101,9 @@ public class Message implements Serializable {
     /**
      * Set the filtering items that need to be filtered and the message forwarding time
      *
-     * @param msgType   the ID of the stream that needs to be filtered,
-     *                 if not required, set null
-     * @param msgTime   the time when the message was sent, the format is yyyyMMddHHmm,
-     *                  if not required, set null
+     * @param msgType the ID of the stream that needs to be filtered, if not required, set null
+     * @param msgTime the time when the message was sent, the format is yyyyMMddHHmm, if not
+     *     required, set null
      */
     public void putSystemHeader(final String msgType, final String msgTime) {
         this.msgType = null;
@@ -119,32 +113,40 @@ public class Message implements Serializable {
         // valid parameters
         if (TStringUtils.isNotBlank(msgType)) {
             this.msgType = msgType.trim();
-            this.sysAttributes = strBuff.append(TokenConstants.TOKEN_MSG_TYPE)
-                    .append(TokenConstants.EQ).append(this.msgType).toString();
+            this.sysAttributes =
+                    strBuff.append(TokenConstants.TOKEN_MSG_TYPE)
+                            .append(TokenConstants.EQ)
+                            .append(this.msgType)
+                            .toString();
             strBuff.delete(0, strBuff.length());
         }
         if (TStringUtils.isNotBlank(msgTime)) {
             String tmpMsgTime = msgTime.trim();
             if (tmpMsgTime.length() != DateTimeConvertUtils.LENGTH_YYYYMMDDHHMM) {
-                throw new IllegalArgumentException(strBuff
-                        .append("Illegal parameter: msgTime's value must '")
-                        .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM)
-                        .append("' format and length must equal ")
-                        .append(DateTimeConvertUtils.LENGTH_YYYYMMDDHHMM).toString());
+                throw new IllegalArgumentException(
+                        strBuff.append("Illegal parameter: msgTime's value must '")
+                                .append(DateTimeConvertUtils.PAT_YYYYMMDDHHMM)
+                                .append("' format and length must equal ")
+                                .append(DateTimeConvertUtils.LENGTH_YYYYMMDDHHMM)
+                                .toString());
             }
             try {
                 DateTimeConvertUtils.yyyyMMddHHmm2ms(tmpMsgTime);
             } catch (Throwable ex) {
-                throw new IllegalArgumentException(strBuff
-                        .append("Illegal parameter: msgTime's value parse failure: ")
-                        .append(ex.getMessage()).toString());
+                throw new IllegalArgumentException(
+                        strBuff.append("Illegal parameter: msgTime's value parse failure: ")
+                                .append(ex.getMessage())
+                                .toString());
             }
             this.msgTime = tmpMsgTime;
             if (TStringUtils.isNotEmpty(this.sysAttributes)) {
                 strBuff.append(sysAttributes).append(TokenConstants.ARRAY_SEP);
             }
-            this.sysAttributes = strBuff.append(TokenConstants.TOKEN_MSG_TIME)
-                    .append(TokenConstants.EQ).append(this.msgTime).toString();
+            this.sysAttributes =
+                    strBuff.append(TokenConstants.TOKEN_MSG_TIME)
+                            .append(TokenConstants.EQ)
+                            .append(this.msgTime)
+                            .toString();
             strBuff.delete(0, strBuff.length());
         }
         // rebuild attributes
@@ -154,8 +156,9 @@ public class Message implements Serializable {
         if (TStringUtils.isNotBlank(this.attribute)) {
             String[] strAttrs = this.attribute.split(TokenConstants.ARRAY_SEP);
             for (String strAttrItem : strAttrs) {
-                if (strAttrItem != null && !(strAttrItem.contains(TokenConstants.TOKEN_MSG_TYPE)
-                        || strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME))) {
+                if (strAttrItem != null
+                        && !(strAttrItem.contains(TokenConstants.TOKEN_MSG_TYPE)
+                                || strAttrItem.contains(TokenConstants.TOKEN_MSG_TIME))) {
                     if (strBuff.length() == 0) {
                         strBuff.append(strAttrItem);
                     } else {
@@ -179,9 +182,7 @@ public class Message implements Serializable {
         return this.topic;
     }
 
-    /**
-     * Set the message's topic
-     */
+    /** Set the message's topic */
     public void setTopic(String topicName) {
         this.topic = topicName;
     }
@@ -190,9 +191,7 @@ public class Message implements Serializable {
         return this.data;
     }
 
-    /**
-     * Set the message's payload
-     */
+    /** Set the message's payload */
     public void setData(final byte[] data) {
         this.data = data;
     }
@@ -208,8 +207,8 @@ public class Message implements Serializable {
     /**
      * Get key's value from attribute by key name
      *
-     * @param keyVal   the key name
-     * @return  the key's value of the key name stored in attribute
+     * @param keyVal the key name
+     * @return the key's value of the key name stored in attribute
      */
     public String getAttrValue(final String keyVal) {
         if (TStringUtils.isBlank(keyVal)) {
@@ -235,8 +234,8 @@ public class Message implements Serializable {
     /**
      * Store key and value in attribute
      *
-     * @param keyVal    the key name
-     * @param valueVal  the key value
+     * @param keyVal the key name
+     * @param valueVal the key value
      */
     public void setAttrKeyVal(final String keyVal, final String valueVal) {
         if (TStringUtils.isBlank(keyVal)) {
@@ -249,19 +248,26 @@ public class Message implements Serializable {
                 || keyVal.contains(TokenConstants.TOKEN_MSG_TIME)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TYPE)
                 || valueVal.contains(TokenConstants.TOKEN_MSG_TIME)) {
-            throw new IllegalArgumentException(new StringBuilder(512).append("System Headers(")
-                    .append(TokenConstants.TOKEN_MSG_TYPE).append(",")
-                    .append(TokenConstants.TOKEN_MSG_TIME)
-                    .append(") are reserved tokens, can't include in keyVal or valueVal!").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(512)
+                            .append("System Headers(")
+                            .append(TokenConstants.TOKEN_MSG_TYPE)
+                            .append(",")
+                            .append(TokenConstants.TOKEN_MSG_TIME)
+                            .append(") are reserved tokens, can't include in keyVal or valueVal!")
+                            .toString());
         }
-        if ((keyVal.contains(TokenConstants.ARRAY_SEP)
-                || keyVal.contains(TokenConstants.EQ))
+        if ((keyVal.contains(TokenConstants.ARRAY_SEP) || keyVal.contains(TokenConstants.EQ))
                 || (valueVal.contains(TokenConstants.ARRAY_SEP)
-                || valueVal.contains(TokenConstants.EQ))) {
-            throw new IllegalArgumentException(new StringBuilder(512).append("(")
-                    .append(TokenConstants.ARRAY_SEP).append(",")
-                    .append(TokenConstants.EQ).append(
-                            ") are reserved tokens, can't include in keyVal or valueVal!").toString());
+                        || valueVal.contains(TokenConstants.EQ))) {
+            throw new IllegalArgumentException(
+                    new StringBuilder(512)
+                            .append("(")
+                            .append(TokenConstants.ARRAY_SEP)
+                            .append(",")
+                            .append(TokenConstants.EQ)
+                            .append(") are reserved tokens, can't include in keyVal or valueVal!")
+                            .toString());
         }
         if (TStringUtils.isBlank(this.attribute)) {
             this.attribute = keyVal + TokenConstants.EQ + valueVal;
@@ -364,14 +370,19 @@ public class Message implements Serializable {
                 }
             }
             if (TStringUtils.isNotBlank(this.msgType)) {
-                this.sysAttributes = TokenConstants.TOKEN_MSG_TYPE + TokenConstants.EQ + this.msgType;
+                this.sysAttributes =
+                        TokenConstants.TOKEN_MSG_TYPE + TokenConstants.EQ + this.msgType;
             }
             if (TStringUtils.isNotBlank(this.msgTime)) {
                 if (TStringUtils.isBlank(this.sysAttributes)) {
-                    this.sysAttributes = TokenConstants.TOKEN_MSG_TIME + TokenConstants.EQ + this.msgTime;
+                    this.sysAttributes =
+                            TokenConstants.TOKEN_MSG_TIME + TokenConstants.EQ + this.msgTime;
                 } else {
-                    this.sysAttributes += TokenConstants.ARRAY_SEP + TokenConstants.TOKEN_MSG_TIME
-                            + TokenConstants.EQ + this.msgTime;
+                    this.sysAttributes +=
+                            TokenConstants.ARRAY_SEP
+                                    + TokenConstants.TOKEN_MSG_TIME
+                                    + TokenConstants.EQ
+                                    + this.msgTime;
                 }
             }
         }

@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
+import java.util.function.Predicate;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 
-import java.util.function.Predicate;
-
-/**
- * Next node with condition
- */
+/** Next node with condition */
 public class ConditionNextElement implements Cloneable {
 
     public static final Predicate<WorkflowContext> TRUE = c -> true;
@@ -44,8 +41,7 @@ public class ConditionNextElement implements Cloneable {
         return condition;
     }
 
-    public ConditionNextElement setCondition(
-            Predicate<WorkflowContext> condition) {
+    public ConditionNextElement setCondition(Predicate<WorkflowContext> condition) {
         this.condition = condition;
         return this;
     }
@@ -57,5 +53,4 @@ public class ConditionNextElement implements Cloneable {
         cloneNextElement.setCondition(condition);
         return cloneNextElement;
     }
-
 }

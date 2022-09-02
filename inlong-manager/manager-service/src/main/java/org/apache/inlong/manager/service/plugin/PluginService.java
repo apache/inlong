@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.service.plugin;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,38 +37,27 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
- * PluginService is designed to load all plugin from ${BASE_PATH}/plugins
- * this service must be initialized after all other beans.
+ * PluginService is designed to load all plugin from ${BASE_PATH}/plugins this service must be
+ * initialized after all other beans.
  */
 @Service
 @Slf4j
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class PluginService implements InitializingBean {
 
-
     public static final String DEFAULT_PLUGIN_LOC = "plugins";
 
-    @Getter
-    private final List<Plugin> plugins = new ArrayList<>();
+    @Getter private final List<Plugin> plugins = new ArrayList<>();
 
     @Setter
     @Getter
     @Value("${plugin.location?:}")
     private String pluginLoc;
 
-    @Getter
-    @Autowired
-    private List<PluginBinder> pluginBinders;
+    @Getter @Autowired private List<PluginBinder> pluginBinders;
 
-    public PluginService() {
-    }
+    public PluginService() {}
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -74,9 +68,7 @@ public class PluginService implements InitializingBean {
         pluginReload();
     }
 
-    /**
-     * Reload the plugin from the plugin path
-     */
+    /** Reload the plugin from the plugin path */
     public void pluginReload() {
         Path path = Paths.get(pluginLoc).toAbsolutePath();
         log.info("search for plugin in {}", path);
@@ -84,8 +76,9 @@ public class PluginService implements InitializingBean {
             log.warn("plugin directory not found");
             return;
         }
-        PluginClassLoader pluginLoader = PluginClassLoader.getFromPluginUrl(path.toString(),
-                Thread.currentThread().getContextClassLoader());
+        PluginClassLoader pluginLoader =
+                PluginClassLoader.getFromPluginUrl(
+                        path.toString(), Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitions = pluginLoader.getPluginDefinitions();
         if (MapUtils.isEmpty(pluginDefinitions)) {
             log.warn("pluginDefinition not found in {}", pluginLoc);
@@ -105,11 +98,13 @@ public class PluginService implements InitializingBean {
         this.plugins.addAll(plugins);
         for (PluginBinder pluginBinder : pluginBinders) {
             for (Plugin plugin : plugins) {
-                log.info(String.format("PluginBinder:%s load Plugin:%s",
-                        pluginBinder.getClass().getSimpleName(), plugin.getClass().getSimpleName()));
+                log.info(
+                        String.format(
+                                "PluginBinder:%s load Plugin:%s",
+                                pluginBinder.getClass().getSimpleName(),
+                                plugin.getClass().getSimpleName()));
                 pluginBinder.acceptPlugin(plugin);
             }
         }
     }
-
 }

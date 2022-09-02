@@ -1,31 +1,24 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.dispatch;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
 import org.apache.inlong.sdk.commons.protocol.SourceCallback;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * DispatchProfileCallback
- * 
- */
+/** DispatchProfileCallback */
 public class DispatchProfileCallback {
 
     private AtomicInteger ackingCount;
@@ -33,6 +26,7 @@ public class DispatchProfileCallback {
 
     /**
      * Constructor
+     *
      * @param totalCount
      * @param callback
      */
@@ -43,6 +37,7 @@ public class DispatchProfileCallback {
 
     /**
      * ack
+     *
      * @param eventCount
      */
     public void ack(int eventCount) {
@@ -52,9 +47,7 @@ public class DispatchProfileCallback {
         }
     }
 
-    /**
-     * fail
-     */
+    /** fail */
     public void fail() {
         this.callback.callback(ResultCode.ERR_REJECT);
     }

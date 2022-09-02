@@ -18,36 +18,32 @@
 package org.apache.inlong.manager.service.sink.postgresql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * PostgreSQL sink operator
- */
+/** PostgreSQL sink operator */
 @Service
 public class PostgreSQLSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSinkOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -61,7 +57,8 @@ public class PostgreSQLSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
+        Preconditions.checkTrue(
+                this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         PostgreSQLSinkRequest sinkRequest = (PostgreSQLSinkRequest) request;
         try {
@@ -87,5 +84,4 @@ public class PostgreSQLSinkOperator extends AbstractSinkOperator {
         sink.setSinkFieldList(sinkFields);
         return sink;
     }
-
 }

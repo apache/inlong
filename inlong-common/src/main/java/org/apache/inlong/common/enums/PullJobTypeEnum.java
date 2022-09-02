@@ -20,8 +20,8 @@ package org.apache.inlong.common.enums;
 import static java.util.Objects.requireNonNull;
 
 public enum PullJobTypeEnum {
-
-    NEW(0), NEVER(1);
+    NEW(0),
+    NEVER(1);
 
     private int type;
 

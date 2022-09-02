@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.consts;
 
-/**
- * Constants of MQ type.
- */
+/** Constants of MQ type. */
 public class MQType {
 
     public static final String TUBEMQ = "TUBEMQ";
@@ -27,9 +25,6 @@ public class MQType {
     public static final String KAFKA = "KAFKA";
     public static final String TDMQ_PULSAR = "TDMQ_PULSAR";
 
-    /**
-     * Not use any MQ
-     */
+    /** Not use any MQ */
     public static final String NONE = "NONE";
-
 }

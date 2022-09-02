@@ -55,15 +55,14 @@ public class TubeSinkTest {
         tubeSink.setChannel(channel);
         Configurables.configure(tubeSink, context);
         Configurables.configure(channel, context);
-
     }
 
     @Test
     public void testProcess() throws InterruptedException, EventDeliveryException {
         Event event = EventBuilder.withBody("test", Charsets.UTF_8);
         tubeSink.start();
-        Assert.assertTrue(LifecycleController.waitForOneOf(tubeSink,
-                LifecycleState.START_OR_ERROR, 5000));
+        Assert.assertTrue(
+                LifecycleController.waitForOneOf(tubeSink, LifecycleState.START_OR_ERROR, 5000));
         Transaction transaction = channel.getTransaction();
 
         transaction.begin();
@@ -79,8 +78,7 @@ public class TubeSinkTest {
         }
 
         tubeSink.stop();
-        Assert.assertTrue(LifecycleController.waitForOneOf(tubeSink,
-                LifecycleState.STOP_OR_ERROR, 5000));
+        Assert.assertTrue(
+                LifecycleController.waitForOneOf(tubeSink, LifecycleState.STOP_OR_ERROR, 5000));
     }
-
 }

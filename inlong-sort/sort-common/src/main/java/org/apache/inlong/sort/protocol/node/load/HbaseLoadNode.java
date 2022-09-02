@@ -19,6 +19,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -34,13 +37,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Hbase load node for generate hbase connector DDL
- */
+/** Hbase load node for generate hbase connector DDL */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("hbaseLoad")
 @Data
@@ -74,7 +71,8 @@ public class HbaseLoadNode extends LoadNode implements InlongMetric, Serializabl
     private String sinkBufferFlushInterval;
 
     @JsonCreator
-    public HbaseLoadNode(@JsonProperty("id") String id,
+    public HbaseLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -90,10 +88,19 @@ public class HbaseLoadNode extends LoadNode implements InlongMetric, Serializabl
             @JsonProperty("zookeeperZnodeParent") String zookeeperZnodeParent,
             @JsonProperty("sinkBufferFlushMaxRows") String sinkBufferFlushMaxRows,
             @JsonProperty("sinkBufferFlushInterval") String sinkBufferFlushInterval) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.tableName = Preconditions.checkNotNull(tableName, "tableName of hbase is null");
         this.namespace = Preconditions.checkNotNull(namespace, "namespace of hbase is null");
-        this.zookeeperQuorum = Preconditions.checkNotNull(zookeeperQuorum, "zookeeperQuorum of hbase is null");
+        this.zookeeperQuorum =
+                Preconditions.checkNotNull(zookeeperQuorum, "zookeeperQuorum of hbase is null");
         this.rowKey = Preconditions.checkNotNull(rowKey, "rowKey of hbase is null");
         this.sinkBufferFlushMaxSize = sinkBufferFlushMaxSize;
         this.zookeeperZnodeParent = zookeeperZnodeParent;

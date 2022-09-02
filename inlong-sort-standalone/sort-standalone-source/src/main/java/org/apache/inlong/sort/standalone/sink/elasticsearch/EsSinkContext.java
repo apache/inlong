@@ -1,24 +1,27 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -37,18 +40,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * 
- * EsSinkContext
- */
+/** EsSinkContext */
 public class EsSinkContext extends SinkContext {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(EsSinkContext.class);
@@ -96,13 +88,16 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param context
      * @param channel
      * @param dispatchQueue
      */
-    public EsSinkContext(String sinkName, Context context, Channel channel,
+    public EsSinkContext(
+            String sinkName,
+            Context context,
+            Channel channel,
             LinkedBlockingQueue<EsIndexRequest> dispatchQueue) {
         super(sinkName, context, channel);
         this.sinkContext = context;
@@ -110,19 +105,23 @@ public class EsSinkContext extends SinkContext {
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID);
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
-            LOG.info("SortTask:{},dispatchQueue:{},offer:{},take:{},back:{}",
-                    taskName, dispatchQueue.size(), offerCounter.getAndSet(0),
-                    takeCounter.getAndSet(0), backCounter.getAndSet(0));
+            LOG.info(
+                    "SortTask:{},dispatchQueue:{},offer:{},take:{},back:{}",
+                    taskName,
+                    dispatchQueue.size(),
+                    offerCounter.getAndSet(0),
+                    takeCounter.getAndSet(0),
+                    backCounter.getAndSet(0));
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
             if (this.sortTaskConfig != null && this.sortTaskConfig.equals(newSortTaskConfig)) {
                 return;
             }
-            LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
+            LOG.info(
+                    "get new SortTaskConfig:taskName:{}:config:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newSortTaskConfig));
             this.sortTaskConfig = newSortTaskConfig;
             this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
@@ -147,9 +146,11 @@ public class EsSinkContext extends SinkContext {
             this.bulkAction = sinkContext.getInteger(KEY_BULK_ACTION, DEFAULT_BULK_ACTION);
             this.bulkSizeMb = sinkContext.getInteger(KEY_BULK_SIZE_MB, DEFAULT_BULK_SIZE_MB);
             this.flushInterval = sinkContext.getInteger(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
-            this.concurrentRequests = sinkContext.getInteger(KEY_CONCURRENT_REQUESTS, DEFAULT_CONCURRENT_REQUESTS);
+            this.concurrentRequests =
+                    sinkContext.getInteger(KEY_CONCURRENT_REQUESTS, DEFAULT_CONCURRENT_REQUESTS);
             this.maxConnect = sinkContext.getInteger(KEY_MAX_CONNECT, DEFAULT_MAX_CONNECT);
-            this.isUseIndexId = sinkContext.getBoolean(KEY_IS_USE_INDEX_ID, DEFAULT_IS_USE_INDEX_ID);
+            this.isUseIndexId =
+                    sinkContext.getBoolean(KEY_IS_USE_INDEX_ID, DEFAULT_IS_USE_INDEX_ID);
             // http host
             this.strHttpHosts = sinkContext.getString(KEY_HTTP_HOSTS);
             if (!StringUtils.isBlank(strHttpHosts)) {
@@ -167,7 +168,9 @@ public class EsSinkContext extends SinkContext {
                 }
             }
             // log
-            LOG.info("end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}", taskName,
+            LOG.info(
+                    "end to get SortTaskConfig:taskName:{}:newIdConfigMap:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newIdConfigMap));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -176,7 +179,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * addSendMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      */
@@ -198,9 +201,7 @@ public class EsSinkContext extends SinkContext {
         metricItem.sendSize.addAndGet(size);
     }
 
-    /**
-     * addReadFailMetric
-     */
+    /** addReadFailMetric */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
@@ -214,13 +215,14 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * addSendResultMetric
-     * 
+     *
      * @param currentRecord
      * @param bid
      * @param result
      * @param sendTime
      */
-    public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
+    public void addSendResultMetric(
+            ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         dimensions.put(SortMetricItem.KEY_TASK_NAME, this.getTaskName());
@@ -253,8 +255,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * getIdConfig
-     * 
-     * @param  uid
+     *
+     * @param uid
      * @return
      */
     public EsIdConfig getIdConfig(String uid) {
@@ -263,7 +265,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get nodeId
-     * 
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -272,7 +274,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get idConfigMap
-     * 
+     *
      * @return the idConfigMap
      */
     public Map<String, EsIdConfig> getIdConfigMap() {
@@ -281,7 +283,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get sinkContext
-     * 
+     *
      * @return the sinkContext
      */
     public Context getSinkContext() {
@@ -290,7 +292,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set sinkContext
-     * 
+     *
      * @param sinkContext the sinkContext to set
      */
     public void setSinkContext(Context sinkContext) {
@@ -299,8 +301,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * offerDispatchQueue
-     * 
-     * @param  indexRequest
+     *
+     * @param indexRequest
      * @return
      */
     public boolean offerDispatchQueue(EsIndexRequest indexRequest) {
@@ -310,7 +312,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * taskDispatchQueue
-     * 
+     *
      * @return
      */
     public EsIndexRequest taskDispatchQueue() {
@@ -323,8 +325,8 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * backDispatchQueue
-     * 
-     * @param  indexRequest
+     *
+     * @param indexRequest
      * @return
      */
     public boolean backDispatchQueue(EsIndexRequest indexRequest) {
@@ -334,7 +336,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get bulkAction
-     * 
+     *
      * @return the bulkAction
      */
     public int getBulkAction() {
@@ -343,7 +345,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set bulkAction
-     * 
+     *
      * @param bulkAction the bulkAction to set
      */
     public void setBulkAction(int bulkAction) {
@@ -352,7 +354,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get bulkSizeMb
-     * 
+     *
      * @return the bulkSizeMb
      */
     public int getBulkSizeMb() {
@@ -361,7 +363,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set bulkSizeMb
-     * 
+     *
      * @param bulkSizeMb the bulkSizeMb to set
      */
     public void setBulkSizeMb(int bulkSizeMb) {
@@ -370,7 +372,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get flushInterval
-     * 
+     *
      * @return the flushInterval
      */
     public int getFlushInterval() {
@@ -379,7 +381,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set flushInterval
-     * 
+     *
      * @param flushInterval the flushInterval to set
      */
     public void setFlushInterval(int flushInterval) {
@@ -388,7 +390,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get concurrentRequests
-     * 
+     *
      * @return the concurrentRequests
      */
     public int getConcurrentRequests() {
@@ -397,7 +399,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set concurrentRequests
-     * 
+     *
      * @param concurrentRequests the concurrentRequests to set
      */
     public void setConcurrentRequests(int concurrentRequests) {
@@ -406,7 +408,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get maxConnect
-     * 
+     *
      * @return the maxConnect
      */
     public int getMaxConnect() {
@@ -415,7 +417,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set maxConnect
-     * 
+     *
      * @param maxConnect the maxConnect to set
      */
     public void setMaxConnect(int maxConnect) {
@@ -424,7 +426,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get strHttpHosts
-     * 
+     *
      * @return the strHttpHosts
      */
     public String getStrHttpHosts() {
@@ -433,7 +435,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set strHttpHosts
-     * 
+     *
      * @param strHttpHosts the strHttpHosts to set
      */
     public void setStrHttpHosts(String strHttpHosts) {
@@ -442,7 +444,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get httpHosts
-     * 
+     *
      * @return the httpHosts
      */
     public HttpHost[] getHttpHosts() {
@@ -451,7 +453,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set httpHosts
-     * 
+     *
      * @param httpHosts the httpHosts to set
      */
     public void setHttpHosts(HttpHost[] httpHosts) {
@@ -460,7 +462,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set nodeId
-     * 
+     *
      * @param nodeId the nodeId to set
      */
     public void setNodeId(String nodeId) {
@@ -469,7 +471,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set idConfigMap
-     * 
+     *
      * @param idConfigMap the idConfigMap to set
      */
     public void setIdConfigMap(Map<String, EsIdConfig> idConfigMap) {
@@ -478,7 +480,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get username
-     * 
+     *
      * @return the username
      */
     public String getUsername() {
@@ -487,7 +489,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set username
-     * 
+     *
      * @param username the username to set
      */
     public void setUsername(String username) {
@@ -496,7 +498,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get password
-     * 
+     *
      * @return the password
      */
     public String getPassword() {
@@ -505,7 +507,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set password
-     * 
+     *
      * @param password the password to set
      */
     public void setPassword(String password) {
@@ -514,7 +516,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get keywordMaxLength
-     * 
+     *
      * @return the keywordMaxLength
      */
     public int getKeywordMaxLength() {
@@ -523,7 +525,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set keywordMaxLength
-     * 
+     *
      * @param keywordMaxLength the keywordMaxLength to set
      */
     public void setKeywordMaxLength(int keywordMaxLength) {
@@ -532,7 +534,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * get isUseIndexId
-     * 
+     *
      * @return the isUseIndexId
      */
     public boolean isUseIndexId() {
@@ -541,7 +543,7 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * set isUseIndexId
-     * 
+     *
      * @param isUseIndexId the isUseIndexId to set
      */
     public void setUseIndexId(boolean isUseIndexId) {
@@ -550,13 +552,15 @@ public class EsSinkContext extends SinkContext {
 
     /**
      * create indexRequestHandler
-     * 
+     *
      * @return the indexRequestHandler
      */
     public IEvent2IndexRequestHandler createIndexRequestHandler() {
         // IEvent2IndexRequestHandler
-        String indexRequestHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_INDEXREQUEST_HANDLER,
-                DefaultEvent2IndexRequestHandler.class.getName());
+        String indexRequestHandlerClass =
+                CommonPropertiesHolder.getString(
+                        KEY_EVENT_INDEXREQUEST_HANDLER,
+                        DefaultEvent2IndexRequestHandler.class.getName());
         try {
             Class<?> handlerClass = ClassUtils.getClass(indexRequestHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
@@ -565,8 +569,11 @@ public class EsSinkContext extends SinkContext {
                 return handler;
             }
         } catch (Throwable t) {
-            LOG.error("Fail to init IEvent2IndexRequestHandler,handlerClass:{},error:{}",
-                    indexRequestHandlerClass, t.getMessage(), t);
+            LOG.error(
+                    "Fail to init IEvent2IndexRequestHandler,handlerClass:{},error:{}",
+                    indexRequestHandlerClass,
+                    t.getMessage(),
+                    t);
         }
         return null;
     }

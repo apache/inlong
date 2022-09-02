@@ -22,8 +22,8 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -31,17 +31,13 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongGroup when created resources failed.
- */
+/** The listener of InlongGroup when created resources failed. */
 @Slf4j
 @Component
 public class InitGroupFailedListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -49,10 +45,10 @@ public class InitGroupFailedListener implements ProcessEventListener {
     }
 
     /**
-     * After the process of creating InlongGroup resources is completed,
-     * modify the status of related InlongGroup and all InlongStream to [Failed]
-     * <p/>
-     * {@link InitGroupCompleteListener#listen}
+     * After the process of creating InlongGroup resources is completed, modify the status of
+     * related InlongGroup and all InlongStream to [Failed]
+     *
+     * <p>{@link InitGroupCompleteListener#listen}
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
@@ -71,5 +67,4 @@ public class InitGroupFailedListener implements ProcessEventListener {
         log.info("success to execute InitGroupFailedListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

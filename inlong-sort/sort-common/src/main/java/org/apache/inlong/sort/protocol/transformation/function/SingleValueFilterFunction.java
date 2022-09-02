@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -28,14 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.LogicOperator;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-
-
-/**
- * filter function for a single value
- */
+/** filter function for a single value */
 @JsonTypeName("singleValueFilter")
 @Data
 @NoArgsConstructor
@@ -45,10 +41,13 @@ public class SingleValueFilterFunction implements FilterFunction, Serializable {
 
     @JsonProperty("source")
     private FunctionParam source;
+
     @JsonProperty("target")
     private FunctionParam target;
+
     @JsonProperty("compareOperator")
     private SingleValueCompareOperator compareOperator;
+
     @JsonProperty("logicOperator")
     private LogicOperator logicOperator;
 
@@ -60,7 +59,8 @@ public class SingleValueFilterFunction implements FilterFunction, Serializable {
             @JsonProperty("target") FunctionParam target) {
         this.source = Preconditions.checkNotNull(source, "source is null");
         this.target = Preconditions.checkNotNull(target, "target is null");
-        this.compareOperator = Preconditions.checkNotNull(compareOperator, "compareOperator is null");
+        this.compareOperator =
+                Preconditions.checkNotNull(compareOperator, "compareOperator is null");
         this.logicOperator = Preconditions.checkNotNull(logicOperator, "logicOperator is null");
     }
 
@@ -76,7 +76,8 @@ public class SingleValueFilterFunction implements FilterFunction, Serializable {
 
     @Override
     public String format() {
-        return String.format("%s %s %s %s", logicOperator.format(),
-                source.format(), compareOperator.format(), target.format());
+        return String.format(
+                "%s %s %s %s",
+                logicOperator.format(), source.format(), compareOperator.format(), target.format());
     }
 }

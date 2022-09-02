@@ -18,7 +18,6 @@
 package org.apache.inlong.common.enums;
 
 public enum TaskTypeEnum {
-
     DATABASE_MIGRATION(0),
     SQL(1),
     BINLOG(2),
@@ -29,10 +28,7 @@ public enum TaskTypeEnum {
     ORACLE(7),
     SQLSERVER(8),
     MONGODB(9),
-    TUBEMQ(10)
-
-
-    ;
+    TUBEMQ(10);
 
     private final int type;
 
@@ -72,5 +68,4 @@ public enum TaskTypeEnum {
     public int getType() {
         return type;
     }
-
 }

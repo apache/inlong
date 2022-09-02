@@ -21,14 +21,10 @@ package org.apache.inlong.sort.base;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/**
- * connector base option constant
- */
+/** connector base option constant */
 public final class Constants {
 
-    /**
-     * constants for metrics
-     */
+    /** constants for metrics */
     public static final String DIRTY_BYTES = "dirtyBytes";
 
     public static final String DIRTY_RECORDS = "dirtyRecords";
@@ -48,25 +44,15 @@ public final class Constants {
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
-    /**
-     * Time span in seconds
-     */
+    /** Time span in seconds */
     public static final Integer TIME_SPAN_IN_SECONDS = 60;
-    /**
-     * Stream id used in inlong metric
-     */
+    /** Stream id used in inlong metric */
     public static final String STREAM_ID = "streamId";
-    /**
-     * Group id used in inlong metric
-     */
+    /** Group id used in inlong metric */
     public static final String GROUP_ID = "groupId";
-    /**
-     * Node id used in inlong metric
-     */
+    /** Node id used in inlong metric */
     public static final String NODE_ID = "nodeId";
-    /**
-     * It is used for inlong.metric
-     */
+    /** It is used for inlong.metric */
     public static final String DELIMITER = "&";
 
     // sort received successfully
@@ -76,22 +62,20 @@ public final class Constants {
     public static final Integer AUDIT_SORT_OUTPUT = 8;
 
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inlong.metric")
-            .stringType()
-            .noDefaultValue()
-            .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
-
+            ConfigOptions.key("inlong.metric")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     public static final ConfigOption<String> INLONG_AUDIT =
-        ConfigOptions.key("inlong.audit")
-            .stringType()
-            .noDefaultValue()
-            .withDescription("INLONG AUDIT HOST + '&' + PORT");
+            ConfigOptions.key("inlong.audit")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("INLONG AUDIT HOST + '&' + PORT");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("sink.ignore.changelog")
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
-
 }

@@ -21,9 +21,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
-/**
- * Taskform of service task
- */
+/** Taskform of service task */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ServiceTaskForm extends BaseTaskForm {
@@ -35,8 +33,7 @@ public class ServiceTaskForm extends BaseTaskForm {
     private String inlongStreamId;
 
     @Override
-    public void validate() throws FormValidateException {
-    }
+    public void validate() throws FormValidateException {}
 
     @Override
     public String getFormName() {

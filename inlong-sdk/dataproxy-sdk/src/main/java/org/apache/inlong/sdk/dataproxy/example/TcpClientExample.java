@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
+import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -25,18 +27,13 @@ import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
-
 public class TcpClientExample {
 
     private static final Logger logger = LoggerFactory.getLogger(TcpClientExample.class);
 
     public static String localIP = "127.0.0.1";
 
-    /**
-     * Example of client tcp.
-     */
+    /** Example of client tcp. */
     public static void main(String[] args) throws InterruptedException {
 
         String dataProxyGroup = "test_test";
@@ -68,21 +65,44 @@ public class TcpClientExample {
         String messageBody = "inglong-message-random-body!";
 
         TcpClientExample tcpClientExample = new TcpClientExample();
-        DefaultMessageSender sender = tcpClientExample
-                .getMessageSender(localIP, inLongManagerAddr, inLongManagerPort, netTag,
-                        dataProxyGroup, false, false, configBasePath, msgType);
-        tcpClientExample.sendTcpMessage(sender, inlongGroupId, inlongStreamId,
-                messageBody, System.currentTimeMillis());
+        DefaultMessageSender sender =
+                tcpClientExample.getMessageSender(
+                        localIP,
+                        inLongManagerAddr,
+                        inLongManagerPort,
+                        netTag,
+                        dataProxyGroup,
+                        false,
+                        false,
+                        configBasePath,
+                        msgType);
+        tcpClientExample.sendTcpMessage(
+                sender, inlongGroupId, inlongStreamId, messageBody, System.currentTimeMillis());
     }
 
-    public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-            String netTag, String dataProxyGroup, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
-            String configBasePath, int msgType) {
+    public DefaultMessageSender getMessageSender(
+            String localIP,
+            String inLongManagerAddr,
+            String inLongManagerPort,
+            String netTag,
+            String dataProxyGroup,
+            boolean isLocalVisit,
+            boolean isReadProxyIPFromLocal,
+            String configBasePath,
+            int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;
         try {
-            dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag, "test", "123456");
+            dataProxyConfig =
+                    new ProxyClientConfig(
+                            localIP,
+                            isLocalVisit,
+                            inLongManagerAddr,
+                            Integer.valueOf(inLongManagerPort),
+                            dataProxyGroup,
+                            netTag,
+                            "test",
+                            "123456");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }
@@ -95,16 +115,26 @@ public class TcpClientExample {
         return messageSender;
     }
 
-    public void sendTcpMessage(DefaultMessageSender sender, String inlongGroupId,
-            String inlongStreamId, String messageBody, long dt) {
+    public void sendTcpMessage(
+            DefaultMessageSender sender,
+            String inlongGroupId,
+            String inlongStreamId,
+            String messageBody,
+            long dt) {
         SendResult result = null;
         try {
-            result = sender.sendMessage(messageBody.getBytes("utf8"), inlongGroupId, inlongStreamId,
-                    0, String.valueOf(dt), 20, TimeUnit.SECONDS);
+            result =
+                    sender.sendMessage(
+                            messageBody.getBytes("utf8"),
+                            inlongGroupId,
+                            inlongStreamId,
+                            0,
+                            String.valueOf(dt),
+                            20,
+                            TimeUnit.SECONDS);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         logger.info("messageSender {}", result);
     }
-
 }

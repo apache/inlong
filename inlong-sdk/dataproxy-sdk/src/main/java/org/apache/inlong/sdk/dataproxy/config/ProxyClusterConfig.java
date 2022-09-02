@@ -35,5 +35,4 @@ public class ProxyClusterConfig {
     public DataProxyNodeResponse getData() {
         return data;
     }
-
 }

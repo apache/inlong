@@ -17,11 +17,8 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- *  Metadata type
- */
+/** Metadata type */
 public class MetadataConstants {
 
     public static final String KUBERNETES = "kubernetes";
-
 }

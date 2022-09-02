@@ -23,9 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Data node paging query conditions
- */
+/** Data node paging query conditions */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Data node paging query request")
@@ -45,5 +43,4 @@ public class DataNodePageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-
 }

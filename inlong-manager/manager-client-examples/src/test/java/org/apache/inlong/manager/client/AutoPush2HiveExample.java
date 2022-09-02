@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.client;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -32,12 +34,7 @@ import org.apache.shiro.util.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Test class for auto push to hive.
- */
+/** Test class for auto push to hive. */
 @Disabled
 class AutoPush2HiveExample extends BaseExample {
 

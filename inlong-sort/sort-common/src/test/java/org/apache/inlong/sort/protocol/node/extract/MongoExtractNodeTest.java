@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -25,24 +29,16 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Test mongo extract node serialization and deserialization
- */
+/** Test mongo extract node serialization and deserialization */
 public class MongoExtractNodeTest extends SerializeBaseTest<MongoExtractNode> {
 
     public MongoExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
         return new MongoExtractNode(
-                "1", "test", fields, null, null,
-                "test", "localhost", "inlong", "password", "test"
-        );
+                "1", "test", fields, null, null, "test", "localhost", "inlong", "password", "test");
     }
 
     @Test
@@ -62,5 +58,4 @@ public class MongoExtractNodeTest extends SerializeBaseTest<MongoExtractNode> {
         }
         Assert.assertTrue(formatEquals);
     }
-
 }

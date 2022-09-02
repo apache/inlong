@@ -32,41 +32,27 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Converter used to deserialize a mixed row in inlongmsg-csv format.
- */
+/** Converter used to deserialize a mixed row in inlongmsg-csv format. */
 public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatConverter {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(InLongMsgCsvMixedFormatConverter.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(InLongMsgCsvMixedFormatConverter.class);
 
-    /**
-     * The schema of the rows.
-     */
-    @Nonnull
-    private final RowFormatInfo rowFormatInfo;
+    /** The schema of the rows. */
+    @Nonnull private final RowFormatInfo rowFormatInfo;
 
-    /**
-     * The name of the time field.
-     */
-    @Nonnull
-    private final String timeFieldName;
+    /** The name of the time field. */
+    @Nonnull private final String timeFieldName;
 
-    /**
-     * The name of the attributes field.
-     */
-    @Nonnull
-    private final String attributesFieldName;
+    /** The name of the attributes field. */
+    @Nonnull private final String attributesFieldName;
 
-    /**
-     * The literal representing null values.
-     */
+    /** The literal representing null values. */
     private final String nullLiteral;
 
-    /**
-     * True if ignore errors in the deserialization.
-     */
+    /** True if ignore errors in the deserialization. */
     private final boolean ignoreErrors;
 
     public InLongMsgCsvMixedFormatConverter(
@@ -74,8 +60,7 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
             @Nonnull String timeFieldName,
             @Nonnull String attributesFieldName,
             String nullLiteral,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.rowFormatInfo = rowFormatInfo;
         this.timeFieldName = timeFieldName;
         this.attributesFieldName = attributesFieldName;
@@ -96,15 +81,16 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
         try {
             Timestamp time = InLongMsgUtils.getTimeFromMixedRow(mixedRow);
             Map<String, String> attributes = InLongMsgUtils.getAttributesFromMixedRow(mixedRow);
-            List<String> predefinedFields = InLongMsgUtils.getPredefinedFieldsFromMixedRow(mixedRow);
+            List<String> predefinedFields =
+                    InLongMsgUtils.getPredefinedFieldsFromMixedRow(mixedRow);
             List<String> fields = InLongMsgUtils.getFieldsFromMixedRow(mixedRow);
 
-            row = InLongMsgCsvUtils.buildRow(rowFormatInfo, nullLiteral, time, attributes,
-                    predefinedFields, fields);
+            row =
+                    InLongMsgCsvUtils.buildRow(
+                            rowFormatInfo, nullLiteral, time, attributes, predefinedFields, fields);
         } catch (Exception e) {
             if (ignoreErrors) {
-                LOG.warn("Cannot properly convert the mixed row {} to row.",
-                        mixedRow, e);
+                LOG.warn("Cannot properly convert the mixed row {} to row.", mixedRow, e);
                 return;
             } else {
                 throw e;
@@ -126,15 +112,15 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
 
         InLongMsgCsvMixedFormatConverter that = (InLongMsgCsvMixedFormatConverter) o;
         return ignoreErrors == that.ignoreErrors
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rowFormatInfo, timeFieldName, attributesFieldName, nullLiteral,
-                ignoreErrors);
+        return Objects.hash(
+                rowFormatInfo, timeFieldName, attributesFieldName, nullLiteral, ignoreErrors);
     }
 }

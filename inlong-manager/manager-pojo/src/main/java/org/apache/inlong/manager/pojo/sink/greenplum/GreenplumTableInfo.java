@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sink.greenplum;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Greenplum table info.
- */
+/** Greenplum table info. */
 @Data
 public class GreenplumTableInfo {
 

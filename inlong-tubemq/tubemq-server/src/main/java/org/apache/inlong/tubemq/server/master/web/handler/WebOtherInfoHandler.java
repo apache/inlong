@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.handler;
 
 import java.util.ArrayList;
@@ -27,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
@@ -60,40 +56,31 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     @Override
     public void registerWebApiMethod() {
         // register query method
-        registerQueryWebMethod("admin_get_methods",
-                "adminQueryAllMethods");
-        registerQueryWebMethod("admin_query_sub_info",
-                "getSubscribeInfo");
-        registerQueryWebMethod("admin_query_consume_group_detail",
-                "getConsumeGroupDetailInfo");
+        registerQueryWebMethod("admin_get_methods", "adminQueryAllMethods");
+        registerQueryWebMethod("admin_query_sub_info", "getSubscribeInfo");
+        registerQueryWebMethod("admin_query_consume_group_detail", "getConsumeGroupDetailInfo");
         // query master's version
-        registerQueryWebMethod("admin_query_server_version",
-                "adminQueryMasterVersion");
+        registerQueryWebMethod("admin_query_server_version", "adminQueryMasterVersion");
         // register query method
-        registerQueryWebMethod("admin_get_metrics_info",
-                "adminGetMetricsInfo");
+        registerQueryWebMethod("admin_get_metrics_info", "adminGetMetricsInfo");
         // Enable metrics statistics
-        registerModifyWebMethod("admin_enable_stats",
-                "adminEnableMetricsStats");
+        registerModifyWebMethod("admin_enable_stats", "adminEnableMetricsStats");
         // Disable metrics statistics
-        registerModifyWebMethod("admin_disable_stats",
-                "adminDisableMetricsStats");
+        registerModifyWebMethod("admin_disable_stats", "adminDisableMetricsStats");
         // Disable unnecessary statistics
-        registerModifyWebMethod("admin_disable_all_stats",
-                "adminDisableAllStats");
+        registerModifyWebMethod("admin_disable_all_stats", "adminDisableAllStats");
     }
 
     /**
      * Get all API methods supported by this version.
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return process result
      */
-    public StringBuilder adminQueryAllMethods(HttpServletRequest req,
-                                              StringBuilder sBuffer,
-                                              ProcessResult result) {
+    public StringBuilder adminQueryAllMethods(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         int totalCnt = getRegisteredMethods(sBuffer);
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
@@ -103,31 +90,30 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get subscription info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return process result
      */
-    public StringBuilder getSubscribeInfo(HttpServletRequest req,
-                                          StringBuilder sBuffer,
-                                          ProcessResult result) {
+    public StringBuilder getSubscribeInfo(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
         // get group list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
+        if (!WebParameterUtils.getStringParamValue(
+                req, WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<String> inGroupNameSet = (Set<String>) result.getRetData();
         if (inGroupNameSet.isEmpty()) {
-            if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.COMPSCONSUMEGROUP, false, null, sBuffer, result)) {
+            if (!WebParameterUtils.getStringParamValue(
+                    req, WebFieldDef.COMPSCONSUMEGROUP, false, null, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
             inGroupNameSet = (Set<String>) result.getRetData();
         }
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
+        if (!WebParameterUtils.getStringParamValue(
+                req, WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -162,17 +148,15 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get Master version info
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req Http Servlet Request
+     * @param strBuff string buffer
+     * @param result process result
+     * @return process result
      */
-    public StringBuilder adminQueryMasterVersion(HttpServletRequest req,
-                                                 StringBuilder strBuff,
-                                                 ProcessResult result) {
+    public StringBuilder adminQueryMasterVersion(
+            HttpServletRequest req, StringBuilder strBuff, ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
-        strBuff.append("{\"version\":\"")
-                .append(TubeServerVersion.SERVER_VERSION).append("\"}");
+        strBuff.append("{\"version\":\"").append(TubeServerVersion.SERVER_VERSION).append("\"}");
         WebParameterUtils.buildSuccessWithDataRetEnd(strBuff, 1);
         return strBuff;
     }
@@ -180,20 +164,19 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get consume group detail info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return process result
      */
     // #lizard forgives
-    public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+    public StringBuilder getConsumeGroupDetailInfo(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
         // get group name
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
-            if (!WebParameterUtils.getStringParamValue(req,
-                    WebFieldDef.CONSUMEGROUP, true, null, sBuffer, result)) {
+        if (!WebParameterUtils.getStringParamValue(
+                req, WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
+            if (!WebParameterUtils.getStringParamValue(
+                    req, WebFieldDef.CONSUMEGROUP, true, null, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
@@ -245,7 +228,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 }
             }
             sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"")
-                    .append(",\"count\":").append(consumerList.size()).append(",\"topicSet\":[");
+                    .append(",\"count\":")
+                    .append(consumerList.size())
+                    .append(",\"topicSet\":[");
             int itemCnt = 0;
             for (String topicItem : topicSet) {
                 if (itemCnt++ > 0) {
@@ -253,7 +238,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 }
                 sBuffer.append("\"").append(topicItem).append("\"");
             }
-            sBuffer.append("],\"consumeGroup\":\"").append(strConsumeGroup).append("\",\"re-rebalance\":{");
+            sBuffer.append("],\"consumeGroup\":\"")
+                    .append(strConsumeGroup)
+                    .append("\",\"re-rebalance\":{");
             itemCnt = 0;
             for (Map.Entry<String, NodeRebInfo> entry : nodeRebInfoMap.entrySet()) {
                 if (itemCnt++ > 0) {
@@ -265,27 +252,40 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             sBuffer.append("},\"isBandConsume\":\"").append(consumeType.getName()).append("\"");
             // Append band consume info
             if (consumeType == ConsumeType.CONSUME_BAND) {
-                sBuffer.append(",\"isNotAllocate\":").append(isNotAllocate)
-                        .append(",\"sessionKey\":\"").append(sessionKey)
-                        .append("\",\"isSelectBig\":").append(isSelectBig)
-                        .append(",\"reqSourceCount\":").append(reqSourceCount)
-                        .append(",\"curSourceCount\":").append(curSourceCount)
-                        .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
+                sBuffer.append(",\"isNotAllocate\":")
+                        .append(isNotAllocate)
+                        .append(",\"sessionKey\":\"")
+                        .append(sessionKey)
+                        .append("\",\"isSelectBig\":")
+                        .append(isSelectBig)
+                        .append(",\"reqSourceCount\":")
+                        .append(reqSourceCount)
+                        .append(",\"curSourceCount\":")
+                        .append(curSourceCount)
+                        .append(",\"rebalanceCheckTime\":")
+                        .append(rebalanceCheckTime);
             }
             sBuffer.append(",\"rebInfo\":{");
             if (balanceStatus == -2) {
                 sBuffer.append("\"isRebalanced\":false");
             } else if (balanceStatus == 0) {
                 sBuffer.append("\"isRebalanced\":true,\"checkPasted\":false")
-                        .append(",\"defBClientRate\":").append(defBClientRate)
-                        .append(",\"confBClientRate\":").append(confBClientRate)
-                        .append(",\"curBClientRate\":").append(curBClientRate)
-                        .append(",\"minRequireClientCnt\":").append(minRequireClientCnt);
+                        .append(",\"defBClientRate\":")
+                        .append(defBClientRate)
+                        .append(",\"confBClientRate\":")
+                        .append(confBClientRate)
+                        .append(",\"curBClientRate\":")
+                        .append(curBClientRate)
+                        .append(",\"minRequireClientCnt\":")
+                        .append(minRequireClientCnt);
             } else {
                 sBuffer.append("\"isRebalanced\":true,\"checkPasted\":true")
-                        .append(",\"defBClientRate\":").append(defBClientRate)
-                        .append(",\"confBClientRate\":").append(confBClientRate)
-                        .append(",\"curBClientRate\":").append(curBClientRate);
+                        .append(",\"defBClientRate\":")
+                        .append(defBClientRate)
+                        .append(",\"confBClientRate\":")
+                        .append(confBClientRate)
+                        .append(",\"curBClientRate\":")
+                        .append(curBClientRate);
             }
             sBuffer.append("},\"filterConds\":{");
             if (existedTopicConditions != null) {
@@ -313,7 +313,8 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             sBuffer.append("}");
         } catch (Exception e) {
             sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
-                    .append(e.getMessage()).append("\",\"count\":0,\"data\":[]}");
+                    .append(e.getMessage())
+                    .append("\",\"count\":0,\"data\":[]}");
         }
         return sBuffer;
     }
@@ -321,17 +322,15 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Query Master's version
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return metric information
      */
-    public StringBuilder adminQueryBrokerVersion(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+    public StringBuilder adminQueryBrokerVersion(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        sBuffer.append("{\"version\":\"")
-                .append(TubeServerVersion.SERVER_VERSION).append("\"}");
+        sBuffer.append("{\"version\":\"").append(TubeServerVersion.SERVER_VERSION).append("\"}");
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
         return sBuffer;
     }
@@ -339,17 +338,16 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get master's metric information
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return metric information
      */
-    public StringBuilder adminGetMetricsInfo(HttpServletRequest req,
-                                             StringBuilder sBuffer,
-                                             ProcessResult result) {
+    public StringBuilder adminGetMetricsInfo(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
         // check and get whether to reset the metric items
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
+        if (!WebParameterUtils.getBooleanParamValue(
+                req, WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -358,7 +356,8 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         sBuffer.append("{\"probeTime\":\"")
                 .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(System.currentTimeMillis()))
-                .append("\",\"nodeName\":\"").append(master.getMasterConfig().getHostName())
+                .append("\",\"nodeName\":\"")
+                .append(master.getMasterConfig().getHostName())
                 .append("\",\"nodeRole\":\"Master\",\"metrics\":{\"serviceStatus\":");
         if (needRefresh) {
             MasterSrvStatsHolder.snapShort(sBuffer);
@@ -377,16 +376,15 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Enable Master's statistics functions.
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req Http Servlet Request
+     * @param sBuffer string buffer
+     * @param result process result
+     * @return metric information
      */
-    public StringBuilder adminEnableMetricsStats(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+    public StringBuilder adminEnableMetricsStats(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(
+                req, WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -397,14 +395,13 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Disable Master's statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req request
+     * @param sBuffer process result
      */
-    public StringBuilder adminDisableMetricsStats(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
+    public StringBuilder adminDisableMetricsStats(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
+        if (!WebParameterUtils.getStringParamValue(
+                req, WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -416,32 +413,31 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Disable Master's all statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req request
+     * @param sBuffer process result
      */
-    public StringBuilder adminDisableAllStats(HttpServletRequest req,
-                                              StringBuilder sBuffer,
-                                              ProcessResult result) {
-        innEnableOrDisableMetricsStats(false,
-                BrokerStatsType.ALL.getName(), req, sBuffer, result);
+    public StringBuilder adminDisableAllStats(
+            HttpServletRequest req, StringBuilder sBuffer, ProcessResult result) {
+        innEnableOrDisableMetricsStats(false, BrokerStatsType.ALL.getName(), req, sBuffer, result);
         return sBuffer;
     }
 
     /**
      * Disable or Enable Master's statistics functions
      *
-     * @param enable     whether enable or disable
-     * @param statsType  the statistics type to be operated on
-     * @param req        HttpServletRequest
-     * @param sBuffer    query result
-     * @param result     process result
-     * @return           return information
+     * @param enable whether enable or disable
+     * @param statsType the statistics type to be operated on
+     * @param req HttpServletRequest
+     * @param sBuffer query result
+     * @param result process result
+     * @return return information
      */
-    private StringBuilder innEnableOrDisableMetricsStats(boolean enable,
-                                                         String statsType,
-                                                         HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+    private StringBuilder innEnableOrDisableMetricsStats(
+            boolean enable,
+            String statsType,
+            HttpServletRequest req,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get input metric type
         MasterStatsType inMetricType = null;
         for (MasterStatsType metricType : MasterStatsType.values()) {
@@ -464,8 +460,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             return sBuffer;
         }
         // Operate separately according to the specified statistic type
-        if (inMetricType == MasterStatsType.WEBAPI
-                || inMetricType == MasterStatsType.ALL) {
+        if (inMetricType == MasterStatsType.WEBAPI || inMetricType == MasterStatsType.ALL) {
             WebCallStatsHolder.setStatsStatus(enable);
         }
         // builder return result
@@ -476,12 +471,14 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Private method to append consumer info of the give list to a string builder
      *
-     * @param consumerList  consumer list
-     * @param consumeType   consume type
-     * @param strBuffer     string buffer
+     * @param consumerList consumer list
+     * @param consumeType consume type
+     * @param strBuffer string buffer
      */
-    private void getConsumerInfoList(final List<ConsumerInfo> consumerList,
-                                     ConsumeType consumeType, final StringBuilder strBuffer) {
+    private void getConsumerInfoList(
+            final List<ConsumerInfo> consumerList,
+            ConsumeType consumeType,
+            final StringBuilder strBuffer) {
         strBuffer.append(",\"data\":[");
         if (!consumerList.isEmpty()) {
             Collections.sort(consumerList);
@@ -495,23 +492,33 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 if (i > 0) {
                     strBuffer.append(",");
                 }
-                strBuffer.append("{\"consumerId\":\"").append(consumer.getConsumerId())
-                        .append("\",\"receivedFrom\":\"").append(consumer.getAddrRcvFrom())
-                        .append("\",\"isOverTLS\":").append(consumer.isOverTLS());
+                strBuffer
+                        .append("{\"consumerId\":\"")
+                        .append(consumer.getConsumerId())
+                        .append("\",\"receivedFrom\":\"")
+                        .append(consumer.getAddrRcvFrom())
+                        .append("\",\"isOverTLS\":")
+                        .append(consumer.isOverTLS());
                 if (consumeType == ConsumeType.CONSUME_BAND) {
                     Map<String, Long> requiredPartition = consumer.getRequiredPartition();
                     if (requiredPartition == null || requiredPartition.isEmpty()) {
                         strBuffer.append(",\"initReSetPartCount\":0,\"initReSetPartInfo\":[]");
                     } else {
-                        strBuffer.append(",\"initReSetPartCount\":").append(requiredPartition.size())
+                        strBuffer
+                                .append(",\"initReSetPartCount\":")
+                                .append(requiredPartition.size())
                                 .append(",\"initReSetPartInfo\":[");
                         int totalPart = 0;
                         for (Map.Entry<String, Long> entry : requiredPartition.entrySet()) {
                             if (totalPart++ > 0) {
                                 strBuffer.append(",");
                             }
-                            strBuffer.append("{\"partitionKey\":\"").append(entry.getKey())
-                                    .append("\",\"Offset\":").append(entry.getValue()).append("}");
+                            strBuffer
+                                    .append("{\"partitionKey\":\"")
+                                    .append(entry.getKey())
+                                    .append("\",\"Offset\":")
+                                    .append(entry.getValue())
+                                    .append("}");
                         }
                         strBuffer.append("]");
                     }
@@ -534,9 +541,14 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                                 if (totalPart++ > 0) {
                                     strBuffer.append(",");
                                 }
-                                strBuffer.append("{\"partId\":").append(part.getPartitionId())
-                                        .append(",\"brokerAddr\":\"").append(part.getBroker().toString())
-                                        .append("\",\"topicName\":\"").append(part.getTopic()).append("\"}");
+                                strBuffer
+                                        .append("{\"partId\":")
+                                        .append(part.getPartitionId())
+                                        .append(",\"brokerAddr\":\"")
+                                        .append(part.getBroker().toString())
+                                        .append("\",\"topicName\":\"")
+                                        .append(part.getTopic())
+                                        .append("\"}");
                             }
                         }
                     }

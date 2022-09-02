@@ -22,5 +22,4 @@ import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 public interface QueryConsumeConfig {
 
     ConsumeConfig queryCurrentConsumeConfig(String sortTaskId);
-
 }

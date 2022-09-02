@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import javax.servlet.http.Cookie;
@@ -41,8 +38,10 @@ public class RequestContext extends MappedContext {
         this.req = req;
         this.resp = resp;
         this.requestPath =
-                new StringBuilder(512).append(req.getServletPath())
-                        .append(req.getPathInfo() != null ? req.getPathInfo() : "").toString();
+                new StringBuilder(512)
+                        .append(req.getServletPath())
+                        .append(req.getPathInfo() != null ? req.getPathInfo() : "")
+                        .toString();
         if ("/".equals(this.requestPath)) {
             this.requestPath = config.getDefaultPage();
         }
@@ -125,9 +124,14 @@ public class RequestContext extends MappedContext {
         String requestTarget = normalizePath(this.requestPath);
         int lastSlashIndex = requestTarget.lastIndexOf("/");
         if (lastSlashIndex >= 0) {
-            requestTarget = new StringBuilder(512)
-                    .append(requestTarget.substring(0, lastSlashIndex)).append("/")
-                    .append(TStringUtils.toCamelCase(requestTarget.substring(lastSlashIndex + 1))).toString();
+            requestTarget =
+                    new StringBuilder(512)
+                            .append(requestTarget.substring(0, lastSlashIndex))
+                            .append("/")
+                            .append(
+                                    TStringUtils.toCamelCase(
+                                            requestTarget.substring(lastSlashIndex + 1)))
+                            .toString();
         } else {
             requestTarget = TStringUtils.toCamelCase(requestTarget);
         }

@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.plugin.listener;
 
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -37,15 +42,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
-
-/**
- * Listener of delete stream sort
- */
+/** Listener of delete stream sort */
 @Slf4j
 public class DeleteStreamListener implements SortOperateListener {
 
@@ -61,15 +58,19 @@ public class DeleteStreamListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add delete stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
+            log.info(
+                    "not add delete stream listener, not StreamResourceProcessForm for groupId [{}]",
+                    groupId);
             return false;
         }
 
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
         if (streamProcessForm.getGroupOperateType() != GroupOperateType.DELETE) {
-            log.info("not add delete stream listener, as the operate was not DELETE for groupId [{}] streamId [{}]",
-                    groupId, streamId);
+            log.info(
+                    "not add delete stream listener, as the operate was not DELETE for groupId [{}] streamId [{}]",
+                    groupId,
+                    streamId);
             return false;
         }
 
@@ -80,7 +81,8 @@ public class DeleteStreamListener implements SortOperateListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         ProcessForm processForm = context.getProcessForm();
-        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        StreamResourceProcessForm streamResourceProcessForm =
+                (StreamResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = streamResourceProcessForm.getGroupInfo();
         List<InlongGroupExtInfo> groupExtList = groupInfo.getExtList();
         log.info("inlong group :{} ext info: {}", groupInfo.getInlongGroupId(), groupExtList);
@@ -90,26 +92,33 @@ public class DeleteStreamListener implements SortOperateListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         Map<String, String> kvConf = new HashMap<>();
-        groupExtList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
-        streamExtList.forEach(extInfo -> {
-            kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
-        });
+        groupExtList.forEach(
+                groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
+        streamExtList.forEach(
+                extInfo -> {
+                    kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
+                });
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format(
-                    "delete sort failed for groupId [%s] and streamId [%s], as the sort properties is empty",
-                    groupId, streamId);
+            String message =
+                    String.format(
+                            "delete sort failed for groupId [%s] and streamId [%s], as the sort properties is empty",
+                            groupId, streamId);
             log.error(message);
             return ListenerResult.fail(message);
         }
 
-        Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
-                new TypeReference<Map<String, String>>() {
-                });
+        Map<String, String> result =
+                OBJECT_MAPPER.convertValue(
+                        OBJECT_MAPPER.readTree(sortExt),
+                        new TypeReference<Map<String, String>>() {});
         kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
-            String message = String.format("sort job id is empty for groupId [%s] streamId [%s]", groupId, streamId);
+            String message =
+                    String.format(
+                            "sort job id is empty for groupId [%s] streamId [%s]",
+                            groupId, streamId);
             return ListenerResult.fail(message);
         }
 
@@ -129,10 +138,11 @@ public class DeleteStreamListener implements SortOperateListener {
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
             flinkOperation.pollJobStatus(flinkInfo);
 
-            String message = String.format("delete sort failed for groupId [%s] streamId [%s]", groupId, streamId);
+            String message =
+                    String.format(
+                            "delete sort failed for groupId [%s] streamId [%s]", groupId, streamId);
             log.error(message, e);
             return ListenerResult.fail(message + e.getMessage());
         }
     }
-
 }

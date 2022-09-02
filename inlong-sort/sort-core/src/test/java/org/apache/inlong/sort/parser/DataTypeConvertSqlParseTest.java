@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -43,27 +47,29 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Test data type convert implicitly {@link FlinkSqlParser}
- */
+/** Test data type convert implicitly {@link FlinkSqlParser} */
 public class DataTypeConvertSqlParseTest extends AbstractTestBase {
 
     private KafkaExtractNode buildKafkaExtractNode() {
         MetaFieldInfo metaFieldInfo = new MetaFieldInfo("PROCESS_TIME", MetaField.PROCESS_TIME);
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                metaFieldInfo
-        );
-        return new KafkaExtractNode("1", "kafka_input", fields, null,
-                null, "topic_input", "localhost:9092",
-                new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "group_1", null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        metaFieldInfo);
+        return new KafkaExtractNode(
+                "1",
+                "kafka_input",
+                fields,
+                null,
+                null,
+                "topic_input",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                KafkaScanStartupMode.EARLIEST_OFFSET,
+                null,
+                "group_1",
+                null);
     }
 
     /**
@@ -72,36 +78,53 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
      * @return A transform node
      */
     private Node buildTransformNode() {
-        return new TransformNode("4", "transform_node",
+        return new TransformNode(
+                "4",
+                "transform_node",
                 Arrays.asList(
                         new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
-                        new FieldInfo("PROCESS_TIME", null)
-                ), Arrays.asList(
-                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
-                        new FieldInfo("age", new IntFormatInfo())),
-                new FieldRelation(new FieldInfo("PROCESS_TIME", "3", null),
-                        new FieldInfo("PROCESS_TIME", null))
-        ), null, null);
+                        new FieldInfo("PROCESS_TIME", null)),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", "1", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("age", "2", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelation(
+                                new FieldInfo("PROCESS_TIME", "3", null),
+                                new FieldInfo("PROCESS_TIME", null))),
+                null,
+                null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
-                null, "topic_output", "localhost:9092",
-                new CanalJsonFormat(), 1,
-                null, null);
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())));
+        return new KafkaLoadNode(
+                "3",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic_output",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                1,
+                null,
+                null);
     }
 
     public NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -117,11 +140,8 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testDataTypeConvertSqlParse() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -129,13 +149,17 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
         Node inputNode = buildKafkaExtractNode();
         Node transformNode = buildTransformNode();
         Node outputNode = buildKafkaLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(inputNode, transformNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(transformNode)),
-                        buildNodeRelation(Collections.singletonList(transformNode),
-                                Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, transformNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(transformNode)),
+                                buildNodeRelation(
+                                        Collections.singletonList(transformNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -148,15 +172,31 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
      * @return hbase load node
      */
     private HbaseLoadNode buildHbaseLoadNode() {
-        return new HbaseLoadNode("2", "test_hbase",
-                Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo()), new FieldInfo("cf:age",
-                        new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        return new HbaseLoadNode(
+                "2",
+                "test_hbase",
+                Arrays.asList(
+                        new FieldInfo("cf:id", new StringFormatInfo()),
+                        new FieldInfo("cf:age", new StringFormatInfo())),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("cf:id", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("cf:age", new StringFormatInfo()))), null, null, 1, null, "mytable",
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("cf:age", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
+                "mytable",
                 "default",
-                "localhost:2181", "MD5(CAST(`id` as String))", null, null, null, null);
+                "localhost:2181",
+                "MD5(CAST(`id` as String))",
+                null,
+                null,
+                null,
+                null);
     }
 
     /**
@@ -166,22 +206,22 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
      */
     @Test
     public void testHBaseDataTypeConvertSqlParse() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
         Node outputNode = buildHbaseLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(inputNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Arrays.asList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

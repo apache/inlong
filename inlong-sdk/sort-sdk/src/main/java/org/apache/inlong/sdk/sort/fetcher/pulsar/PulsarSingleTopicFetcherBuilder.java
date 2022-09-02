@@ -18,17 +18,14 @@
 
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
+import java.util.Optional;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 import org.apache.pulsar.client.api.PulsarClient;
 
-import java.util.Optional;
-
-/**
- * Builder of pulsar single topic fetcher.
- */
+/** Builder of pulsar single topic fetcher. */
 public class PulsarSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
     PulsarClient pulsarClient;
@@ -41,7 +38,10 @@ public class PulsarSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
     @Override
     public TopicFetcher subscribe() {
         Optional.ofNullable(topic)
-                .orElseThrow(() -> new IllegalStateException("subscribe pulsar single topic, but never assign topic"));
+                .orElseThrow(
+                        () ->
+                                new IllegalStateException(
+                                        "subscribe pulsar single topic, but never assign topic"));
         Optional.ofNullable(context)
                 .orElseThrow(() -> new IllegalStateException("context is null"));
         Optional.ofNullable(pulsarClient)
@@ -50,11 +50,11 @@ public class PulsarSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
         PulsarSingleTopicFetcher fetcher =
-                new PulsarSingleTopicFetcher(topic, context, interceptor, deserializer, pulsarClient);
+                new PulsarSingleTopicFetcher(
+                        topic, context, interceptor, deserializer, pulsarClient);
         if (!fetcher.init()) {
             throw new IllegalStateException("init pulsar single topic fetcher failed");
         }
         return fetcher;
     }
-
 }

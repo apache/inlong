@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * Kafka sink info
- */
+/** Kafka sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -54,7 +52,8 @@ public class KafkaSink extends StreamSink {
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
+    @ApiModelProperty(
+            value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
@@ -69,5 +68,4 @@ public class KafkaSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, KafkaSinkRequest::new);
     }
-
 }

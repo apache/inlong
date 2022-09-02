@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -31,22 +43,7 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.util.Preconditions;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
-
-import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
-import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
-
-/**
- * Option utils for tubeMQ table source and sink.
- */
+/** Option utils for tubeMQ table source and sink. */
 public class TubeMQOptions {
 
     // --------------------------------------------------------------------------------------------
@@ -56,23 +53,25 @@ public class TubeMQOptions {
     public static final String PROPERTIES_PREFIX = "properties.";
 
     // Start up offset.
-    //Always start from the max consume position.
+    // Always start from the max consume position.
     public static final String CONSUMER_FROM_MAX_OFFSET_ALWAYS = "max";
-    //Start from the latest position for the first time. Otherwise start from last consume position.
+    // Start from the latest position for the first time. Otherwise start from last consume
+    // position.
     public static final String CONSUMER_FROM_LATEST_OFFSET = "latest";
-    //Start from 0 for the first time. Otherwise start from last consume position.
+    // Start from 0 for the first time. Otherwise start from last consume position.
     public static final String CONSUMER_FROM_FIRST_OFFSET = "earliest";
 
     // --------------------------------------------------------------------------------------------
     // Format options
     // --------------------------------------------------------------------------------------------
 
-    public static final ConfigOption<String> KEY_FORMAT = ConfigOptions
-            .key("key." + FORMAT.key())
-            .stringType()
-            .noDefaultValue()
-            .withDescription("Defines the format identifier for encoding key data. "
-                    + "The identifier is used to discover a suitable format factory.");
+    public static final ConfigOption<String> KEY_FORMAT =
+            ConfigOptions.key("key." + FORMAT.key())
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Defines the format identifier for encoding key data. "
+                                    + "The identifier is used to discover a suitable format factory.");
 
     public static final ConfigOption<List<String>> KEY_FIELDS =
             ConfigOptions.key("key.fields")
@@ -114,15 +113,15 @@ public class TubeMQOptions {
             ConfigOptions.key("group.id")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription(
-                            "Required consumer group in TubeMQ consumer");
+                    .withDescription("Required consumer group in TubeMQ consumer");
 
     public static final ConfigOption<String> TUBE_MESSAGE_NOT_FOUND_WAIT_PERIOD =
             ConfigOptions.key("tubemq.message.not.found.wait.period")
                     .stringType()
                     .defaultValue("350ms")
-                    .withDescription("The time of waiting period if "
-                            + "tubeMQ broker return message not found.");
+                    .withDescription(
+                            "The time of waiting period if "
+                                    + "tubeMQ broker return message not found.");
 
     public static final ConfigOption<Long> TUBE_SUBSCRIBE_RETRY_TIMEOUT =
             ConfigOptions.key("tubemq.subscribe.retry.timeout")
@@ -131,9 +130,7 @@ public class TubeMQOptions {
                     .withDescription("The time of subscribing tubeMQ timeout, in millisecond");
 
     public static final ConfigOption<Integer> SOURCE_EVENT_QUEUE_CAPACITY =
-            ConfigOptions.key("source.event.queue.capacity")
-                    .intType()
-                    .defaultValue(1024);
+            ConfigOptions.key("source.event.queue.capacity").intType().defaultValue(1024);
 
     public static final ConfigOption<String> SESSION_KEY =
             ConfigOptions.key("session.key")
@@ -152,17 +149,18 @@ public class TubeMQOptions {
             ConfigOptions.key("max.retries")
                     .intType()
                     .defaultValue(5)
-                    .withDescription("The maximum number of retries when an "
-                            + "exception is caught.");
+                    .withDescription(
+                            "The maximum number of retries when an " + "exception is caught.");
 
     public static final ConfigOption<Boolean> BOOTSTRAP_FROM_MAX =
             ConfigOptions.key("bootstrap.from.max")
                     .booleanType()
                     .defaultValue(true)
-                    .withDescription("True if consuming from the most recent "
-                            + "position when the tubemq source starts.. It only takes "
-                            + "effect when the tubemq source does not recover from "
-                            + "checkpoints.");
+                    .withDescription(
+                            "True if consuming from the most recent "
+                                    + "position when the tubemq source starts.. It only takes "
+                                    + "effect when the tubemq source does not recover from "
+                                    + "checkpoints.");
 
     public static final ConfigOption<String> SOURCE_MAX_IDLE_TIME =
             ConfigOptions.key("source.task.max.idle.time")
@@ -174,8 +172,8 @@ public class TubeMQOptions {
             ConfigOptions.key("message.not.found.wait.period")
                     .stringType()
                     .defaultValue("500ms")
-                    .withDescription("The time of waiting period if tubemq broker return message not found.");
-
+                    .withDescription(
+                            "The time of waiting period if tubemq broker return message not found.");
 
     public static final ConfigOption<ValueFieldsStrategy> VALUE_FIELDS_INCLUDE =
             ConfigOptions.key("value.fields-include")
@@ -222,10 +220,12 @@ public class TubeMQOptions {
     // --------------------------------------------------------------------------------------------
     // Validation
     // --------------------------------------------------------------------------------------------
-    private static final Set<String> CONSUMER_STARTUP_MODE_ENUMS = new HashSet<>(Arrays.asList(
-            CONSUMER_FROM_MAX_OFFSET_ALWAYS,
-            CONSUMER_FROM_LATEST_OFFSET,
-            CONSUMER_FROM_FIRST_OFFSET));
+    private static final Set<String> CONSUMER_STARTUP_MODE_ENUMS =
+            new HashSet<>(
+                    Arrays.asList(
+                            CONSUMER_FROM_MAX_OFFSET_ALWAYS,
+                            CONSUMER_FROM_LATEST_OFFSET,
+                            CONSUMER_FROM_FIRST_OFFSET));
 
     public static void validateTableSourceOptions(ReadableConfig tableOptions) {
         validateSourceTopic(tableOptions);
@@ -249,8 +249,7 @@ public class TubeMQOptions {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the value format.
      *
-     * <p>See  {@link #VALUE_FIELDS_INCLUDE}, and {@link #KEY_FIELDS_PREFIX}
-     * for more information.</p>
+     * <p>See {@link #VALUE_FIELDS_INCLUDE}, and {@link #KEY_FIELDS_PREFIX} for more information.
      */
     public static int[] createValueFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -287,7 +286,7 @@ public class TubeMQOptions {
      * Creates an array of indices that determine which physical fields of the table schema to
      * include in the key format and the order that those fields have in the key format.
      *
-     * <p>See {@link #KEY_FIELDS}for more information.</p>
+     * <p>See {@link #KEY_FIELDS}for more information.
      */
     public static int[] createKeyFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -387,12 +386,15 @@ public class TubeMQOptions {
 
     public static TreeSet<String> getTiSet(ReadableConfig tableOptions) {
         TreeSet<String> set = new TreeSet<>();
-        tableOptions.getOptional(TID).ifPresent(new Consumer<List<String>>() {
-            @Override
-            public void accept(List<String> strings) {
-                set.addAll(strings);
-            }
-        });
+        tableOptions
+                .getOptional(TID)
+                .ifPresent(
+                        new Consumer<List<String>>() {
+                            @Override
+                            public void accept(List<String> strings) {
+                                set.addAll(strings);
+                            }
+                        });
         return set;
     }
 
@@ -404,15 +406,10 @@ public class TubeMQOptions {
         return tableOptions.getOptional(SESSION_KEY).orElse(SESSION_KEY.defaultValue());
     }
 
-    /**
-     * Strategies to derive the data type of a value format by considering a key format.
-     */
+    /** Strategies to derive the data type of a value format by considering a key format. */
     public enum ValueFieldsStrategy {
-
         ALL,
 
         EXCEPT_KEY
-
     }
-
 }

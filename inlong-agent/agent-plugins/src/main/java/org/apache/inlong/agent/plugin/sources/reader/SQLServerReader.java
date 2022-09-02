@@ -17,6 +17,17 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import static java.sql.Types.BINARY;
+import static java.sql.Types.BLOB;
+import static java.sql.Types.LONGVARBINARY;
+import static java.sql.Types.VARBINARY;
+
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,21 +40,7 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BLOB;
-import static java.sql.Types.LONGVARBINARY;
-import static java.sql.Types.VARBINARY;
-
-/**
- * Read data from SQLServer database by SQL
- */
+/** Read data from SQLServer database by SQL */
 public class SQLServerReader extends AbstractReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
@@ -60,7 +57,8 @@ public class SQLServerReader extends AbstractReader {
     public static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
 
     public static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
-    public static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+    public static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS =
+            "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     public static final String STD_FIELD_SEPARATOR_SHORT = "\001";
     public static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
@@ -69,9 +67,9 @@ public class SQLServerReader extends AbstractReader {
     public static final String JOB_DATABASE_TYPE = "job.database.type";
     public static final String SQLSERVER = "sqlserver";
 
-    private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
-            String.valueOf(CharUtils.LF)};
-    private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
+    private static final String[] NEW_LINE_CHARS =
+            new String[] {String.valueOf(CharUtils.CR), String.valueOf(CharUtils.LF)};
+    private static final String[] EMPTY_CHARS = new String[] {StringUtils.EMPTY, StringUtils.EMPTY};
 
     private final String sql;
 
@@ -105,18 +103,26 @@ public class SQLServerReader extends AbstractReader {
                 final String typeName = columnTypeNames[i - 1];
 
                 // binary type
-                if (typeCode == BLOB || typeCode == BINARY || typeCode == VARBINARY
-                        || typeCode == LONGVARBINARY || typeName.contains("BLOB")) {
+                if (typeCode == BLOB
+                        || typeCode == BINARY
+                        || typeCode == VARBINARY
+                        || typeCode == LONGVARBINARY
+                        || typeName.contains("BLOB")) {
                     final byte[] data = resultSet.getBytes(i);
-                    dataValue = new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
+                    dataValue =
+                            new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
                 } else {
                     // non-binary type
-                    dataValue = StringUtils.replaceEachRepeatedly(resultSet.getString(i),
-                            NEW_LINE_CHARS, EMPTY_CHARS);
+                    dataValue =
+                            StringUtils.replaceEachRepeatedly(
+                                    resultSet.getString(i), NEW_LINE_CHARS, EMPTY_CHARS);
                 }
                 lineColumns.add(dataValue);
             }
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+            AuditUtils.add(
+                    AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
+                    inlongGroupId,
+                    inlongStreamId,
                     System.currentTimeMillis());
             readerMetric.pluginReadCount.incrementAndGet();
             return generateMessage(lineColumns);
@@ -128,7 +134,8 @@ public class SQLServerReader extends AbstractReader {
     }
 
     private Message generateMessage(List<String> lineColumns) {
-        return new DefaultMessage(StringUtils.join(lineColumns, separator).getBytes(StandardCharsets.UTF_8));
+        return new DefaultMessage(
+                StringUtils.join(lineColumns, separator).getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -142,14 +149,10 @@ public class SQLServerReader extends AbstractReader {
     }
 
     @Override
-    public void setReadTimeout(long mill) {
-
-    }
+    public void setReadTimeout(long mill) {}
 
     @Override
-    public void setWaitMillisecond(long millis) {
-
-    }
+    public void setWaitMillisecond(long millis) {}
 
     @Override
     public String getSnapshot() {
@@ -176,13 +179,16 @@ public class SQLServerReader extends AbstractReader {
         String dbname = jobConf.get(JOB_DATABASE_DBNAME);
         int port = jobConf.getInt(JOB_DATABASE_PORT);
 
-        String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
-                DEFAULT_JOB_DATABASE_DRIVER_CLASS);
+        String driverClass =
+                jobConf.get(JOB_DATABASE_DRIVER_CLASS, DEFAULT_JOB_DATABASE_DRIVER_CLASS);
         separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
         finished = false;
         try {
             String databaseType = jobConf.get(JOB_DATABASE_TYPE, SQLSERVER);
-            String url = String.format("jdbc:%s://%s:%d;databaseName=%s;", databaseType, hostName, port, dbname);
+            String url =
+                    String.format(
+                            "jdbc:%s://%s:%d;databaseName=%s;",
+                            databaseType, hostName, port, dbname);
             conn = AgentDbUtils.getConnectionFailover(driverClass, url, userName, password);
             preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setFetchSize(batchSize);

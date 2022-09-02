@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface StreamTransformFieldEntityMapper {
@@ -46,7 +45,8 @@ public interface StreamTransformFieldEntityMapper {
      * @param transformIds
      * @return
      */
-    List<StreamTransformFieldEntity> selectByTransformIds(@Param("transformIds") List<Integer> transformIds);
+    List<StreamTransformFieldEntity> selectByTransformIds(
+            @Param("transformIds") List<Integer> transformIds);
 
     StreamTransformFieldEntity selectByPrimaryKey(Integer id);
 

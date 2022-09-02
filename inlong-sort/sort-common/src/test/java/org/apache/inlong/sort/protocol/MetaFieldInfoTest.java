@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link MetaFieldInfo}
- */
+/** Test for {@link MetaFieldInfo} */
 public class MetaFieldInfoTest extends SerializeBaseTest<MetaFieldInfo> {
 
     @Override

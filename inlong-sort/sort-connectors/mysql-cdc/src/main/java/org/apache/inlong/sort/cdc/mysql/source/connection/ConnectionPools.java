@@ -22,9 +22,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
-/**
- * A JDBC connection pools that consists of {@link HikariDataSource}.
- */
+/** A JDBC connection pools that consists of {@link HikariDataSource}. */
 @Internal
 public interface ConnectionPools {
 

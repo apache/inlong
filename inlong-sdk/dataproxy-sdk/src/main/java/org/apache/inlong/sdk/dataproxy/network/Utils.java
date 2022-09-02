@@ -18,11 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.HmacUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -30,6 +25,10 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.HmacUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Utils {
 
@@ -122,9 +121,11 @@ public class Utils {
         return sb.toString();
     }
 
-    public static String generateSignature(String secureId, long timestamp, int randomValue, String secureKey) {
+    public static String generateSignature(
+            String secureId, long timestamp, int randomValue, String secureKey) {
         Base64 base64 = new Base64();
-        byte[] baseStr = base64.encode(HmacUtils.hmacSha1(secureKey, secureId + timestamp + randomValue));
+        byte[] baseStr =
+                base64.encode(HmacUtils.hmacSha1(secureKey, secureId + timestamp + randomValue));
         String result = "";
         try {
             result = URLEncoder.encode(new String(baseStr), "UTF-8");
@@ -134,7 +135,8 @@ public class Utils {
         return result;
     }
 
-    public static String getAuthorizenInfo(final String secretId, final String secretKey, long timestamp, int nonce) {
+    public static String getAuthorizenInfo(
+            final String secretId, final String secretKey, long timestamp, int nonce) {
         String signature = generateSignature(secretId, timestamp, nonce, secretKey);
         return "manager " + secretId + " " + timestamp + " " + nonce + " " + signature;
     }
@@ -151,5 +153,4 @@ public class Utils {
         }
         return sb.toString();
     }
-
 }

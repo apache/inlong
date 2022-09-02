@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.repository;
 
 import java.util.List;
-
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -50,7 +49,6 @@ public interface MasterRepository extends JpaRepository<MasterEntry, Long> {
     List<MasterEntry> findAll();
 
     /**
-     *
      * find all nodes in ip
      *
      * @return

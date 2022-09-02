@@ -21,7 +21,6 @@ import lombok.Getter;
 
 @Getter
 public enum TaskCommitType {
-
     START_NOW(1, "startup now"),
 
     RESTART(2, "save state data and restart"),

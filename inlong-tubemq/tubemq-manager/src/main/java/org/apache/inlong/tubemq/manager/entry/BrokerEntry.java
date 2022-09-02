@@ -25,15 +25,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "broker",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"brokerId"}))
+@Table(name = "broker", uniqueConstraints = @UniqueConstraint(columnNames = {"brokerId"}))
 @Data
 @EntityListeners(AuditingEntityListener.class)
 public class BrokerEntry {
@@ -45,11 +43,9 @@ public class BrokerEntry {
 
     private long brokerIp;
 
-    @CreatedDate
-    private Date createTime;
+    @CreatedDate private Date createTime;
 
-    @LastModifiedDate
-    private Date modifyTime;
+    @LastModifiedDate private Date modifyTime;
 
     private String createUser;
 

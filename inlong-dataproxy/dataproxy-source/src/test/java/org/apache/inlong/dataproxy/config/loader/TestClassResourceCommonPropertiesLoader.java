@@ -17,22 +17,17 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
 import org.apache.inlong.common.metric.MetricListener;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
-/**
- * Test for {@link ClassResourceCommonPropertiesLoader}
- */
+/** Test for {@link ClassResourceCommonPropertiesLoader} */
 public class TestClassResourceCommonPropertiesLoader {
 
-    /**
-     * testResult
-     */
+    /** testResult */
     @Test
     public void testResult() {
         // increase source

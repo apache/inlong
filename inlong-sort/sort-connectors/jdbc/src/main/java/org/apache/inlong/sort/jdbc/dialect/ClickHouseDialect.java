@@ -18,22 +18,19 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import static java.lang.String.format;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-
-/**
- * JDBC dialect for ClickHouse SQL.
- */
+/** JDBC dialect for ClickHouse SQL. */
 public class ClickHouseDialect extends AbstractJdbcDialect {
 
     // Define MAX/MIN precision of TIMESTAMP type according to ClickHouse docs:
@@ -84,7 +81,6 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     @Override
     public int minDecimalPrecision() {
         return MIN_DECIMAL_PRECISION;
-
     }
 
     @Override
@@ -123,9 +119,7 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.UNRESOLVED);
     }
 
-    /**
-     * Get update one row statement by condition fields
-     */
+    /** Get update one row statement by condition fields */
     @Override
     public String getUpdateStatement(
             String tableName, String[] fieldNames, String[] conditionFields) {
@@ -145,9 +139,7 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 + conditionClause;
     }
 
-    /**
-     * Get delete one row statement by condition fields
-     */
+    /** Get delete one row statement by condition fields */
     @Override
     public String getDeleteStatement(String tableName, String[] conditionFields) {
         String conditionClause =

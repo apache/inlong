@@ -30,17 +30,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class TestBusinessRepository {
-    @Autowired
-    private TestEntityManager entityManager;
+    @Autowired private TestEntityManager entityManager;
 
-    @Autowired
-    private TopicRepository businessRepository;
+    @Autowired private TopicRepository businessRepository;
 
     @Test
     public void whenFindByNameThenReturnBusiness() {
         String demoName = "alex";
-        TopicEntry businessEntry = new TopicEntry(demoName, demoName,
-                demoName, demoName, demoName, demoName);
+        TopicEntry businessEntry =
+                new TopicEntry(demoName, demoName, demoName, demoName, demoName, demoName);
         entityManager.persist(businessEntry);
         entityManager.flush();
 
@@ -51,8 +49,8 @@ public class TestBusinessRepository {
     @Test
     public void checkValidation() {
         String demoName = "a";
-        TopicEntry businessEntry = new TopicEntry(demoName, demoName, demoName,
-                demoName, demoName, demoName);
+        TopicEntry businessEntry =
+                new TopicEntry(demoName, demoName, demoName, demoName, demoName, demoName);
         StringBuilder builder = new StringBuilder();
 
         for (int i = 0; i < 512; i++) {

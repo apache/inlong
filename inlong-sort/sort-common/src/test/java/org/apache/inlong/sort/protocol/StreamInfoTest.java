@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -35,71 +39,115 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.Time
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * StreamInfo unit test class
- */
+/** StreamInfo unit test class */
 public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
 
     private MySqlExtractNode buildMySqlExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        WatermarkField wk = new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
-                new StringConstantParam("1"),
-                new TimeUnitConstantParam(TimeUnit.MINUTE));
-        return new MySqlExtractNode("1", "mysql_input", fields,
-                wk, null, "id",
-                Collections.singletonList("table"), "localhost", "username", "username",
-                "test_database", 3306, 123, true, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        WatermarkField wk =
+                new WatermarkField(
+                        new FieldInfo("ts", new TimestampFormatInfo()),
+                        new StringConstantParam("1"),
+                        new TimeUnitConstantParam(TimeUnit.MINUTE));
+        return new MySqlExtractNode(
+                "1",
+                "mysql_input",
+                fields,
+                wk,
+                null,
+                "id",
+                Collections.singletonList("table"),
+                "localhost",
+                "username",
+                "username",
+                "test_database",
+                3306,
+                123,
+                true,
+                null);
     }
 
     private KafkaLoadNode buildKafkaNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
-                "topic", "localhost:9092", new JsonFormat(),
-                1, null, "id");
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new KafkaLoadNode(
+                "2",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic",
+                "localhost:9092",
+                new JsonFormat(),
+                1,
+                null,
+                "id");
     }
 
     private HiveLoadNode buildHiveNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()),
+                        new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
-        return new HiveLoadNode("2", "hive_output", fields, relations, null, null,
-                1, null, "myHive", "default", "test", "/opt/hive-conf", "3.1.2",
-                null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));
+                        new FieldRelation(
+                                new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        return new HiveLoadNode(
+                "2",
+                "hive_output",
+                fields,
+                relations,
+                null,
+                null,
+                1,
+                null,
+                "myHive",
+                "default",
+                "test",
+                "/opt/hive-conf",
+                "3.1.2",
+                null,
+                Arrays.asList(new FieldInfo("day", new LongFormatInfo())));
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -117,7 +165,12 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
     public StreamInfo getTestObject() {
         Node input = buildMySqlExtractNode();
         Node output = buildKafkaNode();
-        return new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
-                buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
+        return new StreamInfo(
+                "1",
+                Arrays.asList(input, output),
+                Collections.singletonList(
+                        buildNodeRelation(
+                                Collections.singletonList(input),
+                                Collections.singletonList(output))));
     }
 }

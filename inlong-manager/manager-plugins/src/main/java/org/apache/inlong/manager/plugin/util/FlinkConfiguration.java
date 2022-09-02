@@ -17,27 +17,26 @@
 
 package org.apache.inlong.manager.plugin.util;
 
-import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
-
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Configuration file for Flink, only one instance in the process.
- * Basically it used properties file to store.
+ * Configuration file for Flink, only one instance in the process. Basically it used properties file
+ * to store.
  */
 public class FlinkConfiguration {
 
@@ -48,17 +47,13 @@ public class FlinkConfiguration {
 
     private final FlinkConfig flinkConfig;
 
-    /**
-     * load config from flink file.
-     */
+    /** load config from flink file. */
     public FlinkConfiguration() throws Exception {
         String path = formatPath();
         flinkConfig = getFlinkConfigFromFile(path);
     }
 
-    /**
-     * fetch DEFAULT_CONFIG_FILE full path
-     */
+    /** fetch DEFAULT_CONFIG_FILE full path */
     private String formatPath() throws Exception {
         String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         LOGGER.info("format first path {}", path);
@@ -69,10 +64,17 @@ public class FlinkConfiguration {
         }
 
         path = path.substring(0, index);
-        String confPath = path + INLONG_MANAGER + File.separator + "plugins" + File.separator + DEFAULT_CONFIG_FILE;
+        String confPath =
+                path
+                        + INLONG_MANAGER
+                        + File.separator
+                        + "plugins"
+                        + File.separator
+                        + DEFAULT_CONFIG_FILE;
         File file = new File(confPath);
         if (!file.exists()) {
-            String message = String.format("not found %s in path %s", DEFAULT_CONFIG_FILE, confPath);
+            String message =
+                    String.format("not found %s in path %s", DEFAULT_CONFIG_FILE, confPath);
             LOGGER.error(message);
             throw new Exception(message);
         }
@@ -81,16 +83,12 @@ public class FlinkConfiguration {
         return confPath;
     }
 
-    /**
-     * get flink config
-     */
+    /** get flink config */
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
     }
 
-    /**
-     * parse properties
-     */
+    /** parse properties */
     private FlinkConfig getFlinkConfigFromFile(String fileName) throws IOException {
         Properties properties = new Properties();
         BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
@@ -105,6 +103,4 @@ public class FlinkConfiguration {
         flinkConfig.setAuditProxyHosts(properties.getProperty(METRICS_AUDIT_PROXY_HOSTS));
         return flinkConfig;
     }
-
 }
-

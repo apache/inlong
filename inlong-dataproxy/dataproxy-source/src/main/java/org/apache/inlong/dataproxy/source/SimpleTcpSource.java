@@ -46,12 +46,8 @@ import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Simple tcp source
- *
- */
-public class SimpleTcpSource extends BaseSource
-        implements Configurable, EventDrivenSource {
+/** Simple tcp source */
+public class SimpleTcpSource extends BaseSource implements Configurable, EventDrivenSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
 
@@ -87,11 +83,11 @@ public class SimpleTcpSource extends BaseSource
 
     public SimpleTcpSource() {
         super();
-
     }
 
     /**
      * check black list
+     *
      * @param blacklist
      * @param allChannels
      */
@@ -107,7 +103,9 @@ public class SimpleTcpSource extends BaseSource
                     try {
                         strRemoteIP = strRemoteIP.substring(1, strRemoteIP.indexOf(':'));
                     } catch (Exception ee) {
-                        logger.warn("fail to get the remote IP, and strIP={},remoteSocketAddress={}", strRemoteIP,
+                        logger.warn(
+                                "fail to get the remote IP, and strIP={},remoteSocketAddress={}",
+                                strRemoteIP,
                                 remoteSocketAddress);
                     }
                 }
@@ -164,8 +162,10 @@ public class SimpleTcpSource extends BaseSource
                         blacklist = load(blacklistFilePath);
                         propsLastModified = blacklistFile.lastModified();
                         SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        logger.info("blacklist.properties:{}\n{}",
-                                formator.format(new Date(blacklistFile.lastModified())), blacklist);
+                        logger.info(
+                                "blacklist.properties:{}\n{}",
+                                formator.format(new Date(blacklistFile.lastModified())),
+                                blacklist);
                     }
                     Thread.sleep(DEFAULT_SLEEP_TIME_MS);
                     checkBlackList(blacklist, allChannels);
@@ -186,17 +186,19 @@ public class SimpleTcpSource extends BaseSource
         MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
-//        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
+        //        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
 
         logger.info("Set max workers : {} ;", maxThreads);
 
         acceptorThreadFactory = new DefaultThreadFactory("tcpSource-nettyBoss-threadGroup");
 
-        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(
-                acceptorThreads, false, acceptorThreadFactory);
+        this.acceptorGroup =
+                EventLoopUtil.newEventLoopGroup(acceptorThreads, false, acceptorThreadFactory);
 
-        this.workerGroup = EventLoopUtil
-                .newEventLoopGroup(maxThreads, enableBusyWait,
+        this.workerGroup =
+                EventLoopUtil.newEventLoopGroup(
+                        maxThreads,
+                        enableBusyWait,
                         new DefaultThreadFactory("tcpSource-nettyWorker-threadGroup"));
 
         bootstrap = new ServerBootstrap();
@@ -206,13 +208,16 @@ public class SimpleTcpSource extends BaseSource
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, keepAlive);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, receiveBufferSize);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, sendBufferSize);
-//        serverBootstrap.childOption("child.trafficClass", trafficClass);
+        //        serverBootstrap.childOption("child.trafficClass", trafficClass);
         bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, highWaterMark);
         bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
         EventLoopUtil.enableTriggeredMode(bootstrap);
         bootstrap.group(acceptorGroup, workerGroup);
-        logger.info("load msgFactory=" + msgFactoryName
-                + " and serviceDecoderName=" + serviceDecoderName);
+        logger.info(
+                "load msgFactory="
+                        + msgFactoryName
+                        + " and serviceDecoderName="
+                        + serviceDecoderName);
 
         ChannelInitializer fac = this.getChannelInitializerFactory();
         bootstrap.childHandler(fac);
@@ -223,8 +228,11 @@ public class SimpleTcpSource extends BaseSource
                 channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
-            logger.error("Simple TCP Source error bind host {} port {},program will exit! e = {}",
-                    host, port, e);
+            logger.error(
+                    "Simple TCP Source error bind host {} port {},program will exit! e = {}",
+                    host,
+                    port,
+                    e);
             System.exit(-1);
         }
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
@@ -242,36 +250,42 @@ public class SimpleTcpSource extends BaseSource
         super.configure(context);
         tcpNoDelay = context.getBoolean(ConfigConstants.TCP_NO_DELAY, true);
         keepAlive = context.getBoolean(ConfigConstants.KEEP_ALIVE, true);
-        highWaterMark = context.getInteger(ConfigConstants.HIGH_WATER_MARK, HIGH_WATER_MARK_DEFAULT_VALUE);
-        receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
+        highWaterMark =
+                context.getInteger(ConfigConstants.HIGH_WATER_MARK, HIGH_WATER_MARK_DEFAULT_VALUE);
+        receiveBufferSize =
+                context.getInteger(
+                        ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
         if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
             receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
-                "receiveBufferSize must be > 0");
+        Preconditions.checkArgument(
+                receiveBufferSize > BUFFER_SIZE_MUST_THAN, "receiveBufferSize must be > 0");
 
-        sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
+        sendBufferSize =
+                context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
         if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
             sendBufferSize = SEND_BUFFER_MAX_SIZE;
         }
-        Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
-                "sendBufferSize must be > 0");
+        Preconditions.checkArgument(
+                sendBufferSize > BUFFER_SIZE_MUST_THAN, "sendBufferSize must be > 0");
 
         trafficClass = context.getInteger(ConfigConstants.TRAFFIC_CLASS, TRAFFIC_CLASS_TYPE_0);
-        Preconditions.checkArgument((trafficClass == TRAFFIC_CLASS_TYPE_0
-                        || trafficClass == TRAFFIC_CLASS_TYPE_96),
+        Preconditions.checkArgument(
+                (trafficClass == TRAFFIC_CLASS_TYPE_0 || trafficClass == TRAFFIC_CLASS_TYPE_96),
                 "trafficClass must be == 0 or == 96");
 
         try {
             maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, 32);
         } catch (NumberFormatException e) {
-            logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
+            logger.warn(
+                    "Simple TCP Source max-threads property must specify an integer value. {}",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
     }
 
     /**
      * get metricItemSet
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {

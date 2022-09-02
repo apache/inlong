@@ -49,33 +49,25 @@ import org.springframework.web.client.RestTemplate;
 @ConfigurationProperties(prefix = "common.http-client")
 public class RestTemplateConfig {
 
-    /**
-     * Max total
-     */
+    /** Max total */
     @Value("${common.http-client.maxTotal}")
     private int maxTotal;
-    /**
-     * Concurrency
-     */
+    /** Concurrency */
     @Value("${common.http-client.defaultMaxPerRoute}")
     private int defaultMaxPerRoute;
 
     @Value("${common.http-client.validateAfterInactivity}")
     private int validateAfterInactivity;
 
-    /**
-     * Time to connect to the server (successful handshake), timeout throws connect timeout
-     */
+    /** Time to connect to the server (successful handshake), timeout throws connect timeout */
     @Value("${common.http-client.connectionTimeout}")
     private int connectionTimeout;
-    /**
-     * The time for the server to return data (response), timeout throws read timeout
-     */
+    /** The time for the server to return data (response), timeout throws read timeout */
     @Value("${common.http-client.readTimeout}")
     private int readTimeout;
     /**
-     * Get the timeout time of the connection from the connection pool,
-     * and throw ConnectionPoolTimeoutException when timeout
+     * Get the timeout time of the connection from the connection pool, and throw
+     * ConnectionPoolTimeoutException when timeout
      */
     @Value("${common.http-client.connectionRequestTimeout}")
     private int connectionRequestTimeout;
@@ -83,12 +75,13 @@ public class RestTemplateConfig {
     @Bean
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
         // Support HTTP, HTTPS
-        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", SSLConnectionSocketFactory.getSocketFactory())
-                .build();
-        PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(
-                registry);
+        Registry<ConnectionSocketFactory> registry =
+                RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                        .register("https", SSLConnectionSocketFactory.getSocketFactory())
+                        .build();
+        PoolingHttpClientConnectionManager httpClientConnectionManager =
+                new PoolingHttpClientConnectionManager(registry);
         httpClientConnectionManager.setMaxTotal(maxTotal);
         httpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
         httpClientConnectionManager.setValidateAfterInactivity(validateAfterInactivity);
@@ -107,7 +100,8 @@ public class RestTemplateConfig {
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         // httpClient connection configuration
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient());
+        HttpComponentsClientHttpRequestFactory factory =
+                new HttpComponentsClientHttpRequestFactory(httpClient());
         // Time to connect to the server (successful handshake), timeout throws connect timeout
         factory.setConnectTimeout(connectionTimeout);
         // The time for the server to return data (response), timeout throws read timeout
@@ -142,15 +136,14 @@ public class RestTemplateConfig {
 
     public static class CustomConnectionKeepAliveStrategy implements ConnectionKeepAliveStrategy {
 
-        public static CustomConnectionKeepAliveStrategy INSTANCE = new CustomConnectionKeepAliveStrategy();
+        public static CustomConnectionKeepAliveStrategy INSTANCE =
+                new CustomConnectionKeepAliveStrategy();
 
-        private CustomConnectionKeepAliveStrategy() {
-        }
+        private CustomConnectionKeepAliveStrategy() {}
 
         @Override
         public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
             return 30 * 1000;
         }
     }
-
 }

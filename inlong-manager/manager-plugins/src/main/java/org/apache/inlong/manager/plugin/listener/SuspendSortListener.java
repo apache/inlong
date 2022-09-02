@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.plugin.listener;
 
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -35,15 +40,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
-
-/**
- * Listener of suspend sort.
- */
+/** Listener of suspend sort. */
 @Slf4j
 public class SuspendSortListener implements SortOperateListener {
 
@@ -59,13 +56,17 @@ public class SuspendSortListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add suspend group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
+            log.info(
+                    "not add suspend group listener, not GroupResourceProcessForm for groupId [{}]",
+                    groupId);
             return false;
         }
 
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
         if (groupProcessForm.getGroupOperateType() != GroupOperateType.SUSPEND) {
-            log.info("not add suspend group listener, as the operate was not SUSPEND for groupId [{}]", groupId);
+            log.info(
+                    "not add suspend group listener, as the operate was not SUSPEND for groupId [{}]",
+                    groupId);
             return false;
         }
 
@@ -78,7 +79,10 @@ public class SuspendSortListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            String message = String.format("process form was not GroupResourceProcessForm for groupId [%s]", groupId);
+            String message =
+                    String.format(
+                            "process form was not GroupResourceProcessForm for groupId [%s]",
+                            groupId);
             log.error(message);
             return ListenerResult.fail(message);
         }
@@ -89,18 +93,22 @@ public class SuspendSortListener implements SortOperateListener {
         log.info("inlong group ext info: {}", extList);
 
         Map<String, String> kvConf = new HashMap<>();
-        extList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
+        extList.forEach(
+                groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("suspend sort failed for groupId [%s], as the sort properties is empty",
-                    groupId);
+            String message =
+                    String.format(
+                            "suspend sort failed for groupId [%s], as the sort properties is empty",
+                            groupId);
             log.error(message);
             return ListenerResult.fail(message);
         }
 
-        Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
-                new TypeReference<Map<String, String>>() {
-                });
+        Map<String, String> result =
+                OBJECT_MAPPER.convertValue(
+                        OBJECT_MAPPER.readTree(sortExt),
+                        new TypeReference<Map<String, String>>() {});
         kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
@@ -129,5 +137,4 @@ public class SuspendSortListener implements SortOperateListener {
             return ListenerResult.fail(message + e.getMessage());
         }
     }
-
 }

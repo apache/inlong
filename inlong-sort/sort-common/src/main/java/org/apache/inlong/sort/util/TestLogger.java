@@ -31,42 +31,44 @@ import org.slf4j.LoggerFactory;
  * Adds automatic test name logging. Every test which wants to log which test is currently executed
  * and why it failed, simply has to extend this class.
  *
- * <p>Copied from Flink project.</p>
+ * <p>Copied from Flink project.
  */
 public class TestLogger {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     @Rule
-    public TestRule watchman = new TestWatcher() {
+    public TestRule watchman =
+            new TestWatcher() {
 
-        @Override
-        public void starting(Description description) {
-            log.info(
-                    "\n============================================================================"
-                            + "\nTest {} is running."
-                            + "\n-----------------------------------------------------------------",
-                    description);
-        }
+                @Override
+                public void starting(Description description) {
+                    log.info(
+                            "\n============================================================================"
+                                    + "\nTest {} is running."
+                                    + "\n-----------------------------------------------------------------",
+                            description);
+                }
 
-        @Override
-        public void succeeded(Description description) {
-            log.info(
-                    "\n----------------------------------------------------------------------------"
-                            + "\nTest {} successfully run."
-                            + "\n=================================================================",
-                    description);
-        }
+                @Override
+                public void succeeded(Description description) {
+                    log.info(
+                            "\n----------------------------------------------------------------------------"
+                                    + "\nTest {} successfully run."
+                                    + "\n=================================================================",
+                            description);
+                }
 
-        @Override
-        public void failed(Throwable e, Description description) {
-            log.error(
-                    "\n----------------------------------------------------------------------------"
-                            + "\nTest {} failed with:\n{}"
-                            + "\n=================================================================",
-                    description, exceptionToString(e));
-        }
-    };
+                @Override
+                public void failed(Throwable e, Description description) {
+                    log.error(
+                            "\n----------------------------------------------------------------------------"
+                                    + "\nTest {} failed with:\n{}"
+                                    + "\n=================================================================",
+                            description,
+                            exceptionToString(e));
+                }
+            };
 
     private static String exceptionToString(Throwable t) {
         if (t == null) {

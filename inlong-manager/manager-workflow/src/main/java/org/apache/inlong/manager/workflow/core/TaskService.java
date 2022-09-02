@@ -17,34 +17,22 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
-
 import java.util.List;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * WorkflowTask service interface
- */
+/** WorkflowTask service interface */
 public interface TaskService {
 
-    /**
-     * Approve task via the taskId
-     */
+    /** Approve task via the taskId */
     WorkflowContext approve(Integer taskId, String remark, TaskForm form, String operator);
 
-    /**
-     * Reject task via the taskId
-     */
+    /** Reject task via the taskId */
     WorkflowContext reject(Integer taskId, String remark, String operator);
 
-    /**
-     * Change approver for task via the taskId
-     */
+    /** Change approver for task via the taskId */
     WorkflowContext transfer(Integer taskId, String remark, List<String> to, String operator);
 
-    /**
-     * Complete task - only true automatic tasks for exceptions
-     */
+    /** Complete task - only true automatic tasks for exceptions */
     WorkflowContext complete(Integer taskId, String remark, String operator);
-
 }

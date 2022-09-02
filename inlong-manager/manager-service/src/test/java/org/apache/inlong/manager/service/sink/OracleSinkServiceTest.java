@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,13 +38,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Oracle sink service test
- */
+/** Oracle sink service test */
 public class OracleSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1_oracle";
@@ -51,14 +48,10 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     private static final String fieldType = "oracle_type";
     private static final Integer fieldId = 1;
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         OracleSinkRequest sinkInfo = new OracleSinkRequest();
@@ -84,9 +77,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -115,9 +106,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
-    /**
-     * Just using in local test.
-     */
+    /** Just using in local test. */
     @Disabled
     public void testDbResource() {
         final String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
@@ -131,7 +120,8 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
             List<OracleColumnInfo> addColumns = buildAddColumns();
             OracleJdbcUtils.addColumns(connection, tableName, addColumns);
             List<OracleColumnInfo> columns = OracleJdbcUtils.getColumns(connection, tableName);
-            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+            Assertions.assertEquals(
+                    columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -144,10 +134,10 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<OracleColumnInfo> buildAddColumns() {
-        List<OracleColumnInfo> list = Lists.newArrayList(
-                new OracleColumnInfo("test1", "NUMBER(16)", "test1"),
-                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2")
-        );
+        List<OracleColumnInfo> list =
+                Lists.newArrayList(
+                        new OracleColumnInfo("test1", "NUMBER(16)", "test1"),
+                        new OracleColumnInfo("test2", "VARCHAR2(10)", "test2"));
         return list;
     }
 
@@ -158,19 +148,19 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * @param tableName Oracle table name
      * @return {@link OracleTableInfo}
      */
-    private OracleTableInfo bulidTestOracleTableInfo(final String userName, final String tableName) {
+    private OracleTableInfo bulidTestOracleTableInfo(
+            final String userName, final String tableName) {
         OracleTableInfo oracleTableInfo = new OracleTableInfo();
         oracleTableInfo.setTableName(tableName);
         oracleTableInfo.setUserName(userName);
 
-        List<OracleColumnInfo> columnInfos = Lists.newArrayList(
-                new OracleColumnInfo("id", "NUMBER(6)", "id"),
-                new OracleColumnInfo("cell", "VARCHAR2(10)", "cell"),
-                new OracleColumnInfo("name", "VARCHAR2(20)", "name")
-        );
+        List<OracleColumnInfo> columnInfos =
+                Lists.newArrayList(
+                        new OracleColumnInfo("id", "NUMBER(6)", "id"),
+                        new OracleColumnInfo("cell", "VARCHAR2(10)", "cell"),
+                        new OracleColumnInfo("name", "VARCHAR2(20)", "name"));
         oracleTableInfo.setColumns(columnInfos);
 
         return oracleTableInfo;
     }
-
 }

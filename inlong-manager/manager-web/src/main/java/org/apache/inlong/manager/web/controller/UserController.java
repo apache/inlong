@@ -38,17 +38,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * User related interface
- */
+/** User related interface */
 @Validated
 @RestController
 @RequestMapping("/api")
 @Api(tags = "User-Auth-API")
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    @Autowired UserService userService;
 
     @PostMapping("/user/currentUser")
     @ApiOperation(value = "Get the logged-in user")
@@ -91,5 +88,4 @@ public class UserController {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.delete(id, currentUser));
     }
-
 }

@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -28,37 +33,39 @@ import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-/**
- * Tests for {@link FullOuterJoinRelation}
- */
+/** Tests for {@link FullOuterJoinRelation} */
 public class FullOuterJoinNodeRelationTest extends SerializeBaseTest<FullOuterJoinRelation> {
 
     @Override
     public FullOuterJoinRelation getTestObject() {
         Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
-        joinConditionMap.put("2", Arrays.asList(
-                new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        EqualOperator.getInstance(), new FieldInfo("name", "2",
-                        new StringFormatInfo())),
-                new SingleValueFilterFunction(AndOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        joinConditionMap.put("3", Arrays.asList(
-                new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                        new FieldInfo("name", "2", new StringFormatInfo()),
-                        EqualOperator.getInstance(), new FieldInfo("name", "2",
-                        new StringFormatInfo())),
-                new SingleValueFilterFunction(AndOperator.getInstance(),
-                        new FieldInfo("name", "3", new StringFormatInfo()),
-                        NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        return new FullOuterJoinRelation(Arrays.asList("1", "2", "3"),
-                Collections.singletonList("4"), joinConditionMap);
+        joinConditionMap.put(
+                "2",
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                EqualOperator.getInstance(),
+                                new FieldInfo("name", "2", new StringFormatInfo())),
+                        new SingleValueFilterFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                NotEqualOperator.getInstance(),
+                                new ConstantParam("test"))));
+        joinConditionMap.put(
+                "3",
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("name", "2", new StringFormatInfo()),
+                                EqualOperator.getInstance(),
+                                new FieldInfo("name", "2", new StringFormatInfo())),
+                        new SingleValueFilterFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("name", "3", new StringFormatInfo()),
+                                NotEqualOperator.getInstance(),
+                                new ConstantParam("test"))));
+        return new FullOuterJoinRelation(
+                Arrays.asList("1", "2", "3"), Collections.singletonList("4"), joinConditionMap);
     }
 }

@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,13 +32,7 @@ import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * RegexpReplaceFunction class is the logic encapsulation of String replace by regexp
- */
+/** RegexpReplaceFunction class is the logic encapsulation of String replace by regexp */
 @JsonTypeName("regexpReplace")
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -45,8 +42,10 @@ public class RegexpReplaceFunction implements CascadeFunction, Serializable {
 
     @JsonProperty("field")
     private FieldInfo field;
+
     @JsonProperty("regex")
     private StringConstantParam regex;
+
     @JsonProperty("replacement")
     private StringConstantParam replacement;
 
@@ -58,7 +57,8 @@ public class RegexpReplaceFunction implements CascadeFunction, Serializable {
      * @param replacement the value that to be replaced
      */
     @JsonCreator
-    public RegexpReplaceFunction(@JsonProperty("field") FieldInfo field,
+    public RegexpReplaceFunction(
+            @JsonProperty("field") FieldInfo field,
             @JsonProperty("regex") StringConstantParam regex,
             @JsonProperty("replacement") StringConstantParam replacement) {
         this.field = Preconditions.checkNotNull(field, "field is null");
@@ -78,13 +78,15 @@ public class RegexpReplaceFunction implements CascadeFunction, Serializable {
 
     @Override
     public String format() {
-        return String.format("%s(%s, %s, %s)", getName(), field.format(), regex.format(), replacement.format());
+        return String.format(
+                "%s(%s, %s, %s)", getName(), field.format(), regex.format(), replacement.format());
     }
 
     @Override
     public ConstantParam apply(ConstantParam constantParam) {
-        return new ConstantParam(String.format("%s(%s, %s, %s)", getName(),
-                constantParam.format(), regex.format(), replacement.format()));
+        return new ConstantParam(
+                String.format(
+                        "%s(%s, %s, %s)",
+                        getName(), constantParam.format(), regex.format(), replacement.format()));
     }
-
 }

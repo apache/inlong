@@ -1,32 +1,18 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Durability;
@@ -48,6 +34,16 @@ import com.sleepycat.je.rep.UnknownMasterException;
 import com.sleepycat.je.rep.util.ReplicationGroupAdmin;
 import com.sleepycat.je.rep.utilint.ServiceDispatcher;
 import com.sleepycat.persist.StoreConfig;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -65,10 +61,8 @@ import org.slf4j.LoggerFactory;
 
 public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     private static final int REP_HANDLE_RETRY_MAX = 1;
-    protected static final Logger logger =
-            LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
-    private final MetaConfigSamplePrint metaSamplePrint =
-            new MetaConfigSamplePrint(logger);
+    protected static final Logger logger = LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
+    private final MetaConfigSamplePrint metaSamplePrint = new MetaConfigSamplePrint(logger);
     // bdb meta store configure
     private final BdbMetaConfig bdbMetaConfig;
     // bdb environment configure
@@ -95,6 +89,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     /**
      * Constructor of BdbMetaConfigMapperImpl.
+     *
      * @param masterConfig
      */
     public BdbMetaConfigMapperImpl(MasterConfig masterConfig) {
@@ -103,8 +98,9 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         // build replicationGroupAdmin info
         Set<InetSocketAddress> helpers = new HashSet<>();
         for (int i = 1; i <= 3; i++) {
-            helpers.add(new InetSocketAddress(this.masterConfig.getHostName(),
-                    bdbMetaConfig.getRepNodePort() + i));
+            helpers.add(
+                    new InetSocketAddress(
+                            this.masterConfig.getHostName(), bdbMetaConfig.getRepNodePort() + i));
         }
         this.replicationGroupAdmin =
                 new ReplicationGroupAdmin(bdbMetaConfig.getRepGroupName(), helpers);
@@ -114,15 +110,17 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         // as is shown in the properties file included in the example.
         this.repConfig = new ReplicationConfig();
         // Set consistency policy for replica.
-        this.repConfig.setConsistencyPolicy(new TimeConsistencyPolicy(3,
-                TimeUnit.SECONDS, 3, TimeUnit.SECONDS));
+        this.repConfig.setConsistencyPolicy(
+                new TimeConsistencyPolicy(3, TimeUnit.SECONDS, 3, TimeUnit.SECONDS));
         // Wait up to 3 seconds for commitConsumed acknowledgments.
         this.repConfig.setReplicaAckTimeout(3, TimeUnit.SECONDS);
         this.repConfig.setConfigParam(ReplicationConfig.TXN_ROLLBACK_LIMIT, "1000");
         this.repConfig.setGroupName(bdbMetaConfig.getRepGroupName());
         this.repConfig.setNodeName(bdbMetaConfig.getRepNodeName());
-        this.repConfig.setNodeHostPort(this.masterConfig.getHostName() + TokenConstants.ATTR_SEP
-                + bdbMetaConfig.getRepNodePort());
+        this.repConfig.setNodeHostPort(
+                this.masterConfig.getHostName()
+                        + TokenConstants.ATTR_SEP
+                        + bdbMetaConfig.getRepNodePort());
         if (TStringUtils.isNotEmpty(bdbMetaConfig.getRepHelperHost())) {
             logger.info("[BDB Impl] ADD HELP HOST");
             this.repConfig.setHelperHosts(bdbMetaConfig.getRepHelperHost());
@@ -134,10 +132,11 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         // read/write mode. All write operations will be refused on the client though.
         this.envConfig = new EnvironmentConfig();
         this.envConfig.setTransactional(true);
-        this.envConfig.setDurability(new Durability(
-                bdbMetaConfig.getMetaLocalSyncPolicy(),
-                bdbMetaConfig.getMetaReplicaSyncPolicy(),
-                bdbMetaConfig.getRepReplicaAckPolicy()));
+        this.envConfig.setDurability(
+                new Durability(
+                        bdbMetaConfig.getMetaLocalSyncPolicy(),
+                        bdbMetaConfig.getMetaReplicaSyncPolicy(),
+                        bdbMetaConfig.getRepReplicaAckPolicy()));
         this.envConfig.setAllowCreate(true);
         // Set transactional for the replicated environment.
         this.storeConfig.setTransactional(true);
@@ -221,8 +220,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         }
         for (ReplicationNode node : replicationGroup.getNodes()) {
             try {
-                NodeState nodeState =
-                        replicationGroupAdmin.getNodeState(node, 2000);
+                NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState().isMaster()) {
                         return node.getSocketAddress().getAddress().getHostAddress();
@@ -252,16 +250,19 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         if (isMasterNow()) {
             if (!isPrimaryNodeActive()) {
                 if ((replicas4Transfer != null) && (!replicas4Transfer.isEmpty())) {
-                    logger.info(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                            .append("[BDB Impl] start transferMaster to replicas: ")
-                            .append(replicas4Transfer).toString());
+                    logger.info(
+                            new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                                    .append("[BDB Impl] start transferMaster to replicas: ")
+                                    .append(replicas4Transfer)
+                                    .toString());
                     repEnv.transferMaster(replicas4Transfer, 5, TimeUnit.MINUTES);
                     logger.info("[BDB Impl] transferMaster end...");
                 } else {
                     throw new Exception("The replicate nodes is empty!");
                 }
             } else {
-                throw new Exception("DesignatedPrimary happened...please check if the other member is down!");
+                throw new Exception(
+                        "DesignatedPrimary happened...please check if the other member is down!");
             }
         } else {
             throw new Exception("Please send your request to the master Node!");
@@ -279,8 +280,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             return clusterGroupVO;
         }
         // translate replication group info to ClusterGroupVO structure
-        Tuple2<Boolean, List<ClusterNodeVO>>  transResult =
-                transReplicateNodes(replicationGroup);
+        Tuple2<Boolean, List<ClusterNodeVO>> transResult = transReplicateNodes(replicationGroup);
         clusterGroupVO.setNodeData(transResult.getF1());
         clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());
         if (transResult.getF0()) {
@@ -315,7 +315,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                     }
                 } else {
                     logger.error(
-                            "[BDB Error] Get EnvironmentFailureException error while non heartBeat request", e);
+                            "[BDB Error] Get EnvironmentFailureException error while non heartBeat request",
+                            e);
                 }
             } else {
                 logger.error("[BDB Error] Get replication group info error", e);
@@ -333,8 +334,11 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         Set<String> tmp = new HashSet<>();
         for (ReplicationNode node : replicationGroup.getNodes()) {
             MasterNodeInfo masterNodeInfo =
-                    new MasterNodeInfo(replicationGroup.getName(),
-                            node.getName(), node.getHostName(), node.getPort());
+                    new MasterNodeInfo(
+                            replicationGroup.getName(),
+                            node.getName(),
+                            node.getHostName(),
+                            node.getPort());
             try {
                 NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
@@ -373,7 +377,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             masterGroupStatus.setMasterGroupStatus(true, true, true);
             connectNodeFailCount = 0;
             if (isPrimaryNodeActive()) {
-                repEnv.setRepMutableConfig(repEnv.getRepMutableConfig().setDesignatedPrimary(false));
+                repEnv.setRepMutableConfig(
+                        repEnv.getRepMutableConfig().setDesignatedPrimary(false));
             }
         }
         if (groupSize == 2 && connectNodeFailCount >= 3) {
@@ -382,7 +387,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                 connectNodeFailCount = 3;
             }
             if (!isPrimaryNodeActive()) {
-                logger.error("[BDB Error] DesignatedPrimary happened...please check if the other member is down");
+                logger.error(
+                        "[BDB Error] DesignatedPrimary happened...please check if the other member is down");
                 repEnv.setRepMutableConfig(repEnv.getRepMutableConfig().setDesignatedPrimary(true));
             }
         }
@@ -392,26 +398,28 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     protected void initMetaStore(StringBuilder strBuff) {
         clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
         brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
-        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
+        topicDeployMapper = new BdbTopicDeployMapperImpl(repEnv, storeConfig);
         groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
         consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
     }
 
     /**
-     * State Change Listener,
-     * through this object, it complete the metadata cache cleaning
-     * and loading of the latest data.
-     *
-     * */
+     * State Change Listener, through this object, it complete the metadata cache cleaning and
+     * loading of the latest data.
+     */
     public class Listener implements StateChangeListener {
         @Override
         public void stateChange(StateChangeEvent stateChangeEvent) throws RuntimeException {
             if (repConfig != null) {
-                logger.warn(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                        .append("[BDB Impl][").append(repConfig.getGroupName())
-                        .append("Receive a group status changed event]... stateChangeEventTime: ")
-                        .append(stateChangeEvent.getEventTime()).toString());
+                logger.warn(
+                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                                .append("[BDB Impl][")
+                                .append(repConfig.getGroupName())
+                                .append(
+                                        "Receive a group status changed event]... stateChangeEventTime: ")
+                                .append(stateChangeEvent.getEventTime())
+                                .toString());
             }
             doWork(stateChangeEvent);
         }
@@ -423,48 +431,64 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
          */
         public void doWork(final StateChangeEvent stateChangeEvent) {
 
-            final String currentNode = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                    .append("GroupName:").append(repConfig.getGroupName())
-                    .append(",nodeName:").append(repConfig.getNodeName())
-                    .append(",hostName:").append(repConfig.getNodeHostPort()).toString();
+            final String currentNode =
+                    new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                            .append("GroupName:")
+                            .append(repConfig.getGroupName())
+                            .append(",nodeName:")
+                            .append(repConfig.getNodeName())
+                            .append(",hostName:")
+                            .append(repConfig.getNodeHostPort())
+                            .toString();
             if (executorService == null) {
                 logger.error("[BDB Impl] found  executorService is null while doWork!");
                 return;
             }
-            executorService.submit(() -> {
-                StringBuilder sBuilder =
-                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
-                switch (stateChangeEvent.getState()) {
-                    case MASTER:
-                        if (!isMaster) {
-                            try {
-                                reloadMetaStore(sBuilder);
-                                isMaster = true;
-                                masterSinceTime.set(System.currentTimeMillis());
-                                masterNodeName = stateChangeEvent.getMasterNodeName();
-                                logger.info(sBuilder.append("[BDB Impl] ")
-                                        .append(currentNode).append(" is a master.").toString());
-                            } catch (Throwable e) {
+            executorService.submit(
+                    () -> {
+                        StringBuilder sBuilder =
+                                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+                        switch (stateChangeEvent.getState()) {
+                            case MASTER:
+                                if (!isMaster) {
+                                    try {
+                                        reloadMetaStore(sBuilder);
+                                        isMaster = true;
+                                        masterSinceTime.set(System.currentTimeMillis());
+                                        masterNodeName = stateChangeEvent.getMasterNodeName();
+                                        logger.info(
+                                                sBuilder.append("[BDB Impl] ")
+                                                        .append(currentNode)
+                                                        .append(" is a master.")
+                                                        .toString());
+                                    } catch (Throwable e) {
+                                        isMaster = false;
+                                        logger.error(
+                                                "[BDB Impl] fatal error when Reloading Info ", e);
+                                    }
+                                }
+                                break;
+                            case REPLICA:
                                 isMaster = false;
-                                logger.error("[BDB Impl] fatal error when Reloading Info ", e);
-                            }
+                                masterNodeName = stateChangeEvent.getMasterNodeName();
+                                logger.info(
+                                        sBuilder.append("[BDB Impl] ")
+                                                .append(currentNode)
+                                                .append(" is a slave.")
+                                                .toString());
+                                break;
+                            default:
+                                isMaster = false;
+                                logger.info(
+                                        sBuilder.append("[BDB Impl] ")
+                                                .append(currentNode)
+                                                .append(" is Unknown state ")
+                                                .append(stateChangeEvent.getState().name())
+                                                .toString());
+                                break;
                         }
-                        break;
-                    case REPLICA:
-                        isMaster = false;
-                        masterNodeName = stateChangeEvent.getMasterNodeName();
-                        logger.info(sBuilder.append("[BDB Impl] ")
-                                .append(currentNode).append(" is a slave.").toString());
-                        break;
-                    default:
-                        isMaster = false;
-                        logger.info(sBuilder.append("[BDB Impl] ")
-                                .append(currentNode).append(" is Unknown state ")
-                                .append(stateChangeEvent.getState().name()).toString());
-                        break;
-                }
-                sBuilder.delete(0, sBuilder.length());
-            });
+                        sBuilder.delete(0, sBuilder.length());
+                    });
         }
     }
 
@@ -478,8 +502,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
      */
     private ReplicatedEnvironment getEnvironment() throws InterruptedException {
         DatabaseException exception = null;
-        //In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
-        //retry indefinitely.
+        // In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
+        // retry indefinitely.
         for (int i = 0; i < REP_HANDLE_RETRY_MAX; i++) {
             try {
                 return new ReplicatedEnvironment(envHome, repConfig, envConfig);
@@ -488,19 +512,24 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                 // Indicates there is a group level problem: insufficient nodes for an election,
                 // network connectivity issues, etc. Wait and retry to allow the problem
                 // to be resolved.
-                logger.error(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                        .append("[BDB Impl] master could not be established. ")
-                        .append("Exception message:").append(unknownMaster.getMessage())
-                        .append(" Will retry after 5 seconds.").toString());
+                logger.error(
+                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                                .append("[BDB Impl] master could not be established. ")
+                                .append("Exception message:")
+                                .append(unknownMaster.getMessage())
+                                .append(" Will retry after 5 seconds.")
+                                .toString());
                 Thread.sleep(5 * 1000);
                 continue;
             } catch (InsufficientLogException insufficientLogEx) {
-                logger.error(new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
-                        .append("[BDB Impl] [Restoring data please wait....] ")
-                        .append("Obtains logger files for a Replica from other members of ")
-                        .append("the replication group. A Replica may need to do so if it ")
-                        .append("has been offline for some time, and has fallen behind in ")
-                        .append("its execution of the replication stream.").toString());
+                logger.error(
+                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE)
+                                .append("[BDB Impl] [Restoring data please wait....] ")
+                                .append("Obtains logger files for a Replica from other members of ")
+                                .append("the replication group. A Replica may need to do so if it ")
+                                .append("has been offline for some time, and has fallen behind in ")
+                                .append("its execution of the replication stream.")
+                                .toString());
                 NetworkRestore restore = new NetworkRestore();
                 NetworkRestoreConfig config = new NetworkRestoreConfig();
                 // delete obsolete logger files.
@@ -528,7 +557,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     /**
      * Query replication group nodes status and translate to ClusterNodeVO type
      *
-     * @param replicationGroup  the replication group
+     * @param replicationGroup the replication group
      * @return if has master, replication nodes info
      */
     private Tuple2<Boolean, List<ClusterNodeVO>> transReplicateNodes(
@@ -541,8 +570,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             clusterNodeVO.setNodeName(node.getName());
             clusterNodeVO.setPort(node.getPort());
             try {
-                NodeState nodeState =
-                        replicationGroupAdmin.getNodeState(node, 2000);
+                NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState() == ReplicatedEnvironment.State.MASTER) {
                         hasMaster = true;

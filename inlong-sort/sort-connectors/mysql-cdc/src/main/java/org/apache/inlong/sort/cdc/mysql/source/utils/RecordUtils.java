@@ -18,21 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl.HISTORY_RECORD_FIELD;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SIGNAL_EVENT_VALUE_SCHEMA_NAME;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
+
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.document.DocumentReader;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.util.SchemaNameAdjuster;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,16 +42,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
 
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl.HISTORY_RECORD_FIELD;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SIGNAL_EVENT_VALUE_SCHEMA_NAME;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
-
-/**
- * Utility class to deal record.
- */
+/** Utility class to deal record. */
 public class RecordUtils {
 
     public static final String SCHEMA_CHANGE_EVENT_KEY_NAME =
@@ -63,13 +60,9 @@ public class RecordUtils {
             "io.debezium.connector.common.Heartbeat";
     private static final DocumentReader DOCUMENT_READER = DocumentReader.defaultReader();
 
-    private RecordUtils() {
+    private RecordUtils() {}
 
-    }
-
-    /**
-     * Converts a {@link ResultSet} row to an array of Objects.
-     */
+    /** Converts a {@link ResultSet} row to an array of Objects. */
     public static Object[] rowToArray(ResultSet rs, int size) throws SQLException {
         final Object[] row = new Object[size];
         for (int i = 0; i < size; i++) {
@@ -235,7 +228,8 @@ public class RecordUtils {
 
     public static boolean isLowWatermarkEvent(SourceRecord record) {
         Optional<SignalEventDispatcher.WatermarkKind> watermarkKind = getWatermarkKind(record);
-        if (watermarkKind.isPresent() && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.LOW) {
+        if (watermarkKind.isPresent()
+                && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.LOW) {
             return true;
         }
         return false;
@@ -243,7 +237,8 @@ public class RecordUtils {
 
     public static boolean isHighWatermarkEvent(SourceRecord record) {
         Optional<SignalEventDispatcher.WatermarkKind> watermarkKind = getWatermarkKind(record);
-        if (watermarkKind.isPresent() && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.HIGH) {
+        if (watermarkKind.isPresent()
+                && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.HIGH) {
             return true;
         }
         return false;
@@ -251,7 +246,8 @@ public class RecordUtils {
 
     public static boolean isEndWatermarkEvent(SourceRecord record) {
         Optional<SignalEventDispatcher.WatermarkKind> watermarkKind = getWatermarkKind(record);
-        if (watermarkKind.isPresent() && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.BINLOG_END) {
+        if (watermarkKind.isPresent()
+                && watermarkKind.get() == SignalEventDispatcher.WatermarkKind.BINLOG_END) {
             return true;
         }
         return false;
@@ -265,7 +261,7 @@ public class RecordUtils {
      * Return the timestamp when the change event is produced in MySQL.
      *
      * <p>The field `source.ts_ms` in {@link SourceRecord} data struct is the time when the change
-     * event is operated in MySQL.</p>
+     * event is operated in MySQL.
      */
     public static Long getMessageTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();
@@ -286,7 +282,7 @@ public class RecordUtils {
      * Return the timestamp when the change event is fetched in {@link DebeziumReader}.
      *
      * <p>The field `ts_ms` in {@link SourceRecord} data struct is the time when the record fetched
-     * by debezium reader, use it as the process time in Source.</p>
+     * by debezium reader, use it as the process time in Source.
      */
     public static Long getFetchTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();
@@ -329,9 +325,7 @@ public class RecordUtils {
                 getBinlogPosition(highWatermark.sourceOffset()));
     }
 
-    /**
-     * Returns the start offset of the binlog split.
-     */
+    /** Returns the start offset of the binlog split. */
     public static BinlogOffset getStartingOffsetOfBinlogSplit(
             List<FinishedSnapshotSplitInfo> finishedSnapshotSplits) {
         BinlogOffset startOffset =
@@ -366,7 +360,7 @@ public class RecordUtils {
         // the split key field contains single field now
         String splitFieldName = nameAdjuster.adjust(splitBoundaryType.getFieldNames().get(0));
         Struct key = (Struct) dataRecord.key();
-        return new Object[]{key.get(splitFieldName)};
+        return new Object[] {key.get(splitFieldName)};
     }
 
     public static BinlogOffset getBinlogPosition(SourceRecord dataRecord) {
@@ -382,9 +376,7 @@ public class RecordUtils {
         return new BinlogOffset(offsetStrMap);
     }
 
-    /**
-     * Returns the specific key contains in the split key range or not.
-     */
+    /** Returns the specific key contains in the split key range or not. */
     public static boolean splitKeyRangeContains(
             Object[] key, Object[] splitKeyStart, Object[] splitKeyEnd) {
         // for all range
@@ -414,7 +406,7 @@ public class RecordUtils {
             }
             return Arrays.stream(lowerBoundRes).anyMatch(value -> value >= 0)
                     && (Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
-                    && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
+                            && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
         }
     }
 
@@ -432,11 +424,13 @@ public class RecordUtils {
         return new HistoryRecord(DOCUMENT_READER.read(historyRecordStr));
     }
 
-    private static Optional<SignalEventDispatcher.WatermarkKind> getWatermarkKind(SourceRecord record) {
+    private static Optional<SignalEventDispatcher.WatermarkKind> getWatermarkKind(
+            SourceRecord record) {
         if (record.valueSchema() != null
                 && SIGNAL_EVENT_VALUE_SCHEMA_NAME.equals(record.valueSchema().name())) {
             Struct value = (Struct) record.value();
-            return Optional.of(SignalEventDispatcher.WatermarkKind.valueOf(value.getString(WATERMARK_KIND)));
+            return Optional.of(
+                    SignalEventDispatcher.WatermarkKind.valueOf(value.getString(WATERMARK_KIND)));
         }
         return Optional.empty();
     }

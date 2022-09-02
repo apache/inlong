@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -28,28 +32,26 @@ import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-/**
- * Tests for {@link IntervalJoinRelation}
- */
+/** Tests for {@link IntervalJoinRelation} */
 public class IntervalJoinRelationTest extends SerializeBaseTest<IntervalJoinRelation> {
 
     @Override
     public IntervalJoinRelation getTestObject() {
         LinkedHashMap<String, List<FilterFunction>> joinConditionMap = new LinkedHashMap<>();
-        joinConditionMap.put("2", Arrays.asList(
-                new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        EqualOperator.getInstance(), new FieldInfo("name", "2",
-                        new StringFormatInfo())),
-                new SingleValueFilterFunction(AndOperator.getInstance(),
-                        new FieldInfo("name", "1", new StringFormatInfo()),
-                        NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        return new IntervalJoinRelation(Arrays.asList("1", "2", "3"),
-                Collections.singletonList("4"), joinConditionMap);
+        joinConditionMap.put(
+                "2",
+                Arrays.asList(
+                        new SingleValueFilterFunction(
+                                EmptyOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                EqualOperator.getInstance(),
+                                new FieldInfo("name", "2", new StringFormatInfo())),
+                        new SingleValueFilterFunction(
+                                AndOperator.getInstance(),
+                                new FieldInfo("name", "1", new StringFormatInfo()),
+                                NotEqualOperator.getInstance(),
+                                new ConstantParam("test"))));
+        return new IntervalJoinRelation(
+                Arrays.asList("1", "2", "3"), Collections.singletonList("4"), joinConditionMap);
     }
 }

@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.filesystem.stream;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.state.StateInitializationContext;
 import org.apache.flink.runtime.state.StateSnapshotContext;
@@ -25,15 +30,7 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSin
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.filesystem.stream.PartitionCommitInfo;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
-
-/**
- * Writer for emitting {@link PartitionCommitInfo} to downstream.
- */
+/** Writer for emitting {@link PartitionCommitInfo} to downstream. */
 public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, PartitionCommitInfo> {
 
     private static final long serialVersionUID = 2L;
@@ -45,8 +42,10 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     public StreamingFileWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+                            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
+                    bucketsBuilder,
+            String inlongMetric,
+            String inlongAudit) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
     }
 
@@ -69,8 +68,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     }
 
     @Override
-    protected void onPartFileOpened(String s, Path newPath) {
-    }
+    protected void onPartFileOpened(String s, Path newPath) {}
 
     @Override
     public void snapshotState(StateSnapshotContext context) throws Exception {

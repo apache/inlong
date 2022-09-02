@@ -20,6 +20,9 @@ package org.apache.inlong.manager.pojo.source.file;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +30,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-
-/**
- * File source information data transfer object
- */
+/** File source information data transfer object */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -45,11 +42,12 @@ public class FileSourceDTO {
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
-    @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means from one minute after, '-1m' means from one minute before, "
-            + "'1h' means from one hour after, '-1h' means from one minute before, "
-            + "'1d' means from one day after, '-1d' means from one minute before, "
-            + "Null or blank means from current timestamp")
+    @ApiModelProperty(
+            "TimeOffset for collection, "
+                    + "'1m' means from one minute after, '-1m' means from one minute before, "
+                    + "'1h' means from one hour after, '-1h' means from one minute before, "
+                    + "'1d' means from one day after, '-1d' means from one minute before, "
+                    + "Null or blank means from current timestamp")
     private String timeOffset;
 
     @ApiModelProperty("Properties for File")
@@ -64,13 +62,15 @@ public class FileSourceDTO {
     @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
     private String envList;
 
-    @ApiModelProperty("Metadata of data, for example: [{data:field1,field2},"
-            + "{kubernetes:namespace,labels,name,uuid}] and so on")
+    @ApiModelProperty(
+            "Metadata of data, for example: [{data:field1,field2},"
+                    + "{kubernetes:namespace,labels,name,uuid}] and so on")
     private List<Map<String, String>> metaFields;
 
-    @ApiModelProperty(" Type of data result for column separator"
-            + "         CSV format, set this parameter to a custom separator: , | : "
-            + "         Json format, set this parameter to json ")
+    @ApiModelProperty(
+            " Type of data result for column separator"
+                    + "         CSV format, set this parameter to a custom separator: , | : "
+                    + "         Json format, set this parameter to json ")
     private String dataContentStyle;
 
     @ApiModelProperty("Column separator of data source ")
@@ -98,8 +98,8 @@ public class FileSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, FileSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

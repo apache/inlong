@@ -26,5 +26,4 @@ public class AddressUtilsTest extends TestCase {
         String address = AddressUtils.getIPV4LocalAddress();
         Assert.assertNotNull(address);
     }
-
 }

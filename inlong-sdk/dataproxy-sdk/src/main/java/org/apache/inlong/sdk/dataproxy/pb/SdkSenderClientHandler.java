@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb;
 
 import org.jboss.netty.channel.Channel;
@@ -28,10 +25,7 @@ import org.jboss.netty.channel.WriteCompletionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * SdkSenderClientHandler
- */
+/** SdkSenderClientHandler */
 public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(SdkSenderClientHandler.class);
@@ -40,7 +34,7 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * Constructor
-     * 
+     *
      * @param manager
      */
     public SdkSenderClientHandler(SdkProxyChannelManager manager) {
@@ -49,9 +43,9 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * channelConnected
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -61,9 +55,9 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * messageReceived
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -77,14 +71,16 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * exceptionCaught
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        LOG.error("proxyClusterId:{},exceptionCaught error:{}", manager.getProxyClusterId(),
+        LOG.error(
+                "proxyClusterId:{},exceptionCaught error:{}",
+                manager.getProxyClusterId(),
                 e.getCause());
         if (e.getCause() != null) {
             LOG.error(e.getCause().getMessage(), e.getCause());
@@ -101,13 +97,14 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * channelDisconnected
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+            throws Exception {
         LOG.info("proxyClusterId:{},channel disconnect:{}", manager.getProxyClusterId(), e);
         try {
             Channel channel = this.getChannel(ctx, e);
@@ -120,9 +117,9 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * channelClosed
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -139,9 +136,9 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * writeComplete
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -151,9 +148,9 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
 
     /**
      * getChannel
-     * 
-     * @param  ctx
-     * @param  e
+     *
+     * @param ctx
+     * @param e
      * @return
      */
     private Channel getChannel(ChannelHandlerContext ctx, ChannelEvent e) {

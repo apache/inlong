@@ -18,9 +18,10 @@
 package org.apache.inlong.manager.web.auth.web;
 
 import com.google.common.collect.Sets;
+import java.util.Date;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.UserService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -32,11 +33,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
-import java.util.Date;
-
-/**
- * Web user authorization.
- */
+/** Web user authorization. */
 public class WebAuthorizingRealm extends AuthorizingRealm {
 
     private final UserService userService;
@@ -45,24 +42,25 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
         this.userService = userService;
     }
 
-    /**
-     * Login authentication
-     */
+    /** Login authentication */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
+            throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
         String username = upToken.getUsername();
         UserInfo userInfo = userService.getByName(username);
         Preconditions.checkNotNull(userInfo, "User not exist with name=" + username);
-        Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
-        userInfo.setRoles(Sets.newHashSet(userInfo.getAccountType() == 0
-                ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
+        Preconditions.checkTrue(
+                userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
+        userInfo.setRoles(
+                Sets.newHashSet(
+                        userInfo.getAccountType() == 0
+                                ? UserTypeEnum.ADMIN.name()
+                                : UserTypeEnum.OPERATOR.name()));
         return new SimpleAuthenticationInfo(userInfo, userInfo.getPassword(), getName());
     }
 
-    /**
-     * URI access control
-     */
+    /** URI access control */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();

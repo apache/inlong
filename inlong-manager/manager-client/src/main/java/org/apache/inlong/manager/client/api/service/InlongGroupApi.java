@@ -40,7 +40,8 @@ public interface InlongGroupApi {
     Call<Response<Object>> getGroupInfo(@Path("id") String id);
 
     @POST("group/list")
-    Call<Response<PageResult<InlongGroupBriefInfo>>> listGroups(@Body InlongGroupPageRequest request);
+    Call<Response<PageResult<InlongGroupBriefInfo>>> listGroups(
+            @Body InlongGroupPageRequest request);
 
     @POST("group/save")
     Call<Response<String>> createGroup(@Body InlongGroupRequest request);

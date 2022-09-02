@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
@@ -26,6 +28,20 @@ import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
@@ -44,43 +60,20 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
-
-/**
- * A {@link MetadataConverter} for {@link MySqlReadableMetadata#OLD}.
- */
+/** A {@link MetadataConverter} for {@link MySqlReadableMetadata#OLD}. */
 public class OldFieldMetadataConverter implements MetadataConverter {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(OldFieldMetadataConverter.class);
 
-    /**
-     * Formatter for SQL string representation of a time value.
-     */
+    /** Formatter for SQL string representation of a time value. */
     private static final DateTimeFormatter SQL_TIME_FORMAT =
             new DateTimeFormatterBuilder()
                     .appendPattern("HH:mm:ss")
                     .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
                     .toFormatter();
 
-    /**
-     * Formatter for SQL string representation of a timestamp value (without UTC timezone).
-     */
+    /** Formatter for SQL string representation of a timestamp value (without UTC timezone). */
     private static final DateTimeFormatter SQL_TIMESTAMP_FORMAT =
             new DateTimeFormatterBuilder()
                     .append(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -88,9 +81,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
                     .append(SQL_TIME_FORMAT)
                     .toFormatter();
 
-    /**
-     * Formatter for SQL string representation of a timestamp value (with UTC timezone).
-     */
+    /** Formatter for SQL string representation of a timestamp value (with UTC timezone). */
     private static final DateTimeFormatter SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT =
             new DateTimeFormatterBuilder()
                     .append(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -155,7 +146,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
             }
         }
 
-        return new GenericArrayData(new Object[]{new GenericMapData(oldData)});
+        return new GenericArrayData(new Object[] {new GenericMapData(oldData)});
     }
 
     private StringConverter createConverter(LogicalType type) {
@@ -395,9 +386,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         };
     }
 
-    /**
-     * Converter that converts objects of Debezium to String.
-     */
+    /** Converter that converts objects of Debezium to String. */
     @FunctionalInterface
     private interface StringConverter extends Serializable {
 

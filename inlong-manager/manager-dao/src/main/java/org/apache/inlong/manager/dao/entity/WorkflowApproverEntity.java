@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * Workflow approver entity, including process name, task name, etc.
- */
+/** Workflow approver entity, including process name, task name, etc. */
 @Data
 public class WorkflowApproverEntity implements Serializable {
 
@@ -39,5 +36,4 @@ public class WorkflowApproverEntity implements Serializable {
     private Date modifyTime;
     private Integer isDeleted;
     private Integer version;
-
 }

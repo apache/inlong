@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.utils;
 
 import org.apache.inlong.tubemq.server.Stoppable;
@@ -29,10 +26,10 @@ import org.slf4j.LoggerFactory;
  * exit is logged. Implementers just need to add checking if there is work to be done and if so, do
  * it.
  *
- * Don't subclass Chore if the task relies on being woken up for something to do, such as an entry
- * being added to a queue, etc.
+ * <p>Don't subclass Chore if the task relies on being woken up for something to do, such as an
+ * entry being added to a queue, etc.
  *
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * <p>Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public abstract class Chore extends HasThread {
     protected final Stoppable stopper;
@@ -41,11 +38,12 @@ public abstract class Chore extends HasThread {
 
     /**
      * Initial Chore object
-     * @param name    the chore thread name
-     * @param p       Period at which we should run. Will be adjusted appropriately should we find
-     *                work and it takes time to complete.
+     *
+     * @param name the chore thread name
+     * @param p Period at which we should run. Will be adjusted appropriately should we find work
+     *     and it takes time to complete.
      * @param stopper When {@link Stoppable#isStopped()} is true, this thread will cleanup and exit
-     *                cleanly.
+     *     cleanly.
      */
     public Chore(String name, final int p, final Stoppable stopper) {
         super(name);
@@ -53,9 +51,7 @@ public abstract class Chore extends HasThread {
         this.stopper = stopper;
     }
 
-    /**
-     * The chore thread processing logic
-     */
+    /** The chore thread processing logic */
     @Override
     public void run() {
         try {
@@ -109,21 +105,14 @@ public abstract class Chore extends HasThread {
         return true;
     }
 
-    /**
-     * Look for chores. If any found, do them else just return.
-     */
+    /** Look for chores. If any found, do them else just return. */
     protected abstract void chore();
 
-    /**
-     * Sleep for period.
-     */
+    /** Sleep for period. */
     protected void sleep() {
         this.sleeper.sleep();
     }
 
-    /**
-     * Called when the chore has completed, allowing subclasses to cleanup any extra overhead
-     */
-    protected void cleanup() {
-    }
+    /** Called when the chore has completed, allowing subclasses to cleanup any extra overhead */
+    protected void cleanup() {}
 }

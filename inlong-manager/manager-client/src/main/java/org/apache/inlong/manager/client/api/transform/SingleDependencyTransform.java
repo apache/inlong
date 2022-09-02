@@ -18,13 +18,11 @@
 package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * StreamTransform with one pre stream node, such as filter, splitter, etc.
- */
+/** StreamTransform with one pre stream node, such as filter, splitter, etc. */
 @ApiModel("StreamTransform with one pre stream node, such as filter, splitter, etc")
 public class SingleDependencyTransform extends StreamTransform {
 
@@ -33,10 +31,11 @@ public class SingleDependencyTransform extends StreamTransform {
      *
      * @param transformName transform name
      * @param transformDefinition definition info
-     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is sourceName
-     *         if pre streamNode is streamTransform, preNode is transformName
+     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is
+     *     sourceName if pre streamNode is streamTransform, preNode is transformName
      */
-    public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode) {
+    public SingleDependencyTransform(
+            String transformName, TransformDefinition transformDefinition, String preNode) {
         Preconditions.checkNotNull(transformDefinition, "transform definition cannot be null");
         this.transformDefinition = transformDefinition;
         Preconditions.checkNotNull(transformName, "transform name cannot be null");
@@ -50,12 +49,15 @@ public class SingleDependencyTransform extends StreamTransform {
      *
      * @param transformName transform name
      * @param transformDefinition definition info
-     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is sourceName
-     *         if pre streamNode is streamTransform, preNode is transformName
-     * @param postNodes name of post streamNode, if post streamNode is streamSource, then postNode is sourceName
-     *         if post streamNode is streamTransform, postNode is transformName
+     * @param preNode name of pre streamNode, if pre streamNode is streamSource, then preNode is
+     *     sourceName if pre streamNode is streamTransform, preNode is transformName
+     * @param postNodes name of post streamNode, if post streamNode is streamSource, then postNode
+     *     is sourceName if post streamNode is streamTransform, postNode is transformName
      */
-    public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode,
+    public SingleDependencyTransform(
+            String transformName,
+            TransformDefinition transformDefinition,
+            String preNode,
             String... postNodes) {
         this(transformName, transformDefinition, preNode);
         if (postNodes != null) {
@@ -64,5 +66,4 @@ public class SingleDependencyTransform extends StreamTransform {
             }
         }
     }
-
 }

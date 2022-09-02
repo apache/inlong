@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.DECOMPRESS_TYPE;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.INNER_FORMAT;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.validateDecodingFormatOptions;
+
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -32,18 +40,7 @@ import org.apache.flink.table.factories.DynamicTableFactory.Context;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.DECOMPRESS_TYPE;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.INNER_FORMAT;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TRAILING_UNMAPPABLE;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.validateDecodingFormatOptions;
-
-/**
- * factory class for inLong msg pb format
- */
+/** factory class for inLong msg pb format */
 public final class InLongMsgPbFormatFactory
         implements DeserializationFormatFactory, SerializationFormatFactory {
 
@@ -52,29 +49,35 @@ public final class InLongMsgPbFormatFactory
     public static final String INLONG_PREFIX = "inlong-msg-pb.";
 
     @Override
-    public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(Context context,
-            ReadableConfig formatOptions) {
+    public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(
+            Context context, ReadableConfig formatOptions) {
         validateDecodingFormatOptions(formatOptions);
 
-        final DeserializationFormatFactory innerFactory = FactoryUtil.discoverFactory(
-                context.getClassLoader(),
-                DeserializationFormatFactory.class,
-                formatOptions.get(INNER_FORMAT));
+        final DeserializationFormatFactory innerFactory =
+                FactoryUtil.discoverFactory(
+                        context.getClassLoader(),
+                        DeserializationFormatFactory.class,
+                        formatOptions.get(INNER_FORMAT));
         Configuration allOptions = Configuration.fromMap(context.getCatalogTable().getOptions());
         String innerFormatMetaPrefix = formatOptions.get(INNER_FORMAT) + ".";
         String innerFormatPrefix = INLONG_PREFIX + innerFormatMetaPrefix;
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
-                innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
+                innerFactory.createDecodingFormat(
+                        context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
         boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         boolean ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
         String decompressType = formatOptions.get(DECOMPRESS_TYPE);
-        return new InLongMsgPbDecodingFormat(innerFormat, innerFormatMetaPrefix,
-                ignoreErrors, ignoreTrailingUnmappable, decompressType);
+        return new InLongMsgPbDecodingFormat(
+                innerFormat,
+                innerFormatMetaPrefix,
+                ignoreErrors,
+                ignoreTrailingUnmappable,
+                decompressType);
     }
 
     @Override
-    public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(Context context,
-            ReadableConfig formatOptions) {
+    public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(
+            Context context, ReadableConfig formatOptions) {
         throw new RuntimeException("Do not support inlong pb format serialize.");
     }
 

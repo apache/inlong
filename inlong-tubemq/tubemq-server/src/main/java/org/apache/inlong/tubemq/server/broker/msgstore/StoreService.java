@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.msgstore;
 
 import java.util.Collection;
@@ -24,9 +21,7 @@ import java.util.Set;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 
-/**
- * Store service interface.
- */
+/** Store service interface. */
 public interface StoreService {
     void start();
 
@@ -36,8 +31,7 @@ public interface StoreService {
 
     Collection<MessageStore> getMessageStoresByTopic(String topic);
 
-    MessageStore getOrCreateMessageStore(String topic,
-                                         int partition) throws Throwable;
+    MessageStore getOrCreateMessageStore(String topic, int partition) throws Throwable;
 
     Map<String, Map<Integer, TopicPubStoreInfo>> getTopicPublishInfos(Set<String> topicSet);
 

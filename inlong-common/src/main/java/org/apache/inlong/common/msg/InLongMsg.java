@@ -19,7 +19,6 @@ package org.apache.inlong.common.msg;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.xerial.snappy.Snappy;
 
 public class InLongMsg {
@@ -48,8 +46,7 @@ public class InLongMsg {
     private static final int BIN_MSG_SET_SNAPPY = (1 << 5);
     private static final int BIN_MSG_BODYLEN_SIZE = 4;
     private static final int BIN_MSG_BODYLEN_OFFSET = 21;
-    private static final int BIN_MSG_BODY_OFFSET =
-            BIN_MSG_BODYLEN_SIZE + BIN_MSG_BODYLEN_OFFSET;
+    private static final int BIN_MSG_BODY_OFFSET = BIN_MSG_BODYLEN_SIZE + BIN_MSG_BODYLEN_OFFSET;
     private static final int BIN_MSG_ATTRLEN_SIZE = 2;
     private static final int BIN_MSG_FORMAT_SIZE = 29;
     private static final int BIN_MSG_MAGIC_SIZE = 2;
@@ -72,7 +69,8 @@ public class InLongMsg {
                     .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
     private static final Splitter.MapSplitter MAP_SPLITTER =
             Splitter.on(AttributeConstants.SEPARATOR)
-                    .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+                    .trimResults()
+                    .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     static class DataBuffer {
 
@@ -83,8 +81,7 @@ public class InLongMsg {
             out = new DataOutputBuffer();
         }
 
-        public void write(byte[] array, int position, int len)
-                throws IOException {
+        public void write(byte[] array, int position, int len) throws IOException {
             cnt++;
             out.writeInt(len);
             out.write(array, position, len);
@@ -107,8 +104,12 @@ public class InLongMsg {
     }
 
     private enum Version {
-        vn(-1), v0(0), v1(1),
-        v2(2), v3(3), v4(4);
+        vn(-1),
+        v0(0),
+        v1(1),
+        v2(2),
+        v3(3),
+        v4(4);
 
         private static final Map<Integer, Version> INT_TO_TYPE_MAP =
                 new HashMap<Integer, Version>();
@@ -135,7 +136,6 @@ public class InLongMsg {
             }
             return INT_TO_TYPE_MAP.get(v);
         }
-
     }
 
     /**
@@ -171,7 +171,7 @@ public class InLongMsg {
      * capacity: 4096
      *
      * @param compress if compress
-     * @param v        version
+     * @param v version
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(boolean compress, int v) {
@@ -191,9 +191,10 @@ public class InLongMsg {
 
     /**
      * netInLongMsg
+     *
      * @param capacity data capacity
      * @param compress compress
-     * @param v        version
+     * @param v version
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(int capacity, boolean compress, int v) {
@@ -212,15 +213,14 @@ public class InLongMsg {
     }
 
     /**
-     * return false means current msg is big enough, no other data should be
-     * added again, but attention: the input data has already been added, and if
-     * you add another data after return false it can also be added
-     * successfully.
+     * return false means current msg is big enough, no other data should be added again, but
+     * attention: the input data has already been added, and if you add another data after return
+     * false it can also be added successfully.
      *
-     * @param attr   attribute info
-     * @param data   binary data
+     * @param attr attribute info
+     * @param data binary data
      * @param offset data start offset
-     * @param len    data length
+     * @param len data length
      * @return boolean
      */
     public boolean addMsg(String attr, byte[] data, int offset, int len) {
@@ -229,6 +229,7 @@ public class InLongMsg {
 
     /**
      * add msg
+     *
      * @param attr
      * @param data
      * @return
@@ -236,8 +237,7 @@ public class InLongMsg {
     public boolean addMsg(String attr, ByteBuffer data) {
         checkMode(true);
 
-        if ((version.intValue() == Version.v3.intValue())
-                && !checkData(data)) {
+        if ((version.intValue() == Version.v3.intValue()) && !checkData(data)) {
             return false;
         }
 
@@ -309,8 +309,9 @@ public class InLongMsg {
         int totalLen = data.getInt(BIN_MSG_TOTALLEN_OFFSET);
         int bodyLen = data.getInt(BIN_MSG_BODYLEN_OFFSET);
         int attrLen = data.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
-        int msgMagic = (data.getShort(BIN_MSG_BODY_OFFSET + bodyLen
-                + BIN_MSG_ATTRLEN_SIZE + attrLen) & 0xFFFF);
+        int msgMagic =
+                (data.getShort(BIN_MSG_BODY_OFFSET + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen)
+                        & 0xFFFF);
 
         if ((totalLen + BIN_MSG_TOTALLEN_SIZE != (bodyLen + attrLen + BIN_MSG_FORMAT_SIZE))
                 || (msgMagic != BIN_MSG_MAGIC)) {
@@ -391,11 +392,11 @@ public class InLongMsg {
                     if (version.intValue() == Version.v2.intValue()) {
                         out.writeInt(data.cnt);
                     }
-                    int guessLen =
-                            Snappy.maxCompressedLength(data.out.getLength());
+                    int guessLen = Snappy.maxCompressedLength(data.out.getLength());
                     byte[] tmpData = new byte[guessLen];
-                    int len = Snappy.compress(data.out.getData(), 0,
-                            data.out.getLength(), tmpData, 0);
+                    int len =
+                            Snappy.compress(
+                                    data.out.getData(), 0, data.out.getLength(), tmpData, 0);
                     out.writeInt(len + 1);
                     out.writeBoolean(compress);
                     out.write(tmpData, 0, len);
@@ -439,35 +440,32 @@ public class InLongMsg {
                 binMsgBuffer.get(body, 0, bodyLen);
 
                 // copy attributes
-                int attrLen =
-                        binMsgBuffer.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
-                byte[] attr =
-                        new byte[BIN_MSG_ATTRLEN_SIZE + attrLen + BIN_MSG_MAGIC_SIZE];
+                int attrLen = binMsgBuffer.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
+                byte[] attr = new byte[BIN_MSG_ATTRLEN_SIZE + attrLen + BIN_MSG_MAGIC_SIZE];
                 binMsgBuffer.get(attr, 0, attr.length);
 
                 int guessLen = Snappy.maxCompressedLength(bodyLen);
                 byte[] tmpData = new byte[guessLen];
-                int realLen = Snappy.compress(body, 0,
-                        body.length, tmpData, 0);
+                int realLen = Snappy.compress(body, 0, body.length, tmpData, 0);
 
                 int totalDataLen = binMsgBuffer.getInt(BIN_MSG_TOTALLEN_OFFSET);
-                ByteBuffer dataBuf = ByteBuffer.allocate(
-                        totalDataLen + BIN_MSG_TOTALLEN_SIZE - body.length + realLen);
+                ByteBuffer dataBuf =
+                        ByteBuffer.allocate(
+                                totalDataLen + BIN_MSG_TOTALLEN_SIZE - body.length + realLen);
 
                 // copy headers
                 dataBuf.put(binMsgBuffer.array(), 0, BIN_MSG_BODYLEN_OFFSET);
                 // set compress flag
                 dataBuf.put(BIN_MSG_MSGTYPE_OFFSET, (byte) (msgType | BIN_MSG_SET_SNAPPY));
-                dataBuf.putInt(BIN_MSG_TOTALLEN_OFFSET,
-                        realLen + attrLen + BIN_MSG_FORMAT_SIZE - 4);
+                dataBuf.putInt(
+                        BIN_MSG_TOTALLEN_OFFSET, realLen + attrLen + BIN_MSG_FORMAT_SIZE - 4);
                 // set data length
                 dataBuf.putInt(BIN_MSG_BODYLEN_OFFSET, realLen);
                 // fill compressed data
-                System.arraycopy(tmpData, 0,
-                        dataBuf.array(), BIN_MSG_BODY_OFFSET, realLen);
+                System.arraycopy(tmpData, 0, dataBuf.array(), BIN_MSG_BODY_OFFSET, realLen);
                 // fill attributes and MAGIC
-                System.arraycopy(attr, 0, dataBuf.array(),
-                        BIN_MSG_BODY_OFFSET + realLen, attr.length);
+                System.arraycopy(
+                        attr, 0, dataBuf.array(), BIN_MSG_BODY_OFFSET + realLen, attr.length);
 
                 out.write(dataBuf.array(), 0, dataBuf.capacity());
             } else {
@@ -578,7 +576,8 @@ public class InLongMsg {
     private void checkMode(boolean add) {
         if (addmode != add) {
             throw new RuntimeException(
-                    addmode ? "illegal operation in add mode !!!"
+                    addmode
+                            ? "illegal operation in add mode !!!"
                             : "illegal operation in parse mode !!!");
         }
     }
@@ -623,8 +622,7 @@ public class InLongMsg {
 
         if (version.intValue() != Version.v4.intValue()) {
             parsedInput = new DataInputBuffer();
-            parsedInput.reset(buffer.array(), buffer.position() + 2,
-                    buffer.remaining());
+            parsedInput.reset(buffer.array(), buffer.position() + 2, buffer.remaining());
             if (version.intValue() >= Version.v1.intValue()) {
                 createtime = parsedInput.readLong();
             }
@@ -636,8 +634,7 @@ public class InLongMsg {
             attrcnt = parsedInput.readInt();
         } else {
             byte[] binMsg = new byte[buffer.remaining() - 2];
-            System.arraycopy(buffer.array(),
-                    buffer.position() + 2, binMsg, 0, binMsg.length);
+            System.arraycopy(buffer.array(), buffer.position() + 2, binMsg, 0, binMsg.length);
             parsedBinInput = ByteBuffer.wrap(binMsg);
             this.createtime = getBinCreatetime(parsedBinInput);
             this.msgcnt = getBinMsgCnt(parsedBinInput);
@@ -646,8 +643,7 @@ public class InLongMsg {
     }
 
     private void parseDefault() throws IOException {
-        attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(
-                attrcnt * 10 / 7);
+        attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(attrcnt * 10 / 7);
         for (int i = 0; i < attrcnt; i++) {
             String attr = parsedInput.readUTF();
             int cnt = 0;
@@ -658,15 +654,13 @@ public class InLongMsg {
             int pos = parsedInput.getPosition();
             attr2Rawdata.put(
                     attr,
-                    new DataByteBuffer(cnt, ByteBuffer.wrap(
-                            parsedInput.getData(), pos, len)));
+                    new DataByteBuffer(cnt, ByteBuffer.wrap(parsedInput.getData(), pos, len)));
             parsedInput.skip(len);
         }
     }
 
     private void parseMixAttr() throws IOException {
-        attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(
-                this.msgcnt * 10 / 7);
+        attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(this.msgcnt * 10 / 7);
 
         for (int i = 0; i < attrcnt; i++) {
             ByteBuffer bodyBuffer;
@@ -676,10 +670,10 @@ public class InLongMsg {
             int pos = parsedInput.getPosition();
 
             if (compress == 1) {
-                byte[] uncompressdata = new byte[Snappy.uncompressedLength(
-                        parsedInput.getData(), pos, len - 1)];
-                int msgLen = Snappy.uncompress(parsedInput.getData(), pos, len - 1,
-                        uncompressdata, 0);
+                byte[] uncompressdata =
+                        new byte[Snappy.uncompressedLength(parsedInput.getData(), pos, len - 1)];
+                int msgLen =
+                        Snappy.uncompress(parsedInput.getData(), pos, len - 1, uncompressdata, 0);
                 bodyBuffer = ByteBuffer.wrap(uncompressdata, 0, msgLen);
             } else {
                 bodyBuffer = ByteBuffer.wrap(parsedInput.getData(), pos, len - 1);
@@ -719,8 +713,8 @@ public class InLongMsg {
 
                     DataByteBuffer inputBuffer = attr2Rawdata.get(finalAttr);
                     if (inputBuffer == null) {
-                        inputBuffer = new DataByteBuffer(0,
-                                new DataOutputBuffer(msgItemLen + 4 + 1));
+                        inputBuffer =
+                                new DataByteBuffer(0, new DataOutputBuffer(msgItemLen + 4 + 1));
                         attr2Rawdata.put(finalAttr, inputBuffer);
                         inputBuffer.inoutBuffer.write(record, 0, msgItemLen + 4 + 1);
                     } else {
@@ -749,11 +743,13 @@ public class InLongMsg {
         long dataTime = parsedBinInput.getInt(BIN_MSG_DATATIME_OFFSET);
         final int extField = parsedBinInput.getShort(BIN_MSG_EXTFIELD_OFFSET);
         int attrLen = parsedBinInput.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
-        int msgMagic = (parsedBinInput.getShort(BIN_MSG_BODY_OFFSET
-                + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen) & 0xFFFF);
+        int msgMagic =
+                (parsedBinInput.getShort(
+                                BIN_MSG_BODY_OFFSET + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen)
+                        & 0xFFFF);
         dataTime = dataTime * 1000;
 
-        //read common attributes
+        // read common attributes
         if (attrLen != 0) {
             byte[] attr = new byte[attrLen];
             parsedBinInput.position(BIN_MSG_BODY_OFFSET + bodyLen + BIN_MSG_ATTRLEN_SIZE);
@@ -765,7 +761,7 @@ public class InLongMsg {
 
         commonAttrMap.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
 
-        //unzip data
+        // unzip data
         ByteBuffer bodyBuffer;
         byte[] body = new byte[bodyLen + 1];
         parsedBinInput.position(BIN_MSG_BODY_OFFSET);
@@ -777,20 +773,19 @@ public class InLongMsg {
                         new byte[Snappy.uncompressedLength(body, 1, body.length - 1) + 1];
                 // uncompress flag
                 uncompressdata[0] = 0;
-                int msgLen = Snappy.uncompress(body, 1, body.length - 1,
-                        uncompressdata, 1);
+                int msgLen = Snappy.uncompress(body, 1, body.length - 1, uncompressdata, 1);
                 bodyBuffer = ByteBuffer.wrap(uncompressdata, 0, msgLen + 1);
                 break;
 
             case (BIN_MSG_NO_ZIP):
             default:
-                //set uncompress flag
+                // set uncompress flag
                 body[0] = 0;
                 bodyBuffer = ByteBuffer.wrap(body, 0, body.length);
                 break;
         }
 
-        //number groupId/streamId
+        // number groupId/streamId
         boolean isUseNumGroupId = ((extField & 0x4) == 0x0);
         if (isUseNumGroupId) {
             commonAttrMap.put(AttributeConstants.GROUP_ID, String.valueOf(groupIdNum));
@@ -804,14 +799,12 @@ public class InLongMsg {
         if (!hasOtherAttr) {
             // general attributes and data map
             attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>();
-            attr2Rawdata.put(MAP_JOINER.join(commonAttrMap),
-                    new DataByteBuffer(0, bodyBuffer));
+            attr2Rawdata.put(MAP_JOINER.join(commonAttrMap), new DataByteBuffer(0, bodyBuffer));
         } else {
-            attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(
-                    this.msgcnt * 10 / 7);
+            attr2Rawdata = new LinkedHashMap<String, DataByteBuffer>(this.msgcnt * 10 / 7);
             Map<String, String> finalAttrMap = commonAttrMap;
 
-            //skip compress flag
+            // skip compress flag
             bodyBuffer.get();
             int bodyBufLen = bodyBuffer.capacity() - 1;
             while (bodyBufLen > 0) {
@@ -843,8 +836,7 @@ public class InLongMsg {
 
                 DataByteBuffer inputBuffer = attr2Rawdata.get(MAP_JOINER.join(finalAttrMap));
                 if (inputBuffer == null) {
-                    inputBuffer = new DataByteBuffer(0,
-                            new DataOutputBuffer(singleMsgLen + 4 + 1));
+                    inputBuffer = new DataByteBuffer(0, new DataOutputBuffer(singleMsgLen + 4 + 1));
                     attr2Rawdata.put(MAP_JOINER.join(finalAttrMap), inputBuffer);
                     inputBuffer.inoutBuffer.write(record, 0, singleMsgLen + 4 + 1);
                 } else {
@@ -886,27 +878,32 @@ public class InLongMsg {
         }
         int pos = buffer.position();
         int rem = buffer.remaining();
-        if (array[pos] == MAGIC1[0] && array[pos + 1] == MAGIC1[1]
+        if (array[pos] == MAGIC1[0]
+                && array[pos + 1] == MAGIC1[1]
                 && array[pos + rem - 2] == MAGIC1[0]
                 && array[pos + rem - 1] == MAGIC1[1]) {
             return Version.v1;
         }
-        if (array[pos] == MAGIC2[0] && array[pos + 1] == MAGIC2[1]
+        if (array[pos] == MAGIC2[0]
+                && array[pos + 1] == MAGIC2[1]
                 && array[pos + rem - 2] == MAGIC2[0]
                 && array[pos + rem - 1] == MAGIC2[1]) {
             return Version.v2;
         }
-        if (array[pos] == MAGIC3[0] && array[pos + 1] == MAGIC3[1]
+        if (array[pos] == MAGIC3[0]
+                && array[pos + 1] == MAGIC3[1]
                 && array[pos + rem - 2] == MAGIC3[0]
                 && array[pos + rem - 1] == MAGIC3[1]) {
             return Version.v3;
         }
-        if (array[pos] == MAGIC4[0] && array[pos + 1] == MAGIC4[1]
+        if (array[pos] == MAGIC4[0]
+                && array[pos + 1] == MAGIC4[1]
                 && array[pos + rem - 2] == MAGIC4[0]
                 && array[pos + rem - 1] == MAGIC4[1]) {
             return Version.v4;
         }
-        if (array[pos] == MAGIC0[0] && array[pos + 1] == MAGIC0[1]
+        if (array[pos] == MAGIC0[0]
+                && array[pos + 1] == MAGIC0[1]
                 && array[pos + rem - 2] == MAGIC0[0]
                 && array[pos + rem - 1] == MAGIC0[1]) {
             return Version.v0;
@@ -952,8 +949,7 @@ public class InLongMsg {
         makeSureParsed();
         ByteBuffer buffer = getRawDataBuffer(attr);
         byte[] data = new byte[buffer.remaining()];
-        System.arraycopy(buffer.array(), buffer.position(), data, 0,
-                buffer.remaining());
+        System.arraycopy(buffer.array(), buffer.position(), data, 0, buffer.remaining());
         return data;
     }
 
@@ -975,6 +971,7 @@ public class InLongMsg {
 
     /**
      * getIterator
+     *
      * @param rawdata
      * @return
      */
@@ -987,10 +984,8 @@ public class InLongMsg {
             int compress = array[pos];
 
             if (compress == 1) {
-                byte[] uncompressdata = new byte[Snappy.uncompressedLength(
-                        array, pos + 1, rem)];
-                int len = Snappy.uncompress(array, pos + 1, rem,
-                        uncompressdata, 0);
+                byte[] uncompressdata = new byte[Snappy.uncompressedLength(array, pos + 1, rem)];
+                int len = Snappy.uncompress(array, pos + 1, rem, uncompressdata, 0);
                 input.reset(uncompressdata, len);
             } else {
                 input.reset(array, pos + 1, rem);
@@ -1031,7 +1026,6 @@ public class InLongMsg {
             e.printStackTrace();
             return null;
         }
-
     }
 
     public static Iterator<ByteBuffer> getIteratorBuffer(byte[] rawdata) {
@@ -1054,10 +1048,8 @@ public class InLongMsg {
             int compress = array[pos];
 
             if (compress == 1) {
-                byte[] uncompressdata = new byte[Snappy.uncompressedLength(
-                        array, pos + 1, rem)];
-                int len = Snappy.uncompress(array, pos + 1, rem,
-                        uncompressdata, 0);
+                byte[] uncompressdata = new byte[Snappy.uncompressedLength(array, pos + 1, rem)];
+                int len = Snappy.uncompress(array, pos + 1, rem, uncompressdata, 0);
                 input.reset(uncompressdata, len);
             } else {
                 input.reset(array, pos + 1, rem);
@@ -1099,7 +1091,6 @@ public class InLongMsg {
             e.printStackTrace();
             return null;
         }
-
     }
 
     public long getCreatetime() {

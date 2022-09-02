@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -34,26 +36,17 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
-
-/**
- * PostgreSQL sink service test
- */
+/** PostgreSQL sink service test */
 public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
     private static final String globalStreamId = "stream1";
     private static final String globalOperator = "admin";
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         PostgreSQLSinkRequest sinkInfo = new PostgreSQLSinkRequest();
@@ -73,9 +66,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -104,9 +95,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
-    /**
-     * Just using in local test
-     */
+    /** Just using in local test */
     @Disabled
     public void testDbResource() {
         String url = "jdbc:postgresql://localhost:5432/testdb";
@@ -116,12 +105,15 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         String schemaName = "public";
 
         try (Connection connection = PostgreSQLJdbcUtils.getConnection(url, username, password)) {
-            PostgreSQLTableInfo tableInfo = bulidTestPostgreSQLTableInfo(username, schemaName, tableName);
+            PostgreSQLTableInfo tableInfo =
+                    bulidTestPostgreSQLTableInfo(username, schemaName, tableName);
             PostgreSQLJdbcUtils.createTable(connection, tableInfo);
             List<PostgreSQLColumnInfo> addColumns = buildAddColumns();
             PostgreSQLJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
-            List<PostgreSQLColumnInfo> columns = PostgreSQLJdbcUtils.getColumns(connection, schemaName, tableName);
-            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+            List<PostgreSQLColumnInfo> columns =
+                    PostgreSQLJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(
+                    columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -134,11 +126,11 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<PostgreSQLColumnInfo> buildAddColumns() {
-        List<PostgreSQLColumnInfo> addColums = Lists.newArrayList(
-                new PostgreSQLColumnInfo("test1", "int", "test1"),
-                new PostgreSQLColumnInfo("test2", "varchar(30)", "test2"),
-                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+        List<PostgreSQLColumnInfo> addColums =
+                Lists.newArrayList(
+                        new PostgreSQLColumnInfo("test1", "int", "test1"),
+                        new PostgreSQLColumnInfo("test2", "varchar(30)", "test2"),
+                        new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
@@ -149,13 +141,13 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
      * @param tableName PostgreSQL table name
      * @return {@link PostgreSQLTableInfo}
      */
-    private PostgreSQLTableInfo bulidTestPostgreSQLTableInfo(final String userName, final String schemaName,
-            final String tableName) {
-        List<PostgreSQLColumnInfo> columns = Lists.newArrayList(
-                new PostgreSQLColumnInfo("id", "int", "id"),
-                new PostgreSQLColumnInfo("cell", "varchar(25)", "cell"),
-                new PostgreSQLColumnInfo("name", "varchar(50)", "name")
-        );
+    private PostgreSQLTableInfo bulidTestPostgreSQLTableInfo(
+            final String userName, final String schemaName, final String tableName) {
+        List<PostgreSQLColumnInfo> columns =
+                Lists.newArrayList(
+                        new PostgreSQLColumnInfo("id", "int", "id"),
+                        new PostgreSQLColumnInfo("cell", "varchar(25)", "cell"),
+                        new PostgreSQLColumnInfo("name", "varchar(50)", "name"));
         final PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);
@@ -164,5 +156,4 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         tableInfo.setComment(tableName);
         return tableInfo;
     }
-
 }

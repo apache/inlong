@@ -17,29 +17,22 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-
-/**
- * Interface class for data format
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Interface class for data format */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = JsonFormat.class, name = "jsonFormat"),
-        @JsonSubTypes.Type(value = AvroFormat.class, name = "avroFormat"),
-        @JsonSubTypes.Type(value = DebeziumJsonFormat.class, name = "debeziumJsonFormat"),
-        @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat"),
-        @JsonSubTypes.Type(value = CsvFormat.class, name = "csvFormat"),
-        @JsonSubTypes.Type(value = InLongMsgFormat.class, name = "inLongMsgFormat"),
-        @JsonSubTypes.Type(value = RawFormat.class, name = "rawFormat")
+    @JsonSubTypes.Type(value = JsonFormat.class, name = "jsonFormat"),
+    @JsonSubTypes.Type(value = AvroFormat.class, name = "avroFormat"),
+    @JsonSubTypes.Type(value = DebeziumJsonFormat.class, name = "debeziumJsonFormat"),
+    @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat"),
+    @JsonSubTypes.Type(value = CsvFormat.class, name = "csvFormat"),
+    @JsonSubTypes.Type(value = InLongMsgFormat.class, name = "inLongMsgFormat"),
+    @JsonSubTypes.Type(value = RawFormat.class, name = "rawFormat")
 })
 public interface Format extends Serializable {
 

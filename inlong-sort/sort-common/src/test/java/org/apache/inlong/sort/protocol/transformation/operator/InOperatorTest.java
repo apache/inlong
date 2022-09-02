@@ -19,9 +19,7 @@ package org.apache.inlong.sort.protocol.transformation.operator;
 
 import org.apache.inlong.sort.protocol.transformation.Operator;
 
-/**
- * Test for {@link InOperator}
- */
+/** Test for {@link InOperator} */
 public class InOperatorTest extends OperatorBaseTest {
 
     @Override

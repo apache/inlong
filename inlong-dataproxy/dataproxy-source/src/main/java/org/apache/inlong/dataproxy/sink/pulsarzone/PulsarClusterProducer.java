@@ -1,22 +1,29 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.sink.pulsarzone;
 
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
+
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -37,20 +44,7 @@ import org.apache.pulsar.client.api.SizeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
-/**
- * PulsarClusterProducer
- */
+/** PulsarClusterProducer */
 public class PulsarClusterProducer implements LifecycleAware {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarClusterProducer.class);
@@ -66,12 +60,13 @@ public class PulsarClusterProducer implements LifecycleAware {
     public static final String KEY_BATCHINGMAXMESSAGES = "batchingMaxMessages";
     public static final String KEY_BATCHINGMAXPUBLISHDELAY = "batchingMaxPublishDelay";
     public static final String KEY_MAXPENDINGMESSAGES = "maxPendingMessages";
-    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS = "maxPendingMessagesAcrossPartitions";
+    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS =
+            "maxPendingMessagesAcrossPartitions";
     public static final String KEY_SENDTIMEOUT = "sendTimeout";
     public static final String KEY_COMPRESSIONTYPE = "compressionType";
     public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
-    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
-            + "BatchingPartitionSwitchFrequency";
+    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY =
+            "roundRobinRouter" + "BatchingPartitionSwitchFrequency";
 
     public static final String KEY_IOTHREADS = "ioThreads";
     public static final String KEY_MEMORYLIMIT = "memoryLimit";
@@ -87,22 +82,22 @@ public class PulsarClusterProducer implements LifecycleAware {
     private String tenant;
     private String namespace;
 
-    /**
-     * pulsar client
-     */
+    /** pulsar client */
     private PulsarClient client;
+
     private ProducerBuilder<byte[]> baseBuilder;
 
     private Map<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
     /**
      * Constructor
-     * 
+     *
      * @param workerName Worker name
      * @param config Cache cluster configuration
      * @param context Sink context
      */
-    public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
+    public PulsarClusterProducer(
+            String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         this.workerName = workerName;
         this.config = config;
         this.sinkContext = context;
@@ -113,9 +108,7 @@ public class PulsarClusterProducer implements LifecycleAware {
         this.namespace = config.getParams().get(KEY_NAMESPACE);
     }
 
-    /**
-     * start
-     */
+    /** start */
     @Override
     public void start() {
         this.state = LifecycleState.START;
@@ -123,13 +116,15 @@ public class PulsarClusterProducer implements LifecycleAware {
         try {
             String serviceUrl = config.getParams().get(KEY_SERVICE_URL);
             String authentication = config.getParams().get(KEY_AUTHENTICATION);
-            this.client = PulsarClient.builder()
-                    .serviceUrl(serviceUrl)
-                    .authentication(AuthenticationFactory.token(authentication))
-                    .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
-                    .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
-                    .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
-                    .build();
+            this.client =
+                    PulsarClient.builder()
+                            .serviceUrl(serviceUrl)
+                            .authentication(AuthenticationFactory.token(authentication))
+                            .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
+                            .memoryLimit(
+                                    context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
+                            .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
+                            .build();
             this.baseBuilder = client.newProducer();
             // Map<String, Object> builderConf = new HashMap<>();
             // builderConf.putAll(context.getParameters());
@@ -140,7 +135,8 @@ public class PulsarClusterProducer implements LifecycleAware {
                             context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000));
             this.baseBuilder
                     .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
-                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
+                    .batchingMaxPublishDelay(
+                            context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
                             TimeUnit.MILLISECONDS)
                     .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 131072));
             this.baseBuilder
@@ -149,7 +145,8 @@ public class PulsarClusterProducer implements LifecycleAware {
                     .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true));
             this.baseBuilder
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
-                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
+                            context.getInteger(
+                                    KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
                     .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
                     .compressionType(this.getPulsarCompressionType());
         } catch (Throwable e) {
@@ -159,30 +156,28 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * getPulsarCompressionType
-     * 
+     *
      * @return CompressionType LZ4/NONE/ZLIB/ZSTD/SNAPPY
      */
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
         switch (type) {
-            case "LZ4" :
+            case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE" :
+            case "NONE":
                 return CompressionType.NONE;
-            case "ZLIB" :
+            case "ZLIB":
                 return CompressionType.ZLIB;
-            case "ZSTD" :
+            case "ZSTD":
                 return CompressionType.ZSTD;
-            case "SNAPPY" :
+            case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default :
+            default:
                 return CompressionType.NONE;
         }
     }
 
-    /**
-     * stop
-     */
+    /** stop */
     @Override
     public void stop() {
         this.state = LifecycleState.STOP;
@@ -203,7 +198,7 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * getLifecycleState
-     * 
+     *
      * @return LifecycleState state
      */
     @Override
@@ -213,7 +208,7 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * send DispatchProfile
-     * 
+     *
      * @param event DispatchProfile
      * @return boolean sendResult
      */
@@ -231,16 +226,32 @@ public class PulsarClusterProducer implements LifecycleAware {
             if (producer == null) {
                 try {
                     LOG.info("try to new a object for topic " + producerTopic);
-                    SecureRandom secureRandom = new SecureRandom(
-                            (workerName + "-" + cacheClusterName + "-" + producerTopic + System.currentTimeMillis())
-                                    .getBytes());
-                    String producerName = workerName + "-" + cacheClusterName + "-" + producerTopic + "-"
-                            + secureRandom.nextLong();
-                    producer = baseBuilder.clone().topic(producerTopic)
-                            .producerName(producerName)
-                            .create();
+                    SecureRandom secureRandom =
+                            new SecureRandom(
+                                    (workerName
+                                                    + "-"
+                                                    + cacheClusterName
+                                                    + "-"
+                                                    + producerTopic
+                                                    + System.currentTimeMillis())
+                                            .getBytes());
+                    String producerName =
+                            workerName
+                                    + "-"
+                                    + cacheClusterName
+                                    + "-"
+                                    + producerTopic
+                                    + "-"
+                                    + secureRandom.nextLong();
+                    producer =
+                            baseBuilder
+                                    .clone()
+                                    .topic(producerTopic)
+                                    .producerName(producerName)
+                                    .create();
                     LOG.info("create new producer success:{}", producer.getProducerName());
-                    Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(producerTopic, producer);
+                    Producer<byte[]> oldProducer =
+                            this.producerMap.putIfAbsent(producerTopic, producer);
                     if (oldProducer != null) {
                         producer.close();
                         LOG.info("close producer success:{}", producer.getProducerName());
@@ -258,22 +269,25 @@ public class PulsarClusterProducer implements LifecycleAware {
             // headers
             Map<String, String> headers = this.encodeCacheMessageHeaders(event);
             // compress
-            byte[] bodyBytes = EventUtils.encodeCacheMessageBody(sinkContext.getCompressType(), event.getEvents());
+            byte[] bodyBytes =
+                    EventUtils.encodeCacheMessageBody(
+                            sinkContext.getCompressType(), event.getEvents());
             // sendAsync
             long sendTime = System.currentTimeMillis();
-            CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
-                    .value(bodyBytes).sendAsync();
+            CompletableFuture<MessageId> future =
+                    producer.newMessage().properties(headers).value(bodyBytes).sendAsync();
             // callback
-            future.whenCompleteAsync((msgId, ex) -> {
-                if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    sinkContext.processSendFail(event, producerTopic, sendTime);
-                } else {
-                    sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
-                    event.ack();
-                }
-            });
+            future.whenCompleteAsync(
+                    (msgId, ex) -> {
+                        if (ex != null) {
+                            LOG.error("Send fail:{}", ex.getMessage());
+                            LOG.error(ex.getMessage(), ex);
+                            sinkContext.processSendFail(event, producerTopic, sendTime);
+                        } else {
+                            sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                            event.ack();
+                        }
+                    });
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -284,7 +298,7 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * getProducerTopic
-     * 
+     *
      * @param event DispatchProfile
      * @return String Full topic name
      */
@@ -306,8 +320,8 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * encodeCacheMessageHeaders
-     * 
-     * @param  event DispatchProfile
+     *
+     * @param event DispatchProfile
      * @return Map cache message headers
      */
     public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
@@ -321,7 +335,8 @@ public class PulsarClusterProducer implements LifecycleAware {
         // proxyName string proxy node id, IP or conainer name
         headers.put(EventConstants.HEADER_KEY_PROXY_NAME, sinkContext.getNodeId());
         // packTime int64 pack time, milliseconds
-        headers.put(EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
+        headers.put(
+                EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
         // msgCount int32 message count
         headers.put(EventConstants.HEADER_KEY_MSG_COUNT, String.valueOf(event.getEvents().size()));
         // srcLength int32 total length of raw messages body
@@ -331,7 +346,8 @@ public class PulsarClusterProducer implements LifecycleAware {
         // INLONG_NO_COMPRESS = 0,
         // INLONG_GZ = 1,
         // INLONG_SNAPPY = 2
-        headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
+        headers.put(
+                EventConstants.HEADER_KEY_COMPRESS_TYPE,
                 String.valueOf(sinkContext.getCompressType().getNumber()));
         // messageKey string partition hash key, optional
         return headers;
@@ -339,11 +355,10 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * get cacheClusterName
-     * 
+     *
      * @return the cacheClusterName
      */
     public String getCacheClusterName() {
         return cacheClusterName;
     }
-
 }

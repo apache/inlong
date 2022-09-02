@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.Map;
@@ -30,9 +27,8 @@ import org.slf4j.LoggerFactory;
 /**
  * TrafficStatsService, Input and Output traffic statistics Service
  *
- *  Due to the large amount of traffic-related metric data, this statistics service uses
- *  a daemon thread to periodically refresh the data to the special metric file
- *  for metric data collection.
+ * <p>Due to the large amount of traffic-related metric data, this statistics service uses a daemon
+ * thread to periodically refresh the data to the special metric file for metric data collection.
  */
 public class TrafficStatsService extends AbstractDaemonService implements TrafficService {
     // Maximum write wait time
@@ -49,9 +45,9 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     /**
      * Initial traffic statistics service
      *
-     * @param logFileName      the output file name
-     * @param countType        the statistic type
-     * @param scanIntervalMs   the snapshot interval
+     * @param logFileName the output file name
+     * @param countType the statistic type
+     * @param scanIntervalMs the snapshot interval
      */
     public TrafficStatsService(String logFileName, String countType, long scanIntervalMs) {
         super(logFileName, scanIntervalMs);
@@ -103,8 +99,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         selectedUnit.refCnt.incValue();
         try {
             // Accumulate statistics information
-            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
-                    selectedUnit.statsUnitMap;
+            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap = selectedUnit.statsUnitMap;
             for (Entry<String, TrafficInfo> entry : trafficInfos.entrySet()) {
                 trafficStatsSet = tmpStatsSetMap.get(entry.getKey());
                 if (trafficStatsSet == null) {
@@ -130,8 +125,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         selectedUnit.refCnt.incValue();
         try {
             // Accumulate statistics information
-            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap =
-                    selectedUnit.statsUnitMap;
+            ConcurrentHashMap<String, TrafficStatsUnit> tmpStatsSetMap = selectedUnit.statsUnitMap;
             TrafficStatsUnit trafficStatsSet = tmpStatsSetMap.get(statsKey);
             if (trafficStatsSet == null) {
                 TrafficStatsUnit tmpStatsSet = new TrafficStatsUnit("msg_cnt", "msg_size", null);
@@ -150,11 +144,10 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     /**
      * Print statistics data to file
      *
-     * @param readIndex   the readable index
+     * @param readIndex the readable index
      */
     private void output2file(int readIndex) {
-        WritableUnit selectedUnit =
-                switchableUnits[getIndex(readIndex)];
+        WritableUnit selectedUnit = switchableUnits[getIndex(readIndex)];
         if (selectedUnit == null) {
             return;
         }
@@ -173,7 +166,10 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
         // Output data to file
         Map<String, TrafficStatsUnit> statsMap = selectedUnit.statsUnitMap;
         for (Entry<String, TrafficStatsUnit> entry : statsMap.entrySet()) {
-            logger.info("{}#{}#{}#{}", statsCat, entry.getKey(),
+            logger.info(
+                    "{}#{}#{}#{}",
+                    statsCat,
+                    entry.getKey(),
                     entry.getValue().msgCnt.getValue(),
                     entry.getValue().msgSize.getValue());
         }
@@ -192,7 +188,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex the specified value
      * @return the metric block index
      */
     private int getIndex(int origIndex) {
@@ -202,14 +198,13 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     /**
      * WritableUnit,
      *
-     * This class is mainly defined to facilitate reading and writing of
-     * statistic set through array operations, which contains a Map of
-     * statistic dimensions and corresponding metric values
+     * <p>This class is mainly defined to facilitate reading and writing of statistic set through
+     * array operations, which contains a Map of statistic dimensions and corresponding metric
+     * values
      */
     private static class WritableUnit {
         // Current writing thread count
-        public LongOnlineCounter refCnt =
-                new LongOnlineCounter("ref_count", null);
+        public LongOnlineCounter refCnt = new LongOnlineCounter("ref_count", null);
         // statistic unit map
         protected ConcurrentHashMap<String, TrafficStatsUnit> statsUnitMap =
                 new ConcurrentHashMap<>(512);

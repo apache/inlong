@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongClusterTagEntityMapper {
@@ -38,5 +37,4 @@ public interface InlongClusterTagEntityMapper {
     int updateById(InlongClusterTagEntity record);
 
     int deleteByPrimaryKey(Integer id);
-
 }

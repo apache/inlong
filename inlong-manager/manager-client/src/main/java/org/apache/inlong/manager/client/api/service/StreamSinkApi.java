@@ -41,10 +41,11 @@ public interface StreamSinkApi {
     Call<Response<Boolean>> deleteSink(@Path("id") Integer id);
 
     @GET("sink/list")
-    Call<Response<PageResult<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
+    Call<Response<PageResult<StreamSink>>> listSinks(
+            @Query("inlongGroupId") String groupId,
+            @Query("inlongStreamId") String streamId,
+            @Query("sinkType") String sinkType);
 
     @GET("sink/get/{id}")
     Call<Response<StreamSink>> getSinkInfo(@Path("id") Integer sinkId);
-
 }

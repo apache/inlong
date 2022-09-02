@@ -21,28 +21,21 @@ package org.apache.inlong.sort.formats.common;
 import java.util.Arrays;
 import java.util.Collection;
 
-/**
- * Unit tests for {@link ArrayFormatInfo}.
- */
+/** Unit tests for {@link ArrayFormatInfo}. */
 public class ArrayFormatInfoTest extends FormatInfoTestBase {
 
     @Override
     Collection<FormatInfo> createFormatInfos() {
-        ArrayFormatInfo formatInfo1 =
-                new ArrayFormatInfo(StringFormatInfo.INSTANCE);
+        ArrayFormatInfo formatInfo1 = new ArrayFormatInfo(StringFormatInfo.INSTANCE);
 
         ArrayFormatInfo formatInfo2 =
-                new ArrayFormatInfo(
-                        new ArrayFormatInfo(new DateFormatInfo("YYYY-MM-DD"))
-                );
+                new ArrayFormatInfo(new ArrayFormatInfo(new DateFormatInfo("YYYY-MM-DD")));
 
         ArrayFormatInfo formatInfo3 =
                 new ArrayFormatInfo(
                         new MapFormatInfo(
                                 StringFormatInfo.INSTANCE,
-                                new ArrayFormatInfo(FloatFormatInfo.INSTANCE)
-                        )
-                );
+                                new ArrayFormatInfo(FloatFormatInfo.INSTANCE)));
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }

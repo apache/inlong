@@ -17,6 +17,9 @@
 
 package org.apache.inlong.audit.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -31,10 +34,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @Getter
@@ -103,14 +102,20 @@ public class ElasticsearchConfig {
         // configurable auth
         if (authEnable) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-            restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
-                    httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            credentialsProvider.setCredentials(
+                    AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+            restClientBuilder.setHttpClientConfigCallback(
+                    httpAsyncClientBuilder ->
+                            httpAsyncClientBuilder.setDefaultCredentialsProvider(
+                                    credentialsProvider));
         }
 
-        restClientBuilder.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
-                .setConnectTimeout(connTimeout).setSocketTimeout(socketTimeout)
-                .setConnectionRequestTimeout(connectionRequestTimeout));
+        restClientBuilder.setRequestConfigCallback(
+                requestConfigBuilder ->
+                        requestConfigBuilder
+                                .setConnectTimeout(connTimeout)
+                                .setSocketTimeout(socketTimeout)
+                                .setConnectionRequestTimeout(connectionRequestTimeout));
 
         return new RestHighLevelClient(restClientBuilder);
     }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import java.util.List;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
@@ -37,16 +38,11 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-
-/**
- * Get main information of resources.
- */
+/** Get main information of resources. */
 @Parameters(commandDescription = "Displays summary information about one or more resources")
 public class ListCommand extends AbstractCommand {
 
-    @Parameter()
-    private List<String> params;
+    @Parameter() private List<String> params;
 
     public ListCommand() {
         super("list");
@@ -60,10 +56,12 @@ public class ListCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get stream summary information")
     private static class ListStream extends AbstractCommandRunner {
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String groupId;
 
         @Override
@@ -84,16 +82,21 @@ public class ListCommand extends AbstractCommand {
 
         private static final int DEFAULT_PAGE_SIZE = 10;
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"-s", "--status"}, description = "inlong group status")
+        @Parameter(
+                names = {"-s", "--status"},
+                description = "inlong group status")
         private String status;
 
-        @Parameter(names = {"-g", "--group"}, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-n", "--num"}, description = "the number displayed")
+        @Parameter(
+                names = {"-n", "--num"},
+                description = "the number displayed")
         private int pageSize;
 
         @Override
@@ -113,7 +116,8 @@ public class ListCommand extends AbstractCommand {
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
 
-                PageResult<InlongGroupBriefInfo> groupPageInfo = groupClient.listGroups(pageRequest);
+                PageResult<InlongGroupBriefInfo> groupPageInfo =
+                        groupClient.listGroups(pageRequest);
                 PrintUtils.print(groupPageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -124,13 +128,18 @@ public class ListCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get sink summary information")
     private static class ListSink extends AbstractCommandRunner {
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "stream id")
+        @Parameter(
+                names = {"-s", "--stream"},
+                required = true,
+                description = "stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "group id")
         private String group;
 
         @Override
@@ -149,16 +158,23 @@ public class ListCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get source summary information")
     private static class ListSource extends AbstractCommandRunner {
 
-        @Parameter()
-        private List<String> params;
+        @Parameter() private List<String> params;
 
-        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
+        @Parameter(
+                names = {"-s", "--stream"},
+                required = true,
+                description = "inlong stream id")
         private String stream;
 
-        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        @Parameter(
+                names = {"-g", "--group"},
+                required = true,
+                description = "inlong group id")
         private String group;
 
-        @Parameter(names = {"-t", "--type"}, description = "source type")
+        @Parameter(
+                names = {"-t", "--type"},
+                description = "source type")
         private String type;
 
         @Override

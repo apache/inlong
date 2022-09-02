@@ -20,25 +20,19 @@ package org.apache.inlong.agent.db;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
-/**
- * key value entity. key is string and value is a json
- */
+/** key value entity. key is string and value is a json */
 public class KeyValueEntity {
 
     private String key;
 
     private StateSearchKey stateSearchKey;
 
-    /**
-     * stores the file name that the jsonValue refers
-     */
+    /** stores the file name that the jsonValue refers */
     private String fileName;
 
     private String jsonValue;
 
-    private KeyValueEntity() {
-
-    }
+    private KeyValueEntity() {}
 
     public KeyValueEntity(String key, String jsonValue, String fileName) {
         this.key = key;
@@ -83,16 +77,12 @@ public class KeyValueEntity {
         return JobProfile.parseJsonStr(getJsonValue());
     }
 
-    /**
-     * convert keyValue to trigger profile
-     */
+    /** convert keyValue to trigger profile */
     public TriggerProfile getAsTriggerProfile() {
         return TriggerProfile.parseJsonStr(getJsonValue());
     }
 
-    /**
-     * check whether the entity is finished
-     */
+    /** check whether the entity is finished */
     public boolean checkFinished() {
         return stateSearchKey.equals(StateSearchKey.SUCCESS)
                 || stateSearchKey.equals(StateSearchKey.FAILED);

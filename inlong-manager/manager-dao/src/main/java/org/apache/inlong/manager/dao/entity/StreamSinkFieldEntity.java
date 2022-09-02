@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * Stream sink field entity, including field name, field length, etc.
- */
+/** Stream sink field entity, including field name, field length, etc. */
 @Data
 public class StreamSinkFieldEntity implements Serializable {
 
@@ -49,5 +46,4 @@ public class StreamSinkFieldEntity implements Serializable {
     private String originFieldName;
     private Short rankNum;
     private Integer isDeleted;
-
 }

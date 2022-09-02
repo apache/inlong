@@ -34,14 +34,13 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FailoverChannelProcessor
-        extends ChannelProcessor {
+public class FailoverChannelProcessor extends ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
     private static final LogCounter logPrinter = new LogCounter(10, 10000, 60 * 1000);
@@ -123,9 +122,11 @@ public class FailoverChannelProcessor
      * Attempts to {@linkplain Channel#put(Event) put} the given events into each configured
      * channel. If any {@code required} channel throws a {@link ChannelException}, that exception
      * will be propagated.
-     * <p/>
-     * <p>Note that if multiple channels are configured, some {@link Transaction}s
-     * may have already been committed while others may be rolled back in the case of an exception.
+     *
+     * <p>
+     *
+     * <p>Note that if multiple channels are configured, some {@link Transaction}s may have already
+     * been committed while others may be rolled back in the case of an exception.
      *
      * @param events A list of events to put into the configured channels.
      * @throws ChannelException when a write to a required channel fails.
@@ -148,16 +149,18 @@ public class FailoverChannelProcessor
             List<Channel> reqChannels = selector.getRequiredChannels(event);
 
             for (Channel ch : reqChannels) {
-                List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                List<Event> eventQueue =
+                        reqChannelQueue.computeIfAbsent(
+                                ch, k -> new ArrayList<Event>()); // reqChannelQueue
                 eventQueue.add(event);
             }
 
             List<Channel> optChannels = selector.getOptionalChannels(event);
 
             for (Channel ch : optChannels) {
-                List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                List<Event> eventQueue =
+                        optChannelQueue.computeIfAbsent(
+                                ch, k -> new ArrayList<Event>()); // optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -226,14 +229,15 @@ public class FailoverChannelProcessor
      * Attempts to {@linkplain Channel#put(Event) put} the given event into each configured channel.
      * If any {@code required} channel throws a {@link ChannelException}, that exception will be
      * propagated.
-     * <p/>
-     * <p>Note that if multiple channels are configured, some {@link Transaction}s
-     * may have already been committed while others may be rolled back in the case of an exception.
+     *
+     * <p>
+     *
+     * <p>Note that if multiple channels are configured, some {@link Transaction}s may have already
+     * been committed while others may be rolled back in the case of an exception.
      *
      * @param event The event to put into the configured channels.
      * @throws ChannelException when a write to a required channel fails.
      */
-
     public void processEvent(Event event) {
         event = interceptorChain.intercept(event);
         if (event == null) {
@@ -254,8 +258,10 @@ public class FailoverChannelProcessor
 
             } catch (Throwable t) {
                 if (logPrinter.shouldPrint()) {
-                    LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
-                            + reqChannel.getName(), t);
+                    LOG.error(
+                            "FailoverChannelProcessor Unable to put event on required channel: "
+                                    + reqChannel.getName(),
+                            t);
                 }
 
                 success = false;
@@ -294,21 +300,27 @@ public class FailoverChannelProcessor
                             tx.rollback();
                         } catch (Throwable e) {
                             if (logPrinter.shouldPrint()) {
-                                LOG.error("FailoverChannelProcessor Transaction rollback exception",
+                                LOG.error(
+                                        "FailoverChannelProcessor Transaction rollback exception",
                                         e);
                             }
                         }
                     }
                     if (t instanceof Error) {
                         if (logPrinter.shouldPrint()) {
-                            LOG.error("FailoverChannelProcessor Error while writing event to "
-                                    + "optionalChannels: " + optChannel, t);
+                            LOG.error(
+                                    "FailoverChannelProcessor Error while writing event to "
+                                            + "optionalChannels: "
+                                            + optChannel,
+                                    t);
                         }
                         throw (Error) t;
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: "
+                                        + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

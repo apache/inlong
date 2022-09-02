@@ -46,43 +46,39 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.junit.Test;
 
-/**
- * Tests for {@link CsvFormatFactory}.
- */
+/** Tests for {@link CsvFormatFactory}. */
 public class CsvFormatFactoryTest {
 
     private static final TypeInformation<Row> SCHEMA =
             Types.ROW(
-                    new String[]{"student_name", "score", "date"},
-                    new TypeInformation[]{Types.STRING(), Types.INT(), Types.SQL_DATE()}
-            );
+                    new String[] {"student_name", "score", "date"},
+                    new TypeInformation[] {Types.STRING(), Types.INT(), Types.SQL_DATE()});
 
     private static final TypeInformation<Row> KEYED_SCHEMA =
             Types.ROW(
-                    new String[]{"key", "student_name", "score", "date"},
-                    new TypeInformation[]{Types.LONG(), Types.STRING(), Types.INT(), Types.SQL_DATE()}
-            );
+                    new String[] {"key", "student_name", "score", "date"},
+                    new TypeInformation[] {
+                        Types.LONG(), Types.STRING(), Types.INT(), Types.SQL_DATE()
+                    });
 
     private static final RowFormatInfo TEST_FORMAT_SCHEMA =
             new RowFormatInfo(
-                    new String[]{"student_name", "score", "date"},
-                    new FormatInfo[]{
-                            StringFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            new DateFormatInfo("yyyy-MM-dd")
-                    }
-            );
+                    new String[] {"student_name", "score", "date"},
+                    new FormatInfo[] {
+                        StringFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        new DateFormatInfo("yyyy-MM-dd")
+                    });
 
     private static final RowFormatInfo TEST_KEYED_FORMAT_SCHEMA =
             new RowFormatInfo(
-                    new String[]{"keyed", "student_name", "score", "date"},
-                    new FormatInfo[]{
-                            LongFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            new DateFormatInfo("yyyy-MM-dd")
-                    }
-            );
+                    new String[] {"keyed", "student_name", "score", "date"},
+                    new FormatInfo[] {
+                        LongFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        new DateFormatInfo("yyyy-MM-dd")
+                    });
 
     @Test
     public void testCreateTableFormatDeserializer() throws Exception {
@@ -111,9 +107,7 @@ public class CsvFormatFactoryTest {
 
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                        properties, getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -121,11 +115,7 @@ public class CsvFormatFactoryTest {
     @Test
     public void testCreateTableFormatDeserializerWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
-        properties.putAll(
-                new Schema()
-                        .schema(TableSchema.fromTypeInfo(SCHEMA))
-                        .toProperties()
-        );
+        properties.putAll(new Schema().schema(TableSchema.fromTypeInfo(SCHEMA)).toProperties());
         properties.putAll(new Csv().deriveSchema().toProperties());
 
         final CsvDeserializationSchema deserializationSchema =
@@ -136,9 +126,7 @@ public class CsvFormatFactoryTest {
 
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                        properties, getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -169,10 +157,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatSerializer(serializationSchema);
 
         final TableFormatSerializer actualSer =
-                TableFormatUtils.getTableFormatSerializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                TableFormatUtils.getTableFormatSerializer(properties, getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }
@@ -180,11 +165,7 @@ public class CsvFormatFactoryTest {
     @Test
     public void testCreateTableFormatSerializerWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
-        properties.putAll(
-                new Schema()
-                        .schema(TableSchema.fromTypeInfo(SCHEMA))
-                        .toProperties()
-        );
+        properties.putAll(new Schema().schema(TableSchema.fromTypeInfo(SCHEMA)).toProperties());
         properties.putAll(new Csv().deriveSchema().toProperties());
 
         final CsvSerializationSchema serializationSchema =
@@ -194,10 +175,7 @@ public class CsvFormatFactoryTest {
                 new DefaultTableFormatSerializer(serializationSchema);
 
         final TableFormatSerializer actualSer =
-                TableFormatUtils.getTableFormatSerializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                TableFormatUtils.getTableFormatSerializer(properties, getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }
@@ -226,10 +204,7 @@ public class CsvFormatFactoryTest {
 
         final DeserializationSchema<Row> actualDeser =
                 TableFormatUtils.getProjectedDeserializationSchema(
-                        properties,
-                        new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        properties, new int[] {1, 2, 3}, getClass().getClassLoader());
 
         assertEquals(expectdDeser, actualDeser);
     }
@@ -238,10 +213,7 @@ public class CsvFormatFactoryTest {
     public void testCreateProjectedDeserializationSchemaWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
         properties.putAll(
-                new Schema()
-                        .schema(TableSchema.fromTypeInfo(KEYED_SCHEMA))
-                        .toProperties()
-        );
+                new Schema().schema(TableSchema.fromTypeInfo(KEYED_SCHEMA)).toProperties());
         properties.putAll(new Csv().deriveSchema().toProperties());
 
         final CsvDeserializationSchema expectedDeser =
@@ -249,10 +221,7 @@ public class CsvFormatFactoryTest {
 
         final DeserializationSchema<Row> actualDeser =
                 TableFormatUtils.getProjectedDeserializationSchema(
-                        properties,
-                        new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        properties, new int[] {1, 2, 3}, getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -281,10 +250,7 @@ public class CsvFormatFactoryTest {
 
         final SerializationSchema<Row> actualSer =
                 TableFormatUtils.getProjectedSerializationSchema(
-                        properties,
-                        new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        properties, new int[] {1, 2, 3}, getClass().getClassLoader());
 
         assertEquals(expectdSer, actualSer);
     }
@@ -293,21 +259,14 @@ public class CsvFormatFactoryTest {
     public void testCreateProjectedSerializationSchemaWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
         properties.putAll(
-                new Schema()
-                        .schema(TableSchema.fromTypeInfo(KEYED_SCHEMA))
-                        .toProperties()
-        );
+                new Schema().schema(TableSchema.fromTypeInfo(KEYED_SCHEMA)).toProperties());
         properties.putAll(new Csv().deriveSchema().toProperties());
 
-        final CsvSerializationSchema expectedSer =
-                new CsvSerializationSchema(TEST_FORMAT_SCHEMA);
+        final CsvSerializationSchema expectedSer = new CsvSerializationSchema(TEST_FORMAT_SCHEMA);
 
         final SerializationSchema<Row> actualSer =
                 TableFormatUtils.getProjectedSerializationSchema(
-                        properties,
-                        new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        properties, new int[] {1, 2, 3}, getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }

@@ -30,15 +30,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Configuration
-@ComponentScan(basePackages = "org.apache.inlong.audit", useDefaultFilters = false,
+@ComponentScan(
+        basePackages = "org.apache.inlong.audit",
+        useDefaultFilters = false,
         includeFilters = {
-        @Filter(type = FilterType.ANNOTATION, value = Component.class),
-        @Filter(type = FilterType.ANNOTATION, value = Service.class)})
+            @Filter(type = FilterType.ANNOTATION, value = Component.class),
+            @Filter(type = FilterType.ANNOTATION, value = Service.class)
+        })
 @MapperScan(basePackages = "org.apache.inlong.audit.db.dao")
 @PropertySources({
-        @PropertySource("classpath:application.properties"),
+    @PropertySource("classpath:application.properties"),
 })
-
 public class DataServerConfig {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {

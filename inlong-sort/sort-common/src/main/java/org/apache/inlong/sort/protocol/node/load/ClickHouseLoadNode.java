@@ -19,6 +19,11 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -32,16 +37,10 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 /**
- * clickHouse update operations is heavy, it will takes precedence over all others operation to execute, so it has a
- * poor performance. It is more suitable for batch scenes but not streaming scenes where operations are performed
- * frequently.
+ * clickHouse update operations is heavy, it will takes precedence over all others operation to
+ * execute, so it has a poor performance. It is more suitable for batch scenes but not streaming
+ * scenes where operations are performed frequently.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("clickHouseLoad")
@@ -71,7 +70,8 @@ public class ClickHouseLoadNode extends LoadNode implements InlongMetric, Serial
     private String primaryKey;
 
     @JsonCreator
-    public ClickHouseLoadNode(@JsonProperty("id") String id,
+    public ClickHouseLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -83,9 +83,16 @@ public class ClickHouseLoadNode extends LoadNode implements InlongMetric, Serial
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
             @Nonnull @JsonProperty("passWord") String password,
-            @JsonProperty("primaryKey") String primaryKey
-    ) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+            @JsonProperty("primaryKey") String primaryKey) {
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");
@@ -119,5 +126,4 @@ public class ClickHouseLoadNode extends LoadNode implements InlongMetric, Serial
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
     }
-
 }

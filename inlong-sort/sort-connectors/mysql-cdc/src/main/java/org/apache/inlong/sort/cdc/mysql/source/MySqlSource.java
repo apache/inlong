@@ -18,8 +18,17 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.TableId;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
@@ -61,16 +70,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitSerializer;
 import org.apache.inlong.sort.cdc.mysql.table.StartupMode;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.function.Supplier;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
-
 /**
  * The MySQL CDC Source based on FLIP-27 and Watermark Signal Algorithm which supports parallel
  * reading snapshot of table and then continue to capture data change from binlog.
@@ -95,7 +94,7 @@ import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcCo
  *     .build();
  * }</pre>
  *
- * <p>See {@link MySqlSourceBuilder} for more details.</p>
+ * <p>See {@link MySqlSourceBuilder} for more details.
  *
  * @param <T> the output type of the source.
  */
@@ -156,13 +155,16 @@ public class MySqlSource<T>
             sourceReaderMetrics.setInlongSteamId(inlongMetricArray[1]);
             sourceReaderMetrics.setNodeId(inlongMetricArray[2]);
             if (inlongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
+                AuditImp.getInstance()
+                        .setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
                 sourceReaderMetrics.setAuditImp(AuditImp.getInstance());
             }
             sourceReaderMetrics.registerMetricsForNumBytesIn(Constants.NUM_BYTES_IN);
             sourceReaderMetrics.registerMetricsForNumRecordsIn(Constants.NUM_RECORDS_IN);
-            sourceReaderMetrics.registerMetricsForNumBytesInPerSecond(Constants.NUM_BYTES_IN_PER_SECOND);
-            sourceReaderMetrics.registerMetricsForNumRecordsInPerSecond(Constants.NUM_RECORDS_IN_PER_SECOND);
+            sourceReaderMetrics.registerMetricsForNumBytesInPerSecond(
+                    Constants.NUM_BYTES_IN_PER_SECOND);
+            sourceReaderMetrics.registerMetricsForNumRecordsInPerSecond(
+                    Constants.NUM_RECORDS_IN_PER_SECOND);
         }
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecord>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();

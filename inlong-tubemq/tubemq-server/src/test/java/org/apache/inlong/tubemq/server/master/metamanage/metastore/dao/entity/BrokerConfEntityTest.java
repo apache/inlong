@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -47,11 +44,25 @@ public class BrokerConfEntityTest {
         String modifyUser1 = "modifyer";
         Date modifyDate1 = new Date();
         BdbBrokerConfEntity bdbEntity1 =
-                new BdbBrokerConfEntity(brokerId1, brokerIp1, brokerPort1, numPartitions1,
-                        unflushThreshold1, unflushInterval1, deleteWhen1, deletePolicy1,
-                        manageStatus1, acceptPublish1, acceptSubscribe1, attributes1,
-                        isConfDataUpdated1, isBrokerLoaded1, createUser1, createDate1,
-                        modifyUser1, modifyDate1);
+                new BdbBrokerConfEntity(
+                        brokerId1,
+                        brokerIp1,
+                        brokerPort1,
+                        numPartitions1,
+                        unflushThreshold1,
+                        unflushInterval1,
+                        deleteWhen1,
+                        deletePolicy1,
+                        manageStatus1,
+                        acceptPublish1,
+                        acceptSubscribe1,
+                        attributes1,
+                        isConfDataUpdated1,
+                        isBrokerLoaded1,
+                        createUser1,
+                        createDate1,
+                        modifyUser1,
+                        modifyDate1);
         BrokerConfEntity confEntity1 = new BrokerConfEntity(bdbEntity1);
         // check confEntity1
         Assert.assertEquals(confEntity1.getBrokerId(), brokerId1);
@@ -72,7 +83,8 @@ public class BrokerConfEntityTest {
         Assert.assertEquals(props1.getUnflushThreshold(), bdbEntity1.getDftUnflushThreshold());
         Assert.assertEquals(props1.getUnflushInterval(), bdbEntity1.getDftUnflushInterval());
         Assert.assertEquals(props1.getUnflushDataHold(), bdbEntity1.getDftUnFlushDataHold());
-        Assert.assertEquals(props1.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
+        Assert.assertEquals(
+                props1.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
         Assert.assertEquals(props1.getMemCacheFlushIntvl(), bdbEntity1.getDftMemCacheFlushIntvl());
         Assert.assertEquals(props1.getMemCacheMsgCntInK(), bdbEntity1.getDftMemCacheMsgCntInK());
         Assert.assertEquals(props1.getAcceptPublish(), bdbEntity1.isAcceptPublish());
@@ -119,7 +131,8 @@ public class BrokerConfEntityTest {
         Assert.assertEquals(props2.getUnflushThreshold(), bdbEntity1.getDftUnflushThreshold());
         Assert.assertEquals(props2.getUnflushInterval(), bdbEntity1.getDftUnflushInterval());
         Assert.assertEquals(props2.getUnflushDataHold(), bdbEntity1.getDftUnFlushDataHold());
-        Assert.assertEquals(props2.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
+        Assert.assertEquals(
+                props2.getMemCacheMsgSizeInMB(), bdbEntity1.getDftMemCacheMsgSizeInMB());
         Assert.assertEquals(props2.getMemCacheFlushIntvl(), bdbEntity1.getDftMemCacheFlushIntvl());
         Assert.assertEquals(props2.getMemCacheMsgCntInK(), bdbEntity1.getDftMemCacheMsgCntInK());
         Assert.assertEquals(props2.getAcceptPublish(), bdbEntity1.isAcceptPublish());
@@ -176,19 +189,34 @@ public class BrokerConfEntityTest {
         int dataStoreType3 = 9;
         String dataPath3 = "testasest";
         TopicPropGroup topicProps3 =
-                new TopicPropGroup(numTopicStores3, numPartitions3, unflushThreshold3,
-                        unflushInterval3, unflushDataHold3, memCacheMsgSizeInMB3,
-                        memCacheMsgCntInK3, memCacheFlushIntvl3, acceptPublish3,
-                        acceptSubscribe3, deletePolicy3, dataStoreType3, dataPath3);
+                new TopicPropGroup(
+                        numTopicStores3,
+                        numPartitions3,
+                        unflushThreshold3,
+                        unflushInterval3,
+                        unflushDataHold3,
+                        memCacheMsgSizeInMB3,
+                        memCacheMsgCntInK3,
+                        memCacheFlushIntvl3,
+                        acceptPublish3,
+                        acceptSubscribe3,
+                        deletePolicy3,
+                        dataStoreType3,
+                        dataPath3);
         BrokerConfEntity confEntity31 = confEntity2.clone();
         Assert.assertTrue(confEntity31.isDataEquals(confEntity2));
-        Assert.assertTrue(confEntity31.updModifyInfo(dataVerId3, brokerPort3,
-                brokerTlsPort3, brokerWebPort3, regionId3, groupId3, manageStatus3, topicProps3));
-        BdbBrokerConfEntity bdbEntry3 =
-                confEntity31.buildBdbBrokerConfEntity();
+        Assert.assertTrue(
+                confEntity31.updModifyInfo(
+                        dataVerId3,
+                        brokerPort3,
+                        brokerTlsPort3,
+                        brokerWebPort3,
+                        regionId3,
+                        groupId3,
+                        manageStatus3,
+                        topicProps3));
+        BdbBrokerConfEntity bdbEntry3 = confEntity31.buildBdbBrokerConfEntity();
         BrokerConfEntity confEntity32 = new BrokerConfEntity(bdbEntry3);
         Assert.assertTrue(confEntity32.isDataEquals(confEntity31));
-
     }
-
 }

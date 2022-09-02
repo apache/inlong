@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * Kafka source info
- */
+/** Kafka source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -57,12 +55,15 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty("Limit the number of bytes read per second")
     private String byteSpeedLimit;
 
-    @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
-                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    @ApiModelProperty(
+            value = "Topic partition offset",
+            notes =
+                    "For example,'partition:0,offset:42;partition:1,offset:300' "
+                            + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
+    @ApiModelProperty(
+            value = "The strategy of auto offset reset",
             notes = "including earliest, specific, latest (the default), none")
     private String autoOffsetReset;
 
@@ -72,7 +73,8 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty("table pattern used for filter in canal format")
     private String tablePattern;
 
-    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    @ApiModelProperty(
+            "ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
     private boolean ignoreParseErrors;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
@@ -98,5 +100,4 @@ public class KafkaSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, KafkaSourceRequest::new);
     }
-
 }

@@ -57,5 +57,4 @@ public abstract class MySqlSplitState {
     public MySqlSplit getMySQLSplit() {
         return split;
     }
-
 }

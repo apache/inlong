@@ -19,19 +19,16 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Task response
- */
+/** Task response */
 @Data
 @Builder
 @NoArgsConstructor
@@ -89,5 +86,4 @@ public class TaskResponse {
 
     @ApiModelProperty(value = "Extra information shown in the list")
     private Map<String, Object> showInList;
-
 }

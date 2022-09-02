@@ -33,15 +33,12 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * New data consumption-system administrator approval task event listener
- */
+/** New data consumption-system administrator approval task event listener */
 @Slf4j
 @Component
 public class ConsumptionPassTaskListener implements TaskEventListener {
 
-    @Autowired
-    private ConsumptionService consumptionService;
+    @Autowired private ConsumptionService consumptionService;
 
     @Override
     public TaskEvent event() {
@@ -51,18 +48,23 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
-        ConsumptionApproveForm approveForm = (ConsumptionApproveForm) context.getActionContext().getForm();
+        ConsumptionApproveForm approveForm =
+                (ConsumptionApproveForm) context.getActionContext().getForm();
         ConsumptionInfo info = form.getConsumptionInfo();
         if (StringUtils.equals(approveForm.getConsumerGroup(), info.getConsumerGroup())) {
             return ListenerResult.success("The consumer group has not been modified");
         }
-        boolean exist = consumptionService.isConsumerGroupExists(approveForm.getConsumerGroup(), info.getId());
+        boolean exist =
+                consumptionService.isConsumerGroupExists(
+                        approveForm.getConsumerGroup(), info.getId());
         if (exist) {
             log.error("consumer group {} already exist", approveForm.getConsumerGroup());
             throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_DUPLICATED);
         }
-        return ListenerResult.success("Consumer group from " + info.getConsumerGroup()
-                + " change to " + approveForm.getConsumerGroup());
+        return ListenerResult.success(
+                "Consumer group from "
+                        + info.getConsumerGroup()
+                        + " change to "
+                        + approveForm.getConsumerGroup());
     }
-
 }

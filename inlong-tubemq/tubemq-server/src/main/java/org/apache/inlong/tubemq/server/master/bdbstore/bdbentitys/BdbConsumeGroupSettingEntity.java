@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
 import com.sleepycat.persist.model.Entity;
@@ -31,22 +28,23 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 public class BdbConsumeGroupSettingEntity implements Serializable {
 
     private static final long serialVersionUID = 6801442997689232316L;
-    @PrimaryKey
-    private String consumeGroupName;
-    private int enableBind = -2;   // -2: undefine; 0: not started, 1: started
+    @PrimaryKey private String consumeGroupName;
+    private int enableBind = -2; // -2: undefine; 0: not started, 1: started
     private Date lastBindUsedDate;
     private int allowedBrokerClientRate = -2;
     private String attributes;
     private String createUser;
     private Date createDate;
 
-    public BdbConsumeGroupSettingEntity() {
+    public BdbConsumeGroupSettingEntity() {} // Needed for deserialization.
 
-    } // Needed for deserialization.
-
-    public BdbConsumeGroupSettingEntity(String consumeGroupName, int enableBind,
-                                        int allowedBrokerClientRate, String attributes,
-                                        String createUser, Date createDate) {
+    public BdbConsumeGroupSettingEntity(
+            String consumeGroupName,
+            int enableBind,
+            int allowedBrokerClientRate,
+            String attributes,
+            String createUser,
+            Date createDate) {
         this.consumeGroupName = consumeGroupName;
         this.enableBind = enableBind;
         this.allowedBrokerClientRate = allowedBrokerClientRate;
@@ -127,8 +125,8 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
 
     public long getDataVerId() {
         String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+                TStringUtils.getAttrValFrmAttributes(
+                        this.attributes, TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -137,7 +135,8 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
 
     public void setDataVerId(long dataVerId) {
         this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
+                TStringUtils.setAttrValToAttributes(
+                        this.attributes,
                         TStoreConstants.TOKEN_DATA_VERSION_ID,
                         String.valueOf(dataVerId));
     }
@@ -157,11 +156,16 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
 
     public StringBuilder toJsonString(final StringBuilder sBuilder) {
         return sBuilder.append("{\"type\":\"BdbConsumeGroupSettingEntity\",")
-                .append("\"consumeGroupName\":\"").append(consumeGroupName)
-                .append("\",\"enableBind\":").append(enableBind)
-                .append(",\"allowedBrokerClientRate\":").append(allowedBrokerClientRate)
-                .append(",\"attributes\":\"").append(attributes)
-                .append("\",\"createUser\":\"").append(createUser)
+                .append("\"consumeGroupName\":\"")
+                .append(consumeGroupName)
+                .append("\",\"enableBind\":")
+                .append(enableBind)
+                .append(",\"allowedBrokerClientRate\":")
+                .append(allowedBrokerClientRate)
+                .append(",\"attributes\":\"")
+                .append(attributes)
+                .append("\",\"createUser\":\"")
+                .append(createUser)
                 .append("\",\"createDate\":\"")
                 .append(DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate))
                 .append("\"}");

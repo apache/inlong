@@ -1,23 +1,21 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker;
 
 import static java.lang.Math.abs;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -36,9 +34,7 @@ import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Config of broker. Read from broker.ini config file.
- */
+/** Config of broker. Read from broker.ini config file. */
 public class BrokerConfig extends AbstractFileConfig {
     static final long serialVersionUID = -1L;
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
@@ -56,17 +52,13 @@ public class BrokerConfig extends AbstractFileConfig {
     private String masterAddressList;
     private String primaryPath;
     // tcp write service thread count
-    private int tcpWriteServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tcpWriteServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tcp read service thread count
-    private int tcpReadServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tcpReadServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tls write service thread count
-    private int tlsWriteServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tlsWriteServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tls read service thread count
-    private int tlsReadServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tlsReadServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     private long defaultDeduceReadSize = 7 * 1024 * 1024 * 1024L;
     private long defaultDoubleDeduceReadSize = this.defaultDeduceReadSize * 2;
     // max data segment size
@@ -106,8 +98,7 @@ public class BrokerConfig extends AbstractFileConfig {
     private long visitTokenCheckInValidTimeMs = 120000;
     private long ioExcptStatsDurationMs = 120000;
     // row lock wait duration
-    private int rowLockWaitDurMs =
-            TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
+    private int rowLockWaitDurMs = TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
     // zookeeper config
     private ZKConfig zkConfig = new ZKConfig();
     // tls config
@@ -122,8 +113,7 @@ public class BrokerConfig extends AbstractFileConfig {
     private long authValidTimeStampPeriodMs =
             TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
     // the scan storage cycle for consume group offset
-    private long groupOffsetScanDurMs =
-            TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
+    private long groupOffsetScanDurMs = TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
     // whether to enable the memory cache storage, the default is true, open the memory cache
     private boolean enableMemStore = true;
 
@@ -174,7 +164,10 @@ public class BrokerConfig extends AbstractFileConfig {
     public int getBrokerId() {
         if (this.brokerId <= 0) {
             try {
-                brokerId = abs(AddressUtils.ipToInt(AddressUtils.getIPV4LocalAddress(this.defEthName)));
+                brokerId =
+                        abs(
+                                AddressUtils.ipToInt(
+                                        AddressUtils.getIPV4LocalAddress(this.defEthName)));
             } catch (Exception e) {
                 logger.error("Get brokerId error!", e);
             }
@@ -213,27 +206,30 @@ public class BrokerConfig extends AbstractFileConfig {
     @Override
     protected void loadFileSectAttributes(final Ini iniConf) {
         this.loadBrokerSectConf(iniConf);
-        this.tlsConfig = this.loadTlsSectConf(iniConf,
-                TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
+        this.tlsConfig = this.loadTlsSectConf(iniConf, TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
         this.zkConfig = loadZKeeperSectConf(iniConf);
         this.auditConfig = loadAuditSectConf(iniConf);
         this.prometheusConfig = loadPrometheusSecConf(iniConf);
         if (this.port == this.webPort
                 || (tlsConfig.isTlsEnable() && (this.tlsConfig.getTlsPort() == this.webPort))) {
-            throw new IllegalArgumentException(new StringBuilder(512)
-                    .append("Illegal port value configuration, the value of ")
-                    .append("port or tlsPort cannot be the same as the value of webPort!")
-                    .toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(512)
+                            .append("Illegal port value configuration, the value of ")
+                            .append("port or tlsPort cannot be the same as the value of webPort!")
+                            .toString());
         }
         if (this.prometheusConfig.isPromEnable()) {
             int promHttpPort = this.prometheusConfig.getPromHttpPort();
-            if ((promHttpPort == this.port || promHttpPort == this.webPort
+            if ((promHttpPort == this.port
+                    || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
-                throw new IllegalArgumentException(new StringBuilder(512)
-                        .append("Illegal port value configuration, the value of ")
-                        .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
-                        .toString());
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                throw new IllegalArgumentException(
+                        new StringBuilder(512)
+                                .append("Illegal port value configuration, the value of ")
+                                .append(
+                                        "port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
+                                .toString());
             }
         }
     }
@@ -241,13 +237,14 @@ public class BrokerConfig extends AbstractFileConfig {
     /**
      * Load config from broker.ini by section.
      *
-     * @param iniConf  configure section
+     * @param iniConf configure section
      */
     private void loadBrokerSectConf(final Ini iniConf) {
         // #lizard forgives
         final Section brokerSect = iniConf.get(SECT_TOKEN_BROKER);
         if (brokerSect == null) {
-            throw new IllegalArgumentException("Require broker section in configure file not Blank!");
+            throw new IllegalArgumentException(
+                    "Require broker section in configure file not Blank!");
         }
         this.brokerId = this.getInt(brokerSect, "brokerId");
         this.port = this.getInt(brokerSect, "port", 8123);
@@ -256,8 +253,12 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         this.primaryPath = brokerSect.get("primaryPath").trim();
         if (TStringUtils.isBlank(brokerSect.get("hostName"))) {
-            throw new IllegalArgumentException(new StringBuilder(256).append("hostName is null or Blank in ")
-                    .append(SECT_TOKEN_BROKER).append(" section!").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256)
+                            .append("hostName is null or Blank in ")
+                            .append(SECT_TOKEN_BROKER)
+                            .append(" section!")
+                            .toString());
         }
         if (TStringUtils.isNotBlank(brokerSect.get("defEthName"))) {
             this.defEthName = brokerSect.get("defEthName").trim();
@@ -268,15 +269,20 @@ public class BrokerConfig extends AbstractFileConfig {
             try {
                 this.hostName = AddressUtils.getIPV4LocalAddress(this.defEthName);
             } catch (Throwable e) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default broker hostName failure : ")
-                    .append(e.getMessage()).toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("Get default broker hostName failure : ")
+                                .append(e.getMessage())
+                                .toString());
             }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
-            throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("masterAddressList is null or Blank in ")
-                    .append(SECT_TOKEN_BROKER).append(" section!").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(256)
+                            .append("masterAddressList is null or Blank in ")
+                            .append(SECT_TOKEN_BROKER)
+                            .append(" section!")
+                            .toString());
         }
         this.masterAddressList = brokerSect.get("masterAddressList");
         if (TStringUtils.isNotBlank(brokerSect.get("webPort"))) {
@@ -313,7 +319,7 @@ public class BrokerConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(brokerSect.get("visitTokenCheckInValidTimeMs"))) {
             long tmpPeriodMs = this.getLong(brokerSect, "visitTokenCheckInValidTimeMs");
             this.visitTokenCheckInValidTimeMs =
-                tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
+                    tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
         }
         if (TStringUtils.isNotBlank(brokerSect.get("socketSendBuffer"))) {
             this.socketSendBuffer = getLong(brokerSect, "socketSendBuffer");
@@ -331,7 +337,8 @@ public class BrokerConfig extends AbstractFileConfig {
             this.rpcReadTimeoutMs = getLong(brokerSect, "rpcReadTimeoutMs");
         }
         if (TStringUtils.isNotBlank(brokerSect.get("nettyWriteBufferHighWaterMark"))) {
-            this.nettyWriteBufferHighWaterMark = getLong(brokerSect, "nettyWriteBufferHighWaterMark");
+            this.nettyWriteBufferHighWaterMark =
+                    getLong(brokerSect, "nettyWriteBufferHighWaterMark");
         }
 
         if (TStringUtils.isNotBlank(brokerSect.get("nettyWriteBufferLowWaterMark"))) {
@@ -379,21 +386,28 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (this.visitMasterAuth) {
             if (TStringUtils.isBlank(brokerSect.get("visitName"))) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitName is null or Blank in ")
-                        .append(SECT_TOKEN_BROKER).append(" section!").toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("visitName is null or Blank in ")
+                                .append(SECT_TOKEN_BROKER)
+                                .append(" section!")
+                                .toString());
             }
             if (TStringUtils.isBlank(brokerSect.get("visitPassword"))) {
-                throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_BROKER)
-                        .append(" section!").toString());
+                throw new IllegalArgumentException(
+                        new StringBuilder(256)
+                                .append("visitPassword is null or Blank in ")
+                                .append(SECT_TOKEN_BROKER)
+                                .append(" section!")
+                                .toString());
             }
             this.visitName = brokerSect.get("visitName").trim();
             this.visitPassword = brokerSect.get("visitPassword").trim();
         }
         if (TStringUtils.isNotBlank(brokerSect.get("groupOffsetScanDurMs"))) {
             this.groupOffsetScanDurMs =
-                    MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
+                    MixedUtils.mid(
+                            getLong(brokerSect, "groupOffsetScanDurMs"),
                             TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
                             TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
         }
@@ -518,5 +532,4 @@ public class BrokerConfig extends AbstractFileConfig {
     public String getMasterAddressList() {
         return masterAddressList;
     }
-
 }

@@ -31,15 +31,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener for the update InlongGroup.
- */
+/** The listener for the update InlongGroup. */
 @Slf4j
 @Component
 public class UpdateGroupListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
+    @Autowired private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
@@ -73,8 +70,10 @@ public class UpdateGroupListener implements ProcessEventListener {
                 break;
         }
 
-        log.info("success to execute UpdateGroupListener for groupId={}, operateType={}", groupId, operateType);
+        log.info(
+                "success to execute UpdateGroupListener for groupId={}, operateType={}",
+                groupId,
+                operateType);
         return ListenerResult.success();
     }
-
 }

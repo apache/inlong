@@ -44,8 +44,8 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDeserializationS
 /**
  * Copied from apache flink project with a litter change.
  *
- * {@link DecodingFormat} for Debezium using JSON encoding.
- **/
+ * <p>{@link DecodingFormat} for Debezium using JSON encoding.
+ */
 public class DebeziumJsonDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     // --------------------------------------------------------------------------------------------
@@ -93,7 +93,8 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                                         Stream.of(ReadableMetadata.values())
                                                 .filter(rm -> rm.key.equals(k))
                                                 .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
+                                                .<IllegalStateException>orElseThrow(
+                                                        IllegalStateException::new))
                         .collect(Collectors.toList());
 
         final List<DataTypes.Field> metadataFields =
@@ -115,8 +116,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 updateBeforeInclude,
                 ignoreParseErrors,
                 timestampFormat,
-                isMigrateAll
-        );
+                isMigrateAll);
     }
 
     @Override
@@ -146,9 +146,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    /**
-     * List of metadata that can be read with this format.
-     */
+    /** List of metadata that can be read with this format. */
     public enum ReadableMetadata {
         SCHEMA(
                 "schema",

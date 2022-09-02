@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
@@ -37,17 +34,22 @@ public class ClusterSettingEntityTest {
         ClusterSettingEntity setting1 = new ClusterSettingEntity();
         setting1.fillDefaultValue();
         Assert.assertEquals(setting1.getBrokerPort(), TBaseConstants.META_DEFAULT_BROKER_PORT);
-        Assert.assertEquals(setting1.getBrokerTLSPort(), TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
-        Assert.assertEquals(setting1.getBrokerWebPort(), TBaseConstants.META_DEFAULT_BROKER_WEB_PORT);
-        Assert.assertEquals(setting1.getMaxMsgSizeInMB(), TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
-        Assert.assertEquals(setting1.getMaxMsgSizeInB(),
+        Assert.assertEquals(
+                setting1.getBrokerTLSPort(), TBaseConstants.META_DEFAULT_BROKER_TLS_PORT);
+        Assert.assertEquals(
+                setting1.getBrokerWebPort(), TBaseConstants.META_DEFAULT_BROKER_WEB_PORT);
+        Assert.assertEquals(
+                setting1.getMaxMsgSizeInMB(), TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB);
+        Assert.assertEquals(
+                setting1.getMaxMsgSizeInB(),
                 SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(
                         TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB));
 
         Assert.assertEquals(setting1.getQryPriorityId(), TServerConstants.QRY_PRIORITY_DEF_VALUE);
         Assert.assertEquals(setting1.getGloFlowCtrlStatus(), EnableStatus.STATUS_DISABLE);
         Assert.assertEquals(setting1.getGloFlowCtrlRuleCnt(), 0);
-        Assert.assertEquals(setting1.getGloFlowCtrlRuleInfo(), TServerConstants.BLANK_FLOWCTRL_RULES);
+        Assert.assertEquals(
+                setting1.getGloFlowCtrlRuleInfo(), TServerConstants.BLANK_FLOWCTRL_RULES);
         TopicPropGroup defProps = new TopicPropGroup();
         defProps.fillDefaultValue();
         Assert.assertEquals(setting1.getClsDefTopicProps(), defProps);
@@ -74,11 +76,28 @@ public class ClusterSettingEntityTest {
         String modifyUser = "modifyUser";
         Date modifyDate = new Date();
         BdbClusterSettingEntity bdbEntity =
-                new BdbClusterSettingEntity(recordKey, configId, brokerPort, brokerTLSPort,
-                        brokerWebPort, numTopicStores, numPartitions, unflushThreshold,
-                        unflushInterval, unflushDataHold, memCacheMsgCntInK, memCacheFlushIntvl,
-                        memCacheMsgSizeInMB, acceptPublish, acceptSubscribe, deletePolicy,
-                        qryPriorityId, maxMsgSizeInB, attributes, modifyUser, modifyDate);
+                new BdbClusterSettingEntity(
+                        recordKey,
+                        configId,
+                        brokerPort,
+                        brokerTLSPort,
+                        brokerWebPort,
+                        numTopicStores,
+                        numPartitions,
+                        unflushThreshold,
+                        unflushInterval,
+                        unflushDataHold,
+                        memCacheMsgCntInK,
+                        memCacheFlushIntvl,
+                        memCacheMsgSizeInMB,
+                        acceptPublish,
+                        acceptSubscribe,
+                        deletePolicy,
+                        qryPriorityId,
+                        maxMsgSizeInB,
+                        attributes,
+                        modifyUser,
+                        modifyDate);
         ClusterSettingEntity setting2 = new ClusterSettingEntity(bdbEntity);
         Assert.assertEquals(setting2.getBrokerPort(), bdbEntity.getBrokerPort());
         Assert.assertEquals(setting2.getBrokerTLSPort(), bdbEntity.getBrokerTLSPort());
@@ -89,7 +108,8 @@ public class ClusterSettingEntityTest {
         Assert.assertNull(bdbEntity.getEnableGloFlowCtrl());
         Assert.assertEquals(setting2.getGloFlowCtrlRuleCnt(), 0);
         Assert.assertEquals(bdbEntity.getGloFlowCtrlCnt(), TBaseConstants.META_VALUE_UNDEFINED);
-        Assert.assertEquals(setting2.getGloFlowCtrlRuleInfo(), TServerConstants.BLANK_FLOWCTRL_RULES);
+        Assert.assertEquals(
+                setting2.getGloFlowCtrlRuleInfo(), TServerConstants.BLANK_FLOWCTRL_RULES);
         Assert.assertNull(bdbEntity.getGloFlowCtrlInfo());
         TopicPropGroup defProps2 = setting2.getClsDefTopicProps();
         Assert.assertEquals(defProps2.getNumTopicStores(), bdbEntity.getNumTopicStores());
@@ -113,7 +133,8 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(setting2.getBrokerWebPort(), bdbSetting.getBrokerWebPort());
         Assert.assertEquals(setting2.getMaxMsgSizeInB(), bdbSetting.getMaxMsgSizeInB());
         Assert.assertEquals(setting2.getQryPriorityId(), bdbSetting.getQryPriorityId());
-        Assert.assertEquals(setting2.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
+        Assert.assertEquals(
+                setting2.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
         Assert.assertEquals(setting2.getGloFlowCtrlRuleCnt(), bdbSetting.getGloFlowCtrlCnt());
         Assert.assertEquals(setting2.getGloFlowCtrlRuleInfo(), bdbSetting.getGloFlowCtrlInfo());
         TopicPropGroup defProps3 = setting2.getClsDefTopicProps();
@@ -122,7 +143,8 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(defProps3.getUnflushThreshold(), bdbSetting.getUnflushThreshold());
         Assert.assertEquals(defProps3.getUnflushInterval(), bdbSetting.getUnflushInterval());
         Assert.assertEquals(defProps3.getUnflushDataHold(), bdbSetting.getUnflushDataHold());
-        Assert.assertEquals(defProps3.getMemCacheMsgSizeInMB(), bdbSetting.getMemCacheMsgSizeInMB());
+        Assert.assertEquals(
+                defProps3.getMemCacheMsgSizeInMB(), bdbSetting.getMemCacheMsgSizeInMB());
         Assert.assertEquals(defProps3.getMemCacheFlushIntvl(), bdbSetting.getMemCacheFlushIntvl());
         Assert.assertEquals(defProps3.getMemCacheMsgCntInK(), bdbSetting.getMemCacheMsgCntInK());
         Assert.assertEquals(defProps3.getAcceptPublish(), bdbSetting.isAcceptPublish());
@@ -138,7 +160,8 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(setting4.getBrokerWebPort(), bdbSetting.getBrokerWebPort());
         Assert.assertEquals(setting4.getMaxMsgSizeInB(), bdbSetting.getMaxMsgSizeInB());
         Assert.assertEquals(setting4.getQryPriorityId(), bdbSetting.getQryPriorityId());
-        Assert.assertEquals(setting4.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
+        Assert.assertEquals(
+                setting4.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
         Assert.assertEquals(setting4.getGloFlowCtrlRuleCnt(), bdbSetting.getGloFlowCtrlCnt());
         Assert.assertEquals(setting4.getGloFlowCtrlRuleInfo(), bdbSetting.getGloFlowCtrlInfo());
         TopicPropGroup defProps4 = setting4.getClsDefTopicProps();
@@ -147,7 +170,8 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(defProps4.getUnflushThreshold(), bdbSetting.getUnflushThreshold());
         Assert.assertEquals(defProps4.getUnflushInterval(), bdbSetting.getUnflushInterval());
         Assert.assertEquals(defProps4.getUnflushDataHold(), bdbSetting.getUnflushDataHold());
-        Assert.assertEquals(defProps4.getMemCacheMsgSizeInMB(), bdbSetting.getMemCacheMsgSizeInMB());
+        Assert.assertEquals(
+                defProps4.getMemCacheMsgSizeInMB(), bdbSetting.getMemCacheMsgSizeInMB());
         Assert.assertEquals(defProps4.getMemCacheFlushIntvl(), bdbSetting.getMemCacheFlushIntvl());
         Assert.assertEquals(defProps4.getMemCacheMsgCntInK(), bdbSetting.getMemCacheMsgCntInK());
         Assert.assertEquals(defProps4.getAcceptPublish(), bdbSetting.isAcceptPublish());
@@ -169,9 +193,18 @@ public class ClusterSettingEntityTest {
         TopicPropGroup newProps = new TopicPropGroup();
         newProps.fillDefaultValue();
         ClusterSettingEntity setting5 = setting2.clone();
-        Assert.assertTrue(setting5.updModifyInfo(newDataVerId, newBrokerPort, newBrokerTLSPort,
-                newBrokerWebPort, newMaxMsgSizeMB, newQryPriorityId, newFlowCtrlEnable,
-                newFlowRuleCnt, newFlowCtrlRuleInfo, newProps));
+        Assert.assertTrue(
+                setting5.updModifyInfo(
+                        newDataVerId,
+                        newBrokerPort,
+                        newBrokerTLSPort,
+                        newBrokerWebPort,
+                        newMaxMsgSizeMB,
+                        newQryPriorityId,
+                        newFlowCtrlEnable,
+                        newFlowRuleCnt,
+                        newFlowCtrlRuleInfo,
+                        newProps));
         Assert.assertNotEquals(setting5.getBrokerPort(), setting2.getBrokerPort());
         Assert.assertNotEquals(setting5.getBrokerTLSPort(), setting2.getBrokerTLSPort());
         Assert.assertNotEquals(setting5.getBrokerWebPort(), setting2.getBrokerWebPort());
@@ -179,7 +212,8 @@ public class ClusterSettingEntityTest {
         Assert.assertNotEquals(setting5.getQryPriorityId(), setting2.getQryPriorityId());
         Assert.assertNotEquals(setting5.getGloFlowCtrlStatus(), setting2.getGloFlowCtrlStatus());
         Assert.assertNotEquals(setting5.getGloFlowCtrlRuleCnt(), setting2.getGloFlowCtrlRuleCnt());
-        Assert.assertNotEquals(setting5.getGloFlowCtrlRuleInfo(), setting2.getGloFlowCtrlRuleInfo());
+        Assert.assertNotEquals(
+                setting5.getGloFlowCtrlRuleInfo(), setting2.getGloFlowCtrlRuleInfo());
         Assert.assertNotEquals(setting5.getClsDefTopicProps(), setting2.getClsDefTopicProps());
     }
 
@@ -198,30 +232,23 @@ public class ClusterSettingEntityTest {
         String modifyUser = "modifyUser";
         String dateStr2 = "20220302111925";
         Date modifyDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr2);
-        BaseEntity baseEntity = new BaseEntity(30,
-                createUser, createDate, modifyUser, modifyDate);
+        BaseEntity baseEntity = new BaseEntity(30, createUser, createDate, modifyUser, modifyDate);
         ClusterSettingEntity entity2 = new ClusterSettingEntity(baseEntity);
         entity2.getConfigureInfo(paramMap, true);
         Assert.assertEquals(paramMap.size(), 6);
-        Assert.assertEquals(paramMap.get("dataVersionId"),
-                String.valueOf(30));
-        Assert.assertEquals(paramMap.get("serialId"),
-                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("dataVersionId"), String.valueOf(30));
+        Assert.assertEquals(paramMap.get("serialId"), String.valueOf(entity2.getSerialId()));
         Assert.assertEquals(paramMap.get("createUser"), createUser);
         Assert.assertEquals(paramMap.get("createDate"), dateStr1);
         Assert.assertEquals(paramMap.get("modifyUser"), modifyUser);
         Assert.assertEquals(paramMap.get("modifyDate"), dateStr2);
         paramMap.clear();
         // case 3
-        entity2.updModifyInfo(5, 6, 7,
-                8, 9, 101, false,
-                0, null, null);
+        entity2.updModifyInfo(5, 6, 7, 8, 9, 101, false, 0, null, null);
         entity2.getConfigureInfo(paramMap, true);
         Assert.assertEquals(paramMap.size(), 12);
-        Assert.assertEquals(paramMap.get("dataVersionId"),
-                String.valueOf(5));
-        Assert.assertEquals(paramMap.get("serialId"),
-                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("dataVersionId"), String.valueOf(5));
+        Assert.assertEquals(paramMap.get("serialId"), String.valueOf(entity2.getSerialId()));
         Assert.assertEquals(paramMap.get("createUser"), createUser);
         Assert.assertEquals(paramMap.get("createDate"), dateStr1);
         Assert.assertEquals(paramMap.get("modifyUser"), modifyUser);
@@ -234,15 +261,11 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(paramMap.get("flowCtrlEnable"), "false");
         paramMap.clear();
         // case 4
-        entity2.updModifyInfo(9, 10, 11,
-                12, 13, 301, true,
-                2, "[{\"type\":1},{\"type\":2}]", null);
+        entity2.updModifyInfo(9, 10, 11, 12, 13, 301, true, 2, "[{\"type\":1},{\"type\":2}]", null);
         entity2.getConfigureInfo(paramMap, false);
         Assert.assertEquals(paramMap.size(), 14);
-        Assert.assertEquals(paramMap.get("dVerId"),
-                String.valueOf(9));
-        Assert.assertEquals(paramMap.get("serialId"),
-                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("dVerId"), String.valueOf(9));
+        Assert.assertEquals(paramMap.get("serialId"), String.valueOf(entity2.getSerialId()));
         Assert.assertEquals(paramMap.get("cur"), createUser);
         Assert.assertEquals(paramMap.get("cDate"), dateStr1);
         Assert.assertEquals(paramMap.get("mur"), modifyUser);

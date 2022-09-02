@@ -21,32 +21,25 @@ package org.apache.inlong.sort.formats.inlongmsg;
 import java.util.Map;
 import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 
-/**
- * Factory for creating configured instances of {@link InLongMsgMixedFormatConverter}.
- */
+/** Factory for creating configured instances of {@link InLongMsgMixedFormatConverter}. */
 public interface InLongMsgMixedFormatFactory {
 
     /**
-     * Creates and configures a {@link InLongMsgMixedFormatConverter} using the given
-     * properties.
+     * Creates and configures a {@link InLongMsgMixedFormatConverter} using the given properties.
      *
      * @param properties The normalized properties describing the format.
-     * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * @return The configured serialization schema or null if the factory cannot provide an instance
+     *     of the class.
      */
-    InLongMsgMixedFormatConverter createMixedFormatConverter(
-            final Map<String, String> properties
-    );
+    InLongMsgMixedFormatConverter createMixedFormatConverter(final Map<String, String> properties);
 
     /**
-     * Creates and configures a {@link TableFormatDeserializer} using the given
-     * properties.
+     * Creates and configures a {@link TableFormatDeserializer} using the given properties.
      *
      * @param properties The normalized properties describing the format.
-     * @return The configured serialization schema or null if the factory cannot
-     *         provide an instance of the class.
+     * @return The configured serialization schema or null if the factory cannot provide an instance
+     *     of the class.
      */
     AbstractInLongMsgMixedFormatDeserializer createMixedFormatDeserializer(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 }

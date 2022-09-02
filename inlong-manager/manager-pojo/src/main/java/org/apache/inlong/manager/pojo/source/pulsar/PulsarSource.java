@@ -31,9 +31,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * Pulsar source info
- */
+/** Pulsar source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -71,13 +69,13 @@ public class PulsarSource extends StreamSource {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty("Configure the Source's startup mode. "
-            + "Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @ApiModelProperty(
+            "Configure the Source's startup mode. "
+                    + "Available options are earliest, latest, external-subscription, and specific-offsets.")
     @Builder.Default
     private String scanStartupMode = "earliest";
 
-    @Builder.Default
-    private boolean isInlongComponent = false;
+    @Builder.Default private boolean isInlongComponent = false;
 
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR);
@@ -87,5 +85,4 @@ public class PulsarSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, PulsarSourceRequest::new);
     }
-
 }

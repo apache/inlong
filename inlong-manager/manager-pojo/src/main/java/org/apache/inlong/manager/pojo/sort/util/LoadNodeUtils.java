@@ -18,6 +18,10 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
@@ -73,20 +77,12 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Util for load node info.
- */
+/** Util for load node info. */
 public class LoadNodeUtils {
 
-    /**
-     * Create nodes of data load.
-     */
-    public static List<LoadNode> createLoadNodes(List<StreamSink> streamSinks, Map<String, StreamField> fieldMap) {
+    /** Create nodes of data load. */
+    public static List<LoadNode> createLoadNodes(
+            List<StreamSink> streamSinks, Map<String, StreamField> fieldMap) {
         if (CollectionUtils.isEmpty(streamSinks)) {
             return Lists.newArrayList();
         }
@@ -95,56 +91,77 @@ public class LoadNodeUtils {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Create load node from the stream sink info.
-     */
-    public static LoadNode createLoadNode(StreamSink streamSink, Map<String, StreamField> constantFieldMap) {
-        List<FieldInfo> fieldInfos = streamSink.getSinkFieldList().stream()
-                .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, streamSink.getSinkName()))
-                .collect(Collectors.toList());
-        List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
-        Map<String, String> properties = streamSink.getProperties().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+    /** Create load node from the stream sink info. */
+    public static LoadNode createLoadNode(
+            StreamSink streamSink, Map<String, StreamField> constantFieldMap) {
+        List<FieldInfo> fieldInfos =
+                streamSink.getSinkFieldList().stream()
+                        .map(
+                                field ->
+                                        FieldInfoUtils.parseSinkFieldInfo(
+                                                field, streamSink.getSinkName()))
+                        .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations =
+                parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
+        Map<String, String> properties =
+                streamSink.getProperties().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         String sinkType = streamSink.getSinkType();
         switch (sinkType) {
             case SinkType.KAFKA:
-                return createLoadNode((KafkaSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (KafkaSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.HIVE:
-                return createLoadNode((HiveSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (HiveSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.HBASE:
-                return createLoadNode((HBaseSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (HBaseSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.POSTGRESQL:
-                return createLoadNode((PostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (PostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.CLICKHOUSE:
-                return createLoadNode((ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ICEBERG:
-                return createLoadNode((IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.SQLSERVER:
-                return createLoadNode((SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ELASTICSEARCH:
-                return createLoadNode((ElasticsearchSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (ElasticsearchSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.HDFS:
-                return createLoadNode((HDFSSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (HDFSSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.GREENPLUM:
-                return createLoadNode((GreenplumSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (GreenplumSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.MYSQL:
-                return createLoadNode((MySQLSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (MySQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ORACLE:
-                return createLoadNode((OracleSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (OracleSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.TDSQLPOSTGRESQL:
-                return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DLCICEBERG:
-                return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+                return createLoadNode(
+                        (DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
-                throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
+                throw new BusinessException(
+                        String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
     }
 
-    /**
-     * Create load node of Kafka.
-     */
-    public static KafkaLoadNode createLoadNode(KafkaSink kafkaSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of Kafka. */
+    public static KafkaLoadNode createLoadNode(
+            KafkaSink kafkaSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         Integer sinkParallelism = null;
         if (StringUtils.isNotEmpty(kafkaSink.getPartitionNum())) {
             sinkParallelism = Integer.parseInt(kafkaSink.getPartitionNum());
@@ -168,7 +185,8 @@ public class LoadNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported dataType=%s for Kafka", dataType));
         }
 
         return new KafkaLoadNode(
@@ -183,21 +201,28 @@ public class LoadNodeUtils {
                 format,
                 sinkParallelism,
                 properties,
-                kafkaSink.getPrimaryKey()
-        );
+                kafkaSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of Hive.
-     */
-    public static HiveLoadNode createLoadNode(HiveSink hiveSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of Hive. */
+    public static HiveLoadNode createLoadNode(
+            HiveSink hiveSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hiveSink.getPartitionFieldList())) {
-            partitionFields = hiveSink.getPartitionFieldList().stream()
-                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hiveSink.getSinkName(),
-                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
-                                    partitionField.getFieldFormat()))).collect(Collectors.toList());
+            partitionFields =
+                    hiveSink.getPartitionFieldList().stream()
+                            .map(
+                                    partitionField ->
+                                            new FieldInfo(
+                                                    partitionField.getFieldName(),
+                                                    hiveSink.getSinkName(),
+                                                    FieldInfoUtils.convertFieldFormat(
+                                                            partitionField.getFieldType(),
+                                                            partitionField.getFieldFormat())))
+                            .collect(Collectors.toList());
         }
         return new HiveLoadNode(
                 hiveSink.getSinkName(),
@@ -214,15 +239,15 @@ public class LoadNodeUtils {
                 hiveSink.getHiveConfDir(),
                 hiveSink.getHiveVersion(),
                 null,
-                partitionFields
-        );
+                partitionFields);
     }
 
-    /**
-     * Create load node of HBase.
-     */
-    public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of HBase. */
+    public static HbaseLoadNode createLoadNode(
+            HBaseSink hbaseSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new HbaseLoadNode(
                 hbaseSink.getSinkName(),
                 hbaseSink.getSinkName(),
@@ -239,15 +264,15 @@ public class LoadNodeUtils {
                 hbaseSink.getBufferFlushMaxSize(),
                 hbaseSink.getZkNodeParent(),
                 hbaseSink.getBufferFlushMaxRows(),
-                hbaseSink.getBufferFlushInterval()
-        );
+                hbaseSink.getBufferFlushInterval());
     }
 
-    /**
-     * Create load node of PostgreSQL.
-     */
-    public static PostgresLoadNode createLoadNode(PostgreSQLSink postgreSQLSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of PostgreSQL. */
+    public static PostgresLoadNode createLoadNode(
+            PostgreSQLSink postgreSQLSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new PostgresLoadNode(
                 postgreSQLSink.getSinkName(),
                 postgreSQLSink.getSinkName(),
@@ -261,15 +286,15 @@ public class LoadNodeUtils {
                 postgreSQLSink.getUsername(),
                 postgreSQLSink.getPassword(),
                 postgreSQLSink.getDbName() + "." + postgreSQLSink.getTableName(),
-                postgreSQLSink.getPrimaryKey()
-        );
+                postgreSQLSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of ClickHouse.
-     */
-    public static ClickHouseLoadNode createLoadNode(ClickHouseSink ckSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of ClickHouse. */
+    public static ClickHouseLoadNode createLoadNode(
+            ClickHouseSink ckSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new ClickHouseLoadNode(
                 ckSink.getSinkName(),
                 ckSink.getSinkName(),
@@ -283,15 +308,15 @@ public class LoadNodeUtils {
                 ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
                 ckSink.getPassword(),
-                ckSink.getPrimaryKey()
-        );
+                ckSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of Iceberg.
-     */
-    public static IcebergLoadNode createLoadNode(IcebergSink icebergSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of Iceberg. */
+    public static IcebergLoadNode createLoadNode(
+            IcebergSink icebergSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
         return new IcebergLoadNode(
                 icebergSink.getSinkName(),
@@ -307,15 +332,15 @@ public class LoadNodeUtils {
                 icebergSink.getPrimaryKey(),
                 catalogType,
                 icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse()
-        );
+                icebergSink.getWarehouse());
     }
 
-    /**
-     * Create load node of SQLServer.
-     */
-    public static SqlServerLoadNode createLoadNode(SQLServerSink sqlServerSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of SQLServer. */
+    public static SqlServerLoadNode createLoadNode(
+            SQLServerSink sqlServerSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new SqlServerLoadNode(
                 sqlServerSink.getSinkName(),
                 sqlServerSink.getSinkName(),
@@ -330,15 +355,15 @@ public class LoadNodeUtils {
                 sqlServerSink.getPassword(),
                 sqlServerSink.getSchemaName(),
                 sqlServerSink.getTableName(),
-                sqlServerSink.getPrimaryKey()
-        );
+                sqlServerSink.getPrimaryKey());
     }
 
-    /**
-     * Create Elasticsearch load node
-     */
-    public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
-            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create Elasticsearch load node */
+    public static ElasticsearchLoadNode createLoadNode(
+            ElasticsearchSink elasticsearchSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -354,22 +379,28 @@ public class LoadNodeUtils {
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
                 elasticsearchSink.getPrimaryKey(),
-                elasticsearchSink.getEsVersion()
-        );
+                elasticsearchSink.getEsVersion());
     }
 
-    /**
-     * Create load node of HDFS.
-     */
-    public static FileSystemLoadNode createLoadNode(HDFSSink hdfsSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of HDFS. */
+    public static FileSystemLoadNode createLoadNode(
+            HDFSSink hdfsSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
-            partitionFields = hdfsSink.getPartitionFieldList().stream()
-                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hdfsSink.getSinkName(),
-                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
-                                    partitionField.getFieldFormat())))
-                    .collect(Collectors.toList());
+            partitionFields =
+                    hdfsSink.getPartitionFieldList().stream()
+                            .map(
+                                    partitionField ->
+                                            new FieldInfo(
+                                                    partitionField.getFieldName(),
+                                                    hdfsSink.getSinkName(),
+                                                    FieldInfoUtils.convertFieldFormat(
+                                                            partitionField.getFieldType(),
+                                                            partitionField.getFieldFormat())))
+                            .collect(Collectors.toList());
         }
 
         return new FileSystemLoadNode(
@@ -383,15 +414,15 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 partitionFields,
-                hdfsSink.getServerTimeZone()
-        );
+                hdfsSink.getServerTimeZone());
     }
 
-    /**
-     * Create greenplum load node
-     */
-    public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create greenplum load node */
+    public static GreenplumLoadNode createLoadNode(
+            GreenplumSink greenplumSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new GreenplumLoadNode(
                 greenplumSink.getSinkName(),
                 greenplumSink.getSinkName(),
@@ -408,11 +439,12 @@ public class LoadNodeUtils {
                 greenplumSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of MySQL.
-     */
-    public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of MySQL. */
+    public static MySqlLoadNode createLoadNode(
+            MySQLSink mysqlSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new MySqlLoadNode(
                 mysqlSink.getSinkName(),
                 mysqlSink.getSinkName(),
@@ -429,11 +461,12 @@ public class LoadNodeUtils {
                 mysqlSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of ORACLE.
-     */
-    public static OracleLoadNode createLoadNode(OracleSink oracleSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of ORACLE. */
+    public static OracleLoadNode createLoadNode(
+            OracleSink oracleSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new OracleLoadNode(
                 oracleSink.getSinkName(),
                 oracleSink.getSinkName(),
@@ -450,11 +483,12 @@ public class LoadNodeUtils {
                 oracleSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of TDSQLPostgreSQL.
-     */
-    public static TDSQLPostgresLoadNode createLoadNode(TDSQLPostgreSQLSink tdsqlPostgreSQLSink,
-            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of TDSQLPostgreSQL. */
+    public static TDSQLPostgresLoadNode createLoadNode(
+            TDSQLPostgreSQLSink tdsqlPostgreSQLSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new TDSQLPostgresLoadNode(
                 tdsqlPostgreSQLSink.getSinkName(),
                 tdsqlPostgreSQLSink.getSinkName(),
@@ -471,11 +505,12 @@ public class LoadNodeUtils {
                 tdsqlPostgreSQLSink.getPrimaryKey());
     }
 
-    /**
-     * Create load node of DLCIceberg.
-     */
-    public static DLCIcebergLoadNode createLoadNode(DLCIcebergSink dlcIcebergSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+    /** Create load node of DLCIceberg. */
+    public static DLCIcebergLoadNode createLoadNode(
+            DLCIcebergSink dlcIcebergSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new DLCIcebergLoadNode(
                 dlcIcebergSink.getSinkName(),
                 dlcIcebergSink.getSinkName(),
@@ -489,47 +524,59 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getTableName(),
                 dlcIcebergSink.getPrimaryKey(),
                 dlcIcebergSink.getCatalogUri(),
-                dlcIcebergSink.getWarehouse()
-        );
+                dlcIcebergSink.getWarehouse());
     }
 
-    /**
-     * Parse information field of data sink.
-     */
-    public static List<FieldRelation> parseSinkFields(List<SinkField> fieldList,
-            Map<String, StreamField> constantFieldMap) {
+    /** Parse information field of data sink. */
+    public static List<FieldRelation> parseSinkFields(
+            List<SinkField> fieldList, Map<String, StreamField> constantFieldMap) {
         if (CollectionUtils.isEmpty(fieldList)) {
             return Lists.newArrayList();
         }
         return fieldList.stream()
                 .filter(sinkField -> StringUtils.isNotEmpty(sinkField.getSourceFieldName()))
-                .map(field -> {
-                    FieldInfo outputField = new FieldInfo(field.getFieldName(),
-                            FieldInfoUtils.convertFieldFormat(field.getFieldType(), field.getFieldFormat()));
-                    FunctionParam inputField;
-                    String fieldKey = String.format("%s-%s", field.getOriginNodeName(), field.getSourceFieldName());
-                    StreamField constantField = constantFieldMap.get(fieldKey);
-                    if (constantField != null) {
-                        if (outputField.getFormatInfo() != null
-                                && outputField.getFormatInfo().getTypeInfo() == StringTypeInfo.INSTANCE) {
-                            inputField = new StringConstantParam(constantField.getFieldValue());
-                        } else {
-                            inputField = new ConstantParam(constantField.getFieldValue());
-                        }
-                    } else if (FieldType.FUNCTION.name().equalsIgnoreCase(field.getSourceFieldType())) {
-                        inputField = new CustomFunction(field.getSourceFieldName());
-                    } else {
-                        inputField = new FieldInfo(field.getSourceFieldName(), field.getOriginNodeName(),
-                                FieldInfoUtils.convertFieldFormat(field.getSourceFieldType()));
-                    }
-                    return new FieldRelation(inputField, outputField);
-                }).collect(Collectors.toList());
+                .map(
+                        field -> {
+                            FieldInfo outputField =
+                                    new FieldInfo(
+                                            field.getFieldName(),
+                                            FieldInfoUtils.convertFieldFormat(
+                                                    field.getFieldType(), field.getFieldFormat()));
+                            FunctionParam inputField;
+                            String fieldKey =
+                                    String.format(
+                                            "%s-%s",
+                                            field.getOriginNodeName(), field.getSourceFieldName());
+                            StreamField constantField = constantFieldMap.get(fieldKey);
+                            if (constantField != null) {
+                                if (outputField.getFormatInfo() != null
+                                        && outputField.getFormatInfo().getTypeInfo()
+                                                == StringTypeInfo.INSTANCE) {
+                                    inputField =
+                                            new StringConstantParam(constantField.getFieldValue());
+                                } else {
+                                    inputField = new ConstantParam(constantField.getFieldValue());
+                                }
+                            } else if (FieldType.FUNCTION
+                                    .name()
+                                    .equalsIgnoreCase(field.getSourceFieldType())) {
+                                inputField = new CustomFunction(field.getSourceFieldName());
+                            } else {
+                                inputField =
+                                        new FieldInfo(
+                                                field.getSourceFieldName(),
+                                                field.getOriginNodeName(),
+                                                FieldInfoUtils.convertFieldFormat(
+                                                        field.getSourceFieldType()));
+                            }
+                            return new FieldRelation(inputField, outputField);
+                        })
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Check the validation of Hive partition field.
-     */
-    public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
+    /** Check the validation of Hive partition field. */
+    public static void checkPartitionField(
+            List<SinkField> fieldList, List<HivePartitionField> partitionList) {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
@@ -549,13 +596,15 @@ public class LoadNodeUtils {
             SinkField sinkField = sinkFieldMap.get(fieldName);
             if (sinkField == null) {
                 throw new BusinessException(
-                        String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
+                        String.format(
+                                ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
             }
             if (StringUtils.isBlank(sinkField.getSourceFieldName())) {
                 throw new BusinessException(
-                        String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
+                        String.format(
+                                ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(),
+                                fieldName));
             }
         }
     }
-
 }

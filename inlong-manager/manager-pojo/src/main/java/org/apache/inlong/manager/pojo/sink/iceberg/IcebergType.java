@@ -19,11 +19,8 @@ package org.apache.inlong.manager.pojo.sink.iceberg;
 
 import lombok.Getter;
 
-/**
- * Iceberg data type
- */
+/** Iceberg data type */
 public enum IcebergType {
-
     BOOLEAN("boolean"),
     INT("int"),
     LONG("long"),
@@ -39,16 +36,13 @@ public enum IcebergType {
     FIXED("fixed"),
     BINARY("binary");
 
-    @Getter
-    private final String type;
+    @Getter private final String type;
 
     IcebergType(String type) {
         this.type = type;
     }
 
-    /**
-     * Get type from name
-     */
+    /** Get type from name */
     public static IcebergType forType(String type) {
         for (IcebergType ibType : values()) {
             if (ibType.getType().equalsIgnoreCase(type)) {

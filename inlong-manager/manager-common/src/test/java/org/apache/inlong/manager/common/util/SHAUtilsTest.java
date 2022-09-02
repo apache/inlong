@@ -28,5 +28,4 @@ public class SHAUtilsTest {
         String str2 = "test_str";
         Assertions.assertEquals(SHAUtils.encrypt(str1), SHAUtils.encrypt(str2));
     }
-
 }

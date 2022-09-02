@@ -17,23 +17,16 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
+import java.io.Serializable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.io.Serializable;
-
-/**
- * interface for serialization infos
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** interface for serialization infos */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
-        @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),
-        @JsonSubTypes.Type(value = DebeziumSerializationInfo.class, name = "debezium_json"),
-        @JsonSubTypes.Type(value = AvroSerializationInfo.class, name = "avro")})
-public interface SerializationInfo extends Serializable {
-
-}
+    @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
+    @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),
+    @JsonSubTypes.Type(value = DebeziumSerializationInfo.class, name = "debezium_json"),
+    @JsonSubTypes.Type(value = AvroSerializationInfo.class, name = "avro")
+})
+public interface SerializationInfo extends Serializable {}

@@ -33,20 +33,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Cluster controller
- */
+/** Cluster controller */
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Open-Cluster-API")
 public class OpenClusterController {
 
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private InlongClusterService clusterService;
 
     @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
-    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Cluster ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         return Response.success(clusterService.get(id, "admin"));
     }
@@ -56,5 +57,4 @@ public class OpenClusterController {
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         return Response.success(clusterService.list(request));
     }
-
 }

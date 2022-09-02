@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -39,20 +41,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Event listener of build the Sort config for one inlong stream,
- * such as update the form config, or build and push config to ZK, etc.
+ * Event listener of build the Sort config for one inlong stream, such as update the form config, or
+ * build and push config to ZK, etc.
  */
 @Component
 public class StreamSortConfigListener implements SortOperateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSortConfigListener.class);
 
-    @Autowired
-    private SortConfigOperatorFactory operatorFactory;
+    @Autowired private SortConfigOperatorFactory operatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -70,8 +68,9 @@ public class StreamSortConfigListener implements SortOperateListener {
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        boolean enable = InlongConstants.ENABLE_ZK.equals(groupInfo.getEnableZookeeper())
-                && !MQType.NONE.equals(groupInfo.getMqType());
+        boolean enable =
+                InlongConstants.ENABLE_ZK.equals(groupInfo.getEnableZookeeper())
+                        && !MQType.NONE.equals(groupInfo.getMqType());
         LOGGER.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
         return enable;
     }
@@ -86,24 +85,34 @@ public class StreamSortConfigListener implements SortOperateListener {
 
         GroupOperateType operateType = form.getGroupOperateType();
         if (operateType == GroupOperateType.SUSPEND || operateType == GroupOperateType.DELETE) {
-            LOGGER.info("not build sort config for groupId={}, streamId={}, as the group operate type={}",
-                    groupId, streamId, operateType);
+            LOGGER.info(
+                    "not build sort config for groupId={}, streamId={}, as the group operate type={}",
+                    groupId,
+                    streamId,
+                    operateType);
             return ListenerResult.success();
         }
 
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<StreamSink> streamSinks = streamInfo.getSinkList();
         if (CollectionUtils.isEmpty(streamSinks)) {
-            LOGGER.warn("not build sort config for groupId={}, streamId={}, as not found any sinks", groupId, streamId);
+            LOGGER.warn(
+                    "not build sort config for groupId={}, streamId={}, as not found any sinks",
+                    groupId,
+                    streamId);
             return ListenerResult.success();
         }
 
         List<InlongStreamInfo> streamInfos = Collections.singletonList(streamInfo);
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
+            SortConfigOperator operator =
+                    operatorFactory.getInstance(groupInfo.getEnableZookeeper());
             operator.buildConfig(groupInfo, streamInfos, true);
         } catch (Exception e) {
-            String msg = String.format("failed to build sort config for groupId=%s, streamId=%s, ", groupId, streamId);
+            String msg =
+                    String.format(
+                            "failed to build sort config for groupId=%s, streamId=%s, ",
+                            groupId, streamId);
             LOGGER.error(msg + "streamInfos=" + streamInfos, e);
             throw new WorkflowListenerException(msg + e.getMessage());
         }
@@ -111,5 +120,4 @@ public class StreamSortConfigListener implements SortOperateListener {
         LOGGER.info("success to build sort config for groupId={}, streamId={}", groupId, streamId);
         return ListenerResult.success();
     }
-
 }

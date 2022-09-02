@@ -18,6 +18,13 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -40,32 +47,23 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Kafka load node using kafka connectors provided by flink
- */
+/** Kafka load node using kafka connectors provided by flink */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaLoad")
 @Data
 @NoArgsConstructor
 public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
 
-
     private static final long serialVersionUID = -558158965060708408L;
 
     @Nonnull
     @JsonProperty("topic")
     private String topic;
+
     @Nonnull
     @JsonProperty("bootstrapServers")
     private String bootstrapServers;
+
     @Nonnull
     @JsonProperty("format")
     private Format format;
@@ -74,7 +72,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     private String primaryKey;
 
     @JsonCreator
-    public KafkaLoadNode(@JsonProperty("id") String id,
+    public KafkaLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -86,9 +85,18 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
-        this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
+        this.bootstrapServers =
+                Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");
         this.primaryKey = primaryKey;
     }
@@ -111,7 +119,9 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
         if (getSinkParallelism() != null) {
             options.put("sink.parallelism", getSinkParallelism().toString());
         }
-        if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
+        if (format instanceof JsonFormat
+                || format instanceof AvroFormat
+                || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put("connector", "kafka-inlong");
                 options.put("sink.ignore.changelog", "true");
@@ -170,8 +180,10 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
                 metadataKey = "value.update-before";
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                        this.getClass().getSimpleName(), metaField));
+                throw new UnsupportedOperationException(
+                        String.format(
+                                "Unsupport meta field for %s: %s",
+                                this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
     }
@@ -183,8 +195,19 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
-                MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
-                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.OP_TYPE,
+                MetaField.DATABASE_NAME,
+                MetaField.SQL_TYPE,
+                MetaField.PK_NAMES,
+                MetaField.TS,
+                MetaField.OP_TS,
+                MetaField.IS_DDL,
+                MetaField.MYSQL_TYPE,
+                MetaField.BATCH_ID,
+                MetaField.UPDATE_BEFORE,
+                MetaField.DATA);
     }
 }

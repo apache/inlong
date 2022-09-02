@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -35,20 +37,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Elasticsearch's resource operator
- */
+/** Elasticsearch's resource operator */
 @Service
 public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchResourceOperator.class);
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ElasticsearchResourceOperator.class);
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -65,8 +61,10 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
-            LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
+            LOGGER.warn(
+                    "create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
 
@@ -78,7 +76,8 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
         List<StreamSinkFieldEntity> sinkList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(sinkList)) {
-            LOGGER.warn("no es fields found, skip to create es index for sinkId={}", sinkInfo.getId());
+            LOGGER.warn(
+                    "no es fields found, skip to create es index for sinkId={}", sinkInfo.getId());
         }
 
         // set fields
@@ -111,7 +110,8 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
             // 5. update the sink status to success
             String info = "success to create es resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "Create Elasticsearch index failed: " + e.getMessage();
@@ -121,7 +121,8 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         }
     }
 
-    public List<ElasticsearchFieldInfo> getElasticsearchFieldFromSink(List<StreamSinkFieldEntity> sinkList) {
+    public List<ElasticsearchFieldInfo> getElasticsearchFieldFromSink(
+            List<StreamSinkFieldEntity> sinkList) {
         List<ElasticsearchFieldInfo> esFieldList = new ArrayList<>();
         for (StreamSinkFieldEntity fieldEntity : sinkList) {
             ElasticsearchFieldInfo esFieldInfo = new ElasticsearchFieldInfo();
@@ -137,5 +138,4 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         }
         return esFieldList;
     }
-
 }

@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,13 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * The function for add
- */
+/** The function for add */
 @JsonTypeName("addFunction")
 @Data
 public class AddFunction implements Function {
@@ -39,12 +36,14 @@ public class AddFunction implements Function {
     @Nonnull
     @JsonProperty("leftField")
     private final FunctionParam leftField;
+
     @Nonnull
     @JsonProperty("rightField")
     private final FunctionParam rightField;
 
     @JsonCreator
-    public AddFunction(@Nonnull @JsonProperty("leftField") FunctionParam leftField,
+    public AddFunction(
+            @Nonnull @JsonProperty("leftField") FunctionParam leftField,
             @Nonnull @JsonProperty("rightField") FunctionParam rightField) {
         this.leftField = Preconditions.checkNotNull(leftField, "leftField is null");
         this.rightField = Preconditions.checkNotNull(rightField, "rightField is null");

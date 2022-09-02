@@ -1,23 +1,21 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
+
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -45,8 +43,8 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 /**
  * Public APIs for master
  *
- * Encapsulate query and modify logic mainly.
- * Generate output JSON by concatenating strings, to improve the performance.
+ * <p>Encapsulate query and modify logic mainly. Generate output JSON by concatenating strings, to
+ * improve the performance.
  */
 public class Webapi implements Action {
 
@@ -96,29 +94,34 @@ public class Webapi implements Action {
                 throw new Exception("unsupported method!");
             }
             // check master is current node
-            if (webApiRegInfo.onlyMasterOp
-                    && defMetaDataService.isPrimaryNodeActive()) {
+            if (webApiRegInfo.onlyMasterOp && defMetaDataService.isPrimaryNodeActive()) {
                 throw new Exception(
                         "DesignatedPrimary happened...please check if the other member is down");
             }
             // valid operation authorize info
-            if (!WebParameterUtils.validReqAuthorizeInfo(req,
-                    webApiRegInfo.needAuthToken, master, sBuffer, result)) {
+            if (!WebParameterUtils.validReqAuthorizeInfo(
+                    req, webApiRegInfo.needAuthToken, master, sBuffer, result)) {
                 throw new Exception(result.getErrMsg());
             }
-            sBuffer = (StringBuilder) webApiRegInfo.method.invoke(
-                    webApiRegInfo.webHandler, req, sBuffer, result);
+            sBuffer =
+                    (StringBuilder)
+                            webApiRegInfo.method.invoke(
+                                    webApiRegInfo.webHandler, req, sBuffer, result);
             // Carry callback information
             if (TStringUtils.isEmpty(strCallbackFun)) {
                 requestContext.put("sb", sBuffer.toString());
             } else {
                 requestContext.put("sb", strCallbackFun + "(" + sBuffer.toString() + ")");
                 requestContext.getResp().addHeader("Content-type", "text/plain");
-                requestContext.getResp().addHeader("charset", TBaseConstants.META_DEFAULT_CHARSET_NAME);
+                requestContext
+                        .getResp()
+                        .addHeader("charset", TBaseConstants.META_DEFAULT_CHARSET_NAME);
             }
         } catch (Throwable e) {
-            sBuffer.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
-                    .append(e.getMessage()).append("\"}");
+            sBuffer.append(
+                            "{\"result\":false,\"errCode\":400,\"errMsg\":\"Bad request from client, ")
+                    .append(e.getMessage())
+                    .append("\"}");
             requestContext.put("sb", sBuffer.toString());
         } finally {
             WebCallStatsHolder.addMethodCall(method, System.currentTimeMillis() - startTime);
@@ -128,5 +131,4 @@ public class Webapi implements Action {
     private void registerHandler(AbstractWebHandler abstractWebHandler) {
         abstractWebHandler.registerWebApiMethod();
     }
-
 }

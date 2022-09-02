@@ -17,9 +17,7 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
-/**
- * basic info for canal serialization
- */
+/** basic info for canal serialization */
 public class CanalSerializationInfo implements SerializationInfo {
 
     private static final long serialVersionUID = 479443152335788151L;
@@ -32,5 +30,4 @@ public class CanalSerializationInfo implements SerializationInfo {
 
         return o != null && getClass() == o.getClass();
     }
-
 }

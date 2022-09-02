@@ -17,23 +17,22 @@
 
 package org.apache.inlong.manager.common.validation;
 
-import org.apache.inlong.manager.common.enums.StringListValuable;
-
-import javax.validation.Constraint;
-import javax.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import org.apache.inlong.manager.common.enums.StringListValuable;
 
 @Target({
-        ElementType.METHOD,
-        ElementType.FIELD,
-        ElementType.ANNOTATION_TYPE,
-        ElementType.CONSTRUCTOR,
-        ElementType.PARAMETER,
-        ElementType.TYPE_USE
+    ElementType.METHOD,
+    ElementType.FIELD,
+    ElementType.ANNOTATION_TYPE,
+    ElementType.CONSTRUCTOR,
+    ElementType.PARAMETER,
+    ElementType.TYPE_USE
 })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -47,5 +46,4 @@ public @interface InEnumString {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

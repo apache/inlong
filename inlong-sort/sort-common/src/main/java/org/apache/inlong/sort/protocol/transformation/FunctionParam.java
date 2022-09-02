@@ -59,56 +59,53 @@ import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
 /**
- * FunctionParam is used to define and encapsulate function parameters
- * and it is the top-level interface for function parameters.
- * It mainly includes several categories such as fields, constants, functions, operators etc
+ * FunctionParam is used to define and encapsulate function parameters and it is the top-level
+ * interface for function parameters. It mainly includes several categories such as fields,
+ * constants, functions, operators etc
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
-        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),
-        @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
-        @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
-        @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant"),
-        @JsonSubTypes.Type(value = AndOperator.class, name = "and"),
-        @JsonSubTypes.Type(value = OrOperator.class, name = "or"),
-        @JsonSubTypes.Type(value = EmptyOperator.class, name = "empty"),
-        @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
-        @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),
-        @JsonSubTypes.Type(value = IsNotNullOperator.class, name = "isNotNull"),
-        @JsonSubTypes.Type(value = IsNullOperator.class, name = "isNull"),
-        @JsonSubTypes.Type(value = LessThanOperator.class, name = "lessThan"),
-        @JsonSubTypes.Type(value = LessThanOrEqualOperator.class, name = "lessThanOrEqual"),
-        @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
-        @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual"),
-        @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn"),
-        @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
-        @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
-        @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
-        @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
-        @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
-        @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
-        @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
-        @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
-        @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
-        @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
-        @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
-        @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
-        @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex"),
-        @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
-        @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
-        @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
-        @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
-        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
-        @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction"),
-        @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction"),
-        @JsonSubTypes.Type(value = IntervalFunction.class, name = "intervalFunction"),
-        @JsonSubTypes.Type(value = AddFunction.class, name = "addFunction"),
-        @JsonSubTypes.Type(value = SubtractFunction.class, name = "subtractFunction")
+    @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
+    @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),
+    @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
+    @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
+    @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant"),
+    @JsonSubTypes.Type(value = AndOperator.class, name = "and"),
+    @JsonSubTypes.Type(value = OrOperator.class, name = "or"),
+    @JsonSubTypes.Type(value = EmptyOperator.class, name = "empty"),
+    @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
+    @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),
+    @JsonSubTypes.Type(value = IsNotNullOperator.class, name = "isNotNull"),
+    @JsonSubTypes.Type(value = IsNullOperator.class, name = "isNull"),
+    @JsonSubTypes.Type(value = LessThanOperator.class, name = "lessThan"),
+    @JsonSubTypes.Type(value = LessThanOrEqualOperator.class, name = "lessThanOrEqual"),
+    @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
+    @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual"),
+    @JsonSubTypes.Type(value = InOperator.class, name = "in"),
+    @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn"),
+    @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
+    @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),
+    @JsonSubTypes.Type(value = HopEndFunction.class, name = "hopEnd"),
+    @JsonSubTypes.Type(value = TumbleStartFunction.class, name = "tumbleStart"),
+    @JsonSubTypes.Type(value = TumbleEndFunction.class, name = "tumbleEnd"),
+    @JsonSubTypes.Type(value = SessionStartFunction.class, name = "sessionStart"),
+    @JsonSubTypes.Type(value = SessionEndFunction.class, name = "sessionEnd"),
+    @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),
+    @JsonSubTypes.Type(value = TumbleFunction.class, name = "tumble"),
+    @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
+    @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
+    @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),
+    @JsonSubTypes.Type(value = SplitIndexFunction.class, name = "splitIndex"),
+    @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace"),
+    @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
+    @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
+    @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
+    @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
+    @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction"),
+    @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction"),
+    @JsonSubTypes.Type(value = IntervalFunction.class, name = "intervalFunction"),
+    @JsonSubTypes.Type(value = AddFunction.class, name = "addFunction"),
+    @JsonSubTypes.Type(value = SubtractFunction.class, name = "subtractFunction")
 })
 public interface FunctionParam {
 
@@ -126,5 +123,4 @@ public interface FunctionParam {
      * @return The format value in sql
      */
     String format();
-
 }

@@ -19,16 +19,13 @@ package org.apache.inlong.manager.pojo.consumption;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-/**
- * Data consumption list
- */
+/** Data consumption list */
 @Data
 @Builder
 @NoArgsConstructor
@@ -54,8 +51,10 @@ public class ConsumptionListVo {
     @ApiModelProperty(value = "Consumption target TOPIC")
     private String topic;
 
-    @ApiModelProperty(value = "Status: Pending distribution: 10,"
-            + " Pending approval: 11, Approval rejected: 20, Approval passed: 21")
+    @ApiModelProperty(
+            value =
+                    "Status: Pending distribution: 10,"
+                            + " Pending approval: 11, Approval rejected: 20, Approval passed: 21")
     private Integer status;
 
     @ApiModelProperty(value = "Recent consumption time")

@@ -19,6 +19,13 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -33,44 +40,45 @@ import org.apache.inlong.sort.protocol.constant.PostgresConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-/**
- * Postgres extract node for extract data from postgres
- */
+/** Postgres extract node for extract data from postgres */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("postgresExtract")
 @Data
-public class PostgresExtractNode extends ExtractNode implements Metadata, InlongMetric, Serializable {
+public class PostgresExtractNode extends ExtractNode
+        implements Metadata, InlongMetric, Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @JsonProperty("primaryKey")
     private String primaryKey;
+
     @JsonProperty("tableNames")
     private List<String> tableNames;
+
     @JsonProperty("hostname")
     private String hostname;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("database")
     private String database;
+
     @JsonProperty("schema")
     private String schema;
+
     @JsonProperty("port")
     private Integer port;
+
     @JsonProperty("decodingPluginName")
     private String decodingPluginName;
 
     @JsonCreator
-    public PostgresExtractNode(@JsonProperty("id") String id,
+    public PostgresExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("watermark_field") WatermarkField watermarkField,
@@ -100,8 +108,9 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
      * generate table options
      *
      * @return options
-     * @see <a href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
-     * cdc</a>
+     * @see <a
+     *     href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
+     *     cdc</a>
      */
     @Override
     public Map<String, String> tableOptions() {
@@ -113,8 +122,10 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
         options.put(PostgresConstant.DATABASE_NAME, database);
         options.put(PostgresConstant.SCHEMA_NAME, schema);
         options.put(PostgresConstant.PORT, port.toString());
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable =
+                tableNames.size() == 1
+                        ? tableNames.get(0)
+                        : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put(PostgresConstant.TABLE_NAME, String.format("%s", formatTable));
         String decodingPluginNameOption;
         if (StringUtils.isNotEmpty(decodingPluginName)) {
@@ -123,8 +134,9 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
             decodingPluginNameOption = PostgresConstant.PGOUTPUT;
         }
         options.put(PostgresConstant.DECODING_PLUGIN_NAME, decodingPluginNameOption);
-        options.put(PostgresConstant.SLOT_NAME, UUID.randomUUID().toString().toLowerCase(Locale.ROOT).replaceAll(
-                "[\\-\\d]", ""));
+        options.put(
+                PostgresConstant.SLOT_NAME,
+                UUID.randomUUID().toString().toLowerCase(Locale.ROOT).replaceAll("[\\-\\d]", ""));
         return options;
     }
 
@@ -145,7 +157,11 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME,
+                MetaField.OP_TS);
     }
 }

@@ -28,9 +28,7 @@ import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-/**
- * AutoPush(DataProxy SDK) source request
- */
+/** AutoPush(DataProxy SDK) source request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -38,7 +36,8 @@ import org.apache.inlong.manager.pojo.source.SourceRequest;
 @JsonTypeDefine(value = SourceType.AUTO_PUSH)
 public class AutoPushSourceRequest extends SourceRequest {
 
-    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
+    @ApiModelProperty(
+            value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
@@ -53,5 +52,4 @@ public class AutoPushSourceRequest extends SourceRequest {
     public AutoPushSourceRequest() {
         this.setSourceType(SourceType.AUTO_PUSH);
     }
-
 }

@@ -21,7 +21,6 @@ import io.debezium.document.Document;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges.TableChange;
-
 import java.io.IOException;
 
 /**
@@ -47,7 +46,6 @@ public class SchemaRecord {
             this.tableChangeDoc = document;
             this.historyRecord = null;
         }
-
     }
 
     public HistoryRecord getHistoryRecord() {

@@ -52,8 +52,10 @@ public class TestStreamIdFilter {
     @Test
     public void testStreamId() {
         DefaultMessageFilter messageFilter = new DefaultMessageFilter();
-        ProxyMessage proxyMessage = new ProxyMessage("streamId|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+        ProxyMessage proxyMessage =
+                new ProxyMessage(
+                        "streamId|this is a line of file".getBytes(StandardCharsets.UTF_8),
+                        new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "streamId");
     }
@@ -62,10 +64,14 @@ public class TestStreamIdFilter {
     public void testAbstractSink() {
         MockSink sinkTest = new MockSink();
         JobProfile jobProfile = new JobProfile();
-        jobProfile.set(AGENT_MESSAGE_FILTER_CLASSNAME, "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
+        jobProfile.set(
+                AGENT_MESSAGE_FILTER_CLASSNAME,
+                "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
         MessageFilter messageFilter = sinkTest.initMessageFilter(jobProfile);
-        ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+        ProxyMessage proxyMessage =
+                new ProxyMessage(
+                        "tid|this is a line of file".getBytes(StandardCharsets.UTF_8),
+                        new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "tid");
     }
@@ -73,25 +79,15 @@ public class TestStreamIdFilter {
     class MockSink extends AbstractSink {
 
         @Override
-        public void write(Message message) {
-
-        }
+        public void write(Message message) {}
 
         @Override
-        public void setSourceName(String sourceFileName) {
-
-        }
+        public void setSourceName(String sourceFileName) {}
 
         @Override
-        public void init(JobProfile jobConf) {
-
-        }
+        public void init(JobProfile jobConf) {}
 
         @Override
-        public void destroy() {
-
-        }
+        public void destroy() {}
     }
-
 }
-

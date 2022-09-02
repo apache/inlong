@@ -19,6 +19,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,13 +36,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Postgres load node can load data into Postgres
- */
+/** Postgres load node can load data into Postgres */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("postgresLoad")
 @Data
@@ -48,23 +45,22 @@ public class PostgresLoadNode extends LoadNode implements InlongMetric, Serializ
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * jdbc:postgresql://host:port/database
-     */
+    /** jdbc:postgresql://host:port/database */
     @JsonProperty("url")
     private String url;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
-    /**
-     * Table name is "schema_name.table_name".
-     */
+    /** Table name is "schema_name.table_name". */
     @JsonProperty("tableName")
     private String tableName;
     /**
-     * Please declare primary key for sink table when query contains update/delete record if your version support
-     * upsert. You can change source stream mode is "append" if your version can't support upsert.
+     * Please declare primary key for sink table when query contains update/delete record if your
+     * version support upsert. You can change source stream mode is "append" if your version can't
+     * support upsert.
      */
     @JsonProperty("primaryKey")
     private String primaryKey;
@@ -84,7 +80,15 @@ public class PostgresLoadNode extends LoadNode implements InlongMetric, Serializ
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");

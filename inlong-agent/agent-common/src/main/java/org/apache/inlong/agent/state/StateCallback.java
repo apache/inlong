@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.state;
 
-/**
- * callbacks
- */
+/** callbacks */
 public interface StateCallback {
 
     void call(State before, State after);

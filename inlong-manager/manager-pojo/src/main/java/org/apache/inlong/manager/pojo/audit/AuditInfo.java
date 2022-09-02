@@ -20,19 +20,17 @@ package org.apache.inlong.manager.pojo.audit;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Audit info, including audit count, audit log timestamp.
- */
+/** Audit info, including audit count, audit log timestamp. */
 @Data
 public class AuditInfo {
 
     @ApiModelProperty(value = "Audit log timestamp")
     private String logTs;
+
     @ApiModelProperty(value = "Audit count")
     private Long count;
 
-    public AuditInfo() {
-    }
+    public AuditInfo() {}
 
     public AuditInfo(String logTs, Long count) {
         this.logTs = logTs;

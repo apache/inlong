@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
+import java.util.List;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -35,19 +36,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Event listener of build the Sort config,
- * such as update the form config, or build and push config to ZK, etc.
+ * Event listener of build the Sort config, such as update the form config, or build and push config
+ * to ZK, etc.
  */
 @Component
 public class SortConfigListener implements SortOperateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortConfigListener.class);
 
-    @Autowired
-    private SortConfigOperatorFactory operatorFactory;
+    @Autowired private SortConfigOperatorFactory operatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -59,11 +57,18 @@ public class SortConfigListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String className = processForm.getClass().getSimpleName();
         String groupId = processForm.getInlongGroupId();
-        if (processForm instanceof GroupResourceProcessForm || processForm instanceof StreamResourceProcessForm) {
-            LOGGER.info("accept sort config listener as the process is {} for groupId [{}]", className, groupId);
+        if (processForm instanceof GroupResourceProcessForm
+                || processForm instanceof StreamResourceProcessForm) {
+            LOGGER.info(
+                    "accept sort config listener as the process is {} for groupId [{}]",
+                    className,
+                    groupId);
             return true;
         } else {
-            LOGGER.info("not accept sort config listener as the process is {} for groupId [{}]", className, groupId);
+            LOGGER.info(
+                    "not accept sort config listener as the process is {} for groupId [{}]",
+                    className,
+                    groupId);
             return false;
         }
     }
@@ -76,21 +81,30 @@ public class SortConfigListener implements SortOperateListener {
 
         GroupOperateType operateType = form.getGroupOperateType();
         if (operateType == GroupOperateType.SUSPEND || operateType == GroupOperateType.DELETE) {
-            LOGGER.info("not build sort config for groupId={}, as the group operate type={}", groupId, operateType);
+            LOGGER.info(
+                    "not build sort config for groupId={}, as the group operate type={}",
+                    groupId,
+                    operateType);
             return ListenerResult.success();
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
-        int sinkCount = streamInfos.stream()
-                .map(stream -> stream.getSinkList() == null ? 0 : stream.getSinkList().size())
-                .reduce(0, Integer::sum);
+        int sinkCount =
+                streamInfos.stream()
+                        .map(
+                                stream ->
+                                        stream.getSinkList() == null
+                                                ? 0
+                                                : stream.getSinkList().size())
+                        .reduce(0, Integer::sum);
         if (sinkCount == 0) {
             LOGGER.warn("not build sort config for groupId={}, as not found any sink", groupId);
             return ListenerResult.success();
         }
 
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
+            SortConfigOperator operator =
+                    operatorFactory.getInstance(groupInfo.getEnableZookeeper());
             operator.buildConfig(groupInfo, streamInfos, false);
         } catch (Exception e) {
             String msg = String.format("failed to build sort config for groupId=%s, ", groupId);
@@ -101,5 +115,4 @@ public class SortConfigListener implements SortOperateListener {
         LOGGER.info("success to build sort config for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

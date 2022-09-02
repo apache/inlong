@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
@@ -46,9 +48,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -57,20 +56,15 @@ public class TestClusterController {
 
     private final Gson gson = new Gson();
 
-    @MockBean
-    private MasterRepository masterRepository;
+    @MockBean private MasterRepository masterRepository;
 
-    @MockBean
-    private ClusterRepository clusterRepository;
+    @MockBean private ClusterRepository clusterRepository;
 
-    @MockBean
-    private NodeService nodeService;
+    @MockBean private NodeService nodeService;
 
-    @MockBean
-    private MasterService masterService;
+    @MockBean private MasterService masterService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
     private MasterEntry getNodeEntry() {
         MasterEntry masterEntry = new MasterEntry();
@@ -84,11 +78,13 @@ public class TestClusterController {
         MasterEntry masterEntry = getNodeEntry();
         when(masterRepository.findMasterEntryByClusterIdEquals(any(Integer.class)))
                 .thenReturn(masterEntry);
-        RequestBuilder request = get(
-                "/v1/cluster/query?method=admin_query_topic_info&type=op_query&clusterId=1");
+        RequestBuilder request =
+                get("/v1/cluster/query?method=admin_query_topic_info&type=op_query&clusterId=1");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        log.info("result json string is {}, response type is {}", resultStr,
+        log.info(
+                "result json string is {}, response type is {}",
+                resultStr,
                 result.getResponse().getContentType());
     }
 
@@ -97,11 +93,14 @@ public class TestClusterController {
         MasterEntry masterEntry = getNodeEntry();
         when(masterRepository.findMasterEntryByClusterIdEquals(any(Integer.class)))
                 .thenReturn(masterEntry);
-        RequestBuilder request = get(
-                "/v1/cluster/query?method=admin_query_broker_run_status&type=op_query&clusterId=1&brokerIp=");
+        RequestBuilder request =
+                get(
+                        "/v1/cluster/query?method=admin_query_broker_run_status&type=op_query&clusterId=1&brokerIp=");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        log.info("result json string is {}, response type is {}", resultStr,
+        log.info(
+                "result json string is {}, response type is {}",
+                resultStr,
                 result.getResponse().getContentType());
     }
 
@@ -110,41 +109,47 @@ public class TestClusterController {
         MasterEntry masterEntry = getNodeEntry();
         when(masterRepository.findMasterEntryByClusterIdEquals(any(Integer.class)))
                 .thenReturn(masterEntry);
-        RequestBuilder request = get(
-                "/v1/cluster/query?method=admin_query_sub_info"
-                        + "&type=op_query&clusterId=1&topicName=test&groupName=test");
+        RequestBuilder request =
+                get(
+                        "/v1/cluster/query?method=admin_query_sub_info"
+                                + "&type=op_query&clusterId=1&topicName=test&groupName=test");
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        log.info("result json string is {}, response type is {}", resultStr,
+        log.info(
+                "result json string is {}, response type is {}",
+                resultStr,
                 result.getResponse().getContentType());
     }
 
     @Test
     public void testTopicAdd() throws Exception {
-        String jsonStr = "{\n"
-                + "  \"type\": \"op_modify\",\n"
-                + "  \"method\": \"admin_add_new_topic_record\",\n"
-                + "  \"confModAuthToken\": \"test\",\n"
-                + "  \"clusterId\": 1,\n"
-                + "  \"createUser\": \"webapi\",\n"
-                + "  \"topicName\": \"test\",\n"
-                + "  \"deleteWhen\": \"0 0 0 0 0\",\n"
-                + "  \"unflushThreshold\": 1000,\n"
-                + "  \"acceptPublish\": true,\n"
-                + "  \"numPartitions\": 3,\n"
-                + "  \"deletePolicy\": \"\",\n"
-                + "  \"unflushInterval\": 1000,\n"
-                + "  \"acceptSubscribe\": true,\n"
-                + "  \"brokerId\": 12323\n"
-                + "}\n";
+        String jsonStr =
+                "{\n"
+                        + "  \"type\": \"op_modify\",\n"
+                        + "  \"method\": \"admin_add_new_topic_record\",\n"
+                        + "  \"confModAuthToken\": \"test\",\n"
+                        + "  \"clusterId\": 1,\n"
+                        + "  \"createUser\": \"webapi\",\n"
+                        + "  \"topicName\": \"test\",\n"
+                        + "  \"deleteWhen\": \"0 0 0 0 0\",\n"
+                        + "  \"unflushThreshold\": 1000,\n"
+                        + "  \"acceptPublish\": true,\n"
+                        + "  \"numPartitions\": 3,\n"
+                        + "  \"deletePolicy\": \"\",\n"
+                        + "  \"unflushInterval\": 1000,\n"
+                        + "  \"acceptSubscribe\": true,\n"
+                        + "  \"brokerId\": 12323\n"
+                        + "}\n";
         MasterEntry masterEntry = getNodeEntry();
         when(masterRepository.findMasterEntryByClusterIdEquals(any(Integer.class)))
                 .thenReturn(masterEntry);
-        RequestBuilder request = post("/v1/cluster/modify")
-                .contentType(MediaType.APPLICATION_JSON).content(jsonStr);
+        RequestBuilder request =
+                post("/v1/cluster/modify").contentType(MediaType.APPLICATION_JSON).content(jsonStr);
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        log.info("result json string is {}, response type is {}", resultStr,
+        log.info(
+                "result json string is {}, response type is {}",
+                resultStr,
                 result.getResponse().getContentType());
     }
 
@@ -177,11 +182,14 @@ public class TestClusterController {
         // when(nodeService.addNode(any(MasterEntry.class))).thenReturn(Boolean.TRUE);
         when(masterService.checkMasterNodeStatus(anyString(), anyInt())).thenReturn(successResult);
 
-        RequestBuilder request = post("/v1/cluster?method=add")
-                .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(req));
+        RequestBuilder request =
+                post("/v1/cluster?method=add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(req));
         MvcResult result = mockMvc.perform(request).andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        String expectRes = "{\"errMsg\":\"\",\"errCode\":0,\"result\":true,\"data\":null,\"error\":false}";
+        String expectRes =
+                "{\"errMsg\":\"\",\"errCode\":0,\"result\":true,\"data\":null,\"error\":false}";
         Assert.assertEquals(resultStr, expectRes);
     }
 }

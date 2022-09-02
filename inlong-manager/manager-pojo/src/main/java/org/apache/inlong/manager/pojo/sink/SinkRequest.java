@@ -21,19 +21,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Data;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Stream sink request
- */
+/** Stream sink request */
 @Data
 @ApiModel("Stream sink request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
@@ -57,7 +54,8 @@ public abstract class SinkRequest {
 
     @NotBlank(message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+    @Pattern(
+            regexp = "^[a-z0-9_-]{1,100}$",
             message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
@@ -77,7 +75,8 @@ public abstract class SinkRequest {
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
 
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
+    @ApiModelProperty(
+            value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Sink field list")
@@ -88,5 +87,4 @@ public abstract class SinkRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
 }

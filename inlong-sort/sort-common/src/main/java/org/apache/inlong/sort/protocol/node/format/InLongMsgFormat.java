@@ -17,15 +17,14 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.msg.InLongMsg;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The {@link InLongMsg} format.
@@ -45,8 +44,10 @@ public class InLongMsgFormat implements Format {
     private Boolean ignoreParseErrors;
 
     @JsonCreator
-    public InLongMsgFormat(@JsonProperty(value = "innerFormat") Format innerFormat,
-            @JsonProperty(value = "ignoreParseErrors", defaultValue = "false") Boolean ignoreParseErrors) {
+    public InLongMsgFormat(
+            @JsonProperty(value = "innerFormat") Format innerFormat,
+            @JsonProperty(value = "ignoreParseErrors", defaultValue = "false")
+                    Boolean ignoreParseErrors) {
         this.innerFormat = innerFormat;
         this.ignoreParseErrors = ignoreParseErrors;
     }
@@ -71,8 +72,7 @@ public class InLongMsgFormat implements Format {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());
         options.put("inlong-msg.inner.format", innerFormat.getFormat());
-        innerFormat.generateOptions().entrySet()
-                .stream()
+        innerFormat.generateOptions().entrySet().stream()
                 .filter(entry -> !"format".equals(entry.getKey()))
                 .forEach(entry -> options.put("inlong-msg." + entry.getKey(), entry.getValue()));
         if (this.ignoreParseErrors != null) {

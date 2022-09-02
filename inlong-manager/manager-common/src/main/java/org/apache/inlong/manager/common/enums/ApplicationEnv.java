@@ -18,40 +18,29 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 
-import java.util.Map;
-import java.util.function.Function;
-
-/**
- * ApplicationEnv info
- */
+/** ApplicationEnv info */
 public enum ApplicationEnv {
-    /**
-     * Development env
-     */
+    /** Development env */
     DEV,
 
-    /**
-     * Test env
-     */
+    /** Test env */
     TEST,
 
-    /**
-     * Production env
-     */
+    /** Production env */
     PROD;
 
-    private static final Map<String, ApplicationEnv> NAME_MAP = InlongCollectionUtils.transformToImmutableMap(
-            Lists.newArrayList(ApplicationEnv.values()),
-            ApplicationEnv::name,
-            Function.identity()
-    );
+    private static final Map<String, ApplicationEnv> NAME_MAP =
+            InlongCollectionUtils.transformToImmutableMap(
+                    Lists.newArrayList(ApplicationEnv.values()),
+                    ApplicationEnv::name,
+                    Function.identity());
 
-    /**
-     * Get application environment by name.
-     */
+    /** Get application environment by name. */
     public static ApplicationEnv forName(String name) {
         String nameUpper = StringUtils.upperCase(name);
         if (!NAME_MAP.containsKey(nameUpper)) {
@@ -60,5 +49,4 @@ public enum ApplicationEnv {
 
         return NAME_MAP.get(nameUpper);
     }
-
 }

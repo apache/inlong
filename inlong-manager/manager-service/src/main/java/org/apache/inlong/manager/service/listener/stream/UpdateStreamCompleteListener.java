@@ -30,15 +30,12 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongStream when update operates successfully.
- */
+/** The listener of InlongStream when update operates successfully. */
 @Slf4j
 @Component
 public class UpdateStreamCompleteListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongStreamService streamService;
+    @Autowired private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -65,11 +62,11 @@ public class UpdateStreamCompleteListener implements ProcessEventListener {
                 status = StreamStatus.DELETED;
                 break;
             default:
-                throw new RuntimeException(String.format("Unsupported operate=%s for inlong group", operateType));
+                throw new RuntimeException(
+                        String.format("Unsupported operate=%s for inlong group", operateType));
         }
         streamService.updateStatus(groupId, streamId, status.getCode(), operator);
         streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
-
 }

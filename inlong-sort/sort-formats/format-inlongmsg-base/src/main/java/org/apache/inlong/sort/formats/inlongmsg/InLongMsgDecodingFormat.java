@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.DataTypes;
@@ -30,15 +38,6 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
@@ -55,17 +54,19 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
             String innerFormatMetaPrefix,
             boolean ignoreErrors) {
         this.innerDecodingFormat = innerDecodingFormat;
-        this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
+        this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
     }
 
     @Override
-    public DeserializationSchema<RowData> createRuntimeDecoder(Context context, DataType physicalDataType) {
-        final MetadataConverter[] metadataConverters = Arrays.stream(ReadableMetadata.values())
-                .filter(metadata -> metadataKeys.contains(metadata.key))
-                .map(metadata -> metadata.converter)
-                .toArray(MetadataConverter[]::new);
+    public DeserializationSchema<RowData> createRuntimeDecoder(
+            Context context, DataType physicalDataType) {
+        final MetadataConverter[] metadataConverters =
+                Arrays.stream(ReadableMetadata.values())
+                        .filter(metadata -> metadataKeys.contains(metadata.key))
+                        .map(metadata -> metadata.converter)
+                        .toArray(MetadataConverter[]::new);
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
@@ -98,7 +99,9 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         // add inner format metadata with prefix
         innerDecodingFormat
                 .listReadableMetadata()
-                .forEach((key, value) -> metadataMap.putIfAbsent(innerFormatMetaPrefix + key, value));
+                .forEach(
+                        (key, value) ->
+                                metadataMap.putIfAbsent(innerFormatMetaPrefix + key, value));
 
         // add format metadata
         Stream.of(ReadableMetadata.values())

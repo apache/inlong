@@ -45,27 +45,23 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.junit.Test;
 
-/**
- * Tests for {@link CsvDeserializationSchema}.
- */
+/** Tests for {@link CsvDeserializationSchema}. */
 public class CsvDeserializationSchemaTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4"},
-                    new FormatInfo[]{
-                            IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE
-                    }
-            );
+                    new String[] {"f1", "f2", "f3", "f4"},
+                    new FormatInfo[] {
+                        IntFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE
+                    });
 
     @Test
     public void testNormal() throws Exception {
 
-        Consumer<CsvDeserializationSchema.Builder> config = builder -> {
-        };
+        Consumer<CsvDeserializationSchema.Builder> config = builder -> {};
 
         testBasicDeserialization(config, StringFormatInfo.INSTANCE, "hello", "hello");
         testBasicDeserialization(config, BooleanFormatInfo.INSTANCE, true, "true");
@@ -75,12 +71,20 @@ public class CsvDeserializationSchemaTest {
         testBasicDeserialization(config, LongFormatInfo.INSTANCE, 12345678910L, "12345678910");
         testBasicDeserialization(config, FloatFormatInfo.INSTANCE, 0.33333334f, "0.33333334");
         testBasicDeserialization(config, DoubleFormatInfo.INSTANCE, 0.33333333332, "0.33333333332");
-        testBasicDeserialization(config, DecimalFormatInfo.INSTANCE, new BigDecimal("1234.0000000000000000000000001"),
+        testBasicDeserialization(
+                config,
+                DecimalFormatInfo.INSTANCE,
+                new BigDecimal("1234.0000000000000000000000001"),
                 "1234.0000000000000000000000001");
-        testBasicDeserialization(config, new DateFormatInfo("dd/MM/yyyy"), Date.valueOf("2020-03-22"), "22/03/2020");
-        testBasicDeserialization(config, new TimeFormatInfo("ss/mm/hh"), Time.valueOf("11:12:13"), "13/12/11");
-        testBasicDeserialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
-                Timestamp.valueOf("2020-03-22 11:12:13"), "22/03/2020 11:12:13");
+        testBasicDeserialization(
+                config, new DateFormatInfo("dd/MM/yyyy"), Date.valueOf("2020-03-22"), "22/03/2020");
+        testBasicDeserialization(
+                config, new TimeFormatInfo("ss/mm/hh"), Time.valueOf("11:12:13"), "13/12/11");
+        testBasicDeserialization(
+                config,
+                new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
+                Timestamp.valueOf("2020-03-22 11:12:13"),
+                "22/03/2020 11:12:13");
     }
 
     @Test
@@ -101,19 +105,18 @@ public class CsvDeserializationSchemaTest {
         testBasicDeserialization(config, DecimalFormatInfo.INSTANCE, null, nullLiteral);
         testBasicDeserialization(config, new DateFormatInfo("dd/MM/yyyy"), null, nullLiteral);
         testBasicDeserialization(config, new TimeFormatInfo("ss/mm/hh"), null, nullLiteral);
-        testBasicDeserialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"), null, nullLiteral);
+        testBasicDeserialization(
+                config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"), null, nullLiteral);
     }
 
     @Test
     public void testDelimiter() throws Exception {
-        Consumer<CsvDeserializationSchema.Builder> config =
-                builder -> builder.setDelimiter('|');
+        Consumer<CsvDeserializationSchema.Builder> config = builder -> builder.setDelimiter('|');
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10|field1|field2|field3".getBytes()
-        );
+                "10|field1|field2|field3".getBytes());
     }
 
     @Test
@@ -124,20 +127,17 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\\,field2,field3,field4".getBytes()
-        );
+                "10,field1\\,field2,field3,field4".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,field1\\\\,field2,field3".getBytes()
-        );
+                "10,field1\\\\,field2,field3".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "10,field1\\\",field2,field3".getBytes()
-        );
+                "10,field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -148,14 +148,12 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,\"field1,field2\",field3,field4".getBytes()
-        );
+                "10,\"field1,field2\",field3,field4".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,\"field1\\\",field2,field3".getBytes()
-        );
+                "10,\"field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -166,51 +164,40 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16)
-        );
+                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test
     public void testUnmatchedFields() throws Exception {
-        Consumer<CsvDeserializationSchema.Builder> config = builder -> {
-        };
+        Consumer<CsvDeserializationSchema.Builder> config = builder -> {};
 
         testRowDeserialization(
-                config,
-                Row.of(1, "field1", "field2", null),
-                "1,field1,field2".getBytes()
-        );
+                config, Row.of(1, "field1", "field2", null), "1,field1,field2".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(1, "field1", "field2", "field3"),
-                "1,field1,field2,field3,field4".getBytes()
-        );
+                "1,field1,field2,field3,field4".getBytes());
     }
 
     @Test(expected = Exception.class)
     public void testErrors() throws Exception {
-        Consumer<CsvDeserializationSchema.Builder> config = builder -> {
-        };
+        Consumer<CsvDeserializationSchema.Builder> config = builder -> {};
 
         testRowDeserialization(
                 config,
                 Row.of(null, "field1", "field2", "field3"),
-                "na,field1,field2,field3".getBytes()
-        );
+                "na,field1,field2,field3".getBytes());
     }
 
     private static <T> void testBasicDeserialization(
             Consumer<CsvDeserializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T expectedRecord,
-            String text
-    ) throws IOException {
+            String text)
+            throws IOException {
         RowFormatInfo rowFormatInfo =
-                new RowFormatInfo(
-                        new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+                new RowFormatInfo(new String[] {"f"}, new FormatInfo[] {basicFormatInfo});
 
         CsvDeserializationSchema.Builder builder =
                 new CsvDeserializationSchema.Builder(rowFormatInfo);
@@ -224,10 +211,8 @@ public class CsvDeserializationSchemaTest {
     }
 
     private void testRowDeserialization(
-            Consumer<CsvDeserializationSchema.Builder> config,
-            Row expectedRow,
-            byte[] bytes
-    ) throws Exception {
+            Consumer<CsvDeserializationSchema.Builder> config, Row expectedRow, byte[] bytes)
+            throws Exception {
         CsvDeserializationSchema.Builder builder =
                 new CsvDeserializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);

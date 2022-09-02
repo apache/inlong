@@ -1,27 +1,23 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb.context;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -32,9 +28,7 @@ import org.apache.inlong.sdk.dataproxy.utils.IpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * SinkContext
- */
+/** SinkContext */
 public class SinkContext {
 
     public static final Logger LOG = LoggerFactory.getLogger(SinkContext.class);
@@ -62,7 +56,7 @@ public class SinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      * @param channel
      */
@@ -80,9 +74,7 @@ public class SinkContext {
         MetricRegister.register(this.metricItemSet);
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         try {
             this.reload();
@@ -92,9 +84,7 @@ public class SinkContext {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         try {
             this.reloadTimer.cancel();
@@ -103,33 +93,30 @@ public class SinkContext {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     protected void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            public void run() {
-                try {
-                    reload();
-                } catch (Throwable e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+                    public void run() {
+                        try {
+                            reload();
+                        } catch (Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                        }
+                    }
+                };
+        reloadTimer.schedule(
+                task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
-    public void reload() {
-    }
+    /** reload */
+    public void reload() {}
 
     /**
      * get nodeId
-     * 
+     *
      * @return the nodeId
      */
     public String getNodeId() {
@@ -138,7 +125,7 @@ public class SinkContext {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public Context getContext() {
@@ -147,7 +134,7 @@ public class SinkContext {
 
     /**
      * get channel
-     * 
+     *
      * @return the channel
      */
     public Channel getChannel() {
@@ -156,7 +143,7 @@ public class SinkContext {
 
     /**
      * get maxThreads
-     * 
+     *
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -165,7 +152,7 @@ public class SinkContext {
 
     /**
      * get processInterval
-     * 
+     *
      * @return the processInterval
      */
     public long getProcessInterval() {
@@ -174,7 +161,7 @@ public class SinkContext {
 
     /**
      * get reloadInterval
-     * 
+     *
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -196,7 +183,7 @@ public class SinkContext {
     /**
      * getAuditFormatTime
      *
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public long getAuditFormatTime(long msgTime) {
@@ -206,7 +193,7 @@ public class SinkContext {
 
     /**
      * get metricItemSet
-     * 
+     *
      * @return the metricItemSet
      */
     public SdkMetricItemSet getMetricItemSet() {

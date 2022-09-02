@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
@@ -40,22 +52,7 @@ import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-
-/**
- * A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}.
- */
+/** A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}. */
 class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
@@ -66,8 +63,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
                     return new SimpleCollector();
                 }
             };
-    @Nullable
-    private final DeserializationSchema<RowData> keyDeserialization;
+    @Nullable private final DeserializationSchema<RowData> keyDeserialization;
     private final DeserializationSchema<RowData> valueDeserialization;
     private final boolean hasMetadata;
     private final OutputProjectionCollector outputCollector;
@@ -93,7 +89,8 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
-            String inlongMetric, String auditHostAndPorts) {
+            String inlongMetric,
+            String auditHostAndPorts) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -102,12 +99,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         this.keyDeserialization = ThreadSafeDeserializationSchema.of(keyDeserialization);
         this.valueDeserialization = ThreadSafeDeserializationSchema.of(valueDeserialization);
         this.hasMetadata = hasMetadata;
-        this.outputCollector = new OutputProjectionCollector(
-                physicalArity,
-                keyProjection,
-                valueProjection,
-                metadataConverters,
-                upsertMode);
+        this.outputCollector =
+                new OutputProjectionCollector(
+                        physicalArity,
+                        keyProjection,
+                        valueProjection,
+                        metadataConverters,
+                        upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
@@ -126,7 +124,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             inlongGroupId = inlongMetricArray[0];
             inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, getMetricGroup(context));
+            sourceMetricData =
+                    new SourceMetricData(
+                            inlongGroupId, inlongStreamId, nodeId, getMetricGroup(context));
             sourceMetricData.registerMetricsForNumBytesIn();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsIn();
@@ -134,18 +134,19 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         }
 
         if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            AuditImp.getInstance()
+                    .setAuditProxy(
+                            new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             auditImp = AuditImp.getInstance();
         }
-
     }
 
     /**
      * reflect get metricGroup
      *
      * @param context Contextual information that can be used during initialization.
-     * @return metric group that can be used to register new metrics with Flink and to create a nested hierarchy based
-     *         on the group names.
+     * @return metric group that can be used to register new metrics with Flink and to create a
+     *     nested hierarchy based on the group names.
      */
     private MetricGroup getMetricGroup(DeserializationSchema.InitializationContext context)
             throws NoSuchFieldException, IllegalAccessException {
@@ -164,7 +165,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             }
         }
         if (runtimeContextDeserializationInitializationContextAdapter != null) {
-            Field field = runtimeContextDeserializationInitializationContextAdapter.getDeclaredField(fieldName);
+            Field field =
+                    runtimeContextDeserializationInitializationContextAdapter.getDeclaredField(
+                            fieldName);
             field.setAccessible(true);
             RuntimeContext runtimeContext = (RuntimeContext) field.get(context);
             metricGroup = runtimeContext.getMetricGroup();
@@ -187,15 +190,19 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     }
 
     @Override
-    public void deserialize(Message<RowData> message, Collector<RowData> collector) throws IOException {
+    public void deserialize(Message<RowData> message, Collector<RowData> collector)
+            throws IOException {
         AtomicLong counter = new AtomicLong();
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                counter.addAndGet(1L);
-                collector.collect(inputRow);
-            }));
+            valueDeserialization.deserialize(
+                    message.getData(),
+                    new CallbackCollector<>(
+                            inputRow -> {
+                                counter.addAndGet(1L);
+                                collector.collect(inputRow);
+                            }));
             outputMetrics(counter, message);
             return;
         }
@@ -214,10 +221,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
         } else {
-            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                counter.addAndGet(1L);
-                outputCollector.collect(inputRow);
-            }));
+            valueDeserialization.deserialize(
+                    message.getData(),
+                    new CallbackCollector<>(
+                            inputRow -> {
+                                counter.addAndGet(1L);
+                                outputCollector.collect(inputRow);
+                            }));
             outputMetrics(counter, message);
         }
 
@@ -227,8 +237,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     private void outputMetrics(AtomicLong counter, Message<RowData> message) {
         if (sourceMetricData != null) {
             sourceMetricData.getNumRecordsIn().inc(counter.get());
-            sourceMetricData.getNumBytesIn()
-                    .inc(message.getData().length);
+            sourceMetricData.getNumBytesIn().inc(message.getData().length);
         }
         if (auditImp != null) {
             auditImp.add(
@@ -287,9 +296,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         }
 
         @Override
-        public void close() {
-
-        }
+        public void close() {}
 
         private T getRecord() {
             return record;
@@ -312,15 +319,17 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
      * Emits a row with key, value, and metadata fields.
      *
      * <p>The collector is able to handle the following kinds of keys:
+     *
      * <ul>
-     *     <li>No key is used.
-     *     <li>A key is used.
-     *     <li>The deserialization schema emits multiple keys.
-     *     <li>Keys and values have overlapping fields.
-     *     <li>Keys are used and value is null.
+     *   <li>No key is used.
+     *   <li>A key is used.
+     *   <li>The deserialization schema emits multiple keys.
+     *   <li>Keys and values have overlapping fields.
+     *   <li>Keys are used and value is null.
      * </ul>
      */
-    private static final class OutputProjectionCollector implements Collector<RowData>, Serializable {
+    private static final class OutputProjectionCollector
+            implements Collector<RowData>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -372,7 +381,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             // nothing to do
         }
 
-        private void emitRow(@Nullable GenericRowData physicalKeyRow, @Nullable GenericRowData physicalValueRow) {
+        private void emitRow(
+                @Nullable GenericRowData physicalKeyRow,
+                @Nullable GenericRowData physicalValueRow) {
             final RowKind rowKind;
             if (physicalValueRow == null) {
                 if (upsertMode) {
@@ -387,13 +398,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             }
 
             final int metadataArity = metadataConverters.length;
-            final GenericRowData producedRow = new GenericRowData(
-                    rowKind,
-                    physicalArity + metadataArity);
+            final GenericRowData producedRow =
+                    new GenericRowData(rowKind, physicalArity + metadataArity);
 
             if (physicalValueRow != null) {
                 for (int valuePos = 0; valuePos < valueProjection.length; valuePos++) {
-                    producedRow.setField(valueProjection[valuePos], physicalValueRow.getField(valuePos));
+                    producedRow.setField(
+                            valueProjection[valuePos], physicalValueRow.getField(valuePos));
                 }
             }
 
@@ -403,7 +414,9 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             }
 
             for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
-                producedRow.setField(physicalArity + metadataPos, metadataConverters[metadataPos].read(inputMessage));
+                producedRow.setField(
+                        physicalArity + metadataPos,
+                        metadataConverters[metadataPos].read(inputMessage));
             }
 
             outputCollector.collect(producedRow);

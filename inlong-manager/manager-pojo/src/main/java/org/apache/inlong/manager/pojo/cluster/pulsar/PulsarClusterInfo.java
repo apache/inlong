@@ -29,9 +29,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
-/**
- * Inlong cluster info for Pulsar
- */
+/** Inlong cluster info for Pulsar */
 @Data
 @SuperBuilder
 @ToString(callSuper = true)
@@ -40,7 +38,8 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 @ApiModel("Inlong cluster info for Pulsar")
 public class PulsarClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
+    @ApiModelProperty(
+            value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
             notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
@@ -56,5 +55,4 @@ public class PulsarClusterInfo extends ClusterInfo {
     public PulsarClusterRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, PulsarClusterRequest::new);
     }
-
 }

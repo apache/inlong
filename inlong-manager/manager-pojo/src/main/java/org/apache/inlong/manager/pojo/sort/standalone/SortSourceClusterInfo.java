@@ -19,20 +19,19 @@ package org.apache.inlong.manager.pojo.sort.standalone;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Data
 public class SortSourceClusterInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceClusterInfo.class);
-    private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on("&").trimResults()
-            .withKeyValueSeparator("=");
+    private static final Splitter.MapSplitter MAP_SPLITTER =
+            Splitter.on("&").trimResults().withKeyValueSeparator("=");
     private static final String KEY_IS_CONSUMABLE = "consumer";
 
     private static final long serialVersionUID = 1L;

@@ -19,17 +19,14 @@ package org.apache.inlong.manager.pojo.workflow.form.process;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 
-import java.util.Map;
-
-/**
- * New data consumption form
- */
+/** New data consumption form */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ApplyConsumptionProcessForm extends BaseProcessForm {

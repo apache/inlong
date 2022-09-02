@@ -19,7 +19,6 @@ package org.apache.inlong.tubemq.manager.service;
 
 import java.util.List;
 import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.entry.RegionEntry;
@@ -38,21 +37,16 @@ import org.springframework.stereotype.Component;
 public class RegionServiceImpl implements RegionService {
 
     public static final String DUPLICATE_ENTRY = "duplicate entry";
-    @Autowired
-    RegionRepository regionRepository;
+    @Autowired RegionRepository regionRepository;
 
-    @Autowired
-    BrokerRepository brokerRepository;
+    @Autowired BrokerRepository brokerRepository;
 
-    @Autowired
-    MasterRepository masterRepository;
+    @Autowired MasterRepository masterRepository;
 
-    @Autowired
-    BrokerService brokerService;
+    @Autowired BrokerService brokerService;
 
     @Override
-    public TubeMQResult createNewRegion(RegionEntry regionEntry,
-                                        List<Long> brokerIdList) {
+    public TubeMQResult createNewRegion(RegionEntry regionEntry, List<Long> brokerIdList) {
         try {
             Long clusterId = regionEntry.getClusterId();
             if (!brokerService.checkIfBrokersAllExsit(brokerIdList, clusterId)) {
@@ -87,8 +81,9 @@ public class RegionServiceImpl implements RegionService {
     }
 
     private RegionEntry getRegionEntry(long clusterId, long regionId) {
-        List<RegionEntry> regionEntries = regionRepository
-                .findRegionEntriesByClusterIdEqualsAndRegionIdEquals(clusterId, regionId);
+        List<RegionEntry> regionEntries =
+                regionRepository.findRegionEntriesByClusterIdEqualsAndRegionIdEquals(
+                        clusterId, regionId);
         if (regionEntries.isEmpty()) {
             return null;
         }
@@ -99,8 +94,10 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public TubeMQResult updateRegion(RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId) {
-        if (ValidateUtils.isNull(newRegionEntry) || ValidateUtils.isNull(newRegionEntry.getRegionId())) {
+    public TubeMQResult updateRegion(
+            RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId) {
+        if (ValidateUtils.isNull(newRegionEntry)
+                || ValidateUtils.isNull(newRegionEntry.getRegionId())) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
         try {
@@ -110,14 +107,15 @@ public class RegionServiceImpl implements RegionService {
             }
             // set id for update operation
             newRegionEntry.setId(oldRegionDO.getId());
-            List<Long> oldBrokerList = brokerService.getBrokerIdListInRegion(oldRegionDO.getRegionId(), clusterId);
+            List<Long> oldBrokerList =
+                    brokerService.getBrokerIdListInRegion(oldRegionDO.getRegionId(), clusterId);
             if (oldBrokerList.equals(brokerIdList)) {
                 // no change in broker list update directly
                 regionRepository.save(newRegionEntry);
                 return TubeMQResult.successResult();
             }
-            if (existBrokerIdAlreadyInRegion(newRegionEntry.getClusterId(), brokerIdList,
-                    newRegionEntry.getRegionId())) {
+            if (existBrokerIdAlreadyInRegion(
+                    newRegionEntry.getClusterId(), brokerIdList, newRegionEntry.getRegionId())) {
                 return TubeMQResult.errorResult(TubeMQErrorConst.BROKER_IN_OTHER_REGION);
             }
             handleUpdateRepo(newRegionEntry, brokerIdList, clusterId);
@@ -129,13 +127,14 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public void handleUpdateRepo(RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId) {
+    public void handleUpdateRepo(
+            RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId) {
         regionRepository.save(newRegionEntry);
         // reset brokers to default region
         brokerService.resetBrokerRegions(newRegionEntry.getRegionId(), clusterId);
         // update brokers to new region
-        brokerService.updateBrokersRegion(brokerIdList, newRegionEntry.getRegionId(),
-                newRegionEntry.getClusterId());
+        brokerService.updateBrokersRegion(
+                brokerIdList, newRegionEntry.getRegionId(), newRegionEntry.getClusterId());
     }
 
     @Override
@@ -143,15 +142,17 @@ public class RegionServiceImpl implements RegionService {
         if (ValidateUtils.isNull(regionId)) {
             return regionRepository.findRegionEntriesByClusterIdEquals(clusterId);
         }
-        return regionRepository
-                .findRegionEntriesByClusterIdEqualsAndRegionIdEquals(clusterId, regionId);
+        return regionRepository.findRegionEntriesByClusterIdEqualsAndRegionIdEquals(
+                clusterId, regionId);
     }
 
-    private boolean existBrokerIdAlreadyInRegion(Long clusterId, List<Long> newBrokerIdList, Long regionId) {
+    private boolean existBrokerIdAlreadyInRegion(
+            Long clusterId, List<Long> newBrokerIdList, Long regionId) {
         if (ValidateUtils.isNull(clusterId) || ValidateUtils.isEmptyList(newBrokerIdList)) {
             return true;
         }
-        List<RegionEntry> regionEntries = regionRepository.findRegionEntriesByClusterIdEquals(clusterId);
+        List<RegionEntry> regionEntries =
+                regionRepository.findRegionEntriesByClusterIdEquals(clusterId);
         if (ValidateUtils.isEmptyList(regionEntries)) {
             return false;
         }
@@ -159,7 +160,8 @@ public class RegionServiceImpl implements RegionService {
             if (regionEntry.getRegionId().equals(regionId)) {
                 continue;
             }
-            List<Long> regionBrokerIdList = brokerService.getBrokerIdListInRegion(regionEntry.getRegionId(), clusterId);
+            List<Long> regionBrokerIdList =
+                    brokerService.getBrokerIdListInRegion(regionEntry.getRegionId(), clusterId);
             if (ValidateUtils.isEmptyList(regionBrokerIdList)) {
                 continue;
             }
@@ -169,5 +171,4 @@ public class RegionServiceImpl implements RegionService {
         }
         return false;
     }
-
 }

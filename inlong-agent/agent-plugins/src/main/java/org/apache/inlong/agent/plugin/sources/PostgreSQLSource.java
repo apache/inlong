@@ -17,24 +17,20 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * PostgreSQL source, split PostgreSQL source job into multi readers
- */
+/** PostgreSQL source, split PostgreSQL source job into multi readers */
 public class PostgreSQLSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSource.class);
 
-    public PostgreSQLSource() {
-
-    }
+    public PostgreSQLSource() {}
 
     @Override
     public List<Reader> split(JobProfile conf) {

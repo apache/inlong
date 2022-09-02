@@ -50,8 +50,11 @@ public class SortClientImpl extends SortClient {
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            this.inLongTopicManager = new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
+            this.context =
+                    new ClientContextImpl(
+                            this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
+            this.inLongTopicManager =
+                    new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             this.close();
             throw e;
@@ -59,19 +62,24 @@ public class SortClientImpl extends SortClient {
     }
 
     /**
-     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and ManagerReportHandler
+     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and
+     * ManagerReportHandler
      *
      * @param sortClientConfig SortClientConfig
      * @param queryConsumeConfig QueryConsumeConfig
      * @param metricReporter MetricReporter
      * @param managerReportHandler ManagerReportHandler
      */
-    public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+    public SortClientImpl(
+            SortClientConfig sortClientConfig,
+            QueryConsumeConfig queryConsumeConfig,
+            MetricReporter metricReporter,
+            ManagerReportHandler managerReportHandler) {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
-            this.inLongTopicManager = new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
+            this.inLongTopicManager =
+                    new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             e.printStackTrace();
             this.close();
@@ -99,8 +107,7 @@ public class SortClientImpl extends SortClient {
      * @throws Exception
      */
     @Override
-    public void ack(String msgKey, String msgOffset)
-            throws Exception {
+    public void ack(String msgKey, String msgOffset) throws Exception {
         logger.debug("ack:{} offset:{}", msgKey, msgOffset);
         InLongTopicFetcher inLongTopicFetcher = getFetcher(msgKey);
         inLongTopicFetcher.ack(msgOffset);
@@ -116,10 +123,12 @@ public class SortClientImpl extends SortClient {
         boolean cleanInLongTopicManager = doClose(inLongTopicManager);
         boolean cleanContext = doClose(context);
 
-        logger.info(logPrefix
-
-                + "|cleanInLongTopicManager=" + cleanInLongTopicManager
-                + "|cleanContext=" + cleanContext);
+        logger.info(
+                logPrefix
+                        + "|cleanInLongTopicManager="
+                        + cleanInLongTopicManager
+                        + "|cleanContext="
+                        + cleanContext);
         return (cleanInLongTopicManager && cleanContext);
     }
 

@@ -19,22 +19,19 @@ package org.apache.inlong.manager.pojo.user;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.validation.InEnumInt;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
-/**
- * User info request
- */
+/** User info request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -86,5 +83,4 @@ public class UserRequest extends PageRequest {
 
     @ApiModelProperty(value = "Extension json info")
     private String extParams;
-
 }

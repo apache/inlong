@@ -20,45 +20,28 @@ package org.apache.inlong.manager.workflow;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Workflow action
- */
+/** Workflow action */
 public enum WorkflowAction {
 
-    /**
-     * Initiation process
-     */
+    /** Initiation process */
     START("initiation process"),
-    /**
-     * Agree
-     */
+    /** Agree */
     APPROVE("agree"),
 
-    /**
-     * Rejected
-     */
+    /** Rejected */
     REJECT("reject"),
 
-    /**
-     * Applicant withdrawal
-     */
+    /** Applicant withdrawal */
     CANCEL("withdrawal"),
 
-    /**
-     * Turn to do
-     */
+    /** Turn to do */
     TRANSFER("Turn to do"),
 
-    /**
-     * Abandoned by the administrator
-     */
+    /** Abandoned by the administrator */
     TERMINATE("abandoned"),
 
-    /**
-     * Automatic completion
-     */
+    /** Automatic completion */
     COMPLETE("automatic completion"),
-
     ;
 
     private final String displayName;
@@ -67,9 +50,7 @@ public enum WorkflowAction {
         this.displayName = displayName;
     }
 
-    /**
-     * Get WorkflowAction from TaskEvent
-     */
+    /** Get WorkflowAction from TaskEvent */
     public static WorkflowAction fromTaskEvent(TaskEvent taskEvent) {
         switch (taskEvent) {
             case CREATE:
@@ -95,5 +76,4 @@ public enum WorkflowAction {
     public String getDisplayName() {
         return displayName;
     }
-
 }

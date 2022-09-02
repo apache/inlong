@@ -18,6 +18,10 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,14 +37,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * hive load node with flink connectors
- */
+/** hive load node with flink connectors */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("hiveLoad")
 @Data
@@ -66,9 +63,7 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     @Nonnull
     private String database;
 
-    /**
-     * hive conf directory in which contains hive-site.xml(vital)
-     */
+    /** hive conf directory in which contains hive-site.xml(vital) */
     @JsonProperty("hiveConfDir")
     private String hiveConfDir;
 
@@ -82,7 +77,8 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     private List<FieldInfo> partitionFields;
 
     @JsonCreator
-    public HiveLoadNode(@JsonProperty("id") String id,
+    public HiveLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -97,7 +93,15 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
             @JsonProperty("hiveVersion") String hiveVersion,
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
             @JsonProperty("partitionFields") List<FieldInfo> partitionFields) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
         this.hiveConfDir = hiveConfDir;
@@ -109,18 +113,20 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     }
 
     /**
-     * Dealing with problems caused by time precision in hive
-     * Hive connector requires the time precision of timestamp and localzoned timestamp  must be 9
+     * Dealing with problems caused by time precision in hive Hive connector requires the time
+     * precision of timestamp and localzoned timestamp must be 9
      */
     private void handleTimestampField() {
-        getFields().forEach(f -> {
-            if (f.getFormatInfo() instanceof TimestampFormatInfo) {
-                ((TimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
-            }
-            if (f.getFormatInfo() instanceof LocalZonedTimestampFormatInfo) {
-                ((LocalZonedTimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
-            }
-        });
+        getFields()
+                .forEach(
+                        f -> {
+                            if (f.getFormatInfo() instanceof TimestampFormatInfo) {
+                                ((TimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
+                            }
+                            if (f.getFormatInfo() instanceof LocalZonedTimestampFormatInfo) {
+                                ((LocalZonedTimestampFormatInfo) f.getFormatInfo()).setPrecision(9);
+                            }
+                        });
     }
 
     @Override
@@ -164,5 +170,4 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     public String genTableName() {
         return tableName;
     }
-
 }

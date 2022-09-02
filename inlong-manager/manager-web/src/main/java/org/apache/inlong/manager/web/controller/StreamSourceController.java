@@ -38,22 +38,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Stream source control layer
- */
+/** Stream source control layer */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Stream-Source-API")
 public class StreamSourceController {
 
-    @Autowired
-    StreamSourceService sourceService;
+    @Autowired StreamSourceService sourceService;
 
     @RequestMapping(value = "/source/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated @RequestBody SourceRequest request) {
-        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                sourceService.save(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/get/{id}", method = RequestMethod.GET)
@@ -72,8 +70,10 @@ public class StreamSourceController {
     @RequestMapping(value = "/source/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream source")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
-        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser().getName()));
+    public Response<Boolean> update(
+            @Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
+        return Response.success(
+                sourceService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/source/delete/{id}", method = RequestMethod.DELETE)
@@ -84,5 +84,4 @@ public class StreamSourceController {
         boolean result = sourceService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
-
 }

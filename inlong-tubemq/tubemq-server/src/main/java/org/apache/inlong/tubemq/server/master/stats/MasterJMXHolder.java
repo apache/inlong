@@ -31,25 +31,19 @@ import org.slf4j.LoggerFactory;
 /**
  * MasterJMXHolder
  *
- * A wrapper class for Master JMX metric display, which currently includes RPC service status
- * and web API call status metric data output
+ * <p>A wrapper class for Master JMX metric display, which currently includes RPC service status and
+ * web API call status metric data output
  */
 public class MasterJMXHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(MasterJMXHolder.class);
+    private static final Logger logger = LoggerFactory.getLogger(MasterJMXHolder.class);
     // Registration status indicator
     private static final AtomicBoolean registered = new AtomicBoolean(false);
     // master metrics information
-    private static final MasterServiceStatusBean serviceStatusInfo =
-            new MasterServiceStatusBean();
+    private static final MasterServiceStatusBean serviceStatusInfo = new MasterServiceStatusBean();
     // master web api status information
-    private static final MasterWebAPIStatusBean webAPIStatusInfo =
-            new MasterWebAPIStatusBean();
+    private static final MasterWebAPIStatusBean webAPIStatusInfo = new MasterWebAPIStatusBean();
 
-    /**
-     * Register MXBean
-     *
-     */
+    /** Register MXBean */
     public static void registerMXBean() {
         if (!registered.compareAndSet(false, true)) {
             return;
@@ -73,7 +67,7 @@ public class MasterJMXHolder {
     /**
      * MasterServiceStatusBean
      *
-     * Master service status metric wrapper class
+     * <p>Master service status metric wrapper class
      */
     private static class MasterServiceStatusBean implements MetricMXBean {
 
@@ -95,7 +89,7 @@ public class MasterJMXHolder {
     /**
      * MasterWebAPIStatusBean
      *
-     * Master web api status metric wrapper class
+     * <p>Master web api status metric wrapper class
      */
     private static class MasterWebAPIStatusBean implements MetricMXBean {
 
@@ -114,4 +108,3 @@ public class MasterJMXHolder {
         }
     }
 }
-

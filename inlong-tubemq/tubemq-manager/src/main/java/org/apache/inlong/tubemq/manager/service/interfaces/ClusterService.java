@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
 import java.util.List;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
@@ -52,7 +51,6 @@ public interface ClusterService {
     ClusterEntry getOneCluster(long clusterId);
 
     /**
-     *
      * get one cluster by cluster name
      *
      * @param clusterName
@@ -74,5 +72,4 @@ public interface ClusterService {
      * @return
      */
     TubeMQResult modifyCluster(ClusterDto clusterDto);
-
 }

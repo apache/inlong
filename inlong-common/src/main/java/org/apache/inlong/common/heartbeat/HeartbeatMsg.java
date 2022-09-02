@@ -17,65 +17,44 @@
 
 package org.apache.inlong.common.heartbeat;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * Heartbeat template for all components.
- */
+/** Heartbeat template for all components. */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class HeartbeatMsg {
 
-    /**
-     * Ip of component
-     */
+    /** Ip of component */
     private String ip;
 
-    /**
-     * Port of component
-     */
+    /** Port of component */
     private int port;
 
-    /**
-     * Type of component
-     */
+    /** Type of component */
     private String componentType;
 
-    /**
-     * Report time millis of component
-     */
+    /** Report time millis of component */
     private Long reportTime;
 
-    /**
-     * Name of cluster
-     */
+    /** Name of cluster */
     private String clusterName = "default";
 
-    /**
-     * Tag of cluster, separated by commas(,)
-     */
+    /** Tag of cluster, separated by commas(,) */
     private String clusterTag;
 
-    /**
-     * Name of responsible person, separated by commas(,)
-     */
+    /** Name of responsible person, separated by commas(,) */
     private String inCharges = "admin";
 
-    /**
-     * Heartbeat msg of group if exists
-     */
+    /** Heartbeat msg of group if exists */
     private List<GroupHeartbeat> groupHeartbeats;
 
-    /**
-     * Heartbeat msg of stream if exists
-     */
+    /** Heartbeat msg of stream if exists */
     private List<StreamHeartbeat> streamHeartbeats;
 
     public ComponentHeartbeat componentHeartbeat() {

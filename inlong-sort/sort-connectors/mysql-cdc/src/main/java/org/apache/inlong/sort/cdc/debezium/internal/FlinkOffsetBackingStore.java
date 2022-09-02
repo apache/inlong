@@ -20,18 +20,6 @@ package org.apache.inlong.sort.cdc.debezium.internal;
 
 import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.engine.DebeziumEngine;
-import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.kafka.common.utils.ThreadUtils;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.runtime.WorkerConfig;
-import org.apache.kafka.connect.storage.Converter;
-import org.apache.kafka.connect.storage.OffsetBackingStore;
-import org.apache.kafka.connect.storage.OffsetStorageWriter;
-import org.apache.kafka.connect.util.Callback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +32,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
+import org.apache.kafka.common.utils.ThreadUtils;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.storage.Converter;
+import org.apache.kafka.connect.storage.OffsetBackingStore;
+import org.apache.kafka.connect.storage.OffsetStorageWriter;
+import org.apache.kafka.connect.util.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A implementation of {@link OffsetBackingStore} backed on Flink's state mechanism.
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeoutException;
  * data in JSON format. It is set into the config when recovery from failover by {@link
  * DebeziumSourceFunction} before startup the {@link DebeziumEngine}. If it is not a restoration,
  * the {@link #OFFSET_STATE_VALUE} is empty. {@link DebeziumEngine} relies on the {@link
- * OffsetBackingStore} for failover recovery.</p>
+ * OffsetBackingStore} for failover recovery.
  *
  * @see DebeziumSourceFunction
  */

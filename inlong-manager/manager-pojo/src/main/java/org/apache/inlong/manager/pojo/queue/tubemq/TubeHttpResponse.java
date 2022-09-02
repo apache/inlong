@@ -19,9 +19,7 @@ package org.apache.inlong.manager.pojo.queue.tubemq;
 
 import lombok.Data;
 
-/**
- * The response info of TubeMQ manager.
- */
+/** The response info of TubeMQ manager. */
 @Data
 public class TubeHttpResponse {
 
@@ -33,5 +31,4 @@ public class TubeHttpResponse {
 
     // OK, or err msg
     private String errMsg;
-
 }

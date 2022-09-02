@@ -18,10 +18,24 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
+import static com.mongodb.MongoNamespace.checkCollectionNameValidity;
+import static com.mongodb.MongoNamespace.checkDatabaseNameValidity;
+import static com.ververica.cdc.connectors.mongodb.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.ververica.cdc.connectors.mongodb.table.MongoDBConnectorDeserializationSchema;
 import com.ververica.cdc.connectors.mongodb.table.MongoDBReadableMetadata;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.MetadataConverter;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -36,21 +50,6 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.mongodb.MongoDBSource;
-
-import javax.annotation.Nullable;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.mongodb.MongoNamespace.checkCollectionNameValidity;
-import static com.mongodb.MongoNamespace.checkDatabaseNameValidity;
-import static com.ververica.cdc.connectors.mongodb.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a MongoDB change stream events source

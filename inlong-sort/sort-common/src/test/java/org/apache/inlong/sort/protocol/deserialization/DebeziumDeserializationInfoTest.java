@@ -20,10 +20,9 @@ package org.apache.inlong.sort.protocol.deserialization;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-/**
- * Test for {@link DebeziumDeserializationInfo}
- */
-public class DebeziumDeserializationInfoTest extends SerializeBaseTest<DebeziumDeserializationInfo> {
+/** Test for {@link DebeziumDeserializationInfo} */
+public class DebeziumDeserializationInfoTest
+        extends SerializeBaseTest<DebeziumDeserializationInfo> {
 
     @Override
     public DebeziumDeserializationInfo getTestObject() {

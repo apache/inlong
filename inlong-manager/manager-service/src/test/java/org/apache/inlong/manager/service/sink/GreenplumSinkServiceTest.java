@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -35,13 +38,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Greenplum sink service test
- */
+/** Greenplum sink service test */
 public class GreenplumSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
@@ -51,14 +48,10 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
     private static final String fieldType = "greenplum_type";
     private static final Integer fieldId = 1;
 
-    @Autowired
-    private StreamSinkService sinkService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSinkService sinkService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save sink info.
-     */
+    /** Save sink info. */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         GreenplumSinkRequest sinkInfo = new GreenplumSinkRequest();
@@ -84,9 +77,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete sink info by sink id.
-     */
+    /** Delete sink info by sink id. */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assertions.assertTrue(result);
@@ -115,10 +106,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
-
-    /**
-     * Just using in local test.
-     */
+    /** Just using in local test. */
     @Disabled
     public void testDbResource() {
         final String url = "jdbc:postgresql://127.0.0.1:5432/testdb";
@@ -128,12 +116,15 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         final String schemaName = "public";
 
         try (Connection connection = GreenplumJdbcUtils.getConnection(url, username, password)) {
-            GreenplumTableInfo tableInfo = bulidTestGreenplumTableInfo(username, schemaName, tableName);
+            GreenplumTableInfo tableInfo =
+                    bulidTestGreenplumTableInfo(username, schemaName, tableName);
             GreenplumJdbcUtils.createTable(connection, tableInfo);
             List<GreenplumColumnInfo> addColumns = buildAddColumns();
             GreenplumJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
-            List<GreenplumColumnInfo> columns = GreenplumJdbcUtils.getColumns(connection, schemaName, tableName);
-            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+            List<GreenplumColumnInfo> columns =
+                    GreenplumJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(
+                    columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -146,11 +137,11 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<GreenplumColumnInfo> buildAddColumns() {
-        List<GreenplumColumnInfo> addColums = Lists.newArrayList(
-                new GreenplumColumnInfo("test1", "int", "test1"),
-                new GreenplumColumnInfo("test2", "varchar(30)", "test2"),
-                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+        List<GreenplumColumnInfo> addColums =
+                Lists.newArrayList(
+                        new GreenplumColumnInfo("test1", "int", "test1"),
+                        new GreenplumColumnInfo("test2", "varchar(30)", "test2"),
+                        new GreenplumColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
@@ -161,13 +152,13 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
      * @param tableName Greenplum table name
      * @return {@link GreenplumTableInfo}
      */
-    private GreenplumTableInfo bulidTestGreenplumTableInfo(final String userName, final String schemaName,
-            final String tableName) {
-        List<GreenplumColumnInfo> columns = Lists.newArrayList(
-                new GreenplumColumnInfo("id", "int", "id"),
-                new GreenplumColumnInfo("cell", "varchar(25)", "cell"),
-                new GreenplumColumnInfo("name", "varchar(50)", "name")
-        );
+    private GreenplumTableInfo bulidTestGreenplumTableInfo(
+            final String userName, final String schemaName, final String tableName) {
+        List<GreenplumColumnInfo> columns =
+                Lists.newArrayList(
+                        new GreenplumColumnInfo("id", "int", "id"),
+                        new GreenplumColumnInfo("cell", "varchar(25)", "cell"),
+                        new GreenplumColumnInfo("name", "varchar(50)", "name"));
         final GreenplumTableInfo tableInfo = new GreenplumTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);

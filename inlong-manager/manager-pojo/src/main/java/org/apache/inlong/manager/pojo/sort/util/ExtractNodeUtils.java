@@ -19,6 +19,9 @@ package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,24 +61,17 @@ import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Parse SourceInfo to ExtractNode which sort needed
- */
+/** Parse SourceInfo to ExtractNode which sort needed */
 @Slf4j
 public class ExtractNodeUtils {
 
-    /**
-     * Create extract nodes from the given sources.
-     */
+    /** Create extract nodes from the given sources. */
     public static List<ExtractNode> createExtractNodes(List<StreamSource> sourceInfos) {
         if (CollectionUtils.isEmpty(sourceInfos)) {
             return Lists.newArrayList();
         }
-        return sourceInfos.stream().map(ExtractNodeUtils::createExtractNode)
+        return sourceInfos.stream()
+                .map(ExtractNodeUtils::createExtractNode)
                 .collect(Collectors.toList());
     }
 
@@ -100,7 +96,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((TubeMQSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupported sourceType=%s to create extractNode", sourceType));
+                        String.format(
+                                "Unsupported sourceType=%s to create extractNode", sourceType));
         }
     }
 
@@ -123,7 +120,8 @@ public class ExtractNodeUtils {
         }
         String tables = binlogSource.getTableWhiteList();
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
-        List<FieldInfo> fieldInfos = parseFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
+        List<FieldInfo> fieldInfos =
+                parseFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
         final String serverTimeZone = binlogSource.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
 
@@ -138,7 +136,8 @@ public class ExtractNodeUtils {
             incrementalSnapshotEnabled = false;
             properties.put("scan.incremental.snapshot.enabled", "false");
         }
-        return new MySqlExtractNode(binlogSource.getSourceName(),
+        return new MySqlExtractNode(
+                binlogSource.getSourceName(),
                 binlogSource.getSourceName(),
                 fieldInfos,
                 null,
@@ -162,7 +161,8 @@ public class ExtractNodeUtils {
      * @return Kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSource kafkaSource) {
-        List<FieldInfo> fieldInfos = parseFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
+        List<FieldInfo> fieldInfos =
+                parseFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
         Format format;
@@ -184,7 +184,8 @@ public class ExtractNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported dataType=%s for kafka source", dataType));
         }
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
         KafkaScanStartupMode startupMode;
@@ -203,7 +204,8 @@ public class ExtractNodeUtils {
         String groupId = kafkaSource.getGroupId();
         Map<String, String> properties = parseProperties(kafkaSource.getProperties());
         String partitionOffset = kafkaSource.getPartitionOffsets();
-        return new KafkaExtractNode(kafkaSource.getSourceName(),
+        return new KafkaExtractNode(
+                kafkaSource.getSourceName(),
                 kafkaSource.getSourceName(),
                 fieldInfos,
                 null,
@@ -214,8 +216,7 @@ public class ExtractNodeUtils {
                 startupMode,
                 primaryKey,
                 groupId,
-                partitionOffset
-        );
+                partitionOffset);
     }
 
     /**
@@ -225,16 +226,22 @@ public class ExtractNodeUtils {
      * @return Pulsar extract node info
      */
     public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
-        List<FieldInfo> fieldInfos = parseFieldInfos(pulsarSource.getFieldList(), pulsarSource.getSourceName());
+        List<FieldInfo> fieldInfos =
+                parseFieldInfos(pulsarSource.getFieldList(), pulsarSource.getSourceName());
         String fullTopicName =
-                pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
+                pulsarSource.getTenant()
+                        + "/"
+                        + pulsarSource.getNamespace()
+                        + "/"
+                        + pulsarSource.getTopic();
 
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String separator = DataSeparator
-                        .forAscii(Integer.parseInt(pulsarSource.getDataSeparator())).getSeparator();
+                String separator =
+                        DataSeparator.forAscii(Integer.parseInt(pulsarSource.getDataSeparator()))
+                                .getSeparator();
                 format = new CsvFormat(separator);
                 break;
             case AVRO:
@@ -260,12 +267,14 @@ public class ExtractNodeUtils {
             Format innerFormat = format;
             format = new InLongMsgFormat(innerFormat, false);
         }
-        PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
+        PulsarScanStartupMode startupMode =
+                PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
         final String adminUrl = pulsarSource.getAdminUrl();
         Map<String, String> properties = parseProperties(pulsarSource.getProperties());
-        return new PulsarExtractNode(pulsarSource.getSourceName(),
+        return new PulsarExtractNode(
+                pulsarSource.getSourceName(),
                 pulsarSource.getSourceName(),
                 fieldInfos,
                 null,
@@ -285,14 +294,24 @@ public class ExtractNodeUtils {
      * @return PostgreSQL extract node info
      */
     public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
-        List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
+        List<FieldInfo> fieldInfos =
+                parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
-        return new PostgresExtractNode(postgreSQLSource.getSourceName(), postgreSQLSource.getSourceName(),
-                fieldInfos, null, properties, postgreSQLSource.getPrimaryKey(),
-                postgreSQLSource.getTableNameList(), postgreSQLSource.getHostname(),
-                postgreSQLSource.getUsername(), postgreSQLSource.getPassword(),
-                postgreSQLSource.getDatabase(), postgreSQLSource.getSchema(),
-                postgreSQLSource.getPort(), postgreSQLSource.getDecodingPluginName());
+        return new PostgresExtractNode(
+                postgreSQLSource.getSourceName(),
+                postgreSQLSource.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                postgreSQLSource.getPrimaryKey(),
+                postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(),
+                postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(),
+                postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(),
+                postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName());
     }
 
     /**
@@ -303,8 +322,10 @@ public class ExtractNodeUtils {
      */
     public static OracleExtractNode createExtractNode(OracleSource source) {
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
-        ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
-                ? null : ScanStartUpMode.forName(source.getScanStartupMode());
+        ScanStartUpMode scanStartupMode =
+                StringUtils.isBlank(source.getScanStartupMode())
+                        ? null
+                        : ScanStartUpMode.forName(source.getScanStartupMode());
         Map<String, String> properties = parseProperties(source.getProperties());
         return new OracleExtractNode(
                 source.getSourceName(),
@@ -320,8 +341,7 @@ public class ExtractNodeUtils {
                 source.getSchemaName(),
                 source.getTableName(),
                 source.getPort(),
-                scanStartupMode
-        );
+                scanStartupMode);
     }
 
     /**
@@ -347,8 +367,7 @@ public class ExtractNodeUtils {
                 source.getDatabase(),
                 source.getSchemaName(),
                 source.getTableName(),
-                source.getServerTimezone()
-        );
+                source.getServerTimezone());
     }
 
     /**
@@ -370,8 +389,7 @@ public class ExtractNodeUtils {
                 source.getHosts(),
                 source.getUsername(),
                 source.getPassword(),
-                source.getDatabase()
-        );
+                source.getDatabase());
     }
 
     /**
@@ -394,8 +412,7 @@ public class ExtractNodeUtils {
                 source.getSerializationType(),
                 source.getGroupId(),
                 source.getSessionKey(),
-                source.getTid()
-        );
+                source.getTid());
     }
 
     /**
@@ -407,8 +424,11 @@ public class ExtractNodeUtils {
      */
     private static List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
         // Filter constant fields
-        return streamFields.stream().filter(s -> s.getFieldValue() == null)
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, nodeId))
+        return streamFields.stream()
+                .filter(s -> s.getFieldValue() == null)
+                .map(
+                        streamFieldInfo ->
+                                FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, nodeId))
                 .collect(Collectors.toList());
     }
 
@@ -422,5 +442,4 @@ public class ExtractNodeUtils {
         return properties.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
-
 }

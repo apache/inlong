@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.kafka;
 
+import java.io.Serializable;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.KafkaContextAware;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
@@ -28,12 +30,7 @@ import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-
-/**
- * A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSink}.
- */
+/** A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSink}. */
 class DynamicKafkaSerializationSchema
         implements KafkaSerializationSchema<RowData>, KafkaContextAware<RowData> {
 
@@ -56,8 +53,8 @@ class DynamicKafkaSerializationSchema
     private final boolean upsertMode;
 
     /**
-     * Contains the position for each value of {@link WritableMetadata} in the
-     * consumed row or -1 if this metadata key is not used.
+     * Contains the position for each value of {@link WritableMetadata} in the consumed row or -1 if
+     * this metadata key is not used.
      */
     private final int[] metadataPositions;
 

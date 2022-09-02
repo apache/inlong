@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
-/**
- * Broker view of TubeMQ, includes different status brokers list.
- */
+/** Broker view of TubeMQ, includes different status brokers list. */
 @Data
 public class TubeBrokerInfo {
 
@@ -48,9 +45,7 @@ public class TubeBrokerInfo {
     // need reload broker list
     private List<Integer> needReloadList;
 
-    /**
-     * Divide broker list into different list by broker status.
-     */
+    /** Divide broker list into different list by broker status. */
     public void divideBrokerListByStatus() {
         if (data != null) {
             configurableList = new ArrayList<>();
@@ -74,9 +69,7 @@ public class TubeBrokerInfo {
         }
     }
 
-    /**
-     * Get all configurable broker id list.
-     */
+    /** Get all configurable broker id list. */
     public List<Integer> getConfigurableBrokerIdList() {
         List<Integer> tmpBrokerIdList = new ArrayList<>();
         if (configurableList != null) {
@@ -87,9 +80,7 @@ public class TubeBrokerInfo {
         return tmpBrokerIdList;
     }
 
-    /**
-     * Get all working broker id list.
-     */
+    /** Get all working broker id list. */
     public List<Integer> getWorkingBrokerIdList() {
         List<Integer> tmpBrokerIdList = new ArrayList<>();
         if (workingList != null) {
@@ -100,9 +91,7 @@ public class TubeBrokerInfo {
         return tmpBrokerIdList;
     }
 
-    /**
-     * Get all broker id list.
-     */
+    /** Get all broker id list. */
     public List<Integer> getAllBrokerIdList() {
         List<Integer> allIdList = new ArrayList<>();
         if (data != null) {
@@ -113,9 +102,7 @@ public class TubeBrokerInfo {
         return allIdList;
     }
 
-    /**
-     * Broker info
-     */
+    /** Broker info */
     @Data
     public static class BrokerInfo {
 
@@ -138,8 +125,10 @@ public class TubeBrokerInfo {
         }
 
         private boolean isWorking() {
-            return RUNNING.equals(runStatus) && (
-                    ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus) || ONLY_WRITE.equals(manageStatus));
+            return RUNNING.equals(runStatus)
+                    && (ONLINE.equals(manageStatus)
+                            || ONLY_READ.equals(manageStatus)
+                            || ONLY_WRITE.equals(manageStatus));
         }
 
         private boolean isConfigurable() {
@@ -164,5 +153,4 @@ public class TubeBrokerInfo {
             return brokerId == brokerInfo.brokerId;
         }
     }
-
 }

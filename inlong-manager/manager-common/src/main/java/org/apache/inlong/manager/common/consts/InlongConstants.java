@@ -17,14 +17,10 @@
 
 package org.apache.inlong.manager.common.consts;
 
-/**
- * Global constant for the Inlong system.
- */
+/** Global constant for the Inlong system. */
 public class InlongConstants {
 
-    /**
-     * Group config
-     */
+    /** Group config */
     public static final String COMMA = ",";
 
     public static final String ADMIN_USER = "admin";
@@ -51,9 +47,7 @@ public class InlongConstants {
 
     public static final String BATCH_TASK = "batch.task";
 
-    /**
-     * Pulsar config
-     */
+    /** Pulsar config */
     public static final String PULSAR_AUTHENTICATION = "pulsar.authentication";
 
     public static final String PULSAR_AUTHENTICATION_TYPE = "pulsar.authentication.type";
@@ -66,14 +60,10 @@ public class InlongConstants {
 
     public static final String PULSAR_QUEUE_TYPE_PARALLEL = "PARALLEL";
 
-    /**
-     * Format of the Pulsar topic: "persistent://tenant/namespace/topic
-     */
+    /** Format of the Pulsar topic: "persistent://tenant/namespace/topic */
     public static final String PULSAR_TOPIC_FORMAT = "persistent://%s/%s/%s";
 
-    /**
-     * Sort config
-     */
+    /** Sort config */
     public static final String DATAFLOW = "dataflow";
 
     public static final String STREAMS = "streams";
@@ -109,5 +99,4 @@ public class InlongConstants {
     public static final String DEFAULT_SORT_AUTHENTICATION_TYPE = "secret_and_token";
 
     public static final String SORT_PROPERTIES = "sort.properties";
-
 }

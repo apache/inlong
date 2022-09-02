@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task.context;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.BINLOG_FILENAME_OFFSET_KEY;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.connector.base.ChangeEventQueue;
@@ -41,6 +43,9 @@ import io.debezium.schema.TopicSelector;
 import io.debezium.util.Clock;
 import io.debezium.util.Collect;
 import io.debezium.util.SchemaNameAdjuster;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
@@ -51,17 +56,11 @@ import org.apache.kafka.connect.data.Struct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.BINLOG_FILENAME_OFFSET_KEY;
-
 /**
  * A stateful task context that contains entries the debezium mysql connector task required.
  *
  * <p>The offset change and schema change should record to MySqlSplitState when emit the record,
- * thus the Flink's state mechanism can help to store/restore when failover happens.</p>
+ * thus the Flink's state mechanism can help to store/restore when failover happens.
  */
 public class StatefulTaskContext {
 
@@ -101,9 +100,7 @@ public class StatefulTaskContext {
         return clock;
     }
 
-    /**
-     * configure
-     */
+    /** configure */
     public void configure(MySqlSplit mySqlSplit) {
         // initial stateful objects
         final boolean tableIdCaseInsensitive = connection.isTableIdCaseSensitive();
@@ -169,9 +166,7 @@ public class StatefulTaskContext {
         schema.recover(offset);
     }
 
-    /**
-     * Loads the connector's persistent offset (if present) via the given loader.
-     */
+    /** Loads the connector's persistent offset (if present) via the given loader. */
     private MySqlOffsetContext loadStartingOffsetState(
             OffsetContext.Loader loader, MySqlSplit mySqlSplit) {
         BinlogOffset offset =
@@ -275,9 +270,7 @@ public class StatefulTaskContext {
         return schemaNameAdjuster;
     }
 
-    /**
-     * Copied from debezium for accessing here.
-     */
+    /** Copied from debezium for accessing here. */
     public static class MySqlEventMetadataProvider implements EventMetadataProvider {
         public static final String SERVER_ID_KEY = "server_id";
 

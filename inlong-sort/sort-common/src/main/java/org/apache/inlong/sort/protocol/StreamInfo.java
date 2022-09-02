@@ -18,18 +18,17 @@
 package org.apache.inlong.sort.protocol;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
-import java.io.Serializable;
-import java.util.List;
-
 /**
- * The concept of StreamInfo is the same as that of inlong stream
- * It belongs to a group, and a group can contain one or more stream
+ * The concept of StreamInfo is the same as that of inlong stream It belongs to a group, and a group
+ * can contain one or more stream
  */
 @Data
 public class StreamInfo implements Serializable {
@@ -38,21 +37,25 @@ public class StreamInfo implements Serializable {
 
     @JsonProperty("streamId")
     private String streamId;
+
     @JsonProperty("nodes")
     private List<Node> nodes;
+
     @JsonProperty("relations")
     private List<NodeRelation> relations;
 
     /**
      * Information of stream.
-     * 
+     *
      * @param streamId Uniquely identifies of GroupInfo
      * @param nodes The node list that StreamInfo contains
-     * @param relations The relation list that StreamInfo contains,
-     *         it represents the relation between nodes of StreamInfo
+     * @param relations The relation list that StreamInfo contains, it represents the relation
+     *     between nodes of StreamInfo
      */
     @JsonCreator
-    public StreamInfo(@JsonProperty("streamId") String streamId, @JsonProperty("nodes") List<Node> nodes,
+    public StreamInfo(
+            @JsonProperty("streamId") String streamId,
+            @JsonProperty("nodes") List<Node> nodes,
             @JsonProperty("relations") List<NodeRelation> relations) {
         this.streamId = Preconditions.checkNotNull(streamId, "streamId is null");
         this.nodes = Preconditions.checkNotNull(nodes, "nodes is null");

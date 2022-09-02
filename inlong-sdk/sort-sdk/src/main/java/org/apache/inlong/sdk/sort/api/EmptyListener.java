@@ -25,7 +25,9 @@ public class EmptyListener implements InLongTopicChangeListener {
     public static final EmptyListener EMPTY_LISTENER = new EmptyListener();
 
     @Override
-    public boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics, Set<InLongTopic> newInLongTopics,
+    public boolean onAssignmentsChange(
+            Set<InLongTopic> allInLongTopics,
+            Set<InLongTopic> newInLongTopics,
             Set<InLongTopic> removedInLongTopics) {
         return true;
     }

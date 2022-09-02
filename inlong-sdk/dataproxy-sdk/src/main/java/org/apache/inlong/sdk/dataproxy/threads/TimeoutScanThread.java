@@ -19,6 +19,9 @@
 package org.apache.inlong.sdk.dataproxy.threads;
 
 import io.netty.channel.Channel;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
@@ -28,13 +31,7 @@ import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-/**
- * Daemon threads to check timeout for asynchronous callback.
- */
+/** Daemon threads to check timeout for asynchronous callback. */
 public class TimeoutScanThread extends Thread {
     private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
     private final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
@@ -42,12 +39,16 @@ public class TimeoutScanThread extends Thread {
     private final AtomicInteger currentBufferSize;
     private final ProxyClientConfig config;
     private final ClientMgr clientMgr;
-    private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Channel, TimeScanObject> timeoutChannelStat =
+            new ConcurrentHashMap<>();
     private volatile boolean bShutDown = false;
     private long printCount = 0;
 
-    public TimeoutScanThread(ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks,
-            AtomicInteger currentBufferSize, ProxyClientConfig config, ClientMgr clientMgr) {
+    public TimeoutScanThread(
+            ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks,
+            AtomicInteger currentBufferSize,
+            ProxyClientConfig config,
+            ClientMgr clientMgr) {
         bShutDown = false;
         printCount = 0;
         this.callbacks = callbacks;
@@ -96,13 +97,12 @@ public class TimeoutScanThread extends Thread {
         }
     }
 
-    /**
-     * check timeout
-     */
+    /** check timeout */
     private void checkTimeoutChannel() {
-        //if timeout >3,set channel busy
+        // if timeout >3,set channel busy
         for (Channel tmpChannel : timeoutChannelStat.keySet()) {
-            TimeScanObject timeScanObject = tmpChannel != null ? timeoutChannelStat.get(tmpChannel) : null;
+            TimeScanObject timeScanObject =
+                    tmpChannel != null ? timeoutChannelStat.get(tmpChannel) : null;
             if (timeScanObject == null) {
                 continue;
             }
@@ -130,20 +130,22 @@ public class TimeoutScanThread extends Thread {
      * @param channel
      * @param messageIdCallbacks
      */
-    private void checkMessageIdBasedCallbacks(Channel channel,
-            ConcurrentHashMap<String, QueueObject> messageIdCallbacks) {
+    private void checkMessageIdBasedCallbacks(
+            Channel channel, ConcurrentHashMap<String, QueueObject> messageIdCallbacks) {
         for (String messageId : messageIdCallbacks.keySet()) {
             QueueObject queueObject = messageId != null ? messageIdCallbacks.get(messageId) : null;
             if (queueObject == null) {
                 continue;
             }
             // if queueObject timeout
-            if (System.currentTimeMillis() - queueObject.getSendTimeInMillis() >= queueObject.getTimeoutInMillis()) {
+            if (System.currentTimeMillis() - queueObject.getSendTimeInMillis()
+                    >= queueObject.getTimeoutInMillis()) {
                 // remove it before callback
                 QueueObject queueObject1 = messageIdCallbacks.remove(messageId);
                 if (queueObject1 != null) {
                     if (config.isFile()) {
-                        ((FileCallback) queueObject1.getCallback()).onMessageAck(SendResult.TIMEOUT.toString());
+                        ((FileCallback) queueObject1.getCallback())
+                                .onMessageAck(SendResult.TIMEOUT.toString());
                         currentBufferSize.addAndGet(-queueObject1.getSize());
                     } else {
                         queueObject1.getCallback().onMessageAck(SendResult.TIMEOUT);
@@ -178,8 +180,11 @@ public class TimeoutScanThread extends Thread {
                 }
             }
             if (printCount++ % 20 == 0) {
-                logger.info("TimeoutScanThread thread=" + Thread.currentThread().getId()
-                        + "'s currentBufferSize = " + currentBufferSize.get());
+                logger.info(
+                        "TimeoutScanThread thread="
+                                + Thread.currentThread().getId()
+                                + "'s currentBufferSize = "
+                                + currentBufferSize.get());
             }
         }
         logger.info("TimeoutScanThread Thread=" + Thread.currentThread().getId() + " existed !");

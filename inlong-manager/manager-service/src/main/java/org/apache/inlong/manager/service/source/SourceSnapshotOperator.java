@@ -21,6 +21,15 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
@@ -34,57 +43,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Operate the source snapshot
- */
+/** Operate the source snapshot */
 @Service
 public class SourceSnapshotOperator implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceSnapshotOperator.class);
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            1,
-            1,
-            10L,
-            TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(100),
-            new ThreadFactoryBuilder().setNameFormat("stream-source-snapshot-%s").build(),
-            new CallerRunsPolicy());
-    @Autowired
-    private StreamSourceEntityMapper sourceMapper;
+    private final ExecutorService executorService =
+            new ThreadPoolExecutor(
+                    1,
+                    1,
+                    10L,
+                    TimeUnit.SECONDS,
+                    new ArrayBlockingQueue<>(100),
+                    new ThreadFactoryBuilder().setNameFormat("stream-source-snapshot-%s").build(),
+                    new CallerRunsPolicy());
+    @Autowired private StreamSourceEntityMapper sourceMapper;
 
-    /**
-     * Cache the task ip and task status, the key is task ip
-     */
-    private Cache<String, ConcurrentHashMap<Integer, Integer>> agentTaskCache = CacheBuilder.newBuilder()
-            .maximumSize(1000).expireAfterWrite(30, TimeUnit.SECONDS).build(
-                    new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
-                        @Override
-                        public ConcurrentHashMap<Integer, Integer> load(String agentIp) {
-                            List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIp(agentIp);
-                            if (CollectionUtils.isEmpty(sourceEntities)) {
-                                return null;
-                            } else {
-                                ConcurrentHashMap<Integer, Integer> tmpMap = new ConcurrentHashMap<>();
-                                for (StreamSourceEntity entity : sourceEntities) {
-                                    tmpMap.put(entity.getId(), entity.getStatus());
+    /** Cache the task ip and task status, the key is task ip */
+    private Cache<String, ConcurrentHashMap<Integer, Integer>> agentTaskCache =
+            CacheBuilder.newBuilder()
+                    .maximumSize(1000)
+                    .expireAfterWrite(30, TimeUnit.SECONDS)
+                    .build(
+                            new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
+                                @Override
+                                public ConcurrentHashMap<Integer, Integer> load(String agentIp) {
+                                    List<StreamSourceEntity> sourceEntities =
+                                            sourceMapper.selectByAgentIp(agentIp);
+                                    if (CollectionUtils.isEmpty(sourceEntities)) {
+                                        return null;
+                                    } else {
+                                        ConcurrentHashMap<Integer, Integer> tmpMap =
+                                                new ConcurrentHashMap<>();
+                                        for (StreamSourceEntity entity : sourceEntities) {
+                                            tmpMap.put(entity.getId(), entity.getStatus());
+                                        }
+                                        return tmpMap;
+                                    }
                                 }
-                                return tmpMap;
-                            }
-                        }
-                    });
-    /**
-     * The queue for transfer source snapshot
-     */
+                            });
+    /** The queue for transfer source snapshot */
     private LinkedBlockingQueue<TaskSnapshotRequest> snapshotQueue = null;
 
     @Value("${stream.source.snapshot.queue.size:10000}")
@@ -92,9 +90,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
 
     private volatile boolean isClose = false;
 
-    /**
-     * Start a thread to operate source snapshot after the app started.
-     */
+    /** Start a thread to operate source snapshot after the app started. */
     @PostConstruct
     private void startSaveSnapshotTask() {
         if (snapshotQueue == null) {
@@ -105,9 +101,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
         LOGGER.info("source snapshot operate thread started successfully");
     }
 
-    /**
-     * Put snapshot into data queue
-     */
+    /** Put snapshot into data queue */
     public Boolean snapshot(TaskSnapshotRequest request) {
         if (request == null) {
             return true;
@@ -126,14 +120,18 @@ public class SourceSnapshotOperator implements AutoCloseable {
         }
 
         try {
-            // Offer the request of snapshot to the queue, and another thread will parse the data in the queue.
+            // Offer the request of snapshot to the queue, and another thread will parse the data in
+            // the queue.
             snapshotQueue.offer(request);
 
-            // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
+            // Modify the task status based on the tasks reported in the snapshot and the tasks in
+            // the cache.
             ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
             if (MapUtils.isEmpty(idStatusMap)) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("success report snapshot for ip={}, task status cache is null", agentIp);
+                    LOGGER.debug(
+                            "success report snapshot for ip={}, task status cache is null",
+                            agentIp);
                 }
                 return true;
             }
@@ -167,9 +165,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
         this.isClose = true;
     }
 
-    /**
-     * The task of saving source task snapshot into DB.
-     */
+    /** The task of saving source task snapshot into DB. */
     private class SaveSnapshotTaskRunnable implements Runnable {
 
         @Override
@@ -198,5 +194,4 @@ public class SourceSnapshotOperator implements AutoCloseable {
             }
         }
     }
-
 }

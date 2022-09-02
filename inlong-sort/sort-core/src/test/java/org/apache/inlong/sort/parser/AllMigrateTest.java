@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -37,39 +43,55 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public class AllMigrateTest {
 
     private MySqlExtractNode buildAllMigrateExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new MetaFieldInfo("data", MetaField.DATA));
+        List<FieldInfo> fields = Arrays.asList(new MetaFieldInfo("data", MetaField.DATA));
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
-        MySqlExtractNode node = new MySqlExtractNode("1", "mysql_input", fields,
-                null, option, null,
-                Arrays.asList("[\\s\\S]*.*"), "localhost", "root", "password",
-                "[\\s\\S]*.*", null, null, false, null);
+        MySqlExtractNode node =
+                new MySqlExtractNode(
+                        "1",
+                        "mysql_input",
+                        fields,
+                        null,
+                        option,
+                        null,
+                        Arrays.asList("[\\s\\S]*.*"),
+                        "localhost",
+                        "root",
+                        "password",
+                        "[\\s\\S]*.*",
+                        null,
+                        null,
+                        false,
+                        null);
         return node;
     }
 
     private KafkaLoadNode buildAllMigrateKafkaNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("data", new StringFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("data", new StringFormatInfo()),
-                        new FieldInfo("data", new StringFormatInfo())));
+        List<FieldRelation> relations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("data", new StringFormatInfo()),
+                                new FieldInfo("data", new StringFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
-                "topic", "localhost:9092",
-                csvFormat, null,
-                null, null);
+        return new KafkaLoadNode(
+                "2",
+                "kafka_output",
+                fields,
+                relations,
+                null,
+                null,
+                "topic",
+                "localhost:9092",
+                csvFormat,
+                null,
+                null,
+                null);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -85,25 +107,25 @@ public class AllMigrateTest {
      */
     @Test
     public void testAllMigrate() throws Exception {
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildAllMigrateExtractNode();
         Node outputNode = buildAllMigrateKafkaNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
-
     }
-
 }

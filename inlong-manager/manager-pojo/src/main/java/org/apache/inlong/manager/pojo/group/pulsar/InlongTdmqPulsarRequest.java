@@ -24,9 +24,7 @@ import lombok.ToString;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-/**
- * Inlong group request for Tdmq Pulsar
- */
+/** Inlong group request for Tdmq Pulsar */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -37,5 +35,4 @@ public class InlongTdmqPulsarRequest extends InlongPulsarRequest {
     public InlongTdmqPulsarRequest() {
         this.setMqType(MQType.TDMQ_PULSAR);
     }
-
 }

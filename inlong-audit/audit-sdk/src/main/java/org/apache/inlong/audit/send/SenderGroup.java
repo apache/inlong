@@ -19,11 +19,6 @@ package org.apache.inlong.audit.send;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
-import org.apache.inlong.audit.util.IpPort;
-import org.apache.inlong.audit.util.SenderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +26,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.inlong.audit.util.IpPort;
+import org.apache.inlong.audit.util.SenderResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SenderGroup {
     private static final Logger logger = LoggerFactory.getLogger(SenderGroup.class);
@@ -123,7 +122,8 @@ public class SenderGroup {
                     t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
             }
-            return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
+            return new SenderResult(
+                    channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
             this.setHasSendError(true);
@@ -136,9 +136,7 @@ public class SenderGroup {
         }
     }
 
-    /**
-     * release channel
-     */
+    /** release channel */
     public void release(String ipPort) {
         SenderChannel channel = this.totalChannels.get(ipPort);
         if (channel != null) {
@@ -146,9 +144,7 @@ public class SenderGroup {
         }
     }
 
-    /**
-     * release channel
-     */
+    /** release channel */
     public void release(InetSocketAddress addr) {
         String destIp = addr.getHostName();
         int destPort = addr.getPort();
@@ -224,6 +220,4 @@ public class SenderGroup {
     public void setHasSendError(boolean hasSendError) {
         this.hasSendError = hasSendError;
     }
-
 }
-

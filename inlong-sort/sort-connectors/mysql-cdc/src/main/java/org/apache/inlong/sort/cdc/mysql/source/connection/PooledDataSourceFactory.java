@@ -21,13 +21,10 @@ package org.apache.inlong.sort.cdc.mysql.source.connection;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
+import java.util.Properties;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
-import java.util.Properties;
-
-/**
- * A connection pool factory to create pooled DataSource {@link HikariDataSource}.
- */
+/** A connection pool factory to create pooled DataSource {@link HikariDataSource}. */
 public class PooledDataSourceFactory {
 
     public static final String JDBC_URL_PATTERN =
@@ -37,12 +34,9 @@ public class PooledDataSourceFactory {
     public static final int MINIMUM_POOL_SIZE = 1;
     private static final Properties DEFAULT_JDBC_PROPERTIES = initializeDefaultJdbcProperties();
 
-    private PooledDataSourceFactory() {
-    }
+    private PooledDataSourceFactory() {}
 
-    /**
-     * Create JDBC pool of data source.
-     */
+    /** Create JDBC pool of data source. */
     public static HikariDataSource createPooledDataSource(MySqlSourceConfig sourceConfig) {
         final HikariConfig config = new HikariConfig();
 
@@ -69,9 +63,7 @@ public class PooledDataSourceFactory {
         return new HikariDataSource(config);
     }
 
-    /**
-     * Create JDBC url.
-     */
+    /** Create JDBC url. */
     private static String formatJdbcUrl(String hostName, int port, Properties jdbcProperties) {
         Properties combinedProperties = new Properties();
         combinedProperties.putAll(DEFAULT_JDBC_PROPERTIES);
@@ -88,9 +80,7 @@ public class PooledDataSourceFactory {
         return jdbcUrlStringBuilder.toString();
     }
 
-    /**
-     * Default JDBC properties.
-     */
+    /** Default JDBC properties. */
     private static Properties initializeDefaultJdbcProperties() {
         Properties defaultJdbcProperties = new Properties();
         defaultJdbcProperties.setProperty("zeroDateTimeBehavior", "CONVERT_TO_NULL");

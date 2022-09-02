@@ -20,8 +20,7 @@ package org.apache.inlong.audit.base;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HighPriorityThreadFactory
-        implements ThreadFactory {
+public class HighPriorityThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
     private final AtomicInteger threadNumber;
     private final ThreadGroup group;
@@ -41,10 +40,11 @@ public class HighPriorityThreadFactory
     }
 
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(this.group, r, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
+        Thread t =
+                new Thread(
+                        this.group, r, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
         t.setDaemon(this.isDaemon);
         t.setPriority(10);
         return t;
     }
 }
-

@@ -18,25 +18,26 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-import java.util.Arrays;
-
-/**
- * Test for {@link IcebergLoadNode}
- */
+/** Test for {@link IcebergLoadNode} */
 public class IcebergLoadNodeTest extends SerializeBaseTest<IcebergLoadNode> {
 
     @Override
     public IcebergLoadNode getTestObject() {
-        return new IcebergLoadNode("1", "test_iceberg",
+        return new IcebergLoadNode(
+                "1",
+                "test_iceberg",
                 Arrays.asList(new FieldInfo("id", new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
-                        new FieldInfo("id", new StringFormatInfo()))),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("id", new StringFormatInfo()),
+                                new FieldInfo("id", new StringFormatInfo()))),
                 null,
                 null,
                 1,

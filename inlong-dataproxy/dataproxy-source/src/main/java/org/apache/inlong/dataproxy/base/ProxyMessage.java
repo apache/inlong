@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.base;
 
 import java.util.Map;
-
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 
 public class ProxyMessage {
@@ -31,7 +30,8 @@ public class ProxyMessage {
 
     private byte[] data;
 
-    public ProxyMessage(String groupId, String streamId, Map<String, String> attributeMap, byte[] data) {
+    public ProxyMessage(
+            String groupId, String streamId, Map<String, String> attributeMap, byte[] data) {
         this.groupId = groupId;
         this.streamId = streamId;
         this.attributeMap = attributeMap;

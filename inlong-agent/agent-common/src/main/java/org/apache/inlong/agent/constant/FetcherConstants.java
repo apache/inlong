@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * Constants of job fetcher.
- */
+/** Constants of job fetcher. */
 public class FetcherConstants {
 
     public static final String AGENT_FETCHER_INTERVAL = "agent.fetcher.interval";
@@ -35,25 +33,34 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_HOST = "agent.manager.vip.http.host";
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
-    public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
+    public static final String AGENT_MANAGER_VIP_HTTP_PATH =
+            "agent.manager.vip.http.managerIp.path";
     public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getManagerIpList";
 
-    public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
-    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/inlong/manager/openapi";
+    public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH =
+            "agent.manager.vip.http.prefix.path";
+    public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH =
+            "/inlong/manager/openapi";
 
     public static final String AGENT_MANAGER_TASK_HTTP_PATH = "agent.manager.task.http.path";
     public static final String DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH = "/agent/reportAndGetTask";
 
-    public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH = "agent.manager.vip.http.checkIP.path";
+    public static final String AGENT_MANAGER_IP_CHECK_HTTP_PATH =
+            "agent.manager.vip.http.checkIP.path";
     public static final String DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH = "/fileAgent/confirmAgentIp";
 
-    public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH = "agent.manager.dbcollect.gettask.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH = "/dbCollector/getTask";
+    public static final String AGENT_MANAGER_DBCOLLECT_GETTASK_HTTP_PATH =
+            "agent.manager.dbcollect.gettask.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_DBCOLLECTOR_GETTASK_HTTP_PATH =
+            "/dbCollector/getTask";
 
-    public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "agent.manager.reportsnapshot.http.path";
-    public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH = "/agent/reportSnapshot";
+    public static final String AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH =
+            "agent.manager.reportsnapshot.http.path";
+    public static final String DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH =
+            "/agent/reportSnapshot";
 
-    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "agent.manager.heartbeat.http.path";
+    public static final String AGENT_MANAGER_HEARTBEAT_HTTP_PATH =
+            "agent.manager.heartbeat.http.path";
     public static final String DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH = "/heartbeat/report";
 
     public static final String AGENT_HTTP_APPLICATION_JSON = "application/json";

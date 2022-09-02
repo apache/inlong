@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupCompleteListener;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupFailedListener;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupListener;
-import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -33,21 +33,15 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Delete workflow definition for inlong group
- */
+/** Delete workflow definition for inlong group */
 @Slf4j
 @Component
 public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
 
-    @Autowired
-    private UpdateGroupListener updateGroupListener;
-    @Autowired
-    private UpdateGroupCompleteListener updateGroupCompleteListener;
-    @Autowired
-    private UpdateGroupFailedListener updateGroupFailedListener;
-    @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    @Autowired private UpdateGroupListener updateGroupListener;
+    @Autowired private UpdateGroupCompleteListener updateGroupCompleteListener;
+    @Autowired private UpdateGroupFailedListener updateGroupFailedListener;
+    @Autowired private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -109,5 +103,4 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
     public ProcessName getProcessName() {
         return ProcessName.DELETE_GROUP_PROCESS;
     }
-
 }

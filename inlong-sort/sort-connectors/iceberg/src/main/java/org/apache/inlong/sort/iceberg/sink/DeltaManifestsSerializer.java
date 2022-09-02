@@ -19,16 +19,15 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.iceberg.ManifestFile;
-import org.apache.iceberg.ManifestFiles;
-import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.iceberg.ManifestFile;
+import org.apache.iceberg.ManifestFiles;
+import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 
 class DeltaManifestsSerializer implements SimpleVersionedSerializer<DeltaManifests> {
     private static final int VERSION_1 = 1;
@@ -44,7 +43,8 @@ class DeltaManifestsSerializer implements SimpleVersionedSerializer<DeltaManifes
 
     @Override
     public byte[] serialize(DeltaManifests deltaManifests) throws IOException {
-        Preconditions.checkNotNull(deltaManifests, "DeltaManifests to be serialized should not be null");
+        Preconditions.checkNotNull(
+                deltaManifests, "DeltaManifests to be serialized should not be null");
 
         ByteArrayOutputStream binaryOut = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(binaryOut);

@@ -49,13 +49,13 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.R
 /**
  * Copied from apache flink project with a litter change.
  *
- * Deserialization schema from Debezium JSON to Flink Table/SQL internal data structure {@link
+ * <p>Deserialization schema from Debezium JSON to Flink Table/SQL internal data structure {@link
  * RowData}. The deserialization schema knows Debezium's schema definition and can extract the
  * database data and convert into {@link RowData} with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
+ * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
+ * <p>Failures during deserialization are forwarded as wrapped IOExceptions.
  *
  * @see <a href="https://debezium.io/">Debezium</a>
  */
@@ -98,9 +98,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
      */
     private final boolean schemaInclude;
 
-    /**
-     * Flag indicating whether to emit update before row.
-     */
+    /** Flag indicating whether to emit update before row. */
     private final boolean updateBeforeInclude;
 
     /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
@@ -108,9 +106,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
 
     private final boolean isMigrateAll;
 
-    /**
-     * Constructor of DebeziumJsonDeserializationSchema.
-     */
+    /** Constructor of DebeziumJsonDeserializationSchema. */
     public DebeziumJsonDeserializationSchema(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,
@@ -213,14 +209,16 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         }
     }
 
-    private void emitRow(GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
+    private void emitRow(
+            GenericRowData rootRow, GenericRowData physicalRow, Collector<RowData> out) {
         int physicalArity = physicalRow.getArity();
         if (isMigrateAll) {
             physicalArity = 0;
         }
         final int metadataArity = metadataConverters.length;
 
-        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
+        final GenericRowData producedRow =
+                new GenericRowData(physicalRow.getRowKind(), physicalArity + 1);
 
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
             producedRow.setField(physicalPos + 1, physicalRow.getField(physicalPos));
@@ -235,15 +233,14 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(
+                            metadataConverters[metadataPos].convert(rootRow).toString()));
         }
 
         if (isMigrateAll) {
             metadataMap.put(
                     StringData.fromString(MysqlBinLogData.MYSQL_METADATA_DATA),
-                    (StringData) physicalRow.getField(0)
-            );
+                    (StringData) physicalRow.getField(0));
         }
 
         producedRow.setField(0, new GenericMapData(metadataMap));
@@ -296,10 +293,11 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
             dataTypeForDataFields = DataTypes.STRING();
         }
 
-        DataType payload = DataTypes.ROW(
-                DataTypes.FIELD("before", dataTypeForDataFields),
-                DataTypes.FIELD("after", dataTypeForDataFields),
-                DataTypes.FIELD("op", DataTypes.STRING()));
+        DataType payload =
+                DataTypes.ROW(
+                        DataTypes.FIELD("before", dataTypeForDataFields),
+                        DataTypes.FIELD("after", dataTypeForDataFields),
+                        DataTypes.FIELD("op", DataTypes.STRING()));
 
         // append fields that are required for reading metadata in the payload
         final List<DataTypes.Field> payloadMetadataFields =

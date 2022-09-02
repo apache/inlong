@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -25,23 +27,29 @@ import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Test for {@link TubeMQExtractNode} serialize
- */
+/** Test for {@link TubeMQExtractNode} serialize */
 public class TubeMQExtractNodeTest extends SerializeBaseTest<TubeMQExtractNode> {
 
     @Override
     public TubeMQExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("salary", new FloatFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("salary", new FloatFormatInfo()));
 
-        return new TubeMQExtractNode("1", "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715","inlong","json","test",null,null);
-
+        return new TubeMQExtractNode(
+                "1",
+                "tubeMQ_input",
+                fields,
+                null,
+                null,
+                "127.0.0.1:8715",
+                "inlong",
+                "json",
+                "test",
+                null,
+                null);
     }
 }

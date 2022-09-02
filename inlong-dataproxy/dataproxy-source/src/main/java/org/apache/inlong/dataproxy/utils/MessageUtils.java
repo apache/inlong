@@ -1,18 +1,17 @@
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
- * agreements.  See the NOTICE file distributed with this work for additional information regarding
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
  * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.  You may obtain a
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.utils;
 
 import io.netty.buffer.ByteBuf;
@@ -31,7 +30,8 @@ public class MessageUtils {
     private static final Logger logger = LoggerFactory.getLogger(MessageUtils.class);
 
     /**
-     *  is or not sync send for order message
+     * is or not sync send for order message
+     *
      * @param syncSend syncSend
      * @return true/false
      */
@@ -43,7 +43,8 @@ public class MessageUtils {
     }
 
     /**
-     *  is or not sync send for order message
+     * is or not sync send for order message
+     *
      * @param event event
      * @return true/false
      */
@@ -87,9 +88,7 @@ public class MessageUtils {
         return binBuffer;
     }
 
-    /**
-     * get topic
-     */
+    /** get topic */
     public static String getTopic(Map<String, String> topicsMap, String groupId, String streamId) {
         String topic = null;
         if (topicsMap != null && StringUtils.isNotEmpty(groupId)) {
@@ -101,10 +100,12 @@ public class MessageUtils {
             }
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("Get topic by groupId = {}, streamId = {}, topic = {}", groupId, streamId,
+            logger.debug(
+                    "Get topic by groupId = {}, streamId = {}, topic = {}",
+                    groupId,
+                    streamId,
                     topic);
         }
         return topic;
     }
-
 }

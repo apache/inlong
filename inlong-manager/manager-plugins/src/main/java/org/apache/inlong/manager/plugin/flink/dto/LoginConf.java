@@ -19,25 +19,16 @@ package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 
-/**
- * Login config, including rest address, rest port and jab manaer port.
- */
+/** Login config, including rest address, rest port and jab manaer port. */
 @Data
 public class LoginConf {
 
-    /**
-     * address
-     */
+    /** address */
     private String restAddress;
 
-    /**
-     * port
-     */
+    /** port */
     private Integer restPort;
 
-    /**
-     * job manager port
-     */
+    /** job manager port */
     private Integer jobManagerPort;
-
 }

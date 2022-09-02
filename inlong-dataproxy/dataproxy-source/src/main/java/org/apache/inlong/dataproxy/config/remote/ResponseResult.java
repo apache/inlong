@@ -17,9 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.remote;
 
-/**
- * json str to client
- */
+/** json str to client */
 public class ResponseResult {
 
     private int code;

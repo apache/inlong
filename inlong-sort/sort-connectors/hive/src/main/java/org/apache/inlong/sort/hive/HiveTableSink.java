@@ -17,6 +17,22 @@
 
 package org.apache.inlong.sort.hive;
 
+import static org.apache.flink.table.catalog.hive.util.HiveTableUtil.checkAcidTable;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
+import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_IGNORE_ALL_CHANGELOG;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.UUID;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.configuration.ReadableConfig;
@@ -82,26 +98,7 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.UUID;
-
-import static org.apache.flink.table.catalog.hive.util.HiveTableUtil.checkAcidTable;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
-import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
-import static org.apache.inlong.sort.hive.HiveOptions.HIVE_IGNORE_ALL_CHANGELOG;
-
-/**
- * Table sink to write to Hive tables.
- */
+/** Table sink to write to Hive tables. */
 public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
 
     private static final Logger LOG = LoggerFactory.getLogger(HiveTableSink.class);
@@ -113,8 +110,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     private final TableSchema tableSchema;
     private final String hiveVersion;
     private final HiveShim hiveShim;
-    @Nullable
-    private final Integer configuredParallelism;
+    @Nullable private final Integer configuredParallelism;
     private LinkedHashMap<String, String> staticPartitionSpec = new LinkedHashMap<>();
     private boolean overwrite = false;
     private boolean dynamicGrouping = false;
@@ -161,7 +157,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
             dbName = identifier.getDatabaseName();
         }
         try (HiveMetastoreClientWrapper client =
-                     HiveMetastoreClientFactory.create(HiveConfUtils.create(jobConf), hiveVersion)) {
+                HiveMetastoreClientFactory.create(HiveConfUtils.create(jobConf), hiveVersion)) {
 
             Table table = client.getTable(dbName, identifier.getObjectName());
             StorageDescriptor sd = table.getSd();
@@ -384,15 +380,15 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     }
 
     private BucketsBuilder<RowData, String, ? extends BucketsBuilder<RowData, ?, ?>>
-    bucketsBuilderForMRWriter(
-            HiveWriterFactory recordWriterFactory,
-            StorageDescriptor sd,
-            TableBucketAssigner assigner,
-            HiveRollingPolicy rollingPolicy,
-            OutputFileConfig outputFileConfig) {
+            bucketsBuilderForMRWriter(
+                    HiveWriterFactory recordWriterFactory,
+                    StorageDescriptor sd,
+                    TableBucketAssigner assigner,
+                    HiveRollingPolicy rollingPolicy,
+                    OutputFileConfig outputFileConfig) {
         HiveBulkWriterFactory hadoopBulkFactory = new HiveBulkWriterFactory(recordWriterFactory);
         return new HadoopPathBasedBulkFormatBuilder<>(
-                new Path(sd.getLocation()), hadoopBulkFactory, jobConf, assigner)
+                        new Path(sd.getLocation()), hadoopBulkFactory, jobConf, assigner)
                 .withRollingPolicy(rollingPolicy)
                 .withOutputFileConfig(outputFileConfig);
     }
@@ -476,8 +472,9 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
         if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
                 .get(HIVE_IGNORE_ALL_CHANGELOG)) {
-            LOG.warn("Hive sink receive all changelog record. "
-                    + "Regard any other record as insert-only record.");
+            LOG.warn(
+                    "Hive sink receive all changelog record. "
+                            + "Regard any other record as insert-only record.");
             return ChangelogMode.all();
         }
         return ChangelogMode.insertOnly();

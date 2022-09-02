@@ -38,8 +38,7 @@ public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
 
         // Setup channel except for the SsHandler for TLS enabled connections
 
-        ch.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
-                65536, 0, 4, 0, 0));
+        ch.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0));
 
         ch.pipeline().addLast("contentDecoder", new ProtocolDecoder());
         ch.pipeline().addLast("contentEncoder", new ProtocolEncoder());

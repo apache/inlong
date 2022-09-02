@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.table.catalog.Column;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.types.logical.LogicalType;
@@ -24,13 +27,7 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Schema validator
- */
+/** Schema validator */
 public class SchemaValidator {
 
     private final Map<RedisCommand, LogicalTypeRoot[]> schemaMap = new HashMap<>();
@@ -42,8 +39,8 @@ public class SchemaValidator {
      * @param requiredLogicalTypes The requiredLogicalTypes
      * @return Schema validator
      */
-    public SchemaValidator register(RedisCommand redisCommand,
-            LogicalTypeRoot[] requiredLogicalTypes) {
+    public SchemaValidator register(
+            RedisCommand redisCommand, LogicalTypeRoot[] requiredLogicalTypes) {
         schemaMap.putIfAbsent(redisCommand, requiredLogicalTypes);
         return this;
     }
@@ -55,14 +52,21 @@ public class SchemaValidator {
      * @param tableSchema The table schema
      */
     public void validate(RedisCommand redisCommand, ResolvedSchema tableSchema) {
-        LogicalType[] logicalTypes = tableSchema.getColumns().stream().filter(Column::isPhysical)
-                .map(s -> s.getDataType().getLogicalType()).toArray(LogicalType[]::new);
+        LogicalType[] logicalTypes =
+                tableSchema.getColumns().stream()
+                        .filter(Column::isPhysical)
+                        .map(s -> s.getDataType().getLogicalType())
+                        .toArray(LogicalType[]::new);
         LogicalTypeRoot[] requiredLogicalTypes = schemaMap.get(redisCommand);
         for (int i = 0; i < requiredLogicalTypes.length; i++) {
-            Preconditions.checkState(requiredLogicalTypes[i] == logicalTypes[i].getTypeRoot(),
-                    "Table schema " + Arrays.deepToString(logicalTypes) + " is invalid. Table schema "
-                            + Arrays.deepToString(requiredLogicalTypes) + " is required for command " + redisCommand
-                            .name());
+            Preconditions.checkState(
+                    requiredLogicalTypes[i] == logicalTypes[i].getTypeRoot(),
+                    "Table schema "
+                            + Arrays.deepToString(logicalTypes)
+                            + " is invalid. Table schema "
+                            + Arrays.deepToString(requiredLogicalTypes)
+                            + " is required for command "
+                            + redisCommand.name());
         }
     }
 }

@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.config.remote;
 
 import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,16 +26,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.http.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * http
- */
+/** http */
 public class ConfigMessageServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigMessageServlet.class);
@@ -44,12 +40,10 @@ public class ConfigMessageServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
 
-    public ConfigMessageServlet() {
-    }
+    public ConfigMessageServlet() {}
 
     @Override
-    protected void doGet(
-            HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         doPost(req, resp);
     }
 
@@ -79,8 +73,8 @@ public class ConfigMessageServlet extends HttpServlet {
         return false;
     }
 
-    private void responseToJson(HttpServletResponse response,
-                                ResponseResult result) throws IOException {
+    private void responseToJson(HttpServletResponse response, ResponseResult result)
+            throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String jsonStr = gson.toJson(result);
@@ -96,8 +90,8 @@ public class ConfigMessageServlet extends HttpServlet {
         try {
             reader = req.getReader();
             boolean isSuccess = false;
-            RequestContent requestContent = gson.fromJson(IOUtils.toString(reader),
-                    RequestContent.class);
+            RequestContent requestContent =
+                    gson.fromJson(IOUtils.toString(reader), RequestContent.class);
             if (requestContent.getRequestType() != null
                     && requestContent.getOperationType() != null) {
                 if ("topic".equals(requestContent.getRequestType())) {
@@ -125,5 +119,4 @@ public class ConfigMessageServlet extends HttpServlet {
         }
         responseToJson(resp, result);
     }
-
 }

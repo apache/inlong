@@ -31,12 +31,9 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleUdpSource
-        extends BaseSource
-        implements EventDrivenSource, Configurable {
+public class SimpleUdpSource extends BaseSource implements EventDrivenSource, Configurable {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(SimpleUdpSource.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleUdpSource.class);
 
     private static int UPD_BUFFER_DEFAULT_SIZE = 8192;
 
@@ -46,12 +43,12 @@ public class SimpleUdpSource
         super();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void startSource() {
         // setup Netty server
         bootstrap = new Bootstrap();
-        logger.info("Set max workers : {} ;",maxThreads);
+        logger.info("Set max workers : {} ;", maxThreads);
         bootstrap.channel(NioDatagramChannel.class);
         bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufferSize);
         bootstrap.option(ChannelOption.SO_SNDBUF, sendBufferSize);
@@ -65,10 +62,11 @@ public class SimpleUdpSource
                 channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
-            logger.error("Simple UDP Source error bind host {} port {}, program will exit!",
-                    new Object[] { host, port});
+            logger.error(
+                    "Simple UDP Source error bind host {} port {}, program will exit!",
+                    new Object[] {host, port});
             System.exit(-1);
-            //throw new FlumeException(e.getMessage());
+            // throw new FlumeException(e.getMessage());
         }
         logger.info("Simple UDP Source started at host {}, port {}", host, port);
     }
@@ -84,7 +82,8 @@ public class SimpleUdpSource
         try {
             maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, 32);
         } catch (NumberFormatException e) {
-            logger.warn("Simple UDP Source max-threads property must specify an integer value.",
+            logger.warn(
+                    "Simple UDP Source max-threads property must specify an integer value.",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
     }

@@ -20,13 +20,6 @@ package org.apache.inlong.audit.send;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
-import org.apache.inlong.audit.protocol.AuditApi;
-import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.audit.util.AuditData;
-import org.apache.inlong.audit.util.SenderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,10 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.audit.protocol.AuditApi;
+import org.apache.inlong.audit.util.AuditConfig;
+import org.apache.inlong.audit.util.AuditData;
+import org.apache.inlong.audit.util.SenderResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * sender manager
- */
+/** sender manager */
 public class SenderManager {
     private static final Logger logger = LoggerFactory.getLogger(SenderManager.class);
     public static final Long MAX_REQUEST_ID = 1000000000L;
@@ -53,7 +50,8 @@ public class SenderManager {
     public static final String LF = "\n";
     private SenderGroup sender;
     private int maxConnectChannels = ALL_CONNECT_CHANNEL;
-    private SecureRandom sRandom = new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
+    private SecureRandom sRandom =
+            new SecureRandom(Long.toString(System.currentTimeMillis()).getBytes());
     // IPList
     private HashSet<String> currentIpPorts = new HashSet<String>();
     private AtomicLong requestIdSeq = new AtomicLong(0L);
@@ -85,9 +83,7 @@ public class SenderManager {
         }
     }
 
-    /**
-     * update config
-     */
+    /** update config */
     public void setAuditProxy(HashSet<String> ipPortList) {
         if (ipPortList.equals(currentIpPorts) && !this.sender.isHasSendError()) {
             return;
@@ -160,9 +156,7 @@ public class SenderManager {
         }
     }
 
-    /**
-     * Clean up the backlog of unsent message packets
-     */
+    /** Clean up the backlog of unsent message packets */
     public void clearBuffer() {
         logger.info("audit failed cache size: {}", this.dataMap.size());
         for (AuditData data : this.dataMap.values()) {
@@ -173,15 +167,14 @@ public class SenderManager {
             checkAuditFile();
         }
         if (this.dataMap.size() > auditConfig.getMaxCacheRow()) {
-            logger.info("failed cache size: {}>{}", this.dataMap.size(), auditConfig.getMaxCacheRow());
+            logger.info(
+                    "failed cache size: {}>{}", this.dataMap.size(), auditConfig.getMaxCacheRow());
             writeLocalFile();
             this.dataMap.clear();
         }
     }
 
-    /**
-     * write local file
-     */
+    /** write local file */
     private void writeLocalFile() {
         try {
             if (!checkFilePath()) {
@@ -225,9 +218,7 @@ public class SenderManager {
         return true;
     }
 
-    /**
-     * check audit file
-     */
+    /** check audit file */
     private void checkAuditFile() {
         try {
             File file = new File(auditConfig.getDisasterFile());
@@ -253,9 +244,7 @@ public class SenderManager {
         }
     }
 
-    /**
-     * get data map szie
-     */
+    /** get data map szie */
     public int getDataMapSize() {
         return this.dataMap.size();
     }
@@ -268,7 +257,7 @@ public class SenderManager {
      */
     public void onMessageReceived(ChannelHandlerContext ctx, byte[] msg) {
         try {
-            //Analyze abnormal events
+            // Analyze abnormal events
             byte[] readBytes = msg;
             AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.parseFrom(readBytes);
             // Parse request id
@@ -278,8 +267,11 @@ public class SenderManager {
                 logger.error("can not find the requestid onMessageReceived:" + requestId);
                 return;
             }
-            logger.info("audit-proxy response code: {}", baseCommand.getAuditReply().getRspCode().toString());
-            if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(baseCommand.getAuditReply().getRspCode())) {
+            logger.info(
+                    "audit-proxy response code: {}",
+                    baseCommand.getAuditReply().getRspCode().toString());
+            if (AuditApi.AuditReply.RSP_CODE.SUCCESS.equals(
+                    baseCommand.getAuditReply().getRspCode())) {
                 this.dataMap.remove(requestId);
                 return;
             }
@@ -321,8 +313,9 @@ public class SenderManager {
         }
     }
 
-    /***
-     * set audit config
+    /**
+     * * set audit config
+     *
      * @param config
      */
     public void setAuditConfig(AuditConfig config) {

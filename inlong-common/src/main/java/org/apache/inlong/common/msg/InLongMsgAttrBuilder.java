@@ -25,8 +25,12 @@ import java.util.Map;
 public class InLongMsgAttrBuilder {
 
     public enum PartitionUnit {
-        DAY("d"), HOUR("h"), HALFHOUR("n"),
-        QUARTER("q"), TENMINS("t"), FIVEMINS("f");
+        DAY("d"),
+        HOUR("h"),
+        HALFHOUR("n"),
+        QUARTER("q"),
+        TENMINS("t"),
+        FIVEMINS("f");
         private static final Map<String, PartitionUnit> STRING_TO_TYPE_MAP =
                 new HashMap<String, PartitionUnit>();
 
@@ -57,9 +61,10 @@ public class InLongMsgAttrBuilder {
     }
 
     public enum TimeType {
-        MS("#ms"), S("#s"),
-        STANDARD("#")/* yyyy-MM-dd HH:mm:ss */,
-        NORMAL("#n")/* yyyyMMddHH */;
+        MS("#ms"),
+        S("#s"),
+        STANDARD("#") /* yyyy-MM-dd HH:mm:ss */,
+        NORMAL("#n") /* yyyyMMddHH */;
         private static final Map<String, TimeType> STRING_TO_TYPE_MAP =
                 new HashMap<String, TimeType>();
 
@@ -142,8 +147,8 @@ public class InLongMsgAttrBuilder {
 
         /**
          * buildAttr
-         * @return
          *
+         * @return
          * @throws Exception
          */
         public String buildAttr() throws Exception {
@@ -166,8 +171,7 @@ public class InLongMsgAttrBuilder {
                 SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                 tstr = f.format(d);
             } else if (this.p == PartitionUnit.QUARTER) {
-                int idx =
-                        (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
+                int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
                 SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                 tstr = f.format(d) + "q" + idx;
             }
@@ -241,8 +245,8 @@ public class InLongMsgAttrBuilder {
 
         /**
          * buildAttr
-         * @return
          *
+         * @return
          * @throws Exception
          */
         public String buildAttr() throws Exception {
@@ -270,23 +274,19 @@ public class InLongMsgAttrBuilder {
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d);
                     } else if (this.p == PartitionUnit.HALFHOUR) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (30L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (30L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "n" + idx;
                     } else if (this.p == PartitionUnit.QUARTER) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "q" + idx;
                     } else if (this.p == PartitionUnit.TENMINS) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (10L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (10L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "t" + idx;
                     } else if (this.p == PartitionUnit.FIVEMINS) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (5L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (5L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "f" + idx;
                     }
@@ -310,10 +310,8 @@ public class InLongMsgAttrBuilder {
 
         private boolean makeSureTimeNormal(String time) {
             int len = time.length();
-            return len == 8 || len == 10
-                    || (len == 12 && time.charAt(10) == 'p');
+            return len == 8 || len == 10 || (len == 12 && time.charAt(10) == 'p');
         }
-
     }
 
     public static MsgAttrProtocolM0 getProtocolM0() {
@@ -325,112 +323,167 @@ public class InLongMsgAttrBuilder {
     }
 
     /**
-     *  main
+     * main
+     *
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
-        SimpleDateFormat f =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat f1 =
-                new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat f1 = new SimpleDateFormat("yyyyMMddHH");
 
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid").setTimeType(TimeType.S)
-                .setTime(String.valueOf(System.currentTimeMillis() / 1000))
-                .buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid").setTime(System.currentTimeMillis())
-                .setTimeType(TimeType.MS).buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid")
-                .setTime(f1.format(new Date(System.currentTimeMillis())))
-                .buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid")
-                .setTime(f.format(new Date(System.currentTimeMillis())))
-                .setTimeType(TimeType.STANDARD).buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid")
-                .setTime(f1.format(new Date(System.currentTimeMillis())))
-                .setTimeType(TimeType.NORMAL).buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid").setTimeType(TimeType.S)
-                .setTime(String.valueOf(System.currentTimeMillis() / 1000))
-                .setPartitionUnit(PartitionUnit.DAY).buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid").setTimeType(TimeType.S)
-                .setTime(String.valueOf(System.currentTimeMillis() / 1000))
-                .setPartitionUnit(PartitionUnit.HOUR).buildAttr());
-        System.out.println(InLongMsgAttrBuilder.getProtocolM0()
-                .setId("interfaceid").setTimeType(TimeType.S)
-                .setTime(String.valueOf(System.currentTimeMillis() / 1000))
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTimeType(TimeType.S)
+                        .setTime(String.valueOf(System.currentTimeMillis() / 1000))
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTime(System.currentTimeMillis())
+                        .setTimeType(TimeType.MS)
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTime(f1.format(new Date(System.currentTimeMillis())))
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTime(f.format(new Date(System.currentTimeMillis())))
+                        .setTimeType(TimeType.STANDARD)
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTime(f1.format(new Date(System.currentTimeMillis())))
+                        .setTimeType(TimeType.NORMAL)
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTimeType(TimeType.S)
+                        .setTime(String.valueOf(System.currentTimeMillis() / 1000))
+                        .setPartitionUnit(PartitionUnit.DAY)
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTimeType(TimeType.S)
+                        .setTime(String.valueOf(System.currentTimeMillis() / 1000))
+                        .setPartitionUnit(PartitionUnit.HOUR)
+                        .buildAttr());
+        System.out.println(
+                InLongMsgAttrBuilder.getProtocolM0()
+                        .setId("interfaceid")
+                        .setTimeType(TimeType.S)
+                        .setTime(String.valueOf(System.currentTimeMillis() / 1000))
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println();
 
         System.out.print(InLongMsgAttrBuilder.getProtocolM100().buildAttr());
-        System.out.println("\t\t\t\t\t\t// ---- all the param is "
-                + "default : s=\\t, idp=0, tp=1, tt=#ms, p=h ");
+        System.out.println(
+                "\t\t\t\t\t\t// ---- all the param is "
+                        + "default : s=\\t, idp=0, tp=1, tt=#ms, p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .buildAttr());
+        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",").buildAttr());
         System.out.println("\t\t\t\t\t// ---- : idp=0, tp=1, tt=#ms, p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100().setSpliter(",").setIdPos(0).buildAttr());
         System.out.println("\t\t\t\t\t// ---- : tp=1, tt=#ms, p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setTimePos(1).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100().setSpliter(",").setTimePos(1).buildAttr());
         System.out.println("\t\t\t\t\t// ---- : idp=0, tt=#ms, p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .buildAttr());
         System.out.println("\t\t\t\t// ---- : tt=#ms, p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1).setTimeType(TimeType.S).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTimeType(TimeType.S)
+                        .buildAttr());
         System.out.println("\t\t\t// ---- : p=h ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println("\t\t\t// ---- : tt=#s ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1).setTimeType(TimeType.MS)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTimeType(TimeType.MS)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println("\t\t\t// ---- : all ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100()
-                .setId("interfaceid").setSpliter(",").setIdPos(0).setTimePos(1)
-                .setTimeType(TimeType.MS)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setId("interfaceid")
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTimeType(TimeType.MS)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println("\t// ---- : id is set so idp is ignored ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1).setTime(System.currentTimeMillis())
-                .setTimeType(TimeType.MS)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTime(System.currentTimeMillis())
+                        .setTimeType(TimeType.MS)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println("\t\t\t// ---- : t is set so tp is ignored ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100()
-                .setId("interfaceid").setSpliter(",").setIdPos(0).setTimePos(1)
-                .setTime(System.currentTimeMillis()).setTimeType(TimeType.MS)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
-        System.out
-                .println("\t\t// ---- : id and t are all set so idpos and tp are all ignored ");
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setId("interfaceid")
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTime(System.currentTimeMillis())
+                        .setTimeType(TimeType.MS)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
+        System.out.println("\t\t// ---- : id and t are all set so idpos and tp are all ignored ");
 
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100()
-                .setId("interfaceid").setSpliter(",").setIdPos(0).setTimePos(1)
-                .setTime(f1.format(new Date(System.currentTimeMillis())))
-                .setTimeType(TimeType.NORMAL)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setId("interfaceid")
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTime(f1.format(new Date(System.currentTimeMillis())))
+                        .setTimeType(TimeType.NORMAL)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
         System.out.println("\t\t// ---- : TimeType.NORMAL ");
 
-        System.out
-                .println("\nAttention !!!! m=0 is contained by m=100, so just use m=100");
+        System.out.println("\nAttention !!!! m=0 is contained by m=100, so just use m=100");
 
         // long time = System.currentTimeMillis();
         // byte[] data0 = ("id," + time + ",other,data").getBytes();
@@ -448,12 +501,14 @@ public class InLongMsgAttrBuilder {
         // inLongMsg.addMsg(attr, data0);
         // result = inLongMsg.buildArray();
         // System.out.println(new String(result));
-        System.out.print(InLongMsgAttrBuilder.getProtocolM100().setSpliter(",")
-                .setIdPos(0).setTimePos(1)
-
-                .setTimeType(TimeType.STANDARD)
-                .setPartitionUnit(PartitionUnit.QUARTER).buildAttr());
-
+        System.out.print(
+                InLongMsgAttrBuilder.getProtocolM100()
+                        .setSpliter(",")
+                        .setIdPos(0)
+                        .setTimePos(1)
+                        .setTimeType(TimeType.STANDARD)
+                        .setPartitionUnit(PartitionUnit.QUARTER)
+                        .buildAttr());
     }
 
     private static Date transData(TimeType tt, String timeStr) throws Exception {

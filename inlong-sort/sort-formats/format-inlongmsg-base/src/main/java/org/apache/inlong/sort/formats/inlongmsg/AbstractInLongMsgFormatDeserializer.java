@@ -29,45 +29,32 @@ import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The base for all inlongmsg format deserializers.
- */
+/** The base for all inlongmsg format deserializers. */
 public abstract class AbstractInLongMsgFormatDeserializer implements TableFormatDeserializer {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractInLongMsgFormatDeserializer.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(AbstractInLongMsgFormatDeserializer.class);
 
-    /**
-     * True if ignore errors in the deserialization.
-     */
-    @Nonnull
-    protected final Boolean ignoreErrors;
+    /** True if ignore errors in the deserialization. */
+    @Nonnull protected final Boolean ignoreErrors;
 
     public AbstractInLongMsgFormatDeserializer(@Nonnull Boolean ignoreErrors) {
         this.ignoreErrors = ignoreErrors;
     }
 
-    /**
-     * Parses the head of the inlongmsg record.
-     */
+    /** Parses the head of the inlongmsg record. */
     protected abstract InLongMsgHead parseHead(String attr) throws Exception;
 
-    /**
-     * Parses the body of the inlongmsg record.
-     */
+    /** Parses the body of the inlongmsg record. */
     protected abstract InLongMsgBody parseBody(byte[] bytes) throws Exception;
 
-    /**
-     * Converts the inlongmsg record into a row.
-     */
+    /** Converts the inlongmsg record into a row. */
     protected abstract Row convertRow(InLongMsgHead head, InLongMsgBody body) throws Exception;
 
     @Override
-    public void flatMap(
-            byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+    public void flatMap(byte[] bytes, Collector<Row> collector) throws Exception {
         InLongMsg inLongMsg = InLongMsg.parseFrom(bytes);
 
         for (String attr : inLongMsg.getAttrs()) {
@@ -100,8 +87,10 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
                     body = parseBody(bodyBytes);
                 } catch (Exception e) {
                     if (ignoreErrors) {
-                        LOG.warn("Cannot properly parse the body {}.",
-                                Arrays.toString(bodyBytes), e);
+                        LOG.warn(
+                                "Cannot properly parse the body {}.",
+                                Arrays.toString(bodyBytes),
+                                e);
                         continue;
                     } else {
                         throw e;
@@ -113,7 +102,11 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
                     row = convertRow(head, body);
                 } catch (Exception e) {
                     if (ignoreErrors) {
-                        LOG.warn("Cannot properly convert the inlongmsg ({}, {}) " + "to row.", head, body, e);
+                        LOG.warn(
+                                "Cannot properly convert the inlongmsg ({}, {}) " + "to row.",
+                                head,
+                                body,
+                                e);
                         continue;
                     } else {
                         throw e;

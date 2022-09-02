@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-
-/**
- * Inlong group info for Pulsar
- */
+/** Inlong group info for Pulsar */
 @Data
 @Builder
 @NoArgsConstructor
@@ -42,8 +39,10 @@ public class InlongPulsarDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
-            + "serial: single partition, low throughput, and orderly messages")
+    @ApiModelProperty(
+            value =
+                    "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
+                            + "serial: single partition, low throughput, and orderly messages")
     private String queueModule;
 
     @ApiModelProperty(value = "Number of partitions of Topic, 1-20")
@@ -76,9 +75,7 @@ public class InlongPulsarDTO {
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request) {
         return InlongPulsarDTO.builder()
                 .queueModule(request.getQueueModule())
@@ -95,16 +92,14 @@ public class InlongPulsarDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the JSON string.
-     */
+    /** Get the dto instance from the JSON string. */
     public static InlongPulsarDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, InlongPulsarDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

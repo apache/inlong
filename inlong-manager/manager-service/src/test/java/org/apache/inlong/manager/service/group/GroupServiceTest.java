@@ -17,28 +17,25 @@
 
 package org.apache.inlong.manager.service.group;
 
+import javax.annotation.Resource;
+import javax.validation.ConstraintViolationException;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
-import javax.validation.ConstraintViolationException;
-
-/**
- * Test for {@link InlongGroupService}
- */
+/** Test for {@link InlongGroupService} */
 class GroupServiceTest extends ServiceBaseTest {
 
-    @Resource
-    InlongGroupService groupService;
+    @Resource InlongGroupService groupService;
 
     @Test
     void testGroupUpdateFailByValid() {
-        ConstraintViolationException exception = Assertions.assertThrows(
-                ConstraintViolationException.class,
-                () -> groupService.update(new InlongTubeMQRequest(), ""));
+        ConstraintViolationException exception =
+                Assertions.assertThrows(
+                        ConstraintViolationException.class,
+                        () -> groupService.update(new InlongTubeMQRequest(), ""));
 
         Assertions.assertTrue(exception.getMessage().contains("inCharges cannot be blank"));
         Assertions.assertTrue(exception.getMessage().contains("inlongGroupId cannot be blank"));
@@ -46,11 +43,12 @@ class GroupServiceTest extends ServiceBaseTest {
 
     @Test
     void testUpdateAfterApproveFailByValid() {
-        ConstraintViolationException exception = Assertions.assertThrows(ConstraintViolationException.class,
-                () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), ""));
+        ConstraintViolationException exception =
+                Assertions.assertThrows(
+                        ConstraintViolationException.class,
+                        () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), ""));
 
         Assertions.assertTrue(exception.getMessage().contains("mqType cannot be blank"));
         Assertions.assertTrue(exception.getMessage().contains("inlongGroupId cannot be blank"));
-
     }
 }

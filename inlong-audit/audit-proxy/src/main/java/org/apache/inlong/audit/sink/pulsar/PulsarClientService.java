@@ -18,12 +18,10 @@
 package org.apache.inlong.audit.sink.pulsar;
 
 import com.google.common.base.Preconditions;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -107,11 +105,13 @@ public class PulsarClientService {
         enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
         blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
         maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-        maxBatchingMessages = context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        maxBatchingMessages =
+                context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
         producerInfoMap = new ConcurrentHashMap<>();
         localIp = NetworkUtils.getLocalIp();
 
-        pulsarEnableTokenAuth = context.getBoolean(PULSAR_ENABLE_AUTH, DEFAULT_PULSAR_ENABLE_TOKEN_AUTH);
+        pulsarEnableTokenAuth =
+                context.getBoolean(PULSAR_ENABLE_AUTH, DEFAULT_PULSAR_ENABLE_TOKEN_AUTH);
         pulsarTokenAuth = context.getString(PULSAR_ENABLE_AUTH_TOKEN, DEFAULT_PULSAR_TOKEN_AUTH);
     }
 
@@ -138,8 +138,8 @@ public class PulsarClientService {
      * @param es
      * @return
      */
-    public boolean sendMessage(String topic, Event event,
-                               SendMessageCallBack sendMessageCallBack, EventStat es) {
+    public boolean sendMessage(
+            String topic, Event event, SendMessageCallBack sendMessageCallBack, EventStat es) {
         Producer producer = null;
         try {
             producer = getProducer(topic);
@@ -168,14 +168,19 @@ public class PulsarClientService {
         }
 
         logger.debug("producer send msg!");
-        producer.newMessage().properties(proMap).value(event.getBody())
-                .sendAsync().thenAccept((msgId) -> {
-                    sendMessageCallBack.handleMessageSendSuccess((MessageIdImpl) msgId, es);
-
-                }).exceptionally((e) -> {
-                    sendMessageCallBack.handleMessageSendException(es, e);
-                    return null;
-                });
+        producer.newMessage()
+                .properties(proMap)
+                .value(event.getBody())
+                .sendAsync()
+                .thenAccept(
+                        (msgId) -> {
+                            sendMessageCallBack.handleMessageSendSuccess((MessageIdImpl) msgId, es);
+                        })
+                .exceptionally(
+                        (e) -> {
+                            sendMessageCallBack.handleMessageSendException(es, e);
+                            return null;
+                        });
         return true;
     }
 
@@ -194,13 +199,15 @@ public class PulsarClientService {
             callBack.handleCreateClientSuccess(pulsarServerUrl);
         } catch (PulsarClientException e) {
             callBack.handleCreateClientException(pulsarServerUrl);
-            logger.error("create connnection error in metasink, "
+            logger.error(
+                    "create connnection error in metasink, "
                             + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
                     pulsarServerUrl,
                     e.getMessage());
         } catch (Throwable e) {
             callBack.handleCreateClientException(pulsarServerUrl);
-            logger.error("create connnection error in metasink, "
+            logger.error(
+                    "create connnection error in metasink, "
                             + "maybe pulsar master set error/shutdown in progress, please "
                             + "re-check. url{}, ex2 {}",
                     pulsarServerUrl,
@@ -214,8 +221,10 @@ public class PulsarClientService {
         if (pulsarEnableTokenAuth && StringUtils.isNotEmpty(pulsarTokenAuth)) {
             builder.authentication(AuthenticationFactory.token(pulsarTokenAuth));
         }
-        pulsarClient = builder.serviceUrl(pulsarUrl)
-                .connectionTimeout(clientOpTimeout, TimeUnit.SECONDS).build();
+        pulsarClient =
+                builder.serviceUrl(pulsarUrl)
+                        .connectionTimeout(clientOpTimeout, TimeUnit.SECONDS)
+                        .build();
 
         return pulsarClient;
     }
@@ -224,14 +233,16 @@ public class PulsarClientService {
         logger.info("initTopicProducer topic = {}", topic);
         Producer producer = null;
         try {
-            producer = pulsarClient.newProducer().sendTimeout(sendTimeout,
-                            TimeUnit.MILLISECONDS)
-                    .topic(topic)
-                    .enableBatching(enableBatch)
-                    .blockIfQueueFull(blockIfQueueFull)
-                    .maxPendingMessages(maxPendingMessages)
-                    .batchingMaxMessages(maxBatchingMessages)
-                    .create();
+            producer =
+                    pulsarClient
+                            .newProducer()
+                            .sendTimeout(sendTimeout, TimeUnit.MILLISECONDS)
+                            .topic(topic)
+                            .enableBatching(enableBatch)
+                            .blockIfQueueFull(blockIfQueueFull)
+                            .maxPendingMessages(maxPendingMessages)
+                            .batchingMaxMessages(maxBatchingMessages)
+                            .create();
         } catch (PulsarClientException e) {
             logger.error("create pulsar client has error e = {}", e);
         }
@@ -256,7 +267,8 @@ public class PulsarClientService {
             try {
                 pulsarClient.shutdown();
             } catch (PulsarClientException e) {
-                logger.error("destroy pulsarClient error in PulsarSink, PulsarClientException {}",
+                logger.error(
+                        "destroy pulsarClient error in PulsarSink, PulsarClientException {}",
                         e.getMessage());
             } catch (Exception e) {
                 logger.error("destroy pulsarClient error in PulsarSink, ex {}", e.getMessage());

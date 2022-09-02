@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sdk.dataproxy.metric;
 
-/**
- * message uuid
- */
+/** message uuid */
 public class MessageRecord {
     private final String msgUUID;
     private final int msgCount;
@@ -32,8 +30,14 @@ public class MessageRecord {
     private final String localIp;
     private final long packTime;
 
-    public MessageRecord(String groupId, String streamId, String localIp,
-                         String msgId, long dt, long packTime, int msgCount) {
+    public MessageRecord(
+            String groupId,
+            String streamId,
+            String localIp,
+            String msgId,
+            long dt,
+            long packTime,
+            int msgCount) {
         this.groupId = groupId;
         this.streamId = streamId;
         this.localIp = localIp;
@@ -76,4 +80,3 @@ public class MessageRecord {
         return localIp;
     }
 }
-

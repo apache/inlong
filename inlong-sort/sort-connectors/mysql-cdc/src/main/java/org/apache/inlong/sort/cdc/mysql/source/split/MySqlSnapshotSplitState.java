@@ -18,17 +18,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
+import javax.annotation.Nullable;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-import javax.annotation.Nullable;
-
-/**
- * The state of split to describe the binlog of MySql table(s).
- */
+/** The state of split to describe the binlog of MySql table(s). */
 public class MySqlSnapshotSplitState extends MySqlSplitState {
 
-    @Nullable
-    private BinlogOffset highWatermark;
+    @Nullable private BinlogOffset highWatermark;
 
     public MySqlSnapshotSplitState(MySqlSnapshotSplit split) {
         super(split);

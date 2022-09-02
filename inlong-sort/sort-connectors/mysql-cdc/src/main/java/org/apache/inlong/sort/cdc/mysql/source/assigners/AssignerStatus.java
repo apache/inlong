@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import static java.lang.String.format;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.String.format;
 
 /**
  * The state of split assigner finite state machine, tips: we use word status instead of word state

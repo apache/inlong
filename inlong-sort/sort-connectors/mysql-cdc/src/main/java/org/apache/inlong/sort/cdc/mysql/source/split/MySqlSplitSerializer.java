@@ -18,11 +18,22 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+
 import io.debezium.document.Document;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
@@ -31,21 +42,7 @@ import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
 import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
-
-/**
- * A serializer for the {@link MySqlSplit}.
- */
+/** A serializer for the {@link MySqlSplit}. */
 public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MySqlSplit> {
 
     public static final MySqlSplitSerializer INSTANCE = new MySqlSplitSerializer();
@@ -205,9 +202,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
         }
     }
 
-    /**
-     * deserialize
-     */
+    /** deserialize */
     public MySqlSplit deserializeSplit(int version, byte[] serialized) throws IOException {
         final DataInputDeserializer in = new DataInputDeserializer(serialized);
 

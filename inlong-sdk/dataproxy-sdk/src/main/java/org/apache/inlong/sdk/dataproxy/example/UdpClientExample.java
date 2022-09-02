@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -28,16 +31,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
-import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
-import org.apache.inlong.sdk.dataproxy.network.SequentialID;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xerial.snappy.Snappy;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -47,9 +40,15 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
+import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
+import org.apache.inlong.sdk.dataproxy.network.SequentialID;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
 
 public class UdpClientExample {
 
@@ -81,9 +80,8 @@ public class UdpClientExample {
                     long seqId = idGenerator.getNextInt();
                     long dt = System.currentTimeMillis() / 1000;
                     EncodeObject encodeObject =
-                            demo.getEncodeObject(7, false,
-                                    false, false, dt, seqId, groupId,
-                                    streamId, attr);
+                            demo.getEncodeObject(
+                                    7, false, false, false, dt, seqId, groupId, streamId, attr);
                     ByteBuf buffer = demo.getSendBuf(encodeObject);
                     demo.sendUdpMessage(channel, busIp, busPort, buffer);
                     TimeUnit.SECONDS.sleep(1);
@@ -114,13 +112,29 @@ public class UdpClientExample {
         return true;
     }
 
-    private EncodeObject getEncodeObject(int msgType, boolean isCompress, boolean isReport,
-            boolean isGroupIdTransfer, long dt, long seqId, String groupId, String streamId,
-            String attr) throws UnsupportedEncodingException {
+    private EncodeObject getEncodeObject(
+            int msgType,
+            boolean isCompress,
+            boolean isReport,
+            boolean isGroupIdTransfer,
+            long dt,
+            long seqId,
+            String groupId,
+            String streamId,
+            String attr)
+            throws UnsupportedEncodingException {
         EncodeObject encodeObject =
-                new EncodeObject(getRandomString(5).getBytes("UTF-8"), msgType,
+                new EncodeObject(
+                        getRandomString(5).getBytes("UTF-8"),
+                        msgType,
                         isCompress,
-                        isReport, isGroupIdTransfer, dt, seqId, groupId, streamId, attr);
+                        isReport,
+                        isGroupIdTransfer,
+                        dt,
+                        seqId,
+                        groupId,
+                        streamId,
+                        attr);
         return encodeObject;
     }
 
@@ -198,9 +212,14 @@ public class UdpClientExample {
                             endAttr = endAttr + "&";
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
-                        endAttr = endAttr + "_userName=" + object.getUserName() + "&_encyVersion="
-                                + encryptInfo.getVersion() + "&_encyAesKey="
-                                + encryptInfo.getRsaEncryptedKey();
+                        endAttr =
+                                endAttr
+                                        + "_userName="
+                                        + object.getUserName()
+                                        + "&_encyVersion="
+                                        + encryptInfo.getVersion()
+                                        + "&_encyAesKey="
+                                        + encryptInfo.getRsaEncryptedKey();
                         body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
@@ -208,8 +227,12 @@ public class UdpClientExample {
                     if (Utils.isNotBlank(endAttr)) {
                         endAttr = endAttr + "&";
                     }
-                    endAttr = (endAttr + "bid=" + object.getGroupId() + "&tid="
-                            + object.getStreamId());
+                    endAttr =
+                            (endAttr
+                                    + "bid="
+                                    + object.getGroupId()
+                                    + "&tid="
+                                    + object.getStreamId());
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {
                     if (Utils.isNotBlank(endAttr)) {
@@ -224,8 +247,7 @@ public class UdpClientExample {
                 if (object.isCompress()) {
                     msgType |= FLAG_ALLOW_COMPRESS;
                 }
-                totalLength = totalLength + body.length
-                        + endAttr.getBytes("utf8").length;
+                totalLength = totalLength + body.length + endAttr.getBytes("utf8").length;
                 buf = ByteBufAllocator.DEFAULT.buffer(4 + totalLength);
                 buf.writeInt(totalLength);
                 buf.writeByte(msgType);
@@ -262,8 +284,7 @@ public class UdpClientExample {
             out.write(body);
             int guessLen = Snappy.maxCompressedLength(out.size());
             byte[] tmpData = new byte[guessLen];
-            int len = Snappy.compress(out.toByteArray(), 0,
-                    out.size(), tmpData, 0);
+            int len = Snappy.compress(out.toByteArray(), 0, out.size(), tmpData, 0);
             body = new byte[len];
             System.arraycopy(tmpData, 0, body, 0, len);
         } catch (IOException e) {
@@ -276,16 +297,19 @@ public class UdpClientExample {
     public Channel initUdpChannel() {
         Channel channel = null;
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(new NioEventLoopGroup())
+        bootstrap
+                .group(new NioEventLoopGroup())
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BROADCAST, true)
-                .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
-                    protected void channelRead0(ChannelHandlerContext var1,
-                            DatagramPacket dmsg) throws Exception {
-                        String msg = dmsg.content().toString(StandardCharsets.UTF_8);
-                        System.out.println("from server:" + msg);
-                    }
-                });
+                .handler(
+                        new SimpleChannelInboundHandler<DatagramPacket>() {
+                            protected void channelRead0(
+                                    ChannelHandlerContext var1, DatagramPacket dmsg)
+                                    throws Exception {
+                                String msg = dmsg.content().toString(StandardCharsets.UTF_8);
+                                System.out.println("from server:" + msg);
+                            }
+                        });
         try {
             channel = bootstrap.bind(0).sync().channel();
         } catch (Exception e) {

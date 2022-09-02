@@ -36,4 +36,3 @@ public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("handler", sendHandler);
     }
 }
-

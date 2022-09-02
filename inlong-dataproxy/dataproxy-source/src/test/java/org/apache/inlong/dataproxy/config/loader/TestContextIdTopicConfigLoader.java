@@ -17,12 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -31,23 +26,26 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.flume.Context;
+import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Test for {@link ContextCacheClusterConfigLoader}
- */
+/** Test for {@link ContextCacheClusterConfigLoader} */
 public class TestContextIdTopicConfigLoader {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestContextIdTopicConfigLoader.class);
     private static Context sinkContext;
 
-    /**
-     * setup
-     */
+    /** setup */
     @BeforeClass
     public static void setup() {
-        URL resource = TestContextIdTopicConfigLoader.class.getClassLoader().getResource("dataproxy-pulsar.conf");
+        URL resource =
+                TestContextIdTopicConfigLoader.class
+                        .getClassLoader()
+                        .getResource("dataproxy-pulsar.conf");
         try (InputStream inStream = Objects.requireNonNull(resource).openStream()) {
             Properties props = new Properties();
             props.load(inStream);
@@ -56,15 +54,16 @@ public class TestContextIdTopicConfigLoader {
                 result.put((String) entry.getKey(), (String) entry.getValue());
             }
             Context context = new Context(result);
-            sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
+            sinkContext =
+                    new Context(
+                            context.getSubProperties(
+                                    "proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
     }
 
-    /**
-     * testResult
-     */
+    /** testResult */
     @Test
     public void testResult() {
         ContextIdTopicConfigLoader loader = new ContextIdTopicConfigLoader();

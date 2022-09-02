@@ -24,22 +24,17 @@ import org.apache.flink.table.factories.TableFormatFactory;
 import org.apache.flink.types.Row;
 
 /**
- * Factory for creating configured instances of {@link DeserializationSchema}
- * for projected rows.
+ * Factory for creating configured instances of {@link DeserializationSchema} for projected rows.
  */
 public interface ProjectedDeserializationSchemaFactory extends TableFormatFactory<Row> {
 
     /**
-     * Creates and configures a {@link DeserializationSchema} using the given
-     * properties.
+     * Creates and configures a {@link DeserializationSchema} using the given properties.
      *
      * @param properties The properties describing the format.
      * @param fields The fields of the rows deserialized by the schema.
-     * @return The configured deserialization schema used to deserialize the
-     *         given fields of rows.
+     * @return The configured deserialization schema used to deserialize the given fields of rows.
      */
     DeserializationSchema<Row> createProjectedDeserializationSchema(
-            Map<String, String> properties,
-            int[] fields
-    );
+            Map<String, String> properties, int[] fields);
 }

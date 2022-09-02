@@ -18,24 +18,22 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
+import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
-import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The format information for {@link Timestamp}s.
- */
+/** The format information for {@link Timestamp}s. */
 public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
 
     private static final long serialVersionUID = 1L;
@@ -48,9 +46,7 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     @Nonnull
     private final String format;
 
-    @JsonIgnore
-    @Nullable
-    private final SimpleDateFormat simpleDateFormat;
+    @JsonIgnore @Nullable private final SimpleDateFormat simpleDateFormat;
 
     @JsonProperty("precision")
     private int precision;
@@ -98,55 +94,63 @@ public class TimestampFormatInfo implements BasicFormatInfo<Timestamp> {
     public String serialize(Timestamp timestamp) {
 
         switch (format) {
-            case "MICROS": {
-                long millis = timestamp.getTime();
-                long micros = TimeUnit.MILLISECONDS.toMicros(millis);
-                return Long.toString(micros);
-            }
-            case "MILLIS": {
-                long millis = timestamp.getTime();
-                return Long.toString(millis);
-            }
-            case "SECONDS": {
-                long millis = timestamp.getTime();
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-                return Long.toString(seconds);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long millis = timestamp.getTime();
+                    long micros = TimeUnit.MILLISECONDS.toMicros(millis);
+                    return Long.toString(micros);
                 }
+            case "MILLIS":
+                {
+                    long millis = timestamp.getTime();
+                    return Long.toString(millis);
+                }
+            case "SECONDS":
+                {
+                    long millis = timestamp.getTime();
+                    long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+                    return Long.toString(seconds);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                return simpleDateFormat.format(timestamp);
-            }
+                    return simpleDateFormat.format(timestamp);
+                }
         }
     }
 
     @Override
     public Timestamp deserialize(String text) throws ParseException {
         switch (format) {
-            case "MICROS": {
-                long micros = Long.parseLong(text);
-                long millis = TimeUnit.MICROSECONDS.toMillis(micros);
-                return new Timestamp(millis);
-            }
-            case "MILLIS": {
-                long millis = Long.parseLong(text);
-                return new Timestamp(millis);
-            }
-            case "SECONDS": {
-                long seconds = Long.parseLong(text);
-                long millis = TimeUnit.SECONDS.toMillis(seconds);
-                return new Timestamp(millis);
-            }
-            default: {
-                if (simpleDateFormat == null) {
-                    throw new IllegalStateException();
+            case "MICROS":
+                {
+                    long micros = Long.parseLong(text);
+                    long millis = TimeUnit.MICROSECONDS.toMillis(micros);
+                    return new Timestamp(millis);
                 }
+            case "MILLIS":
+                {
+                    long millis = Long.parseLong(text);
+                    return new Timestamp(millis);
+                }
+            case "SECONDS":
+                {
+                    long seconds = Long.parseLong(text);
+                    long millis = TimeUnit.SECONDS.toMillis(seconds);
+                    return new Timestamp(millis);
+                }
+            default:
+                {
+                    if (simpleDateFormat == null) {
+                        throw new IllegalStateException();
+                    }
 
-                Date date = simpleDateFormat.parse(text);
-                return new Timestamp(date.getTime());
-            }
+                    Date date = simpleDateFormat.parse(text);
+                    return new Timestamp(date.getTime());
+                }
         }
     }
 

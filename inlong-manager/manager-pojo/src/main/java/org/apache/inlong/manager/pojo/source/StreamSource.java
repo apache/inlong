@@ -21,6 +21,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,14 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Stream source info, including source name, agent ip, etc.
- */
+/** Stream source info, including source name, agent ip, etc. */
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -110,5 +107,4 @@ public abstract class StreamSource extends StreamNode {
     public SourceRequest genSourceRequest() {
         return null;
     }
-
 }

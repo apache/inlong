@@ -19,6 +19,8 @@ package org.apache.inlong.manager.client.api.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication;
@@ -34,20 +36,14 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * The transfer util for Inlong Group
- */
+/** The transfer util for Inlong Group */
 public class InlongGroupTransfer {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * Create inlong group info from group config.
-     */
-    public static InlongGroupInfo createGroupInfo(InlongGroupInfo groupInfo, BaseSortConf sortConf) {
+    /** Create inlong group info from group config. */
+    public static InlongGroupInfo createGroupInfo(
+            InlongGroupInfo groupInfo, BaseSortConf sortConf) {
         Preconditions.checkNotNull(groupInfo, "Inlong group info cannot be null");
         String groupId = groupInfo.getInlongGroupId();
         Preconditions.checkNotEmpty(groupId, "groupId cannot be empty");
@@ -62,7 +58,8 @@ public class InlongGroupTransfer {
         if (groupInfo.getAuthentication() != null) {
             Authentication authentication = groupInfo.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            Preconditions.checkTrue(authType == AuthType.TOKEN,
+            Preconditions.checkTrue(
+                    authType == AuthType.TOKEN,
                     String.format("Unsupported authentication %s for Pulsar", authType.name()));
             TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
@@ -99,9 +96,7 @@ public class InlongGroupTransfer {
         return groupInfo;
     }
 
-    /**
-     * Get ext infos from flink config
-     */
+    /** Get ext infos from flink config */
     public static List<InlongGroupExtInfo> createFlinkExtInfo(FlinkSortConf flinkSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
@@ -111,9 +106,11 @@ public class InlongGroupTransfer {
         if (flinkSortConf.getAuthentication() != null) {
             Authentication authentication = flinkSortConf.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            Preconditions.checkTrue(authType == AuthType.SECRET_AND_TOKEN,
+            Preconditions.checkTrue(
+                    authType == AuthType.SECRET_AND_TOKEN,
                     String.format("Unsupported authentication %s for Flink", authType.name()));
-            final SecretTokenAuthentication secretTokenAuthentication = (SecretTokenAuthentication) authentication;
+            final SecretTokenAuthentication secretTokenAuthentication =
+                    (SecretTokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
             authTypeExt.setKeyName(InlongConstants.SORT_AUTHENTICATION_TYPE);
             authTypeExt.setKeyValue(authType.toString());
@@ -133,7 +130,8 @@ public class InlongGroupTransfer {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
-                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(flinkSortConf.getProperties()));
+                flinkProperties.setKeyValue(
+                        OBJECT_MAPPER.writeValueAsString(flinkSortConf.getProperties()));
             } catch (Exception e) {
                 throw new RuntimeException("get json for sort properties error: " + e.getMessage());
             }
@@ -142,10 +140,9 @@ public class InlongGroupTransfer {
         return extInfos;
     }
 
-    /**
-     * Get ext infos from user defined sort config
-     */
-    public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(UserDefinedSortConf userDefinedSortConf) {
+    /** Get ext infos from user defined sort config */
+    public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(
+            UserDefinedSortConf userDefinedSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
         sortType.setKeyName(InlongConstants.SORT_TYPE);
@@ -159,7 +156,8 @@ public class InlongGroupTransfer {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
-                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
+                flinkProperties.setKeyValue(
+                        OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
             } catch (Exception e) {
                 throw new RuntimeException("get json for sort properties error: " + e.getMessage());
             }
@@ -167,5 +165,4 @@ public class InlongGroupTransfer {
         }
         return extInfos;
     }
-
 }

@@ -18,11 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
+import java.util.List;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
-
-import java.util.List;
 
 /**
  * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to

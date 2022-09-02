@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.cls;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +21,13 @@ import com.tencentcloudapi.cls.producer.AsyncProducerClient;
 import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
 import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -40,17 +43,7 @@ import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-/**
- * Cls sink context.
- */
+/** Cls sink context. */
 public class ClsSinkContext extends SinkContext {
 
     private static final Logger LOG = InlongLoggerFactory.getLogger(ClsSinkContext.class);
@@ -82,8 +75,8 @@ public class ClsSinkContext extends SinkContext {
      * Constructor
      *
      * @param sinkName Name of sink.
-     * @param context  Basic context.
-     * @param channel  Channel which worker acquire profile event from.
+     * @param context Basic context.
+     * @param channel Channel which worker acquire profile event from.
      */
     public ClsSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
@@ -94,39 +87,47 @@ public class ClsSinkContext extends SinkContext {
     public void reload() {
         try {
             // remove deleting clients.
-            deletingClients.forEach(client -> {
-                try {
-                    client.close();
-                } catch (InterruptedException e) {
-                    LOG.error("close client failed, got InterruptedException" + e.getMessage(), e);
-                } catch (ProducerException e) {
-                    LOG.error("close client failed, got ProducerException" + e.getMessage(), e);
-                }
-            });
+            deletingClients.forEach(
+                    client -> {
+                        try {
+                            client.close();
+                        } catch (InterruptedException e) {
+                            LOG.error(
+                                    "close client failed, got InterruptedException"
+                                            + e.getMessage(),
+                                    e);
+                        } catch (ProducerException e) {
+                            LOG.error(
+                                    "close client failed, got ProducerException" + e.getMessage(),
+                                    e);
+                        }
+                    });
 
             SortTaskConfig newSortTaskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
             if (newSortTaskConfig == null || newSortTaskConfig.equals(sortTaskConfig)) {
                 return;
             }
-            LOG.info("get new SortTaskConfig:taskName:{}:config:{}", taskName,
+            LOG.info(
+                    "get new SortTaskConfig:taskName:{}:config:{}",
+                    taskName,
                     new ObjectMapper().writeValueAsString(newSortTaskConfig));
             this.sortTaskConfig = newSortTaskConfig;
             this.sinkContext = new Context(this.sortTaskConfig.getSinkParams());
             this.reloadIdParams();
             this.reloadClients();
             this.reloadHandler();
-            this.keywordMaxLength = sinkContext.getInteger(KEY_MAX_KEYWORD_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
+            this.keywordMaxLength =
+                    sinkContext.getInteger(KEY_MAX_KEYWORD_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * Reload LogItemHandler.
-     */
+    /** Reload LogItemHandler. */
     private void reloadHandler() {
-        String logItemHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_LOG_ITEM_HANDLER,
-                DefaultEvent2LogItemHandler.class.getName());
+        String logItemHandlerClass =
+                CommonPropertiesHolder.getString(
+                        KEY_EVENT_LOG_ITEM_HANDLER, DefaultEvent2LogItemHandler.class.getName());
         try {
             Class<?> handlerClass = ClassUtils.getClass(logItemHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
@@ -136,8 +137,10 @@ public class ClsSinkContext extends SinkContext {
                 LOG.error("{} is not the instance of IEvent2LogItemHandler", logItemHandlerClass);
             }
         } catch (Throwable t) {
-            LOG.error("Fail to init IEvent2LogItemHandler, handlerClass:{}, error:{}",
-                    logItemHandlerClass, t.getMessage());
+            LOG.error(
+                    "Fail to init IEvent2LogItemHandler, handlerClass:{}, error:{}",
+                    logItemHandlerClass,
+                    t.getMessage());
         }
     }
 
@@ -166,32 +169,31 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Close expire clients and start new clients.
      *
-     * <p>
-     * Each client response for data of one secretId.
-     * </p>
-     * <p>
-     * First, find all secretId that are in the active clientMap but not in the updated id config (or to say EXPIRE
-     * secretId), and put those clients into deletingClientsMap. The real close process will be done at the beginning of
-     * next period of reloading. Second, find all secretIds that in the updated id config but not in the active
-     * clientMap(or to say NEW secretId), and start new clients for these secretId and put them into the active
-     * clientMap.
-     * </p>
+     * <p>Each client response for data of one secretId.
+     *
+     * <p>First, find all secretId that are in the active clientMap but not in the updated id config
+     * (or to say EXPIRE secretId), and put those clients into deletingClientsMap. The real close
+     * process will be done at the beginning of next period of reloading. Second, find all secretIds
+     * that in the updated id config but not in the active clientMap(or to say NEW secretId), and
+     * start new clients for these secretId and put them into the active clientMap.
      */
     private void reloadClients() {
         // get update secretIds
-        Map<String, ClsIdConfig> updateConfigMap = idConfigMap.values()
-                .stream()
-                .collect(Collectors.toMap(ClsIdConfig::getSecretId, config -> config, (k1, k2) -> k1));
+        Map<String, ClsIdConfig> updateConfigMap =
+                idConfigMap.values().stream()
+                        .collect(
+                                Collectors.toMap(
+                                        ClsIdConfig::getSecretId,
+                                        config -> config,
+                                        (k1, k2) -> k1));
 
         // remove expire client
-        clientMap.keySet()
-                .stream()
+        clientMap.keySet().stream()
                 .filter(secretId -> !updateConfigMap.containsKey(secretId))
                 .forEach(this::removeExpireClient);
 
         // start new client
-        updateConfigMap.values()
-                .stream()
+        updateConfigMap.values().stream()
                 .filter(config -> !clientMap.containsKey(config.getSecretId()))
                 .forEach(this::startNewClient);
     }
@@ -202,11 +204,12 @@ public class ClsSinkContext extends SinkContext {
      * @param idConfig idConfig of new client.
      */
     private void startNewClient(ClsIdConfig idConfig) {
-        AsyncProducerConfig producerConfig = new AsyncProducerConfig(
-                idConfig.getEndpoint(),
-                idConfig.getSecretId(),
-                idConfig.getSecretKey(),
-                NetworkUtils.getLocalMachineIP());
+        AsyncProducerConfig producerConfig =
+                new AsyncProducerConfig(
+                        idConfig.getEndpoint(),
+                        idConfig.getSecretId(),
+                        idConfig.getSecretKey(),
+                        NetworkUtils.getLocalMachineIP());
         this.setCommonClientConfig(producerConfig);
         AsyncProducerClient client = new AsyncProducerClient(producerConfig);
         clientMap.put(idConfig.getSecretId(), client);
@@ -228,10 +231,8 @@ public class ClsSinkContext extends SinkContext {
                 .ifPresent(config::setBatchSizeThresholdInBytes);
         Optional.ofNullable(sinkContext.getInteger(KEY_MAX_BATCH_COUNT))
                 .ifPresent(config::setBatchCountThreshold);
-        Optional.ofNullable(sinkContext.getInteger(KEY_LINGER_MS))
-                .ifPresent(config::setLingerMs);
-        Optional.ofNullable(sinkContext.getInteger(KEY_RETRIES))
-                .ifPresent(config::setRetries);
+        Optional.ofNullable(sinkContext.getInteger(KEY_LINGER_MS)).ifPresent(config::setLingerMs);
+        Optional.ofNullable(sinkContext.getInteger(KEY_RETRIES)).ifPresent(config::setRetries);
         Optional.ofNullable(sinkContext.getInteger(KEY_MAX_RESERVED_ATTEMPTS))
                 .ifPresent(config::setMaxReservedAttempts);
         Optional.ofNullable(sinkContext.getInteger(KEY_BASE_RETRY_BACKOFF_MS))
@@ -242,10 +243,10 @@ public class ClsSinkContext extends SinkContext {
 
     /**
      * Remove expire client from active clientMap and into the deleting client list.
-     * <P>
-     * The reason why not close client when it remove from clientMap is to avoid <b>Race Condition</b>. Which will
-     * happen when worker thread get the client and ready to send msg, while the reload thread try to close it.
-     * </P>
+     *
+     * <p>The reason why not close client when it remove from clientMap is to avoid <b>Race
+     * Condition</b>. Which will happen when worker thread get the client and ready to send msg,
+     * while the reload thread try to close it.
      *
      * @param secretId SecretId of expire client.
      */
@@ -262,11 +263,12 @@ public class ClsSinkContext extends SinkContext {
      * Add send result.
      *
      * @param currentRecord Event to be sent.
-     * @param bid           Topic or dest ip of event.
-     * @param result        Result of send.
-     * @param sendTime      Time of sending.
+     * @param bid Topic or dest ip of event.
+     * @param result Result of send.
+     * @param sendTime Time of sending.
      */
-    public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
+    public void addSendResultMetric(
+            ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
@@ -291,9 +293,9 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get report dimensions.
      *
-     * @param  currentRecord Event.
-     * @param  bid  Topic or dest ip.
-     * @return  Prepared dimensions map.
+     * @param currentRecord Event.
+     * @param bid Topic or dest ip.
+     * @return Prepared dimensions map.
      */
     private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
@@ -312,8 +314,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get {@link ClsIdConfig} by uid.
      *
-     * @param  uid Uid of event.
-     * @return  Corresponding cls id config.
+     * @param uid Uid of event.
+     * @return Corresponding cls id config.
      */
     public ClsIdConfig getIdConfig(String uid) {
         return idConfigMap.get(uid);
@@ -340,8 +342,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get cls client.
      *
-     * @param  secretId ID of client.
-     * @return  Client instance.
+     * @param secretId ID of client.
+     * @return Client instance.
      */
     public AsyncProducerClient getClient(String secretId) {
         return clientMap.get(secretId);

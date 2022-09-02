@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Sink brief info
- */
+/** Sink brief info */
 @Data
 @ApiModel("Sink brief info")
 public class SinkBriefInfo {
@@ -47,5 +45,4 @@ public class SinkBriefInfo {
 
     @ApiModelProperty("Sink cluster URL")
     private String clusterUrl;
-
 }

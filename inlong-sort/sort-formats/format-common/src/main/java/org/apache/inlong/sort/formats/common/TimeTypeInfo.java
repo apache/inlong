@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The type information for times.
- */
+/** The type information for times. */
 public class TimeTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;

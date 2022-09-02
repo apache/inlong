@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
@@ -37,12 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Test class for base test service.
- */
+/** Test class for base test service. */
 @SpringBootApplication
 @SpringBootTest(classes = ServiceBaseTest.class)
 public class ServiceBaseTest extends BaseTest {
@@ -52,14 +49,13 @@ public class ServiceBaseTest extends BaseTest {
     public static final String GLOBAL_OPERATOR = "admin";
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBaseTest.class);
 
-    @Autowired
-    protected InlongGroupService groupService;
-    @Autowired
-    protected InlongStreamService streamService;
+    @Autowired protected InlongGroupService groupService;
+    @Autowired protected InlongStreamService streamService;
 
     @Test
     public void test() {
-        LOGGER.info("The test class cannot be empty, otherwise 'No runnable methods exception' will be reported");
+        LOGGER.info(
+                "The test class cannot be empty, otherwise 'No runnable methods exception' will be reported");
     }
 
     /**
@@ -91,8 +87,10 @@ public class ServiceBaseTest extends BaseTest {
         groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.save(groupInfo.genRequest(), GLOBAL_OPERATOR);
         InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
-        groupService.updateStatus(inlongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), GLOBAL_OPERATOR);
-        groupService.updateStatus(inlongGroupId, GroupStatus.APPROVE_PASSED.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(
+                inlongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(
+                inlongGroupId, GroupStatus.APPROVE_PASSED.getCode(), GLOBAL_OPERATOR);
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
         return groupInfo;
@@ -140,5 +138,4 @@ public class ServiceBaseTest extends BaseTest {
         streamFields.add(fieldInfo);
         return streamFields;
     }
-
 }

@@ -23,9 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
-/**
- * Stream Transform configuration
- */
+/** Stream Transform configuration */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream Transform configuration")

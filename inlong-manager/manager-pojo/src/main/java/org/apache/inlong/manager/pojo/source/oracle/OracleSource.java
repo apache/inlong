@@ -31,9 +31,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * Oracle source info
- */
+/** Oracle source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -82,5 +80,4 @@ public class OracleSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, OracleSourceRequest::new);
     }
-
 }

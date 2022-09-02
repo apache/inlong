@@ -25,14 +25,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
-
-/**
- * Defines the relation between fields from input to output field
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** Defines the relation between fields from input to output field */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonTypeName("fieldRelation")
 @Data
 @NoArgsConstructor
@@ -40,11 +34,13 @@ public class FieldRelation {
 
     @JsonProperty("inputField")
     private FunctionParam inputField;
+
     @JsonProperty("outputField")
     private FieldInfo outputField;
 
     @JsonCreator
-    public FieldRelation(@JsonProperty("inputField") FunctionParam inputField,
+    public FieldRelation(
+            @JsonProperty("inputField") FunctionParam inputField,
             @JsonProperty("outputField") FieldInfo outputField) {
         this.inputField = inputField;
         this.outputField = outputField;

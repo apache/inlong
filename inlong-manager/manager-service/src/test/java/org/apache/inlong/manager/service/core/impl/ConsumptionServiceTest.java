@@ -26,19 +26,15 @@ import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Consumption service test
- */
+/** Consumption service test */
 public class ConsumptionServiceTest extends ServiceBaseTest {
 
     String inlongGroupId = "group_for_consumption_test";
     String consumerGroup = "test_consumer_group";
     String operator = "admin";
 
-    @Autowired
-    private ConsumptionService consumptionService;
-    @Autowired
-    private InlongGroupServiceTest groupServiceTest;
+    @Autowired private ConsumptionService consumptionService;
+    @Autowired private InlongGroupServiceTest groupServiceTest;
 
     private Integer saveConsumption(String inlongGroupId, String consumerGroup, String operator) {
         ConsumptionInfo consumptionInfo = new ConsumptionInfo();

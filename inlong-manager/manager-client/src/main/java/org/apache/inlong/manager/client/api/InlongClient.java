@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.client.api;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -31,13 +33,10 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * An interface to manipulate Inlong Cluster
- * <p/>
- * Example:
+ *
+ * <p>Example:
  *
  * <pre>
  * <code>
@@ -92,7 +91,8 @@ public interface InlongClient {
      * @return the list
      * @throws Exception the exception
      */
-    List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
+    List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize)
+            throws Exception;
 
     /**
      * List group status

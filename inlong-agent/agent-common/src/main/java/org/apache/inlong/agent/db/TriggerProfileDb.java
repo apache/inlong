@@ -17,18 +17,15 @@
 
 package org.apache.inlong.agent.db;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * db interface for trigger profile.
- */
+/** db interface for trigger profile. */
 public class TriggerProfileDb {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TriggerProfileDb.class);
@@ -62,8 +59,11 @@ public class TriggerProfileDb {
     public void storeTrigger(TriggerProfile trigger) {
         if (trigger.allRequiredKeyExist()) {
             String keyName = CommonConstants.TRIGGER_ID_PREFIX + trigger.get(JobConstants.JOB_ID);
-            KeyValueEntity entity = new KeyValueEntity(keyName,
-                    trigger.toJsonStr(), trigger.get(JobConstants.JOB_DIR_FILTER_PATTERN));
+            KeyValueEntity entity =
+                    new KeyValueEntity(
+                            keyName,
+                            trigger.toJsonStr(),
+                            trigger.get(JobConstants.JOB_DIR_FILTER_PATTERN));
             KeyValueEntity oldEntity = db.put(entity);
             if (oldEntity != null) {
                 LOGGER.warn("trigger profile {} has been replaced", oldEntity.getKey());
@@ -71,9 +71,7 @@ public class TriggerProfileDb {
         }
     }
 
-    /**
-     * delete trigger by id.
-     */
+    /** delete trigger by id. */
     public void deleteTrigger(String id) {
         db.remove(CommonConstants.TRIGGER_ID_PREFIX + id);
     }

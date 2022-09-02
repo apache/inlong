@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -25,12 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * Inner join relation class which defines the inner join relation
- */
+/** Inner join relation class which defines the inner join relation */
 @JsonTypeName("innerJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -44,14 +41,15 @@ public class InnerJoinNodeRelation extends JoinRelation {
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
-     * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     * @param joinConditionMap The joinConditionMap is a map of join conditions the key of
+     *     joinConditionMap is the node id of join node the value of joinConditionMap is a list of
+     *     join contidition
      */
     @JsonCreator
-    public InnerJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
-                                 @JsonProperty("outputs") List<String> outputs,
-                                 @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public InnerJoinNodeRelation(
+            @JsonProperty("inputs") List<String> inputs,
+            @JsonProperty("outputs") List<String> outputs,
+            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 

@@ -17,25 +17,21 @@
 
 package org.apache.inlong.manager.test;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import org.mvnsearch.h2.H2FunctionsLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-
-/**
- * Class of base test.
- */
+/** Class of base test. */
 @ActiveProfiles(value = {"unit-test"})
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
 public class BaseTest {
 
-    @Autowired
-    private DataSource dataSource;
+    @Autowired private DataSource dataSource;
 
     @PostConstruct
     public void initH2Function() {

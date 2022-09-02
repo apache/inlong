@@ -29,9 +29,9 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 /**
  * WebCallStatsHolder, statistic for web api calls
  *
- * This method class statistic the total number of web api calls and
- * the distribution of call time consumption, as well as the total number of times and
- * extreme time consumption of each method
+ * <p>This method class statistic the total number of web api calls and the distribution of call
+ * time consumption, as well as the total number of times and extreme time consumption of each
+ * method
  */
 public class WebCallStatsHolder {
     // Switchable statistic items
@@ -77,7 +77,7 @@ public class WebCallStatsHolder {
     /**
      * Set manually the statistic status.
      *
-     * @param enableStats  enable or disable the statistic.
+     * @param enableStats enable or disable the statistic.
      */
     public static synchronized void setStatsStatus(boolean enableStats) {
         WebCallStatsHolder.isManualClosed = !enableStats;
@@ -127,11 +127,9 @@ public class WebCallStatsHolder {
         return false;
     }
 
-    private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
-        statsMap.put(statsSet.lstResetTime.getFullName(),
-                statsSet.lstResetTime.getSinceTime());
+    private static void getStatsValue(
+            WebCallStatsItemSet statsSet, boolean resetValue, Map<String, Long> statsMap) {
+        statsMap.put(statsSet.lstResetTime.getFullName(), statsSet.lstResetTime.getSinceTime());
         statsMap.put("isClosed", (isManualClosed ? 1L : 0L));
         if (resetValue) {
             statsSet.totalCallStats.snapShort(statsMap, false);
@@ -141,12 +139,15 @@ public class WebCallStatsHolder {
         statsSet.getMethodStatsInfo(statsMap, resetValue);
     }
 
-    private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
-        strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
-                .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
-                .append("\",\"isClosed\":").append(isManualClosed).append(",");
+    private static void getStatsValue(
+            WebCallStatsItemSet statsSet, boolean resetValue, StringBuilder strBuff) {
+        strBuff.append("{\"")
+                .append(statsSet.lstResetTime.getFullName())
+                .append("\":\"")
+                .append(statsSet.lstResetTime.getStrSinceTime())
+                .append("\",\"isClosed\":")
+                .append(isManualClosed)
+                .append(",");
         if (resetValue) {
             statsSet.totalCallStats.snapShort(strBuff, false);
         } else {
@@ -169,7 +170,7 @@ public class WebCallStatsHolder {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex the specified value
      * @return the metric block index
      */
     private static int getIndex(int origIndex) {
@@ -179,14 +180,12 @@ public class WebCallStatsHolder {
     /**
      * WebCallStatsItemSet, Switchable web call statistics block
      *
-     * In which the object is the metric item that can be counted in stages
+     * <p>In which the object is the metric item that can be counted in stages
      */
     private static class WebCallStatsItemSet {
-        protected final SinceTime lstResetTime =
-                new SinceTime("reset_time", null);
+        protected final SinceTime lstResetTime = new SinceTime("reset_time", null);
         // Total call statistics
-        protected final ESTHistogram totalCallStats =
-                new ESTHistogram("web_calls", null);
+        protected final ESTHistogram totalCallStats = new ESTHistogram("web_calls", null);
         // Simple Statistics Based on Methods
         protected final ConcurrentHashMap<String, SimpleHistogram> methodStatsMap =
                 new ConcurrentHashMap();
@@ -202,8 +201,8 @@ public class WebCallStatsHolder {
         /**
          * Gets the method statistics information
          *
-         * @param statsMap    the statistics content contain
-         * @param resetValue  whether reset value
+         * @param statsMap the statistics content contain
+         * @param resetValue whether reset value
          */
         public void getMethodStatsInfo(Map<String, Long> statsMap, boolean resetValue) {
             for (SimpleHistogram itemStats : methodStatsMap.values()) {
@@ -217,8 +216,8 @@ public class WebCallStatsHolder {
         /**
          * Gets the method statistics information
          *
-         * @param strBuff     the statistics content contain
-         * @param resetValue  whether reset value
+         * @param strBuff the statistics content contain
+         * @param resetValue whether reset value
          */
         public void getMethodStatsInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -239,4 +238,3 @@ public class WebCallStatsHolder {
         }
     }
 }
-

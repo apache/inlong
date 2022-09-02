@@ -19,6 +19,14 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -34,18 +42,7 @@ import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Extract node for mongo, note that mongo should work in replicaSet mode
- */
+/** Extract node for mongo, note that mongo should work in replicaSet mode */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("MongoExtract")
 @Data
@@ -56,26 +53,34 @@ public class MongoExtractNode extends ExtractNode implements InlongMetric, Metad
     /**
      * the primary key must be "_id"
      *
-     * @see <a href="https://ververica.github.io/flink-cdc-connectors/release-2.1/content/connectors/mongodb-cdc.html#">MongoDB CDC Connector</a>
+     * @see <a
+     *     href="https://ververica.github.io/flink-cdc-connectors/release-2.1/content/connectors/mongodb-cdc.html#">MongoDB
+     *     CDC Connector</a>
      */
     private static final String ID = "_id";
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
     private String primaryKey;
+
     @JsonProperty("hostname")
     private String hosts;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("database")
     private String database;
+
     @JsonProperty("collection")
     private String collection;
 
     @JsonCreator
-    public MongoExtractNode(@JsonProperty("id") String id,
+    public MongoExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
@@ -128,6 +133,10 @@ public class MongoExtractNode extends ExtractNode implements InlongMetric, Metad
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.COLLECTION_NAME, MetaField.DATABASE_NAME, MetaField.OP_TS);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.COLLECTION_NAME,
+                MetaField.DATABASE_NAME,
+                MetaField.OP_TS);
     }
 }

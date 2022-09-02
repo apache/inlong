@@ -17,25 +17,20 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Builder for SQL string
- */
+/** Builder for SQL string */
 public class SqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlBuilder.class);
 
-    /**
-     * Build create database SQL
-     */
+    /** Build create database SQL */
     public static String buildCreateDbSql(String dbName) {
         // Support _ beginning with underscore
         String sql = "CREATE DATABASE IF NOT EXISTS `" + dbName + "`";
@@ -43,9 +38,7 @@ public class SqlBuilder {
         return sql;
     }
 
-    /**
-     * Build create table SQL
-     */
+    /** Build create table SQL */
     public static String buildCreateTableSql(HiveTableInfo table) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
@@ -55,16 +48,16 @@ public class SqlBuilder {
         // Construct columns and partition columns
         sql.append(getColumnsAndComments(table.getColumns(), table.getTableDesc()));
         if (table.getFieldTerSymbol() != null) {
-            sql.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY '").append(table.getFieldTerSymbol()).append("'");
+            sql.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY '")
+                    .append(table.getFieldTerSymbol())
+                    .append("'");
         }
 
         LOGGER.info("create table sql: {}", sql);
         return sql.toString();
     }
 
-    /**
-     * Build query table SQL
-     */
+    /** Build query table SQL */
     public static String buildDescTableSql(String dbName, String tableName) {
         StringBuilder sql = new StringBuilder();
         String fullTableName = "`" + dbName + "." + tableName + "`";
@@ -74,10 +67,9 @@ public class SqlBuilder {
         return sql.toString();
     }
 
-    /**
-     * Build add column SQL
-     */
-    public static String buildAddColumnSql(String dbName, String tableName, List<HiveColumnInfo> columnList) {
+    /** Build add column SQL */
+    public static String buildAddColumnSql(
+            String dbName, String tableName, List<HiveColumnInfo> columnList) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
         String dbTableName = "`" + dbName + "." + tableName + "`";
@@ -90,8 +82,12 @@ public class SqlBuilder {
                 continue;
             }
             // Support _ beginning with underscore
-            StringBuilder columnStr = new StringBuilder().append("`").append(columnInfo.getName()).append("` ")
-                    .append(columnInfo.getType());
+            StringBuilder columnStr =
+                    new StringBuilder()
+                            .append("`")
+                            .append(columnInfo.getName())
+                            .append("` ")
+                            .append(columnInfo.getType());
             if (StringUtils.isNotEmpty(columnInfo.getDesc())) { // comment is not empty
                 columnStr.append(" COMMENT ").append("'").append(columnInfo.getDesc()).append("'");
             }
@@ -106,15 +102,20 @@ public class SqlBuilder {
     /**
      * Get columns and table comment string for create table SQL.
      *
-     * For example: col_name data_type [COMMENT col_comment], col_name data_type [COMMENT col_comment]....
+     * <p>For example: col_name data_type [COMMENT col_comment], col_name data_type [COMMENT
+     * col_comment]....
      */
     private static String getColumnsAndComments(List<HiveColumnInfo> columns, String tableComment) {
         List<String> columnList = new ArrayList<>();
         List<String> partitionList = new ArrayList<>();
         for (HiveColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
-            StringBuilder columnStr = new StringBuilder().append("`").append(columnInfo.getName()).append("` ")
-                    .append(columnInfo.getType());
+            StringBuilder columnStr =
+                    new StringBuilder()
+                            .append("`")
+                            .append(columnInfo.getName())
+                            .append("` ")
+                            .append(columnInfo.getType());
             if (StringUtils.isNotEmpty(columnInfo.getDesc())) {
                 columnStr.append(" COMMENT ").append("'").append(columnInfo.getDesc()).append("'");
             }
@@ -125,7 +126,11 @@ public class SqlBuilder {
                 columnList.add(columnStr.toString());
             }
         }
-        StringBuilder result = new StringBuilder().append(" (").append(StringUtils.join(columnList, ",")).append(") ");
+        StringBuilder result =
+                new StringBuilder()
+                        .append(" (")
+                        .append(StringUtils.join(columnList, ","))
+                        .append(") ");
 
         // set table comment
         if (StringUtils.isNotEmpty(tableComment)) {
@@ -133,10 +138,11 @@ public class SqlBuilder {
         }
         // set partitions
         if (partitionList.size() > 0) {
-            result.append("PARTITIONED BY (").append(StringUtils.join(partitionList, ",")).append(") ");
+            result.append("PARTITIONED BY (")
+                    .append(StringUtils.join(partitionList, ","))
+                    .append(") ");
         }
 
         return result.toString();
     }
-
 }

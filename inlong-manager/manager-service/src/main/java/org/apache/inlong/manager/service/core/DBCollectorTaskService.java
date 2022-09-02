@@ -21,9 +21,7 @@ import org.apache.inlong.manager.pojo.dbcollector.DBCollectorReportTaskRequest;
 import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskInfo;
 import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskRequest;
 
-/**
- * Database collector task service layer interface for inlong group
- */
+/** Database collector task service layer interface for inlong group */
 public interface DBCollectorTaskService {
 
     /**

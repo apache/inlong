@@ -18,37 +18,24 @@
 package org.apache.inlong.common.pojo.agent;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 
-/**
- * Request of the agent task snapshot
- */
+/** Request of the agent task snapshot */
 @Data
 public class TaskSnapshotRequest {
 
-    /**
-     * The ip of agent Ip
-     */
+    /** The ip of agent Ip */
     private String agentIp;
 
-    /**
-     * The mac UUID of agent
-     */
-    private  String uuid;
+    /** The mac UUID of agent */
+    private String uuid;
 
-    /**
-     * Report Time
-     */
+    /** Report Time */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date reportTime;
 
-    /**
-     * The snapshot message list
-     */
+    /** The snapshot message list */
     private List<TaskSnapshotMessage> snapshotList;
-
-
 }

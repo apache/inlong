@@ -18,9 +18,7 @@
 package org.apache.inlong.tubemq.manager.controller.topic;
 
 import com.google.gson.Gson;
-
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.request.BatchAddTopicReq;
@@ -49,24 +47,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TopicWebController {
 
-    @Autowired
-    private NodeService nodeService;
+    @Autowired private NodeService nodeService;
 
     private Gson gson = new Gson();
 
-    @Autowired
-    private MasterService masterService;
+    @Autowired private MasterService masterService;
 
-    @Autowired
-    private TopicService topicService;
+    @Autowired private TopicService topicService;
 
-    /**
-     * broker method proxy
-     * divides the operation on broker to different method
-     */
+    /** broker method proxy divides the operation on broker to different method */
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult topicMethodProxy(@RequestParam String method, @RequestBody String req) throws Exception {
+    public @ResponseBody TubeMQResult topicMethodProxy(
+            @RequestParam String method, @RequestBody String req) throws Exception {
         switch (method) {
             case TubeConst.ADD:
                 return masterService.baseRequestMaster(gson.fromJson(req, BatchAddTopicReq.class));
@@ -109,13 +101,11 @@ public class TopicWebController {
      *
      * @param req
      * @return
-     *
      * @throws Exception the exception
      */
     @GetMapping("/consumerAuth")
-    public @ResponseBody
-        String queryConsumerAuth(
-            @RequestParam Map<String, String> req) throws Exception {
+    public @ResponseBody String queryConsumerAuth(@RequestParam Map<String, String> req)
+            throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }
@@ -125,15 +115,12 @@ public class TopicWebController {
      *
      * @param req
      * @return
-     *
      * @throws Exception the exception
      */
     @GetMapping("/topicConfig")
-    public @ResponseBody
-        String queryTopicConfig(
-            @RequestParam Map<String, String> req) throws Exception {
+    public @ResponseBody String queryTopicConfig(@RequestParam Map<String, String> req)
+            throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }
-
 }

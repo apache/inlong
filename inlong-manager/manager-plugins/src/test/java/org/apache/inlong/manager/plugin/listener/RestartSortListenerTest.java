@@ -18,6 +18,10 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
@@ -25,14 +29,7 @@ import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcess
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Test class for restart sort listener.
- */
+/** Test class for restart sort listener. */
 public class RestartSortListenerTest {
 
     @Test
@@ -65,67 +62,68 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();
         inlongGroupExtInfo6.setKeyName(InlongConstants.DATAFLOW);
-        inlongGroupExtInfo6.setKeyValue("{\"streamId\":{\n"
-                + "    \"id\":1,\n"
-                + "    \"source_info\":{\n"
-                + "        \"type\":\"pulsar\",\n"
-                + "        \"admin_url\":\"http://127.0.0.1:8080\",\n"
-                + "        \"service_url\":\"pulsar://127.0.0.1:6650\",\n"
-                + "        \"topic\":\"persistent://pzr/pzr/pzr-topic\",\n"
-                + "        \"subscription_name\":\"subscriptionName\",\n"
-                + "        \"deserialization_info\":{\n"
-                + "            \"type\":\"debezium_json\",\n"
-                + "            \"ignore_parse_errors\":true,\n"
-                + "            \"timestamp_format_standard\":\"ISO_8601\"\n"
-                + "        },\n"
-                + "        \"fields\":[\n"
-                + "            {\n"
-                + "                \"name\":\"name\",\n"
-                + "                \"format_info\":{\n"
-                + "                    \"type\":\"string\"\n"
-                + "                }\n"
-                + "            },\n"
-                + "            {\n"
-                + "                \"name\":\"age\",\n"
-                + "                \"format_info\":{\n"
-                + "                    \"type\":\"int\"\n"
-                + "                }\n"
-                + "            }\n"
-                + "        ],\n"
-                + "        \"authentication\":null\n"
-                + "    },\n"
-                + "    \"sink_info\":{\n"
-                + "        \"type\":\"hive\",\n"
-                + "        \"fields\":[\n"
-                + "            {\n"
-                + "                \"name\":\"name\",\n"
-                + "                \"format_info\":{\n"
-                + "                    \"type\":\"string\"\n"
-                + "                }\n"
-                + "            },\n"
-                + "            {\n"
-                + "                \"name\":\"age\",\n"
-                + "                \"format_info\":{\n"
-                + "                    \"type\":\"int\"\n"
-                + "                }\n"
-                + "            }\n"
-                + "        ],\n"
-                + "        \"hive_server_jdbc_url\":\"jdbc:hive2://127.0.0.1:10000\",\n"
-                + "        \"database\":\"inlong_test\",\n"
-                + "        \"table\":\"pzr\",\n"
-                + "        \"username\":\"testUsername\",\n"
-                + "        \"password\":\"testPassword\",\n"
-                + "        \"data_path\":\"hdfs://127.0.0.1:8020\",\n"
-                + "        \"partitions\":[],\n"
-                + "        \"file_format\":{\n"
-                + "            \"type\":\"text\",\n"
-                + "            \"splitter\":\"|\"\n"
-                + "        }\n"
-                + "    },\n"
-                + "    \"properties\":{\n"
-                + "        \"pulsar.source.consumer.bootstrap-mode\":\"earliest\"\n"
-                + "    }\n"
-                + "}}");
+        inlongGroupExtInfo6.setKeyValue(
+                "{\"streamId\":{\n"
+                        + "    \"id\":1,\n"
+                        + "    \"source_info\":{\n"
+                        + "        \"type\":\"pulsar\",\n"
+                        + "        \"admin_url\":\"http://127.0.0.1:8080\",\n"
+                        + "        \"service_url\":\"pulsar://127.0.0.1:6650\",\n"
+                        + "        \"topic\":\"persistent://pzr/pzr/pzr-topic\",\n"
+                        + "        \"subscription_name\":\"subscriptionName\",\n"
+                        + "        \"deserialization_info\":{\n"
+                        + "            \"type\":\"debezium_json\",\n"
+                        + "            \"ignore_parse_errors\":true,\n"
+                        + "            \"timestamp_format_standard\":\"ISO_8601\"\n"
+                        + "        },\n"
+                        + "        \"fields\":[\n"
+                        + "            {\n"
+                        + "                \"name\":\"name\",\n"
+                        + "                \"format_info\":{\n"
+                        + "                    \"type\":\"string\"\n"
+                        + "                }\n"
+                        + "            },\n"
+                        + "            {\n"
+                        + "                \"name\":\"age\",\n"
+                        + "                \"format_info\":{\n"
+                        + "                    \"type\":\"int\"\n"
+                        + "                }\n"
+                        + "            }\n"
+                        + "        ],\n"
+                        + "        \"authentication\":null\n"
+                        + "    },\n"
+                        + "    \"sink_info\":{\n"
+                        + "        \"type\":\"hive\",\n"
+                        + "        \"fields\":[\n"
+                        + "            {\n"
+                        + "                \"name\":\"name\",\n"
+                        + "                \"format_info\":{\n"
+                        + "                    \"type\":\"string\"\n"
+                        + "                }\n"
+                        + "            },\n"
+                        + "            {\n"
+                        + "                \"name\":\"age\",\n"
+                        + "                \"format_info\":{\n"
+                        + "                    \"type\":\"int\"\n"
+                        + "                }\n"
+                        + "            }\n"
+                        + "        ],\n"
+                        + "        \"hive_server_jdbc_url\":\"jdbc:hive2://127.0.0.1:10000\",\n"
+                        + "        \"database\":\"inlong_test\",\n"
+                        + "        \"table\":\"pzr\",\n"
+                        + "        \"username\":\"testUsername\",\n"
+                        + "        \"password\":\"testPassword\",\n"
+                        + "        \"data_path\":\"hdfs://127.0.0.1:8020\",\n"
+                        + "        \"partitions\":[],\n"
+                        + "        \"file_format\":{\n"
+                        + "            \"type\":\"text\",\n"
+                        + "            \"splitter\":\"|\"\n"
+                        + "        }\n"
+                        + "    },\n"
+                        + "    \"properties\":{\n"
+                        + "        \"pulsar.source.consumer.bootstrap-mode\":\"earliest\"\n"
+                        + "    }\n"
+                        + "}}");
         inlongGroupExtInfoList.add(inlongGroupExtInfo6);
 
         pulsarInfo.setExtList(inlongGroupExtInfoList);

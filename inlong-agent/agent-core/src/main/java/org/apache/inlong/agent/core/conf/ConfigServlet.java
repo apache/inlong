@@ -18,21 +18,18 @@
 package org.apache.inlong.agent.core.conf;
 
 import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-/**
- * Handle config http request
- */
+/** Handle config http request */
 public class ConfigServlet extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigServlet.class);
@@ -59,8 +56,8 @@ public class ConfigServlet extends HttpServlet {
      * @param result ResponseResult
      * @throws IOException
      */
-    public void responseToJson(HttpServletResponse response,
-            ResponseResult result) throws IOException {
+    public void responseToJson(HttpServletResponse response, ResponseResult result)
+            throws IOException {
         response.setContentType(CONTENT_TYPE);
         response.setCharacterEncoding(CHARSET_TYPE);
         String jsonStr = gson.toJson(result);

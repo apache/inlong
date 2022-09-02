@@ -33,8 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientStatsInfo {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ClientStatsInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientStatsInfo.class);
     private final boolean isProducer;
     private final String logPrefix;
     // statistic configure
@@ -57,8 +56,7 @@ public class ClientStatsInfo {
         } else {
             strBuff.append("[Consumer");
         }
-        this.logPrefix = strBuff.append(" Stats]: ")
-                .append("Client=").append(clientId).toString();
+        this.logPrefix = strBuff.append(" Stats]: ").append("Client=").append(clientId).toString();
         this.switchableSets[0] = new ClientStatsItemSet();
         this.switchableSets[1] = new ClientStatsItemSet();
     }
@@ -144,8 +142,7 @@ public class ClientStatsInfo {
         switchableSets[getIndex()].bookFailRpcCall(errCode);
     }
 
-    public void bookSuccSendMsg(long dltTime, String topicName,
-                                String partitionKey, int msgSize) {
+    public void bookSuccSendMsg(long dltTime, String topicName, String partitionKey, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -157,8 +154,8 @@ public class ClientStatsInfo {
         }
     }
 
-    public void bookSuccGetMsg(long dltTime, String topicName,
-                               String partitionKey, int msgCnt, int msgSize) {
+    public void bookSuccGetMsg(
+            long dltTime, String topicName, String partitionKey, int msgCnt, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -173,13 +170,11 @@ public class ClientStatsInfo {
     /**
      * Self print statistics information to log file
      *
-     * @param forcePrint    whether force print statistics information
-     * @param needReset     whether reset statistics set
-     * @param strBuff       string buffer
+     * @param forcePrint whether force print statistics information
+     * @param needReset whether reset statistics set
+     * @param strBuff string buffer
      */
-    public void selfPrintStatsInfo(boolean forcePrint,
-                                   boolean needReset,
-                                   StringBuilder strBuff) {
+    public void selfPrintStatsInfo(boolean forcePrint, boolean needReset, StringBuilder strBuff) {
         if ((this.statsConfig.getStatsLevel() == StatsLevel.ZERO)
                 || !this.statsConfig.isEnableSelfPrint()) {
             return;
@@ -190,8 +185,7 @@ public class ClientStatsInfo {
             if (lstSelfPrintTime.compareAndSet(lstPrintTime, curChkTime)) {
                 if (switchWritingStatsUnit(needReset)) {
                     strBuff.append(this.logPrefix).append(", reset value= ");
-                    getStatsInfo(switchableSets[getIndex(writableIndex.get() - 1)],
-                            true, strBuff);
+                    getStatsInfo(switchableSets[getIndex(writableIndex.get() - 1)], true, strBuff);
                 } else {
                     strBuff.append(this.logPrefix).append(", value= ");
                     getStatsInfo(switchableSets[getIndex()], false, strBuff);
@@ -207,7 +201,7 @@ public class ClientStatsInfo {
         long lstResetTime = lstSnapshotTime.get();
         long checkDltTime = System.currentTimeMillis() - lstResetTime;
         if (((needReset && (checkDltTime > TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS))
-                || (checkDltTime > this.statsConfig.getForcedResetPeriodMs()))
+                        || (checkDltTime > this.statsConfig.getForcedResetPeriodMs()))
                 && lstSnapshotTime.compareAndSet(lstResetTime, System.currentTimeMillis())) {
             switchableSets[getIndex(writableIndex.incrementAndGet())].resetStartTime();
             return true;
@@ -218,14 +212,16 @@ public class ClientStatsInfo {
     /**
      * Get current data encapsulated by Json format
      *
-     * @param statsSet     the statistics to be printed
-     * @param resetValue   whether to reset the current data
-     * @param strBuff      string buffer
+     * @param statsSet the statistics to be printed
+     * @param resetValue whether to reset the current data
+     * @param strBuff string buffer
      */
-    private void getStatsInfo(ClientStatsItemSet statsSet,
-                              boolean resetValue, StringBuilder strBuff) {
-        strBuff.append("{\"").append(statsSet.resetTime.getFullName())
-                .append("\":\"").append(statsSet.resetTime.getStrSinceTime())
+    private void getStatsInfo(
+            ClientStatsItemSet statsSet, boolean resetValue, StringBuilder strBuff) {
+        strBuff.append("{\"")
+                .append(statsSet.resetTime.getFullName())
+                .append("\":\"")
+                .append(statsSet.resetTime.getStrSinceTime())
                 .append("\",\"probe_time\":\"")
                 .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(System.currentTimeMillis()))
                 .append("\",");
@@ -275,21 +271,17 @@ public class ClientStatsInfo {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex the specified value
      * @return the metric block index
      */
     private int getIndex(int origIndex) {
         return Math.abs(origIndex % 2);
     }
 
-    /**
-     * ClientStatsItemSet, Client related statistics set
-     *
-     */
+    /** ClientStatsItemSet, Client related statistics set */
     private static class ClientStatsItemSet {
         // The reset time of statistics set
-        protected final SinceTime resetTime =
-                new SinceTime("reset_time", null);
+        protected final SinceTime resetTime = new SinceTime("reset_time", null);
         // received or sent message traffic statistic
         protected final TrafficStatsUnit totalTrafficStats =
                 new TrafficStatsUnit("msg_cnt", "msg_size", "total_traffic");
@@ -300,14 +292,11 @@ public class ClientStatsInfo {
         protected final ConcurrentHashMap<String, PartitionStatsItemSet> partDltStatsMap =
                 new ConcurrentHashMap<>();
         // time consumption statistics for sending or receiving messages
-        protected final ESTHistogram msgCallDltStats =
-                new ESTHistogram("msg_call_dlt", "");
+        protected final ESTHistogram msgCallDltStats = new ESTHistogram("msg_call_dlt", "");
         // statistics on consumption transaction time
-        protected final ESTHistogram csmLatencyStats =
-                new ESTHistogram("csm_latency_dlt", "");
+        protected final ESTHistogram csmLatencyStats = new ESTHistogram("csm_latency_dlt", "");
         // time consumption statistics for confirm request
-        protected final ESTHistogram confirmDltStats =
-                new ESTHistogram("msg_confirm_dlt", "");
+        protected final ESTHistogram confirmDltStats = new ESTHistogram("msg_confirm_dlt", "");
         // error response distribution statistics
         protected final ConcurrentHashMap<Integer, LongStatsCounter> errRspStatsMap =
                 new ConcurrentHashMap<>();
@@ -341,20 +330,18 @@ public class ClientStatsInfo {
         /**
          * Accumulate sent or received message information
          *
-         * @param topic     the topic name
-         * @param dltTime   the latency
-         * @param msgCnt    the message count
-         * @param msgSize   the message size
+         * @param topic the topic name
+         * @param dltTime the latency
+         * @param msgCnt the message count
+         * @param msgSize the message size
          */
-        public void sendOrRecvMsg(String topic, long dltTime,
-                                  int msgCnt, int msgSize) {
+        public void sendOrRecvMsg(String topic, long dltTime, int msgCnt, int msgSize) {
             msgCallDltStats.update(dltTime);
             totalTrafficStats.addMsgCntAndSize(msgCnt, msgSize);
             // accumulate traffic information by topic
             TrafficStatsUnit curStatsUnit = topicTrafficMap.get(topic);
             if (curStatsUnit == null) {
-                TrafficStatsUnit tmpUnit =
-                        new TrafficStatsUnit("msg_cnt", "msg_size", topic);
+                TrafficStatsUnit tmpUnit = new TrafficStatsUnit("msg_cnt", "msg_size", topic);
                 curStatsUnit = topicTrafficMap.putIfAbsent(topic, tmpUnit);
                 if (curStatsUnit == null) {
                     curStatsUnit = tmpUnit;
@@ -366,13 +353,12 @@ public class ClientStatsInfo {
         /**
          * Accumulate msg count by errcode
          *
-         * @param errCode  the error code
+         * @param errCode the error code
          */
         public void bookFailRpcCall(int errCode) {
             LongStatsCounter curItemCounter = errRspStatsMap.get(errCode);
             if (curItemCounter == null) {
-                LongStatsCounter tmpCounter = new LongStatsCounter(
-                        "err_" + errCode, "");
+                LongStatsCounter tmpCounter = new LongStatsCounter("err_" + errCode, "");
                 curItemCounter = errRspStatsMap.putIfAbsent(errCode, tmpCounter);
                 if (curItemCounter == null) {
                     curItemCounter = tmpCounter;
@@ -384,14 +370,13 @@ public class ClientStatsInfo {
         /**
          * Accumulate traffic information by partition
          *
-         * @param dltTime   the latency
-         * @param msgCnt    the message count
-         * @param msgSize   the message size
+         * @param dltTime the latency
+         * @param msgCnt the message count
+         * @param msgSize the message size
          */
-        public void addTrafficInfoByPartKey(String partitionKey,
-                                            long dltTime, int msgCnt, int msgSize) {
-            PartitionStatsItemSet partStatsUnit =
-                    partDltStatsMap.get(partitionKey);
+        public void addTrafficInfoByPartKey(
+                String partitionKey, long dltTime, int msgCnt, int msgSize) {
+            PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
             if (partStatsUnit == null) {
                 PartitionStatsItemSet tmpUnit = new PartitionStatsItemSet(partitionKey);
                 partStatsUnit = partDltStatsMap.putIfAbsent(partitionKey, tmpUnit);
@@ -406,7 +391,7 @@ public class ClientStatsInfo {
         /**
          * Accumulate consume latency information by partition
          *
-         * @param dltTime   the latency
+         * @param dltTime the latency
          */
         public void addCsmLatencyByPartKey(String partitionKey, long dltTime) {
             PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
@@ -423,7 +408,7 @@ public class ClientStatsInfo {
         /**
          * Accumulate confirm delta time information by partition
          *
-         * @param dltTime   the latency
+         * @param dltTime the latency
          */
         public void addConfirmDltByPartKey(String partitionKey, long dltTime) {
             PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
@@ -440,8 +425,8 @@ public class ClientStatsInfo {
         /**
          * Get traffic statistics details by topic
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff string buffer
+         * @param resetValue whether to reset the current data
          */
         public void getTopicDetailInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -464,8 +449,8 @@ public class ClientStatsInfo {
         /**
          * Get error response statistics
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff string buffer
+         * @param resetValue whether to reset the current data
          */
         public void getErrorRspInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -477,7 +462,9 @@ public class ClientStatsInfo {
                 if (totalCnt++ > 0) {
                     strBuff.append(",");
                 }
-                strBuff.append("\"").append(statsCounter.getFullName()).append("\":")
+                strBuff.append("\"")
+                        .append(statsCounter.getFullName())
+                        .append("\":")
                         .append(statsCounter.getValue());
             }
             strBuff.append("}");
@@ -489,45 +476,75 @@ public class ClientStatsInfo {
         /**
          * Get running status statistics
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff string buffer
+         * @param resetValue whether to reset the current data
          */
         public void getStatusInfo(StringBuilder strBuff, boolean resetValue) {
             strBuff.append("\"status_details\":{\"");
             if (resetValue) {
-                strBuff.append(regMasterCnt.getFullName()).append("\":")
+                strBuff.append(regMasterCnt.getFullName())
+                        .append("\":")
                         .append(regMasterCnt.getAndResetValue())
-                        .append(",\"").append(regMasterFailCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regMasterFailCnt.getFullName())
+                        .append("\":")
                         .append(regMasterFailCnt.getAndResetValue())
-                        .append(",\"").append(regMasterTimoutCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regMasterTimoutCnt.getFullName())
+                        .append("\":")
                         .append(regMasterTimoutCnt.getAndResetValue())
-                        .append(",\"").append(hbMasterExcCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(hbMasterExcCnt.getFullName())
+                        .append("\":")
                         .append(hbMasterExcCnt.getAndResetValue())
-                        .append(",\"").append(regBrokerCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerCnt.getAndResetValue())
-                        .append(",\"").append(regBrokerFailCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerFailCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerFailCnt.getAndResetValue())
-                        .append(",\"").append(regBrokerTimoutCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerTimoutCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerTimoutCnt.getAndResetValue())
-                        .append(",\"").append(hbBrokerExcCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(hbBrokerExcCnt.getFullName())
+                        .append("\":")
                         .append(hbBrokerExcCnt.getAndResetValue())
                         .append("}");
             } else {
-                strBuff.append(regMasterCnt.getFullName()).append("\":")
+                strBuff.append(regMasterCnt.getFullName())
+                        .append("\":")
                         .append(regMasterCnt.getValue())
-                        .append(",\"").append(regMasterFailCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regMasterFailCnt.getFullName())
+                        .append("\":")
                         .append(regMasterFailCnt.getValue())
-                        .append(",\"").append(regMasterTimoutCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regMasterTimoutCnt.getFullName())
+                        .append("\":")
                         .append(regMasterTimoutCnt.getValue())
-                        .append(",\"").append(hbMasterExcCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(hbMasterExcCnt.getFullName())
+                        .append("\":")
                         .append(hbMasterExcCnt.getValue())
-                        .append(",\"").append(regBrokerCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerCnt.getValue())
-                        .append(",\"").append(regBrokerFailCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerFailCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerFailCnt.getValue())
-                        .append(",\"").append(regBrokerTimoutCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(regBrokerTimoutCnt.getFullName())
+                        .append("\":")
                         .append(regBrokerTimoutCnt.getValue())
-                        .append(",\"").append(hbBrokerExcCnt.getFullName()).append("\":")
+                        .append(",\"")
+                        .append(hbBrokerExcCnt.getFullName())
+                        .append("\":")
                         .append(hbBrokerExcCnt.getValue())
                         .append("}");
             }
@@ -536,13 +553,12 @@ public class ClientStatsInfo {
         /**
          * Get traffic statistics by partition key
          *
-         * @param strBuff      string buffer
-         * @param isProducer   whether producer role
-         * @param resetValue   whether to reset the current data
+         * @param strBuff string buffer
+         * @param isProducer whether producer role
+         * @param resetValue whether to reset the current data
          */
-        public void getPartDetailsInfo(StringBuilder strBuff,
-                                       boolean isProducer,
-                                       boolean resetValue) {
+        public void getPartDetailsInfo(
+                StringBuilder strBuff, boolean isProducer, boolean resetValue) {
             int totalCnt = 0;
             strBuff.append("\"part_details\":{");
             for (PartitionStatsItemSet partStatsSet : partDltStatsMap.values()) {
@@ -561,23 +577,17 @@ public class ClientStatsInfo {
         }
     }
 
-    /**
-     * PartitionStatsItemSet, partition related statistics set
-     *
-     */
+    /** PartitionStatsItemSet, partition related statistics set */
     private static class PartitionStatsItemSet {
         private final String partKey;
-        protected  final TrafficStatsUnit trafficStatsUnit =
+        protected final TrafficStatsUnit trafficStatsUnit =
                 new TrafficStatsUnit("msg_cnt", "msg_size", "traffic");
         // time consumption statistics for sending or receiving messages
-        protected final ESTHistogram msgCallDltStats =
-                new ESTHistogram("msg_call_dlt", "");
+        protected final ESTHistogram msgCallDltStats = new ESTHistogram("msg_call_dlt", "");
         // statistics on consumption transaction time
-        protected final ESTHistogram csmLatencyStats =
-                new ESTHistogram("csm_latency_dlt", "");
+        protected final ESTHistogram csmLatencyStats = new ESTHistogram("csm_latency_dlt", "");
         // time consumption statistics for confirm request
-        protected final ESTHistogram confirmDltStats =
-                new ESTHistogram("msg_confirm_dlt", "");
+        protected final ESTHistogram confirmDltStats = new ESTHistogram("msg_confirm_dlt", "");
 
         public PartitionStatsItemSet(String partKey) {
             this.partKey = partKey;
@@ -586,9 +596,9 @@ public class ClientStatsInfo {
         /**
          * Get partition's traffic statistics
          *
-         * @param strBuff      string buffer
-         * @param isProducer   whether producer role
-         * @param resetValue   whether to reset the current data
+         * @param strBuff string buffer
+         * @param isProducer whether producer role
+         * @param resetValue whether to reset the current data
          */
         public void getValue(StringBuilder strBuff, boolean isProducer, boolean resetValue) {
             strBuff.append("\"").append(partKey).append("\":{");
@@ -615,4 +625,3 @@ public class ClientStatsInfo {
         }
     }
 }
-

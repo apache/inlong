@@ -43,5 +43,4 @@ public class DruidDataSourceProperties {
     private boolean poolPreparedStatements;
     private int maxPoolPreparedStatementPerConnectionSize;
     private String filters;
-
 }

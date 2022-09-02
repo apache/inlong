@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -41,15 +49,6 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.RestStatus;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Base class for all Flink Elasticsearch Sinks.
@@ -104,13 +103,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     // ------------------------------------------------------------------------
     //  User-facing API and configuration
     // ------------------------------------------------------------------------
-    /**
-     * User-provided handler for failed {@link ActionRequest ActionRequests}.
-     */
+    /** User-provided handler for failed {@link ActionRequest ActionRequests}. */
     private final ActionRequestFailureHandler failureHandler;
-    /**
-     * Call bridge for different version-specific.
-     */
+    /** Call bridge for different version-specific. */
     private final ElasticsearchApiCallBridge<C> callBridge;
     /**
      * This is set from inside the {@link BulkProcessor.Listener} if a {@link Throwable} was thrown
@@ -121,6 +116,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
+
     private final String inLongMetric;
     /**
      * If true, the producer will wait until all outstanding action requests have been sent to
@@ -152,14 +148,11 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * Throwable)}.
      */
     private AtomicLong numPendingRequests = new AtomicLong(0);
-    /**
-     * Elasticsearch client created using the call bridge.
-     */
+    /** Elasticsearch client created using the call bridge. */
     private transient C client;
-    /**
-     * Bulk processor to buffer and send requests to Elasticsearch, created using the client.
-     */
+    /** Bulk processor to buffer and send requests to Elasticsearch, created using the client. */
     private transient BulkProcessor bulkProcessor;
+
     private SinkMetricData sinkMetricData;
 
     public ElasticsearchSinkBase(
@@ -270,7 +263,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             String groupId = inLongMetricArray[0];
             String streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
-            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
+            sinkMetricData =
+                    new SinkMetricData(
+                            groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
             sinkMetricData.registerMetricsForDirtyBytes();
             sinkMetricData.registerMetricsForDirtyRecords();
             sinkMetricData.registerMetricsForNumBytesOut();
@@ -406,9 +401,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         }
     }
 
-    /**
-     * Used to control whether the retry delay should increase exponentially or remain constant.
-     */
+    /** Used to control whether the retry delay should increase exponentially or remain constant. */
     @PublicEvolving
     public enum FlushBackoffType {
         CONSTANT,
@@ -467,8 +460,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         }
 
         @Override
-        public void beforeBulk(long executionId, BulkRequest request) {
-        }
+        public void beforeBulk(long executionId, BulkRequest request) {}
 
         @Override
         public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {

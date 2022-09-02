@@ -20,15 +20,12 @@ package org.apache.inlong.agent.db;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
 import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
 
+import java.util.List;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 
-import java.util.List;
-
-/**
- * Command for database
- */
+/** Command for database */
 public class CommandDb {
 
     private final Db db;
@@ -37,23 +34,17 @@ public class CommandDb {
         this.db = db;
     }
 
-    /**
-     * store manager command to db
-     */
+    /** store manager command to db */
     public void storeCommand(CommandEntity commandEntity) {
         db.putCommand(commandEntity);
     }
 
-    /**
-     * get those commands not ack to manager
-     */
+    /** get those commands not ack to manager */
     public List<CommandEntity> getUnackedCommands() {
         return db.searchCommands(false);
     }
 
-    /**
-     * save normal command result for trigger
-     */
+    /** save normal command result for trigger */
     public void saveNormalCmds(TriggerProfile profile, boolean success) {
         CommandEntity entity = new CommandEntity();
         entity.setId(CommandEntity.generateCommandId(profile.getTriggerId(), profile.getOpType()));
@@ -64,9 +55,7 @@ public class CommandDb {
         storeCommand(entity);
     }
 
-    /**
-     * save special command result for trigger (retry\makeup\check)
-     */
+    /** save special command result for trigger (retry\makeup\check) */
     public void saveSpecialCmds(Integer id, Integer taskId, boolean success) {
         CommandEntity entity = new CommandEntity();
         entity.setId(String.valueOf(id));

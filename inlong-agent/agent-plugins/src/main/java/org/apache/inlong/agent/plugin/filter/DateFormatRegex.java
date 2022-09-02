@@ -17,19 +17,16 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.plugin.Filter;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * date format with regex string for absolute file path.
- */
+/** date format with regex string for absolute file path. */
 public class DateFormatRegex implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateFormatRegex.class);
@@ -53,9 +50,7 @@ public class DateFormatRegex implements Filter {
     private String formattedRegex;
     private File file;
 
-    /**
-     * set regex with current time
-     */
+    /** set regex with current time */
     public static DateFormatRegex ofRegex(String regex) {
         DateFormatRegex dateFormatRegex = new DateFormatRegex();
         dateFormatRegex.setRegexWithCurrentTime(regex);
@@ -68,9 +63,7 @@ public class DateFormatRegex implements Filter {
         return AgentUtils.regexMatch(file.getAbsolutePath(), formattedRegex);
     }
 
-    /**
-     * set timeOffset
-     */
+    /** set timeOffset */
     public DateFormatRegex withOffset(String timeOffset) {
         String number = StringUtils.substring(timeOffset, 0, timeOffset.length() - 1);
         String mark = StringUtils.substring(timeOffset, timeOffset.length() - 1);
@@ -96,19 +89,18 @@ public class DateFormatRegex implements Filter {
         return this;
     }
 
-    /**
-     * set regex with given time, replace the YYYYDDMM pattern with given time
-     */
+    /** set regex with given time, replace the YYYYDDMM pattern with given time */
     public void setRegexWithTime(String regex, String time) {
-        String[] regexList = StringUtils.splitByWholeSeparatorPreserveAllTokens(regex,
-                File.separator, 0);
+        String[] regexList =
+                StringUtils.splitByWholeSeparatorPreserveAllTokens(regex, File.separator, 0);
         List<String> formattedList = new ArrayList<>();
         for (String regexStr : regexList) {
             if (regexStr.contains(YEAR)) {
-                String tmpRegexStr = regexStr.replace(YEAR, time.substring(0, 4))
-                        .replace(MONTH, time.substring(4, 6))
-                        .replace(DAY, time.substring(6, 8))
-                        .replace(HOUR, time.substring(8, 10));
+                String tmpRegexStr =
+                        regexStr.replace(YEAR, time.substring(0, 4))
+                                .replace(MONTH, time.substring(4, 6))
+                                .replace(DAY, time.substring(6, 8))
+                                .replace(HOUR, time.substring(8, 10));
                 formattedList.add(tmpRegexStr);
                 formattedTime = time;
             } else {
@@ -119,12 +111,11 @@ public class DateFormatRegex implements Filter {
         LOGGER.info("updated formatted regex is {}", this.formattedRegex);
     }
 
-    /**
-     * set regex with current time, replace the YYYYDDMM pattern with current time
-     */
+    /** set regex with current time, replace the YYYYDDMM pattern with current time */
     public void setRegexWithCurrentTime(String regex) {
-        String currentTime = AgentUtils.formatCurrentTimeWithOffset(NORMAL_FORMATTER,
-                dayOffset, hourOffset, minuteOffset);
+        String currentTime =
+                AgentUtils.formatCurrentTimeWithOffset(
+                        NORMAL_FORMATTER, dayOffset, hourOffset, minuteOffset);
         setRegexWithTime(regex, currentTime);
     }
 

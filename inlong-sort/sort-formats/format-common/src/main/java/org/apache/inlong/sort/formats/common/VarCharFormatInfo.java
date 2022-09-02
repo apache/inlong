@@ -21,9 +21,7 @@ package org.apache.inlong.sort.formats.common;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The format information for varchar.
- */
+/** The format information for varchar. */
 public class VarCharFormatInfo implements BasicFormatInfo<String> {
 
     public static final VarCharFormatInfo INSTANCE = new VarCharFormatInfo();

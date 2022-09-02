@@ -18,18 +18,17 @@
 package org.apache.inlong.audit.send;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.inlong.audit.util.EventLoopUtil;
-import org.apache.inlong.audit.util.IpPort;
-import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import org.apache.inlong.audit.util.EventLoopUtil;
+import org.apache.inlong.audit.util.IpPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SenderChannel {
 
@@ -65,16 +64,12 @@ public class SenderChannel {
         return packToken.tryAcquire();
     }
 
-    /**
-     * release channel
-     */
+    /** release channel */
     public void release() {
         packToken.release();
     }
 
-    /**
-     * toString
-     */
+    /** toString */
     @Override
     public String toString() {
         return ipPort.key;
@@ -117,11 +112,11 @@ public class SenderChannel {
     }
 
     private void init() {
-        ThreadFactory selfDefineFactory = new DefaultThreadFactory("audit-client-io",
-                Thread.currentThread().isDaemon());
+        ThreadFactory selfDefineFactory =
+                new DefaultThreadFactory("audit-client-io", Thread.currentThread().isDaemon());
 
-        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(DEFAULT_SEND_THREADNUM,
-                false, selfDefineFactory);
+        EventLoopGroup eventLoopGroup =
+                EventLoopUtil.newEventLoopGroup(DEFAULT_SEND_THREADNUM, false, selfDefineFactory);
         client = new Bootstrap();
         client.group(eventLoopGroup);
         client.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));

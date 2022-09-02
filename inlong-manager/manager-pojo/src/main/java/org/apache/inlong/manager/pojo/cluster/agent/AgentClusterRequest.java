@@ -25,9 +25,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
-/**
- * Inlong cluster request for Agent
- */
+/** Inlong cluster request for Agent */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -38,5 +36,4 @@ public class AgentClusterRequest extends ClusterRequest {
     public AgentClusterRequest() {
         this.setType(ClusterType.AGENT);
     }
-
 }

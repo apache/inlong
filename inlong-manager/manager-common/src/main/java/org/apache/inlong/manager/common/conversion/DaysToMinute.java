@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.conversion;
 
-/**
- * Convert days to minute.
- */
+/** Convert days to minute. */
 public class DaysToMinute implements ConversionStrategy {
 
     @Override

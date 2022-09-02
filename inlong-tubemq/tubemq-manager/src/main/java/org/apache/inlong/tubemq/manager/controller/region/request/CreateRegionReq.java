@@ -18,7 +18,6 @@
 package org.apache.inlong.tubemq.manager.controller.region.request;
 
 import java.util.Set;
-
 import lombok.Data;
 import org.apache.inlong.tubemq.manager.entry.RegionEntry;
 

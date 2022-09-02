@@ -17,20 +17,15 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 
-import java.nio.charset.StandardCharsets;
-
-/**
- * message write to console
- */
+/** message write to console */
 public class ConsoleSink extends AbstractSink {
 
-    public ConsoleSink() {
-
-    }
+    public ConsoleSink() {}
 
     @Override
     public void write(Message message) {
@@ -45,9 +40,7 @@ public class ConsoleSink extends AbstractSink {
     }
 
     @Override
-    public void setSourceName(String sourceFileName) {
-
-    }
+    public void setSourceName(String sourceFileName) {}
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {
@@ -60,7 +53,5 @@ public class ConsoleSink extends AbstractSink {
     }
 
     @Override
-    public void destroy() {
-
-    }
+    public void destroy() {}
 }

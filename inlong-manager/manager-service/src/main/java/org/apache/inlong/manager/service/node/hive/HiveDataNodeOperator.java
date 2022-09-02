@@ -40,8 +40,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveDataNodeOperator.class);
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(String dataNodeType) {
@@ -83,5 +82,4 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
-
 }

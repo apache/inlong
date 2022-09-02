@@ -28,5 +28,4 @@ public enum SendResult {
     NO_CONNECTION,
     INVALID_DATA,
     UNKOWN_ERROR
-
 }

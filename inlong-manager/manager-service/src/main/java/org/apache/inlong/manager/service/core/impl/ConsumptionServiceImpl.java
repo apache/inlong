@@ -19,6 +19,16 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -59,20 +69,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-/**
- * Data consumption service
- */
+/** Data consumption service */
 @Slf4j
 @Service
 public class ConsumptionServiceImpl implements ConsumptionService {
@@ -83,43 +80,45 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private ConsumptionEntityMapper consumptionMapper;
-    @Autowired
-    private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private InlongClusterService clusterService;
+    @Autowired private InlongGroupEntityMapper groupMapper;
+    @Autowired private ConsumptionEntityMapper consumptionMapper;
+    @Autowired private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private InlongClusterService clusterService;
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
         Map<String, Integer> countMap = new HashMap<>();
-        consumptionMapper.countByQuery(query)
+        consumptionMapper
+                .countByQuery(query)
                 .forEach(countInfo -> countMap.put(countInfo.getKey(), countInfo.getValue()));
 
         return ConsumptionSummary.builder()
                 .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
-                .waitingApproveCount(countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
-                .rejectedCount(countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
+                .waitingAssignCount(
+                        countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
+                .waitingApproveCount(
+                        countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
+                .rejectedCount(
+                        countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0))
+                .build();
     }
 
     @Override
     public PageResult<ConsumptionListVo> list(ConsumptionQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         query.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
-        Page<ConsumptionEntity> pageResult = (Page<ConsumptionEntity>) consumptionMapper.listByQuery(query);
-        List<ConsumptionListVo> consumptionListVos = CommonBeanUtils.copyListProperties(pageResult.getResult(),
-                ConsumptionListVo::new);
+        Page<ConsumptionEntity> pageResult =
+                (Page<ConsumptionEntity>) consumptionMapper.listByQuery(query);
+        List<ConsumptionListVo> consumptionListVos =
+                CommonBeanUtils.copyListProperties(pageResult.getResult(), ConsumptionListVo::new);
 
         return new PageResult<>(
-                consumptionListVos, pageResult.getTotal(), pageResult.getPageNum(), pageResult.getPageSize()
-        );
+                consumptionListVos,
+                pageResult.getTotal(),
+                pageResult.getPageNum(),
+                pageResult.getPageSize());
     }
 
     @Override
@@ -131,9 +130,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         ConsumptionInfo info = CommonBeanUtils.copyProperties(entity, ConsumptionInfo::new);
         String mqType = info.getMqType();
         if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(info.getId());
-            Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be empty, as the middleware is Pulsar");
-            ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
+            ConsumptionPulsarEntity pulsarEntity =
+                    consumptionPulsarMapper.selectByConsumptionId(info.getId());
+            Preconditions.checkNotNull(
+                    pulsarEntity,
+                    "Pulsar consumption cannot be empty, as the middleware is Pulsar");
+            ConsumptionPulsarInfo pulsarInfo =
+                    CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
             info.setMqExtInfo(pulsarInfo);
         }
 
@@ -147,8 +150,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         consumptionQuery.setIsAdminRole(true);
         List<ConsumptionEntity> result = consumptionMapper.listByQuery(consumptionQuery);
         if (excludeSelfId != null) {
-            result = result.stream().filter(consumer -> !excludeSelfId.equals(consumer.getId()))
-                    .collect(Collectors.toList());
+            result =
+                    result.stream()
+                            .filter(consumer -> !excludeSelfId.equals(consumer.getId()))
+                            .collect(Collectors.toList());
         }
         return !CollectionUtils.isEmpty(result);
     }
@@ -160,14 +165,19 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(info, "consumption info cannot be null");
         Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
         if (isConsumerGroupExists(info.getConsumerGroup(), info.getId())) {
-            throw new BusinessException(String.format("consumer group %s already exist", info.getConsumerGroup()));
+            throw new BusinessException(
+                    String.format("consumer group %s already exist", info.getConsumerGroup()));
         }
 
         if (info.getId() != null) {
-            ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
-            Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
+            ConsumptionEntity consumptionEntity =
+                    consumptionMapper.selectByPrimaryKey(info.getId());
+            Preconditions.checkNotNull(
+                    consumptionEntity, "consumption not exist with id: " + info.getId());
+            ConsumptionStatus consumptionStatus =
+                    ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
+            Preconditions.checkTrue(
+                    ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
                     "consumption not allow update when status is " + consumptionStatus.name());
         }
 
@@ -182,11 +192,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return entity.getId();
     }
 
-    /**
-     * Save Pulsar consumption info
-     */
+    /** Save Pulsar consumption info */
     private void savePulsarInfo(ConsumptionMqExtBase mqExtBase, ConsumptionEntity entity) {
-        Preconditions.checkNotNull(mqExtBase, "Pulsar info cannot be empty, as the middleware is Pulsar");
+        Preconditions.checkNotNull(
+                mqExtBase, "Pulsar info cannot be empty, as the middleware is Pulsar");
         // If it is transmitted from the web without specifying consumption pulsar info,
         ConsumptionPulsarInfo pulsarInfo;
         if (mqExtBase instanceof ConsumptionPulsarInfo) {
@@ -226,15 +235,18 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             pulsarInfo.setRetryLetterTopic(null);
         }
 
-        ConsumptionPulsarEntity pulsar = CommonBeanUtils.copyProperties(pulsarInfo, ConsumptionPulsarEntity::new);
+        ConsumptionPulsarEntity pulsar =
+                CommonBeanUtils.copyProperties(pulsarInfo, ConsumptionPulsarEntity::new);
         Integer consumptionId = entity.getId();
         pulsar.setConsumptionId(consumptionId);
         pulsar.setInlongGroupId(groupId);
         pulsar.setConsumerGroup(entity.getConsumerGroup());
         pulsar.setIsDeleted(0);
 
-        // Pulsar consumer information may already exist, update if it exists, add if it does not exist
-        ConsumptionPulsarEntity exists = consumptionPulsarMapper.selectByConsumptionId(consumptionId);
+        // Pulsar consumer information may already exist, update if it exists, add if it does not
+        // exist
+        ConsumptionPulsarEntity exists =
+                consumptionPulsarMapper.selectByConsumptionId(consumptionId);
         if (exists == null) {
             consumptionPulsarMapper.insert(pulsar);
         } else {
@@ -252,10 +264,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         ConsumptionEntity exists = consumptionMapper.selectByPrimaryKey(consumptionId);
         Preconditions.checkNotNull(exists, "consumption not exist with id " + consumptionId);
-        Preconditions.checkTrue(exists.getInCharges().contains(operator),
+        Preconditions.checkTrue(
+                exists.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the consumption");
-        String errMsg = String.format("consumption information has already updated, id=%s, curVersion=%s",
-                exists.getId(), info.getVersion());
+        String errMsg =
+                String.format(
+                        "consumption information has already updated, id=%s, curVersion=%s",
+                        exists.getId(), info.getVersion());
         if (!Objects.equals(exists.getVersion(), info.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -268,7 +283,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         // Modify Pulsar consumption info
         String mqType = info.getMqType();
         if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity pulsarEntity = consumptionPulsarMapper.selectByConsumptionId(consumptionId);
+            ConsumptionPulsarEntity pulsarEntity =
+                    consumptionPulsarMapper.selectByConsumptionId(consumptionId);
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be null");
             pulsarEntity.setConsumerGroup(info.getConsumerGroup());
 
@@ -339,14 +355,22 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Override
     public void saveSortConsumption(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
         String groupId = groupInfo.getInlongGroupId();
-        ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
+        ConsumptionEntity exists =
+                consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
         if (exists != null) {
-            log.warn("consumption with groupId={}, topic={}, consumer group={} already exists, skip to create",
-                    groupId, topic, consumerGroup);
+            log.warn(
+                    "consumption with groupId={}, topic={}, consumer group={} already exists, skip to create",
+                    groupId,
+                    topic,
+                    consumerGroup);
             return;
         }
 
-        log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
+        log.debug(
+                "begin to save consumption, groupId={}, topic={}, consumer group={}",
+                groupId,
+                topic,
+                consumerGroup);
         String mqType = groupInfo.getMqType();
         ConsumptionEntity entity = new ConsumptionEntity();
         entity.setInlongGroupId(groupId);
@@ -372,7 +396,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             consumptionPulsarMapper.insert(pulsarEntity);
         }
 
-        log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
+        log.debug(
+                "success save consumption, groupId={}, topic={}, consumer group={}",
+                groupId,
+                topic,
+                consumerGroup);
     }
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
@@ -384,8 +412,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         if (info.getId() != null) {
             int rowCount = consumptionMapper.updateByPrimaryKey(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-                LOGGER.error("consumption information has already updated, id={}, curVersion={}",
-                        entity.getId(), entity.getVersion());
+                LOGGER.error(
+                        "consumption information has already updated, id={}, curVersion={}",
+                        entity.getId(),
+                        entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }
         } else {
@@ -396,11 +426,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return entity;
     }
 
-    /**
-     * Set the topic for the consumption information
-     */
+    /** Set the topic for the consumption information */
     private void setTopicInfo(ConsumptionInfo info) {
-        // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
+        // Determine whether the consumed topic belongs to this groupId or the inlong stream under
+        // it
         String groupId = info.getInlongGroupId();
         InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
@@ -409,29 +438,40 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         String mqType = topicVO.getMqType();
         if (MQType.TUBEMQ.equals(mqType)) {
             String mqResource = topicVO.getMqResource();
-            Preconditions.checkTrue(mqResource == null || mqResource.equals(info.getTopic()),
+            Preconditions.checkTrue(
+                    mqResource == null || mqResource.equals(info.getTopic()),
                     "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             // Pulsar's topic is the inlong stream level.
-            // There will be multiple inlong streams under one inlong group, and there will be multiple topics
+            // There will be multiple inlong streams under one inlong group, and there will be
+            // multiple topics
             List<InlongStreamBriefInfo> streamTopics = topicVO.getStreamTopics();
             if (streamTopics != null && streamTopics.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
                 streamTopics.forEach(stream -> topicSet.remove(stream.getMqResource()));
-                Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
+                Preconditions.checkEmpty(
+                        topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
             InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
             if (null != inlongGroupEntity) {
-                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
-                        inlongGroupEntity.getInlongClusterTag(), null, ClusterType.PULSAR);
-                String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                        ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
-                info.setTopic(String.format(InlongConstants.PULSAR_TOPIC_FORMAT, tenant,
-                        inlongGroupEntity.getMqResource(), info.getTopic()));
+                PulsarClusterInfo pulsarCluster =
+                        (PulsarClusterInfo)
+                                clusterService.getOne(
+                                        inlongGroupEntity.getInlongClusterTag(),
+                                        null,
+                                        ClusterType.PULSAR);
+                String tenant =
+                        StringUtils.isEmpty(pulsarCluster.getTenant())
+                                ? InlongConstants.DEFAULT_PULSAR_TENANT
+                                : pulsarCluster.getTenant();
+                info.setTopic(
+                        String.format(
+                                InlongConstants.PULSAR_TOPIC_FORMAT,
+                                tenant,
+                                inlongGroupEntity.getMqResource(),
+                                info.getTopic()));
             }
-
         }
         info.setMqType(mqType);
     }
-
 }

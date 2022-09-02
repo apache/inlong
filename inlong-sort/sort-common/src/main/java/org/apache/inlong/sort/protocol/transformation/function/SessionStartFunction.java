@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,12 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * session start for a session window function
- */
+/** session start for a session window function */
 @JsonTypeName("sessionStart")
 @Data
 @NoArgsConstructor
@@ -42,13 +39,16 @@ public class SessionStartFunction implements TimeWindowFunction {
 
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
+
     @JsonProperty("interval")
     private StringConstantParam interval;
+
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
-    public SessionStartFunction(@JsonProperty("timeAttr") FieldInfo timeAttr,
+    public SessionStartFunction(
+            @JsonProperty("timeAttr") FieldInfo timeAttr,
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
@@ -58,8 +58,9 @@ public class SessionStartFunction implements TimeWindowFunction {
 
     @Override
     public String format() {
-        return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+        return String.format(
+                "%s(%s, INTERVAL %s %s)",
+                getName(), timeAttr.format(), interval.format(), timeUnit.format());
     }
 
     @Override
@@ -71,5 +72,4 @@ public class SessionStartFunction implements TimeWindowFunction {
     public String getName() {
         return "SESSION_START";
     }
-
 }

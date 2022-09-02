@@ -22,9 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * db collector operation
- */
+/** db collector operation */
 @ApiModel("db collector task info")
 @Data
 @Builder

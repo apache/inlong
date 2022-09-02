@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+
 import com.google.gson.Gson;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
@@ -28,12 +31,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-
-/**
- * Test for PostgreSQL reader
- */
+/** Test for PostgreSQL reader */
 public class PostgreSQLReaderTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReaderTest.class);
@@ -41,37 +39,37 @@ public class PostgreSQLReaderTest {
 
     @Test
     public void testDebeziumFormat() {
-        String debeziumJson = "{\n"
-                + "    \"before\": null,\n"
-                + "    \"after\": {\n"
-                + "      \"id\": 1004,\n"
-                + "      \"first_name\": \"name1\",\n"
-                + "      \"last_name\": \"name2\"\n"
-                + "    },\n"
-                + "    \"source\": {\n"
-                + "      \"version\": \"12\",\n"
-                + "      \"name\": \"myserver\",\n"
-                + "      \"ts_sec\": 0,\n"
-                + "      \"gtid\": null,\n"
-                + "      \"file\": \"000000010000000000000001\",\n"
-                + "      \"row\": 0,\n"
-                + "      \"snapshot\": true,\n"
-                + "      \"thread\": null,\n"
-                + "      \"db\": \"postgres\",\n"
-                + "      \"table\": \"customers\"\n"
-                + "    },\n"
-                + "    \"op\": \"r\",\n"
-                + "    \"ts_ms\": 1486500577691\n"
-                + "  }";
+        String debeziumJson =
+                "{\n"
+                        + "    \"before\": null,\n"
+                        + "    \"after\": {\n"
+                        + "      \"id\": 1004,\n"
+                        + "      \"first_name\": \"name1\",\n"
+                        + "      \"last_name\": \"name2\"\n"
+                        + "    },\n"
+                        + "    \"source\": {\n"
+                        + "      \"version\": \"12\",\n"
+                        + "      \"name\": \"myserver\",\n"
+                        + "      \"ts_sec\": 0,\n"
+                        + "      \"gtid\": null,\n"
+                        + "      \"file\": \"000000010000000000000001\",\n"
+                        + "      \"row\": 0,\n"
+                        + "      \"snapshot\": true,\n"
+                        + "      \"thread\": null,\n"
+                        + "      \"db\": \"postgres\",\n"
+                        + "      \"table\": \"customers\"\n"
+                        + "    },\n"
+                        + "    \"op\": \"r\",\n"
+                        + "    \"ts_ms\": 1486500577691\n"
+                        + "  }";
         DebeziumFormat debeziumFormat = GSON.fromJson(debeziumJson, DebeziumFormat.class);
         Assert.assertEquals("customers", debeziumFormat.getSource().getTable());
         Assert.assertEquals("true", debeziumFormat.getSource().getSnapshot());
     }
 
     /**
-     * this test is used for testing collect data from postgreSQL in unit test,
-     * and it may cause failure in compile
-     * thus we annotate it.
+     * this test is used for testing collect data from postgreSQL in unit test, and it may cause
+     * failure in compile thus we annotate it.
      */
     // @Test
     public void postgresLoadTest() {
@@ -82,7 +80,9 @@ public class PostgreSQLReaderTest {
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_PASSWORD, "123456");
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_HOSTNAME, "localhost");
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_PORT, "5432");
-        jobProfile.set(PostgreSQLReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "000000010000000000000001");
+        jobProfile.set(
+                PostgreSQLReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
+                "000000010000000000000001");
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.INITIAL);
         jobProfile.set(PostgreSQLReader.JOB_DATABASE_DBNAME, "postgres");
         jobProfile.set("job.instance.id", "_1");

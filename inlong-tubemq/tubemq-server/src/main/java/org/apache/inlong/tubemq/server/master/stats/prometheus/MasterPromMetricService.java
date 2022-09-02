@@ -1,31 +1,28 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.stats.prometheus;
 
+import io.prometheus.client.Collector;
+import io.prometheus.client.CounterMetricFamily;
+import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import io.prometheus.client.Collector;
-import io.prometheus.client.CounterMetricFamily;
-import io.prometheus.client.exporter.HTTPServer;
 import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
@@ -33,8 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MasterPromMetricService extends Collector {
-    private static final Logger logger =
-            LoggerFactory.getLogger(MasterPromMetricService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MasterPromMetricService.class);
     private PrometheusConfig promConfig = new PrometheusConfig();
     private HTTPServer httpServer;
     private volatile boolean started = false;
@@ -52,7 +48,8 @@ public class MasterPromMetricService extends Collector {
             this.register();
             this.started = true;
         } catch (IOException e) {
-            logger.error("exception while register Master prometheus http server, error:{}",
+            logger.error(
+                    "exception while register Master prometheus http server, error:{}",
                     e.getMessage());
         }
     }
@@ -67,8 +64,10 @@ public class MasterPromMetricService extends Collector {
         Map<String, Long> statsMap = new LinkedHashMap<>();
         StringBuilder strBuff = new StringBuilder(512);
         CounterMetricFamily srvStatusCounter =
-                new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
-                        .append("&group=serviceStatus").toString(),
+                new CounterMetricFamily(
+                        strBuff.append(promConfig.getPromClusterName())
+                                .append("&group=serviceStatus")
+                                .toString(),
                         "The service status metrics of TubeMQ-Master node.",
                         Arrays.asList("serviceStatus"));
         strBuff.delete(0, strBuff.length());
@@ -79,8 +78,10 @@ public class MasterPromMetricService extends Collector {
         mfs.add(srvStatusCounter);
         // web api call status metric data
         CounterMetricFamily webAPICounter =
-                new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
-                        .append("&group=webAPI").toString(),
+                new CounterMetricFamily(
+                        strBuff.append(promConfig.getPromClusterName())
+                                .append("&group=webAPI")
+                                .toString(),
                         "The web api call metrics of TubeMQ-Master node.",
                         Arrays.asList("webAPI"));
         strBuff.delete(0, strBuff.length());

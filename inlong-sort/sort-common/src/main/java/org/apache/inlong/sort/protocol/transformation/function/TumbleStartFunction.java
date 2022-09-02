@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.protocol.transformation.function;
 
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,13 +31,7 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 
-import java.util.Arrays;
-import java.util.List;
-
-
-/**
- * identifies start position for a tumble function
- */
+/** identifies start position for a tumble function */
 @JsonTypeName("tumbleStart")
 @Data
 @NoArgsConstructor
@@ -43,13 +39,16 @@ public class TumbleStartFunction implements TimeWindowFunction {
 
     @JsonProperty("timeAttr")
     private FieldInfo timeAttr;
+
     @JsonProperty("interval")
     private StringConstantParam interval;
+
     @JsonProperty("timeUnit")
     private TimeUnitConstantParam timeUnit;
 
     @JsonCreator
-    public TumbleStartFunction(@JsonProperty("timeAttr") FieldInfo timeAttr,
+    public TumbleStartFunction(
+            @JsonProperty("timeAttr") FieldInfo timeAttr,
             @JsonProperty("interval") StringConstantParam interval,
             @JsonProperty("timeUnit") TimeUnitConstantParam timeUnit) {
         this.timeAttr = Preconditions.checkNotNull(timeAttr, "timeAttr is null");
@@ -59,8 +58,9 @@ public class TumbleStartFunction implements TimeWindowFunction {
 
     @Override
     public String format() {
-        return String.format("%s(%s, INTERVAL %s %s)", getName(),
-                timeAttr.format(), interval.format(), timeUnit.format());
+        return String.format(
+                "%s(%s, INTERVAL %s %s)",
+                getName(), timeAttr.format(), interval.format(), timeUnit.format());
     }
 
     @Override
@@ -72,5 +72,4 @@ public class TumbleStartFunction implements TimeWindowFunction {
     public String getName() {
         return "TUMBLE_START";
     }
-
 }

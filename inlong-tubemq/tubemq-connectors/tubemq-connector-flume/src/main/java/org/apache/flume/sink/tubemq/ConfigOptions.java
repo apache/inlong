@@ -18,9 +18,7 @@
 
 package org.apache.flume.sink.tubemq;
 
-/**
- * Flume configuration options for tubemq sink
- */
+/** Flume configuration options for tubemq sink */
 public class ConfigOptions {
 
     // master host of tube mq cluster
@@ -35,16 +33,19 @@ public class ConfigOptions {
     public static final String RPC_TIMEOUT = "rpc-timeout";
     public static final long DEFAULT_RPC_TIMEOUT = 20000L;
 
-    public static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = "link-max-allowed-delayed-msg-count";
+    public static final String LINK_MAX_ALLOWED_DELAYED_MSG_COUNT =
+            "link-max-allowed-delayed-msg-count";
     public static final long DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT = 80000L;
 
     public static final String SESSION_WARN_DELAYED_MSG_COUNT = "session-warn-delayed-msg-count";
     public static final long DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT = 2000000L;
 
-    public static final String SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = "session-max-allowed-delayed-msg-count";
+    public static final String SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT =
+            "session-max-allowed-delayed-msg-count";
     public static final long DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = 4000000L;
 
-    public static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK = "netty-write-buffer-high-water-mark";
+    public static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK =
+            "netty-write-buffer-high-water-mark";
     public static final long DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK = 15 * 1024 * 1024L;
 
     public static final String SINK_THREAD_NUM = "thread-num";
@@ -61,5 +62,4 @@ public class ConfigOptions {
 
     public static final String EVENT_OFFER_TIMEOUT = "event-offer-timeout";
     public static final long DEFAULT_EVENT_OFFER_TIMEOUT = 3 * 1000; // in milliseconds
-
 }

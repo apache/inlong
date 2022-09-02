@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
+import java.util.List;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 
-import java.util.List;
-
-/**
- * The factory interface of TaskEventListener.
- */
+/** The factory interface of TaskEventListener. */
 public interface TaskListenerFactory {
 
     /**
@@ -34,6 +31,6 @@ public interface TaskListenerFactory {
      * @param taskType the task type
      * @return list of the task event listeners
      */
-    List<? extends TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType taskType);
-
+    List<? extends TaskEventListener> get(
+            WorkflowContext workflowContext, ServiceTaskType taskType);
 }

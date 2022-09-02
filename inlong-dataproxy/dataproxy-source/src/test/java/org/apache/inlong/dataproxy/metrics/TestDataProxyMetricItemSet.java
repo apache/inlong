@@ -23,11 +23,9 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricItemMBean;
 import org.apache.inlong.common.metric.MetricItemSetMBean;
@@ -37,10 +35,7 @@ import org.apache.inlong.common.metric.MetricValue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * 
- * TestMetricItemSetMBean
- */
+/** TestMetricItemSetMBean */
 public class TestDataProxyMetricItemSet {
 
     public static final String CLUSTER_ID = "inlong5th_sz";
@@ -57,9 +52,7 @@ public class TestDataProxyMetricItemSet {
     private static Map<String, String> dimSource;
     private static Map<String, String> dimSink;
 
-    /**
-     * setup
-     */
+    /** setup */
     @BeforeClass
     public static void setup() {
         itemSet = new DataProxyMetricItemSet(CLUSTER_ID);
@@ -84,7 +77,7 @@ public class TestDataProxyMetricItemSet {
 
     /**
      * testResult
-     * 
+     *
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
@@ -121,14 +114,18 @@ public class TestDataProxyMetricItemSet {
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         {
             StringBuilder beanName = new StringBuilder();
-            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                    .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+            beanName.append(MetricRegister.JMX_DOMAIN)
+                    .append(MetricItemMBean.DOMAIN_SEPARATOR)
+                    .append("type=")
+                    .append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
                     .append(MetricItemMBean.PROPERTY_SEPARATOR)
-                    .append("name=").append(itemSet.getName());
+                    .append("name=")
+                    .append(itemSet.getName());
             String strBeanName = beanName.toString();
             ObjectName objName = new ObjectName(strBeanName);
-            List<MetricItem> items = (List<MetricItem>) mbs.invoke(objName, MetricItemSetMBean.METHOD_SNAPSHOT, null,
-                    null);
+            List<MetricItem> items =
+                    (List<MetricItem>)
+                            mbs.invoke(objName, MetricItemSetMBean.METHOD_SNAPSHOT, null, null);
             for (MetricItem itemObj : items) {
                 if (keySource1.equals(itemObj.getDimensionsKey())) {
                     Map<String, MetricValue> metricMap = itemObj.snapshot();
@@ -157,10 +154,13 @@ public class TestDataProxyMetricItemSet {
         }
         {
             StringBuilder beanName = new StringBuilder();
-            beanName.append(MetricRegister.JMX_DOMAIN).append(MetricItemMBean.DOMAIN_SEPARATOR)
-                    .append("type=").append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
+            beanName.append(MetricRegister.JMX_DOMAIN)
+                    .append(MetricItemMBean.DOMAIN_SEPARATOR)
+                    .append("type=")
+                    .append(MetricUtils.getDomain(DataProxyMetricItemSet.class))
                     .append(MetricItemMBean.PROPERTY_SEPARATOR)
-                    .append("name=").append(itemSet.getName());
+                    .append("name=")
+                    .append(itemSet.getName());
 
             String strBeanName = beanName.toString();
             ObjectName objName = new ObjectName(strBeanName);

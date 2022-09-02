@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.text.SimpleDateFormat;
@@ -23,10 +20,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- * 
- * EsIdConfig
- */
+/** EsIdConfig */
 public class EsIdConfig {
 
     public static final String PATTERN_DAY = "{yyyyMMdd}";
@@ -35,24 +29,27 @@ public class EsIdConfig {
     public static final String REGEX_DAY = "\\{yyyyMMdd\\}";
     public static final String REGEX_HOUR = "\\{yyyyMMddHH\\}";
     public static final String REGEX_MINUTE = "\\{yyyyMMddHHmm\\}";
-    private static ThreadLocal<SimpleDateFormat> FORMAT_DAY = new ThreadLocal<SimpleDateFormat>() {
+    private static ThreadLocal<SimpleDateFormat> FORMAT_DAY =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMdd");
-        }
-    };
-    private static ThreadLocal<SimpleDateFormat> FORMAT_HOUR = new ThreadLocal<SimpleDateFormat>() {
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMdd");
+                }
+            };
+    private static ThreadLocal<SimpleDateFormat> FORMAT_HOUR =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHH");
-        }
-    };
-    private static ThreadLocal<SimpleDateFormat> FORMAT_MINUTE = new ThreadLocal<SimpleDateFormat>() {
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMddHH");
+                }
+            };
+    private static ThreadLocal<SimpleDateFormat> FORMAT_MINUTE =
+            new ThreadLocal<SimpleDateFormat>() {
 
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHHmm");
-        }
-    };
+                protected SimpleDateFormat initialValue() {
+                    return new SimpleDateFormat("yyyyMMddHHmm");
+                }
+            };
 
     private String inlongGroupId;
     private String inlongStreamId;
@@ -60,12 +57,12 @@ public class EsIdConfig {
     private String indexNamePattern;
     private String fieldNames;
     private int fieldOffset = 2; // for ftime,extinfo
-    private int contentOffset = 0;// except for boss + tab(1)
+    private int contentOffset = 0; // except for boss + tab(1)
     private List<String> fieldList;
 
     /**
      * get inlongGroupId
-     * 
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -74,7 +71,7 @@ public class EsIdConfig {
 
     /**
      * set inlongGroupId
-     * 
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -83,7 +80,7 @@ public class EsIdConfig {
 
     /**
      * get inlongStreamId
-     * 
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -92,7 +89,7 @@ public class EsIdConfig {
 
     /**
      * set inlongStreamId
-     * 
+     *
      * @param inlongStreamId the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
@@ -101,7 +98,7 @@ public class EsIdConfig {
 
     /**
      * get separator
-     * 
+     *
      * @return the separator
      */
     public String getSeparator() {
@@ -110,7 +107,7 @@ public class EsIdConfig {
 
     /**
      * set separator
-     * 
+     *
      * @param separator the separator to set
      */
     public void setSeparator(String separator) {
@@ -119,7 +116,7 @@ public class EsIdConfig {
 
     /**
      * get indexNamePattern
-     * 
+     *
      * @return the indexNamePattern
      */
     public String getIndexNamePattern() {
@@ -128,7 +125,7 @@ public class EsIdConfig {
 
     /**
      * set indexNamePattern
-     * 
+     *
      * @param indexNamePattern the indexNamePattern to set
      */
     public void setIndexNamePattern(String indexNamePattern) {
@@ -137,7 +134,7 @@ public class EsIdConfig {
 
     /**
      * get fieldOffset
-     * 
+     *
      * @return the fieldOffset
      */
     public int getFieldOffset() {
@@ -146,7 +143,7 @@ public class EsIdConfig {
 
     /**
      * set fieldOffset
-     * 
+     *
      * @param fieldOffset the fieldOffset to set
      */
     public void setFieldOffset(int fieldOffset) {
@@ -155,7 +152,7 @@ public class EsIdConfig {
 
     /**
      * get fieldList
-     * 
+     *
      * @return the fieldList
      */
     public List<String> getFieldList() {
@@ -171,7 +168,7 @@ public class EsIdConfig {
 
     /**
      * set fieldList
-     * 
+     *
      * @param fieldList the fieldList to set
      */
     public void setFieldList(List<String> fieldList) {
@@ -180,7 +177,7 @@ public class EsIdConfig {
 
     /**
      * get fieldNames
-     * 
+     *
      * @return the fieldNames
      */
     public String getFieldNames() {
@@ -189,7 +186,7 @@ public class EsIdConfig {
 
     /**
      * set fieldNames
-     * 
+     *
      * @param fieldNames the fieldNames to set
      */
     public void setFieldNames(String fieldNames) {
@@ -198,7 +195,7 @@ public class EsIdConfig {
 
     /**
      * get contentOffset
-     * 
+     *
      * @return the contentOffset
      */
     public int getContentOffset() {
@@ -207,7 +204,7 @@ public class EsIdConfig {
 
     /**
      * set contentOffset
-     * 
+     *
      * @param contentOffset the contentOffset to set
      */
     public void setContentOffset(int contentOffset) {
@@ -216,8 +213,8 @@ public class EsIdConfig {
 
     /**
      * parseIndexName
-     * 
-     * @param  msgTime
+     *
+     * @param msgTime
      * @return
      */
     public String parseIndexName(long msgTime) {

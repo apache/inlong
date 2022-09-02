@@ -40,32 +40,28 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.junit.Test;
 
-/**
- * Tests for {@link InLongMsgCsvFormatFactory}.
- */
+/** Tests for {@link InLongMsgCsvFormatFactory}. */
 public class InLongMsgCsvFormatFactoryTest {
 
     private static final TypeInformation<Row> SCHEMA =
             Types.ROW(
-                    new String[]{"time", "attributes", "student_name", "score", "date"},
-                    new TypeInformation[]{
-                            Types.SQL_TIMESTAMP(),
-                            Types.MAP(Types.STRING(), Types.STRING()),
-                            Types.STRING(),
-                            Types.INT(),
-                            Types.SQL_DATE()
-                    }
-            );
+                    new String[] {"time", "attributes", "student_name", "score", "date"},
+                    new TypeInformation[] {
+                        Types.SQL_TIMESTAMP(),
+                        Types.MAP(Types.STRING(), Types.STRING()),
+                        Types.STRING(),
+                        Types.INT(),
+                        Types.SQL_DATE()
+                    });
 
     private static final RowFormatInfo TEST_FORMAT_SCHEMA =
             new RowFormatInfo(
-                    new String[]{"student_name", "score", "date"},
-                    new FormatInfo[]{
-                            StringFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            new DateFormatInfo("yyyy-MM-dd")
-                    }
-            );
+                    new String[] {"student_name", "score", "date"},
+                    new FormatInfo[] {
+                        StringFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        new DateFormatInfo("yyyy-MM-dd")
+                    });
 
     @Test
     public void testCreateTableFormatDeserializer() throws Exception {
@@ -91,14 +87,11 @@ public class InLongMsgCsvFormatFactoryTest {
                         '\"',
                         "null",
                         true,
-                        false
-                );
+                        false);
 
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                        properties, getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -106,11 +99,7 @@ public class InLongMsgCsvFormatFactoryTest {
     @Test
     public void testCreateTableFormatDeserializerWithDerivation() {
         final Map<String, String> properties = new HashMap<>();
-        properties.putAll(
-                new Schema()
-                        .schema(TableSchema.fromTypeInfo(SCHEMA))
-                        .toProperties()
-        );
+        properties.putAll(new Schema().schema(TableSchema.fromTypeInfo(SCHEMA)).toProperties());
         properties.putAll(new InLongMsgCsv().deriveSchema().toProperties());
 
         final InLongMsgCsvFormatDeserializer expectedDeser =
@@ -118,9 +107,7 @@ public class InLongMsgCsvFormatFactoryTest {
 
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
-                        properties,
-                        getClass().getClassLoader()
-                );
+                        properties, getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }

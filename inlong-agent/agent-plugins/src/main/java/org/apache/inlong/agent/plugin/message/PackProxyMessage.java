@@ -17,21 +17,18 @@
 
 package org.apache.inlong.agent.plugin.message;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.message.ProxyMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.message.ProxyMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Handle List of BusMessage, which belong to the same stream id.
- */
+/** Handle List of BusMessage, which belong to the same stream id. */
 public class PackProxyMessage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PackProxyMessage.class);
@@ -45,10 +42,9 @@ public class PackProxyMessage {
     private final LinkedBlockingQueue<ProxyMessage> messageQueue;
     private final AtomicLong queueSize = new AtomicLong(0);
     private int currentSize;
-    /**
-     * extra map used when sending to dataproxy
-     */
+    /** extra map used when sending to dataproxy */
     private Map<String, String> extraMap = new HashMap<>();
+
     private volatile long currentCacheTime = System.currentTimeMillis();
 
     /**
@@ -58,7 +54,8 @@ public class PackProxyMessage {
      * @param cacheTimeout cache timeout for one proxy message
      * @param streamId streamId
      */
-    public PackProxyMessage(int maxPackSize, int maxQueueNumber, int cacheTimeout, String streamId) {
+    public PackProxyMessage(
+            int maxPackSize, int maxQueueNumber, int cacheTimeout, String streamId) {
         this.maxPackSize = maxPackSize;
         this.maxQueueNumber = maxPackSize * 10;
         this.cacheTimeout = cacheTimeout;
@@ -81,15 +78,15 @@ public class PackProxyMessage {
         return messageQueue.size() >= maxQueueNumber - 1;
     }
 
-    /**
-     * Add proxy message to cache, proxy message should belong to the same stream id.
-     */
+    /** Add proxy message to cache, proxy message should belong to the same stream id. */
     public void addProxyMessage(ProxyMessage message) {
         assert streamId.equals(message.getInlongStreamId());
         try {
             if (queueIsFull()) {
-                LOGGER.warn("message queue is greater than {}, stop adding message, "
-                        + "maybe proxy get stuck", maxQueueNumber);
+                LOGGER.warn(
+                        "message queue is greater than {}, stop adding message, "
+                                + "maybe proxy get stuck",
+                        maxQueueNumber);
             }
             messageQueue.put(message);
             queueSize.addAndGet(message.getBody().length);
@@ -98,9 +95,7 @@ public class PackProxyMessage {
         }
     }
 
-    /**
-     * check message queue is empty or not
-     */
+    /** check message queue is empty or not */
     public boolean isEmpty() {
         return messageQueue.isEmpty();
     }
@@ -108,12 +103,14 @@ public class PackProxyMessage {
     /**
      * Fetch batch of proxy message, timeout message or max number of list satisfied.
      *
-     * @return map of message list, key is stream id for the batch; return null if there are no valid messages.
+     * @return map of message list, key is stream id for the batch; return null if there are no
+     *     valid messages.
      */
     public Pair<String, List<byte[]>> fetchBatch() {
         // if queue is nearly full or package size is satisfied or timeout
         long currentTime = System.currentTimeMillis();
-        if (queueSize.get() > maxPackSize || queueIsFull()
+        if (queueSize.get() > maxPackSize
+                || queueIsFull()
                 || currentTime - currentCacheTime > cacheTimeout) {
             // refresh cache time.
             currentCacheTime = currentTime;
@@ -146,5 +143,4 @@ public class PackProxyMessage {
     public Map<String, String> getExtraMap() {
         return extraMap;
     }
-
 }

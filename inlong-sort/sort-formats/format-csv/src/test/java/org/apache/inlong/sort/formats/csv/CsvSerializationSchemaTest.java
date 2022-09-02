@@ -45,26 +45,22 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.junit.Test;
 
-/**
- * Tests for {@link CsvSerializationSchema}.
- */
+/** Tests for {@link CsvSerializationSchema}. */
 public class CsvSerializationSchemaTest {
 
     private static final RowFormatInfo TEST_ROW_INFO =
             new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4"},
-                    new FormatInfo[]{
-                            IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE
-                    }
-            );
+                    new String[] {"f1", "f2", "f3", "f4"},
+                    new FormatInfo[] {
+                        IntFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE
+                    });
 
     @Test
     public void testNormal() {
-        Consumer<CsvSerializationSchema.Builder> config = builder -> {
-        };
+        Consumer<CsvSerializationSchema.Builder> config = builder -> {};
 
         testBasicSerialization(config, StringFormatInfo.INSTANCE, "hello", "hello");
         testBasicSerialization(config, BooleanFormatInfo.INSTANCE, true, "true");
@@ -74,12 +70,20 @@ public class CsvSerializationSchemaTest {
         testBasicSerialization(config, LongFormatInfo.INSTANCE, 12345678910L, "12345678910");
         testBasicSerialization(config, FloatFormatInfo.INSTANCE, 0.33333334f, "0.33333334");
         testBasicSerialization(config, DoubleFormatInfo.INSTANCE, 0.33333333332, "0.33333333332");
-        testBasicSerialization(config, DecimalFormatInfo.INSTANCE, new BigDecimal("1234.0000000000000000000000001"),
+        testBasicSerialization(
+                config,
+                DecimalFormatInfo.INSTANCE,
+                new BigDecimal("1234.0000000000000000000000001"),
                 "1234.0000000000000000000000001");
-        testBasicSerialization(config, new DateFormatInfo("dd/MM/yyyy"), Date.valueOf("2020-03-22"), "22/03/2020");
-        testBasicSerialization(config, new TimeFormatInfo("ss/mm/hh"), Time.valueOf("11:12:13"), "13/12/11");
-        testBasicSerialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
-                Timestamp.valueOf("2020-03-22 11:12:13"), "22/03/2020 11:12:13");
+        testBasicSerialization(
+                config, new DateFormatInfo("dd/MM/yyyy"), Date.valueOf("2020-03-22"), "22/03/2020");
+        testBasicSerialization(
+                config, new TimeFormatInfo("ss/mm/hh"), Time.valueOf("11:12:13"), "13/12/11");
+        testBasicSerialization(
+                config,
+                new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"),
+                Timestamp.valueOf("2020-03-22 11:12:13"),
+                "22/03/2020 11:12:13");
     }
 
     @Test
@@ -100,19 +104,18 @@ public class CsvSerializationSchemaTest {
         testBasicSerialization(config, DecimalFormatInfo.INSTANCE, null, nullLiteral);
         testBasicSerialization(config, new DateFormatInfo("dd/MM/yyyy"), null, nullLiteral);
         testBasicSerialization(config, new TimeFormatInfo("ss/mm/hh"), null, nullLiteral);
-        testBasicSerialization(config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"), null, nullLiteral);
+        testBasicSerialization(
+                config, new TimestampFormatInfo("dd/MM/yyyy hh:mm:ss"), null, nullLiteral);
     }
 
     @Test
     public void testDelimiter() {
-        Consumer<CsvSerializationSchema.Builder> config =
-                builder -> builder.setDelimiter('|');
+        Consumer<CsvSerializationSchema.Builder> config = builder -> builder.setDelimiter('|');
 
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10|field1|field2|field3".getBytes()
-        );
+                "10|field1|field2|field3".getBytes());
     }
 
     @Test
@@ -123,18 +126,15 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\\,field2,field3,field4".getBytes()
-        );
+                "10,field1\\,field2,field3,field4".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,field1\\\\,field2,field3".getBytes()
-        );
+                "10,field1\\\\,field2,field3".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "10,field1\\\",field2,field3".getBytes()
-        );
+                "10,field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -145,8 +145,7 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\",\"field2,field3,field4".getBytes()
-        );
+                "10,field1\",\"field2,field3,field4".getBytes());
     }
 
     @Test
@@ -157,36 +156,28 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16)
-        );
+                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test(expected = Exception.class)
     public void testErrors() {
-        Consumer<CsvSerializationSchema.Builder> config = builder -> {
-        };
+        Consumer<CsvSerializationSchema.Builder> config = builder -> {};
 
         testRowSerialization(
                 config,
                 Row.of("na", "field1", "field2", "field3"),
-                ",field1,field2,field3".getBytes()
-        );
+                ",field1,field2,field3".getBytes());
     }
 
     private static <T> void testBasicSerialization(
             Consumer<CsvSerializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T record,
-            String expectedText
-    ) {
+            String expectedText) {
         RowFormatInfo rowFormatInfo =
-                new RowFormatInfo(
-                        new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+                new RowFormatInfo(new String[] {"f"}, new FormatInfo[] {basicFormatInfo});
 
-        CsvSerializationSchema.Builder builder =
-                new CsvSerializationSchema.Builder(rowFormatInfo);
+        CsvSerializationSchema.Builder builder = new CsvSerializationSchema.Builder(rowFormatInfo);
         config.accept(builder);
 
         CsvSerializationSchema serializer = builder.build();
@@ -196,12 +187,8 @@ public class CsvSerializationSchemaTest {
     }
 
     private static void testRowSerialization(
-            Consumer<CsvSerializationSchema.Builder> config,
-            Row row,
-            byte[] expectedBytes
-    ) {
-        CsvSerializationSchema.Builder builder =
-                new CsvSerializationSchema.Builder(TEST_ROW_INFO);
+            Consumer<CsvSerializationSchema.Builder> config, Row row, byte[] expectedBytes) {
+        CsvSerializationSchema.Builder builder = new CsvSerializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);
 
         CsvSerializationSchema serializer = builder.build();

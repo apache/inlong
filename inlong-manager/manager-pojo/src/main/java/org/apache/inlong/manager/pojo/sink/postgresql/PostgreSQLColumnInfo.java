@@ -21,9 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * PostgreSQL column info.
- */
+/** PostgreSQL column info. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

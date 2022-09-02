@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sink.es;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,8 +28,6 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -56,9 +55,7 @@ public class ElasticsearchFieldInfo {
     @ApiModelProperty("Elasticsearch Scaling Factor")
     private String scalingFactor;
 
-    /**
-     * Get the extra param from the Json
-     */
+    /** Get the extra param from the Json */
     public static ElasticsearchFieldInfo getFromJson(@NotNull String extParams) {
         if (StringUtils.isEmpty(extParams)) {
             return new ElasticsearchFieldInfo();
@@ -67,8 +64,8 @@ public class ElasticsearchFieldInfo {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ElasticsearchFieldInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

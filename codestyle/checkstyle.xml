@@ -55,11 +55,11 @@
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
     </module>
-    <module name="LineLength">
-        <property name="fileExtensions" value="java"/>
-        <property name="max" value="120"/>
-        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-    </module>
+<!--    <module name="LineLength">-->
+<!--        <property name="fileExtensions" value="java"/>-->
+<!--        <property name="max" value="120"/>-->
+<!--        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>-->
+<!--    </module>-->
     <!-- new add -->
     <module name="FileLength">
             <property name="max" value="3000"/>
@@ -102,7 +102,6 @@
         <module name="LeftCurly">
             <property name="tokens"
              value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
-                    INTERFACE_DEF, LAMBDA, LITERAL_CASE, LITERAL_CATCH, LITERAL_DEFAULT,
                     LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
                     OBJBLOCK, STATIC_INIT"/>
@@ -113,13 +112,13 @@
              value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE,
                     LITERAL_DO"/>
         </module>
-        <module name="RightCurly">
-            <property name="id" value="RightCurlyAlone"/>
-            <property name="option" value="alone"/>
-            <property name="tokens"
-             value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
-                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF"/>
-        </module>
+<!--        <module name="RightCurly">-->
+<!--            <property name="id" value="RightCurlyAlone"/>-->
+<!--            <property name="option" value="alone"/>-->
+<!--            <property name="tokens"-->
+<!--             value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,-->
+<!--                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF"/>-->
+<!--        </module>-->
         <module name="WhitespaceAround">
             <property name="allowEmptyConstructors" value="true"/>
             <property name="allowEmptyLambdas" value="true"/>
@@ -171,12 +170,12 @@
             <property name="severity" value="error"/>
         </module>
         <module name="ModifierOrder"/>
-        <module name="EmptyLineSeparator">
-            <property name="tokens"
-             value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
-                    STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
-            <property name="allowNoEmptyLineBetweenFields" value="true"/>
-        </module>
+<!--        <module name="EmptyLineSeparator">-->
+<!--            <property name="tokens"-->
+<!--             value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF,-->
+<!--                    STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>-->
+<!--            <property name="allowNoEmptyLineBetweenFields" value="true"/>-->
+<!--        </module>-->
         <module name="SeparatorWrap">
             <property name="id" value="SeparatorWrapDot"/>
             <property name="tokens" value="DOT"/>
@@ -370,21 +369,21 @@
             <!-- new add -->
             <property name="severity" value="ignore"/>
         </module>
-        <module name="InvalidJavadocPosition">
-            <property name="severity" value="error"/>
-        </module>
-        <module name="JavadocTagContinuationIndentation">
-            <property name="severity" value="error"/>
-        </module>
-        <module name="SummaryJavadoc">
-            <property name="severity" value="error"/>
-            <property name="forbiddenSummaryFragments"
-             value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
-             <!--
-              <property name="period" value="."/>
-             -->
-             <property name="period" value=""/>
-        </module>
+<!--        <module name="InvalidJavadocPosition">-->
+<!--            <property name="severity" value="error"/>-->
+<!--        </module>-->
+<!--        <module name="JavadocTagContinuationIndentation">-->
+<!--            <property name="severity" value="error"/>-->
+<!--        </module>-->
+<!--        <module name="SummaryJavadoc">-->
+<!--            <property name="severity" value="error"/>-->
+<!--            <property name="forbiddenSummaryFragments"-->
+<!--             value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>-->
+<!--             &lt;!&ndash;-->
+<!--              <property name="period" value="."/>-->
+<!--             &ndash;&gt;-->
+<!--             <property name="period" value=""/>-->
+<!--        </module>-->
          <!-- new add
         <module name="JavadocParagraph" />
         -->
@@ -418,10 +417,10 @@
             <property name="applyToPrivate" value="false"/>
          </module>
 
-        <module name="SingleLineJavadoc">
-            <property name="severity" value="error"/>
-            <property name="ignoreInlineTags" value="true"/>
-        </module>
+<!--        <module name="SingleLineJavadoc">-->
+<!--            <property name="severity" value="error"/>-->
+<!--            <property name="ignoreInlineTags" value="true"/>-->
+<!--        </module>-->
         <!--
         <module name="MissingJavadocMethod">
             <property name="severity" value="info"/>
@@ -445,16 +444,16 @@
             <property name="optional" value="true"/>
         </module>
 
-        <module name="EmptyLineSeparator">
-            <!-- Checks for empty line separator between tokens. The only
-                 excluded token is VARIABLE_DEF, allowing class fields to
-                 be declared on consecutive lines.
-            -->
-            <property name="allowMultipleEmptyLines" value="false"/>
-            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
-            <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF,
-                                           INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF,
-                                           CTOR_DEF"/>
-        </module>
+<!--        <module name="EmptyLineSeparator">-->
+<!--            &lt;!&ndash; Checks for empty line separator between tokens. The only-->
+<!--                 excluded token is VARIABLE_DEF, allowing class fields to-->
+<!--                 be declared on consecutive lines.-->
+<!--            &ndash;&gt;-->
+<!--            <property name="allowMultipleEmptyLines" value="false"/>-->
+<!--            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>-->
+<!--            <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF,-->
+<!--                                           INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF,-->
+<!--                                           CTOR_DEF"/>-->
+<!--        </module>-->
     </module>
 </module>

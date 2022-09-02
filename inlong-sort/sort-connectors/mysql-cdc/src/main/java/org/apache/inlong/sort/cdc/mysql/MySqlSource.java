@@ -18,26 +18,25 @@
 
 package org.apache.inlong.sort.cdc.mysql;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
+import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
+
 import io.debezium.connector.mysql.MySqlConnector;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
-import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
-
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume binlog.
  *
- * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource} instead
- *     which supports more rich features, e.g. parallel reading from historical data. The {@link
- * MySqlSource} will be dropped in the future version.
+ * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource} instead which
+ *     supports more rich features, e.g. parallel reading from historical data. The {@link
+ *     MySqlSource} will be dropped in the future version.
  */
 @Deprecated
 public class MySqlSource {
@@ -51,10 +50,9 @@ public class MySqlSource {
     /**
      * Builder class of {@link MySqlSource}.
      *
-     * @deprecated please use {@link
-     * org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()} instead which supports
-     *     more rich features, e.g. parallel reading from historical data. The {@link
-     * Builder} will be dropped in the future version.
+     * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()}
+     *     instead which supports more rich features, e.g. parallel reading from historical data.
+     *     The {@link Builder} will be dropped in the future version.
      */
     @Deprecated
     public static class Builder<T> {
@@ -78,9 +76,7 @@ public class MySqlSource {
             return this;
         }
 
-        /**
-         * Integer port number of the MySQL database server.
-         */
+        /** Integer port number of the MySQL database server. */
         public Builder<T> port(int port) {
             this.port = port;
             return this;
@@ -107,17 +103,13 @@ public class MySqlSource {
             return this;
         }
 
-        /**
-         * Name of the MySQL database to use when connecting to the MySQL database server.
-         */
+        /** Name of the MySQL database to use when connecting to the MySQL database server. */
         public Builder<T> username(String username) {
             this.username = username;
             return this;
         }
 
-        /**
-         * Password to use when connecting to the MySQL database server.
-         */
+        /** Password to use when connecting to the MySQL database server. */
         public Builder<T> password(String password) {
             this.password = password;
             return this;
@@ -144,9 +136,7 @@ public class MySqlSource {
             return this;
         }
 
-        /**
-         * The Debezium MySQL connector properties. For example, "snapshot.mode".
-         */
+        /** The Debezium MySQL connector properties. For example, "snapshot.mode". */
         public Builder<T> debeziumProperties(Properties properties) {
             this.dbzProperties = properties;
             return this;
@@ -161,9 +151,7 @@ public class MySqlSource {
             return this;
         }
 
-        /**
-         * Specifies the startup options.
-         */
+        /** Specifies the startup options. */
         public Builder<T> startupOptions(StartupOptions startupOptions) {
             this.startupOptions = startupOptions;
             return this;
@@ -179,9 +167,7 @@ public class MySqlSource {
             return this;
         }
 
-        /**
-         * builder
-         */
+        /** builder */
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
@@ -273,7 +259,12 @@ public class MySqlSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit);
+                    deserializer,
+                    props,
+                    specificOffset,
+                    new MySqlValidator(props),
+                    inlongMetric,
+                    inlongAudit);
         }
     }
 }

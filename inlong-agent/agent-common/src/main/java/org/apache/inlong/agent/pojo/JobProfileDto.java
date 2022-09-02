@@ -17,6 +17,11 @@
 
 package org.apache.inlong.agent.pojo;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
+
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -25,30 +30,24 @@ import org.apache.inlong.agent.pojo.FileJob.Line;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.constant.JobConstants.SYNC_SEND_OPEN;
-
 @Data
 public class JobProfileDto {
 
-    public static final String DEFAULT_TRIGGER = "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
-    public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
+    public static final String DEFAULT_TRIGGER =
+            "org.apache.inlong.agent.plugin.trigger.DirectoryTrigger";
+    public static final String DEFAULT_CHANNEL =
+            "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
-    public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String DEFAULT_DATAPROXY_SINK =
+            "org.apache.inlong.agent.plugin.sinks.ProxySink";
 
-    /**
-     * file source
-     */
-    public static final String DEFAULT_SOURCE = "org.apache.inlong.agent.plugin.sources.TextFileSource";
-    /**
-     * binlog source
-     */
-    public static final String BINLOG_SOURCE = "org.apache.inlong.agent.plugin.sources.BinlogSource";
-    /**
-     * kafka source
-     */
+    /** file source */
+    public static final String DEFAULT_SOURCE =
+            "org.apache.inlong.agent.plugin.sources.TextFileSource";
+    /** binlog source */
+    public static final String BINLOG_SOURCE =
+            "org.apache.inlong.agent.plugin.sources.BinlogSource";
+    /** kafka source */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
 
     private static final Gson GSON = new Gson();
@@ -57,8 +56,8 @@ public class JobProfileDto {
     private Proxy proxy;
 
     private static BinlogJob getBinlogJob(DataConfig dataConfigs) {
-        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
-                BinlogJob.BinlogJobTaskConfig.class);
+        BinlogJob.BinlogJobTaskConfig binlogJobTaskConfig =
+                GSON.fromJson(dataConfigs.getExtParams(), BinlogJob.BinlogJobTaskConfig.class);
 
         BinlogJob binlogJob = new BinlogJob();
         binlogJob.setHostname(binlogJobTaskConfig.getHostname());
@@ -98,8 +97,8 @@ public class JobProfileDto {
         fileJob.setId(dataConfigs.getTaskId());
         fileJob.setTrigger(DEFAULT_TRIGGER);
 
-        FileJob.FileJobTaskConfig fileJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
-                FileJob.FileJobTaskConfig.class);
+        FileJob.FileJobTaskConfig fileJobTaskConfig =
+                GSON.fromJson(dataConfigs.getExtParams(), FileJob.FileJobTaskConfig.class);
 
         FileJob.Dir dir = new FileJob.Dir();
         dir.setPattern(fileJobTaskConfig.getPattern());
@@ -145,8 +144,8 @@ public class JobProfileDto {
 
     private static KafkaJob getKafkaJob(DataConfig dataConfigs) {
 
-        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig = GSON.fromJson(dataConfigs.getExtParams(),
-                KafkaJob.KafkaJobTaskConfig.class);
+        KafkaJob.KafkaJobTaskConfig kafkaJobTaskConfig =
+                GSON.fromJson(dataConfigs.getExtParams(), KafkaJob.KafkaJobTaskConfig.class);
         KafkaJob kafkaJob = new KafkaJob();
 
         KafkaJob.Bootstrap bootstrap = new KafkaJob.Bootstrap();
@@ -186,12 +185,11 @@ public class JobProfileDto {
         return proxy;
     }
 
-    /**
-     * convert DataConfig to TriggerProfile
-     */
+    /** convert DataConfig to TriggerProfile */
     public static TriggerProfile convertToTriggerProfile(DataConfig dataConfig) {
         if (!dataConfig.isValid()) {
-            throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
+            throw new IllegalArgumentException(
+                    "input dataConfig" + dataConfig + "is invalid please check");
         }
 
         JobProfileDto profileDto = new JobProfileDto();
@@ -274,5 +272,4 @@ public class JobProfileDto {
         private Manager manager;
         private Boolean sync;
     }
-
 }

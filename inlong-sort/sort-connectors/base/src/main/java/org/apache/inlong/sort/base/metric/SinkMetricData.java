@@ -18,18 +18,6 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.metrics.SimpleCounter;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
-
-import javax.annotation.Nullable;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
-
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
@@ -38,9 +26,18 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
-/**
- * A collection class for handling metrics
- */
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import javax.annotation.Nullable;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Meter;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
+import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.Constants;
+
+/** A collection class for handling metrics */
 public class SinkMetricData implements MetricData {
 
     private final MetricGroup metricGroup;
@@ -63,50 +60,50 @@ public class SinkMetricData implements MetricData {
     }
 
     public SinkMetricData(
-            String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+            String groupId,
+            String streamId,
+            String nodeId,
+            MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
         this.groupId = groupId;
         this.streamId = streamId;
         this.nodeId = nodeId;
         if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            AuditImp.getInstance()
+                    .setAuditProxy(
+                            new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             this.auditImp = AuditImp.getInstance();
         }
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are label value,
+     * user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsOut() {
         registerMetricsForNumRecordsOut(new SimpleCounter());
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and streamId and nodeId
+     * are label value, user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsOut(Counter counter) {
         numRecordsOut = registerCounter(NUM_RECORDS_OUT, counter);
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are label value,
+     * user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumBytesOut() {
         registerMetricsForNumBytesOut(new SimpleCounter());
-
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and streamId and nodeId
+     * are label value, user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForNumBytesOut(Counter counter) {
         numBytesOut = registerCounter(NUM_BYTES_OUT, counter);
@@ -129,18 +126,16 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are label value,
+     * user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForDirtyBytes() {
         registerMetricsForDirtyBytes(new SimpleCounter());
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and streamId and nodeId
+     * are label value, user can use it filter metric data when use metric reporter prometheus
      */
     public void registerMetricsForDirtyBytes(Counter counter) {
         dirtyBytes = registerCounter(DIRTY_BYTES, counter);

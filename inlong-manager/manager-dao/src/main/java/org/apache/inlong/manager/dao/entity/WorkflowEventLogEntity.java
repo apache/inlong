@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.util.Date;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.Date;
-
-/**
- * Workflow event log
- */
+/** Workflow event log */
 @Data
 @ToString
 public class WorkflowEventLogEntity {
@@ -48,5 +45,4 @@ public class WorkflowEventLogEntity {
     private String ip;
     private String remark;
     private String exception;
-
 }

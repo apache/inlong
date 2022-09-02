@@ -19,6 +19,11 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,12 +38,6 @@ import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 
 @JsonTypeName("icebergLoad")
 @Data
@@ -69,7 +68,8 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
     private String warehouse;
 
     @JsonCreator
-    public IcebergLoadNode(@JsonProperty("id") String id,
+    public IcebergLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -83,7 +83,15 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
             @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
         this.primaryKey = primaryKey;
@@ -126,5 +134,4 @@ public class IcebergLoadNode extends LoadNode implements InlongMetric, Serializa
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
     }
-
 }

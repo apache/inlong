@@ -22,9 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
-/**
- * Consumer group filter item record
- */
+/** Consumer group filter item record */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

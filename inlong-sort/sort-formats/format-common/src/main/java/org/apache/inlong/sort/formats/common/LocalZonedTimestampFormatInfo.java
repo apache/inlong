@@ -71,9 +71,7 @@ public class LocalZonedTimestampFormatInfo implements FormatInfo {
 
     @Override
     public String toString() {
-        return "LocalZonedTimestampFormatInfo{"
-                + "format='" + format + '\''
-                + '}';
+        return "LocalZonedTimestampFormatInfo{" + "format='" + format + '\'' + '}';
     }
 
     public int getPrecision() {

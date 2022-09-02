@@ -21,14 +21,10 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-/**
- * Interface of the data node operator.
- */
+/** Interface of the data node operator. */
 public interface DataNodeOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String dataNodeType);
 
     /**

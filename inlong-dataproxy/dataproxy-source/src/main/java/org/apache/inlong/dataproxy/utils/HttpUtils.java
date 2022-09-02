@@ -19,9 +19,8 @@ package org.apache.inlong.dataproxy.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.http.entity.StringEntity;
-
 import java.io.UnsupportedEncodingException;
+import org.apache.http.entity.StringEntity;
 
 public class HttpUtils {
 
@@ -33,5 +32,4 @@ public class HttpUtils {
         se.setContentType(APPLICATION_JSON);
         return se;
     }
-
 }

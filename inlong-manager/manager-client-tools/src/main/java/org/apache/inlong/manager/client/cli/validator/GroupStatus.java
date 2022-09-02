@@ -22,16 +22,15 @@ import com.beust.jcommander.ParameterException;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 
-/**
- * Class for inlong group status verification.
- */
+/** Class for inlong group status verification. */
 public class GroupStatus implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
         if (!EnumUtils.isValidEnum(SimpleGroupStatus.class, value)) {
-            String msg = "should be one of the following values:\n"
-                    + "\tCREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED";
+            String msg =
+                    "should be one of the following values:\n"
+                            + "\tCREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED";
             throw new ParameterException("Parameter " + name + msg);
         }
     }

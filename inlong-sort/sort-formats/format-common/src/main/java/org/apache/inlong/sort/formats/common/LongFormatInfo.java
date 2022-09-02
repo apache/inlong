@@ -18,9 +18,7 @@
 
 package org.apache.inlong.sort.formats.common;
 
-/**
- * The format information for longs.
- */
+/** The format information for longs. */
 public class LongFormatInfo implements BasicFormatInfo<Long> {
 
     private static final long serialVersionUID = 1L;

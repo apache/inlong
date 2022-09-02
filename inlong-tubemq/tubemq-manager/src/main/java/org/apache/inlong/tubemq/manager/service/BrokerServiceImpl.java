@@ -22,10 +22,8 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.SCHEMA;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.TUBE_REQUEST_PATH;
 
 import com.google.gson.Gson;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
@@ -42,18 +40,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class BrokerServiceImpl implements BrokerService {
 
-    @Autowired
-    BrokerRepository brokerRepository;
+    @Autowired BrokerRepository brokerRepository;
 
-    @Autowired
-    MasterService masterService;
+    @Autowired MasterService masterService;
 
     private final Gson gson = new Gson();
 
     @Override
     public void resetBrokerRegions(long regionId, long clusterId) {
-        List<BrokerEntry> brokerEntries = brokerRepository
-                .findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(regionId, clusterId);
+        List<BrokerEntry> brokerEntries =
+                brokerRepository.findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(
+                        regionId, clusterId);
         for (BrokerEntry brokerEntry : brokerEntries) {
             brokerEntry.setRegionId(DEFAULT_REGION);
             brokerRepository.save(brokerEntry);
@@ -62,8 +59,9 @@ public class BrokerServiceImpl implements BrokerService {
 
     @Override
     public void updateBrokersRegion(List<Long> brokerIdList, Long regionId, Long clusterId) {
-        List<BrokerEntry> brokerEntries = brokerRepository
-                .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, clusterId);
+        List<BrokerEntry> brokerEntries =
+                brokerRepository.findBrokerEntryByBrokerIdInAndClusterIdEquals(
+                        brokerIdList, clusterId);
         for (BrokerEntry brokerEntry : brokerEntries) {
             brokerEntry.setRegionId(regionId);
             brokerRepository.save(brokerEntry);
@@ -72,19 +70,21 @@ public class BrokerServiceImpl implements BrokerService {
 
     @Override
     public boolean checkIfBrokersAllExsit(List<Long> brokerIdList, long clusterId) {
-        List<BrokerEntry> brokerEntries = brokerRepository
-                .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, clusterId);
-        List<Long> regionBrokerIdList = brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(
-                Collectors.toList());
+        List<BrokerEntry> brokerEntries =
+                brokerRepository.findBrokerEntryByBrokerIdInAndClusterIdEquals(
+                        brokerIdList, clusterId);
+        List<Long> regionBrokerIdList =
+                brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(Collectors.toList());
         return regionBrokerIdList.containsAll(brokerIdList);
     }
 
     @Override
     public List<Long> getBrokerIdListInRegion(long regionId, long clusterId) {
-        List<BrokerEntry> brokerEntries = brokerRepository
-                .findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(regionId, clusterId);
-        List<Long> regionBrokerIdList = brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(
-                Collectors.toList());
+        List<BrokerEntry> brokerEntries =
+                brokerRepository.findBrokerEntriesByRegionIdEqualsAndClusterIdEquals(
+                        regionId, clusterId);
+        List<Long> regionBrokerIdList =
+                brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(Collectors.toList());
         return regionBrokerIdList;
     }
 
@@ -99,17 +99,29 @@ public class BrokerServiceImpl implements BrokerService {
     }
 
     public TubeMQResult requestMaster(String brokerIp, int brokerWebPort, Object req) {
-        String url = SCHEMA + brokerIp + ":" + brokerWebPort
-                + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils
-                .convertReqToQueryStr(req);
+        String url =
+                SCHEMA
+                        + brokerIp
+                        + ":"
+                        + brokerWebPort
+                        + "/"
+                        + TUBE_REQUEST_PATH
+                        + "?"
+                        + ConvertUtils.convertReqToQueryStr(req);
         return masterService.requestMaster(url);
     }
 
     @Override
     public OffsetQueryRes queryOffset(String brokerIp, int brokerWebPort, QueryOffsetReq req) {
-        String url = SCHEMA + brokerIp + ":" + brokerWebPort
-                + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils
-                .convertReqToQueryStr(req);
+        String url =
+                SCHEMA
+                        + brokerIp
+                        + ":"
+                        + brokerWebPort
+                        + "/"
+                        + TUBE_REQUEST_PATH
+                        + "?"
+                        + ConvertUtils.convertReqToQueryStr(req);
         return gson.fromJson(masterService.queryMaster(url), OffsetQueryRes.class);
     }
 }

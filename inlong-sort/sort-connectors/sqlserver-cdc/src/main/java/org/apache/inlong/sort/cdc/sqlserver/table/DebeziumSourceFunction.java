@@ -98,19 +98,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
 
-    /**
-     * State name of the consumer's partition offset states.
-     */
+    /** State name of the consumer's partition offset states. */
     public static final String OFFSETS_STATE_NAME = "offset-states";
 
-    /**
-     * State name of the consumer's history records state.
-     */
+    /** State name of the consumer's history records state. */
     public static final String HISTORY_RECORDS_STATE_NAME = "history-records-states";
 
-    /**
-     * The maximum number of pending non-committed checkpoints to track, to avoid memory leaks.
-     */
+    /** The maximum number of pending non-committed checkpoints to track, to avoid memory leaks. */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
 
     /**
@@ -119,44 +113,29 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     public static final String LEGACY_IMPLEMENTATION_KEY = "internal.implementation";
 
-    /**
-     * The configuration value represents legacy implementation.
-     */
+    /** The configuration value represents legacy implementation. */
     public static final String LEGACY_IMPLEMENTATION_VALUE = "legacy";
 
     // ---------------------------------------------------------------------------------------
     // Properties
     // ---------------------------------------------------------------------------------------
 
-    /**
-     * The schema to convert from Debezium's messages into Flink's objects.
-     */
+    /** The schema to convert from Debezium's messages into Flink's objects. */
     private final DebeziumDeserializationSchema<T> deserializer;
 
-    /**
-     * User-supplied properties for Kafka. *
-     */
+    /** User-supplied properties for Kafka. * */
     private final Properties properties;
 
-    /**
-     * The specific binlog offset to read from when the first startup.
-     */
-    private final @Nullable
-    DebeziumOffset specificOffset;
+    /** The specific binlog offset to read from when the first startup. */
+    private final @Nullable DebeziumOffset specificOffset;
 
-    /**
-     * Data for pending but uncommitted offsets.
-     */
+    /** Data for pending but uncommitted offsets. */
     private final LinkedMap pendingOffsetsToCommit = new LinkedMap();
 
-    /**
-     * Flag indicating whether the Debezium Engine is started.
-     */
+    /** Flag indicating whether the Debezium Engine is started. */
     private volatile boolean debeziumStarted = false;
 
-    /**
-     * Validator to validate the connected database satisfies the cdc connector's requirements.
-     */
+    /** Validator to validate the connected database satisfies the cdc connector's requirements. */
     private final Validator validator;
 
     // ---------------------------------------------------------------------------------------
@@ -173,9 +152,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient volatile String restoredOffsetState;
 
-    /**
-     * Accessor for state in the operator state backend.
-     */
+    /** Accessor for state in the operator state backend. */
     private transient ListState<byte[]> offsetState;
 
     /**
@@ -198,19 +175,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient String engineInstanceName;
 
-    /**
-     * Consume the events from the engine and commit the offset to the engine.
-     */
+    /** Consume the events from the engine and commit the offset to the engine. */
     private transient DebeziumChangeConsumer changeConsumer;
 
-    /**
-     * The consumer to fetch records from {@link Handover}.
-     */
+    /** The consumer to fetch records from {@link Handover}. */
     private transient DebeziumChangeFetcher<T> debeziumChangeFetcher;
 
-    /**
-     * Buffer the events from the source and record the errors from the debezium.
-     */
+    /** Buffer the events from the source and record the errors from the debezium. */
     private transient Handover handover;
 
     private String inlongMetric;
@@ -231,8 +202,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator, String inlongMetric,
-        String auditHostAndPorts) {
+            Validator validator,
+            String inlongMetric,
+            String auditHostAndPorts) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
@@ -424,7 +396,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             metricData.registerMetricsForNumRecordsInPerSecond();
         }
         if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            AuditImp.getInstance()
+                    .setAuditProxy(
+                            new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             auditImp = AuditImp.getInstance();
         }
         properties.setProperty("name", "engine");
@@ -463,7 +437,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         sourceContext,
                         new DebeziumDeserializationSchema<T>() {
                             @Override
-                            public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
+                            public void deserialize(SourceRecord record, Collector<T> out)
+                                    throws Exception {
                                 outputMetrics(record);
                                 deserializer.deserialize(record, out);
                             }
@@ -505,17 +480,18 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     private void outputMetrics(SourceRecord record) {
         if (metricData != null) {
             metricData.getNumRecordsIn().inc(1L);
-            metricData.getNumBytesIn()
+            metricData
+                    .getNumBytesIn()
                     .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
         }
         if (auditImp != null) {
             auditImp.add(
-                Constants.AUDIT_SORT_INPUT,
-                inLongGroupId,
-                inLongStreamId,
-                System.currentTimeMillis(),
-                1,
-                record.value().toString().getBytes(StandardCharsets.UTF_8).length);
+                    Constants.AUDIT_SORT_INPUT,
+                    inLongGroupId,
+                    inLongStreamId,
+                    System.currentTimeMillis(),
+                    1,
+                    record.value().toString().getBytes(StandardCharsets.UTF_8).length);
         }
     }
 
@@ -585,9 +561,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         super.close();
     }
 
-    /**
-     * Safely and gracefully stop the Debezium engine.
-     */
+    /** Safely and gracefully stop the Debezium engine. */
     private void shutdownEngine() {
         try {
             if (engine != null) {

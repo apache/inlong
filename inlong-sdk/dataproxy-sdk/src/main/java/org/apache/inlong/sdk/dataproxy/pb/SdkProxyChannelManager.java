@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb;
 
 import java.net.InetSocketAddress;
@@ -29,7 +26,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
@@ -47,10 +43,7 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * SdkProxyChannelManager
- */
+/** SdkProxyChannelManager */
 public class SdkProxyChannelManager {
 
     public static final Logger LOG = LoggerFactory.getLogger(SdkProxyChannelManager.class);
@@ -77,7 +70,7 @@ public class SdkProxyChannelManager {
 
     /**
      * Constructor
-     * 
+     *
      * @param proxyClusterId
      * @param context
      */
@@ -86,18 +79,23 @@ public class SdkProxyChannelManager {
         this.context = context;
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         try {
             LOG.info("start to SdkProxyChannelManager:{}", this.proxyClusterId);
             SdkSenderClientHandler clientHandler = new SdkSenderClientHandler(this);
-            this.sender = new TcpChannelGroup(proxyClusterId, context.getMaxThreads(),
-                    new LengthFieldBasedFrameDecoder(SdkSinkContext.MAX_RESPONSE_LENGTH, DEFAULT_LENGTH_FIELD_OFFSET,
-                            DEFAULT_LENGTH_FIELD_LENGTH,
-                            DEFAULT_LENGTH_ADJUSTMENT, DEFAULT_INITIAL_BYTES_TO_STRIP, DEFAULT_FAIL_FAST),
-                    clientHandler);
+            this.sender =
+                    new TcpChannelGroup(
+                            proxyClusterId,
+                            context.getMaxThreads(),
+                            new LengthFieldBasedFrameDecoder(
+                                    SdkSinkContext.MAX_RESPONSE_LENGTH,
+                                    DEFAULT_LENGTH_FIELD_OFFSET,
+                                    DEFAULT_LENGTH_FIELD_LENGTH,
+                                    DEFAULT_LENGTH_ADJUSTMENT,
+                                    DEFAULT_INITIAL_BYTES_TO_STRIP,
+                                    DEFAULT_FAIL_FAST),
+                            clientHandler);
             //
             for (int i = 0; i < context.getMaxThreads(); i++) {
                 SdkChannelWorker worker = new SdkChannelWorker(this, i);
@@ -112,38 +110,37 @@ public class SdkProxyChannelManager {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     private void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            @Override
-            public void run() {
-                try {
-                    reload();
-                } catch (Exception e) {
-                    LOG.error("proxyClusterId:{},error:{}", proxyClusterId, e);
-                }
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + context.getReloadInterval()),
+                    @Override
+                    public void run() {
+                        try {
+                            reload();
+                        } catch (Exception e) {
+                            LOG.error("proxyClusterId:{},error:{}", proxyClusterId, e);
+                        }
+                    }
+                };
+        reloadTimer.schedule(
+                task,
+                new Date(System.currentTimeMillis() + context.getReloadInterval()),
                 context.getReloadInterval());
     }
 
     /**
      * nextPackId
-     * 
+     *
      * @return
      */
     public long nextPackId() {
         return this.sdkPackId.getAndIncrement();
     }
 
-    /**
-     * reload
-     */
+    /** reload */
     public void reload() {
         try {
             Set<IpPort> ipPortList = context.getProxyIpListMap().get(proxyClusterId);
@@ -153,17 +150,19 @@ public class SdkProxyChannelManager {
         } catch (Exception e) {
             LOG.error("proxyClusterId:{},error:{}", proxyClusterId, e);
         }
-
     }
 
-    /**
-     * clearTimeoutPack
-     */
+    /** clearTimeoutPack */
     private void clearTimeoutPack() {
-        LOG.info("ProxyClusterIdChannelManager clearTimeoutPack proxyClusterId:{},queueSize:{},waitingSize:{},"
-                + "offerCount:{},takeCount:{},offerGroupCount:{}",
-                proxyClusterId, this.proxyDispatchQueue.size(), profileMap.size(),
-                offerCounter.getAndSet(0), takeCounter.getAndSet(0), offerGroupCounter);
+        LOG.info(
+                "ProxyClusterIdChannelManager clearTimeoutPack proxyClusterId:{},queueSize:{},waitingSize:{},"
+                        + "offerCount:{},takeCount:{},offerGroupCount:{}",
+                proxyClusterId,
+                this.proxyDispatchQueue.size(),
+                profileMap.size(),
+                offerCounter.getAndSet(0),
+                takeCounter.getAndSet(0),
+                offerGroupCounter);
         offerGroupCounter.clear();
         long currentTime = System.currentTimeMillis();
         List<Long> timeoutPackId = new ArrayList<>(this.profileMap.size());
@@ -173,8 +172,7 @@ public class SdkProxyChannelManager {
             }
         }
         if (timeoutPackId.size() > 0) {
-            LOG.info("clearTimeoutPack timeoutSize:{}",
-                    timeoutPackId.size());
+            LOG.info("clearTimeoutPack timeoutSize:{}", timeoutPackId.size());
             for (Long tdbankPackId : timeoutPackId) {
                 SdkProfile tProfile = this.profileMap.remove(tdbankPackId);
                 if (tProfile != null) {
@@ -186,7 +184,7 @@ public class SdkProxyChannelManager {
 
     /**
      * putWaitCompletedProfile
-     * 
+     *
      * @param tProfile
      */
     public void putWaitCompletedProfile(SdkProfile tProfile) {
@@ -195,7 +193,7 @@ public class SdkProxyChannelManager {
 
     /**
      * removeWaitCompletedProfile
-     * 
+     *
      * @param tProfile
      */
     public void removeWaitCompletedProfile(SdkProfile tProfile) {
@@ -204,7 +202,7 @@ public class SdkProxyChannelManager {
 
     /**
      * clearChannel
-     * 
+     *
      * @param channel
      */
     public void setChannelException(Channel channel) {
@@ -222,14 +220,21 @@ public class SdkProxyChannelManager {
                 packIds.add(entry.getKey());
             }
         }
-        LOG.warn("proxyClusterId:{},clear channel:local:{},remote:{},profile size:{}",
-                proxyClusterId, channel.getLocalAddress(), channel.getRemoteAddress(), packIds.size());
+        LOG.warn(
+                "proxyClusterId:{},clear channel:local:{},remote:{},profile size:{}",
+                proxyClusterId,
+                channel.getLocalAddress(),
+                channel.getRemoteAddress(),
+                packIds.size());
         //
         for (Long packId : packIds) {
             SdkProfile tProfile = this.profileMap.remove(packId);
             if (tProfile != null) {
                 this.offerDispatchQueue(tProfile.getDispatchProfile());
-                this.context.addSendResultMetric(tProfile.getDispatchProfile(), proxyClusterId, false,
+                this.context.addSendResultMetric(
+                        tProfile.getDispatchProfile(),
+                        proxyClusterId,
+                        false,
                         tProfile.getSendTime());
             }
         }
@@ -240,8 +245,8 @@ public class SdkProxyChannelManager {
 
     /**
      * parseInetSocketAddress
-     * 
-     * @param  channel
+     *
+     * @param channel
      * @return
      */
     public static InetSocketAddress parseInetSocketAddress(Channel channel) {
@@ -259,14 +264,17 @@ public class SdkProxyChannelManager {
 
     /**
      * onMessageReceived
-     * 
+     *
      * @param ctx
      * @param e
      */
     public void onMessageReceived(ChannelHandlerContext ctx, MessageEvent e) {
         // parse channel buffer
         if (!(e.getMessage() instanceof ChannelBuffer)) {
-            LOG.error("proxyClusterId:{},onMessageReceived e.getMessage:{}", proxyClusterId, e.getMessage());
+            LOG.error(
+                    "proxyClusterId:{},onMessageReceived e.getMessage:{}",
+                    proxyClusterId,
+                    e.getMessage());
             this.setChannelException(e.getChannel());
             return;
         }
@@ -276,8 +284,11 @@ public class SdkProxyChannelManager {
         // check pack version
         int packVersion = nettyBuffer.readShort();
         if (packVersion != SdkSinkContext.PACK_VERSION) {
-            LOG.error("proxyClusterId:{},Error result from:{},error pack version:{}",
-                    proxyClusterId, String.valueOf(e.getChannel().getRemoteAddress()), packVersion);
+            LOG.error(
+                    "proxyClusterId:{},Error result from:{},error pack version:{}",
+                    proxyClusterId,
+                    String.valueOf(e.getChannel().getRemoteAddress()),
+                    packVersion);
             this.setChannelException(e.getChannel());
             return;
         }
@@ -288,16 +299,22 @@ public class SdkProxyChannelManager {
         try {
             responseInfo = ResponseInfo.parseFrom(responseBytes);
         } catch (Exception ex) {
-            LOG.error("proxyClusterId:{},Error result from:{},parseFrom exception:{}",
-                    proxyClusterId, String.valueOf(e.getChannel().getRemoteAddress()), ex);
+            LOG.error(
+                    "proxyClusterId:{},Error result from:{},parseFrom exception:{}",
+                    proxyClusterId,
+                    String.valueOf(e.getChannel().getRemoteAddress()),
+                    ex);
             this.setChannelException(e.getChannel());
             return;
         }
         // check result
         ResultCode result = responseInfo.getResult();
         if (result != ResultCode.SUCCUSS) {
-            LOG.error("proxyClusterId:{},Error result from:{},resultCode:{}",
-                    proxyClusterId, String.valueOf(e.getChannel().getRemoteAddress()), result.toString());
+            LOG.error(
+                    "proxyClusterId:{},Error result from:{},resultCode:{}",
+                    proxyClusterId,
+                    String.valueOf(e.getChannel().getRemoteAddress()),
+                    result.toString());
             this.setChannelException(e.getChannel());
             return;
         }
@@ -306,7 +323,8 @@ public class SdkProxyChannelManager {
         // get SdkProfile
         SdkProfile tProfile = this.profileMap.remove(sdkPackId);
         if (tProfile == null) {
-            LOG.error("proxyClusterId:%s,Can not find MessageDispatchProfile by sdkPackId:%d,from:%s",
+            LOG.error(
+                    "proxyClusterId:%s,Can not find MessageDispatchProfile by sdkPackId:%d,from:%s",
                     proxyClusterId, sdkPackId, String.valueOf(e.getChannel().getRemoteAddress()));
             this.setChannelException(e.getChannel());
             return;
@@ -318,25 +336,27 @@ public class SdkProxyChannelManager {
 
     /**
      * onMessageOK
-     * 
+     *
      * @param tProfile
      * @param channel
      */
     private void onMessageOK(SdkProfile tProfile, Channel channel) {
-        this.context.addSendResultMetric(tProfile.getDispatchProfile(), proxyClusterId, true, tProfile.getSendTime());
+        this.context.addSendResultMetric(
+                tProfile.getDispatchProfile(), proxyClusterId, true, tProfile.getSendTime());
         this.sender.releaseChannel(channel);
-        tProfile.getDispatchProfile().getEvents().forEach((pEvent) -> {
-            try {
-                pEvent.getProfile().getCallback().onMessageAck(SendResult.OK);
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-            }
-        });
+        tProfile.getDispatchProfile()
+                .getEvents()
+                .forEach(
+                        (pEvent) -> {
+                            try {
+                                pEvent.getProfile().getCallback().onMessageAck(SendResult.OK);
+                            } catch (Exception e) {
+                                LOG.error(e.getMessage(), e);
+                            }
+                        });
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         LOG.info("begin to close proxyClusterId:{}.", proxyClusterId);
         this.reloadTimer.cancel();
@@ -351,7 +371,7 @@ public class SdkProxyChannelManager {
 
     /**
      * get proxyClusterId
-     * 
+     *
      * @return the proxyClusterId
      */
     public String getProxyClusterId() {
@@ -360,7 +380,7 @@ public class SdkProxyChannelManager {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public SdkSinkContext getContext() {
@@ -369,8 +389,8 @@ public class SdkProxyChannelManager {
 
     /**
      * offerDispatchQueue
-     * 
-     * @param  profile
+     *
+     * @param profile
      * @return
      */
     public boolean offerDispatchQueue(DispatchProfile profile) {
@@ -383,8 +403,8 @@ public class SdkProxyChannelManager {
 
     /**
      * takeDispatchQueue
-     * 
-     * @return                      DispatchProfile
+     *
+     * @return DispatchProfile
      * @throws InterruptedException
      */
     public DispatchProfile takeDispatchQueue() throws InterruptedException {
@@ -394,11 +414,10 @@ public class SdkProxyChannelManager {
 
     /**
      * get sender
-     * 
+     *
      * @return the sender
      */
     public TcpChannelGroup getSender() {
         return sender;
     }
-
 }

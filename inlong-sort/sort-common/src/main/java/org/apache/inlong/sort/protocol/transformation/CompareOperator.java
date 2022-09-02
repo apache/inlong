@@ -30,25 +30,18 @@ import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOp
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 
-/**
- * interface for all compare operators
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** interface for all compare operators */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
-        @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),
-        @JsonSubTypes.Type(value = IsNotNullOperator.class, name = "isNotNull"),
-        @JsonSubTypes.Type(value = IsNullOperator.class, name = "isNull"),
-        @JsonSubTypes.Type(value = LessThanOperator.class, name = "lessThan"),
-        @JsonSubTypes.Type(value = LessThanOrEqualOperator.class, name = "lessThanOrEqual"),
-        @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
-        @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual"),
-        @JsonSubTypes.Type(value = InOperator.class, name = "in"),
-        @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
+    @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
+    @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),
+    @JsonSubTypes.Type(value = IsNotNullOperator.class, name = "isNotNull"),
+    @JsonSubTypes.Type(value = IsNullOperator.class, name = "isNull"),
+    @JsonSubTypes.Type(value = LessThanOperator.class, name = "lessThan"),
+    @JsonSubTypes.Type(value = LessThanOrEqualOperator.class, name = "lessThanOrEqual"),
+    @JsonSubTypes.Type(value = MoreThanOperator.class, name = "moreThan"),
+    @JsonSubTypes.Type(value = MoreThanOrEqualOperator.class, name = "moreThanOrEqual"),
+    @JsonSubTypes.Type(value = InOperator.class, name = "in"),
+    @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")
 })
-public interface CompareOperator extends Operator {
-
-}
+public interface CompareOperator extends Operator {}

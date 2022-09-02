@@ -17,13 +17,12 @@
 
 package org.apache.inlong.agent.state;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractStateWrapper implements Runnable {
 
@@ -37,9 +36,7 @@ public abstract class AbstractStateWrapper implements Runnable {
         addCallbacks();
     }
 
-    /**
-     * add callback for state change
-     */
+    /** add callback for state change */
     public abstract void addCallbacks();
 
     public AbstractStateWrapper addCallback(State begin, State end, StateCallback callback) {
@@ -53,7 +50,8 @@ public abstract class AbstractStateWrapper implements Runnable {
      * @param nextState next state
      */
     public synchronized void doChangeState(State nextState) {
-        LOGGER.debug("state change, current state is {}, next state is {}", currentState, nextState);
+        LOGGER.debug(
+                "state change, current state is {}, next state is {}", currentState, nextState);
         Pair<State, State> statePair = new ImmutablePair<>(currentState, nextState);
         StateCallback callback = callBacks.get(statePair);
         // change state before callback.
@@ -63,17 +61,19 @@ public abstract class AbstractStateWrapper implements Runnable {
         }
     }
 
-    /**
-     * determine the exception
-     */
+    /** determine the exception */
     public boolean isException() {
         State tmpState = currentState;
-        return State.KILLED.equals(tmpState) || State.FAILED.equals(tmpState) || State.FATAL.equals(tmpState);
+        return State.KILLED.equals(tmpState)
+                || State.FAILED.equals(tmpState)
+                || State.FATAL.equals(tmpState);
     }
 
     public boolean isFinished() {
         State tmpState = currentState;
-        return State.FATAL.equals(tmpState) || State.SUCCEEDED.equals(tmpState) || State.KILLED.equals(tmpState);
+        return State.FATAL.equals(tmpState)
+                || State.SUCCEEDED.equals(tmpState)
+                || State.KILLED.equals(tmpState);
     }
 
     public boolean isSuccess() {
@@ -92,5 +92,4 @@ public abstract class AbstractStateWrapper implements Runnable {
     public State getCurrentState() {
         return currentState;
     }
-
 }

@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Sink approve info
- */
+/** Sink approve info */
 @Data
 @ApiModel("Sink approve info")
 public class SinkApproveDTO {
@@ -38,5 +36,4 @@ public class SinkApproveDTO {
 
     @ApiModelProperty("Sink status")
     private Integer status;
-
 }

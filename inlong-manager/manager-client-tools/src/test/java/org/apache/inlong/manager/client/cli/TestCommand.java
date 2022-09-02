@@ -21,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-/**
- * Command service test for {@link CommandToolMain}
- */
+/** Command service test for {@link CommandToolMain} */
 @Slf4j
 public class TestCommand {
 
@@ -60,7 +58,9 @@ public class TestCommand {
 
     @Test
     public void testUpdateGroup() throws Exception {
-        String[] arg = {"update", "group", "-g", "test_group", "-c", "src/test/resources/test_config.json"};
+        String[] arg = {
+            "update", "group", "-g", "test_group", "-c", "src/test/resources/test_config.json"
+        };
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
@@ -69,5 +69,4 @@ public class TestCommand {
         String[] arg = {"log", "group", "--query", "inlongGroupId:test_group"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
-
 }

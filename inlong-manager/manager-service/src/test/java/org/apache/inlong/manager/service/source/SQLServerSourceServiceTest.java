@@ -28,9 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * SQLServer source service test.
- */
+/** SQLServer source service test. */
 public class SQLServerSourceServiceTest extends ServiceBaseTest {
 
     private static final String hostname = "127.0.0.1";
@@ -39,14 +37,10 @@ public class SQLServerSourceServiceTest extends ServiceBaseTest {
     private static final String schema = "sqlserver_schema";
     private static final String tableName = "sqlserver_table";
     private final String sourceName = "stream_source_service_test";
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save source info.
-     */
+    /** Save source info. */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
@@ -88,11 +82,11 @@ public class SQLServerSourceServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         SQLServerSource sqlserverSource = (SQLServerSource) response;
-        SQLServerSourceRequest request = CommonBeanUtils.copyProperties(sqlserverSource, SQLServerSourceRequest::new);
+        SQLServerSourceRequest request =
+                CommonBeanUtils.copyProperties(sqlserverSource, SQLServerSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
-
 }

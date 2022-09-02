@@ -76,5 +76,4 @@ public class MessageQueueConfig {
     public boolean isTube() {
         return mqType.trim().equalsIgnoreCase("tube");
     }
-
 }

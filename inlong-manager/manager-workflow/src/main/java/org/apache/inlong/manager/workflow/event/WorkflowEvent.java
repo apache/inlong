@@ -17,14 +17,9 @@
 
 package org.apache.inlong.manager.workflow.event;
 
-/**
- * Workflow event
- */
+/** Workflow event */
 public interface WorkflowEvent {
 
-    /**
-     * Get event name
-     */
+    /** Get event name */
     String name();
-
 }

@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.changestream.FullDocument;
 import com.mongodb.kafka.connect.source.MongoSourceConfig;
@@ -27,10 +32,6 @@ import com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceConne
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.heartbeat.Heartbeat;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.annotation.VisibleForTesting;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -38,11 +39,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-
-import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
-import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.annotation.VisibleForTesting;
 
 /**
  * A builder to build a SourceFunction which can read snapshot and continue to consume change stream
@@ -447,7 +446,12 @@ public class MongoDBSource {
                     Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(), HEARTBEAT_TOPIC_NAME_DEFAULT);
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric, inlongAudit);
+                    deserializer,
+                    props,
+                    null,
+                    Validator.getDefaultValidator(),
+                    inlongMetric,
+                    inlongAudit);
         }
     }
 }

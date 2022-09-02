@@ -26,9 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * Cluster tag paging query conditions
- */
+/** Cluster tag paging query conditions */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
@@ -45,5 +43,4 @@ public class ClusterTagPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-
 }

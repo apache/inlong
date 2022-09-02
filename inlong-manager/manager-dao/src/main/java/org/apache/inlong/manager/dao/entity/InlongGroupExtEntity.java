@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * InlongGroupExtEntity, including key name, key value, etc.
- */
+/** InlongGroupExtEntity, including key name, key value, etc. */
 @Data
 public class InlongGroupExtEntity implements Serializable {
 
@@ -35,5 +32,4 @@ public class InlongGroupExtEntity implements Serializable {
     private String keyValue;
     private Integer isDeleted = 0;
     private Date modifyTime;
-
 }

@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -26,21 +28,18 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Test for {@link PulsarExtractNode}
- */
+/** Test for {@link PulsarExtractNode} */
 public class PulsarExtractNodeTest extends SerializeBaseTest<Node> {
 
     @Override
     public Node getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
         Format format = new CsvFormat();
-        return new PulsarExtractNode("2",
+        return new PulsarExtractNode(
+                "2",
                 "pulsar_input",
                 fields,
                 null,

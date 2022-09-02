@@ -20,19 +20,10 @@ package org.apache.inlong.sdk.dataproxy;
 
 public abstract class FileCallback implements SendMessageCallback {
     /* Invoked when a message is confirmed by TDBus. */
-    public void onMessageAck(String result) {
-    }
+    public void onMessageAck(String result) {};
 
-    ;
-
-    public void onMessageAck(SendResult result) {
-    }
-
-    ;
+    public void onMessageAck(SendResult result) {};
 
     /* Invoked when a message transportation interrupted by an exception. */
-    public void onException(Throwable e) {
-    }
-
-    ;
+    public void onException(Throwable e) {};
 }

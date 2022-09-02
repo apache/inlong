@@ -17,9 +17,6 @@
 
 package org.apache.inlong.agent.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -27,22 +24,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Providing work threads management, those threads run
- * periodically until agent is stopped.
- */
+/** Providing work threads management, those threads run periodically until agent is stopped. */
 public abstract class AbstractDaemon implements Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDaemon.class);
 
-    /**
-     * worker thread pool, share it
-     **/
+    /** worker thread pool, share it */
     private static final ExecutorService WORKER_SERVICES =
-            new ThreadPoolExecutor(0, Integer.MAX_VALUE,
-                    60L, TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(), new AgentThreadFactory("AbstractDaemon"));
+            new ThreadPoolExecutor(
+                    0,
+                    Integer.MAX_VALUE,
+                    60L,
+                    TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(),
+                    new AgentThreadFactory("AbstractDaemon"));
+
     private final List<CompletableFuture<?>> workerFutures;
     private boolean runnable = true;
 
@@ -59,9 +58,7 @@ public abstract class AbstractDaemon implements Service {
         return runnable;
     }
 
-    /**
-     * Stop running threads.
-     */
+    /** Stop running threads. */
     public void stopRunningThreads() {
         runnable = false;
     }
@@ -74,13 +71,11 @@ public abstract class AbstractDaemon implements Service {
     public void submitWorker(Runnable worker) {
         CompletableFuture<?> future = CompletableFuture.runAsync(worker, WORKER_SERVICES);
         workerFutures.add(future);
-        LOGGER.info("{} running worker number is {}", this.getClass().getName(),
-                workerFutures.size());
+        LOGGER.info(
+                "{} running worker number is {}", this.getClass().getName(), workerFutures.size());
     }
 
-    /**
-     * Wait for threads finish.
-     */
+    /** Wait for threads finish. */
     @Override
     public void join() {
         for (CompletableFuture<?> future : workerFutures) {
@@ -88,9 +83,7 @@ public abstract class AbstractDaemon implements Service {
         }
     }
 
-    /**
-     * Stop thread pool and running threads if they're in the running state.
-     */
+    /** Stop thread pool and running threads if they're in the running state. */
     public void waitForTerminate() {
         // stop running threads.
         if (isRunnable()) {

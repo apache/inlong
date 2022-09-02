@@ -17,9 +17,7 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-/**
- * DataProxyCluster
- */
+/** DataProxyCluster */
 public class DataProxyCluster {
 
     private ProxyClusterObject proxyCluster = new ProxyClusterObject();
@@ -60,5 +58,4 @@ public class DataProxyCluster {
     public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
         this.cacheClusterSet = cacheClusterSet;
     }
-
 }

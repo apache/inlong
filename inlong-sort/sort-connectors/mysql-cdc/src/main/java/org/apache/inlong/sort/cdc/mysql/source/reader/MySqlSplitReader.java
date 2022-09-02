@@ -18,8 +18,16 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createBinaryClient;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlConnection;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import io.debezium.connector.mysql.MySqlConnection;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Queue;
+import javax.annotation.Nullable;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
 import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
@@ -36,18 +44,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.Queue;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createBinaryClient;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlConnection;
-
-/**
- * The {@link SplitReader} implementation for the {@link MySqlSource}.
- */
+/** The {@link SplitReader} implementation for the {@link MySqlSource}. */
 public class MySqlSplitReader implements SplitReader<SourceRecord, MySqlSplit> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSplitReader.class);
@@ -56,10 +53,8 @@ public class MySqlSplitReader implements SplitReader<SourceRecord, MySqlSplit> {
     private final int subtaskId;
     private final MySqlSourceReaderContext context;
 
-    @Nullable
-    private DebeziumReader<SourceRecord, MySqlSplit> currentReader;
-    @Nullable
-    private String currentSplitId;
+    @Nullable private DebeziumReader<SourceRecord, MySqlSplit> currentReader;
+    @Nullable private String currentSplitId;
 
     public MySqlSplitReader(
             MySqlSourceConfig sourceConfig, int subtaskId, MySqlSourceReaderContext context) {
@@ -109,8 +104,7 @@ public class MySqlSplitReader implements SplitReader<SourceRecord, MySqlSplit> {
     }
 
     @Override
-    public void wakeUp() {
-    }
+    public void wakeUp() {}
 
     @Override
     public void close() throws Exception {

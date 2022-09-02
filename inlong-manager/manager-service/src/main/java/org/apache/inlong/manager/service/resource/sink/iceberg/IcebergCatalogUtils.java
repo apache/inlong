@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.iceberg;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
@@ -36,14 +40,7 @@ import org.apache.inlong.manager.pojo.sink.iceberg.IcebergType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Utils for Iceberg Catalog
- */
+/** Utils for Iceberg Catalog */
 public class IcebergCatalogUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergCatalogUtils.class);
@@ -51,9 +48,7 @@ public class IcebergCatalogUtils {
     private static final String CATALOG_PROP_WAREHOUSE = "warehouse";
     private static final String CATALOG_PROP_URI = "uri";
 
-    /**
-     * Get Hive catalog for iceberg registry
-     */
+    /** Get Hive catalog for iceberg registry */
     public static HiveCatalog getCatalog(String metastoreUri, String warehouse) {
         HiveCatalog catalog = new HiveCatalog();
         Map<String, String> properties = new HashMap<>();
@@ -65,16 +60,12 @@ public class IcebergCatalogUtils {
         return catalog;
     }
 
-    /**
-     * Get Hive catalog for iceberg registry
-     */
+    /** Get Hive catalog for iceberg registry */
     public static HiveCatalog getCatalog(String metastoreUri) {
         return getCatalog(metastoreUri, "");
     }
 
-    /**
-     * Create Iceberg namespace
-     */
+    /** Create Iceberg namespace */
     public static void createDb(String metastoreUri, String warehouse, String dbName) {
         HiveCatalog catalog = getCatalog(metastoreUri, warehouse);
         Namespace ns = Namespace.of(dbName);
@@ -85,20 +76,25 @@ public class IcebergCatalogUtils {
         catalog.createNamespace(ns);
     }
 
-    /**
-     * Create Iceberg table
-     */
-    public static void createTable(String metastoreUri, String warehouse, IcebergTableInfo tableInfo) {
+    /** Create Iceberg table */
+    public static void createTable(
+            String metastoreUri, String warehouse, IcebergTableInfo tableInfo) {
         // prepare table scheme
         List<Types.NestedField> nestedFields = new ArrayList<>();
         int id = 1;
         for (IcebergColumnInfo column : tableInfo.getColumns()) {
             if (column.isRequired()) {
-                nestedFields.add(Types.NestedField.required(id, column.getName(),
-                        Types.fromPrimitiveString(icebergTypeDesc(column))));
+                nestedFields.add(
+                        Types.NestedField.required(
+                                id,
+                                column.getName(),
+                                Types.fromPrimitiveString(icebergTypeDesc(column))));
             } else {
-                nestedFields.add(Types.NestedField.optional(id, column.getName(),
-                        Types.fromPrimitiveString(icebergTypeDesc(column))));
+                nestedFields.add(
+                        Types.NestedField.optional(
+                                id,
+                                column.getName(),
+                                Types.fromPrimitiveString(icebergTypeDesc(column))));
             }
             id += 1;
         }
@@ -113,13 +109,11 @@ public class IcebergCatalogUtils {
         catalog.createTable(name, schema, spec);
     }
 
-    /**
-     * Transform to iceberg recognizable type description
-     */
+    /** Transform to iceberg recognizable type description */
     private static String icebergTypeDesc(IcebergColumnInfo column) {
         switch (IcebergType.forType(column.getType())) {
             case DECIMAL:
-                //note: the space is needed or iceberg won't recognize
+                // note: the space is needed or iceberg won't recognize
                 return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
             case FIXED:
                 return String.format("fixed(%d)", column.getLength());
@@ -128,18 +122,15 @@ public class IcebergCatalogUtils {
         }
     }
 
-    /**
-     * Check Iceberg table already exists or not in metastore
-     */
+    /** Check Iceberg table already exists or not in metastore */
     public static boolean tableExists(String metastoreUri, String dbName, String tableName) {
         HiveCatalog catalog = getCatalog(metastoreUri);
         return catalog.tableExists(TableIdentifier.of(dbName, tableName));
     }
 
-    /**
-     * Query Iceberg columns
-     */
-    public static List<IcebergColumnInfo> getColumns(String metastoreUri, String dbName, String tableName) {
+    /** Query Iceberg columns */
+    public static List<IcebergColumnInfo> getColumns(
+            String metastoreUri, String dbName, String tableName) {
         List<IcebergColumnInfo> columnList = new ArrayList<>();
         HiveCatalog catalog = getCatalog(metastoreUri);
         Table table = catalog.loadTable(TableIdentifier.of(dbName, tableName));
@@ -153,11 +144,9 @@ public class IcebergCatalogUtils {
         return columnList;
     }
 
-    /**
-     * Add columns for Iceberg table
-     */
-    public static void addColumns(String metastoreUri, String dbName, String tableName,
-            List<IcebergColumnInfo> columns) {
+    /** Add columns for Iceberg table */
+    public static void addColumns(
+            String metastoreUri, String dbName, String tableName, List<IcebergColumnInfo> columns) {
         HiveCatalog catalog = getCatalog(metastoreUri);
         Table table = catalog.loadTable(TableIdentifier.of(dbName, tableName));
 
@@ -165,15 +154,19 @@ public class IcebergCatalogUtils {
         UpdateSchema updateSchema = table.updateSchema();
         for (IcebergColumnInfo column : columns) {
             if (column.isRequired()) {
-                updateSchema.addRequiredColumn(column.getName(), Types.fromPrimitiveString(icebergTypeDesc(column)),
+                updateSchema.addRequiredColumn(
+                        column.getName(),
+                        Types.fromPrimitiveString(icebergTypeDesc(column)),
                         column.getDesc());
             } else {
-                updateSchema.addColumn(column.getName(), Types.fromPrimitiveString(icebergTypeDesc(column)),
+                updateSchema.addColumn(
+                        column.getName(),
+                        Types.fromPrimitiveString(icebergTypeDesc(column)),
                         column.getDesc());
             }
         }
 
-        //commit schema update before partition spec update
+        // commit schema update before partition spec update
         updateSchema.commit();
 
         // update partition spec
@@ -182,18 +175,15 @@ public class IcebergCatalogUtils {
         updateSpec.commit();
     }
 
-    /**
-     * Create iceberg table partition meta data
-     */
-    private static PartitionSpec createPartitionSpec(Schema schema, List<IcebergColumnInfo> columns) {
+    /** Create iceberg table partition meta data */
+    private static PartitionSpec createPartitionSpec(
+            Schema schema, List<IcebergColumnInfo> columns) {
         PartitionSpec.Builder spec = PartitionSpec.builderFor(schema);
         columns.forEach(c -> buildColumnSpec(c, spec));
         return spec.build();
     }
 
-    /**
-     * Build iceberg table column schema
-     */
+    /** Build iceberg table column schema */
     private static void buildColumnSpec(IcebergColumnInfo column, PartitionSpec.Builder builder) {
         if (StringUtils.isEmpty(column.getPartitionStrategy())) {
             return;
@@ -229,9 +219,8 @@ public class IcebergCatalogUtils {
     }
 
     /**
-     * Update iceberg table column schema.
-     * It's unfortunate that the updating api is different from the creating api so the partition type switch is
-     * repeated here.
+     * Update iceberg table column schema. It's unfortunate that the updating api is different from
+     * the creating api so the partition type switch is repeated here.
      */
     private static void updateColumnSpec(IcebergColumnInfo column, UpdatePartitionSpec builder) {
         if (StringUtils.isEmpty(column.getPartitionStrategy())) {

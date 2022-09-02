@@ -19,14 +19,10 @@ package org.apache.inlong.manager.service.resource.sink;
 
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 
-/**
- * Interface of the sink resource operator
- */
+/** Interface of the sink resource operator */
 public interface SinkResourceOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String sinkType);
 
     /**
@@ -34,8 +30,7 @@ public interface SinkResourceOperator {
      *
      * @param sinkInfo The sink response info.
      */
-    default void createSinkResource(SinkInfo sinkInfo) {
-    }
+    default void createSinkResource(SinkInfo sinkInfo) {}
 
     /**
      * Update sink resource.
@@ -43,8 +38,7 @@ public interface SinkResourceOperator {
      * @param groupId The inlong group id.
      * @param sinkInfo The sink response info.
      */
-    default void updateSinkResource(String groupId, SinkInfo sinkInfo) {
-    }
+    default void updateSinkResource(String groupId, SinkInfo sinkInfo) {}
 
     /**
      * Delete sink resource.
@@ -52,7 +46,5 @@ public interface SinkResourceOperator {
      * @param groupId The inlong group id.
      * @param sinkInfo The sink response info.
      */
-    default void deleteSinkResource(String groupId, SinkInfo sinkInfo) {
-    }
-
+    default void deleteSinkResource(String groupId, SinkInfo sinkInfo) {}
 }

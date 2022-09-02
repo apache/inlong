@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-/**
- * HBase sink info
- */
+/** HBase sink info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -74,5 +72,4 @@ public class HBaseSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this, HBaseSinkRequest::new);
     }
-
 }

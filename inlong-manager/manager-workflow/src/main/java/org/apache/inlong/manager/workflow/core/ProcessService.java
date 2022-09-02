@@ -17,12 +17,10 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * WorkflowProcess definition service
- */
+/** WorkflowProcess definition service */
 public interface ProcessService {
 
     /**
@@ -54,5 +52,4 @@ public interface ProcessService {
      * @return Workflow context
      */
     WorkflowContext cancel(Integer processId, String operator, String remark);
-
 }

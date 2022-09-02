@@ -19,9 +19,7 @@ package org.apache.inlong.manager.pojo.sink.iceberg;
 
 import org.apache.inlong.manager.common.util.Preconditions;
 
-/**
- * Iceberg partition type
- */
+/** Iceberg partition type */
 public enum IcebergPartition {
     IDENTITY,
     BUCKET,
@@ -33,9 +31,7 @@ public enum IcebergPartition {
     NONE,
     ;
 
-    /**
-     * Get partition type from name
-     */
+    /** Get partition type from name */
     public static IcebergPartition forName(String name) {
         Preconditions.checkNotNull(name, "IcebergPartition should not be null");
         for (IcebergPartition value : values()) {
@@ -43,7 +39,8 @@ public enum IcebergPartition {
                 return value;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported IcebergPartition : %s", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupported IcebergPartition : %s", name));
     }
 
     @Override

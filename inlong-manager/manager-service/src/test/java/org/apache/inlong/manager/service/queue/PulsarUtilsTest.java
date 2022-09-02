@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.queue;
 
+import java.lang.reflect.Field;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
@@ -27,11 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-
-/**
- * Test class for Pulsar utils.
- */
+/** Test class for Pulsar utils. */
 public class PulsarUtilsTest {
 
     @Test
@@ -50,5 +47,4 @@ public class PulsarUtilsTest {
             Assertions.fail();
         }
     }
-
 }

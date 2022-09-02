@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DataProxyCluster
- */
+/** DataProxyCluster */
 public class ProxyClusterObject {
 
     private String name;
@@ -158,5 +156,4 @@ public class ProxyClusterObject {
     public void setSinks(List<ProxySink> sinks) {
         this.sinks = sinks;
     }
-
 }

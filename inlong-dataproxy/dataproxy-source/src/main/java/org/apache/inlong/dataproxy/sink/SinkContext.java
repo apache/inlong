@@ -17,6 +17,9 @@
 
 package org.apache.inlong.dataproxy.sink;
 
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -25,13 +28,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-/**
- * SinkContext
- */
+/** SinkContext */
 public class SinkContext {
 
     public static final Logger LOG = LoggerFactory.getLogger(SinkContext.class);
@@ -53,9 +50,7 @@ public class SinkContext {
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
-    /**
-     * Constructor
-     */
+    /** Constructor */
     public SinkContext(String sinkName, Context context, Channel channel) {
         this.sinkName = sinkName;
         this.sinkContext = context;
@@ -69,9 +64,7 @@ public class SinkContext {
         MetricRegister.register(this.metricItemSet);
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         try {
             this.reload();
@@ -81,9 +74,7 @@ public class SinkContext {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         try {
             this.reloadTimer.cancel();
@@ -92,25 +83,22 @@ public class SinkContext {
         }
     }
 
-    /**
-     * setReloadTimer
-     */
+    /** setReloadTimer */
     protected void setReloadTimer() {
         reloadTimer = new Timer(true);
-        TimerTask task = new TimerTask() {
+        TimerTask task =
+                new TimerTask() {
 
-            public void run() {
-                reload();
-            }
-        };
-        reloadTimer.schedule(task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
+                    public void run() {
+                        reload();
+                    }
+                };
+        reloadTimer.schedule(
+                task, new Date(System.currentTimeMillis() + reloadInterval), reloadInterval);
     }
 
-    /**
-     * reload
-     */
-    public void reload() {
-    }
+    /** reload */
+    public void reload() {}
 
     /**
      * get clusterId

@@ -17,15 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface InlongGroupEntityMapper {
@@ -44,7 +43,8 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupBriefInfo> selectBriefList(InlongGroupPageRequest request);
 
-    List<InlongGroupEntity> selectByClusterTag(@Param(value = "inlongClusterTag") String inlongClusterTag);
+    List<InlongGroupEntity> selectByClusterTag(
+            @Param(value = "inlongClusterTag") String inlongClusterTag);
 
     /**
      * Select all group info for sort sdk.
@@ -57,9 +57,10 @@ public interface InlongGroupEntityMapper {
 
     int updateByIdentifierSelective(InlongGroupEntity record);
 
-    int updateStatus(@Param("groupId") String groupId, @Param("status") Integer status,
+    int updateStatus(
+            @Param("groupId") String groupId,
+            @Param("status") Integer status,
             @Param("modifier") String modifier);
 
     int deleteByPrimaryKey(Integer id);
-
 }

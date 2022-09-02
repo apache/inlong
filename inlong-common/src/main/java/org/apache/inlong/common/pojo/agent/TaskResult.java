@@ -17,16 +17,13 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * The task result pulled by the agent from the manager.
- */
+/** The task result pulled by the agent from the manager. */
 @Data
 @Builder
 @NoArgsConstructor
@@ -35,5 +32,4 @@ public class TaskResult {
 
     private List<CmdConfig> cmdConfigs;
     private List<DataConfig> dataConfigs;
-
 }

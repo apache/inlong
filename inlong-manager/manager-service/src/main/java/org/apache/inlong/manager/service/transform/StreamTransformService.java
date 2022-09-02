@@ -17,15 +17,12 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import java.util.List;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
-import java.util.List;
-
-/**
- * Service layer interface for stream transform
- */
+/** Service layer interface for stream transform */
 public interface StreamTransformService {
 
     /**
@@ -63,5 +60,4 @@ public interface StreamTransformService {
      * @return Whether succeed
      */
     Boolean delete(DeleteTransformRequest request, String operator);
-
 }

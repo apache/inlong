@@ -24,6 +24,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,13 +38,7 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Stream sink info.
- */
+/** Stream sink info. */
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -82,7 +79,8 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
 
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
+    @ApiModelProperty(
+            value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
             notes = "Such as create Hive table")
     @Builder.Default
     private Integer enableCreateResource = 1;
@@ -131,5 +129,4 @@ public abstract class StreamSink extends StreamNode {
     public SinkRequest genSinkRequest() {
         return null;
     }
-
 }

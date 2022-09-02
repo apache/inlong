@@ -1,36 +1,30 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.metadata;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 
-/**
- * Topic's metadata. Contains topic name, partitions count, etc.
- */
+/** Topic's metadata. Contains topic name, partitions count, etc. */
 public class TopicMetadata {
     // topic name.
     private String topic;
@@ -40,7 +34,8 @@ public class TopicMetadata {
     private int numTopicStores = 1;
     // topic partition count.
     private int numPartitions = 1;
-    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush
+    // operation.
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushInterval = 10000;
@@ -52,8 +47,7 @@ public class TopicMetadata {
     private boolean acceptSubscribe = true;
     // path to store topic's data in disk.
     private String dataPath;
-    @Deprecated
-    private String deleteWhen = "0 0 6,18 * * ?";
+    @Deprecated private String deleteWhen = "0 0 6,18 * * ?";
     // expire policy.
     private String deletePolicy = "delete,168h";
     // the max cache size for topic.
@@ -68,17 +62,17 @@ public class TopicMetadata {
     private int minMemCacheSize = TBaseConstants.META_VALUE_UNDEFINED;
 
     /**
-     * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom config).
+     * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom
+     * config).
      *
-     * @param brokerDefMetadata    the default topic meta configure
-     * @param topicMetaConfInfo    the topic meta configure
+     * @param brokerDefMetadata the default topic meta configure
+     * @param topicMetaConfInfo the topic meta configure
      */
     public TopicMetadata(final BrokerDefMetadata brokerDefMetadata, String topicMetaConfInfo) {
         if (TStringUtils.isBlank(topicMetaConfInfo)) {
             return;
         }
-        String[] topicConfInfoArr =
-                topicMetaConfInfo.split(TokenConstants.ATTR_SEP);
+        String[] topicConfInfoArr = topicMetaConfInfo.split(TokenConstants.ATTR_SEP);
         this.topic = topicConfInfoArr[0];
         if (TStringUtils.isBlank(topicConfInfoArr[1])) {
             this.numPartitions = brokerDefMetadata.getNumPartitions();
@@ -161,14 +155,16 @@ public class TopicMetadata {
     /**
      * Build TopicMetadata by default topic meta and the special field values.
      *
-     * @param brokerDefMetadata    the default topic meta configure
-     * @param topicName            the topic name
-     * @param numTopicStores       the topic store count
-     * @param numPartitions        the topic partition count
+     * @param brokerDefMetadata the default topic meta configure
+     * @param topicName the topic name
+     * @param numTopicStores the topic store count
+     * @param numPartitions the topic partition count
      */
-    public TopicMetadata(BrokerDefMetadata brokerDefMetadata,
-                         String topicName, int numTopicStores,
-                         int numPartitions) {
+    public TopicMetadata(
+            BrokerDefMetadata brokerDefMetadata,
+            String topicName,
+            int numTopicStores,
+            int numPartitions) {
         this.topic = topicName;
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
@@ -187,14 +183,24 @@ public class TopicMetadata {
         this.minMemCacheSize = ClusterConfigHolder.getMinMemCacheSize();
     }
 
-    private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, int unflushDataHold,
-                          String dataPath, String deleteWhen, String deletePolicy,
-                          int numPartitions, boolean acceptPublish,
-                          boolean acceptSubscribe, int statusId,
-                          int numTopicStores, int memCacheMsgSize,
-                          int memCacheMsgCnt, int memCacheFlushIntvl,
-                          int maxMsgSize, int minMemCacheSize) {
+    private TopicMetadata(
+            String topic,
+            int unflushThreshold,
+            int unflushInterval,
+            int unflushDataHold,
+            String dataPath,
+            String deleteWhen,
+            String deletePolicy,
+            int numPartitions,
+            boolean acceptPublish,
+            boolean acceptSubscribe,
+            int statusId,
+            int numTopicStores,
+            int memCacheMsgSize,
+            int memCacheMsgCnt,
+            int memCacheFlushIntvl,
+            int maxMsgSize,
+            int minMemCacheSize) {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
@@ -216,14 +222,24 @@ public class TopicMetadata {
 
     @Override
     public TopicMetadata clone() {
-        return new TopicMetadata(this.topic, this.unflushThreshold,
-                this.unflushInterval, this.unflushDataHold,
-                this.dataPath, this.deleteWhen, this.deletePolicy,
-                this.numPartitions, this.acceptPublish,
-                this.acceptSubscribe, this.statusId,
-                this.numTopicStores, this.memCacheMsgSize,
-                this.memCacheMsgCnt, this.memCacheFlushIntvl,
-                this.maxMsgSize, this.minMemCacheSize);
+        return new TopicMetadata(
+                this.topic,
+                this.unflushThreshold,
+                this.unflushInterval,
+                this.unflushDataHold,
+                this.dataPath,
+                this.deleteWhen,
+                this.deletePolicy,
+                this.numPartitions,
+                this.acceptPublish,
+                this.acceptSubscribe,
+                this.statusId,
+                this.numTopicStores,
+                this.memCacheMsgSize,
+                this.memCacheMsgCnt,
+                this.memCacheFlushIntvl,
+                this.maxMsgSize,
+                this.minMemCacheSize);
     }
 
     public boolean isAcceptPublish() {
@@ -471,8 +487,8 @@ public class TopicMetadata {
     /**
      * Each property will be compared, in case of the new added properties.
      *
-     * @param other    the compare object
-     * @return         whether is equal
+     * @param other the compare object
+     * @return whether is equal
      */
     public boolean isPropertyEquals(final TopicMetadata other) {
         return (this.numPartitions == other.numPartitions
@@ -488,23 +504,42 @@ public class TopicMetadata {
 
     @Override
     public String toString() {
-        return new StringBuilder(512).append("TopicMetadata [topic=").append(this.topic)
-                .append(", unflushThreshold=").append(this.unflushThreshold)
-                .append(", unflushInterval=").append(this.unflushInterval)
-                .append(", unflushDataHold=").append(this.unflushDataHold)
-                .append(", dataPath=").append(this.dataPath)
-                .append(", deleteWhen=").append(this.deleteWhen)
-                .append(", deletePolicy=").append(this.deletePolicy)
-                .append(", numPartitions=").append(this.numPartitions)
-                .append(", acceptPublish=").append(this.acceptPublish)
-                .append(", acceptSubscribe=").append(this.acceptSubscribe)
-                .append(", statusId=").append(this.statusId)
-                .append(", numTopicStores=").append(this.numTopicStores)
-                .append(", memCacheMsgSizeInMs=").append(this.memCacheMsgSize / 1024 / 512)
-                .append(", memCacheMsgCntInK=").append(this.memCacheMsgCnt / 512)
-                .append(", memCacheFlushIntvl=").append(this.memCacheFlushIntvl)
-                .append(", maxMsgSize=").append(this.maxMsgSize)
-                .append(", minMemCacheSize=").append(this.minMemCacheSize)
-                .append("]").toString();
+        return new StringBuilder(512)
+                .append("TopicMetadata [topic=")
+                .append(this.topic)
+                .append(", unflushThreshold=")
+                .append(this.unflushThreshold)
+                .append(", unflushInterval=")
+                .append(this.unflushInterval)
+                .append(", unflushDataHold=")
+                .append(this.unflushDataHold)
+                .append(", dataPath=")
+                .append(this.dataPath)
+                .append(", deleteWhen=")
+                .append(this.deleteWhen)
+                .append(", deletePolicy=")
+                .append(this.deletePolicy)
+                .append(", numPartitions=")
+                .append(this.numPartitions)
+                .append(", acceptPublish=")
+                .append(this.acceptPublish)
+                .append(", acceptSubscribe=")
+                .append(this.acceptSubscribe)
+                .append(", statusId=")
+                .append(this.statusId)
+                .append(", numTopicStores=")
+                .append(this.numTopicStores)
+                .append(", memCacheMsgSizeInMs=")
+                .append(this.memCacheMsgSize / 1024 / 512)
+                .append(", memCacheMsgCntInK=")
+                .append(this.memCacheMsgCnt / 512)
+                .append(", memCacheFlushIntvl=")
+                .append(this.memCacheFlushIntvl)
+                .append(", maxMsgSize=")
+                .append(this.maxMsgSize)
+                .append(", minMemCacheSize=")
+                .append(this.minMemCacheSize)
+                .append("]")
+                .toString();
     }
 }

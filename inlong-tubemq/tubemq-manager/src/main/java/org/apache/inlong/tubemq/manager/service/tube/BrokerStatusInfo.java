@@ -18,15 +18,12 @@
 package org.apache.inlong.tubemq.manager.service.tube;
 
 import java.util.List;
-
 import lombok.Data;
 
 @Data
 public class BrokerStatusInfo {
     private int code;
     private String errMsg;
-    /**
-     * total broker configuration info list of brokers.
-     */
+    /** total broker configuration info list of brokers. */
     private List<BrokerConf> data;
 }

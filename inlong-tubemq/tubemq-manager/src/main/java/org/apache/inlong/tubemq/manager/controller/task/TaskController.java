@@ -18,10 +18,8 @@
 package org.apache.inlong.tubemq.manager.controller.task;
 
 import com.google.gson.Gson;
-
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.topic.request.AddTopicTask;
@@ -43,18 +41,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class TaskController {
 
-    @Autowired
-    private ClusterService clusterService;
+    @Autowired private ClusterService clusterService;
 
-    @Autowired
-    private TaskService taskService;
+    @Autowired private TaskService taskService;
 
     private Gson gson = new Gson();
 
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult taskMethodProxy(@RequestParam String method,
-                                 @RequestBody String req) {
+    public @ResponseBody TubeMQResult taskMethodProxy(
+            @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD_TOPIC_TASK:
                 return addTask(gson.fromJson(req, BatchAddTopicTaskReq.class));
@@ -67,16 +62,15 @@ public class TaskController {
         if (!req.legal()) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        ClusterEntry clusterEntry = clusterService.getOneCluster(req
-                .getClusterId());
+        ClusterEntry clusterEntry = clusterService.getOneCluster(req.getClusterId());
         if (clusterEntry == null) {
             return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_CLUSTER);
         }
-        Set<String> topicNames = req.getAddTopicTasks().stream()
-                .map(AddTopicTask::getTopicName).collect(
-                        Collectors.toSet());
+        Set<String> topicNames =
+                req.getAddTopicTasks().stream()
+                        .map(AddTopicTask::getTopicName)
+                        .collect(Collectors.toSet());
 
         return taskService.addTopicCreateTask(req.getClusterId(), topicNames);
     }
-
 }

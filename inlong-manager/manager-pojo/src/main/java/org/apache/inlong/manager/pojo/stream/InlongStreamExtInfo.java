@@ -21,9 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * Inlong stream extension information
- */
+/** Inlong stream extension information */
 @Data
 @ApiModel("Inlong stream extension information")
 public class InlongStreamExtInfo {

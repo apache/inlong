@@ -17,13 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface InlongStreamEntityMapper {
@@ -32,12 +31,15 @@ public interface InlongStreamEntityMapper {
 
     int insertSelective(InlongStreamEntity record);
 
-    InlongStreamEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    InlongStreamEntity selectByIdentifier(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    Integer selectExistByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    Integer selectExistByIdentifier(
+            @Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query all inlong stream according to conditions (do not specify groupId, query all inlong streams)
+     * Query all inlong stream according to conditions (do not specify groupId, query all inlong
+     * streams)
      *
      * @param request query request
      * @return inlong stream list
@@ -54,12 +56,13 @@ public interface InlongStreamEntityMapper {
 
     int updateByIdentifierSelective(InlongStreamEntity streamEntity);
 
-    int updateStatusByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId,
-            @Param("status") Integer status, @Param("modifier") String modifier);
+    int updateStatusByIdentifier(
+            @Param("groupId") String groupId,
+            @Param("streamId") String streamId,
+            @Param("status") Integer status,
+            @Param("modifier") String modifier);
 
-    /**
-     * Logic delete dlq or rlq topic by bid
-     */
+    /** Logic delete dlq or rlq topic by bid */
     void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
 
     int deleteByPrimaryKey(Integer id);
@@ -70,5 +73,4 @@ public interface InlongStreamEntityMapper {
      * @return rows deleted
      */
     int deleteAllByGroupId(@Param("groupId") String groupId);
-
 }

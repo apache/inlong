@@ -18,20 +18,19 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.removeHistory;
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
+
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryException;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
-
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.removeHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 /**
  * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the
@@ -39,7 +38,7 @@ import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retr
  *
  * <p>Note: This is not a clean solution because we depends on a global variable and all the history
  * records will be stored in state (grow infinitely). We may need to come up with a
- * FileSystemDatabaseHistory in the future to store history in HDFS.</p>
+ * FileSystemDatabaseHistory in the future to store history in HDFS.
  */
 public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
 
@@ -63,9 +62,7 @@ public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
         return true;
     }
 
-    /**
-     * Gets the registered HistoryRecords under the given instance name.
-     */
+    /** Gets the registered HistoryRecords under the given instance name. */
     private ConcurrentLinkedQueue<SchemaRecord> getRegisteredHistoryRecord(String instanceName) {
         Collection<SchemaRecord> historyRecords = retrieveHistory(instanceName);
         return new ConcurrentLinkedQueue<>(historyRecords);

@@ -19,14 +19,13 @@
 package org.apache.inlong.sort.cdc.mysql.source.offset;
 
 import io.debezium.connector.mysql.GtidSet;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.connect.errors.ConnectException;
-
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.connect.errors.ConnectException;
 
 /**
  * A structure describes a fine grained offset in a binlog event including binlog position and gtid
@@ -35,7 +34,7 @@ import java.util.Objects;
  * <p>This structure can also be used to deal the binlog event in transaction, a transaction may
  * contains multiple change events, and each change event may contain multiple rows. When restart
  * from a specific {@link BinlogOffset}, we need to skip the processed change events and the
- * processed rows.</p>
+ * processed rows.
  */
 public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
 

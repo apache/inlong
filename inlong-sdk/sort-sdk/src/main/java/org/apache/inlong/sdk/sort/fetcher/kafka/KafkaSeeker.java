@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.inlong.sdk.sort.api.Seeker;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.util.TimeUtil;
@@ -27,19 +32,11 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- * Kafka seeker.
- * Only seek those topics and partitions assigned by server.
- * The whole process can be divided into three steps:
- * 1. Find all topics and partitions of this consumer;
- * 2. Calculate the offsets of the excepted seek time of each topic and partition respectively;
- * 3. Reset these topics and partitions to the corresponding offset
+ * Kafka seeker. Only seek those topics and partitions assigned by server. The whole process can be
+ * divided into three steps: 1. Find all topics and partitions of this consumer; 2. Calculate the
+ * offsets of the excepted seek time of each topic and partition respectively; 3. Reset these topics
+ * and partitions to the corresponding offset
  */
 public class KafkaSeeker implements Seeker {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSeeker.class);
@@ -70,12 +67,15 @@ public class KafkaSeeker implements Seeker {
                 LOGGER.error("haven't assigned any topic partitions, do nothing");
                 return;
             }
-            Map<TopicPartition, Long> timestampsToSearch = assignedTopicPartitions.stream()
-                    .collect(Collectors.toMap(tp -> tp, tp -> seekTime));
-            Map<TopicPartition, OffsetAndTimestamp> offsetMap = consumer.offsetsForTimes(timestampsToSearch);
+            Map<TopicPartition, Long> timestampsToSearch =
+                    assignedTopicPartitions.stream()
+                            .collect(Collectors.toMap(tp -> tp, tp -> seekTime));
+            Map<TopicPartition, OffsetAndTimestamp> offsetMap =
+                    consumer.offsetsForTimes(timestampsToSearch);
             List<TopicPartition> endOffsetsTopicPartitions = new ArrayList<>();
-            offsetMap.forEach((tp, offsetAndTimestamp) ->
-                    resetOffset(tp, offsetAndTimestamp, endOffsetsTopicPartitions));
+            offsetMap.forEach(
+                    (tp, offsetAndTimestamp) ->
+                            resetOffset(tp, offsetAndTimestamp, endOffsetsTopicPartitions));
             LOGGER.info("topic partition {} should be seek to end", endOffsetsTopicPartitions);
             if (!endOffsetsTopicPartitions.isEmpty()) {
                 consumer.seekToEnd(endOffsetsTopicPartitions);
@@ -105,7 +105,6 @@ public class KafkaSeeker implements Seeker {
             long afterSeek = consumer.position(tp);
             LOGGER.info("after seek, the offset for tp {} is {}", tp, afterSeek);
         }
-
     }
 
     @Override

@@ -24,9 +24,7 @@ import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcess
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.springframework.stereotype.Component;
 
-/**
- * Listener of source restart event.
- */
+/** Listener of source restart event. */
 @Component
 public class SourceRestartListener extends AbstractSourceOperateListener {
 

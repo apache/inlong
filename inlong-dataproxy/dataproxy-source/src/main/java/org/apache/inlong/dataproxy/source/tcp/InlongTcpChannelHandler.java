@@ -1,22 +1,28 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.source.tcp;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -32,20 +38,7 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-
-/**
- * InlongTcpChannelHandler
- */
+/** InlongTcpChannelHandler */
 public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelHandler.class);
@@ -61,7 +54,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Constructor
-     * 
+     *
      * @param sourceContext
      */
     public InlongTcpChannelHandler(SourceContext sourceContext) {
@@ -70,9 +63,9 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * channelRead
-     * 
-     * @param  ctx
-     * @param  msg
+     *
+     * @param ctx
+     * @param msg
      * @throws Exception
      */
     @Override
@@ -92,11 +85,17 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
                 this.addMetric(false, 0, null);
                 return;
             }
-            if (readableLength > LENGTH_PARAM_LENGTH + VERSION_PARAM_LENGTH + sourceContext.getMaxMsgLength()) {
+            if (readableLength
+                    > LENGTH_PARAM_LENGTH
+                            + VERSION_PARAM_LENGTH
+                            + sourceContext.getMaxMsgLength()) {
                 this.addMetric(false, 0, null);
-                throw new Exception("err msg, MSG_MAX_LENGTH_BYTES "
-                        + "< readableLength, and readableLength=" + readableLength + ", and MSG_MAX_LENGTH_BYTES="
-                        + sourceContext.getMaxMsgLength());
+                throw new Exception(
+                        "err msg, MSG_MAX_LENGTH_BYTES "
+                                + "< readableLength, and readableLength="
+                                + readableLength
+                                + ", and MSG_MAX_LENGTH_BYTES="
+                                + sourceContext.getMaxMsgLength());
             }
             // save index, reset it if buffer is not satisfied.
             cb.markReaderIndex();
@@ -105,19 +104,22 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
                 // reset index.
                 cb.resetReaderIndex();
                 this.addMetric(false, 0, null);
-                throw new Exception("err msg, channel buffer is not satisfied, and  readableLength="
-                        + readableLength + ", and totalPackLength=" + totalPackLength);
+                throw new Exception(
+                        "err msg, channel buffer is not satisfied, and  readableLength="
+                                + readableLength
+                                + ", and totalPackLength="
+                                + totalPackLength);
             }
 
             // read version
             int version = cb.readShort();
             switch (version) {
-                case VERSION_1 :
+                case VERSION_1:
                     // decode version 1
                     int bodyLength = totalPackLength - VERSION_PARAM_LENGTH;
                     decodeVersion1(ctx, cb, bodyLength);
                     break;
-                default :
+                default:
                     this.addMetric(false, 0, null);
                     throw new Exception("err version, unknown version:" + version);
             }
@@ -126,7 +128,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void decodeVersion1(ChannelHandlerContext ctx, ByteBuf cb, int bodyLength) throws Exception {
+    private void decodeVersion1(ChannelHandlerContext ctx, ByteBuf cb, int bodyLength)
+            throws Exception {
         // read bytes
         byte[] msgBytes = new byte[bodyLength];
         cb.readBytes(msgBytes);
@@ -154,26 +157,33 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * processAndWaitingSave
+     *
      * @param ctx
      * @param packObject
      * @param events
      * @throws Exception
      */
-    private void processAndWaitingSave(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+    private void processAndWaitingSave(
+            ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
             throws Exception {
         MessagePackHeader header = packObject.getHeader();
         InlongTcpSourceCallback callback = new InlongTcpSourceCallback(ctx, header);
         String inlongGroupId = header.getInlongGroupId();
         String inlongStreamId = header.getInlongStreamId();
-        ProxyPackEvent packEvent = new ProxyPackEvent(inlongGroupId, inlongStreamId, events, callback);
+        ProxyPackEvent packEvent =
+                new ProxyPackEvent(inlongGroupId, inlongStreamId, events, callback);
         // put to channel
         try {
             sourceContext.getSource().getChannelProcessor().processEvent(packEvent);
-            events.forEach(event -> {
-                this.addMetric(true, event.getBody().length, event);
-            });
-            boolean awaitResult = callback.getLatch().await(CommonPropertiesHolder.getMaxResponseTimeout(),
-                    TimeUnit.MILLISECONDS);
+            events.forEach(
+                    event -> {
+                        this.addMetric(true, event.getBody().length, event);
+                    });
+            boolean awaitResult =
+                    callback.getLatch()
+                            .await(
+                                    CommonPropertiesHolder.getMaxResponseTimeout(),
+                                    TimeUnit.MILLISECONDS);
             if (!awaitResult) {
                 if (!callback.getHasResponsed().getAndSet(true)) {
                     this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
@@ -181,9 +191,10 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             }
         } catch (Throwable ex) {
             LOG.error("Process Controller Event error can't write event to channel.", ex);
-            events.forEach(event -> {
-                this.addMetric(false, event.getBody().length, event);
-            });
+            events.forEach(
+                    event -> {
+                        this.addMetric(false, event.getBody().length, event);
+                    });
             if (!callback.getHasResponsed().getAndSet(true)) {
                 this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
             }
@@ -192,12 +203,14 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * processAndResponse
+     *
      * @param ctx
      * @param packObject
      * @param events
      * @throws Exception
      */
-    private void processAndResponse(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+    private void processAndResponse(
+            ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
             throws Exception {
         for (ProxyEvent event : events) {
             String uid = event.getUid();
@@ -221,7 +234,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * addMetric
-     * 
+     *
      * @param result
      * @param size
      * @param event
@@ -233,7 +246,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, sourceContext.getSourceDataId());
         DataProxyMetricItem.fillInlongId(event, dimensions);
         DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-        DataProxyMetricItem metricItem = this.sourceContext.getMetricItemSet().findMetricItem(dimensions);
+        DataProxyMetricItem metricItem =
+                this.sourceContext.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
@@ -247,8 +261,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * responsePackage
      *
-     * @param  ctx
-     * @param  code
+     * @param ctx
+     * @param code
      * @throws Exception
      */
     private void responsePackage(ChannelHandlerContext ctx, ResultCode code, MessagePack packObject)
@@ -268,7 +282,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         } else {
             LOG.warn(
                     "the send buffer2 is full, so disconnect it!please check remote client"
-                            + "; Connection info:" + remoteChannel);
+                            + "; Connection info:"
+                            + remoteChannel);
             buffer.release();
             throw new Exception(
                     "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
@@ -278,9 +293,9 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * exceptionCaught
-     * 
-     * @param  ctx
-     * @param  cause
+     *
+     * @param ctx
+     * @param cause
      * @throws Exception
      */
     @Override
@@ -301,7 +316,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelInactive
      *
-     * @param  ctx
+     * @param ctx
      * @throws Exception
      */
     @Override
@@ -315,22 +330,24 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             LOG.error("channelInactive has exception e = {}", ex);
         }
         sourceContext.getAllChannels().remove(ctx.channel());
-
     }
 
     /**
      * channelActive
      *
-     * @param  ctx
+     * @param ctx
      * @throws Exception
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         if (sourceContext.getAllChannels().size() - 1 >= sourceContext.getMaxConnections()) {
-            LOG.warn("refuse to connect , and connections="
-                    + (sourceContext.getAllChannels().size() - 1)
-                    + ", maxConnections="
-                    + sourceContext.getMaxConnections() + ",channel is " + ctx.channel());
+            LOG.warn(
+                    "refuse to connect , and connections="
+                            + (sourceContext.getAllChannels().size() - 1)
+                            + ", maxConnections="
+                            + sourceContext.getMaxConnections()
+                            + ",channel is "
+                            + ctx.channel());
             ctx.channel().disconnect();
             ctx.channel().close();
         }

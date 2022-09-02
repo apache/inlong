@@ -17,18 +17,15 @@
 
 package org.apache.inlong.manager.common.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Parameter verification tools
- */
+/** Parameter verification tools */
 public class Preconditions {
 
     public static void checkNotNull(Object obj, String errMsg) {
@@ -140,5 +137,4 @@ public class Preconditions {
         Set<String> set = new HashSet<>(Arrays.asList(separatedStr.split(separator)));
         return set.contains(target);
     }
-
 }

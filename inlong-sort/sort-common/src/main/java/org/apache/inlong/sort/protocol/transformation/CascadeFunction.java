@@ -22,27 +22,20 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
 
-/**
- * CascadeFunction is the top-level interface abstraction for cascading function
- */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+/** CascadeFunction is the top-level interface abstraction for cascading function */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
-        @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace")
+    @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
+    @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace")
 })
 public interface CascadeFunction extends Function {
 
     /**
-     * apply function Act on a specific cascade function
-     * It accepts the result of running a function as an input parameter
-     * and returns the result of running the function
+     * apply function Act on a specific cascade function It accepts the result of running a function
+     * as an input parameter and returns the result of running the function
      *
      * @param constantParam is a constant param
      * @return A constant param
      */
     ConstantParam apply(ConstantParam constantParam);
-
 }

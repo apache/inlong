@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Objects;
@@ -43,8 +40,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         super();
     }
 
-    public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
-                                  String groupName, String topicName) {
+    public GroupConsumeCtrlEntity(BaseEntity opInfoEntity, String groupName, String topicName) {
         super(opInfoEntity);
         setGroupAndTopic(groupName, topicName);
     }
@@ -52,11 +48,10 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by GroupConsumeCtrlEntity
      *
-     * @param bdbEntity  the GroupConsumeCtrlEntity initial object
+     * @param bdbEntity the GroupConsumeCtrlEntity initial object
      */
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
-        super(bdbEntity.getDataVerId(),
-                bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
+        super(bdbEntity.getDataVerId(), bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
         setCreateInfo(bdbEntity.getCreateUser(), bdbEntity.getCreateDate());
         this.setGroupAndTopic(bdbEntity.getConsumerGroupName(), bdbEntity.getTopicName());
         if (bdbEntity.getControlStatus() == 2) {
@@ -79,9 +74,14 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      */
     public BdbGroupFilterCondEntity buildBdbGroupFilterCondEntity() {
         BdbGroupFilterCondEntity bdbEntity =
-                new BdbGroupFilterCondEntity(topicName, groupName,
-                        filterEnable.getCode(), filterCondStr,
-                        getAttributes(), getModifyUser(), getModifyDate());
+                new BdbGroupFilterCondEntity(
+                        topicName,
+                        groupName,
+                        filterEnable.getCode(),
+                        filterCondStr,
+                        getAttributes(),
+                        getModifyUser(),
+                        getModifyDate());
         bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setConsumeEnable(consumeEnable);
@@ -166,47 +166,46 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @param dataVerId         new data version id
-     * @param consumeEnable     new consume enable status
-     * @param disableRsn        new disable reason
-     * @param filterEnable      new filter enable status
-     * @param filterCondStr     new filter condition configure
-     *
-     * @return    whether data is changed
+     * @param dataVerId new data version id
+     * @param consumeEnable new consume enable status
+     * @param disableRsn new disable reason
+     * @param filterEnable new filter enable status
+     * @param filterCondStr new filter condition configure
+     * @return whether data is changed
      */
-    public boolean updModifyInfo(long dataVerId, Boolean consumeEnable,
-                                 String disableRsn, Boolean filterEnable,
-                                 String filterCondStr) {
+    public boolean updModifyInfo(
+            long dataVerId,
+            Boolean consumeEnable,
+            String disableRsn,
+            Boolean filterEnable,
+            String filterCondStr) {
         boolean changed = false;
         // check and set brokerPort info
-        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
-                && this.getDataVerId() != dataVerId) {
+        if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED && this.getDataVerId() != dataVerId) {
             changed = true;
             this.setDataVersionId(dataVerId);
         }
         // check and set consumeEnable info
         if (consumeEnable != null
                 && (this.consumeEnable == EnableStatus.STATUS_UNDEFINE
-                || this.consumeEnable.isEnable() != consumeEnable)) {
+                        || this.consumeEnable.isEnable() != consumeEnable)) {
             changed = true;
             setConsumeEnable(consumeEnable);
         }
         // check and set disableReason info
-        if (disableRsn != null
-                && !disableRsn.equals(disableReason)) {
+        if (disableRsn != null && !disableRsn.equals(disableReason)) {
             changed = true;
             disableReason = disableRsn;
         }
         // check and set consumeEnable info
         if (filterEnable != null
                 && (this.filterEnable == EnableStatus.STATUS_UNDEFINE
-                || this.filterEnable.isEnable() != filterEnable)) {
+                        || this.filterEnable.isEnable() != filterEnable)) {
             changed = true;
             setFilterEnable(filterEnable);
         }
         // check and set filterCondStr info
-        if (TStringUtils.isNotBlank(filterCondStr)
-                && !filterCondStr.equals(this.filterCondStr)) {
+        if (TStringUtils.isNotBlank(filterCondStr) && !filterCondStr.equals(this.filterCondStr)) {
             changed = true;
             this.filterCondStr = filterCondStr;
         }
@@ -217,9 +216,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   topicName, groupName, filterConsumeStatus
+     * Check whether the specified query item value matches Allowed query items: topicName,
+     * groupName, filterConsumeStatus
+     *
      * @return true: matched, false: not match
      */
     public boolean isMatched(GroupConsumeCtrlEntity target) {
@@ -230,44 +229,63 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
             return false;
         }
         return (TStringUtils.isBlank(target.getTopicName())
-                || target.getTopicName().equals(this.topicName))
+                        || target.getTopicName().equals(this.topicName))
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getConsumeEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getConsumeEnable() == this.consumeEnable)
+                        || target.getConsumeEnable() == this.consumeEnable)
                 && (target.getFilterEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getFilterEnable() == this.filterEnable);
+                        || target.getFilterEnable() == this.filterEnable);
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
+     * @param sBuilder build container
      * @param isLongName if return field key is long name
      * @param fullFormat if return full format json
-     * @return   process result
+     * @return process result
      */
-    public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+    public StringBuilder toWebJsonStr(
+            StringBuilder sBuilder, boolean isLongName, boolean fullFormat) {
         String tmpFilterConds = filterCondStr;
         if (tmpFilterConds.length() <= 2) {
             tmpFilterConds = "";
         }
         if (isLongName) {
-            sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
-                    .append(",\"groupName\":\"").append(groupName).append("\"")
-                    .append(",\"consumeEnable\":").append(consumeEnable.isEnable())
-                    .append(",\"disableCsmRsn\":\"").append(disableReason).append("\"")
-                    .append(",\"filterEnable\":").append(filterEnable.isEnable())
-                    .append(",\"filterConds\":\"").append(tmpFilterConds).append("\"");
+            sBuilder.append("{\"topicName\":\"")
+                    .append(topicName)
+                    .append("\"")
+                    .append(",\"groupName\":\"")
+                    .append(groupName)
+                    .append("\"")
+                    .append(",\"consumeEnable\":")
+                    .append(consumeEnable.isEnable())
+                    .append(",\"disableCsmRsn\":\"")
+                    .append(disableReason)
+                    .append("\"")
+                    .append(",\"filterEnable\":")
+                    .append(filterEnable.isEnable())
+                    .append(",\"filterConds\":\"")
+                    .append(tmpFilterConds)
+                    .append("\"");
         } else {
-            sBuilder.append("{\"topic\":\"").append(topicName).append("\"")
-                    .append(",\"group\":\"").append(groupName).append("\"")
-                    .append(",\"csmEn\":").append(consumeEnable.isEnable())
-                    .append(",\"dsCsmRsn\":\"").append(disableReason).append("\"")
-                    .append(",\"fltEn\":").append(filterEnable.isEnable())
-                    .append(",\"fltRls\":\"").append(tmpFilterConds).append("\"");
+            sBuilder.append("{\"topic\":\"")
+                    .append(topicName)
+                    .append("\"")
+                    .append(",\"group\":\"")
+                    .append(groupName)
+                    .append("\"")
+                    .append(",\"csmEn\":")
+                    .append(consumeEnable.isEnable())
+                    .append(",\"dsCsmRsn\":\"")
+                    .append(disableReason)
+                    .append("\"")
+                    .append(",\"fltEn\":")
+                    .append(filterEnable.isEnable())
+                    .append(",\"fltRls\":\"")
+                    .append(tmpFilterConds)
+                    .append("\"");
         }
         super.toWebJsonStr(sBuilder, isLongName);
         if (fullFormat) {
@@ -279,7 +297,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other check object
      * @return if equals
      */
     public boolean isDataEquals(GroupConsumeCtrlEntity other) {
@@ -310,8 +328,15 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), recordKey, topicName,
-                groupName, consumeEnable, disableReason, filterEnable, filterCondStr);
+        return Objects.hash(
+                super.hashCode(),
+                recordKey,
+                topicName,
+                groupName,
+                consumeEnable,
+                disableReason,
+                filterEnable,
+                filterCondStr);
     }
 
     @Override

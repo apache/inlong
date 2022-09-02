@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -26,24 +30,27 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-/**
- * Test for {@link KafkaLoadNode}
- */
+/** Test for {@link KafkaLoadNode} */
 public class KafkaLoadNodeTest extends SerializeBaseTest<KafkaLoadNode> {
 
     @Override
     public KafkaLoadNode getTestObject() {
-        return new KafkaLoadNode("1", null,
+        return new KafkaLoadNode(
+                "1",
+                null,
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("field", new StringFormatInfo()),
-                        new FieldInfo("field", new StringFormatInfo()))), null, null,
-                "topic", "localhost:9092", new CanalJsonFormat(),
-                1, new TreeMap<>(), null);
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("field", new StringFormatInfo()),
+                                new FieldInfo("field", new StringFormatInfo()))),
+                null,
+                null,
+                "topic",
+                "localhost:9092",
+                new CanalJsonFormat(),
+                1,
+                new TreeMap<>(),
+                null);
     }
 
     @Test
@@ -61,7 +68,9 @@ public class KafkaLoadNodeTest extends SerializeBaseTest<KafkaLoadNode> {
         formatMap.put(MetaField.MYSQL_TYPE, "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'");
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'value.pk-names'");
         formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'value.batch-id'");
-        formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'");
+        formatMap.put(
+                MetaField.UPDATE_BEFORE,
+                "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'");
         KafkaLoadNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {

@@ -20,9 +20,7 @@ package org.apache.inlong.agent.utils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * ExecuteLinux cmd
- */
+/** ExecuteLinux cmd */
 public class ExcuteLinux {
 
     /**
@@ -35,7 +33,7 @@ public class ExcuteLinux {
 
         String result = null;
         try {
-            String[] cmd = new String[]{"/bin/sh", "-c", commandStr};
+            String[] cmd = new String[] {"/bin/sh", "-c", commandStr};
             Process ps = Runtime.getRuntime().exec(cmd);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
@@ -51,6 +49,5 @@ public class ExcuteLinux {
         }
 
         return result;
-
     }
 }

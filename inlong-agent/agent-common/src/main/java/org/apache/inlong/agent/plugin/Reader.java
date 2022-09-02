@@ -30,39 +30,24 @@ public interface Reader extends Stage {
      */
     Message read();
 
-    /**
-     * Whether finish reading
-     */
+    /** Whether finish reading */
     boolean isFinished();
 
-    /**
-     * Return the reader's reading source name
-     */
+    /** Return the reader's reading source name */
     String getReadSource();
 
-    /**
-     * set readTimeout
-     */
+    /** set readTimeout */
     void setReadTimeout(long mill);
 
-    /**
-     * set wait milliseconds when tailing a file
-     * to solve while loop cause too much cpu usage
-     */
+    /** set wait milliseconds when tailing a file to solve while loop cause too much cpu usage */
     void setWaitMillisecond(long millis);
 
-    /**
-     * get snapshot of the reader
-     */
+    /** get snapshot of the reader */
     String getSnapshot();
 
-    /**
-     * finish read
-     */
+    /** finish read */
     void finishRead();
 
-    /**
-     * source is exist
-     */
+    /** source is exist */
     boolean isSourceExist();
 }

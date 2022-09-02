@@ -39,21 +39,15 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * The listener of InlongGroup when created resources successfully.
- */
+/** The listener of InlongGroup when created resources successfully. */
 @Slf4j
 @Component
 public class InitGroupCompleteListener implements ProcessEventListener {
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    @Autowired private InlongGroupService groupService;
+    @Autowired private InlongStreamService streamService;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
@@ -61,10 +55,10 @@ public class InitGroupCompleteListener implements ProcessEventListener {
     }
 
     /**
-     * After the process of creating InlongGroup resources is completed,
-     * modify the status of related InlongGroup to [Successful]
-     * <p/>
-     * {@link InitGroupFailedListener#listen}
+     * After the process of creating InlongGroup resources is completed, modify the status of
+     * related InlongGroup to [Successful]
+     *
+     * <p>{@link InitGroupFailedListener#listen}
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
@@ -85,15 +79,17 @@ public class InitGroupCompleteListener implements ProcessEventListener {
         groupService.update(updateGroupRequest, operator);
 
         // update status of other related configs
-        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        streamService.updateStatus(
+                groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
-            sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+            sourceService.updateStatus(
+                    groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
         } else {
-            sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
+            sourceService.updateStatus(
+                    groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
         }
 
         log.info("success to execute InitGroupCompleteListener for groupId={}", groupId);
         return ListenerResult.success();
     }
-
 }

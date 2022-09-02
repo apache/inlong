@@ -17,12 +17,10 @@
 
 package org.apache.inlong.manager.plugin.flink.enums;
 
-/**
- * Constants info, including properties, dataflow info and rest api url info.
- */
+/** Constants info, including properties, dataflow info and rest api url info. */
 public class Constants {
 
-    //properties
+    // properties
     public static final String ADDRESS = "flink.rest.address";
 
     public static final String PORT = "flink.rest.port";
@@ -37,7 +35,7 @@ public class Constants {
 
     public static final String METRICS_AUDIT_PROXY_HOSTS = "metrics.audit.proxy.hosts";
 
-    //dataflow
+    // dataflow
     public static final String SOURCE_INFO = "source_info";
 
     public static final String SINK_INFO = "sink_info";
@@ -50,7 +48,7 @@ public class Constants {
 
     public static final String RESOURCE_ID = "resource_id";
 
-    //REST API URL
+    // REST API URL
     public static final String JOB_URL = "/jobs";
 
     public static final String SUSPEND_URL = "/stop";
@@ -68,5 +66,4 @@ public class Constants {
     public static final String URL_SEPARATOR = "/";
 
     public static final String SEPARATOR = ":";
-
 }

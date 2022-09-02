@@ -17,6 +17,12 @@
 
 package org.apache.inlong.agent.core;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
+
+import java.lang.reflect.Constructor;
+import java.util.List;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -36,16 +42,9 @@ import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
-
 /**
- * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and communicates
- * with outside system.
+ * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level
+ * operations and communicates with outside system.
  */
 public class AgentManager extends AbstractDaemon {
 
@@ -84,17 +83,14 @@ public class AgentManager extends AbstractDaemon {
         }
     }
 
-    /**
-     * init fetch by class name
-     */
+    /** init fetch by class name */
     private ProfileFetcher initFetcher(AgentManager agentManager) {
         try {
             Constructor<?> constructor =
                     Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
                             .getDeclaredConstructor(AgentManager.class);
             constructor.setAccessible(true);
-            return
-                    (ProfileFetcher) constructor.newInstance(agentManager);
+            return (ProfileFetcher) constructor.newInstance(agentManager);
         } catch (Exception ex) {
             LOGGER.warn("cannot find fetcher: ", ex);
         }
@@ -110,9 +106,12 @@ public class AgentManager extends AbstractDaemon {
         try {
             // db is a required component, so if not init correctly,
             // throw exception and stop running.
-            return (Db) Class.forName(conf.get(
-                            AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
-                    .newInstance();
+            return (Db)
+                    Class.forName(
+                                    conf.get(
+                                            AgentConstants.AGENT_DB_CLASSNAME,
+                                            AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
+                            .newInstance();
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
         }

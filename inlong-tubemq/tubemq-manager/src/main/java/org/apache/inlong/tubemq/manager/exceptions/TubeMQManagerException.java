@@ -17,9 +17,7 @@
 
 package org.apache.inlong.tubemq.manager.exceptions;
 
-/**
- * TubeMQ runtime exception.
- */
+/** TubeMQ runtime exception. */
 public class TubeMQManagerException extends RuntimeException {
 
     public TubeMQManagerException(final String message) {

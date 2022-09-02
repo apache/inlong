@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sink.oracle;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Oracle table info.
- */
+/** Oracle table info. */
 @Data
 public class OracleTableInfo {
 

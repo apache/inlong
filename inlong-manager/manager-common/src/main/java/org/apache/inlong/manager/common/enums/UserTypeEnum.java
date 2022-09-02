@@ -18,38 +18,28 @@
 package org.apache.inlong.manager.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
-/**
- * User type enum
- */
+/** User type enum */
 public enum UserTypeEnum implements IntListValuable {
 
-    /**
-     * Has all privilege
-     */
+    /** Has all privilege */
     ADMIN(0),
-    /**
-     * No privilege to manage the system
-     */
+    /** No privilege to manage the system */
     OPERATOR(1),
     ;
 
-    @Getter
-    @JsonValue
-    private final Integer code;
+    @Getter @JsonValue private final Integer code;
 
     UserTypeEnum(Integer code) {
         this.code = code;
     }
 
-    private static final List<Integer> ARRAYS = Arrays.stream(values())
-            .map(UserTypeEnum::getCode)
-            .collect(Collectors.toList());
+    private static final List<Integer> ARRAYS =
+            Arrays.stream(values()).map(UserTypeEnum::getCode).collect(Collectors.toList());
 
     public static UserTypeEnum parse(Integer value) {
         return Arrays.stream(UserTypeEnum.class.getEnumConstants())
@@ -66,5 +56,4 @@ public enum UserTypeEnum implements IntListValuable {
     public List<Integer> valueList() {
         return ARRAYS;
     }
-
 }

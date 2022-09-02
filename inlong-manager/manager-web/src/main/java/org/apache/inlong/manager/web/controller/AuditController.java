@@ -19,6 +19,9 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.io.IOException;
+import java.util.List;
+import javax.validation.Valid;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -28,25 +31,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.io.IOException;
-import java.util.List;
-
-/**
- * Audit controller.
- */
+/** Audit controller. */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Audit-API")
 public class AuditController {
 
-    @Autowired
-    private AuditService auditService;
+    @Autowired private AuditService auditService;
 
     @GetMapping(value = "/audit/list")
     @ApiOperation(value = "Query audit list according to conditions")
     public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws IOException {
         return Response.success(auditService.listByCondition(request));
     }
-
 }

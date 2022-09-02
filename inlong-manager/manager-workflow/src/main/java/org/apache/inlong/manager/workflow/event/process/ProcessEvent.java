@@ -19,39 +19,24 @@ package org.apache.inlong.manager.workflow.event.process;
 
 import org.apache.inlong.manager.workflow.event.WorkflowEvent;
 
-/**
- * WorkflowProcess event type
- */
+/** WorkflowProcess event type */
 public enum ProcessEvent implements WorkflowEvent {
 
-    /**
-     * Process creation
-     */
+    /** Process creation */
     CREATE,
 
-    /**
-     * Process approval completed
-     */
+    /** Process approval completed */
     COMPLETE,
 
-    /**
-     * Process rejected
-     */
+    /** Process rejected */
     REJECT,
 
-    /**
-     * Process cancellation
-     */
+    /** Process cancellation */
     CANCEL,
 
-    /**
-     * Process termination
-     */
+    /** Process termination */
     TERMINATE,
 
-    /**
-     * Process failed-there is an automatic task execution failure
-     */
+    /** Process failed-there is an automatic task execution failure */
     FAIL,
-
 }

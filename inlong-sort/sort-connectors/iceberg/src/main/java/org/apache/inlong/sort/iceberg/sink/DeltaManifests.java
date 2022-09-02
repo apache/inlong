@@ -19,11 +19,10 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import java.util.List;
 import org.apache.iceberg.ManifestFile;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
-
-import java.util.List;
 
 class DeltaManifests {
 
@@ -37,7 +36,10 @@ class DeltaManifests {
         this(dataManifest, deleteManifest, EMPTY_REF_DATA_FILES);
     }
 
-    DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest, CharSequence[] referencedDataFiles) {
+    DeltaManifests(
+            ManifestFile dataManifest,
+            ManifestFile deleteManifest,
+            CharSequence[] referencedDataFiles) {
         Preconditions.checkNotNull(referencedDataFiles, "Referenced data files shouldn't be null.");
 
         this.dataManifest = dataManifest;

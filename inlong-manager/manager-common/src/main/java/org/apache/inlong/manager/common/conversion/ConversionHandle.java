@@ -22,9 +22,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/**
- * Unit conversion handle.
- */
+/** Unit conversion handle. */
 @Slf4j
 @Component
 public class ConversionHandle {
@@ -43,16 +41,14 @@ public class ConversionHandle {
         unitMap.put("mb_mb", new MBToMB());
     }
 
-    /**
-     * Unit conversion handle.
-     */
+    /** Unit conversion handle. */
     public Integer handleConversion(Integer value, String type) {
         if (unitMap == null) {
             this.loadStrategy();
         }
         ConversionStrategy conversionStrategy = unitMap.get(type);
-        ConversionStatusContext conversionStatusContext = new ConversionStatusContext(conversionStrategy);
+        ConversionStatusContext conversionStatusContext =
+                new ConversionStatusContext(conversionStrategy);
         return conversionStatusContext.executeConversion(value);
     }
-
 }

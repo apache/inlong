@@ -23,9 +23,7 @@ import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The type information for maps.
- */
+/** The type information for maps. */
 public class MapTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;
@@ -33,16 +31,12 @@ public class MapTypeInfo implements TypeInfo {
     private static final String FIELD_KEY_TYPE = "keyType";
     private static final String FIELD_VALUE_TYPE = "valueType";
 
-    /**
-     * The type information for keys in the map.
-     */
+    /** The type information for keys in the map. */
     @JsonProperty(FIELD_KEY_TYPE)
     @Nonnull
     private final TypeInfo keyTypeInfo;
 
-    /**
-     * The type information for values in the map.
-     */
+    /** The type information for values in the map. */
     @JsonProperty(FIELD_VALUE_TYPE)
     @Nonnull
     private final TypeInfo valueTypeInfo;
@@ -50,8 +44,7 @@ public class MapTypeInfo implements TypeInfo {
     @JsonCreator
     public MapTypeInfo(
             @JsonProperty(FIELD_KEY_TYPE) @Nonnull TypeInfo keyTypeInfo,
-            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo) {
         this.keyTypeInfo = keyTypeInfo;
         this.valueTypeInfo = valueTypeInfo;
     }
@@ -77,8 +70,7 @@ public class MapTypeInfo implements TypeInfo {
         }
 
         MapTypeInfo that = (MapTypeInfo) o;
-        return keyTypeInfo.equals(that.keyTypeInfo)
-                       && valueTypeInfo.equals(that.valueTypeInfo);
+        return keyTypeInfo.equals(that.keyTypeInfo) && valueTypeInfo.equals(that.valueTypeInfo);
     }
 
     @Override
@@ -88,6 +80,11 @@ public class MapTypeInfo implements TypeInfo {
 
     @Override
     public String toString() {
-        return "MapTypeInfo{" + "keyTypeInfo=" + keyTypeInfo + ", valueTypeInfo=" + valueTypeInfo + '}';
+        return "MapTypeInfo{"
+                + "keyTypeInfo="
+                + keyTypeInfo
+                + ", valueTypeInfo="
+                + valueTypeInfo
+                + '}';
     }
 }

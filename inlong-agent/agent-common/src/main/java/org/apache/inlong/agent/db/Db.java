@@ -17,27 +17,20 @@
 
 package org.apache.inlong.agent.db;
 
-import org.apache.inlong.common.db.CommandEntity;
-
-import javax.management.openmbean.KeyAlreadyExistsException;
 import java.io.Closeable;
 import java.util.List;
+import javax.management.openmbean.KeyAlreadyExistsException;
+import org.apache.inlong.common.db.CommandEntity;
 
-/**
- * local storage for key/value.
- */
+/** local storage for key/value. */
 public interface Db extends Closeable {
 
     abstract KeyValueEntity get(String key);
 
-    /**
-     * get command by command id
-     */
+    /** get command by command id */
     CommandEntity getCommand(String commandId);
 
-    /**
-     * put command entity in db
-     */
+    /** put command entity in db */
     CommandEntity putCommand(CommandEntity entity);
 
     /**
@@ -86,9 +79,7 @@ public interface Db extends Closeable {
      */
     List<KeyValueEntity> searchWithKeyPrefix(StateSearchKey searchKey, String keyPrefix);
 
-    /**
-     * search commands using ack status
-     */
+    /** search commands using ack status */
     List<CommandEntity> searchCommands(boolean isAcked);
 
     /**
@@ -99,9 +90,7 @@ public interface Db extends Closeable {
      */
     KeyValueEntity searchOne(StateSearchKey searchKey);
 
-    /**
-     * search one keyValue by fileName
-     */
+    /** search one keyValue by fileName */
     KeyValueEntity searchOne(String fileName);
 
     /**

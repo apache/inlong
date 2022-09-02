@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
+import java.util.Arrays;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.Function;
@@ -25,18 +26,16 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
 
-import java.util.Arrays;
-
-/**
- * Test for {@link MultiValueFilterFunction}
- */
+/** Test for {@link MultiValueFilterFunction} */
 public class MultiValueFilterFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new MultiValueFilterFunction(new FieldInfo("field", new TimestampFormatInfo()),
+        return new MultiValueFilterFunction(
+                new FieldInfo("field", new TimestampFormatInfo()),
                 Arrays.asList(new StringConstantParam("1"), new StringConstantParam("2")),
-                InOperator.getInstance(), EmptyOperator.getInstance());
+                InOperator.getInstance(),
+                EmptyOperator.getInstance());
     }
 
     @Override

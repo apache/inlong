@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
 import java.util.Map;
@@ -39,8 +36,8 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     }
 
     @Override
-    public boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+    public boolean addUpdClusterConfig(
+            ClusterSettingEntity entity, StringBuilder strBuff, ProcessResult result) {
         ClusterSettingEntity newEntity;
         // Check whether the configure record already exist
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
@@ -50,21 +47,29 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
             // Build the entity that need to be updated
             newEntity = curEntity.clone();
             newEntity.updBaseModifyInfo(entity);
-            if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                    entity.getBrokerPort(), entity.getBrokerTLSPort(),
-                    entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
-                    entity.getQryPriorityId(), entity.enableFlowCtrl(),
-                    entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
+            if (!newEntity.updModifyInfo(
+                    entity.getDataVerId(),
+                    entity.getBrokerPort(),
+                    entity.getBrokerTLSPort(),
+                    entity.getBrokerWebPort(),
+                    entity.getMaxMsgSizeInMB(),
+                    entity.getQryPriorityId(),
+                    entity.enableFlowCtrl(),
+                    entity.getGloFlowCtrlRuleCnt(),
+                    entity.getGloFlowCtrlRuleInfo(),
                     entity.getClsDefTopicProps())) {
-                result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
-                        "Cluster configure not changed!");
+                result.setFailResult(
+                        DataOpErrCode.DERR_UNCHANGED.getCode(), "Cluster configure not changed!");
                 return result.isSuccess();
             }
         }
         // Check whether the configured ports conflict in the record
-        if (!WebParameterUtils.isValidPortsSet(newEntity.getBrokerPort(),
-                newEntity.getBrokerTLSPort(), newEntity.getBrokerWebPort(),
-                strBuff, result)) {
+        if (!WebParameterUtils.isValidPortsSet(
+                newEntity.getBrokerPort(),
+                newEntity.getBrokerTLSPort(),
+                newEntity.getBrokerWebPort(),
+                strBuff,
+                result)) {
             return result.isSuccess();
         }
         // Store data to persistent
@@ -93,9 +98,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
         return metaDataCache.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
     }
 
-    /**
-     * Clear cached data
-     */
+    /** Clear cached data */
     protected void clearCachedData() {
         metaDataCache.clear();
     }
@@ -103,7 +106,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity need added or updated entity
      */
     protected void putRecord2Caches(ClusterSettingEntity entity) {
         metaDataCache.put(entity.getRecordKey(), entity);
@@ -112,19 +115,19 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     /**
      * Put cluster configure information into persistent storage
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
+     * @param entity need add record
+     * @param strBuff the string buffer
      * @param result process result with old value
      * @return the process result
      */
-    protected abstract boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+    protected abstract boolean putConfig2Persistent(
+            ClusterSettingEntity entity, StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete cluster configure information from persistent storage
      *
-     * @param key      the record key
-     * @param strBuff  the string buffer
+     * @param key the record key
+     * @param strBuff the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(StringBuilder strBuff, String key);

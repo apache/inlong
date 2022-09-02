@@ -21,7 +21,7 @@ package org.apache.inlong.sort.configuration;
 /**
  * A key with FallbackKeys will fall back to the FallbackKeys if it itself is not configured.
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.
  */
 public class FallbackKey {
 

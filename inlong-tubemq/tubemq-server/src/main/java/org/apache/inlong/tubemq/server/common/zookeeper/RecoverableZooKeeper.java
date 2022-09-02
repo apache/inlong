@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.common.zookeeper;
 
 import java.io.IOException;
@@ -49,13 +46,12 @@ import org.slf4j.LoggerFactory;
  * "x-352-109", x-333-110". The process will know that the original create succeeded an the znode it
  * created is "x-352-109".
  *
- * See "http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling"
+ * <p>See "http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling"
  *
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * <p>Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class RecoverableZooKeeper {
-    private static final Logger logger =
-            LoggerFactory.getLogger(RecoverableZooKeeper.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecoverableZooKeeper.class);
     private final RetryCounterFactory retryCounterFactory;
     // the actual ZooKeeper client instance
     private ZooKeeper zk;
@@ -64,8 +60,13 @@ public class RecoverableZooKeeper {
     private int sessionTimeout;
     private String quorumServers;
 
-    public RecoverableZooKeeper(String quorumServers, int sessionTimeout, Watcher watcher,
-                                int maxRetries, int retryIntervalMillis) throws IOException {
+    public RecoverableZooKeeper(
+            String quorumServers,
+            int sessionTimeout,
+            Watcher watcher,
+            int maxRetries,
+            int retryIntervalMillis)
+            throws IOException {
         this.zk = new ZooKeeper(quorumServers, sessionTimeout, watcher);
         this.retryCounterFactory = new RetryCounterFactory(maxRetries, retryIntervalMillis);
         this.watcher = watcher;
@@ -78,11 +79,12 @@ public class RecoverableZooKeeper {
      * element in the node list starts with any of the given prefixes, then it is included in the
      * result.
      *
-     * @param nodes    the nodes to filter
+     * @param nodes the nodes to filter
      * @param prefixes the prefixes to include in the result
      * @return list of every element that starts with one of the prefixes
      */
-    private static synchronized List<String> filterByPrefix(List<String> nodes, String... prefixes) {
+    private static synchronized List<String> filterByPrefix(
+            List<String> nodes, String... prefixes) {
         List<String> lockChildren = new ArrayList<>();
         for (String child : nodes) {
             for (String prefix : prefixes) {
@@ -103,14 +105,18 @@ public class RecoverableZooKeeper {
                 return;
             }
 
-            logger.info("[ZK_SESSION_EXPIRATION] Closing dead ZooKeeper connection, session" + " was: 0x"
-                    + Long.toHexString(zk.getSessionId()));
+            logger.info(
+                    "[ZK_SESSION_EXPIRATION] Closing dead ZooKeeper connection, session"
+                            + " was: 0x"
+                            + Long.toHexString(zk.getSessionId()));
             zk.close();
         }
 
         this.zk = new ZooKeeper(this.quorumServers, this.sessionTimeout, this.watcher);
-        logger.info("[ZK_SESSION_EXPIRATION] Recreated a ZooKeeper, session" + " is: 0x"
-                + Long.toHexString(zk.getSessionId()));
+        logger.info(
+                "[ZK_SESSION_EXPIRATION] Recreated a ZooKeeper, session"
+                        + " is: 0x"
+                        + Long.toHexString(zk.getSessionId()));
     }
 
     public synchronized void ensureConnectivity(KeeperException e) {
@@ -129,8 +135,8 @@ public class RecoverableZooKeeper {
      * delete is an idempotent operation. Retry before throwing exception. This function will not
      * throw NoNodeException if the path does not exist.
      */
-    public synchronized void delete(String path, int version) throws InterruptedException,
-            KeeperException {
+    public synchronized void delete(String path, int version)
+            throws InterruptedException, KeeperException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean isRetry = false; // False for first attempt, true for all
         // retries.
@@ -144,11 +150,15 @@ public class RecoverableZooKeeper {
                 switch (e.code()) {
                     case NONODE:
                         if (isRetry) {
-                            logger.info("Node " + path + " already deleted. Assuming that a "
-                                    + "previous attempt succeeded.");
+                            logger.info(
+                                    "Node "
+                                            + path
+                                            + " already deleted. Assuming that a "
+                                            + "previous attempt succeeded.");
                             return;
                         }
-                        logger.warn("Node " + path + " already deleted, and this is not a " + "retry");
+                        logger.warn(
+                                "Node " + path + " already deleted, and this is not a " + "retry");
                         throw e;
 
                     case CONNECTIONLOSS:
@@ -172,8 +182,8 @@ public class RecoverableZooKeeper {
      *
      * @return A Stat instance
      */
-    public synchronized Stat exists(String path, Watcher watcher) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat exists(String path, Watcher watcher)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -202,8 +212,8 @@ public class RecoverableZooKeeper {
      *
      * @return A Stat instance
      */
-    public synchronized Stat exists(String path, boolean watch) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat exists(String path, boolean watch)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -227,12 +237,16 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized void retryOrThrow(RetryCounter retryCounter, KeeperException e, String opName)
-            throws KeeperException {
+    private synchronized void retryOrThrow(
+            RetryCounter retryCounter, KeeperException e, String opName) throws KeeperException {
         logger.warn("Possibly transient ZooKeeper exception: ", e);
         if (!retryCounter.shouldRetry()) {
-            logger.error("ZooKeeper " + opName + " failed after " + retryCounter.getMaxRetries()
-                    + " retries");
+            logger.error(
+                    "ZooKeeper "
+                            + opName
+                            + " failed after "
+                            + retryCounter.getMaxRetries()
+                            + " retries");
             throw e;
         }
     }
@@ -272,8 +286,8 @@ public class RecoverableZooKeeper {
      *
      * @return List of children znodes
      */
-    public synchronized List<String> getChildren(String path, boolean watch) throws KeeperException,
-            InterruptedException {
+    public synchronized List<String> getChildren(String path, boolean watch)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -333,8 +347,8 @@ public class RecoverableZooKeeper {
      *
      * @return Data
      */
-    public synchronized byte[] getData(String path, boolean watch, Stat stat) throws KeeperException,
-            InterruptedException {
+    public synchronized byte[] getData(String path, boolean watch, Stat stat)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -366,8 +380,8 @@ public class RecoverableZooKeeper {
      *
      * @return Stat instance
      */
-    public synchronized Stat setData(String path, byte[] data, int version) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat setData(String path, byte[] data, int version)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         byte[] newData = data;
         while (true) {
@@ -418,13 +432,15 @@ public class RecoverableZooKeeper {
 
     /**
      * NONSEQUENTIAL create is idempotent operation. Retry before throwing exceptions. But this
-     * function will not throw the NodeExist exception back to the application. </p> <p> But
-     * SEQUENTIAL is NOT idempotent operation. It is necessary to add identifier to the path to
-     * verify, whether the previous one is successful or not. </p>
+     * function will not throw the NodeExist exception back to the application.
+     *
+     * <p>But SEQUENTIAL is NOT idempotent operation. It is necessary to add identifier to the path
+     * to verify, whether the previous one is successful or not.
      *
      * @return Path
      */
-    public synchronized String create(String path, byte[] data, List<ACL> acl, CreateMode createMode)
+    public synchronized String create(
+            String path, byte[] data, List<ACL> acl, CreateMode createMode)
             throws KeeperException, InterruptedException {
         byte[] newData = data;
         switch (createMode) {
@@ -441,8 +457,8 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized String createNonSequential(String path, byte[] data, List<ACL> acl,
-                                                    CreateMode createMode)
+    private synchronized String createNonSequential(
+            String path, byte[] data, List<ACL> acl, CreateMode createMode)
             throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean isRetry = false; // False for first attempt, true for all
@@ -466,9 +482,13 @@ public class RecoverableZooKeeper {
                                 // We successfully created a non-sequential node
                                 return path;
                             }
-                            logger.error("Node " + path + " already exists with "
-                                    + Bytes.toStringBinary(currentData) + ", could not write "
-                                    + Bytes.toStringBinary(data));
+                            logger.error(
+                                    "Node "
+                                            + path
+                                            + " already exists with "
+                                            + Bytes.toStringBinary(currentData)
+                                            + ", could not write "
+                                            + Bytes.toStringBinary(data));
                             throw e;
                         }
                         // logger.debug("Node " + path +
@@ -491,8 +511,9 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized String createSequential(String path, byte[] data, List<ACL> acl,
-                                                 CreateMode createMode) throws KeeperException, InterruptedException {
+    private synchronized String createSequential(
+            String path, byte[] data, List<ACL> acl, CreateMode createMode)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean first = true;
         // String newPath = path + this.identifier;
@@ -527,8 +548,8 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized String findPreviousSequentialNode(String path) throws KeeperException,
-            InterruptedException {
+    private synchronized String findPreviousSequentialNode(String path)
+            throws KeeperException, InterruptedException {
         int lastSlashIdx = path.lastIndexOf('/');
         assert (lastSlashIdx != -1);
         String parent = path.substring(0, lastSlashIdx);

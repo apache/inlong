@@ -22,5 +22,4 @@ package org.apache.inlong.sdk.sort.api;
 public class SysConstants {
 
     public static final String TUBE_TOPIC_FILTER_KEY = "tube_topic_filter_key";
-
 }

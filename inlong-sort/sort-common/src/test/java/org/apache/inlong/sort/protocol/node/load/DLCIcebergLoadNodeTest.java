@@ -18,19 +18,16 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.DLCConstant;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * test for dlc load node
- */
+/** test for dlc load node */
 public class DLCIcebergLoadNodeTest extends SerializeBaseTest<DLCIcebergLoadNode> {
     @Override
     public DLCIcebergLoadNode getTestObject() {
@@ -46,8 +43,10 @@ public class DLCIcebergLoadNodeTest extends SerializeBaseTest<DLCIcebergLoadNode
                 "iceberg_dlc",
                 "iceberg_dlc_output",
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("field", new StringFormatInfo()),
-                        new FieldInfo("field", new StringFormatInfo()))),
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("field", new StringFormatInfo()),
+                                new FieldInfo("field", new StringFormatInfo()))),
                 null,
                 null,
                 null,

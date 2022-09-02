@@ -22,6 +22,10 @@ import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -32,11 +36,6 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 
 /**
  * A Handler that convert change messages from {@link DebeziumEngine} to data in Flink. Considering
@@ -60,14 +59,10 @@ public class DebeziumChangeFetcher<T> {
      */
     private final Object checkpointLock;
 
-    /**
-     * The schema to convert from Debezium's messages into Flink's objects.
-     */
+    /** The schema to convert from Debezium's messages into Flink's objects. */
     private final DebeziumDeserializationSchema<T> deserialization;
 
-    /**
-     * A collector to emit records in batch (bundle).
-     */
+    /** A collector to emit records in batch (bundle). */
     private final DebeziumCollector debeziumCollector;
 
     private final DebeziumOffset debeziumOffset;
@@ -83,14 +78,10 @@ public class DebeziumChangeFetcher<T> {
     // Metrics
     // ---------------------------------------------------------------------------------------
 
-    /**
-     * Timestamp of change event. If the event is a snapshot event, the timestamp is 0L.
-     */
+    /** Timestamp of change event. If the event is a snapshot event, the timestamp is 0L. */
     private volatile long messageTimestamp = 0L;
 
-    /**
-     * The last record processing time.
-     */
+    /** The last record processing time. */
     private volatile long processTime = 0L;
 
     /**
@@ -127,7 +118,7 @@ public class DebeziumChangeFetcher<T> {
     /**
      * Take a snapshot of the Debezium handler state.
      *
-     * <p>Important: This method must be called under the checkpoint lock.</p>
+     * <p>Important: This method must be called under the checkpoint lock.
      */
     public byte[] snapshotCurrentState() throws Exception {
         // this method assumes that the checkpoint lock is held
@@ -184,7 +175,7 @@ public class DebeziumChangeFetcher<T> {
      * The metric indicates delay from data generation to entry into the system.
      *
      * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.</p>
+     * unavailable.
      */
     public long getFetchDelay() {
         return fetchDelay;
@@ -194,7 +185,7 @@ public class DebeziumChangeFetcher<T> {
      * The metric indicates delay from data generation to leaving the source operator.
      *
      * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.</p>
+     * unavailable.
      */
     public long getEmitDelay() {
         return emitDelay;
@@ -309,7 +300,6 @@ public class DebeziumChangeFetcher<T> {
         }
 
         @Override
-        public void close() {
-        }
+        public void close() {}
     }
 }

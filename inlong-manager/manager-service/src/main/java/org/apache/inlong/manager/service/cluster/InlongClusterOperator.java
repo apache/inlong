@@ -17,18 +17,14 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 
-/**
- * Interface of the inlong cluster operator.
- */
+/** Interface of the inlong cluster operator. */
 public interface InlongClusterOperator {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     */
+    /** Determines whether the current instance matches the specified type. */
     Boolean accept(String clusterType);
 
     /**
@@ -62,5 +58,4 @@ public interface InlongClusterOperator {
      * @param operator name of operator
      */
     void updateOpt(ClusterRequest request, String operator);
-
 }

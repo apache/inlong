@@ -18,6 +18,8 @@
 package org.apache.inlong.audit.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,17 +28,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-
 @Configuration
 @EnableConfigurationProperties({DruidDataSourceProperties.class})
 public class DruidConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DruidConfig.class);
 
-    @Autowired
-    private DruidDataSourceProperties properties;
+    @Autowired private DruidDataSourceProperties properties;
 
     @Bean
     @ConditionalOnMissingBean
@@ -51,16 +49,16 @@ public class DruidConfig {
         druidDataSource.setMinIdle(properties.getMinIdle());
         druidDataSource.setMaxActive(properties.getMaxActive());
         druidDataSource.setMaxWait(properties.getMaxWait());
-        druidDataSource.setTimeBetweenEvictionRunsMillis(properties
-                .getTimeBetweenEvictionRunsMillis());
+        druidDataSource.setTimeBetweenEvictionRunsMillis(
+                properties.getTimeBetweenEvictionRunsMillis());
         druidDataSource.setMinEvictableIdleTimeMillis(properties.getMinEvictableIdleTimeMillis());
         druidDataSource.setValidationQuery(properties.getValidationQuery());
         druidDataSource.setTestWhileIdle(properties.isTestWhileIdle());
         druidDataSource.setTestOnBorrow(properties.isTestOnBorrow());
         druidDataSource.setTestOnReturn(properties.isTestOnReturn());
         druidDataSource.setPoolPreparedStatements(properties.isPoolPreparedStatements());
-        druidDataSource.setMaxPoolPreparedStatementPerConnectionSize(properties
-                .getMaxPoolPreparedStatementPerConnectionSize());
+        druidDataSource.setMaxPoolPreparedStatementPerConnectionSize(
+                properties.getMaxPoolPreparedStatementPerConnectionSize());
         try {
             druidDataSource.setFilters(properties.getFilters());
             druidDataSource.init();
@@ -69,5 +67,4 @@ public class DruidConfig {
         }
         return druidDataSource;
     }
-
 }

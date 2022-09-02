@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.corebase.cluster;
 
 import java.io.Serializable;
@@ -25,10 +22,9 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
- * The BrokerInfo hold basic info of an tube broker the brokerId, the broker host
- * and the port and so on.
+ * The BrokerInfo hold basic info of an tube broker the brokerId, the broker host and the port and
+ * so on.
  */
-
 public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
 
     private static final long serialVersionUID = -6907854104544421368L;
@@ -36,17 +32,15 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
     private String host;
     private int port;
     private boolean enableTLS = false;
-    private int tlsPort =
-            TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
+    private int tlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
     private String addr;
     private String simpleInfo;
     private String fullInfo;
     private String fullTLSInfo;
 
-    //create with strBrokerInfo (brokerId:host:port)
+    // create with strBrokerInfo (brokerId:host:port)
     public BrokerInfo(String strBrokerInfo) {
-        String[] strBrokers =
-                strBrokerInfo.split(TokenConstants.ATTR_SEP);
+        String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
         this.host = strBrokers[1];
         this.port = Integer.parseInt(strBrokers[2]);
@@ -54,10 +48,9 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with strBrokerInfo (brokerId:host)  brokerPort
+    // create with strBrokerInfo (brokerId:host)  brokerPort
     public BrokerInfo(String strBrokerInfo, int brokerPort) {
-        String[] strBrokers =
-                strBrokerInfo.split(TokenConstants.ATTR_SEP);
+        String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
         this.host = strBrokers[1];
         this.port = brokerPort;
@@ -67,7 +60,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host port
+    // create with brokerId host port
     public BrokerInfo(final int brokerId, final String host, final int port) {
         this.brokerId = brokerId;
         this.host = host;
@@ -75,7 +68,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId uri data
+    // create with brokerId uri data
     public BrokerInfo(final int brokerId, final String data) {
         this.brokerId = brokerId;
         try {
@@ -88,7 +81,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         }
     }
 
-    //create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
+    // create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
     public BrokerInfo(String strBrokerInfo, boolean enableTls, int tlsPort) {
         String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
@@ -99,7 +92,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host enableTls  tlsPort (port = tlsPort)
+    // create with brokerId host enableTls  tlsPort (port = tlsPort)
     public BrokerInfo(int brokerId, String host, boolean enableTls, int tlsPort) {
         this.brokerId = brokerId;
         this.host = host;
@@ -216,21 +209,34 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
     // init the tube broker string info
     private void buildStrInfo() {
         StringBuilder sBuilder = new StringBuilder(512);
-        this.addr = sBuilder.append(this.host)
-                .append(TokenConstants.ATTR_SEP)
-                .append(this.port).toString();
+        this.addr =
+                sBuilder.append(this.host)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.port)
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.simpleInfo = sBuilder.append(this.brokerId)
-                .append(TokenConstants.ATTR_SEP).append(host)
-                .append(TokenConstants.ATTR_SEP).append(" ").toString();
+        this.simpleInfo =
+                sBuilder.append(this.brokerId)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(host)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(" ")
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.fullInfo = sBuilder.append(this.brokerId)
-                .append(TokenConstants.ATTR_SEP).append(host)
-                .append(TokenConstants.ATTR_SEP).append(this.port).toString();
+        this.fullInfo =
+                sBuilder.append(this.brokerId)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(host)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.port)
+                        .toString();
         sBuilder.delete(0, sBuilder.length());
-        this.fullTLSInfo = sBuilder.append(this.brokerId)
-                .append(TokenConstants.ATTR_SEP).append(host)
-                .append(TokenConstants.ATTR_SEP).append(this.tlsPort).toString();
+        this.fullTLSInfo =
+                sBuilder.append(this.brokerId)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(host)
+                        .append(TokenConstants.ATTR_SEP)
+                        .append(this.tlsPort)
+                        .toString();
     }
-
 }

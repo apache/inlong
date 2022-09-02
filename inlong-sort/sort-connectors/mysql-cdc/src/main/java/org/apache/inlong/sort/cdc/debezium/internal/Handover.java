@@ -18,20 +18,19 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import io.debezium.engine.ChangeEvent;
+import java.io.Closeable;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-import java.io.Closeable;
-import java.util.Collections;
-import java.util.List;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The Handover is a utility to hand over data (a buffer of records) and exception from a
@@ -40,10 +39,10 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * without {@link Thread#interrupt() interrupting} threads.
  *
  * <p>This class is used in the Flink Debezium Engine Consumer to hand over data and exceptions
- * between the thread that runs the DebeziumEngine class and the main thread.</p>
+ * between the thread that runs the DebeziumEngine class and the main thread.
  *
  * <p>The Handover can also be "closed", signalling from one thread to the other that it the thread
- * has terminated.</p>
+ * has terminated.
  */
 @ThreadSafe
 @Internal
@@ -65,7 +64,7 @@ public class Handover implements Closeable {
      * available. This method behaves similar to polling from a blocking queue.
      *
      * <p>If an exception was handed in by the producer ({@link #reportError(Throwable)}), then that
-     * exception is thrown rather than an element being returned.</p>
+     * exception is thrown rather than an element being returned.
      *
      * @return The next element (buffer of records, never null).
      * @throws ClosedException Thrown if the Handover was {@link #close() closed}.
@@ -96,7 +95,7 @@ public class Handover implements Closeable {
      * yet picked up by the consumer thread, this call blocks until the consumer picks up that
      * previous element.
      *
-     * <p>This behavior is similar to a "size one" blocking queue.</p>
+     * <p>This behavior is similar to a "size one" blocking queue.
      *
      * @param element The next element to hand over.
      * @throws InterruptedException Thrown, if the thread is interrupted while blocking for the
@@ -130,11 +129,11 @@ public class Handover implements Closeable {
      * currently blocked in the {@link #pollNext()} method, or the next time it calls that method.
      *
      * <p>After this method has been called, no call to either {@link #produce( List)} or {@link
-     * #pollNext()} will ever return regularly any more, but will always return exceptionally.</p>
+     * #pollNext()} will ever return regularly any more, but will always return exceptionally.
      *
-     * <p>If another exception was already reported, this method does nothing.</p>
+     * <p>If another exception was already reported, this method does nothing.
      *
-     * <p>For the producer, the Handover will appear as if it was {@link #close() closed}.</p>
+     * <p>For the producer, the Handover will appear as if it was {@link #close() closed}.
      *
      * @param t The exception to report.
      */
@@ -167,7 +166,7 @@ public class Handover implements Closeable {
      *
      * <p>If an exception was previously reported via the {@link #reportError(Throwable)} method,
      * that exception will not be overridden. The consumer thread will throw that exception upon
-     * calling {@link #pollNext()}, rather than the {@code ClosedException}.</p>
+     * calling {@link #pollNext()}, rather than the {@code ClosedException}.
      */
     @Override
     public void close() {

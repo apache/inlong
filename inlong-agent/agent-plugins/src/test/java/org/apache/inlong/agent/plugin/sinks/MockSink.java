@@ -17,6 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.Message;
@@ -24,12 +29,6 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 public class MockSink extends AbstractSink {
 
@@ -42,9 +41,7 @@ public class MockSink extends AbstractSink {
     private String jobInstanceId;
     private long dataTime;
 
-    public MockSink() {
-
-    }
+    public MockSink() {}
 
     @Override
     public void write(Message message) {
@@ -73,8 +70,9 @@ public class MockSink extends AbstractSink {
     public void init(JobProfile jobConf) {
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
         jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
-        dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
-                jobConf.get(JOB_CYCLE_UNIT, ""));
+        dataTime =
+                AgentUtils.timeStrConvertToMillSec(
+                        jobConf.get(JOB_DATA_TIME, ""), jobConf.get(JOB_CYCLE_UNIT, ""));
         LOGGER.info("get dataTime is : {}", dataTime);
     }
 
@@ -82,5 +80,4 @@ public class MockSink extends AbstractSink {
     public void destroy() {
         LOGGER.info("destroy mockSink, sink line number is : {}", number.get());
     }
-
 }

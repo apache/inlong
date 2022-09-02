@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.service.plugin;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.List;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
@@ -24,20 +28,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.List;
-
-/**
- * Test class for reload plugin.
- */
+/** Test class for reload plugin. */
 public class PluginServiceTest extends ServiceBaseTest {
 
     public static final String PLUGIN_NAME = "plugins";
 
-    @Autowired
-    PluginService pluginService;
+    @Autowired PluginService pluginService;
 
     @Test
     public void testReloadPlugin() {
@@ -53,5 +49,4 @@ public class PluginServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(pluginList.size() > 0);
         Assertions.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
-
 }

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -24,11 +27,11 @@ import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProc
 import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.listener.consumption.ConsumptionCancelProcessListener;
 import org.apache.inlong.manager.service.listener.consumption.ConsumptionCompleteProcessListener;
 import org.apache.inlong.manager.service.listener.consumption.ConsumptionPassTaskListener;
 import org.apache.inlong.manager.service.listener.consumption.ConsumptionRejectProcessListener;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -37,36 +40,23 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-/**
- * New data consumption workflow definition
- */
+/** New data consumption workflow definition */
 @Component
 public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
 
-    @Autowired
-    private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
+    @Autowired private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
 
-    @Autowired
-    private ConsumptionPassTaskListener consumptionPassTaskListener;
+    @Autowired private ConsumptionPassTaskListener consumptionPassTaskListener;
 
-    @Autowired
-    private ConsumptionRejectProcessListener consumptionRejectProcessListener;
+    @Autowired private ConsumptionRejectProcessListener consumptionRejectProcessListener;
 
-    @Autowired
-    private ConsumptionCancelProcessListener consumptionCancelProcessListener;
+    @Autowired private ConsumptionCancelProcessListener consumptionCancelProcessListener;
 
-    @Autowired
-    private WorkflowApproverService workflowApproverService;
+    @Autowired private WorkflowApproverService workflowApproverService;
 
-    @Autowired
-    private ApplyConsumptionProcessHandler applyConsumptionProcessHandler;
+    @Autowired private ApplyConsumptionProcessHandler applyConsumptionProcessHandler;
 
-    @Autowired
-    private InlongGroupService groupService;
+    @Autowired private InlongGroupService groupService;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -134,11 +124,10 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
     /**
      * Get task approvers by process name and task name
      *
-     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
-     *         structure in time.
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the
+     *     table structure in time.
      */
     private List<String> getTaskApprovers(String taskName) {
         return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);
     }
-
 }

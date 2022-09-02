@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import java.util.List;
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
@@ -27,11 +28,7 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 
-import java.util.List;
-
-/**
- * Default JDBC dialects implements for validate.
- */
+/** Default JDBC dialects implements for validate. */
 public abstract class AbstractJdbcDialect implements JdbcDialect {
 
     @Override
@@ -46,8 +43,8 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
             //  when n is smaller than Integer.MAX_VALUE
             if (unsupportedTypes().contains(dt.getLogicalType().getTypeRoot())
                     || (dt.getLogicalType() instanceof VarBinaryType
-                    && Integer.MAX_VALUE
-                    != ((VarBinaryType) dt.getLogicalType()).getLength())) {
+                            && Integer.MAX_VALUE
+                                    != ((VarBinaryType) dt.getLogicalType()).getLength())) {
                 throw new ValidationException(
                         String.format(
                                 "The %s dialect doesn't support type: %s.",

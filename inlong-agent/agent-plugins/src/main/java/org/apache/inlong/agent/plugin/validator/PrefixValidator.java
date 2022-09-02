@@ -19,9 +19,7 @@ package org.apache.inlong.agent.plugin.validator;
 
 import org.apache.inlong.agent.plugin.Validator;
 
-/**
- * validate whether a message has a specified prefix
- */
+/** validate whether a message has a specified prefix */
 public class PrefixValidator implements Validator {
 
     private String prefix;

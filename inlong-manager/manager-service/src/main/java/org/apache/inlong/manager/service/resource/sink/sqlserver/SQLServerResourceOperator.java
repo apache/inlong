@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
 import com.google.common.collect.Lists;
+import java.sql.Connection;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -36,22 +38,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.List;
-
-/**
- * SQLServer's resource operator.
- */
+/** SQLServer's resource operator. */
 @Service
 public class SQLServerResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SQLServerResourceOperator.class);
 
-    @Autowired
-    private StreamSinkService sinkService;
+    @Autowired private StreamSinkService sinkService;
 
-    @Autowired
-    private StreamSinkFieldEntityMapper fieldEntityMapper;
+    @Autowired private StreamSinkFieldEntityMapper fieldEntityMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -62,9 +57,13 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
     public void createSinkResource(SinkInfo sinkInfo) {
         LOG.info("begin to create SQLServer resources sinkId={}", sinkInfo.getId());
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
-            LOG.warn("SQLServer resource [" + sinkInfo.getId() + "] already success, skip to create");
+            LOG.warn(
+                    "SQLServer resource ["
+                            + sinkInfo.getId()
+                            + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
@@ -80,34 +79,40 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
         LOG.info("begin to create SQLServer table for sinkId={}", sinkInfo.getId());
         List<StreamSinkFieldEntity> fieldList = fieldEntityMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOG.warn("no SQLServer fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOG.warn(
+                    "no SQLServer fields found, skip to create table for sinkId={}",
+                    sinkInfo.getId());
         }
         // set columns
         List<SQLServerColumnInfo> columnList = Lists.newArrayList();
-        fieldList.forEach(field -> {
-            SQLServerColumnInfo columnInfo = new SQLServerColumnInfo(
-                    field.getFieldName(),
-                    field.getFieldType(),
-                    field.getFieldComment()
-            );
-            columnList.add(columnInfo);
-        });
+        fieldList.forEach(
+                field -> {
+                    SQLServerColumnInfo columnInfo =
+                            new SQLServerColumnInfo(
+                                    field.getFieldName(),
+                                    field.getFieldType(),
+                                    field.getFieldComment());
+                    columnList.add(columnInfo);
+                });
 
         final SQLServerSinkDTO sink = SQLServerSinkDTO.getFromJson(sinkInfo.getExtParams());
         final SQLServerTableInfo tableInfo = SQLServerSinkDTO.getTableInfo(sink, columnList);
 
-        try (Connection conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
-                sink.getUsername(), sink.getPassword())) {
+        try (Connection conn =
+                SQLServerJdbcUtils.getConnection(
+                        sink.getJdbcUrl(), sink.getUsername(), sink.getPassword())) {
 
             // 1. create schema if not exists
             SQLServerJdbcUtils.createSchema(conn, tableInfo.getSchemaName());
             // 2. if table not exists, create it
             SQLServerJdbcUtils.createTable(conn, tableInfo);
             // 3. if table exists, add columns - skip the exists columns
-            SQLServerJdbcUtils.addColumns(conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
+            SQLServerJdbcUtils.addColumns(
+                    conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
             // 4. update the sink status to success
             final String info = "success to create SQLServer resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "create SQLServer table failed: " + e.getMessage();

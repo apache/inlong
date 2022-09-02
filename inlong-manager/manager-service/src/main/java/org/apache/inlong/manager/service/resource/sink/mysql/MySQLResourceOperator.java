@@ -17,17 +17,20 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -35,23 +38,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * MySQL's resource operator.
- */
+/** MySQL's resource operator. */
 @Service
 public class MySQLResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySQLResourceOperator.class);
 
-    @Autowired
-    private StreamSinkService sinkService;
+    @Autowired private StreamSinkService sinkService;
 
-    @Autowired
-    private StreamSinkFieldEntityMapper fieldEntityMapper;
+    @Autowired private StreamSinkFieldEntityMapper fieldEntityMapper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -64,7 +59,8 @@ public class MySQLResourceOperator implements SinkResourceOperator {
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOG.warn("MySQL resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(
+                sinkInfo.getEnableCreateResource())) {
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
@@ -85,25 +81,29 @@ public class MySQLResourceOperator implements SinkResourceOperator {
         // set columns
         List<MySQLColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            MySQLColumnInfo columnInfo = new MySQLColumnInfo(field.getFieldName(), field.getFieldType(),
-                    field.getFieldComment());
+            MySQLColumnInfo columnInfo =
+                    new MySQLColumnInfo(
+                            field.getFieldName(), field.getFieldType(), field.getFieldComment());
             columnList.add(columnInfo);
         }
 
         final MySQLSinkDTO mySQLSink = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
         final MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(mySQLSink, columnList);
 
-        try (Connection conn = MySQLJdbcUtils.getConnection(mySQLSink.getJdbcUrl(), mySQLSink.getUsername(),
-                mySQLSink.getPassword())) {
+        try (Connection conn =
+                MySQLJdbcUtils.getConnection(
+                        mySQLSink.getJdbcUrl(), mySQLSink.getUsername(), mySQLSink.getPassword())) {
             // 1. create database if not exists
             MySQLJdbcUtils.createDb(conn, tableInfo.getDbName());
             // 2. table not exists, create it
             MySQLJdbcUtils.createTable(conn, tableInfo);
             // 3. table exists, add columns - skip the exists columns
-            MySQLJdbcUtils.addColumns(conn, tableInfo.getDbName(), tableInfo.getTableName(), columnList);
+            MySQLJdbcUtils.addColumns(
+                    conn, tableInfo.getDbName(), tableInfo.getTableName(), columnList);
             // 4. update the sink status to success
             final String info = "success to create MySQL resource";
-            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            sinkService.updateStatus(
+                    sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "create MySQL table failed: " + e.getMessage();
@@ -113,5 +113,4 @@ public class MySQLResourceOperator implements SinkResourceOperator {
         }
         LOG.info("success create MySQL table for data sink [" + sinkInfo.getId() + "]");
     }
-
 }

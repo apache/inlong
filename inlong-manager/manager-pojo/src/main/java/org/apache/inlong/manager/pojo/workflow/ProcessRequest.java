@@ -19,21 +19,18 @@ package org.apache.inlong.manager.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
-import java.util.List;
-
-/**
- * Workflow process request
- */
+/** Workflow process request */
 @Data
 @Builder
 @NoArgsConstructor
@@ -90,5 +87,4 @@ public class ProcessRequest extends PageRequest {
     @ApiModelProperty("Whether to include the form info displayed in the list")
     @Builder.Default
     private Boolean includeShowInList = true;
-
 }

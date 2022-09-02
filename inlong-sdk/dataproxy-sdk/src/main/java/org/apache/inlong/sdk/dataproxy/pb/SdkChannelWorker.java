@@ -1,25 +1,22 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sdk.dataproxy.pb;
 
+import com.alibaba.fastjson.JSON;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
@@ -35,11 +32,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-
-/**
- * SdkChannelWorker
- */
+/** SdkChannelWorker */
 public class SdkChannelWorker extends Thread {
 
     public static final Logger LOG = LoggerFactory.getLogger(SdkChannelWorker.class);
@@ -55,7 +48,7 @@ public class SdkChannelWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param manager
      */
     public SdkChannelWorker(SdkProxyChannelManager manager, int index) {
@@ -66,9 +59,7 @@ public class SdkChannelWorker extends Thread {
         this.status = LifecycleState.IDLE;
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         status = LifecycleState.START;
@@ -95,11 +86,16 @@ public class SdkChannelWorker extends Thread {
             String inlongStreamId = currentRecord.getInlongStreamId();
             INLONG_COMPRESSED_TYPE compressedType = context.getCompressedType();
             List<SdkEvent> events = new ArrayList<>(currentRecord.getEvents().size());
-            currentRecord.getEvents().forEach((value) -> {
-                events.add(value.getProfile().getEvent());
-            });
+            currentRecord
+                    .getEvents()
+                    .forEach(
+                            (value) -> {
+                                events.add(value.getProfile().getEvent());
+                            });
             // pack
-            MessagePack packObject = EventUtils.encodeSdkEvents(inlongGroupId, inlongStreamId, compressedType, events);
+            MessagePack packObject =
+                    EventUtils.encodeSdkEvents(
+                            inlongGroupId, inlongStreamId, compressedType, events);
             byte[] packBytes = packObject.toByteArray();
             totalBuffer.clear();
             // total length
@@ -129,7 +125,9 @@ public class SdkChannelWorker extends Thread {
             }
             // check result
             if (!this.checkSendResult(currentRecord, result, result.ipPort, sdkProfile)) {
-                LOG.info("proxyClusterId:{},packAndSend:{},result:{}", manager.getProxyClusterId(),
+                LOG.info(
+                        "proxyClusterId:{},packAndSend:{},result:{}",
+                        manager.getProxyClusterId(),
                         currentRecord.getCount(),
                         JSON.toJSONString(result));
                 return;
@@ -151,15 +149,15 @@ public class SdkChannelWorker extends Thread {
 
     /**
      * checkSendResult
-     * 
-     * @param  currentRecord
-     * @param  result
-     * @param  ipPort
-     * @param  tProfile
+     *
+     * @param currentRecord
+     * @param result
+     * @param ipPort
+     * @param tProfile
      * @return
      */
-    private boolean checkSendResult(DispatchProfile currentRecord, TcpResult result, IpPort ipPort,
-            SdkProfile tProfile) {
+    private boolean checkSendResult(
+            DispatchProfile currentRecord, TcpResult result, IpPort ipPort, SdkProfile tProfile) {
         if (!result.result) {
             manager.removeWaitCompletedProfile(tProfile);
             manager.offerDispatchQueue(currentRecord);
@@ -175,7 +173,7 @@ public class SdkChannelWorker extends Thread {
 
     /**
      * get status
-     * 
+     *
      * @return the status
      */
     public LifecycleState getStatus() {
@@ -184,16 +182,14 @@ public class SdkChannelWorker extends Thread {
 
     /**
      * get manager
-     * 
+     *
      * @return the manager
      */
     public SdkProxyChannelManager getManager() {
         return manager;
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         this.status = LifecycleState.STOP;
     }

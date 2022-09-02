@@ -18,6 +18,9 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.TransformType;
@@ -31,50 +34,50 @@ import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Parse TransformResponse to TransformNode which sort needed
- */
+/** Parse TransformResponse to TransformNode which sort needed */
 @Slf4j
 public class TransformNodeUtils {
 
-    public static List<TransformNode> createTransformNodes(List<TransformResponse> transformResponses,
-            Map<String, StreamField> constantFieldMap) {
+    public static List<TransformNode> createTransformNodes(
+            List<TransformResponse> transformResponses, Map<String, StreamField> constantFieldMap) {
         if (CollectionUtils.isEmpty(transformResponses)) {
             return Lists.newArrayList();
         }
         return transformResponses.stream()
-                .map(s -> TransformNodeUtils.createTransformNode(s, constantFieldMap)).collect(Collectors.toList());
+                .map(s -> TransformNodeUtils.createTransformNode(s, constantFieldMap))
+                .collect(Collectors.toList());
     }
 
-    public static TransformNode createTransformNode(TransformResponse transformResponse,
-            Map<String, StreamField> constantFieldMap) {
+    public static TransformNode createTransformNode(
+            TransformResponse transformResponse, Map<String, StreamField> constantFieldMap) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         if (transformType == TransformType.DE_DUPLICATION) {
-            TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
-                    transformResponse.getTransformDefinition(), transformType);
-            return createDistinctNode((DeDuplicationDefinition) transformDefinition,
-                    transformResponse, constantFieldMap);
+            TransformDefinition transformDefinition =
+                    StreamParseUtils.parseTransformDefinition(
+                            transformResponse.getTransformDefinition(), transformType);
+            return createDistinctNode(
+                    (DeDuplicationDefinition) transformDefinition,
+                    transformResponse,
+                    constantFieldMap);
         } else {
             return createNormalTransformNode(transformResponse, constantFieldMap);
         }
     }
 
-    /**
-     * Create distinct node based on deDuplicationDefinition
-     */
-    public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
-            TransformResponse transformResponse, Map<String, StreamField> constantFieldMap) {
+    /** Create distinct node based on deDuplicationDefinition */
+    public static DistinctNode createDistinctNode(
+            DeDuplicationDefinition deDuplicationDefinition,
+            TransformResponse transformResponse,
+            Map<String, StreamField> constantFieldMap) {
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
-        List<FieldInfo> distinctFields = streamFields.stream()
-                .map(FieldInfoUtils::parseStreamField)
-                .collect(Collectors.toList());
+        List<FieldInfo> distinctFields =
+                streamFields.stream()
+                        .map(FieldInfoUtils::parseStreamField)
+                        .collect(Collectors.toList());
         StreamField timingField = deDuplicationDefinition.getTimingField();
         FieldInfo orderField = FieldInfoUtils.parseStreamField(timingField);
-        DeDuplicationStrategy deDuplicationStrategy = deDuplicationDefinition.getDeDuplicationStrategy();
+        DeDuplicationStrategy deDuplicationStrategy =
+                deDuplicationDefinition.getDeDuplicationStrategy();
         OrderDirection orderDirection;
         switch (deDuplicationStrategy) {
             case RESERVE_LAST:
@@ -85,10 +88,14 @@ public class TransformNodeUtils {
                 break;
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported deduplication strategy=%s for inlong", deDuplicationStrategy));
+                        String.format(
+                                "Unsupported deduplication strategy=%s for inlong",
+                                deDuplicationStrategy));
         }
-        TransformNode transformNode = createNormalTransformNode(transformResponse, constantFieldMap);
-        return new DistinctNode(transformNode.getId(),
+        TransformNode transformNode =
+                createNormalTransformNode(transformResponse, constantFieldMap);
+        return new DistinctNode(
+                transformNode.getId(),
                 transformNode.getName(),
                 transformNode.getFields(),
                 transformNode.getFieldRelations(),
@@ -97,25 +104,24 @@ public class TransformNodeUtils {
                 distinctFields,
                 orderField,
                 orderDirection);
-
     }
 
-    /**
-     * Create transform node based on transformResponse
-     */
-    public static TransformNode createNormalTransformNode(TransformResponse transformResponse,
-            Map<String, StreamField> constantFieldMap) {
+    /** Create transform node based on transformResponse */
+    public static TransformNode createNormalTransformNode(
+            TransformResponse transformResponse, Map<String, StreamField> constantFieldMap) {
         TransformNode transformNode = new TransformNode();
         transformNode.setId(transformResponse.getTransformName());
         transformNode.setName(transformResponse.getTransformName());
         // Filter constant fields
-        List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream()
-                .filter(s -> s.getFieldValue() == null)
-                .map(FieldInfoUtils::parseStreamField).collect(Collectors.toList());
+        List<FieldInfo> fieldInfos =
+                transformResponse.getFieldList().stream()
+                        .filter(s -> s.getFieldValue() == null)
+                        .map(FieldInfoUtils::parseStreamField)
+                        .collect(Collectors.toList());
         transformNode.setFields(fieldInfos);
-        transformNode.setFieldRelations(FieldRelationUtils.createFieldRelations(transformResponse, constantFieldMap));
-        transformNode.setFilters(
-                FilterFunctionUtils.createFilterFunctions(transformResponse));
+        transformNode.setFieldRelations(
+                FieldRelationUtils.createFieldRelations(transformResponse, constantFieldMap));
+        transformNode.setFilters(FilterFunctionUtils.createFilterFunctions(transformResponse));
         transformNode.setFilterStrategy(FilterFunctionUtils.parseFilterStrategy(transformResponse));
         return transformNode;
     }

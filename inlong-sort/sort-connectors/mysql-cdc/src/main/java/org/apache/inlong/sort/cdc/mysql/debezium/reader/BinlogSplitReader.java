@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.reader;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitKey;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableId;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isDataChangeRecord;
+
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlOffsetContext;
 import io.debezium.connector.mysql.MySqlStreamingChangeEventSourceMetrics;
@@ -25,6 +30,15 @@ import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.pipeline.source.spi.ChangeEventSource;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.FlinkRuntimeException;
@@ -39,21 +53,6 @@ import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitKey;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableId;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isDataChangeRecord;
 
 /**
  * A Debezium binlog reader implementation that also support reads binlog and filter overlapping
@@ -175,7 +174,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
      *
      * <p>The watermark signal algorithm is the binlog split reader only sends the binlog event that
      * belongs to its finished snapshot splits. For each snapshot split, the binlog event is valid
-     * since the offset is after its high watermark.</p>
+     * since the offset is after its high watermark.
      *
      * <pre> E.g: the data input is :
      *    snapshot-split-0 info : [0,    1024) highWatermark0
@@ -204,7 +203,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
                                 statefulTaskContext.getSchemaNameAdjuster());
                 for (FinishedSnapshotSplitInfo splitInfo : finishedSplitsInfo.get(tableId)) {
                     if (RecordUtils.splitKeyRangeContains(
-                            key, splitInfo.getSplitStart(), splitInfo.getSplitEnd())
+                                    key, splitInfo.getSplitStart(), splitInfo.getSplitEnd())
                             && position.isAfter(splitInfo.getHighWatermark())) {
                         return true;
                     }

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.hive;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.catalog.hive.client.HiveShim;
 import org.apache.flink.table.data.RowData;
@@ -27,9 +29,6 @@ import org.apache.flink.table.functions.hive.conversion.HiveObjectConversion;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.TypeConversions;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 
 /**
  * A {@link RowDataPartitionComputer} that converts Flink objects to Hive objects before computing

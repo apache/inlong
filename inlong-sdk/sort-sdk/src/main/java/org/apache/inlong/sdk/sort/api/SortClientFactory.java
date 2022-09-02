@@ -33,7 +33,8 @@ public class SortClientFactory {
     }
 
     /**
-     * create SortClient with user defined QueryConsumeConfig ,MetricReporter and ManagerReportHandler
+     * create SortClient with user defined QueryConsumeConfig ,MetricReporter and
+     * ManagerReportHandler
      *
      * @param config SortClientConfig
      * @param queryConsumeConfig QueryConsumeConfig
@@ -41,8 +42,11 @@ public class SortClientFactory {
      * @param reportHandler ManagerReportHandler
      * @return SortClient
      */
-    public static SortClient createSortClient(SortClientConfig config, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter reporter, ManagerReportHandler reportHandler) {
+    public static SortClient createSortClient(
+            SortClientConfig config,
+            QueryConsumeConfig queryConsumeConfig,
+            MetricReporter reporter,
+            ManagerReportHandler reportHandler) {
         return new SortClientImpl(config, queryConsumeConfig, reporter, reportHandler);
     }
 
@@ -50,8 +54,11 @@ public class SortClientFactory {
         return new SortClientImplV2(config);
     }
 
-    public static SortClient createSortClientV2(SortClientConfig config, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter reporter, ManagerReportHandler reportHandler) {
+    public static SortClient createSortClientV2(
+            SortClientConfig config,
+            QueryConsumeConfig queryConsumeConfig,
+            MetricReporter reporter,
+            ManagerReportHandler reportHandler) {
         return new SortClientImplV2(config, queryConsumeConfig, reporter, reportHandler);
     }
 }

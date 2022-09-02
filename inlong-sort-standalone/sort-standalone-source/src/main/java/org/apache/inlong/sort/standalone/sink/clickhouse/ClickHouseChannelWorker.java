@@ -17,21 +17,18 @@
 
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Map;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Map;
-
-/**
- * ClickHouseChannelWorker
- */
+/** ClickHouseChannelWorker */
 public class ClickHouseChannelWorker extends Thread {
 
     public static final Logger LOG = LoggerFactory.getLogger(ClickHouseChannelWorker.class);
@@ -44,7 +41,7 @@ public class ClickHouseChannelWorker extends Thread {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      * @param workerIndex
      */
@@ -55,13 +52,15 @@ public class ClickHouseChannelWorker extends Thread {
         this.handler = this.context.createEventHandler();
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
         status = LifecycleState.START;
-        LOG.info("start to ClickHouseChannelWorker:{},status:{},index:{}", context.getTaskName(), status, workerIndex);
+        LOG.info(
+                "start to ClickHouseChannelWorker:{},status:{},index:{}",
+                context.getTaskName(),
+                status,
+                workerIndex);
         while (status == LifecycleState.START) {
             try {
                 this.doRun();
@@ -71,9 +70,7 @@ public class ClickHouseChannelWorker extends Thread {
         }
     }
 
-    /**
-     * doRun
-     */
+    /** doRun */
     public void doRun() {
         DispatchProfile currentRecord = context.getDispatchQueue().poll();
         try {
@@ -120,16 +117,12 @@ public class ClickHouseChannelWorker extends Thread {
         }
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         this.status = LifecycleState.STOP;
     }
 
-    /**
-     * sleepOneInterval
-     */
+    /** sleepOneInterval */
     private void sleepOneInterval() {
         try {
             Thread.sleep(context.getProcessInterval());
@@ -140,6 +133,7 @@ public class ClickHouseChannelWorker extends Thread {
 
     /**
      * reconnect
+     *
      * @throws SQLException
      */
     private void reconnect() throws SQLException {
@@ -151,8 +145,9 @@ public class ClickHouseChannelWorker extends Thread {
             }
             this.conn = null;
         }
-        this.conn = DriverManager.getConnection(context.getJdbcUrl(), context.getJdbcUsername(),
-                context.getJdbcPassword());
+        this.conn =
+                DriverManager.getConnection(
+                        context.getJdbcUrl(), context.getJdbcUsername(), context.getJdbcPassword());
         this.conn.setAutoCommit(false);
     }
 }

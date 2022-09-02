@@ -19,11 +19,8 @@ package org.apache.inlong.manager.common.enums;
 
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 
-/**
- * Status enum of cluster
- */
+/** Status enum of cluster */
 public enum ClusterStatus {
-
     NORMAL(1),
 
     INITING(2);

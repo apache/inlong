@@ -19,10 +19,6 @@ package org.apache.inlong.agent.plugin.utils;
 
 import io.debezium.spi.converter.CustomConverter;
 import io.debezium.spi.converter.RelationalColumn;
-import org.apache.kafka.connect.data.SchemaBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -33,10 +29,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.function.Consumer;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * binlog time converter utils
- */
+/** binlog time converter utils */
 public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, RelationalColumn> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginUtils.class);
@@ -52,8 +49,12 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
     public void configure(Properties props) {
         readProps(props, "format.date", p -> dateFormatter = DateTimeFormatter.ofPattern(p));
         readProps(props, "format.time", p -> timeFormatter = DateTimeFormatter.ofPattern(p));
-        readProps(props, "format.datetime", p -> datetimeFormatter = DateTimeFormatter.ofPattern(p));
-        readProps(props, "format.timestamp", p -> timestampFormatter = DateTimeFormatter.ofPattern(p));
+        readProps(
+                props, "format.datetime", p -> datetimeFormatter = DateTimeFormatter.ofPattern(p));
+        readProps(
+                props,
+                "format.timestamp",
+                p -> timestampFormatter = DateTimeFormatter.ofPattern(p));
         readProps(props, "format.timestamp.zone", z -> timestampZoneId = ZoneId.of(z));
     }
 
@@ -71,29 +72,41 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
     }
 
     @Override
-    public void converterFor(RelationalColumn column, ConverterRegistration<SchemaBuilder> registration) {
+    public void converterFor(
+            RelationalColumn column, ConverterRegistration<SchemaBuilder> registration) {
         String sqlType = column.typeName().toUpperCase();
         SchemaBuilder schemaBuilder = null;
         Converter converter = null;
         if ("DATE".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.date.string");
+            schemaBuilder =
+                    SchemaBuilder.string().optional().name("org.apache.inlong.agent.date.string");
             converter = this::convertDate;
         }
         if ("TIME".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.time.string");
+            schemaBuilder =
+                    SchemaBuilder.string().optional().name("org.apache.inlong.agent.time.string");
             converter = this::convertTime;
         }
         if ("DATETIME".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.datetime.string");
+            schemaBuilder =
+                    SchemaBuilder.string()
+                            .optional()
+                            .name("org.apache.inlong.agent.datetime.string");
             converter = this::convertDateTime;
         }
         if ("TIMESTAMP".equals(sqlType)) {
-            schemaBuilder = SchemaBuilder.string().optional().name("org.apache.inlong.agent.timestamp.string");
+            schemaBuilder =
+                    SchemaBuilder.string()
+                            .optional()
+                            .name("org.apache.inlong.agent.timestamp.string");
             converter = this::convertTimestamp;
         }
         if (schemaBuilder != null) {
             registration.register(schemaBuilder, converter);
-            LOGGER.info("register converter for sqlType {} to schema {}", sqlType, schemaBuilder.name());
+            LOGGER.info(
+                    "register converter for sqlType {} to schema {}",
+                    sqlType,
+                    schemaBuilder.name());
         }
     }
 
@@ -129,10 +142,10 @@ public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, Relat
     private String convertTimestamp(Object input) {
         if (input instanceof ZonedDateTime) {
             ZonedDateTime zonedDateTime = (ZonedDateTime) input;
-            LocalDateTime localDateTime = zonedDateTime.withZoneSameInstant(timestampZoneId).toLocalDateTime();
+            LocalDateTime localDateTime =
+                    zonedDateTime.withZoneSameInstant(timestampZoneId).toLocalDateTime();
             return timestampFormatter.format(localDateTime);
         }
         return input == null ? null : input.toString();
     }
-
 }

@@ -21,17 +21,14 @@ package org.apache.inlong.sort.cdc.mysql.source.connection;
 import com.zaxxer.hikari.HikariDataSource;
 import io.debezium.jdbc.JdbcConfiguration;
 import io.debezium.jdbc.JdbcConnection;
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-/**
- * A factory to create JDBC connection for MySQL.
- */
+/** A factory to create JDBC connection for MySQL. */
 public class JdbcConnectionFactory implements JdbcConnection.ConnectionFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcConnectionFactory.class);

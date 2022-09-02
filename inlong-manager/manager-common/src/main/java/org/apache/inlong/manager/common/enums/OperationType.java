@@ -17,18 +17,13 @@
 
 package org.apache.inlong.manager.common.enums;
 
-/**
- * Operation type
- */
+/** Operation type */
 public enum OperationType {
-
     CREATE,
 
     UPDATE,
 
-    /**
-     * Insert or update
-     */
+    /** Insert or update */
     UPSERT,
 
     DELETE,

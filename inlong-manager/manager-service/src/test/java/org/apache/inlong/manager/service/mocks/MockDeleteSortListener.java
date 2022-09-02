@@ -25,9 +25,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Test class for listen delete sort event.
- */
+/** Test class for listen delete sort event. */
 public class MockDeleteSortListener implements SortOperateListener {
 
     @Override
@@ -49,5 +47,4 @@ public class MockDeleteSortListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock delete sort success");
     }
-
 }

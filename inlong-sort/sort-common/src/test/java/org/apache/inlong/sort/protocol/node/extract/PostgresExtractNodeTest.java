@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -26,23 +30,30 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Test for {@link PostgresExtractNodeTest}
- */
+/** Test for {@link PostgresExtractNodeTest} */
 public class PostgresExtractNodeTest extends SerializeBaseTest<PostgresExtractNode> {
 
     @Override
     public PostgresExtractNode getTestObject() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
-        return new PostgresExtractNode("1", "postgres_input", fields, null, null, null, Arrays.asList("mytable"),
-                "localhost", "username", "password", "database", "public", 5432, null);
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()));
+        return new PostgresExtractNode(
+                "1",
+                "postgres_input",
+                fields,
+                null,
+                null,
+                null,
+                Arrays.asList("mytable"),
+                "localhost",
+                "username",
+                "password",
+                "database",
+                "public",
+                5432,
+                null);
     }
 
     @Test

@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.constant;
 
-/**
- * old version of command result
- */
+/** old version of command result */
 public class CommandConstants {
     public static final String ID = "id";
 
@@ -52,5 +50,4 @@ public class CommandConstants {
     public static final String INTERFACE_ID = "interface_id";
     public static final String FIELD_SPLITTER = "field_splitter";
     public static final String MD5 = "md5";
-
 }

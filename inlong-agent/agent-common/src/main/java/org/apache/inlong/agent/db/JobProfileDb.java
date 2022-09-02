@@ -1,34 +1,31 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+* Licensed to the Apache Software Foundation (ASF) under one or more
+* contributor license agreements. See the NOTICE file distributed with
+* this work for additional information regarding copyright ownership.
+* The ASF licenses this file to You under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with
+* the License. You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 
- */
+*/
 
 package org.apache.inlong.agent.db;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Wrapper for job conf persistence.
- */
+/** Wrapper for job conf persistence. */
 public class JobProfileDb {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobProfileDb.class);
@@ -38,9 +35,7 @@ public class JobProfileDb {
         this.db = db;
     }
 
-    /**
-     * get all restart jobs from db
-     */
+    /** get all restart jobs from db */
     public List<JobProfile> getRestartJobs() {
         List<JobProfile> jobsByState = getJobsByState(StateSearchKey.ACCEPTED);
         jobsByState.addAll(getJobsByState(StateSearchKey.RUNNING));
@@ -71,8 +66,11 @@ public class JobProfileDb {
         if (jobProfile.allRequiredKeyExist()) {
             String keyName = jobProfile.get(JobConstants.JOB_INSTANCE_ID);
             jobProfile.setLong(JobConstants.JOB_STORE_TIME, System.currentTimeMillis());
-            KeyValueEntity entity = new KeyValueEntity(keyName,
-                    jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
+            KeyValueEntity entity =
+                    new KeyValueEntity(
+                            keyName,
+                            jobProfile.toJsonStr(),
+                            jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
             entity.setStateSearchKey(StateSearchKey.ACCEPTED);
             LOGGER.info("store job {} to db", jobProfile.toJsonStr());
             db.put(entity);
@@ -88,16 +86,17 @@ public class JobProfileDb {
         String instanceId = jobProfile.getInstanceId();
         KeyValueEntity entity = db.get(instanceId);
         if (entity == null) {
-            LOGGER.warn("job profile {} doesn't exist, update job profile fail {}", instanceId, jobProfile.toJsonStr());
+            LOGGER.warn(
+                    "job profile {} doesn't exist, update job profile fail {}",
+                    instanceId,
+                    jobProfile.toJsonStr());
             return;
         }
         entity.setJsonValue(jobProfile.toJsonStr());
         db.put(entity);
     }
 
-    /**
-     * check whether job is finished, note that non-exist job is regarded as finished.
-     */
+    /** check whether job is finished, note that non-exist job is regarded as finished. */
     public boolean checkJobfinished(JobProfile jobProfile) {
         KeyValueEntity entity = db.get(jobProfile.getInstanceId());
         if (entity == null) {
@@ -107,9 +106,7 @@ public class JobProfileDb {
         return entity.checkFinished();
     }
 
-    /**
-     * delete job by keyName
-     */
+    /** delete job by keyName */
     public void deleteJob(String keyName) {
         db.remove(keyName);
     }
@@ -145,8 +142,11 @@ public class JobProfileDb {
                 long storeTime = profile.getLong(JobConstants.JOB_STORE_TIME, 0);
                 long currentTime = System.currentTimeMillis();
                 if (storeTime == 0 || currentTime - storeTime > expireTime) {
-                    LOGGER.info("delete job {} because of timeout store time: {}, expire time: {}",
-                            entity.getKey(), storeTime, expireTime);
+                    LOGGER.info(
+                            "delete job {} because of timeout store time: {}, expire time: {}",
+                            entity.getKey(),
+                            storeTime,
+                            expireTime);
                     deleteJob(entity.getKey());
                 }
             }
@@ -167,9 +167,7 @@ public class JobProfileDb {
         return null;
     }
 
-    /**
-     * get job reading specific file
-     */
+    /** get job reading specific file */
     public JobProfile getJobByFileName(String fileName) {
         KeyValueEntity entity = db.searchOne(fileName);
         if (entity != null && entity.getKey().startsWith(JobConstants.JOB_ID_PREFIX)) {
@@ -185,7 +183,8 @@ public class JobProfileDb {
      * @return list of job profile.
      */
     public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {
-        List<KeyValueEntity> entityList = db.searchWithKeyPrefix(stateSearchKey, JobConstants.JOB_ID_PREFIX);
+        List<KeyValueEntity> entityList =
+                db.searchWithKeyPrefix(stateSearchKey, JobConstants.JOB_ID_PREFIX);
         List<JobProfile> profileList = new ArrayList<>();
         for (KeyValueEntity entity : entityList) {
             profileList.add(entity.getAsJobProfile());

@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -30,16 +36,7 @@ import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-/**
- * ClickHouseSink
- */
+/** ClickHouseSink */
 public class ClickHouseSink extends AbstractSink implements Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(ClickHouseSink.class);
@@ -53,14 +50,14 @@ public class ClickHouseSink extends AbstractSink implements Configurable {
     // schedule
     private ScheduledExecutorService scheduledPool;
 
-    /**
-     * start
-     */
+    /** start */
     @Override
     public void start() {
         super.start();
         try {
-            this.context = new ClickHouseSinkContext(getName(), parentContext, getChannel(), dispatchQueue);
+            this.context =
+                    new ClickHouseSinkContext(
+                            getName(), parentContext, getChannel(), dispatchQueue);
             this.context.start();
             for (int i = 0; i < context.getMaxThreads(); i++) {
                 ClickHouseChannelWorker worker = new ClickHouseChannelWorker(context, i);
@@ -70,21 +67,22 @@ public class ClickHouseSink extends AbstractSink implements Configurable {
             this.dispatchManager = new DispatchManager(parentContext, dispatchQueue);
             this.scheduledPool = Executors.newScheduledThreadPool(1);
             // dispatch
-            this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
+            this.scheduledPool.scheduleWithFixedDelay(
+                    new Runnable() {
 
-                public void run() {
-                    dispatchManager.setNeedOutputOvertimeData();
-                }
-            }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
+                        public void run() {
+                            dispatchManager.setNeedOutputOvertimeData();
+                        }
+                    },
+                    this.dispatchManager.getDispatchTimeout(),
+                    this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
 
-    /**
-     * stop
-     */
+    /** stop */
     @Override
     public void stop() {
         super.stop();
@@ -102,7 +100,7 @@ public class ClickHouseSink extends AbstractSink implements Configurable {
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -113,8 +111,8 @@ public class ClickHouseSink extends AbstractSink implements Configurable {
 
     /**
      * process
-     * 
-     * @return                        Status
+     *
+     * @return Status
      * @throws EventDeliveryException
      */
     @Override
@@ -151,5 +149,4 @@ public class ClickHouseSink extends AbstractSink implements Configurable {
             tx.close();
         }
     }
-
 }

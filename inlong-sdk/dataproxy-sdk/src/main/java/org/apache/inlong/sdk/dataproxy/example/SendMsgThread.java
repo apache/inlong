@@ -22,7 +22,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.slf4j.Logger;
@@ -47,9 +46,15 @@ public class SendMsgThread extends Thread {
             while ((line = br.readLine()) != null) {
 
                 long startTime = System.currentTimeMillis();
-                SendResult result = messageSender.sendMessage("hhhh".getBytes("utf8"),
-                        "b_test", "n_test1", 0, String.valueOf(System.currentTimeMillis()), 1,
-                        TimeUnit.MILLISECONDS);
+                SendResult result =
+                        messageSender.sendMessage(
+                                "hhhh".getBytes("utf8"),
+                                "b_test",
+                                "n_test1",
+                                0,
+                                String.valueOf(System.currentTimeMillis()),
+                                1,
+                                TimeUnit.MILLISECONDS);
                 long endTime = System.currentTimeMillis();
                 if (result == result.OK) {
                     logger.info("this msg is ok time {}", endTime - startTime);
@@ -70,6 +75,5 @@ public class SendMsgThread extends Thread {
                 }
             }
         }
-
     }
 }

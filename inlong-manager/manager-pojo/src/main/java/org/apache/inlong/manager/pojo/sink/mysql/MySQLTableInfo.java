@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sink.mysql;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * MySQL table info.
- */
+/** MySQL table info. */
 @Data
 public class MySQLTableInfo {
 

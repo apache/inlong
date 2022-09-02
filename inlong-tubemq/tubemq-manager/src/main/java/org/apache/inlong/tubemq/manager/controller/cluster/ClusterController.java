@@ -17,12 +17,16 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster;
 
+import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
+
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
@@ -53,11 +57,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
-
 @RestController
 @RequestMapping(path = "/v1/cluster")
 @Slf4j
@@ -66,15 +65,13 @@ public class ClusterController {
     private final Gson gson = new Gson();
     private final TubeMQResult result = new TubeMQResult();
 
-    @Autowired
-    private ClusterService clusterService;
+    @Autowired private ClusterService clusterService;
 
-    @Autowired
-    private MasterService masterService;
+    @Autowired private MasterService masterService;
 
     @PostMapping("")
-    public @ResponseBody
-    TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult clusterMethodProxy(
+            @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
@@ -102,9 +99,7 @@ public class ClusterController {
         return clusterService.modifyCluster(clusterDto);
     }
 
-    /**
-     * add a new cluster, should provide a master node
-     */
+    /** add a new cluster, should provide a master node */
     public TubeMQResult addNewCluster(AddClusterReq req) {
         // 1. validate params
         if (!req.legal()) {
@@ -112,8 +107,9 @@ public class ClusterController {
         }
         List<MasterEntry> masterEntries = req.getMasterEntries();
         for (MasterEntry masterEntry : masterEntries) {
-            TubeMQResult checkResult = masterService.checkMasterNodeStatus(masterEntry.getIp(),
-                    masterEntry.getWebPort());
+            TubeMQResult checkResult =
+                    masterService.checkMasterNodeStatus(
+                            masterEntry.getIp(), masterEntry.getWebPort());
             if (checkResult.getErrCode() != SUCCESS_CODE) {
                 return TubeMQResult.errorResult("please check master ip and webPort");
             }
@@ -130,10 +126,14 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    @RequestMapping(value = "", method = RequestMethod.GET,
+    @RequestMapping(
+            value = "",
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
-            @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
+    public TubeMQResult queryCluster(
+            @RequestParam(required = false) Integer clusterId,
+            @RequestParam(required = false) String clusterName,
+            @RequestParam(required = false) String masterIp) {
         TubeMQResult result = new TubeMQResult();
         if (clusterId == null && clusterName == null && masterIp == null) {
             return queryAllClusterVo();
@@ -143,10 +143,13 @@ public class ClusterController {
             if (clusterEntry == null) {
                 return TubeMQResult.errorResult("no such cluster with id " + clusterId);
             }
-            List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
+            List<MasterEntry> masterNodes =
+                    masterService.getMasterNodes(clusterEntry.getClusterId());
             ClusterVo allCount = getCountInCluster(clusterId);
-            result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
-            return  result;
+            result.setData(
+                    Lists.newArrayList(
+                            ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
+            return result;
         }
         if (clusterName != null) {
             result = queryClusterByClusterName(clusterName);
@@ -178,9 +181,7 @@ public class ClusterController {
         return result;
     }
 
-    /**
-     * delete a new cluster
-     */
+    /** delete a new cluster */
     public TubeMQResult deleteCluster(DeleteClusterReq req) {
         // 1. validate params
         if (req.getClusterId() == null || StringUtils.isEmpty(req.getToken())) {
@@ -195,14 +196,13 @@ public class ClusterController {
         return new TubeMQResult();
     }
 
-    /**
-     * query cluster info
-     */
-    @RequestMapping(value = "/query", method = RequestMethod.GET,
+    /** query cluster info */
+    @RequestMapping(
+            value = "/query",
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    String queryInfo(
-            @RequestParam Map<String, String> queryBody) throws Exception {
+    public @ResponseBody String queryInfo(@RequestParam Map<String, String> queryBody)
+            throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
     }
@@ -256,9 +256,9 @@ public class ClusterController {
         Integer topicSize = gson.fromJson(dataCount, Integer.class);
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int partitionCount = 0;
-        List<TopicQueryRes> topicQueryResList = gson.fromJson(jsonData.toString(),
-                new TypeToken<List<TopicQueryRes>>() {
-                }.getType());
+        List<TopicQueryRes> topicQueryResList =
+                gson.fromJson(
+                        jsonData.toString(), new TypeToken<List<TopicQueryRes>>() {}.getType());
         for (TopicQueryRes topicQueryRes : topicQueryResList) {
             String totalCfgNumPart = topicQueryRes.getTotalCfgNumPart();
             partitionCount = partitionCount + (int) Math.ceil(Double.parseDouble(totalCfgNumPart));
@@ -275,24 +275,24 @@ public class ClusterController {
      * @return
      */
     public int getConsumerGroupCount(Integer clusterId) {
-        String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
+        String queryUrl =
+                masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_GROUP_INFO);
         int consumerGroupCount = 0;
         String groupData = masterService.queryMaster(queryUrl);
         JsonObject jsonObject = gson.fromJson(groupData, JsonObject.class);
         JsonElement data = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
-        List<ConsumerGroupInfoRes> groupList = gson.fromJson(jsonData.toString(),
-                new TypeToken<List<ConsumerGroupInfoRes>>() {
-                }.getType());
+        List<ConsumerGroupInfoRes> groupList =
+                gson.fromJson(
+                        jsonData.toString(),
+                        new TypeToken<List<ConsumerGroupInfoRes>>() {}.getType());
         for (ConsumerGroupInfoRes groupInfoRes : groupList) {
             consumerGroupCount = consumerGroupCount + (int) Math.ceil(groupInfoRes.getGroupCount());
         }
         return consumerGroupCount;
     }
 
-    /**
-     * query consumer count
-     */
+    /** query consumer count */
     public int getConsumerCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.QUERY_CONSUMER_INFO);
         String queryMaster = masterService.queryMaster(queryUrl);
@@ -300,36 +300,33 @@ public class ClusterController {
         JsonElement data = jsonObject.get("data");
         JsonArray jsonData = gson.fromJson(data, JsonArray.class);
         int consumerCount = 0;
-        List<ConsumerInfoRes> topicViewResList = gson.fromJson(jsonData.toString(),
-                new TypeToken<List<ConsumerInfoRes>>() {
-                }.getType());
+        List<ConsumerInfoRes> topicViewResList =
+                gson.fromJson(
+                        jsonData.toString(), new TypeToken<List<ConsumerInfoRes>>() {}.getType());
         for (ConsumerInfoRes consumerInfoRes : topicViewResList) {
             consumerCount = (int) Math.ceil(consumerInfoRes.getConsumerNum());
         }
         return consumerCount;
     }
 
-    /**
-     * query store count
-     */
+    /** query store count */
     public int getStoreCount(Integer clusterId) {
         String queryUrl = masterService.getQueryCountUrl(clusterId, TubeConst.TOPIC_VIEW);
-        JsonObject jsonObject = gson.fromJson(masterService.queryMaster(queryUrl), JsonObject.class);
+        JsonObject jsonObject =
+                gson.fromJson(masterService.queryMaster(queryUrl), JsonObject.class);
         JsonElement getData = jsonObject.get("data");
         JsonArray fromJson = gson.fromJson(getData, JsonArray.class);
         int storeCount = 0;
-        List<TopicViewRes> topicViewResList = gson.fromJson(fromJson.toString(),
-                new TypeToken<List<TopicViewRes>>() {
-                }.getType());
+        List<TopicViewRes> topicViewResList =
+                gson.fromJson(
+                        fromJson.toString(), new TypeToken<List<TopicViewRes>>() {}.getType());
         for (TopicViewRes topicViewRes : topicViewResList) {
             storeCount = storeCount + (int) Math.ceil(topicViewRes.getTotalCfgNumStore());
         }
         return storeCount;
     }
 
-    /**
-     * query cluster by cluster name
-     */
+    /** query cluster by cluster name */
     public TubeMQResult queryClusterByClusterName(String clusterName) {
         ClusterEntry clusterEntry = clusterService.getOneCluster(clusterName);
         if (clusterEntry == null) {
@@ -337,13 +334,13 @@ public class ClusterController {
         }
         List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
         ClusterVo allCount = getCountInCluster((int) clusterEntry.getClusterId());
-        result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
+        result.setData(
+                Lists.newArrayList(
+                        ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
         return result;
     }
 
-    /**
-     * query cluster by cluster masterIp
-     */
+    /** query cluster by cluster masterIp */
     public TubeMQResult queryClusterByMasterIp(String masterIp) {
         List<ClusterEntry> clusterEntryList = Lists.newArrayList();
         List<MasterEntry> masterNodes = masterService.getMasterNodes(masterIp);
@@ -357,11 +354,11 @@ public class ClusterController {
         List<ClusterVo> clusterVos = Lists.newArrayList();
         for (ClusterEntry clusterEntry : clusterEntryList) {
             ClusterVo allCount = getCountInCluster((int) clusterEntry.getClusterId());
-            ClusterVo clusterVo = ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount);
+            ClusterVo clusterVo =
+                    ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount);
             clusterVos.add(clusterVo);
         }
         result.setData(clusterVos);
         return result;
     }
-
 }

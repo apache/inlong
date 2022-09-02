@@ -18,6 +18,13 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -32,17 +39,7 @@ import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * Oracle extract node for extract data from oracle(Currently support oracle 11,12,19)
- */
+/** Oracle extract node for extract data from oracle(Currently support oracle 11,12,19) */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oracleExtract")
 @Data
@@ -52,33 +49,42 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
     @Nullable
     @JsonProperty("primaryKey")
     private String primaryKey;
+
     @Nonnull
     @JsonProperty("hostname")
     private String hostname;
+
     @Nonnull
     @JsonProperty("username")
     private String username;
+
     @Nonnull
     @JsonProperty("password")
     private String password;
+
     @Nonnull
     @JsonProperty("database")
     private String database;
+
     @Nonnull
     @JsonProperty("schemaName")
     private String schemaName;
+
     @Nonnull
     @JsonProperty("tableName")
     private String tableName;
+
     @JsonProperty(value = "port", defaultValue = "1521")
     private Integer port;
+
     @Nullable
     @JsonProperty("scanStartupMode")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private OracleConstant.ScanStartUpMode scanStartupMode;
 
     @JsonCreator
-    public OracleExtractNode(@JsonProperty("id") String id,
+    public OracleExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
@@ -92,7 +98,7 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
             @JsonProperty("tableName") String tableName,
             @JsonProperty(value = "port", defaultValue = "1521") Integer port,
             @Nullable @JsonProperty("scanStartupMode")
-            OracleConstant.ScanStartUpMode scanStartupMode) {
+                    OracleConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
@@ -149,7 +155,11 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME,
+                MetaField.OP_TS);
     }
 }

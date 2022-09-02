@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.filesystem.stream;
 
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_PARTITION_COMMIT_POLICY_KIND;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
@@ -44,19 +49,10 @@ import org.apache.flink.table.filesystem.stream.compact.CompactWriter;
 import org.apache.flink.util.function.SupplierWithException;
 import org.apache.inlong.sort.filesystem.stream.compact.CompactFileWriter;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_PARTITION_COMMIT_POLICY_KIND;
-
-/**
- * Helper for creating streaming file sink.
- */
+/** Helper for creating streaming file sink. */
 public class StreamingSink {
 
-    private StreamingSink() {
-    }
+    private StreamingSink() {}
 
     /**
      * Create a file writer by input stream. This is similar to {@link StreamingFileSink}, in
@@ -66,11 +62,14 @@ public class StreamingSink {
             DataStream<T> inputStream,
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
+                            T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
                     bucketsBuilder,
-            int parallelism, String inlongMetric, String inlongAudit) {
+            int parallelism,
+            String inlongMetric,
+            String inlongAudit) {
         StreamingFileWriter<T> fileWriter =
-                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
+                new StreamingFileWriter<>(
+                        bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
         return inputStream
                 .transform(
                         StreamingFileWriter.class.getSimpleName(),
@@ -87,15 +86,18 @@ public class StreamingSink {
             DataStream<T> inputStream,
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
+                            T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
                     bucketsBuilder,
             FileSystemFactory fsFactory,
             Path path,
             CompactReader.Factory<T> readFactory,
             long targetFileSize,
-            int parallelism, String inlongMetric, String inlongAudit) {
-        CompactFileWriter<T> writer = new CompactFileWriter<>(bucketCheckInterval, bucketsBuilder, inlongMetric,
-                inlongAudit);
+            int parallelism,
+            String inlongMetric,
+            String inlongAudit) {
+        CompactFileWriter<T> writer =
+                new CompactFileWriter<>(
+                        bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
 
         SupplierWithException<FileSystem, IOException> fsSupplier =
                 (SupplierWithException<FileSystem, IOException> & Serializable)

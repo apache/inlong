@@ -19,9 +19,7 @@ package org.apache.inlong.common.pojo.agent;
 
 import lombok.Data;
 
-/**
- * The specifically command config for agent.
- */
+/** The specifically command config for agent. */
 @Data
 public class CmdConfig {
 
@@ -29,5 +27,4 @@ public class CmdConfig {
     private Integer id;
     private Integer op;
     private Integer taskId;
-
 }

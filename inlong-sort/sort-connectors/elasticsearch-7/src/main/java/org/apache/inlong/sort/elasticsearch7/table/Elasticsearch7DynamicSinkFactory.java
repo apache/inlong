@@ -18,27 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch7.table;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.connector.format.EncodingFormat;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.factories.DynamicTableSinkFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.table.factories.SerializationFormatFactory;
-import org.apache.flink.table.utils.TableSchemaUtils;
-import org.apache.flink.util.StringUtils;
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
-
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
@@ -59,9 +38,27 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PA
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
-/**
- * A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch7DynamicSink}.
- */
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.connector.format.EncodingFormat;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.DynamicTableSinkFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.table.factories.SerializationFormatFactory;
+import org.apache.flink.table.utils.TableSchemaUtils;
+import org.apache.flink.util.StringUtils;
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
+
+/** A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch7DynamicSink}. */
 @Internal
 public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory {
 
@@ -112,7 +109,11 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
 
         return new Elasticsearch7DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric, auditHostAndPorts);
+                format,
+                config,
+                TableSchemaUtils.getPhysicalSchema(tableSchema),
+                inLongMetric,
+                auditHostAndPorts);
     }
 
     private void validate(Elasticsearch7Configuration config, Configuration originalConfiguration) {

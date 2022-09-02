@@ -17,13 +17,10 @@
 
 package org.apache.inlong.common.constant;
 
-/**
- * The constants class
- */
+/** The constants class */
 public class Constants {
 
     public static final int RESULT_SUCCESS = 0;
 
     public static final int RESULT_FAIL = 1;
-
 }

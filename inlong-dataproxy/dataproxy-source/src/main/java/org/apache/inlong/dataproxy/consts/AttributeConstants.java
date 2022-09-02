@@ -17,9 +17,7 @@
 
 package org.apache.inlong.dataproxy.consts;
 
-/**
- * Attribute constants
- */
+/** Attribute constants */
 public class AttributeConstants {
 
     public static final String SEPARATOR = "&";
@@ -31,9 +29,7 @@ public class AttributeConstants {
     public static final String HTTP_REQUEST = "http-request";
     public static final String HTTP_RESPONSE = "http-response";
 
-    /**
-     * group id unique string id for each business or product
-     */
+    /** group id unique string id for each business or product */
     public static final String GROUP_ID = "groupId";
 
     /**
@@ -42,14 +38,10 @@ public class AttributeConstants {
      */
     public static final String STREAM_ID = "streamId";
 
-    /**
-     * iname is like a streamId but used in file protocol(m=xxx)
-     */
+    /** iname is like a streamId but used in file protocol(m=xxx) */
     public static final String INAME = "iname";
 
-    /**
-     * data time
-     */
+    /** data time */
     public static final String DATA_TIME = "dt";
 
     public static final String TIME_STAMP = "t";
@@ -89,5 +81,4 @@ public class AttributeConstants {
     public static final String MESSAGE_SYNC_SEND = "syncSend";
 
     public static final String MESSAGE_IS_ACK = "isAck";
-
 }

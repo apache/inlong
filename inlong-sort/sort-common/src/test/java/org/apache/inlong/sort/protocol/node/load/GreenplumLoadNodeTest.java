@@ -18,16 +18,13 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Collections;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
-import java.util.Collections;
-
-/**
- * Test for {@link GreenplumLoadNode}
- */
+/** Test for {@link GreenplumLoadNode} */
 public class GreenplumLoadNodeTest extends SerializeBaseTest<GreenplumLoadNode> {
 
     /**
@@ -37,14 +34,22 @@ public class GreenplumLoadNodeTest extends SerializeBaseTest<GreenplumLoadNode> 
      */
     @Override
     public GreenplumLoadNode getTestObject() {
-        return new GreenplumLoadNode("1", "greenplum_output",
+        return new GreenplumLoadNode(
+                "1",
+                "greenplum_output",
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 Collections.singletonList(
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                ),
-                null, null, 1, null,
-                "jdbc:postgresql://localhost:5432/inlong", "inlong",
-                "inlong", "student", "name");
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
+                "jdbc:postgresql://localhost:5432/inlong",
+                "inlong",
+                "inlong",
+                "student",
+                "name");
     }
 }

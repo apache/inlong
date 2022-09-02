@@ -30,9 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-/**
- * Auto push info by DataProxy SDK
- */
+/** Auto push info by DataProxy SDK */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -42,7 +40,8 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @JsonTypeDefine(value = SourceType.AUTO_PUSH)
 public class AutoPushSource extends StreamSource {
 
-    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
+    @ApiModelProperty(
+            value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
@@ -62,5 +61,4 @@ public class AutoPushSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, AutoPushSourceRequest::new);
     }
-
 }

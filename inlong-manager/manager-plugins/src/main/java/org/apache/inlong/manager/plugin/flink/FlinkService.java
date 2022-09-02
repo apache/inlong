@@ -17,6 +17,18 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
@@ -32,42 +44,26 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-/**
- * Flink service, such as save or get flink config info, etc.
- */
+/** Flink service, such as save or get flink config info, etc. */
 @Slf4j
 public class FlinkService {
 
-    private static final Pattern IP_PORT_PATTERN = Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
+    private static final Pattern IP_PORT_PATTERN =
+            Pattern.compile("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
     private final FlinkConfig flinkConfig;
     private final Integer parallelism;
     private final String savepointDirectory;
     private final Configuration configuration;
 
-    /**
-     * Constructor of FlinkService.
-     */
+    /** Constructor of FlinkService. */
     public FlinkService(String endpoint) throws Exception {
         FlinkConfiguration flinkConfiguration = new FlinkConfiguration();
         flinkConfig = flinkConfiguration.getFlinkConfig();
@@ -95,9 +91,7 @@ public class FlinkService {
         configuration.setInteger(RestOptions.PORT, port);
     }
 
-    /**
-     * Translate the Endpoint to address & port
-     */
+    /** Translate the Endpoint to address & port */
     private Map<String, String> translateFromEndpoint(String endpoint) throws Exception {
         Map<String, String> map = new HashMap<>(2);
         Matcher matcher = IP_PORT_PATTERN.matcher(endpoint);
@@ -110,16 +104,12 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Get Flink config.
-     */
+    /** Get Flink config. */
     public FlinkConfig getFlinkConfig() {
         return flinkConfig;
     }
 
-    /**
-     * Get the Flink Client.
-     */
+    /** Get the Flink Client. */
     public RestClusterClient<StandaloneClusterId> getFlinkClient() throws Exception {
         try {
             return new RestClusterClient<>(configuration, StandaloneClusterId.getInstance());
@@ -129,9 +119,7 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Get the job status by the given job id.
-     */
+    /** Get the job status by the given job id. */
     public JobStatus getJobStatus(String jobId) throws Exception {
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
@@ -144,9 +132,7 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Get job detail by the given job id.
-     */
+    /** Get job detail by the given job id. */
     public JobDetailsInfo getJobDetail(String jobId) throws Exception {
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
@@ -159,9 +145,7 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Submit the Flink job.
-     */
+    /** Submit the Flink job. */
     public String submit(FlinkInfo flinkInfo) throws Exception {
         try {
             SavepointRestoreSettings settings = SavepointRestoreSettings.none();
@@ -172,13 +156,12 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Restore the Flink job.
-     */
+    /** Restore the Flink job. */
     public String restore(FlinkInfo flinkInfo) throws Exception {
         try {
             if (StringUtils.isNotEmpty(flinkInfo.getSavepointPath())) {
-                SavepointRestoreSettings settings = SavepointRestoreSettings.forPath(savepointDirectory, false);
+                SavepointRestoreSettings settings =
+                        SavepointRestoreSettings.forPath(savepointDirectory, false);
                 return submitJobBySavepoint(flinkInfo, settings);
             } else {
                 log.warn("skip to restore as the savepoint path was empty " + flinkInfo);
@@ -190,30 +173,37 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Submit the job with the savepoint settings.
-     */
-    private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
+    /** Submit the job with the savepoint settings. */
+    private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings)
+            throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
         final File jarFile = new File(localJarPath);
         final String[] programArgs = genProgramArgsV2(flinkInfo, flinkConfig);
 
-        List<URL> connectorJars = flinkInfo.getConnectorJarPaths().stream().map(p -> {
-            try {
-                return new File(p).toURI().toURL();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<URL> connectorJars =
+                flinkInfo.getConnectorJarPaths().stream()
+                        .map(
+                                p -> {
+                                    try {
+                                        return new File(p).toURI().toURL();
+                                    } catch (MalformedURLException e) {
+                                        return null;
+                                    }
+                                })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
-        PackagedProgram program = PackagedProgram.newBuilder()
-                .setConfiguration(configuration)
-                .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
-                .setJarFile(jarFile)
-                .setUserClassPaths(connectorJars)
-                .setArguments(programArgs)
-                .setSavepointRestoreSettings(settings).build();
-        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, configuration, parallelism, false);
+        PackagedProgram program =
+                PackagedProgram.newBuilder()
+                        .setConfiguration(configuration)
+                        .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
+                        .setJarFile(jarFile)
+                        .setUserClassPaths(connectorJars)
+                        .setArguments(programArgs)
+                        .setSavepointRestoreSettings(settings)
+                        .build();
+        JobGraph jobGraph =
+                PackagedProgramUtils.createJobGraph(program, configuration, parallelism, false);
         jobGraph.addJars(connectorJars);
 
         RestClusterClient<StandaloneClusterId> client = getFlinkClient();
@@ -221,15 +211,14 @@ public class FlinkService {
         return result.get().toString();
     }
 
-    /**
-     * Stop the Flink job with the savepoint.
-     */
+    /** Stop the Flink job with the savepoint. */
     public String stopJob(String jobId, StopWithSavepointRequest request) throws Exception {
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
             JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<String> stopResult = client.stopWithSavepoint(jobID, request.isDrain(),
-                    request.getTargetDirectory());
+            CompletableFuture<String> stopResult =
+                    client.stopWithSavepoint(
+                            jobID, request.isDrain(), request.getTargetDirectory());
             return stopResult.get();
         } catch (Exception e) {
             log.error("stop job {} and request {} failed: ", jobId, request, e);
@@ -237,9 +226,7 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Cancel the Flink job.
-     */
+    /** Cancel the Flink job. */
     public void cancelJob(String jobId) throws Exception {
         try {
             RestClusterClient<StandaloneClusterId> client = getFlinkClient();
@@ -251,9 +238,7 @@ public class FlinkService {
         }
     }
 
-    /**
-     * Build the program of the Flink job.
-     */
+    /** Build the program of the Flink job. */
     @Deprecated
     private String[] genProgramArgs(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
         List<String> list = new ArrayList<>();
@@ -287,5 +272,4 @@ public class FlinkService {
         list.add("60000");
         return list.toArray(new String[0]);
     }
-
 }

@@ -18,21 +18,19 @@
 
 package org.apache.inlong.sdk.sort.fetcher.tube;
 
+import java.util.Optional;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
-import java.util.Optional;
-
-/**
- * Builder of tube single topic fetcher.
- */
+/** Builder of tube single topic fetcher. */
 public class TubeSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
 
     private TubeConsumerCreator tubeConsumerCreator;
 
-    public TubeSingleTopicFetcherBuilder tubeConsumerCreater(TubeConsumerCreator tubeConsumerCreator) {
+    public TubeSingleTopicFetcherBuilder tubeConsumerCreater(
+            TubeConsumerCreator tubeConsumerCreator) {
         this.tubeConsumerCreator = tubeConsumerCreator;
         return this;
     }
@@ -40,7 +38,10 @@ public class TubeSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
     @Override
     public TopicFetcher subscribe() {
         Optional.ofNullable(topic)
-                .orElseThrow(() -> new IllegalStateException("subscribe tube single topic, but never assign topic"));
+                .orElseThrow(
+                        () ->
+                                new IllegalStateException(
+                                        "subscribe tube single topic, but never assign topic"));
         Optional.ofNullable(context)
                 .orElseThrow(() -> new IllegalStateException("context is null"));
         Optional.ofNullable(tubeConsumerCreator)
@@ -49,7 +50,8 @@ public class TubeSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
         TubeSingleTopicFetcher fetcher =
-                new TubeSingleTopicFetcher(topic, context, interceptor, deserializer, tubeConsumerCreator);
+                new TubeSingleTopicFetcher(
+                        topic, context, interceptor, deserializer, tubeConsumerCreator);
         if (!fetcher.init()) {
             throw new IllegalStateException("init tube single topic fetcher failed");
         }

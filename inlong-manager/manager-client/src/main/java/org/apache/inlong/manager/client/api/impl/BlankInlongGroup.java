@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import java.util.List;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
@@ -27,11 +28,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
-
-/**
- * Check inlong group if is exists.
- */
+/** Check inlong group if is exists. */
 public class BlankInlongGroup implements InlongGroup {
 
     @Override
@@ -60,7 +57,8 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
-    public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) {
+    public InlongGroupContext reInitOnUpdate(
+            InlongGroupInfo originGroupInfo, BaseSortConf sortConf) {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 

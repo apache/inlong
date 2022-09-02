@@ -25,6 +25,11 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import io.debezium.data.EnumSet;
 import io.debezium.data.geometry.Geometry;
 import io.debezium.data.geometry.Point;
+import java.nio.ByteBuffer;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.logical.ArrayType;
@@ -36,20 +41,10 @@ import org.apache.inlong.sort.cdc.debezium.table.DeserializationRuntimeConverter
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
-import java.nio.ByteBuffer;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-/**
- * Used to create {@link DeserializationRuntimeConverterFactory} specified to MySQL.
- */
+/** Used to create {@link DeserializationRuntimeConverterFactory} specified to MySQL. */
 public class MySqlDeserializationConverterFactory {
 
-    /**
-     * instance
-     */
+    /** instance */
     public static DeserializationRuntimeConverterFactory instance() {
         return new DeserializationRuntimeConverterFactory() {
 
@@ -72,9 +67,7 @@ public class MySqlDeserializationConverterFactory {
         };
     }
 
-    /**
-     * Create converter of string.
-     */
+    /** Create converter of string. */
     private static Optional<DeserializationRuntimeConverter> createStringConverter() {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectWriter objectWriter = objectMapper.writer();
@@ -122,9 +115,7 @@ public class MySqlDeserializationConverterFactory {
                 });
     }
 
-    /**
-     * Create converter of array.
-     */
+    /** Create converter of array. */
     private static Optional<DeserializationRuntimeConverter> createArrayConverter(
             ArrayType arrayType) {
         if (LogicalTypeChecks.hasFamily(

@@ -25,9 +25,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
-/**
- * Test class for listen restart source event.
- */
+/** Test class for listen restart source event. */
 public class MockRestartSourceListener implements SourceOperateListener {
 
     @Override
@@ -49,5 +47,4 @@ public class MockRestartSourceListener implements SourceOperateListener {
     public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock restart source success");
     }
-
 }

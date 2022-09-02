@@ -19,10 +19,8 @@ package org.apache.inlong.tubemq.manager.controller.region;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.region.request.CreateRegionReq;
@@ -50,19 +48,14 @@ public class RegionController {
 
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 
-    @Autowired
-    RegionService regionService;
+    @Autowired RegionService regionService;
 
-    @Autowired
-    ClusterService clusterService;
+    @Autowired ClusterService clusterService;
 
-    /**
-     * broker method proxy
-     * divides the operation on broker to different method
-     */
+    /** broker method proxy divides the operation on broker to different method */
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult brokerMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult brokerMethodProxy(
+            @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return createNewRegion(gson.fromJson(req, CreateRegionReq.class));
@@ -87,8 +80,8 @@ public class RegionController {
         if (ValidateUtils.isNull(req.getClusterId())) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        List<RegionEntry> regionEntries = regionService
-                .queryRegion(req.getRegionId(), req.getClusterId());
+        List<RegionEntry> regionEntries =
+                regionService.queryRegion(req.getRegionId(), req.getClusterId());
         return TubeMQResult.successResult(regionEntries);
     }
 
@@ -104,12 +97,12 @@ public class RegionController {
 
     private TubeMQResult createNewRegion(CreateRegionReq req) {
         RegionEntry regionEntry = req.getRegionEntry();
-        if (ValidateUtils.isNull(regionEntry) || !regionEntry.legal()
+        if (ValidateUtils.isNull(regionEntry)
+                || !regionEntry.legal()
                 || ValidateUtils.isNull(req.getBrokerIdSet())) {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
-        ClusterEntry clusterEntry = clusterService.getOneCluster(
-                req.getClusterId());
+        ClusterEntry clusterEntry = clusterService.getOneCluster(req.getClusterId());
         if (clusterEntry == null) {
             return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_CLUSTER);
         }
@@ -123,8 +116,6 @@ public class RegionController {
             return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
         }
         List<Long> brokerList = new ArrayList<>(req.getBrokerIdSet());
-        return regionService.updateRegion(req.getRegionEntry(),
-                brokerList, req.getClusterId());
+        return regionService.updateRegion(req.getRegionEntry(), brokerList, req.getClusterId());
     }
-
 }

@@ -19,9 +19,7 @@ package org.apache.inlong.manager.pojo.sink.hive;
 
 import lombok.Data;
 
-/**
- * Hive column info
- */
+/** Hive column info */
 @Data
 public class HiveColumnInfo {
 
@@ -34,5 +32,4 @@ public class HiveColumnInfo {
 
     private boolean isPartition;
     private String exampleData;
-
 }

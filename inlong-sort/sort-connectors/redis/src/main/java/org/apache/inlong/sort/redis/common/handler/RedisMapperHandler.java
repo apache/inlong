@@ -17,18 +17,18 @@
 
 package org.apache.inlong.sort.redis.common.handler;
 
+import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_KEY_TTL;
+import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_ADDITIONAL_KEY;
+
+import java.util.Map;
 import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandler;
 import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_KEY_TTL;
-import static org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator.REDIS_ADDITIONAL_KEY;
-
 /**
- * Handler for create redis mapper.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.hanlder.RedisMapperHandler}
+ * Handler for create redis mapper. Copy from {@link
+ * org.apache.flink.streaming.connectors.redis.common.hanlder.RedisMapperHandler}
  */
 public interface RedisMapperHandler extends RedisHandler {
 
@@ -49,19 +49,19 @@ public interface RedisMapperHandler extends RedisHandler {
                 return (RedisMapper) redisMapper.newInstance();
             }
             if (additionalKey != null && ttl != null) {
-                return (RedisMapper) redisMapper.getConstructor(Integer.class, String.class)
-                        .newInstance(ttl, additionalKey);
+                return (RedisMapper)
+                        redisMapper
+                                .getConstructor(Integer.class, String.class)
+                                .newInstance(ttl, additionalKey);
             }
             if (additionalKey != null) {
-                return (RedisMapper) redisMapper.getConstructor(String.class)
-                        .newInstance(additionalKey);
+                return (RedisMapper)
+                        redisMapper.getConstructor(String.class).newInstance(additionalKey);
             }
-            return (RedisMapper) redisMapper.getConstructor(Integer.class)
-                    .newInstance(ttl);
+            return (RedisMapper) redisMapper.getConstructor(Integer.class).newInstance(ttl);
         } catch (Exception e) {
             LOGGER.error("create redis mapper failed", e);
             throw new RuntimeException(e);
         }
     }
-
 }

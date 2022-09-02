@@ -25,9 +25,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 
-/**
- * Inlong group request for TubeMQ
- */
+/** Inlong group request for TubeMQ */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -40,5 +38,4 @@ public class InlongTubeMQRequest extends InlongGroupRequest {
     public InlongTubeMQRequest() {
         this.setMqType(MQType.TUBEMQ);
     }
-
 }

@@ -25,16 +25,15 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link SubtractFunction}
- */
+/** Test for {@link SubtractFunction} */
 public class SubtractFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new SubtractFunction(new FieldInfo("event_time", new TimestampFormatInfo()),
-                new IntervalFunction(new StringConstantParam("5"),
-                        new TimeUnitConstantParam(TimeUnit.SECOND)));
+        return new SubtractFunction(
+                new FieldInfo("event_time", new TimestampFormatInfo()),
+                new IntervalFunction(
+                        new StringConstantParam("5"), new TimeUnitConstantParam(TimeUnit.SECOND)));
     }
 
     @Override

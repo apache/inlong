@@ -19,25 +19,19 @@ package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
 
-/**
- * Mode of inlong group
- */
+/** Mode of inlong group */
 public enum GroupMode {
 
     /**
-     * Standard group init with all components in Inlong Cluster
-     * StreamSource -> Agent/SDK -> DataProxy -> MQ Cache -> Sort -> StreamSink
+     * Standard group init with all components in Inlong Cluster StreamSource -> Agent/SDK ->
+     * DataProxy -> MQ Cache -> Sort -> StreamSink
      */
     STANDARD("standard"),
 
-    /**
-     * Lightweight group init with sort in Inlong Cluster
-     * StreamSource -> Sort -> StreamSink
-     */
+    /** Lightweight group init with sort in Inlong Cluster StreamSource -> Sort -> StreamSink */
     LIGHTWEIGHT("lightweight");
 
-    @Getter
-    private final String mode;
+    @Getter private final String mode;
 
     GroupMode(String mode) {
         this.mode = mode;
@@ -51,5 +45,4 @@ public enum GroupMode {
         }
         throw new IllegalArgumentException(String.format("Unsupported group mode for %s", mode));
     }
-
 }

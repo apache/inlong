@@ -36,8 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PulsarSinkTest {
-    private static final Logger logger = LoggerFactory
-            .getLogger(PulsarSinkTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PulsarSinkTest.class);
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 1234;
     private String zkStr = "127.0.0.1:2181";
@@ -68,8 +67,8 @@ public class PulsarSinkTest {
         setUp();
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
         sink.start();
-        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-                LifecycleState.START_OR_ERROR, 5000));
+        Assert.assertTrue(
+                LifecycleController.waitForOneOf(sink, LifecycleState.START_OR_ERROR, 5000));
 
         Transaction transaction = channel.getTransaction();
 
@@ -86,8 +85,7 @@ public class PulsarSinkTest {
         }
 
         sink.stop();
-        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-                LifecycleState.STOP_OR_ERROR, 5000));
+        Assert.assertTrue(
+                LifecycleController.waitForOneOf(sink, LifecycleState.STOP_OR_ERROR, 5000));
     }
-
 }

@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.sort.standalone.sink.hive;
 
 import static org.apache.inlong.sort.standalone.sink.hive.HiveSinkContext.MINUTE_MS;
@@ -25,7 +22,6 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -34,10 +30,7 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-/**
- * 
- * PartitionCreateRunnable
- */
+/** PartitionCreateRunnable */
 public class PartitionCreateRunnable implements Runnable {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PartitionCreateRunnable.class);
@@ -51,15 +44,19 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      * @param idConfig
      * @param strPartitionValue
      * @param partitionTime
      * @param isForce
      */
-    public PartitionCreateRunnable(HiveSinkContext context, HdfsIdConfig idConfig, String strPartitionValue,
-            long partitionTime, boolean isForce) {
+    public PartitionCreateRunnable(
+            HiveSinkContext context,
+            HdfsIdConfig idConfig,
+            String strPartitionValue,
+            long partitionTime,
+            boolean isForce) {
         this.context = context;
         this.idConfig = idConfig;
         this.strPartitionValue = strPartitionValue;
@@ -68,12 +65,12 @@ public class PartitionCreateRunnable implements Runnable {
         this.state = PartitionState.INIT;
     }
 
-    /**
-     * run
-     */
+    /** run */
     @Override
     public void run() {
-        LOG.info("start to PartitionCreateRunnable:id:{},partition:{}", idConfig.getInlongGroupId(),
+        LOG.info(
+                "start to PartitionCreateRunnable:id:{},partition:{}",
+                idConfig.getInlongGroupId(),
                 strPartitionValue);
         this.state = PartitionState.CREATING;
         HdfsIdFile idFile = null;
@@ -85,8 +82,11 @@ public class PartitionCreateRunnable implements Runnable {
                 this.process(idFile);
             } else {
                 // try to close partition that has no new data and can be closed.
-                if (!this.canArchive(idFile, idFile.getIntmpPath()) || !this.canArchive(idFile, idFile.getInPath())) {
-                    LOG.info("inlongGroupId:{},partition:{} can not archived.", idConfig.getInlongGroupId(),
+                if (!this.canArchive(idFile, idFile.getIntmpPath())
+                        || !this.canArchive(idFile, idFile.getInPath())) {
+                    LOG.info(
+                            "inlongGroupId:{},partition:{} can not archived.",
+                            idConfig.getInlongGroupId(),
                             strPartitionValue);
                     return;
                 }
@@ -105,22 +105,27 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * canArchive
-     * 
-     * @param  idFile
-     * @param  rootPath
-     * @return                       boolean
+     *
+     * @param idFile
+     * @param rootPath
+     * @return boolean
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private boolean canArchive(HdfsIdFile idFile, Path rootPath) throws FileNotFoundException, IOException {
+    private boolean canArchive(HdfsIdFile idFile, Path rootPath)
+            throws FileNotFoundException, IOException {
         FileSystem fs = idFile.getFs();
         FileStatus[] fileStatusArray = fs.listStatus(rootPath);
         long currentTime = System.currentTimeMillis();
-        long fileArchiveDelayTime = currentTime
-                - context.getFileArchiveDelayMinute() * MINUTE_MS;
-        LOG.info("start to PartitionCreateRunnable id:{},currentTime:{},fileArchiveDelayTime:{},"
-                + "FileArchiveDelayMinute:{},MINUTE_MS:{}", idConfig.getInlongGroupId(),
-                currentTime, fileArchiveDelayTime, context.getFileArchiveDelayMinute(), MINUTE_MS);
+        long fileArchiveDelayTime = currentTime - context.getFileArchiveDelayMinute() * MINUTE_MS;
+        LOG.info(
+                "start to PartitionCreateRunnable id:{},currentTime:{},fileArchiveDelayTime:{},"
+                        + "FileArchiveDelayMinute:{},MINUTE_MS:{}",
+                idConfig.getInlongGroupId(),
+                currentTime,
+                fileArchiveDelayTime,
+                context.getFileArchiveDelayMinute(),
+                MINUTE_MS);
         for (FileStatus fileStatus : fileStatusArray) {
             Path filePath = fileStatus.getPath();
             if (filePath.equals(idFile.getIntmpFilePath())) {
@@ -129,26 +134,35 @@ public class PartitionCreateRunnable implements Runnable {
             // check all file that have overtimed.
             if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
                 this.state = PartitionState.ERROR;
-                LOG.info("error PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
-                        + "fileArchiveDelayTime:{}", idConfig.getInlongGroupId(),
+                LOG.info(
+                        "error PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
+                                + "fileArchiveDelayTime:{}",
+                        idConfig.getInlongGroupId(),
                         filePath.toString(),
-                        fileStatus.getModificationTime(), fileArchiveDelayTime);
-                LOG.info("inlongGroupId:{},partition:{} can not archived in path:{}.", idConfig.getInlongGroupId(),
-                        strPartitionValue, rootPath);
+                        fileStatus.getModificationTime(),
+                        fileArchiveDelayTime);
+                LOG.info(
+                        "inlongGroupId:{},partition:{} can not archived in path:{}.",
+                        idConfig.getInlongGroupId(),
+                        strPartitionValue,
+                        rootPath);
                 return false;
             }
-            LOG.info("ok PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
-                    + "fileArchiveDelayTime:{}", idConfig.getInlongGroupId(),
+            LOG.info(
+                    "ok PartitionCreateRunnable id:{},fileStatus:{},getModificationTime:{},"
+                            + "fileArchiveDelayTime:{}",
+                    idConfig.getInlongGroupId(),
                     filePath.toString(),
-                    fileStatus.getModificationTime(), fileArchiveDelayTime);
+                    fileStatus.getModificationTime(),
+                    fileArchiveDelayTime);
         }
         return true;
     }
 
     /**
      * process
-     * 
-     * @param  idFile
+     *
+     * @param idFile
      * @throws IOException
      * @throws FileNotFoundException
      */
@@ -158,8 +172,7 @@ public class PartitionCreateRunnable implements Runnable {
         // rename files in "intmp" directory to "in" directory.
         FileStatus[] intmpFiles = fs.listStatus(idFile.getIntmpPath());
         long currentTime = System.currentTimeMillis();
-        long fileArchiveDelayTime = currentTime
-                - context.getFileArchiveDelayMinute() * MINUTE_MS;
+        long fileArchiveDelayTime = currentTime - context.getFileArchiveDelayMinute() * MINUTE_MS;
         for (FileStatus fileStatus : intmpFiles) {
             if (fileStatus.getModificationTime() > fileArchiveDelayTime) {
                 continue;
@@ -206,8 +219,9 @@ public class PartitionCreateRunnable implements Runnable {
             Path inFile = fileStatus.getPath();
             if (inFile.getName().lastIndexOf(HdfsIdFile.OUTTMP_FILE_POSTFIX) >= 0) {
                 String strFullFile = inFile.getName();
-                String strOuttmpFile = strFullFile.substring(0,
-                        strFullFile.length() - HdfsIdFile.OUTTMP_FILE_POSTFIX.length());
+                String strOuttmpFile =
+                        strFullFile.substring(
+                                0, strFullFile.length() - HdfsIdFile.OUTTMP_FILE_POSTFIX.length());
                 Path outFilePath = new Path(idFile.getOutPath(), strOuttmpFile);
                 fs.rename(inFile, outFilePath);
             }
@@ -221,12 +235,15 @@ public class PartitionCreateRunnable implements Runnable {
         // execute the sql of adding partition.
         try (Connection conn = context.getHiveConnection()) {
             Statement stat = conn.createStatement();
-            String partitionSqlPattern = "ALTER TABLE %s.%s ADD IF NOT EXISTS PARTITION (dt='%s') LOCATION '%s'";
-            String partitionSql = String.format(partitionSqlPattern,
-                    context.getHiveDatabase(),
-                    idConfig.getHiveTableName(),
-                    this.strPartitionValue,
-                    idFile.getOutPath().toString());
+            String partitionSqlPattern =
+                    "ALTER TABLE %s.%s ADD IF NOT EXISTS PARTITION (dt='%s') LOCATION '%s'";
+            String partitionSql =
+                    String.format(
+                            partitionSqlPattern,
+                            context.getHiveDatabase(),
+                            idConfig.getHiveTableName(),
+                            this.strPartitionValue,
+                            idFile.getOutPath().toString());
             LOG.info("create partition sql:{}", partitionSql);
             stat.executeUpdate(partitionSql);
             stat.close();
@@ -237,16 +254,20 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * concatInFiles2OuttmpFile
-     * 
-     * @param  idFile
-     * @param  concatInFiles
-     * @param  fs
+     *
+     * @param idFile
+     * @param concatInFiles
+     * @param fs
      * @throws IOException
      */
-    private void concatInFiles2OuttmpFile(HdfsIdFile idFile, List<Path> concatInFiles, DistributedFileSystem fs)
+    private void concatInFiles2OuttmpFile(
+            HdfsIdFile idFile, List<Path> concatInFiles, DistributedFileSystem fs)
             throws IOException {
-        Path outtmpFilePath = new Path(idFile.getInPath(),
-                HdfsIdFile.getFileName(context, System.currentTimeMillis()) + HdfsIdFile.OUTTMP_FILE_POSTFIX);
+        Path outtmpFilePath =
+                new Path(
+                        idFile.getInPath(),
+                        HdfsIdFile.getFileName(context, System.currentTimeMillis())
+                                + HdfsIdFile.OUTTMP_FILE_POSTFIX);
         LOG.info("start to concat outtmp file:{},inFiles:{}", outtmpFilePath, concatInFiles);
         FSDataOutputStream outputFileStream = fs.create(outtmpFilePath, true);
         outputFileStream.flush();
@@ -257,7 +278,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get state
-     * 
+     *
      * @return the state
      */
     public PartitionState getState() {
@@ -266,7 +287,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * set state
-     * 
+     *
      * @param state the state to set
      */
     public void setState(PartitionState state) {
@@ -275,7 +296,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public HiveSinkContext getContext() {
@@ -284,7 +305,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get idConfig
-     * 
+     *
      * @return the idConfig
      */
     public HdfsIdConfig getIdConfig() {
@@ -293,7 +314,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get strPartitionValue
-     * 
+     *
      * @return the strPartitionValue
      */
     public String getStrPartitionValue() {
@@ -302,7 +323,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get isForce
-     * 
+     *
      * @return the isForce
      */
     public boolean isForce() {
@@ -311,7 +332,7 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * get partitionTime
-     * 
+     *
      * @return the partitionTime
      */
     public long getPartitionTime() {
@@ -320,11 +341,10 @@ public class PartitionCreateRunnable implements Runnable {
 
     /**
      * set isForce
-     * 
+     *
      * @param isForce the isForce to set
      */
     public void setForce(boolean isForce) {
         this.isForce = isForce;
     }
-
 }

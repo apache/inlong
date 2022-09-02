@@ -20,9 +20,7 @@ package org.apache.inlong.sort.protocol.deserialization;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * It represents TLog CSV format of InLongMsg(m=10).
- */
+/** It represents TLog CSV format of InLongMsg(m=10). */
 public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializationInfo {
 
     private static final long serialVersionUID = -6585242216925992303L;
@@ -31,8 +29,7 @@ public class InLongMsgTlogCsvDeserializationInfo extends InLongMsgDeserializatio
 
     @JsonCreator
     public InLongMsgTlogCsvDeserializationInfo(
-            @JsonProperty("tid") String tid,
-            @JsonProperty("delimiter") char delimiter) {
+            @JsonProperty("tid") String tid, @JsonProperty("delimiter") char delimiter) {
         super(tid);
         this.delimiter = delimiter;
     }

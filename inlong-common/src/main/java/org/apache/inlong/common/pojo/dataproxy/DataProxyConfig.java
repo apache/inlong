@@ -20,9 +20,7 @@ package org.apache.inlong.common.pojo.dataproxy;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data proxy config, includes mq clusters and topic list.
- */
+/** Data proxy config, includes mq clusters and topic list. */
 public class DataProxyConfig {
 
     private List<MQClusterInfo> mqClusterList = new ArrayList<>();
@@ -44,5 +42,4 @@ public class DataProxyConfig {
     public void setTopicList(List<DataProxyTopicInfo> topicList) {
         this.topicList = topicList;
     }
-
 }

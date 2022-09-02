@@ -17,13 +17,10 @@
 
 package org.apache.inlong.sort.protocol;
 
+import java.util.Set;
 import org.apache.inlong.common.enums.MetaField;
 
-import java.util.Set;
-
-/**
- * The Metadata class defines a standard protocol to support meta fields
- */
+/** The Metadata class defines a standard protocol to support meta fields */
 public interface Metadata {
 
     /**
@@ -34,8 +31,10 @@ public interface Metadata {
      */
     default String getMetadataKey(MetaField metaField) {
         if (!supportedMetaFields().contains(metaField)) {
-            throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                    this.getClass().getSimpleName(), metaField));
+            throw new UnsupportedOperationException(
+                    String.format(
+                            "Unsupport meta field for %s: %s",
+                            this.getClass().getSimpleName(), metaField));
         }
         String metadataKey;
         switch (metaField) {
@@ -56,8 +55,10 @@ public interface Metadata {
                 break;
 
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                        this.getClass().getSimpleName(), metaField));
+                throw new UnsupportedOperationException(
+                        String.format(
+                                "Unsupport meta field for %s: %s",
+                                this.getClass().getSimpleName(), metaField));
         }
         return metadataKey;
     }
@@ -70,8 +71,10 @@ public interface Metadata {
      */
     default String getMetadataType(MetaField metaField) {
         if (!supportedMetaFields().contains(metaField)) {
-            throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                    this.getClass().getSimpleName(), metaField));
+            throw new UnsupportedOperationException(
+                    String.format(
+                            "Unsupport meta field for %s: %s",
+                            this.getClass().getSimpleName(), metaField));
         }
         String metadataType;
         switch (metaField) {
@@ -106,17 +109,19 @@ public interface Metadata {
                 metadataType = "ARRAY<MAP<STRING, STRING>>";
                 break;
             default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
-                        this.getClass().getSimpleName(), metaField));
+                throw new UnsupportedOperationException(
+                        String.format(
+                                "Unsupport meta field for %s: %s",
+                                this.getClass().getSimpleName(), metaField));
         }
         return metadataType;
     }
 
     /**
-     * Is virtual.
-     * By default, the planner assumes that a metadata column can be used for both reading and writing.
-     * However, in many cases an external system provides more read-only metadata fields than writable fields.
-     * Therefore, it is possible to exclude metadata columns from persisting using the VIRTUAL keyword.
+     * Is virtual. By default, the planner assumes that a metadata column can be used for both
+     * reading and writing. However, in many cases an external system provides more read-only
+     * metadata fields than writable fields. Therefore, it is possible to exclude metadata columns
+     * from persisting using the VIRTUAL keyword.
      *
      * @param metaField The meta field
      * @return true if it is virtual else false
@@ -140,7 +145,10 @@ public interface Metadata {
         if (metaField == MetaField.PROCESS_TIME) {
             return "AS PROCTIME()";
         }
-        return String.format("%s METADATA FROM '%s'%s",
-                getMetadataType(metaField), getMetadataKey(metaField), isVirtual(metaField) ? " VIRTUAL" : "");
+        return String.format(
+                "%s METADATA FROM '%s'%s",
+                getMetadataType(metaField),
+                getMetadataKey(metaField),
+                isVirtual(metaField) ? " VIRTUAL" : "");
     }
 }

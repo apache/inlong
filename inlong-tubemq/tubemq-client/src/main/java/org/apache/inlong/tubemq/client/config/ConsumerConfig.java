@@ -23,9 +23,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
-/**
- * Contains configuration information of a consumer.
- */
+/** Contains configuration information of a consumer. */
 public class ConsumerConfig extends TubeClientConfig {
 
     private final String consumerGroup;
@@ -35,22 +33,18 @@ public class ConsumerConfig extends TubeClientConfig {
      * -1: Start from 0 for the first time. Otherwise start from last consume position.
      *  0: Start from the latest position for the first time. Otherwise start from last consume position.
      *  1: Start from the latest consume position.
-    */
+     */
     private ConsumePosition consumePosition = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
-    private int maxSubInfoReportIntvlTimes =
-            TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
-    private long msgNotFoundWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS;
+    private int maxSubInfoReportIntvlTimes = TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
+    private long msgNotFoundWaitPeriodMs = TClientConstants.CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS;
     private long pullConsumeReadyWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_CONSUME_READ_WAIT_PERIOD_MS;
     private long pullConsumeReadyChkSliceMs =
             TClientConstants.CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS;
     private long shutDownRebalanceWaitPeriodMs =
             TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
-    private long partMetaInfoCheckPeriodMs =
-            TClientConstants.CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS;
-    private int pushFetchThreadCnt =
-            TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
+    private long partMetaInfoCheckPeriodMs = TClientConstants.CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS;
+    private int pushFetchThreadCnt = TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
     private boolean pushListenerWaitTimeoutRollBack = true;
     private boolean pushListenerThrowedRollBack = false;
     private long pushListenerWaitPeriodMs =
@@ -73,14 +67,14 @@ public class ConsumerConfig extends TubeClientConfig {
     }
 
     @Deprecated
-    public ConsumerConfig(String localHostIP, String masterAddrInfo,
-                          String consumerGroup) throws Exception {
+    public ConsumerConfig(String localHostIP, String masterAddrInfo, String consumerGroup)
+            throws Exception {
         this(localHostIP, new MasterInfo(masterAddrInfo), consumerGroup);
     }
 
     @Deprecated
-    public ConsumerConfig(String localHostIP, MasterInfo masterInfo,
-                          String consumerGroup) throws Exception {
+    public ConsumerConfig(String localHostIP, MasterInfo masterInfo, String consumerGroup)
+            throws Exception {
         super(localHostIP, masterInfo);
         validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
@@ -98,17 +92,13 @@ public class ConsumerConfig extends TubeClientConfig {
         this.consumePosition = consumePosition;
     }
 
-    /**
-     * recommend to use getConsumePosition
-     */
+    /** recommend to use getConsumePosition */
     @Deprecated
     public int getConsumeModel() {
         return consumePosition.getCode();
     }
 
-    /**
-     * recommend to use setConsumePosition
-     */
+    /** recommend to use setConsumePosition */
     @Deprecated
     public void setConsumeModel(int consumeModel) {
         setConsumePosition(ConsumePosition.valueOf(consumeModel));
@@ -147,8 +137,7 @@ public class ConsumerConfig extends TubeClientConfig {
     }
 
     public void setPullConsumeReadyChkSliceMs(long pullConsumeReadyChkSliceMs) {
-        if (pullConsumeReadyChkSliceMs >= 0
-                && pullConsumeReadyChkSliceMs <= 1000) {
+        if (pullConsumeReadyChkSliceMs >= 0 && pullConsumeReadyChkSliceMs <= 1000) {
             this.pullConsumeReadyChkSliceMs = pullConsumeReadyChkSliceMs;
         }
     }
@@ -254,38 +243,60 @@ public class ConsumerConfig extends TubeClientConfig {
         }
         String tmpConsumerGroup = consumerGroup.trim();
         if (tmpConsumerGroup.length() > TBaseConstants.META_MAX_GROUPNAME_LENGTH) {
-            throw new IllegalArgumentException(new StringBuilder(512)
-                    .append("Illegal parameter: the max length of consumerGroup is ")
-                    .append(TBaseConstants.META_MAX_GROUPNAME_LENGTH)
-                    .append(" characters").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(512)
+                            .append("Illegal parameter: the max length of consumerGroup is ")
+                            .append(TBaseConstants.META_MAX_GROUPNAME_LENGTH)
+                            .append(" characters")
+                            .toString());
         }
         if (!tmpConsumerGroup.matches(TBaseConstants.META_TMP_GROUP_VALUE)) {
-            throw new IllegalArgumentException(new StringBuilder(512)
-                    .append("Illegal parameter: the value of consumerGroup")
-                    .append(" must begin with a letter, ")
-                    .append("can only contain characters,numbers,hyphen,and underscores").toString());
+            throw new IllegalArgumentException(
+                    new StringBuilder(512)
+                            .append("Illegal parameter: the value of consumerGroup")
+                            .append(" must begin with a letter, ")
+                            .append("can only contain characters,numbers,hyphen,and underscores")
+                            .toString());
         }
     }
 
     @Override
     public String toString() {
-        return new StringBuilder(512).append("\"ConsumerConfig\":{")
-                .append("\"consumerGroup\":\"").append(this.consumerGroup)
-                .append("\",\"maxSubInfoReportIntvlTimes\":").append(this.maxSubInfoReportIntvlTimes)
-                .append(",\"consumePosition\":").append(this.consumePosition)
-                .append(",\"msgNotFoundWaitPeriodMs\":").append(this.msgNotFoundWaitPeriodMs)
-                .append(",\"shutDownRebalanceWaitPeriodMs\":").append(this.shutDownRebalanceWaitPeriodMs)
-                .append(",\"pushFetchThreadCnt\":").append(this.pushFetchThreadCnt)
-                .append(",\"pushListenerWaitTimeoutRollBack\":").append(this.pushListenerWaitTimeoutRollBack)
-                .append(",\"pushListenerThrowedRollBack\":").append(this.pushListenerThrowedRollBack)
-                .append(",\"pushListenerWaitPeriodMs\":").append(this.pushListenerWaitPeriodMs)
-                .append(",\"pullRebConfirmTimeoutRollBack\":").append(this.pullRebConfirmTimeoutRollBack)
-                .append(",\"pullConfirmWaitPeriodMs\":").append(this.pullRebConfirmWaitPeriodMs)
-                .append(",\"pullProtectConfirmTimeoutPeriodMs\":").append(this.pullProtectConfirmTimeoutMs)
-                .append(",\"pullConfirmInLocal\":").append(this.pullConfirmInLocal)
-                .append(",\"maxSubInfoReportIntvlTimes\":").append(this.maxSubInfoReportIntvlTimes)
-                .append(",\"partMetaInfoCheckPeriodMs\":").append(this.partMetaInfoCheckPeriodMs)
-                .append(",\"ClientConfig\":").append(toJsonString())
-                .append("}").toString();
+        return new StringBuilder(512)
+                .append("\"ConsumerConfig\":{")
+                .append("\"consumerGroup\":\"")
+                .append(this.consumerGroup)
+                .append("\",\"maxSubInfoReportIntvlTimes\":")
+                .append(this.maxSubInfoReportIntvlTimes)
+                .append(",\"consumePosition\":")
+                .append(this.consumePosition)
+                .append(",\"msgNotFoundWaitPeriodMs\":")
+                .append(this.msgNotFoundWaitPeriodMs)
+                .append(",\"shutDownRebalanceWaitPeriodMs\":")
+                .append(this.shutDownRebalanceWaitPeriodMs)
+                .append(",\"pushFetchThreadCnt\":")
+                .append(this.pushFetchThreadCnt)
+                .append(",\"pushListenerWaitTimeoutRollBack\":")
+                .append(this.pushListenerWaitTimeoutRollBack)
+                .append(",\"pushListenerThrowedRollBack\":")
+                .append(this.pushListenerThrowedRollBack)
+                .append(",\"pushListenerWaitPeriodMs\":")
+                .append(this.pushListenerWaitPeriodMs)
+                .append(",\"pullRebConfirmTimeoutRollBack\":")
+                .append(this.pullRebConfirmTimeoutRollBack)
+                .append(",\"pullConfirmWaitPeriodMs\":")
+                .append(this.pullRebConfirmWaitPeriodMs)
+                .append(",\"pullProtectConfirmTimeoutPeriodMs\":")
+                .append(this.pullProtectConfirmTimeoutMs)
+                .append(",\"pullConfirmInLocal\":")
+                .append(this.pullConfirmInLocal)
+                .append(",\"maxSubInfoReportIntvlTimes\":")
+                .append(this.maxSubInfoReportIntvlTimes)
+                .append(",\"partMetaInfoCheckPeriodMs\":")
+                .append(this.partMetaInfoCheckPeriodMs)
+                .append(",\"ClientConfig\":")
+                .append(toJsonString())
+                .append("}")
+                .toString();
     }
 }

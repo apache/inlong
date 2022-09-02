@@ -18,24 +18,20 @@
 package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import java.util.Map;
-
-/**
- * Secret token authentication.
- */
+/** Secret token authentication. */
 @NoArgsConstructor
 @JsonTypeDefine(value = SecretTokenAuthentication.SECRET_TOKEN)
 public class SecretTokenAuthentication extends SecretAuthentication {
 
     public static final String SECRET_TOKEN = "secret_token";
 
-    @Getter
-    protected String sToken;
+    @Getter protected String sToken;
 
     public SecretTokenAuthentication(String secretId, String secretKey, String secretToken) {
         this.secretId = secretId;
@@ -63,5 +59,4 @@ public class SecretTokenAuthentication extends SecretAuthentication {
         objectNode.put(SECRET_TOKEN, this.getSToken());
         return objectNode.toString();
     }
-
 }

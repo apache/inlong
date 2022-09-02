@@ -20,18 +20,15 @@ package org.apache.inlong.manager.client.cli.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
-
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 
-/**
- * Util that prints information to the console.
- */
+/** Util that prints information to the console. */
 public class PrintUtils {
 
     private static final String joint = "+";
@@ -40,9 +37,7 @@ public class PrintUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * Print a list info to console with format.
-     */
+    /** Print a list info to console with format. */
     public static <T, K> void print(List<T> item, Class<K> clazz) {
         if (item.isEmpty()) {
             return;
@@ -52,20 +47,17 @@ public class PrintUtils {
         printTable(list, maxColumnWidth);
     }
 
-    /**
-     * Print the given item to the console in JSON format.
-     */
+    /** Print the given item to the console in JSON format. */
     public static <T> void printJson(T item) {
         try {
-            System.out.println(OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(item));
+            System.out.println(
+                    OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(item));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Prints the given list to the console with the specified width.
-     */
+    /** Prints the given list to the console with the specified width. */
     private static <K> void printTable(List<K> list, int[] columnWidth) {
         Field[] fields = list.get(0).getClass().getDeclaredFields();
         printLine(columnWidth, fields.length);
@@ -78,84 +70,90 @@ public class PrintUtils {
         System.out.println();
         printLine(columnWidth, fields.length);
 
-        list.forEach(item -> {
-            for (int i = 0; i < fields.length; i++) {
-                fields[i].setAccessible(true);
-                try {
-                    System.out.print(vertical);
-                    Object obj = fields[i].get(item);
-                    if (obj != null) {
-                        int charNum = getSpecialCharNum(obj.toString());
-                        if (fields[i].getType().equals(Date.class)) {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String date = dateFormat.format(obj);
-                            System.out.printf("%s", StringUtils.center(date, columnWidth[i]));
-                        } else if (charNum > 0) {
-                            System.out.printf("%s", StringUtils.center(obj.toString(), columnWidth[i] - charNum));
-                        } else {
-                            System.out.printf("%s", StringUtils.center(obj.toString(), columnWidth[i]));
+        list.forEach(
+                item -> {
+                    for (int i = 0; i < fields.length; i++) {
+                        fields[i].setAccessible(true);
+                        try {
+                            System.out.print(vertical);
+                            Object obj = fields[i].get(item);
+                            if (obj != null) {
+                                int charNum = getSpecialCharNum(obj.toString());
+                                if (fields[i].getType().equals(Date.class)) {
+                                    SimpleDateFormat dateFormat =
+                                            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    String date = dateFormat.format(obj);
+                                    System.out.printf(
+                                            "%s", StringUtils.center(date, columnWidth[i]));
+                                } else if (charNum > 0) {
+                                    System.out.printf(
+                                            "%s",
+                                            StringUtils.center(
+                                                    obj.toString(), columnWidth[i] - charNum));
+                                } else {
+                                    System.out.printf(
+                                            "%s",
+                                            StringUtils.center(obj.toString(), columnWidth[i]));
+                                }
+                            } else {
+                                System.out.printf("%s", StringUtils.center("NULL", columnWidth[i]));
+                            }
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
                         }
-                    } else {
-                        System.out.printf("%s", StringUtils.center("NULL", columnWidth[i]));
                     }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println(vertical);
-        });
+                    System.out.println(vertical);
+                });
         printLine(columnWidth, fields.length);
     }
 
-    /**
-     * Copy the objects in the list, converting them to the specified type.
-     */
+    /** Copy the objects in the list, converting them to the specified type. */
     private static <T, K> List<K> copyObject(List<T> list, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
         OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        list.forEach(item -> {
-            try {
-                K value = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(item), clazz);
-                parseStatus(value);
-                newList.add(value);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        list.forEach(
+                item -> {
+                    try {
+                        K value =
+                                OBJECT_MAPPER.readValue(
+                                        OBJECT_MAPPER.writeValueAsString(item), clazz);
+                        parseStatus(value);
+                        newList.add(value);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         return newList;
     }
 
-    /**
-     * Get the max-width for all columns in the given list info.
-     */
+    /** Get the max-width for all columns in the given list info. */
     private static <K> int[] getColumnWidth(List<K> list) {
         Field[] fields = list.get(0).getClass().getDeclaredFields();
         int[] maxWidth = new int[fields.length];
         for (int i = 0; i < fields.length; i++) {
             maxWidth[i] = Math.max(fields[i].getName().length(), maxWidth[i]);
         }
-        list.forEach(item -> {
-            try {
-                for (int i = 0; i < fields.length; i++) {
-                    fields[i].setAccessible(true);
-                    if (fields[i].get(item) != null) {
-                        int length = fields[i].get(item).toString().getBytes().length;
-                        maxWidth[i] = Math.max(length, maxWidth[i]);
+        list.forEach(
+                item -> {
+                    try {
+                        for (int i = 0; i < fields.length; i++) {
+                            fields[i].setAccessible(true);
+                            if (fields[i].get(item) != null) {
+                                int length = fields[i].get(item).toString().getBytes().length;
+                                maxWidth[i] = Math.max(length, maxWidth[i]);
+                            }
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
-                }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        });
+                });
         for (int i = 0; i < maxWidth.length; i++) {
             maxWidth[i] += 4;
         }
         return maxWidth;
     }
 
-    /**
-     * Print the format line to the console.
-     */
+    /** Print the format line to the console. */
     private static void printLine(int[] columnWidth, int fieldNum) {
         System.out.print(joint);
         for (int i = 0; i < fieldNum; i++) {
@@ -164,9 +162,7 @@ public class PrintUtils {
         System.out.println();
     }
 
-    /**
-     * Get the char number for special string, such as the Chinese string.
-     */
+    /** Get the char number for special string, such as the Chinese string. */
     private static int getSpecialCharNum(String str) {
         int i = str.getBytes().length - str.length();
         return i / 2;
@@ -191,5 +187,4 @@ public class PrintUtils {
             }
         }
     }
-
 }

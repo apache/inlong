@@ -1,26 +1,32 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.node;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -55,23 +61,10 @@ import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
-
-/**
- * Application
- */
+/** Application */
 public class Application {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(Application.class);
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static final String CONF_MONITOR_CLASS = "flume.monitoring.type";
     public static final String CONF_MONITOR_PREFIX = "flume.monitoring.";
@@ -84,9 +77,7 @@ public class Application {
     private AdminTask adminTask;
     private HeartbeatManager heartbeatManager;
 
-    /**
-     * Constructor
-     */
+    /** Constructor */
     public Application() {
         this(new ArrayList<LifecycleAware>(0));
     }
@@ -101,9 +92,7 @@ public class Application {
         supervisor = new LifecycleSupervisor();
     }
 
-    /**
-     * start
-     */
+    /** start */
     public void start() {
         lifecycleLock.lock();
         try {
@@ -114,8 +103,10 @@ public class Application {
                             .setDataProxyConfig(
                                     RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
                 }
-                supervisor.supervise(component,
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+                supervisor.supervise(
+                        component,
+                        new SupervisorPolicy.AlwaysRestartPolicy(),
+                        LifecycleState.START);
             }
             // start admin task
             this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
@@ -142,16 +133,15 @@ public class Application {
             logger.info("Interrupted while trying to handle configuration event");
             return;
         } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            // If interrupted while trying to lock, we don't own the lock, so must not attempt to
+            // unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
                 lifecycleLock.unlock();
             }
         }
     }
 
-    /**
-     * stop
-     */
+    /** stop */
     public void stop() {
         lifecycleLock.lock();
         stopAllComponents();
@@ -169,14 +159,12 @@ public class Application {
         }
     }
 
-    /**
-     * stopAllComponents
-     */
+    /** stopAllComponents */
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
             logger.info("Shutting down configuration: {}", this.materializedConfiguration);
-            for (Entry<String, SourceRunner> entry : this.materializedConfiguration
-                    .getSourceRunners().entrySet()) {
+            for (Entry<String, SourceRunner> entry :
+                    this.materializedConfiguration.getSourceRunners().entrySet()) {
                 try {
                     logger.info("Stopping Source " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -185,8 +173,8 @@ public class Application {
                 }
             }
 
-            for (Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners()
-                    .entrySet()) {
+            for (Entry<String, SinkRunner> entry :
+                    this.materializedConfiguration.getSinkRunners().entrySet()) {
                 try {
                     logger.info("Stopping Sink " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -195,8 +183,8 @@ public class Application {
                 }
             }
 
-            for (Entry<String, Channel> entry : this.materializedConfiguration.getChannels()
-                    .entrySet()) {
+            for (Entry<String, Channel> entry :
+                    this.materializedConfiguration.getChannels().entrySet()) {
                 try {
                     logger.info("Stopping Channel " + entry.getKey());
                     supervisor.unsupervise(entry.getValue());
@@ -223,8 +211,10 @@ public class Application {
         for (Entry<String, Channel> entry : materializedConfiguration.getChannels().entrySet()) {
             try {
                 logger.info("Starting Channel " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+                supervisor.supervise(
+                        entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(),
+                        LifecycleState.START);
             } catch (Exception e) {
                 logger.error("Error while starting {}", entry.getValue(), e);
             }
@@ -237,8 +227,10 @@ public class Application {
             while (ch.getLifecycleState() != LifecycleState.START
                     && !supervisor.isComponentInErrorState(ch)) {
                 try {
-                    logger.info("Waiting for channel: " + ch.getName()
-                            + " to start. Sleeping for 500 ms");
+                    logger.info(
+                            "Waiting for channel: "
+                                    + ch.getName()
+                                    + " to start. Sleeping for 500 ms");
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
                     logger.error("Interrupted while waiting for channel to start.", e);
@@ -247,23 +239,27 @@ public class Application {
             }
         }
 
-        for (Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners()
-                .entrySet()) {
+        for (Entry<String, SinkRunner> entry :
+                materializedConfiguration.getSinkRunners().entrySet()) {
             try {
                 logger.info("Starting Sink " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+                supervisor.supervise(
+                        entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(),
+                        LifecycleState.START);
             } catch (Exception e) {
                 logger.error("Error while starting {}", entry.getValue(), e);
             }
         }
 
-        for (Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners()
-                .entrySet()) {
+        for (Entry<String, SourceRunner> entry :
+                materializedConfiguration.getSourceRunners().entrySet()) {
             try {
                 logger.info("Starting Source " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+                supervisor.supervise(
+                        entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(),
+                        LifecycleState.START);
             } catch (Exception e) {
                 logger.error("Error while starting {}", entry.getValue(), e);
             }
@@ -272,9 +268,7 @@ public class Application {
         this.loadMonitoring();
     }
 
-    /**
-     * loadMonitoring
-     */
+    /** loadMonitoring */
     @SuppressWarnings("unchecked")
     private void loadMonitoring() {
         Properties systemProps = System.getProperties();
@@ -285,8 +279,9 @@ public class Application {
                 Class<? extends MonitorService> klass;
                 try {
                     // Is it a known type?
-                    klass = MonitoringType.valueOf(
-                            monitorType.toUpperCase(Locale.ENGLISH)).getMonitorClass();
+                    klass =
+                            MonitoringType.valueOf(monitorType.toUpperCase(Locale.ENGLISH))
+                                    .getMonitorClass();
                 } catch (Exception e) {
                     // Not a known type, use FQCN
                     klass = (Class<? extends MonitorService>) Class.forName(monitorType);
@@ -295,7 +290,8 @@ public class Application {
                 Context context = new Context();
                 for (String key : keys) {
                     if (key.startsWith(CONF_MONITOR_PREFIX)) {
-                        context.put(key.substring(CONF_MONITOR_PREFIX.length()),
+                        context.put(
+                                key.substring(CONF_MONITOR_PREFIX.length()),
                                 systemProps.getProperty(key));
                     }
                 }
@@ -303,10 +299,8 @@ public class Application {
                 monitorServer.start();
             }
         } catch (Exception e) {
-            logger.warn("Error starting monitoring. "
-                    + "Monitoring might not be available.", e);
+            logger.warn("Error starting monitoring. " + "Monitoring might not be available.", e);
         }
-
     }
 
     /**
@@ -325,23 +319,36 @@ public class Application {
             option.setRequired(true);
             options.addOption(option);
 
-            option = new Option("f", "conf-file", true,
-                    "specify a config file (required if -z missing)");
+            option =
+                    new Option(
+                            "f",
+                            "conf-file",
+                            true,
+                            "specify a config file (required if -z missing)");
             option.setRequired(false);
             options.addOption(option);
 
-            option = new Option(null, "no-reload-conf", false,
-                    "do not reload config file if changed");
+            option =
+                    new Option(
+                            null, "no-reload-conf", false, "do not reload config file if changed");
             options.addOption(option);
 
             // Options for Zookeeper
-            option = new Option("z", "zkConnString", true,
-                    "specify the ZooKeeper connection to use (required if -f missing)");
+            option =
+                    new Option(
+                            "z",
+                            "zkConnString",
+                            true,
+                            "specify the ZooKeeper connection to use (required if -f missing)");
             option.setRequired(false);
             options.addOption(option);
 
-            option = new Option("p", "zkBasePath", true,
-                    "specify the base path in ZooKeeper for agent configs");
+            option =
+                    new Option(
+                            "p",
+                            "zkBasePath",
+                            true,
+                            "specify the base path in ZooKeeper for agent configs");
             option.setRequired(false);
             options.addOption(option);
 
@@ -349,8 +356,12 @@ public class Application {
             options.addOption(option);
 
             // load configuration data from manager
-            option = new Option(null, "load-conf-from-manager", false,
-                    "load configuration data from manager");
+            option =
+                    new Option(
+                            null,
+                            "load-conf-from-manager",
+                            false,
+                            "load configuration data from manager");
             option.setRequired(false);
             options.addOption(option);
 
@@ -385,14 +396,16 @@ public class Application {
                 if (reload) {
                     EventBus eventBus = new EventBus(agentName + "-event-bus");
                     List<LifecycleAware> components = Lists.newArrayList();
-                    PollingZooKeeperConfigurationProvider zProvider = new PollingZooKeeperConfigurationProvider(
-                            agentName, zkConnectionStr, baseZkPath, eventBus);
+                    PollingZooKeeperConfigurationProvider zProvider =
+                            new PollingZooKeeperConfigurationProvider(
+                                    agentName, zkConnectionStr, baseZkPath, eventBus);
                     components.add(zProvider);
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
-                    StaticZooKeeperConfigurationProvider zProvider = new StaticZooKeeperConfigurationProvider(
-                            agentName, zkConnectionStr, baseZkPath);
+                    StaticZooKeeperConfigurationProvider zProvider =
+                            new StaticZooKeeperConfigurationProvider(
+                                    agentName, zkConnectionStr, baseZkPath);
                     application = new Application();
                     application.handleConfigurationEvent(zProvider.getConfiguration());
                 }
@@ -408,8 +421,7 @@ public class Application {
                         try {
                             path = configurationFile.getCanonicalPath();
                         } catch (IOException ex) {
-                            logger.error("Failed to read canonical path for file: " + path,
-                                    ex);
+                            logger.error("Failed to read canonical path for file: " + path, ex);
                         }
                         throw new ParseException(
                                 "The specified configuration file does not exist: " + path);
@@ -420,15 +432,16 @@ public class Application {
                 if (reload) {
                     EventBus eventBus = new EventBus(agentName + "-event-bus");
                     PollingPropertiesFileConfigurationProvider configurationProvider;
-                    configurationProvider = new PollingPropertiesFileConfigurationProvider(
-                            agentName, configurationFile, eventBus, 30);
+                    configurationProvider =
+                            new PollingPropertiesFileConfigurationProvider(
+                                    agentName, configurationFile, eventBus, 30);
                     components.add(configurationProvider);
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
                     PropertiesFileConfigurationProvider configurationProvider;
-                    configurationProvider = new PropertiesFileConfigurationProvider(
-                            agentName, configurationFile);
+                    configurationProvider =
+                            new PropertiesFileConfigurationProvider(agentName, configurationFile);
                     application = new Application();
                     application.handleConfigurationEvent(configurationProvider.getConfiguration());
                 }
@@ -439,14 +452,16 @@ public class Application {
             AuditUtils.initAudit();
 
             final Application appReference = application;
-            Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
+            Runtime.getRuntime()
+                    .addShutdownHook(
+                            new Thread("agent-shutdown-hook") {
 
-                @Override
-                public void run() {
-                    AuditUtils.sendReport();
-                    appReference.stop();
-                }
-            });
+                                @Override
+                                public void run() {
+                                    AuditUtils.sendReport();
+                                    appReference.stop();
+                                }
+                            });
 
             // start application
             application.start();
@@ -462,20 +477,23 @@ public class Application {
      * @param commandLine
      */
     private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
-        ManagerPropertiesConfigurationProvider configurationProvider = new ManagerPropertiesConfigurationProvider(
-                proxyName);
+        String proxyName =
+                CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        ManagerPropertiesConfigurationProvider configurationProvider =
+                new ManagerPropertiesConfigurationProvider(proxyName);
         Application application = new Application();
         application.handleConfigurationEvent(configurationProvider.getConfiguration());
         application.start();
 
         final Application appReference = application;
-        Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
+        Runtime.getRuntime()
+                .addShutdownHook(
+                        new Thread("agent-shutdown-hook") {
 
-            @Override
-            public void run() {
-                appReference.stop();
-            }
-        });
+                            @Override
+                            public void run() {
+                                appReference.stop();
+                            }
+                        });
     }
 }

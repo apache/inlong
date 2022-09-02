@@ -18,15 +18,14 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.time.Duration;
+import java.util.Properties;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import java.time.Duration;
-import java.util.Properties;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The builder class for {@link MySqlSource} to make it easier for the users to construct a {@link
@@ -47,7 +46,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * }</pre>
  *
  * <p>Check the Java docs of each individual method to learn more about the settings to build a
- * {@link MySqlSource}.</p>
+ * {@link MySqlSource}.
  */
 @PublicEvolving
 public class MySqlSourceBuilder<T> {
@@ -59,9 +58,7 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    /**
-     * Integer port number of the MySQL database server.
-     */
+    /** Integer port number of the MySQL database server. */
     public MySqlSourceBuilder<T> port(int port) {
         this.configFactory.port(port);
         return this;
@@ -86,17 +83,13 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    /**
-     * Name of the MySQL database to use when connecting to the MySQL database server.
-     */
+    /** Name of the MySQL database to use when connecting to the MySQL database server. */
     public MySqlSourceBuilder<T> username(String username) {
         this.configFactory.username(username);
         return this;
     }
 
-    /**
-     * Password to use when connecting to the MySQL database server.
-     */
+    /** Password to use when connecting to the MySQL database server. */
     public MySqlSourceBuilder<T> password(String password) {
         this.configFactory.password(password);
         return this;
@@ -162,9 +155,7 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    /**
-     * The maximum fetch size for per poll when read table snapshot.
-     */
+    /** The maximum fetch size for per poll when read table snapshot. */
     public MySqlSourceBuilder<T> fetchSize(int fetchSize) {
         this.configFactory.fetchSize(fetchSize);
         return this;
@@ -179,57 +170,43 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    /**
-     * The max retry times to get connection.
-     */
+    /** The max retry times to get connection. */
     public MySqlSourceBuilder<T> connectMaxRetries(int connectMaxRetries) {
         this.configFactory.connectMaxRetries(connectMaxRetries);
         return this;
     }
 
-    /**
-     * The connection pool size.
-     */
+    /** The connection pool size. */
     public MySqlSourceBuilder<T> connectionPoolSize(int connectionPoolSize) {
         this.configFactory.connectionPoolSize(connectionPoolSize);
         return this;
     }
 
-    /**
-     * Whether the {@link MySqlSource} should output the schema changes or not.
-     */
+    /** Whether the {@link MySqlSource} should output the schema changes or not. */
     public MySqlSourceBuilder<T> includeSchemaChanges(boolean includeSchemaChanges) {
         this.configFactory.includeSchemaChanges(includeSchemaChanges);
         return this;
     }
 
-    /**
-     * Whether the {@link MySqlSource} should scan the newly added tables or not.
-     */
+    /** Whether the {@link MySqlSource} should scan the newly added tables or not. */
     public MySqlSourceBuilder<T> scanNewlyAddedTableEnabled(boolean scanNewlyAddedTableEnabled) {
         this.configFactory.scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled);
         return this;
     }
 
-    /**
-     * Specifies the startup options.
-     */
+    /** Specifies the startup options. */
     public MySqlSourceBuilder<T> startupOptions(StartupOptions startupOptions) {
         this.configFactory.startupOptions(startupOptions);
         return this;
     }
 
-    /**
-     * Custom properties that will overwrite the default JDBC connection URL.
-     */
+    /** Custom properties that will overwrite the default JDBC connection URL. */
     public MySqlSourceBuilder<T> jdbcProperties(Properties jdbcProperties) {
         this.configFactory.jdbcProperties(jdbcProperties);
         return this;
     }
 
-    /**
-     * The Debezium MySQL connector properties. For example, "snapshot.mode".
-     */
+    /** The Debezium MySQL connector properties. For example, "snapshot.mode". */
     public MySqlSourceBuilder<T> debeziumProperties(Properties properties) {
         this.configFactory.debeziumProperties(properties);
         return this;
@@ -244,9 +221,7 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
-    /**
-     * The interval of heartbeat event.
-     */
+    /** The interval of heartbeat event. */
     public MySqlSourceBuilder<T> heartbeatInterval(Duration heartbeatInterval) {
         this.configFactory.heartbeatInterval(heartbeatInterval);
         return this;

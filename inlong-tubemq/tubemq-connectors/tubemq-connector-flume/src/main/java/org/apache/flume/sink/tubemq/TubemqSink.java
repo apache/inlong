@@ -52,7 +52,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -71,9 +70,7 @@ import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Make tubemq as one of flume sinks
- */
+/** Make tubemq as one of flume sinks */
 public class TubemqSink extends AbstractSink implements Configurable {
     private static final Logger LOGGER = LoggerFactory.getLogger(TubemqSink.class);
 
@@ -148,20 +145,19 @@ public class TubemqSink extends AbstractSink implements Configurable {
         try {
             sessionFactory = new TubeMultiSessionFactory(clientConfig);
         } catch (TubeClientException e) {
-            LOGGER.error("create connection error in tubemqSink, "
-                    + "maybe tubemq master set error, please re-check. ex1 {}", e.getMessage());
+            LOGGER.error(
+                    "create connection error in tubemqSink, "
+                            + "maybe tubemq master set error, please re-check. ex1 {}",
+                    e.getMessage());
             throw new FlumeException("connect to tubemq error1, please re-check", e);
         }
 
         if (producerMap == null) {
             producerMap = new ConcurrentHashMap<>();
         }
-
     }
 
-    /**
-     * Destroy all producers and clear up caches.
-     */
+    /** Destroy all producers and clear up caches. */
     private void destroyConnection() {
         for (String topic : producerMap.keySet()) {
             MessageProducer producer = producerMap.get(topic);
@@ -233,9 +229,11 @@ public class TubemqSink extends AbstractSink implements Configurable {
             Event event = channel.take();
             if (event != null) {
                 if (!eventQueue.offer(event, eventOfferTimeout, TimeUnit.MILLISECONDS)) {
-                    LOGGER.info("[{}] Channel --> Queue(has no enough space,current code point) --> tubemq, Check "
-                            + "if tubemq server or network is ok.(if this situation last long time it will cause"
-                            + " memoryChannel full and fileChannel write.)", getName());
+                    LOGGER.info(
+                            "[{}] Channel --> Queue(has no enough space,current code point) --> tubemq, Check "
+                                    + "if tubemq server or network is ok.(if this situation last long time it will cause"
+                                    + " memoryChannel full and fileChannel write.)",
+                            getName());
                     counter.incrementRollbackCount();
                     tx.rollback();
                 } else {
@@ -268,28 +266,33 @@ public class TubemqSink extends AbstractSink implements Configurable {
         heartbeatPeriod = context.getLong(HEARTBEAT_PERIOD, DEFAULT_HEARTBEAT_PERIOD);
         rpcTimeout = context.getLong(RPC_TIMEOUT, DEFAULT_RPC_TIMEOUT);
 
-        linkMaxAllowedDelayedMsgCount = context.getLong(
-                LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
-        sessionWarnDelayedMsgCount = context.getLong(
-                SESSION_WARN_DELAYED_MSG_COUNT,
-                DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT);
-        sessionMaxAllowedDelayedMsgCount = context.getLong(
-                SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
-        nettyWriteBufferHighWaterMark = context.getLong(
-                NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
-                DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
+        linkMaxAllowedDelayedMsgCount =
+                context.getLong(
+                        LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
+                        DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        sessionWarnDelayedMsgCount =
+                context.getLong(
+                        SESSION_WARN_DELAYED_MSG_COUNT, DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT);
+        sessionMaxAllowedDelayedMsgCount =
+                context.getLong(
+                        SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
+                        DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        nettyWriteBufferHighWaterMark =
+                context.getLong(
+                        NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
+                        DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
 
         producerMap = new ConcurrentHashMap<>();
 
         threadNum = context.getInteger(SINK_THREAD_NUM, DEFAULT_SINK_THREAD_NUM);
         sinkThreadPool = Executors.newFixedThreadPool(threadNum);
 
-        int retryQueueCapacity = context.getInteger(RETRY_QUEUE_CAPACITY, DEFAULT_RETRY_QUEUE_CAPACITY);
+        int retryQueueCapacity =
+                context.getInteger(RETRY_QUEUE_CAPACITY, DEFAULT_RETRY_QUEUE_CAPACITY);
         resendQueue = new LinkedBlockingQueue<>(retryQueueCapacity);
 
-        int eventQueueCapacity = context.getInteger(EVENT_QUEUE_CAPACITY, DEFAULT_EVENT_QUEUE_CAPACITY);
+        int eventQueueCapacity =
+                context.getInteger(EVENT_QUEUE_CAPACITY, DEFAULT_EVENT_QUEUE_CAPACITY);
         eventQueue = new LinkedBlockingQueue<>(eventQueueCapacity);
 
         maxRetryTime = context.getInteger(EVENT_MAX_RETRY_TIME, DEFAULT_EVENT_MAX_RETRY_TIME);
@@ -347,23 +350,25 @@ public class TubemqSink extends AbstractSink implements Configurable {
         private void sendEvent(MessageProducer producer, EventStat es) throws Exception {
             // send message with callback
             Message message = new Message(es.getTopic(), es.getEvent().getBody());
-            producer.sendMessage(message, new MessageSentCallback() {
-                @Override
-                public void onMessageSent(MessageSentResult result) {
-                    if (!result.isSuccess()) {
-                        resendEvent(es);
-                    }
-                }
+            producer.sendMessage(
+                    message,
+                    new MessageSentCallback() {
+                        @Override
+                        public void onMessageSent(MessageSentResult result) {
+                            if (!result.isSuccess()) {
+                                resendEvent(es);
+                            }
+                        }
 
-                @Override
-                public void onException(Throwable e) {
-                    LOGGER.error("exception caught", e);
-                    if (e instanceof OverflowException) {
-                        overflow = true;
-                    }
-                    resendEvent(es);
-                }
-            });
+                        @Override
+                        public void onException(Throwable e) {
+                            LOGGER.error("exception caught", e);
+                            if (e instanceof OverflowException) {
+                                overflow = true;
+                            }
+                            resendEvent(es);
+                        }
+                    });
         }
 
         /**
@@ -384,7 +389,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
             // if resend queue is full, send back to channel
             if (!resendQueue.offer(es)) {
                 getChannel().put(es.getEvent());
-                LOGGER.warn("resend queue is full, size: {}, send back to channel", resendQueue.size());
+                LOGGER.warn(
+                        "resend queue is full, size: {}, send back to channel", resendQueue.size());
             }
         }
 
@@ -399,7 +405,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
                     // fetch event, wait if necessary
                     es = fetchEventStat();
                     if (es.getTopic() == null || es.getTopic().equals("")) {
-                        LOGGER.debug("no topic specified in event header, use default topic instead");
+                        LOGGER.debug(
+                                "no topic specified in event header, use default topic instead");
                         es.setTopic(defaultTopic);
                     }
                     counter.incrementSendCount();
@@ -411,7 +418,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
                         LOGGER.error("Get producer failed!", e);
                     }
                 } catch (InterruptedException e) {
-                    LOGGER.info("Thread {} has been interrupted!", Thread.currentThread().getName());
+                    LOGGER.info(
+                            "Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
                 } catch (Throwable t) {
                     LOGGER.error("error while sending event", t);

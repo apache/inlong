@@ -23,42 +23,30 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.inlong.common.msg.InLongMsg;
 
-/**
- * The head deserialized from {@link InLongMsg}.
- */
+/** The head deserialized from {@link InLongMsg}. */
 public class InLongMsgHead implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * The attributes in the head.
-     */
+    /** The attributes in the head. */
     private final Map<String, String> attributes;
 
-    /**
-     * The interface of the record.
-     */
+    /** The interface of the record. */
     private final String tid;
 
-    /**
-     * The time of the record.
-     */
+    /** The time of the record. */
     private final Timestamp time;
 
-    /**
-     * The predefined fields extracted from the head.
-     */
+    /** The predefined fields extracted from the head. */
     private final List<String> predefinedFields;
 
     public InLongMsgHead(
             Map<String, String> attributes,
             String tid,
             Timestamp time,
-            List<String> predefinedFields
-    ) {
+            List<String> predefinedFields) {
         this.attributes = attributes;
         this.tid = tid;
         this.time = time;
@@ -93,9 +81,9 @@ public class InLongMsgHead implements Serializable {
 
         InLongMsgHead that = (InLongMsgHead) o;
         return Objects.equals(attributes, that.attributes)
-                       && Objects.equals(tid, that.tid)
-                       && Objects.equals(time, that.time)
-                       && Objects.equals(predefinedFields, that.predefinedFields);
+                && Objects.equals(tid, that.tid)
+                && Objects.equals(time, that.time)
+                && Objects.equals(predefinedFields, that.predefinedFields);
     }
 
     @Override
@@ -106,10 +94,15 @@ public class InLongMsgHead implements Serializable {
     @Override
     public String toString() {
         return "InLongMsgHead{"
-                       + "attributes=" + attributes
-                       + ", tid='" + tid + '\''
-                       + ", time=" + time
-                       + ", predefinedFields=" + predefinedFields
-                       + '}';
+                + "attributes="
+                + attributes
+                + ", tid='"
+                + tid
+                + '\''
+                + ", time="
+                + time
+                + ", predefinedFields="
+                + predefinedFields
+                + '}';
     }
 }

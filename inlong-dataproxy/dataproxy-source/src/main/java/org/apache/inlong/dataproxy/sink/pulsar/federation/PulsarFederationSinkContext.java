@@ -1,24 +1,20 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
 import java.util.Map;
-
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -29,10 +25,7 @@ import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 
-/**
- * 
- * PulsarFederationContext
- */
+/** PulsarFederationContext */
 public class PulsarFederationSinkContext {
 
     public static final String KEY_MAX_THREADS = "max-threads";
@@ -59,11 +52,12 @@ public class PulsarFederationSinkContext {
 
     /**
      * Constructor
-     * 
+     *
      * @param context
      */
     public PulsarFederationSinkContext(String sinkName, Context context) {
-        this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        this.proxyClusterId =
+                CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         this.sinkContext = context;
         this.maxThreads = context.getInteger(KEY_MAX_THREADS, 10);
         this.maxTransaction = context.getInteger(KEY_MAXTRANSACTION, 1);
@@ -88,9 +82,7 @@ public class PulsarFederationSinkContext {
         MetricRegister.register(this.metricItemSet);
     }
 
-    /**
-     * close
-     */
+    /** close */
     public void close() {
         this.idTopicHolder.close();
         this.cacheHolder.close();
@@ -98,7 +90,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get proxyClusterId
-     * 
+     *
      * @return the proxyClusterId
      */
     public String getProxyClusterId() {
@@ -107,7 +99,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get sinkContext
-     * 
+     *
      * @return the sinkContext
      */
     public Context getSinkContext() {
@@ -116,7 +108,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get producerContext
-     * 
+     *
      * @return the producerContext
      */
     public Context getProducerContext() {
@@ -125,7 +117,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get idTopicHolder
-     * 
+     *
      * @return the idTopicHolder
      */
     public IdTopicConfigHolder getIdTopicHolder() {
@@ -134,7 +126,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get cacheHolder
-     * 
+     *
      * @return the cacheHolder
      */
     public CacheClusterConfigHolder getCacheHolder() {
@@ -143,7 +135,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get bufferQueue
-     * 
+     *
      * @return the bufferQueue
      */
     public BufferQueue<Event> getBufferQueue() {
@@ -152,7 +144,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get maxThreads
-     * 
+     *
      * @return the maxThreads
      */
     public int getMaxThreads() {
@@ -161,7 +153,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get maxTransaction
-     * 
+     *
      * @return the maxTransaction
      */
     public int getMaxTransaction() {
@@ -170,7 +162,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get processInterval
-     * 
+     *
      * @return the processInterval
      */
     public long getProcessInterval() {
@@ -179,7 +171,7 @@ public class PulsarFederationSinkContext {
 
     /**
      * get reloadInterval
-     * 
+     *
      * @return the reloadInterval
      */
     public long getReloadInterval() {
@@ -188,11 +180,10 @@ public class PulsarFederationSinkContext {
 
     /**
      * get metricItemSet
-     * 
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
-
 }

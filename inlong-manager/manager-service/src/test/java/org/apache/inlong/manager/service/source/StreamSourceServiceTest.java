@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.source;
 
+import java.util.Map;
 import org.apache.curator.shaded.com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -29,21 +30,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-
-/**
- * Stream source service test
- */
+/** Stream source service test */
 public class StreamSourceServiceTest extends ServiceBaseTest {
 
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
-    private InlongStreamServiceTest streamServiceTest;
+    @Autowired private StreamSourceService sourceService;
+    @Autowired private InlongStreamServiceTest streamServiceTest;
 
-    /**
-     * Save source info.
-     */
+    /** Save source info. */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
@@ -85,12 +78,12 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         MySQLBinlogSource binlogResponse = (MySQLBinlogSource) response;
-        MySQLBinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse,
-                MySQLBinlogSourceRequest::new);
+        MySQLBinlogSourceRequest request =
+                CommonBeanUtils.copyProperties(binlogResponse, MySQLBinlogSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
-        Assertions.assertTrue("true".equals(binlogResponse.getProperties().get("append-mode")) && result);
+        Assertions.assertTrue(
+                "true".equals(binlogResponse.getProperties().get("append-mode")) && result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
-
 }

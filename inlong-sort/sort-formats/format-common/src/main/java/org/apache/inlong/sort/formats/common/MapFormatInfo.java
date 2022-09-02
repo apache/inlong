@@ -23,9 +23,7 @@ import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The format information for maps.
- */
+/** The format information for maps. */
 public class MapFormatInfo implements FormatInfo {
 
     private static final long serialVersionUID = 1L;
@@ -33,16 +31,12 @@ public class MapFormatInfo implements FormatInfo {
     private static final String FIELD_KEY_FORMAT = "keyFormat";
     private static final String FIELD_VALUE_FORMAT = "valueFormat";
 
-    /**
-     * The format information for keys in the map.
-     */
+    /** The format information for keys in the map. */
     @JsonProperty(FIELD_KEY_FORMAT)
     @Nonnull
     private final FormatInfo keyFormatInfo;
 
-    /**
-     * The format information for values in the map.
-     */
+    /** The format information for values in the map. */
     @JsonProperty(FIELD_VALUE_FORMAT)
     @Nonnull
     private final FormatInfo valueFormatInfo;
@@ -50,8 +44,7 @@ public class MapFormatInfo implements FormatInfo {
     @JsonCreator
     public MapFormatInfo(
             @JsonProperty(FIELD_KEY_FORMAT) @Nonnull FormatInfo keyFormatInfo,
-            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo) {
         this.keyFormatInfo = keyFormatInfo;
         this.valueFormatInfo = valueFormatInfo;
     }
@@ -86,7 +79,7 @@ public class MapFormatInfo implements FormatInfo {
 
         MapFormatInfo that = (MapFormatInfo) o;
         return keyFormatInfo.equals(that.keyFormatInfo)
-                       && valueFormatInfo.equals(that.valueFormatInfo);
+                && valueFormatInfo.equals(that.valueFormatInfo);
     }
 
     @Override
@@ -96,6 +89,11 @@ public class MapFormatInfo implements FormatInfo {
 
     @Override
     public String toString() {
-        return "MapFormatInfo{" + "keyFormatInfo=" + keyFormatInfo + ", valueFormatInfo=" + valueFormatInfo + '}';
+        return "MapFormatInfo{"
+                + "keyFormatInfo="
+                + keyFormatInfo
+                + ", valueFormatInfo="
+                + valueFormatInfo
+                + '}';
     }
 }

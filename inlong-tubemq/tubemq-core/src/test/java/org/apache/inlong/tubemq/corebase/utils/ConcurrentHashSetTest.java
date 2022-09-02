@@ -25,8 +25,7 @@ public class ConcurrentHashSetTest extends TestCase {
     @Test
     public void test() {
         int count = 0;
-        ConcurrentHashSet<String> testSet =
-                new ConcurrentHashSet<>();
+        ConcurrentHashSet<String> testSet = new ConcurrentHashSet<>();
         for (String item : testSet) {
             System.out.println("Count = " + count++ + ", item = " + item);
         }
@@ -44,5 +43,4 @@ public class ConcurrentHashSetTest extends TestCase {
         }
         System.out.println("test-2 add time is " + testSet.getItemAddTime("test-2"));
     }
-
 }

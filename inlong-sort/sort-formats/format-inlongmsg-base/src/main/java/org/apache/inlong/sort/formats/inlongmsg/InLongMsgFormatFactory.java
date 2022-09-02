@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
+import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
+
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -32,16 +38,7 @@ import org.apache.flink.table.factories.DynamicTableFactory.Context;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
-
-/**
- * factory class for inLong msg format
- */
+/** factory class for inLong msg format */
 public final class InLongMsgFormatFactory
         implements DeserializationFormatFactory, SerializationFormatFactory {
 
@@ -50,27 +47,29 @@ public final class InLongMsgFormatFactory
     public static final String INLONG_PREFIX = "inlong-msg.";
 
     @Override
-    public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(Context context,
-            ReadableConfig formatOptions) {
+    public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(
+            Context context, ReadableConfig formatOptions) {
         validateDecodingFormatOptions(formatOptions);
 
-        final DeserializationFormatFactory innerFactory = FactoryUtil.discoverFactory(
-                context.getClassLoader(),
-                DeserializationFormatFactory.class,
-                formatOptions.get(INNER_FORMAT));
+        final DeserializationFormatFactory innerFactory =
+                FactoryUtil.discoverFactory(
+                        context.getClassLoader(),
+                        DeserializationFormatFactory.class,
+                        formatOptions.get(INNER_FORMAT));
         Configuration allOptions = Configuration.fromMap(context.getCatalogTable().getOptions());
         String innerFormatMetaPrefix = formatOptions.get(INNER_FORMAT) + ".";
         String innerFormatPrefix = INLONG_PREFIX + innerFormatMetaPrefix;
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
-                innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
+                innerFactory.createDecodingFormat(
+                        context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
         boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
 
         return new InLongMsgDecodingFormat(innerFormat, innerFormatMetaPrefix, ignoreErrors);
     }
 
     @Override
-    public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(Context context,
-            ReadableConfig formatOptions) {
+    public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(
+            Context context, ReadableConfig formatOptions) {
         throw new RuntimeException("Do not support inlong format serialize.");
     }
 

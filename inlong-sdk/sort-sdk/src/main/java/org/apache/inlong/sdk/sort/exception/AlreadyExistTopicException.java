@@ -36,5 +36,4 @@ public class AlreadyExistTopicException extends Exception {
     public AlreadyExistTopicException(Throwable cause) {
         super(cause);
     }
-
 }

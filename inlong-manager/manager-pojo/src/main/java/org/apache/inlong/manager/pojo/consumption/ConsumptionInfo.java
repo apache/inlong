@@ -20,19 +20,16 @@ package org.apache.inlong.manager.pojo.consumption;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotBlank;
-import java.util.Date;
-
-/**
- * Data consumption info
- */
+/** Data consumption info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -71,8 +68,10 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "consumption target inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "
-            + "20: approval rejected, 20: approved")
+    @ApiModelProperty(
+            value =
+                    "status, 10: pending assigned, 11: pending approval, "
+                            + "20: approval rejected, 20: approved")
     private Integer status;
 
     private String creator;
@@ -97,5 +96,4 @@ public class ConsumptionInfo {
         }
         return StringUtils.isNotBlank(inlongStreamId);
     }
-
 }

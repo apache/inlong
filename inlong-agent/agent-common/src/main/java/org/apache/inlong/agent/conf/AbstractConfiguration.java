@@ -22,11 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -36,10 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Base configuration, store and parse config params.
- */
+/** Base configuration, store and parse config params. */
 public abstract class AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfiguration.class);
@@ -47,9 +44,7 @@ public abstract class AbstractConfiguration {
 
     private final Map<String, JsonPrimitive> configStorage = new HashMap<>();
 
-    /**
-     * get config file by class loader
-     **/
+    /** get config file by class loader */
     private ClassLoader classLoader;
 
     public AbstractConfiguration() {
@@ -84,8 +79,10 @@ public abstract class AbstractConfiguration {
                 } else {
                     Properties properties = new Properties();
                     properties.load(reader);
-                    properties.forEach((key, value) -> configStorage.put((String) key,
-                            new JsonPrimitive((String) value)));
+                    properties.forEach(
+                            (key, value) ->
+                                    configStorage.put(
+                                            (String) key, new JsonPrimitive((String) value)));
                 }
             }
         } catch (Exception ioe) {
@@ -261,9 +258,7 @@ public abstract class AbstractConfiguration {
         configStorage.put(key, new JsonPrimitive(value));
     }
 
-    /**
-     * get key-value map properties from config file
-     */
+    /** get key-value map properties from config file */
     public Map<String, String> getConfigProperties() {
         Map<String, String> properties = new HashMap<>();
         for (Map.Entry<String, JsonPrimitive> entry : configStorage.entrySet()) {
@@ -276,10 +271,7 @@ public abstract class AbstractConfiguration {
         return configStorage;
     }
 
-
-    /**
-     * get configStorage list, item format: "key=value"
-     */
+    /** get configStorage list, item format: "key=value" */
     List<String> getStorageList() {
         List<String> result = new ArrayList<>();
         for (Map.Entry<String, JsonPrimitive> entry : configStorage.entrySet()) {

@@ -17,23 +17,21 @@
 
 package org.apache.inlong.sort.elasticsearch7;
 
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
-import org.apache.flink.util.Preconditions;
-
-import org.apache.http.HttpHost;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.client.RestHighLevelClient;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
+import org.apache.flink.util.Preconditions;
+import org.apache.http.HttpHost;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.client.RestHighLevelClient;
 
 /**
  * Elasticsearch 7.x sink that requests multiple {@link ActionRequest ActionRequests} against a
@@ -94,8 +92,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         private Map<String, String> bulkRequestsConfig = new HashMap<>();
         private ActionRequestFailureHandler failureHandler = new NoOpFailureHandler();
-        private RestClientFactory restClientFactory = restClientBuilder -> {
-        };
+        private RestClientFactory restClientFactory = restClientBuilder -> {};
         private String inLongMetric = null;
 
         /**
@@ -115,6 +112,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * set InLongMetric for reporting metrics
+         *
          * @param inLongMetric
          */
         public void setInLongMetric(String inLongMetric) {

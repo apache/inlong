@@ -19,9 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import java.util.List;
 
-/**
- * Role service
- */
+/** Role service */
 public interface RoleService {
 
     /**

@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.common.exceptions;
 
-/**
- * Only roll back the exception once in the embedded thing
- */
+/** Only roll back the exception once in the embedded thing */
 public class WorkflowRollbackOnceException extends WorkflowException {
 
     public WorkflowRollbackOnceException() {
@@ -38,7 +36,10 @@ public class WorkflowRollbackOnceException extends WorkflowException {
         super(cause);
     }
 
-    protected WorkflowRollbackOnceException(String message, Throwable cause, boolean enableSuppression,
+    protected WorkflowRollbackOnceException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
             boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

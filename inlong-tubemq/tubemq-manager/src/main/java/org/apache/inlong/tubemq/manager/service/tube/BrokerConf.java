@@ -64,6 +64,4 @@ public class BrokerConf {
         this.memCacheFlushIntegervl = other.memCacheFlushIntegervl;
         this.deletePolicy = other.deletePolicy;
     }
-
 }
-

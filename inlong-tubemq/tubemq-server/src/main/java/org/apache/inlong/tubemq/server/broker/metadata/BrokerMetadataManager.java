@@ -1,20 +1,17 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.inlong.tubemq.server.broker.metadata;
 
 import java.beans.PropertyChangeListener;
@@ -33,17 +30,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Broker's metadata management util. Metadata contains broker's default configurations, topics,
- * topic that will be deleted, and broker's policy definition.
- * Metadata is got from Master service, it will refresh in heartbeat between broker and master.
+ * topic that will be deleted, and broker's policy definition. Metadata is got from Master service,
+ * it will refresh in heartbeat between broker and master.
  */
 public class BrokerMetadataManager implements MetadataManager {
     private static final Logger logger = LoggerFactory.getLogger(BrokerMetadataManager.class);
 
-    protected final PropertyChangeSupport propertyChangeSupport =
-            new PropertyChangeSupport(this);
+    protected final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     // the rule handler of flow control.
-    private final FlowCtrlRuleHandler flowCtrlRuleHandler =
-            new FlowCtrlRuleHandler(true);
+    private final FlowCtrlRuleHandler flowCtrlRuleHandler = new FlowCtrlRuleHandler(true);
     // broker's config check sum.
     private int brokerConfCheckSumId = 0;
     // broker's metadata Id.
@@ -57,24 +52,19 @@ public class BrokerMetadataManager implements MetadataManager {
     // broker's default metadata.
     private BrokerDefMetadata brokerDefMetadata = new BrokerDefMetadata();
     // topic with custom config.
-    private ConcurrentHashMap<String/* topic */, TopicMetadata> topicConfigMap =
+    private ConcurrentHashMap<String /* topic */, TopicMetadata> topicConfigMap =
             new ConcurrentHashMap<>();
     // topics will be closed.
-    private Map<String/* topic */, Integer> closedTopicMap =
-            new ConcurrentHashMap<>();
+    private Map<String /* topic */, Integer> closedTopicMap = new ConcurrentHashMap<>();
     // topics will be removed.
-    private final Map<String/* topic */, TopicMetadata> removedTopicConfigMap =
+    private final Map<String /* topic */, TopicMetadata> removedTopicConfigMap =
             new ConcurrentHashMap<>();
     private long lastRptBrokerMetaConfId = 0;
 
-    public BrokerMetadataManager() {
-
-    }
+    public BrokerMetadataManager() {}
 
     @Override
-    public void close(long waitTimeMs) {
-
-    }
+    public void close(long waitTimeMs) {}
 
     @Override
     public int getBrokerConfCheckSumId() {
@@ -124,14 +114,16 @@ public class BrokerMetadataManager implements MetadataManager {
     public int getNumPartitions(final String topic) {
         final TopicMetadata topicMetadata = topicConfigMap.get(topic);
         return topicMetadata != null
-                ? topicMetadata.getNumPartitions() : brokerDefMetadata.getNumPartitions();
+                ? topicMetadata.getNumPartitions()
+                : brokerDefMetadata.getNumPartitions();
     }
 
     @Override
     public int getNumTopicStores(final String topic) {
         final TopicMetadata topicMetadata = topicConfigMap.get(topic);
         return topicMetadata != null
-                ? topicMetadata.getNumTopicStores() : brokerDefMetadata.getNumTopicStores();
+                ? topicMetadata.getNumTopicStores()
+                : brokerDefMetadata.getNumTopicStores();
     }
 
     @Override
@@ -170,15 +162,15 @@ public class BrokerMetadataManager implements MetadataManager {
 
     /**
      * Get hard removed topics. Hard removed means the disk files is deleted, cannot be recovery.
-     * Topic will be deleted in two phases, the first is mark topic's file delete, the second is delete the disk files.
+     * Topic will be deleted in two phases, the first is mark topic's file delete, the second is
+     * delete the disk files.
      *
      * @return the removed topics
      */
     @Override
     public List<String> getHardRemovedTopics() {
         List<String> targetTopics = new ArrayList<>();
-        for (Map.Entry<String, TopicMetadata> entry
-                : this.removedTopicConfigMap.entrySet()) {
+        for (Map.Entry<String, TopicMetadata> entry : this.removedTopicConfigMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -205,35 +197,40 @@ public class BrokerMetadataManager implements MetadataManager {
     }
 
     /**
-     * Update broker's metadata in memory, then fire these metadata take effect.
-     * These params are got from Master Service.
+     * Update broker's metadata in memory, then fire these metadata take effect. These params are
+     * got from Master Service.
      *
-     * @param newBrokerMetaConfId       the new broker meta configure id
-     * @param newConfCheckSumId         the new configure checksum id
-     * @param newBrokerDefMetaConfInfo  the new broker default meta configures
-     * @param newTopicMetaConfInfoLst   the new topic meta configure list
-     * @param isForce                   whether to force an update
-     * @param sb                        string buffer
+     * @param newBrokerMetaConfId the new broker meta configure id
+     * @param newConfCheckSumId the new configure checksum id
+     * @param newBrokerDefMetaConfInfo the new broker default meta configures
+     * @param newTopicMetaConfInfoLst the new topic meta configure list
+     * @param isForce whether to force an update
+     * @param sb string buffer
      */
     @Override
-    public void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
-                                           int newConfCheckSumId,
-                                           String newBrokerDefMetaConfInfo,
-                                           List<String> newTopicMetaConfInfoLst,
-                                           boolean isForce,
-                                           final StringBuilder sb) {
+    public void updateBrokerTopicConfigMap(
+            long newBrokerMetaConfId,
+            int newConfCheckSumId,
+            String newBrokerDefMetaConfInfo,
+            List<String> newTopicMetaConfInfoLst,
+            boolean isForce,
+            final StringBuilder sb) {
         if ((!isForce)
                 && (this.brokerMetadataConfId == newBrokerMetaConfId)
                 && (this.brokerConfCheckSumId == newConfCheckSumId)) {
-            logger.info(sb
-                    .append("[Metadata Manage] Broker topic configure is equal, not update! curBrokerConfId is ")
-                    .append(this.brokerMetadataConfId).append("received newBrokerMetaConfId is ")
-                    .append(newBrokerMetaConfId).toString());
+            logger.info(
+                    sb.append(
+                                    "[Metadata Manage] Broker topic configure is equal, not update! curBrokerConfId is ")
+                            .append(this.brokerMetadataConfId)
+                            .append("received newBrokerMetaConfId is ")
+                            .append(newBrokerMetaConfId)
+                            .toString());
             sb.delete(0, sb.length());
             return;
         }
         if (TStringUtils.isBlank(newBrokerDefMetaConfInfo)) {
-            logger.error("[Metadata Manage] received broker default configure is Blank, not update");
+            logger.error(
+                    "[Metadata Manage] received broker default configure is Blank, not update");
             return;
         }
         this.brokerDefMetadata = new BrokerDefMetadata(newBrokerDefMetaConfInfo);
@@ -245,9 +242,8 @@ public class BrokerMetadataManager implements MetadataManager {
             return;
         }
         List<String> newTopics = new ArrayList<>();
-        Map<String/* topic */, Integer> tmpInvalidTopicMap =
-                new ConcurrentHashMap<>();
-        ConcurrentHashMap<String/* topic */, TopicMetadata> newTopicConfigMap =
+        Map<String /* topic */, Integer> tmpInvalidTopicMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String /* topic */, TopicMetadata> newTopicConfigMap =
                 new ConcurrentHashMap<>();
         for (String strTopicConfInfo : newTopicMetaConfInfoLst) {
             if (TStringUtils.isBlank(strTopicConfInfo)) {
@@ -255,8 +251,7 @@ public class BrokerMetadataManager implements MetadataManager {
             }
             TopicMetadata topicMetadata = new TopicMetadata(brokerDefMetadata, strTopicConfInfo);
             if (!topicMetadata.isValidTopic()) {
-                tmpInvalidTopicMap.put(topicMetadata.getTopic(),
-                        topicMetadata.getStatusId());
+                tmpInvalidTopicMap.put(topicMetadata.getTopic(), topicMetadata.getStatusId());
             }
             newTopics.add(topicMetadata.getTopic());
             newTopicConfigMap.put(topicMetadata.getTopic(), topicMetadata);
@@ -270,8 +265,8 @@ public class BrokerMetadataManager implements MetadataManager {
             Map<String, TopicMetadata> oldTopicConfigMap = this.topicConfigMap;
             this.topics = newTopics;
             this.topicConfigMap = newTopicConfigMap;
-            this.propertyChangeSupport
-                    .firePropertyChange("topicConfigMap", oldTopicConfigMap, newTopicConfigMap);
+            this.propertyChangeSupport.firePropertyChange(
+                    "topicConfigMap", oldTopicConfigMap, newTopicConfigMap);
         }
         this.propertyChangeSupport.firePropertyChange("unflushInterval", null, null);
     }
@@ -279,21 +274,21 @@ public class BrokerMetadataManager implements MetadataManager {
     /**
      * Update will be deleted topics info. These params are got from Master Service.
      *
-     * @param isTakeRemoveTopics         whether take removed topics
-     * @param rmvTopicMetaConfInfoLst    need removed topic meta information
-     * @param sb                         string buffer
-     * @return                           whether includes removed topics
+     * @param isTakeRemoveTopics whether take removed topics
+     * @param rmvTopicMetaConfInfoLst need removed topic meta information
+     * @param sb string buffer
+     * @return whether includes removed topics
      */
     @Override
-    public boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
-                                              List<String> rmvTopicMetaConfInfoLst,
-                                              final StringBuilder sb) {
+    public boolean updateBrokerRemoveTopicMap(
+            boolean isTakeRemoveTopics,
+            List<String> rmvTopicMetaConfInfoLst,
+            final StringBuilder sb) {
         // This part deletes the corresponding topic according to the instructions on the Master
         boolean needProcess = false;
         if (isTakeRemoveTopics) {
             List<String> origTopics = new ArrayList<>();
-            if (rmvTopicMetaConfInfoLst != null
-                    && !rmvTopicMetaConfInfoLst.isEmpty()) {
+            if (rmvTopicMetaConfInfoLst != null && !rmvTopicMetaConfInfoLst.isEmpty()) {
                 for (String tmpTopicMetaConfInfo : rmvTopicMetaConfInfoLst) {
                     if (TStringUtils.isBlank(tmpTopicMetaConfInfo)) {
                         continue;
@@ -313,7 +308,8 @@ public class BrokerMetadataManager implements MetadataManager {
                     continue;
                 }
                 if ((!origTopics.contains(entry.getKey()))
-                        && (entry.getValue().getStatusId() > TStatusConstants.STATUS_TOPIC_SOFT_REMOVE)) {
+                        && (entry.getValue().getStatusId()
+                                > TStatusConstants.STATUS_TOPIC_SOFT_REMOVE)) {
                     tmpTopics.add(entry.getKey());
                 }
             }
@@ -325,9 +321,11 @@ public class BrokerMetadataManager implements MetadataManager {
                     }
                     if (topicMetadata.getStatusId() > TStatusConstants.STATUS_TOPIC_SOFT_REMOVE) {
                         removedTopicConfigMap.remove(tmpTopic);
-                        logger.info(sb
-                                .append("[Metadata Manage] Master removed topic, the broker sync removes topic ")
-                                .append(tmpTopic).toString());
+                        logger.info(
+                                sb.append(
+                                                "[Metadata Manage] Master removed topic, the broker sync removes topic ")
+                                        .append(tmpTopic)
+                                        .toString());
                         sb.delete(0, sb.length());
                     }
                 }
@@ -340,30 +338,32 @@ public class BrokerMetadataManager implements MetadataManager {
     }
 
     @Override
-    public void addPropertyChangeListener(final String propertyName,
-                                          final PropertyChangeListener listener) {
+    public void addPropertyChangeListener(
+            final String propertyName, final PropertyChangeListener listener) {
         this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
     /**
      * Add historical offset storage topic by default
      *
-     * @param brokerDefMeta      broker default meta configure
-     * @param newTopics          the topic list to add
-     * @param topicConfigMap     the topic configure map to add
+     * @param brokerDefMeta broker default meta configure
+     * @param newTopics the topic list to add
+     * @param topicConfigMap the topic configure map to add
      */
-    private void addSysHisOffsetTopic(BrokerDefMetadata brokerDefMeta, List<String> newTopics,
-                                      ConcurrentHashMap<String, TopicMetadata> topicConfigMap) {
+    private void addSysHisOffsetTopic(
+            BrokerDefMetadata brokerDefMeta,
+            List<String> newTopics,
+            ConcurrentHashMap<String, TopicMetadata> topicConfigMap) {
         if (newTopics.contains(TServerConstants.OFFSET_HISTORY_NAME)) {
             return;
         }
-        TopicMetadata topicMetadata =
-                topicConfigMap.get(TServerConstants.OFFSET_HISTORY_NAME);
+        TopicMetadata topicMetadata = topicConfigMap.get(TServerConstants.OFFSET_HISTORY_NAME);
         if (topicMetadata != null) {
             return;
         }
         topicMetadata =
-                new TopicMetadata(brokerDefMeta,
+                new TopicMetadata(
+                        brokerDefMeta,
                         TServerConstants.OFFSET_HISTORY_NAME,
                         TServerConstants.OFFSET_HISTORY_NUMSTORES,
                         TServerConstants.OFFSET_HISTORY_NUMPARTS);

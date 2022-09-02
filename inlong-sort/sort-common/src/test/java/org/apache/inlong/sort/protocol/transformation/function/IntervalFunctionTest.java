@@ -23,15 +23,13 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 
-/**
- * Test for {@link IntervalFunction}
- */
+/** Test for {@link IntervalFunction} */
 public class IntervalFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new IntervalFunction(new StringConstantParam("5"),
-                new TimeUnitConstantParam(TimeUnit.SECOND));
+        return new IntervalFunction(
+                new StringConstantParam("5"), new TimeUnitConstantParam(TimeUnit.SECOND));
     }
 
     @Override

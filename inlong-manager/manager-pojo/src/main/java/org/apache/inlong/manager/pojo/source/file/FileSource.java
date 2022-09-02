@@ -19,6 +19,8 @@ package org.apache.inlong.manager.pojo.source.file;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,12 +32,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.List;
-import java.util.Map;
-
-/**
- * File source info
- */
+/** File source info */
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -44,15 +41,16 @@ import java.util.Map;
 @ApiModel(value = "File source info")
 @JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
-    
+
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
-    @ApiModelProperty("TimeOffset for collection, "
-            + "'1m' means from one minute after, '-1m' means from one minute before, "
-            + "'1h' means from one hour after, '-1h' means from one minute before, "
-            + "'1d' means from one day after, '-1d' means from one minute before, "
-            + "Null or blank means from current timestamp")
+    @ApiModelProperty(
+            "TimeOffset for collection, "
+                    + "'1m' means from one minute after, '-1m' means from one minute before, "
+                    + "'1h' means from one hour after, '-1h' means from one minute before, "
+                    + "'1d' means from one day after, '-1d' means from one minute before, "
+                    + "Null or blank means from current timestamp")
     private String timeOffset;
 
     @ApiModelProperty("Line end regex pattern, for example: &end&")
@@ -64,13 +62,15 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("File needs to collect environment information, for example: kubernetes")
     private String envList;
 
-    @ApiModelProperty("Metadata of data, for example: "
-            + "[{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on")
+    @ApiModelProperty(
+            "Metadata of data, for example: "
+                    + "[{data:field1,field2},{kubernetes:namespace,labels,name,uuid}] and so on")
     private List<Map<String, String>> metaFields;
 
-    @ApiModelProperty(" Type of data result for column separator"
-            + "         CSV format, set this parameter to a custom separator: , | : "
-            + "         Json format, set this parameter to json ")
+    @ApiModelProperty(
+            " Type of data result for column separator"
+                    + "         CSV format, set this parameter to a custom separator: , | : "
+                    + "         Json format, set this parameter to json ")
     private String dataContentStyle;
 
     @ApiModelProperty("Metadata filters by label, special parameters for K8S")
@@ -84,5 +84,4 @@ public class FileSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, FileSourceRequest::new);
     }
-
 }

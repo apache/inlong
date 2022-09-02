@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * Data consumption table
- */
+/** Data consumption table */
 @Data
 public class ConsumptionEntity implements Serializable {
 
@@ -44,5 +41,4 @@ public class ConsumptionEntity implements Serializable {
     private Date modifyTime;
     private Integer isDeleted;
     private Integer version;
-
 }

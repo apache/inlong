@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +27,13 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * AES encryption and decryption utils.
- */
+/** AES encryption and decryption utils. */
 @Slf4j
 public class AESUtils {
 
@@ -52,20 +49,18 @@ public class AESUtils {
     public static Map<Integer, String> AES_KEY_MAP = new ConcurrentHashMap<>();
     public static Integer CURRENT_VERSION;
 
-    /**
-     * Load the application properties configuration
-     */
+    /** Load the application properties configuration */
     private static Properties getApplicationProperties() throws IOException {
         Properties properties = new Properties();
-        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
+        String path =
+                Thread.currentThread().getContextClassLoader().getResource("").getPath()
+                        + CONFIG_FILE;
         InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
         properties.load(inputStream);
         return properties;
     }
 
-    /**
-     * Get the current aes key version
-     */
+    /** Get the current aes key version */
     public static Integer getCurrentVersion(Properties properties) throws IOException {
         if (CURRENT_VERSION != null) {
             return CURRENT_VERSION;
@@ -84,9 +79,7 @@ public class AESUtils {
         return CURRENT_VERSION;
     }
 
-    /**
-     * Get aes key from config file
-     */
+    /** Get aes key from config file */
     public static String getAesKeyByConfig(Integer version) throws Exception {
         Properties properties = getApplicationProperties();
         Integer targetVersion = (version == null ? getCurrentVersion(properties) : version);
@@ -98,15 +91,14 @@ public class AESUtils {
         String keyName = CONFIG_ITEM_ENCRYPT_KEY_PREFIX + targetVersion;
         String aesKey = properties.getProperty(keyName);
         if (StringUtils.isEmpty(aesKey)) {
-            throw new RuntimeException(String.format("cannot find encryption key %s in application config", keyName));
+            throw new RuntimeException(
+                    String.format("cannot find encryption key %s in application config", keyName));
         }
         AES_KEY_MAP.put(targetVersion, aesKey);
         return aesKey;
     }
 
-    /**
-     * Generate key
-     */
+    /** Generate key */
     private static SecretKey generateKey(byte[] aesKey) throws Exception {
         SecureRandom random = SecureRandom.getInstance(RNG_ALGORITHM);
         random.setSeed(aesKey);
@@ -115,9 +107,7 @@ public class AESUtils {
         return gen.generateKey();
     }
 
-    /**
-     * Encrypt by key
-     */
+    /** Encrypt by key */
     public static byte[] encrypt(byte[] plainBytes, byte[] key) throws Exception {
         SecretKey secKey = generateKey(key);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -125,9 +115,7 @@ public class AESUtils {
         return cipher.doFinal(plainBytes);
     }
 
-    /**
-     * Encrypt by key and current version
-     */
+    /** Encrypt by key and current version */
     public static String encryptToString(byte[] plainBytes, Integer version) throws Exception {
         if (version == null) {
             // no encryption
@@ -137,9 +125,7 @@ public class AESUtils {
         return parseByte2HexStr(encrypt(plainBytes, keyBytes));
     }
 
-    /**
-     * Decrypt by key and specified version
-     */
+    /** Decrypt by key and specified version */
     public static byte[] decrypt(byte[] cipherBytes, byte[] key) throws Exception {
         SecretKey secKey = generateKey(key);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -147,9 +133,7 @@ public class AESUtils {
         return cipher.doFinal(cipherBytes);
     }
 
-    /**
-     * Encrypt by property key
-     */
+    /** Encrypt by property key */
     public static byte[] decryptAsString(String cipherText, Integer version) throws Exception {
         if (version == null) {
             // No decryption: treated as plain text
@@ -159,9 +143,7 @@ public class AESUtils {
         return decrypt(parseHexStr2Byte(cipherText), keyBytes);
     }
 
-    /**
-     * Parse byte to String in Hex type
-     */
+    /** Parse byte to String in Hex type */
     public static String parseByte2HexStr(byte[] buf) {
         StringBuilder strBuf = new StringBuilder();
         for (byte b : buf) {
@@ -174,9 +156,7 @@ public class AESUtils {
         return strBuf.toString();
     }
 
-    /**
-     * Parse String to byte as Hex type
-     */
+    /** Parse String to byte as Hex type */
     public static byte[] parseHexStr2Byte(String hexStr) {
         if (hexStr.length() < 1) {
             return null;

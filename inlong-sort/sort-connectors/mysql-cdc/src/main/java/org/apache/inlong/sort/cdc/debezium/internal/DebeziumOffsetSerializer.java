@@ -18,10 +18,9 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import java.io.IOException;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 
 /** Serializer implementation for a {@link DebeziumOffset}. */
 @Internal

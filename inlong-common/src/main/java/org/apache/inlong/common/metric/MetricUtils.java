@@ -17,26 +17,21 @@
 
 package org.apache.inlong.common.metric;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * MetricUtils
- */
+/** MetricUtils */
 public class MetricUtils {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MetricUtils.class);
 
-    /**
-     * getDomain
-     */
+    /** getDomain */
     public static String getDomain(Class<?> cls) {
         for (Annotation annotation : cls.getAnnotations()) {
             if (annotation instanceof MetricDomain) {
@@ -49,9 +44,7 @@ public class MetricUtils {
         return cls.getName();
     }
 
-    /**
-     * getDimensionsKey
-     */
+    /** getDimensionsKey */
     public static String getDimensionsKey(Map<String, String> dimensionMap) {
         StringBuilder builder = new StringBuilder();
         if (dimensionMap.size() <= 0) {
@@ -65,15 +58,15 @@ public class MetricUtils {
         for (String fieldKey : fieldKeyList) {
             String fieldValue = dimensionMap.get(fieldKey);
             fieldValue = (fieldValue == null) ? "" : fieldValue;
-            builder.append(fieldKey).append(MetricItemMBean.PROPERTY_EQUAL).append(fieldValue)
+            builder.append(fieldKey)
+                    .append(MetricItemMBean.PROPERTY_EQUAL)
+                    .append(fieldValue)
                     .append(MetricItemMBean.PROPERTY_SEPARATOR);
         }
         return builder.substring(0, builder.length() - 1);
     }
 
-    /**
-     * sleepOneInterval
-     */
+    /** sleepOneInterval */
     public static void sleepOneInterval() {
         try {
             Thread.sleep(100);

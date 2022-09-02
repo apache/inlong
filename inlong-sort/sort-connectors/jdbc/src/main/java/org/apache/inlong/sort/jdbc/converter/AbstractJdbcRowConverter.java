@@ -18,6 +18,20 @@
 
 package org.apache.inlong.sort.jdbc.converter;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.connector.jdbc.utils.JdbcTypeUtil;
@@ -33,26 +47,11 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.utils.TypeConversions;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
- * Base class for all converters that convert between JDBC object and Flink internal object.
- * Copy of ${@link org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter}
- * to override the method createInternalConverter and createExternalConverter in subclasses
- * by make JdbcDeserializationConverter,JdbcSerializationConverter public.
+ * Base class for all converters that convert between JDBC object and Flink internal object. Copy of
+ * ${@link org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter} to override
+ * the method createInternalConverter and createExternalConverter in subclasses by make
+ * JdbcDeserializationConverter,JdbcSerializationConverter public.
  */
 public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
@@ -145,7 +144,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 return val ->
                         val instanceof BigInteger
                                 ? DecimalData.fromBigDecimal(
-                                new BigDecimal((BigInteger) val, 0), precision, scale)
+                                        new BigDecimal((BigInteger) val, 0), precision, scale)
                                 : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case DATE:
                 return val -> (int) (((Date) val).toLocalDate().toEpochDay());
@@ -173,9 +172,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
         }
     }
 
-    /**
-     * Create a nullable JDBC f{@link JdbcSerializationConverter} from given sql type.
-     */
+    /** Create a nullable JDBC f{@link JdbcSerializationConverter} from given sql type. */
     protected JdbcSerializationConverter createNullableExternalConverter(LogicalType type) {
         return wrapIntoNullableExternalConverter(createExternalConverter(type), type);
     }
@@ -258,9 +255,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
         }
     }
 
-    /**
-     * Runtime converter to convert JDBC field to {@link RowData} type object.
-     */
+    /** Runtime converter to convert JDBC field to {@link RowData} type object. */
     @FunctionalInterface
     public interface JdbcDeserializationConverter extends Serializable {
         /**

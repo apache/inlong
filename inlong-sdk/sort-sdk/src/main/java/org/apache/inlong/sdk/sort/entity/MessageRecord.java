@@ -52,10 +52,14 @@ public class MessageRecord {
     @Override
     public String toString() {
         return "MessageRecord{"
-                + "msgKey='" + msgKey
-                + ", message=" + String.valueOf(msgs)
-                + ", offset='" + offset
-                + ", recTime=" + recTime
+                + "msgKey='"
+                + msgKey
+                + ", message="
+                + String.valueOf(msgs)
+                + ", offset='"
+                + offset
+                + ", recTime="
+                + recTime
                 + '}';
     }
 }

@@ -23,9 +23,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collection;
 import org.junit.Test;
 
-/**
- * The base of the unit tests for {@link FormatInfo}.
- */
+/** The base of the unit tests for {@link FormatInfo}. */
 public abstract class FormatInfoTestBase {
 
     /**
@@ -35,10 +33,7 @@ public abstract class FormatInfoTestBase {
      */
     abstract Collection<FormatInfo> createFormatInfos();
 
-    /**
-     * Verify that format information can be correctly marshalled and
-     * demarshalled.
-     */
+    /** Verify that format information can be correctly marshalled and demarshalled. */
     @Test
     public void testMarshallAndDemarshall() throws Exception {
 

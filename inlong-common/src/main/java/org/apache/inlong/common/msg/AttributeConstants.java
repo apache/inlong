@@ -22,27 +22,19 @@ public interface AttributeConstants {
     String SEPARATOR = "&";
     String KEY_VALUE_SEPARATOR = "=";
 
-    /**
-     * group id
-     * unique string id for each business or product
-     */
+    /** group id unique string id for each business or product */
     String GROUP_ID = "groupId";
 
     /**
-     * interface id
-     * unique string id for each interface of business
-     * An interface stand for a kind of data
+     * interface id unique string id for each interface of business An interface stand for a kind of
+     * data
      */
     String INTERFACE_ID = "streamId";
 
-    /**
-     * iname is like a streamId but used in file protocol(m=xxx)
-     */
+    /** iname is like a streamId but used in file protocol(m=xxx) */
     String INAME = "iname";
 
-    /**
-     * data time
-     */
+    /** data time */
     String DATA_TIME = "dt";
 
     String TIME_STAMP = "t";
@@ -70,5 +62,4 @@ public interface AttributeConstants {
     String RCV_TIME = "rt";
 
     String NODE_IP = "NodeIP";
-
 }

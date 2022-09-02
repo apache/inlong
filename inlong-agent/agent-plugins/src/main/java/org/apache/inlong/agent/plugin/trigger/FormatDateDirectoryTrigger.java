@@ -17,9 +17,5 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-/**
- * Directory trigger with format date.
- */
-public class FormatDateDirectoryTrigger extends DirectoryTrigger {
-
-}
+/** Directory trigger with format date. */
+public class FormatDateDirectoryTrigger extends DirectoryTrigger {}

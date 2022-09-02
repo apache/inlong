@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import java.util.Map;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
@@ -32,37 +33,40 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-import java.util.Map;
-
 public interface WorkflowApi {
 
     @Headers("Content-Type: application/json")
     @POST("workflow/approve/{taskId}")
-    Call<Response<WorkflowResult>> startInlongGroup(@Path("taskId") Integer taskId, @Body Map<String, Object> request);
+    Call<Response<WorkflowResult>> startInlongGroup(
+            @Path("taskId") Integer taskId, @Body Map<String, Object> request);
 
     @POST("workflow/start")
     Call<Response<WorkflowResult>> start(@Body WorkflowOperationRequest request);
 
     @POST("workflow/cancel/{processId}")
-    Call<Response<WorkflowResult>> cancel(@Path("processId") Integer processId, @Body WorkflowOperationRequest request);
+    Call<Response<WorkflowResult>> cancel(
+            @Path("processId") Integer processId, @Body WorkflowOperationRequest request);
 
     @POST("workflow/continue/{processId}")
-    Call<Response<WorkflowResult>> continueProcess(@Path("processId") Integer processId,
-            @Body WorkflowOperationRequest request);
+    Call<Response<WorkflowResult>> continueProcess(
+            @Path("processId") Integer processId, @Body WorkflowOperationRequest request);
 
     @POST("workflow/reject/{taskId}")
-    Call<Response<WorkflowResult>> reject(@Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
+    Call<Response<WorkflowResult>> reject(
+            @Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
 
     @POST("workflow/complete/{taskId}")
-    Call<Response<WorkflowResult>> complete(@Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
+    Call<Response<WorkflowResult>> complete(
+            @Path("taskId") Integer taskId, @Body WorkflowOperationRequest request);
 
     @GET("workflow/detail/{processId}")
-    Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
+    Call<Response<ProcessDetailResponse>> detail(
+            @Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
-    Call<Response<PageResult<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<ProcessResponse>>> listProcess(
+            @Query("query") Map<String, Object> query);
 
     @GET("workflow/listTask")
     Call<Response<PageResult<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
-
 }

@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * Common heartbeat server entity, including status info and time info.
- */
+/** Common heartbeat server entity, including status info and time info. */
 @Data
 public class ComponentHeartbeatEntity implements Serializable {
 
@@ -37,5 +34,4 @@ public class ComponentHeartbeatEntity implements Serializable {
     private Long reportTime;
     private Date createTime;
     private Date modifyTime;
-
 }

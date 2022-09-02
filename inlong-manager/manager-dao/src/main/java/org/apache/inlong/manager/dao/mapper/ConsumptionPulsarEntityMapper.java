@@ -39,5 +39,4 @@ public interface ConsumptionPulsarEntityMapper {
     int updateByConsumptionId(ConsumptionPulsarEntity record);
 
     int updateByPrimaryKey(ConsumptionPulsarEntity record);
-
 }

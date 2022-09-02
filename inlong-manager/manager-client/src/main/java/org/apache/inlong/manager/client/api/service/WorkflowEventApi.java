@@ -27,6 +27,6 @@ import retrofit2.http.Query;
 public interface WorkflowEventApi {
 
     @GET("workflow/event/list")
-    Call<Response<PageResult<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
-            @Query("status") Integer status);
+    Call<Response<PageResult<EventLogResponse>>> getInlongGroupError(
+            @Query("inlongGroupId") String groupId, @Query("status") Integer status);
 }

@@ -31,15 +31,15 @@ public class EventStat {
 
     public EventStat(Event event) {
         this.event = event;
-        this.isOrderMessage = MessageUtils
-                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
+        this.isOrderMessage =
+                MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent);
     }
 
     public EventStat(Event event, int retryCnt) {
         this.event = event;
         this.myRetryCnt.set(retryCnt);
-        this.isOrderMessage = MessageUtils
-                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
+        this.isOrderMessage =
+                MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent);
     }
 
     public Event getEvent() {

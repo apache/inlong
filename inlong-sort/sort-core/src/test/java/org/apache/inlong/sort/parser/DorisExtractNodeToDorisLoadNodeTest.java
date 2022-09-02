@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -40,71 +47,84 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.stream.Collectors;
-
-/**
- * Test for extract data use {@link DorisExtractNode} and load data use {@link DorisLoadNode}
- */
+/** Test for extract data use {@link DorisExtractNode} and load data use {@link DorisLoadNode} */
 @Slf4j
 public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
 
     private DorisExtractNode buildDorisExtractNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("dt", new StringFormatInfo()),
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
-        return new DorisExtractNode("1", "doris_input", fields,
-                null, null, "localhost:8030", "root",
-                "000000", "test.test1");
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("dt", new StringFormatInfo()),
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldInfo("sale", new DoubleFormatInfo()));
+        return new DorisExtractNode(
+                "1",
+                "doris_input",
+                fields,
+                null,
+                null,
+                "localhost:8030",
+                "root",
+                "000000",
+                "test.test1");
     }
 
     private DorisLoadNode buildDorisLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("dt", new StringFormatInfo()),
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()),
-                new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
+        List<FieldInfo> fields =
+                Arrays.asList(
+                        new FieldInfo("dt", new StringFormatInfo()),
+                        new FieldInfo("id", new IntFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldInfo("sale", new DoubleFormatInfo()));
 
-        List<FieldRelation> fieldRelations = Arrays
-                .asList(new FieldRelation(new FieldInfo("dt", new StringFormatInfo()),
+        List<FieldRelation> fieldRelations =
+                Arrays.asList(
+                        new FieldRelation(
+                                new FieldInfo("dt", new StringFormatInfo()),
                                 new FieldInfo("dt", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("price", new DecimalFormatInfo()),
+                        new FieldRelation(
+                                new FieldInfo("price", new DecimalFormatInfo()),
                                 new FieldInfo("price", new DecimalFormatInfo())),
-                        new FieldRelation(new FieldInfo("sale", new DoubleFormatInfo()),
-                                new FieldInfo("sale", new DoubleFormatInfo()))
-                );
+                        new FieldRelation(
+                                new FieldInfo("sale", new DoubleFormatInfo()),
+                                new FieldInfo("sale", new DoubleFormatInfo())));
 
         List<FilterFunction> filters = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
-        return new DorisLoadNode("2", "doris_output", fields, fieldRelations,
-                filters, null, 1, map,
-                "localhost:8030", "root",
-                "000000", "test.test2", null);
+        return new DorisLoadNode(
+                "2",
+                "doris_output",
+                fields,
+                fieldRelations,
+                filters,
+                null,
+                1,
+                map,
+                "localhost:8030",
+                "root",
+                "000000",
+                "test.test2",
+                null);
     }
 
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -115,7 +135,8 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is doris {@link DorisLoadNode}
+     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is doris {@link
+     * DorisLoadNode}
      */
     @Test
     public void testDorisExtractNodeToDorisLoadNodeSqlParse() {
@@ -123,17 +144,19 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         env.disableOperatorChaining();
-        EnvironmentSettings settings = EnvironmentSettings
-                .newInstance()
-                .useBlinkPlanner()
-                .inStreamingMode()
-                .build();
+        EnvironmentSettings settings =
+                EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildDorisExtractNode();
         Node outputNode = buildDorisLoadNode();
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+        StreamInfo streamInfo =
+                new StreamInfo(
+                        "1",
+                        Arrays.asList(inputNode, outputNode),
+                        Collections.singletonList(
+                                buildNodeRelation(
+                                        Collections.singletonList(inputNode),
+                                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

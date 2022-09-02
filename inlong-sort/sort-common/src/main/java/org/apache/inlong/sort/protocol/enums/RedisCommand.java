@@ -17,26 +17,16 @@
 
 package org.apache.inlong.sort.protocol.enums;
 
-/**
- * This class defines the redis command supportted in Sort-connector-redis
- */
+/** This class defines the redis command supportted in Sort-connector-redis */
 public enum RedisCommand {
 
-    /**
-     * The command for hget
-     */
+    /** The command for hget */
     HGET("hget"),
-    /**
-     * The command for get
-     */
+    /** The command for get */
     GET("get"),
-    /**
-     * The command for zscore
-     */
+    /** The command for zscore */
     ZSCORE("zscore"),
-    /**
-     * The command for zrevrank
-     */
+    /** The command for zrevrank */
     ZREVRANK("zrevrank");
 
     private final String value;
@@ -51,11 +41,11 @@ public enum RedisCommand {
                 return command;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported redis command=%s for Inlong", name));
+        throw new IllegalArgumentException(
+                String.format("Unsupported redis command=%s for Inlong", name));
     }
 
     public String getValue() {
         return value;
     }
-
 }

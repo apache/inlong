@@ -22,14 +22,13 @@ import io.debezium.embedded.EmbeddedEngineChangeEvent;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.DebeziumEngine.RecordCommitter;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.annotation.Internal;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 /** Consume debezium change events. */
 @Internal
@@ -60,9 +59,7 @@ public class DebeziumChangeConsumer
         }
     }
 
-    /**
-     * Commit offset.
-     */
+    /** Commit offset. */
     @SuppressWarnings("unchecked")
     public void commitOffset(DebeziumOffset offset) throws InterruptedException {
         // Although the committer is read/write by multi-thread, the committer will be not changed

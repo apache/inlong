@@ -17,25 +17,21 @@
 
 package org.apache.inlong.dataproxy.config;
 
+import java.util.Map;
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 public class AuthUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthUtils.class);
 
-    /**
-     * Generate http basic auth credential from configured secretId and secretKey
-     */
+    /** Generate http basic auth credential from configured secretId and secretKey */
     public static String genBasicAuth() {
         Map<String, String> properties = ConfigManager.getInstance().getCommonProperties();
         String secretId = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_ID);
         String secretKey = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_KEY);
         return BasicAuth.genBasicAuthCredential(secretId, secretKey);
     }
-
 }

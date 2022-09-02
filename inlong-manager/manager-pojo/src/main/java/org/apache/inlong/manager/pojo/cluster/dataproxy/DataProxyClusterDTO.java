@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +29,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotNull;
-
-/**
- * DataProxy cluster info
- */
+/** DataProxy cluster info */
 @Data
 @Builder
 @NoArgsConstructor
@@ -51,9 +48,7 @@ public class DataProxyClusterDTO {
     @ApiModelProperty("Load of the DataProxy cluster, default is 20")
     private Integer load = 20;
 
-    /**
-     * Get the dto instance from the request
-     */
+    /** Get the dto instance from the request */
     public static DataProxyClusterDTO getFromRequest(DataProxyClusterRequest request) {
         return DataProxyClusterDTO.builder()
                 .isIntranet(request.getIsIntranet())
@@ -62,16 +57,14 @@ public class DataProxyClusterDTO {
                 .build();
     }
 
-    /**
-     * Get the dto instance from the JSON string.
-     */
+    /** Get the dto instance from the JSON string. */
     public static DataProxyClusterDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, DataProxyClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(
+                    ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
-
 }

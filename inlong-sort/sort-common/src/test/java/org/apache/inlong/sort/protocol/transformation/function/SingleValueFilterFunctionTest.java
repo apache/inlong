@@ -25,14 +25,13 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 
-/**
- * Test for {@link SingleValueFilterFunction}
- */
+/** Test for {@link SingleValueFilterFunction} */
 public class SingleValueFilterFunctionTest extends FunctionBaseTest {
 
     @Override
     public Function getTestObject() {
-        return new SingleValueFilterFunction(EmptyOperator.getInstance(),
+        return new SingleValueFilterFunction(
+                EmptyOperator.getInstance(),
                 new FieldInfo("single_value_field", new TimestampFormatInfo()),
                 EqualOperator.getInstance(),
                 new StringConstantParam("123"));

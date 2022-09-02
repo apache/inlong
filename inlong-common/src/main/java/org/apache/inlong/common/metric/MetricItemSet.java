@@ -22,37 +22,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * MetricItemSet
- */
+/** MetricItemSet */
 public abstract class MetricItemSet<T extends MetricItem> implements MetricItemSetMBean {
 
     protected String name;
 
     protected Map<String, T> itemMap = new ConcurrentHashMap<>();
 
-    /**
-     * Constructor
-     */
+    /** Constructor */
     public MetricItemSet(String name) {
         this.name = name;
     }
 
-    /**
-     * getName
-     */
+    /** getName */
     public String getName() {
         return name;
     }
 
-    /**
-     * createItem
-     */
+    /** createItem */
     protected abstract T createItem();
 
-    /**
-     * findMetricItem
-     */
+    /** findMetricItem */
     public T findMetricItem(Map<String, String> dimensions) {
         String key = MetricUtils.getDimensionsKey(dimensions);
         T currentItem = this.itemMap.get(key);
@@ -65,9 +55,7 @@ public abstract class MetricItemSet<T extends MetricItem> implements MetricItemS
         return (oldItem == null) ? currentItem : oldItem;
     }
 
-    /**
-     * snapshot
-     */
+    /** snapshot */
     @Override
     public List<MetricItem> snapshot() {
         Map<String, T> oldItemMap = itemMap;

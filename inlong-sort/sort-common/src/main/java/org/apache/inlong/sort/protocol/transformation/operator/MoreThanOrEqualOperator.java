@@ -17,13 +17,12 @@
 
 package org.apache.inlong.sort.protocol.transformation.operator;
 
+import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.SingleValueCompareOperator;
-
-import java.io.Serializable;
 
 @JsonTypeName("moreThanOrEqual")
 @Data

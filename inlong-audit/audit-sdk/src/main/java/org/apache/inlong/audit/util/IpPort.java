@@ -18,9 +18,8 @@
 package org.apache.inlong.audit.util;
 
 import io.netty.channel.Channel;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.net.InetSocketAddress;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class IpPort {
     public static final String SEPARATOR = ":";
@@ -101,9 +100,7 @@ public class IpPort {
         return destAddr;
     }
 
-    /**
-     * hashCode
-     */
+    /** hashCode */
     @Override
     public int hashCode() {
         int result = ip.hashCode();
@@ -111,9 +108,7 @@ public class IpPort {
         return result;
     }
 
-    /**
-     * equals
-     */
+    /** equals */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -138,11 +133,8 @@ public class IpPort {
         return false;
     }
 
-    /**
-     * toString
-     */
+    /** toString */
     public String toString() {
         return key;
     }
 }
-

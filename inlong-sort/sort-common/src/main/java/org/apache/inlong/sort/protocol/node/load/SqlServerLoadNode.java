@@ -18,6 +18,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -31,13 +34,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Sqlserver load node
- */
+/** Sqlserver load node */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("sqlServerLoad")
 @Data
@@ -46,29 +43,28 @@ public class SqlServerLoadNode extends LoadNode implements InlongMetric, Seriali
 
     private static final long serialVersionUID = 3083735489161823965L;
 
-    /**
-     * jdbc:sqlserver://host:port;databaseName=database
-     */
+    /** jdbc:sqlserver://host:port;databaseName=database */
     @JsonProperty("url")
     private String url;
-    
+
     @JsonProperty("username")
     private String username;
-    
+
     @JsonProperty("password")
     private String password;
-    
+
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     private String schemaName;
-    
+
     @JsonProperty("tableName")
     private String tableName;
-    
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 
     @JsonCreator
-    public SqlServerLoadNode(@JsonProperty("id") String id,
+    public SqlServerLoadNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
@@ -82,14 +78,21 @@ public class SqlServerLoadNode extends LoadNode implements InlongMetric, Seriali
             @JsonProperty(value = "schemaName", defaultValue = "dbo") String schemaName,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.url = Preconditions.checkNotNull(url, "sqlserver url is null");
         this.username = Preconditions.checkNotNull(username, "sqlserver user name is null");
         this.password = Preconditions.checkNotNull(password, "sqlserver password is null");
         this.schemaName = schemaName;
         this.tableName = Preconditions.checkNotNull(tableName, "sqlserver table is null");
         this.primaryKey = primaryKey;
-
     }
 
     @Override

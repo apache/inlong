@@ -26,22 +26,17 @@ import org.apache.inlong.manager.service.core.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Role operation
- */
+/** Role operation */
 @Slf4j
 @Service
 public class RoleServiceImpl implements RoleService {
 
-    @Autowired
-    private UserRoleEntityMapper userRoleEntityMapper;
+    @Autowired private UserRoleEntityMapper userRoleEntityMapper;
 
     @Override
     public List<String> listByUser(String username) {
-        return userRoleEntityMapper.listByUsername(username)
-                .stream()
+        return userRoleEntityMapper.listByUsername(username).stream()
                 .map(UserRoleEntity::getRoleCode)
                 .collect(Collectors.toList());
     }
-
 }

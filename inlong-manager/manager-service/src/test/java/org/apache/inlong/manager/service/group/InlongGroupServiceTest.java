@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.enums.GroupStatus;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -31,12 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Test for {@link InlongGroupService}
- */
+/** Test for {@link InlongGroupService} */
 @TestComponent
 public class InlongGroupServiceTest {
 
@@ -44,14 +41,10 @@ public class InlongGroupServiceTest {
 
     private final String globalGroupId = "group1";
     private final String globalOperator = "admin";
-    @Autowired
-    public InlongGroupService groupService;
-    @Autowired
-    InlongGroupExtEntityMapper groupExtMapper;
+    @Autowired public InlongGroupService groupService;
+    @Autowired InlongGroupExtEntityMapper groupExtMapper;
 
-    /**
-     * Test to save group
-     */
+    /** Test to save group */
     public String saveGroup(String inlongGroupId, String operator) {
         InlongGroupInfo groupInfo;
         try {

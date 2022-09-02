@@ -21,9 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
-/**
- * Operation log entity, including operation type, request url, etc.
- */
+/** Operation log entity, including operation type, request url, etc. */
 @Data
 public class OperationLogEntity implements Serializable {
 
@@ -43,5 +41,4 @@ public class OperationLogEntity implements Serializable {
     private String body;
     private String param;
     private String errMsg;
-
 }

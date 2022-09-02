@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sdk.sort.interceptor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
@@ -26,20 +29,13 @@ import org.apache.inlong.sdk.sort.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * The sdk interceptor that use to filter messages do not in the time interval.
- */
+/** The sdk interceptor that use to filter messages do not in the time interval. */
 public class MsgTimeInterceptor implements Interceptor {
     private static final Logger logger = LoggerFactory.getLogger(MsgTimeInterceptor.class);
     private long startTime;
     private long stopTime;
 
-    public MsgTimeInterceptor() {
-    }
+    public MsgTimeInterceptor() {}
 
     @Override
     public List<InLongMessage> intercept(List<InLongMessage> messages) {
@@ -55,11 +51,13 @@ public class MsgTimeInterceptor implements Interceptor {
     public void configure(InLongTopic inLongTopic) {
         startTime = TimeUtil.parseStartTime(inLongTopic);
         stopTime = TimeUtil.parseStopTime(inLongTopic);
-        logger.info("start to config MsgTimeInterceptor, start time is {}, stop time is {}", startTime, stopTime);
+        logger.info(
+                "start to config MsgTimeInterceptor, start time is {}, stop time is {}",
+                startTime,
+                stopTime);
     }
 
     private boolean isValidMsgTime(long msgTime) {
         return msgTime >= startTime && msgTime <= stopTime;
     }
-
 }

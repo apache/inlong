@@ -36,5 +36,4 @@ public class RemoteConfigJson {
     public DataProxyConfig getData() {
         return data;
     }
-
 }

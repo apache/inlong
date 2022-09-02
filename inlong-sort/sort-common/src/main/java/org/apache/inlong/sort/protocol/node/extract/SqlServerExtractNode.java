@@ -18,6 +18,13 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
@@ -30,21 +37,12 @@ import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * SqlServer extract node using debezium engine.
- */
+/** SqlServer extract node using debezium engine. */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("sqlserverExtract")
 @Data
-public class SqlServerExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
+public class SqlServerExtractNode extends ExtractNode
+        implements InlongMetric, Metadata, Serializable {
 
     private static final long serialVersionUID = 5096171152872086083L;
 
@@ -83,7 +81,8 @@ public class SqlServerExtractNode extends ExtractNode implements InlongMetric, M
     private String primaryKey;
 
     @JsonCreator
-    public SqlServerExtractNode(@JsonProperty("id") String id,
+    public SqlServerExtractNode(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
@@ -138,7 +137,11 @@ public class SqlServerExtractNode extends ExtractNode implements InlongMetric, M
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+        return EnumSet.of(
+                MetaField.PROCESS_TIME,
+                MetaField.TABLE_NAME,
+                MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME,
+                MetaField.OP_TS);
     }
 }

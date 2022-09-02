@@ -19,6 +19,14 @@ package org.apache.inlong.audit.sink;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -44,15 +52,6 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class TubeSink extends AbstractSink implements Configurable {
 
@@ -93,16 +92,17 @@ public class TubeSink extends AbstractSink implements Configurable {
     private static ConcurrentHashMap<String, Long> illegalTopicMap =
             new ConcurrentHashMap<String, Long>();
 
-    private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1,
-            new HighPriorityThreadFactory("tubePerformance-Printer-thread"));
+    private static ScheduledExecutorService scheduledExecutorService =
+            Executors.newScheduledThreadPool(
+                    1, new HighPriorityThreadFactory("tubePerformance-Printer-thread"));
 
     static {
         /*
          * stat tube performance
          */
         logger.info("tubePerformanceTask!!!!!!");
-        scheduledExecutorService.scheduleWithFixedDelay(tubePerformanceTask, 0L,
-                PRINT_INTERVAL, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleWithFixedDelay(
+                tubePerformanceTask, 0L, PRINT_INTERVAL, TimeUnit.SECONDS);
     }
 
     public MessageProducer producer;
@@ -171,7 +171,6 @@ public class TubeSink extends AbstractSink implements Configurable {
             sinkThreadPool[i].start();
         }
         logger.debug("tubesink started");
-
     }
 
     @Override
@@ -224,9 +223,11 @@ public class TubeSink extends AbstractSink implements Configurable {
                     diskRateLimiter.acquire(event.getBody().length);
                 }
                 if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
-                    logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
-                            + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
-                            + "it will cause memoryChannel full and fileChannel write.)", getName());
+                    logger.info(
+                            "[{}] Channel --> Queue(has no enough space,current code point) "
+                                    + "--> Tube,Check if Tube server or network is ok.(if this situation last long time "
+                                    + "it will cause memoryChannel full and fileChannel write.)",
+                            getName());
                     tx.rollback();
                 } else {
                     tx.commit();
@@ -241,7 +242,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                 tx.rollback();
             } catch (Throwable e) {
                 logger.error("tubesink transaction rollback exception", e);
-
             }
         } finally {
             tx.close();
@@ -257,8 +257,8 @@ public class TubeSink extends AbstractSink implements Configurable {
         Preconditions.checkState(StringUtils.isNotEmpty(topic), "No topic specified");
 
         masterHostAndPortList = context.getString(MASTER_HOST_PORT_LIST);
-        Preconditions.checkState(masterHostAndPortList != null,
-                "No master and port list specified");
+        Preconditions.checkState(
+                masterHostAndPortList != null, "No master and port list specified");
 
         producerMap = new HashMap<String, MessageProducer>();
 
@@ -292,24 +292,31 @@ public class TubeSink extends AbstractSink implements Configurable {
             diskRateLimiter = RateLimiter.create(diskIORatePerSec);
         }
 
-        linkMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                ConfigConstants.DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
-        sessionWarnDelayedMsgCount = context.getLong(ConfigConstants.SESSION_WARN_DELAYED_MSG_COUNT,
-                ConfigConstants.DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT);
-        sessionMaxAllowedDelayedMsgCount = context.getLong(ConfigConstants.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
-                ConfigConstants.DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
-        nettyWriteBufferHighWaterMark = context.getLong(ConfigConstants.NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
-                ConfigConstants.DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
-        recoverthreadcount = context.getInteger(ConfigConstants.RECOVER_THREAD_COUNT,
-                Runtime.getRuntime().availableProcessors() + 1);
-
+        linkMaxAllowedDelayedMsgCount =
+                context.getLong(
+                        ConfigConstants.LINK_MAX_ALLOWED_DELAYED_MSG_COUNT,
+                        ConfigConstants.DEFAULT_LINK_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        sessionWarnDelayedMsgCount =
+                context.getLong(
+                        ConfigConstants.SESSION_WARN_DELAYED_MSG_COUNT,
+                        ConfigConstants.DEFAULT_SESSION_WARN_DELAYED_MSG_COUNT);
+        sessionMaxAllowedDelayedMsgCount =
+                context.getLong(
+                        ConfigConstants.SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT,
+                        ConfigConstants.DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT);
+        nettyWriteBufferHighWaterMark =
+                context.getLong(
+                        ConfigConstants.NETTY_WRITE_BUFFER_HIGH_WATER_MARK,
+                        ConfigConstants.DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK);
+        recoverthreadcount =
+                context.getInteger(
+                        ConfigConstants.RECOVER_THREAD_COUNT,
+                        Runtime.getRuntime().availableProcessors() + 1);
     }
 
-    /**
-     * Send message of success.
-     */
+    /** Send message of success. */
     public void handleMessageSendSuccess(EventStat es) {
-        //Statistics tube performance
+        // Statistics tube performance
         totalTubeSuccSendCnt.incrementAndGet();
         totalTubeSuccSendSize.addAndGet(es.getEvent().getBody().length);
 
@@ -321,13 +328,11 @@ public class TubeSink extends AbstractSink implements Configurable {
         if (nowCnt % logEveryNEvents == 0 && nowCnt != lastSuccessSendCnt.get()) {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
-            logger.info("tubesink {}, succ put {} events to tube,"
-                    + " in the past {} millsec", new Object[]{
-                    getName(), (nowCnt - oldCnt), (t2 - t1)
-            });
+            logger.info(
+                    "tubesink {}, succ put {} events to tube," + " in the past {} millsec",
+                    new Object[] {getName(), (nowCnt - oldCnt), (t2 - t1)});
             t1 = t2;
         }
-
     }
 
     /**
@@ -366,15 +371,20 @@ public class TubeSink extends AbstractSink implements Configurable {
             sessionFactory = new TubeMultiSessionFactory(conf);
             logger.info("create tube connection successfully");
         } catch (TubeClientException e) {
-            logger.error("create connnection error in tubesink, "
-                    + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
-            throw new FlumeException("connect to Tube error1, "
-                    + "maybe zkstr/zkroot set error, please re-check");
+            logger.error(
+                    "create connnection error in tubesink, "
+                            + "maybe tube master set error, please re-check. ex1 {}",
+                    e.getMessage());
+            throw new FlumeException(
+                    "connect to Tube error1, " + "maybe zkstr/zkroot set error, please re-check");
         } catch (Throwable e) {
-            logger.error("create connnection error in tubesink, "
-                    + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}", e);
-            throw new FlumeException("connect to meta error2, "
-                    + "maybe tube master set error/shutdown in progress, please re-check");
+            logger.error(
+                    "create connnection error in tubesink, "
+                            + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
+                    e);
+            throw new FlumeException(
+                    "connect to meta error2, "
+                            + "maybe tube master set error/shutdown in progress, please re-check");
         }
 
         if (producerMap == null) {
@@ -400,7 +410,9 @@ public class TubeSink extends AbstractSink implements Configurable {
             try {
                 producer.shutdown();
             } catch (TubeClientException e) {
-                logger.error("destroy producer error in tubesink, MetaClientException {}", e.getMessage());
+                logger.error(
+                        "destroy producer error in tubesink, MetaClientException {}",
+                        e.getMessage());
             } catch (Throwable e) {
                 logger.error("destroy producer error in tubesink, ex {}", e.getMessage());
             }
@@ -419,7 +431,8 @@ public class TubeSink extends AbstractSink implements Configurable {
     }
 
     /**
-     * Currently, all topics are published by the same producer. If needed, extend it to multi producers.
+     * Currently, all topics are published by the same producer. If needed, extend it to multi
+     * producers.
      *
      * @param topic
      * @throws TubeClientException
@@ -458,7 +471,6 @@ public class TubeSink extends AbstractSink implements Configurable {
             }
             return producerMap.get(topic);
         }
-
     }
 
     static class TubePerformanceTask implements Runnable {
@@ -467,11 +479,14 @@ public class TubeSink extends AbstractSink implements Configurable {
         public void run() {
             try {
                 if (totalTubeSuccSendSize.get() != 0) {
-                    logger.info("Total tube performance tps :"
-                            + totalTubeSuccSendCnt.get() / PRINT_INTERVAL
-                            + "/s, avg msg size:"
-                            + totalTubeSuccSendSize.get() / totalTubeSuccSendCnt.get()
-                            + ",print every " + PRINT_INTERVAL + " seconds");
+                    logger.info(
+                            "Total tube performance tps :"
+                                    + totalTubeSuccSendCnt.get() / PRINT_INTERVAL
+                                    + "/s, avg msg size:"
+                                    + totalTubeSuccSendSize.get() / totalTubeSuccSendCnt.get()
+                                    + ",print every "
+                                    + PRINT_INTERVAL
+                                    + " seconds");
 
                     // totalpulsarSuccSendCnt represents the number of packets
                     totalTubeSuccSendSize.set(0);
@@ -547,13 +562,16 @@ public class TubeSink extends AbstractSink implements Configurable {
                     decrementFlag = true;
 
                 } catch (InterruptedException e) {
-                    logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
+                    logger.info(
+                            "Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
                 } catch (Throwable throwable) {
                     if (throwable instanceof TubeClientException) {
                         String message = throwable.getMessage();
-                        if (message != null && (message.contains("No available queue for topic")
-                                || message.contains("The brokers of topic are all forbidden"))) {
+                        if (message != null
+                                && (message.contains("No available queue for topic")
+                                        || message.contains(
+                                                "The brokers of topic are all forbidden"))) {
                             illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
                             logger.info("IllegalTopicMap.put " + topic);
                             continue;
@@ -561,7 +579,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                             try {
                                 Thread.sleep(100);
                             } catch (InterruptedException e) {
-                                //ignore..
+                                // ignore..
                             }
                         }
                     }
@@ -583,13 +601,28 @@ public class TubeSink extends AbstractSink implements Configurable {
             message.setAttrKeyVal("auditIp", localIp);
             String streamId = "";
             String groupId = "";
-            if (event.getHeaders().containsKey(org.apache.inlong.audit.consts.AttributeConstants.INLONG_STREAM_ID)) {
-                streamId = event.getHeaders().get(org.apache.inlong.audit.consts.AttributeConstants.INLONG_STREAM_ID);
-                message.setAttrKeyVal(org.apache.inlong.audit.consts.AttributeConstants.INLONG_STREAM_ID, streamId);
+            if (event.getHeaders()
+                    .containsKey(
+                            org.apache.inlong.audit.consts.AttributeConstants.INLONG_STREAM_ID)) {
+                streamId =
+                        event.getHeaders()
+                                .get(
+                                        org.apache.inlong.audit.consts.AttributeConstants
+                                                .INLONG_STREAM_ID);
+                message.setAttrKeyVal(
+                        org.apache.inlong.audit.consts.AttributeConstants.INLONG_STREAM_ID,
+                        streamId);
             }
-            if (event.getHeaders().containsKey(org.apache.inlong.audit.consts.AttributeConstants.INLONG_GROUP_ID)) {
-                groupId = event.getHeaders().get(org.apache.inlong.audit.consts.AttributeConstants.INLONG_GROUP_ID);
-                message.setAttrKeyVal(org.apache.inlong.audit.consts.AttributeConstants.INLONG_GROUP_ID, groupId);
+            if (event.getHeaders()
+                    .containsKey(
+                            org.apache.inlong.audit.consts.AttributeConstants.INLONG_GROUP_ID)) {
+                groupId =
+                        event.getHeaders()
+                                .get(
+                                        org.apache.inlong.audit.consts.AttributeConstants
+                                                .INLONG_GROUP_ID);
+                message.setAttrKeyVal(
+                        org.apache.inlong.audit.consts.AttributeConstants.INLONG_GROUP_ID, groupId);
             }
 
             logger.debug("producer start to send msg...");
@@ -619,20 +652,23 @@ public class TubeSink extends AbstractSink implements Configurable {
 
             // handle sent error
             if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
-                logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                        result.getErrMsg(), resendQueue.size(),
+                logger.warn(
+                        "Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                        result.getErrMsg(),
+                        resendQueue.size(),
                         myEventStat.getEvent().hashCode());
 
                 return;
             }
             if (result.getErrCode() != TErrCodeConstants.SERVER_RECEIVE_OVERFLOW) {
-                logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
-                        result.getErrMsg(), resendQueue.size(),
+                logger.warn(
+                        "Send message failed, error message: {}, resendQueue size: {}, event:{}",
+                        result.getErrMsg(),
+                        resendQueue.size(),
                         myEventStat.getEvent().hashCode());
             }
             myEventStat.incRetryCnt();
             resendEvent(myEventStat, true);
-
         }
 
         @Override
@@ -648,5 +684,4 @@ public class TubeSink extends AbstractSink implements Configurable {
             resendEvent(myEventStat, true);
         }
     }
-
 }

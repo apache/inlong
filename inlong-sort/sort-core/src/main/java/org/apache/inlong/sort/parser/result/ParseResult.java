@@ -17,9 +17,7 @@
 
 package org.apache.inlong.sort.parser.result;
 
-/**
- * The result of parse, it is the top-level interface abstraction of parse result
- */
+/** The result of parse, it is the top-level interface abstraction of parse result */
 public interface ParseResult {
 
     /**
@@ -43,5 +41,4 @@ public interface ParseResult {
      * @throws Exception The exception may throws when executing
      */
     boolean tryExecute() throws Exception;
-
 }

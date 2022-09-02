@@ -17,6 +17,19 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
@@ -42,27 +55,12 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-/**
- * Kafka multi topics fetcher
- */
+/** Kafka multi topics fetcher */
 public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
-    private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap;
+    private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>>
+            ackOffsetMap;
     private final String bootstrapServers;
     private ConsumerRebalanceListener listener;
     private KafkaConsumer<byte[], byte[]> consumer;
@@ -85,8 +83,9 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             this.consumer = createKafkaConsumer();
             InLongTopic topic = onlineTopics.values().stream().findFirst().get();
             this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
-            this.listener = new AckOffsetOnRebalance(topic.getInLongCluster().getClusterId(), seeker,
-                    commitOffsetMap);
+            this.listener =
+                    new AckOffsetOnRebalance(
+                            topic.getInLongCluster().getClusterId(), seeker, commitOffsetMap);
             consumer.subscribe(onlineTopics.keySet(), listener);
             return true;
         } catch (Throwable t) {
@@ -99,14 +98,18 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, context.getConfig().getSortTaskId());
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        properties.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        properties.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 ByteArrayDeserializer.class.getName());
-        properties.put(ConsumerConfig.RECEIVE_BUFFER_CONFIG,
+        properties.put(
+                ConsumerConfig.RECEIVE_BUFFER_CONFIG,
                 context.getConfig().getKafkaSocketRecvBufferSize());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        SortClientConfig.ConsumeStrategy offsetResetStrategy = context.getConfig().getOffsetResetStrategy();
+        SortClientConfig.ConsumeStrategy offsetResetStrategy =
+                context.getConfig().getOffsetResetStrategy();
         if (offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest
                 || offsetResetStrategy == SortClientConfig.ConsumeStrategy.lastest_absolutely) {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
@@ -116,13 +119,14 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         } else {
             properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
         }
-        properties.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
+        properties.put(
+                ConsumerConfig.FETCH_MAX_BYTES_CONFIG,
                 context.getConfig().getKafkaFetchSizeBytes());
-        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,
-                context.getConfig().getKafkaFetchWaitMs());
+        properties.put(
+                ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, context.getConfig().getKafkaFetchWaitMs());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        properties.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
-                RangeAssignor.class.getName());
+        properties.put(
+                ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, RangeAssignor.class.getName());
         properties.put(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, 120000L);
         LOGGER.info("start to create kafka consumer:{}", properties);
         return new KafkaConsumer<>(properties);
@@ -130,11 +134,14 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
 
     @Override
     public void ack(String msgOffset) throws Exception {
-        // the format of multi topic kafka fetcher msg offset is topic:partitionId:offset, such as topic1:20:1746839
+        // the format of multi topic kafka fetcher msg offset is topic:partitionId:offset, such as
+        // topic1:20:1746839
         String[] offset = msgOffset.split(":");
         if (offset.length != 3) {
-            throw new Exception("offset is illegal, the correct format is topic:partitionId:offset, "
-                    + "the error offset is:" + msgOffset);
+            throw new Exception(
+                    "offset is illegal, the correct format is topic:partitionId:offset, "
+                            + "the error offset is:"
+                            + msgOffset);
         }
 
         // parse topic partition offset
@@ -142,9 +149,12 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         long ackOffset = Long.parseLong(offset[2]);
 
         // ack
-        if (!ackOffsetMap.containsKey(topicPartition) || !ackOffsetMap.get(topicPartition).containsKey(ackOffset)) {
-            LOGGER.warn("did not find offsetMap or ack offset of {}, offset {}, just ignore it",
-                    topicPartition, ackOffset);
+        if (!ackOffsetMap.containsKey(topicPartition)
+                || !ackOffsetMap.get(topicPartition).containsKey(ackOffset)) {
+            LOGGER.warn(
+                    "did not find offsetMap or ack offset of {}, offset {}, just ignore it",
+                    topicPartition,
+                    ackOffset);
             return;
         }
 
@@ -225,11 +235,16 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         this.setStopConsume(true);
 
         // update
-        this.onlineTopics = newTopics.stream().collect(Collectors.toMap(InLongTopic::getTopic, t -> t));
+        this.onlineTopics =
+                newTopics.stream().collect(Collectors.toMap(InLongTopic::getTopic, t -> t));
         InLongTopic topic = onlineTopics.values().stream().findFirst().get();
         this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
-        this.listener = new AckOffsetOnRebalance(topic.getInLongCluster().getClusterId(), seeker,
-                commitOffsetMap, ackOffsetMap);
+        this.listener =
+                new AckOffsetOnRebalance(
+                        topic.getInLongCluster().getClusterId(),
+                        seeker,
+                        commitOffsetMap,
+                        ackOffsetMap);
         Optional.ofNullable(interceptor).ifPresent(i -> i.configure(topic));
 
         // subscribe new
@@ -241,28 +256,29 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
     }
 
     private void prepareCommit() {
-        ackOffsetMap.forEach((topicPartition, tpOffsetMap) -> {
-            synchronized (tpOffsetMap) {
-                // get the remove list
-                List<Long> removeOffsets = new ArrayList<>();
-                long commitOffset = -1;
-                for (Long ackOffset : tpOffsetMap.keySet()) {
-                    if (!tpOffsetMap.get(ackOffset)) {
-                        break;
-                    }
-                    removeOffsets.add(ackOffset);
-                    commitOffset = ackOffset;
-                }
-                // the first haven't ack, do nothing
-                if (commitOffset == -1) {
-                    return;
-                }
+        ackOffsetMap.forEach(
+                (topicPartition, tpOffsetMap) -> {
+                    synchronized (tpOffsetMap) {
+                        // get the remove list
+                        List<Long> removeOffsets = new ArrayList<>();
+                        long commitOffset = -1;
+                        for (Long ackOffset : tpOffsetMap.keySet()) {
+                            if (!tpOffsetMap.get(ackOffset)) {
+                                break;
+                            }
+                            removeOffsets.add(ackOffset);
+                            commitOffset = ackOffset;
+                        }
+                        // the first haven't ack, do nothing
+                        if (commitOffset == -1) {
+                            return;
+                        }
 
-                // remove offset and commit offset
-                removeOffsets.forEach(tpOffsetMap::remove);
-                commitOffsetMap.put(topicPartition, new OffsetAndMetadata(commitOffset));
-            }
-        });
+                        // remove offset and commit offset
+                        removeOffsets.forEach(tpOffsetMap::remove);
+                        commitOffsetMap.put(topicPartition, new OffsetAndMetadata(commitOffset));
+                    }
+                });
     }
 
     public class Fetcher implements Runnable {
@@ -300,7 +316,9 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
 
         private String getOffset(String topic, int partitionId, long offset) {
             TopicPartition topicPartition = new TopicPartition(topic, partitionId);
-            ackOffsetMap.computeIfAbsent(topicPartition, k -> new ConcurrentSkipListMap<>()).put(offset, false);
+            ackOffsetMap
+                    .computeIfAbsent(topicPartition, k -> new ConcurrentSkipListMap<>())
+                    .put(offset, false);
             return topic + ":" + partitionId + ":" + offset;
         }
 
@@ -348,9 +366,10 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             context.getDefaultStateCounter().addMsgCount(1).addFetchTimes(1);
 
             long startFetchTime = System.currentTimeMillis();
-            ConsumerRecords<byte[], byte[]> records = consumer
-                    .poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
-            context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+            ConsumerRecords<byte[], byte[]> records =
+                    consumer.poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
+            context.getDefaultStateCounter()
+                    .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
             if (null != records && !records.isEmpty()) {
 
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
@@ -358,17 +377,21 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                     String topicName = msg.topic();
                     InLongTopic topic = onlineTopics.get(topicName);
                     String offsetKey = getOffset(topicName, msg.partition(), msg.offset());
-                    List<InLongMessage> inLongMessages = deserializer
-                            .deserialize(context, topic, getMsgHeaders(msg.headers()), msg.value());
+                    List<InLongMessage> inLongMessages =
+                            deserializer.deserialize(
+                                    context, topic, getMsgHeaders(msg.headers()), msg.value());
                     inLongMessages = interceptor.intercept(inLongMessages);
                     if (inLongMessages.isEmpty()) {
                         ack(offsetKey);
                         continue;
                     }
 
-                    msgs.add(new MessageRecord(topic.getTopicKey(),
-                            inLongMessages,
-                            offsetKey, System.currentTimeMillis()));
+                    msgs.add(
+                            new MessageRecord(
+                                    topic.getTopicKey(),
+                                    inLongMessages,
+                                    offsetKey,
+                                    System.currentTimeMillis()));
                     context.getStateCounterByTopic(topic).addConsumeSize(msg.value().length);
                     context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
                     handleAndCallbackMsg(msgs);
@@ -378,8 +401,10 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                 context.getDefaultStateCounter().addEmptyFetchTimes(1);
                 emptyFetchTimes++;
                 if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                    sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                            context.getConfig().getMaxEmptyPollSleepMs());
+                    sleepTime =
+                            Math.min(
+                                    (sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
+                                    context.getConfig().getMaxEmptyPollSleepMs());
                     emptyFetchTimes = 0;
                 }
             }

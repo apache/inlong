@@ -39,27 +39,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Workflow-Approver controller
- */
+/** Workflow-Approver controller */
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Workflow-Approver-API")
 public class WorkflowApproverController {
 
-    @Autowired
-    private WorkflowApproverService workflowApproverService;
+    @Autowired private WorkflowApproverService workflowApproverService;
 
     @PostMapping("/workflow/approver/save")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save approver info")
     public Response<Integer> save(@RequestBody ApproverRequest config) {
-        return Response.success(workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
     }
 
     @GetMapping(value = "/workflow/approver/get/{id}")
     @ApiOperation(value = "Get approver by ID")
-    @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Workflow approver ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<ApproverResponse> get(@PathVariable Integer id) {
         return Response.success(workflowApproverService.get(id));
     }
@@ -68,7 +70,8 @@ public class WorkflowApproverController {
     @ApiOperation(value = "List workflow approvers")
     public Response<PageResult<ApproverResponse>> listByCondition(ApproverPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(workflowApproverService.listByCondition(request));
     }
 
@@ -76,16 +79,20 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver info")
     public Response<Integer> update(@RequestBody ApproverRequest request) {
-        return Response.success(workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
+        return Response.success(
+                workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @DeleteMapping("/workflow/approver/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete approver by ID")
-    @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(
+            name = "id",
+            value = "Workflow approver ID",
+            dataTypeClass = Integer.class,
+            required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
         workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(true);
     }
-
 }

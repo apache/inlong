@@ -28,9 +28,7 @@ import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
-/**
- * Pulsar source request
- */
+/** Pulsar source request */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -65,8 +63,9 @@ public class PulsarSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty("Configure the Source's startup mode."
-            + " Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @ApiModelProperty(
+            "Configure the Source's startup mode."
+                    + " Available options are earliest, latest, external-subscription, and specific-offsets.")
     private String scanStartupMode = "earliest";
 
     public PulsarSourceRequest() {

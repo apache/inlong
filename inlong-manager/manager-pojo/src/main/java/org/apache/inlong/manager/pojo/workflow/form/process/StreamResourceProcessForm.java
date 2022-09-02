@@ -24,9 +24,7 @@ import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-/**
- * Form of create inlong stream resource
- */
+/** Form of create inlong stream resource */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class StreamResourceProcessForm extends BaseProcessForm {
@@ -40,9 +38,7 @@ public class StreamResourceProcessForm extends BaseProcessForm {
     private GroupOperateType groupOperateType = GroupOperateType.INIT;
 
     @Override
-    public void validate() throws FormValidateException {
-
-    }
+    public void validate() throws FormValidateException {}
 
     @Override
     public String getFormName() {

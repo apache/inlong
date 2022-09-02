@@ -18,19 +18,17 @@
 package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.inlong.manager.workflow.WorkflowAction;
-import org.apache.inlong.manager.workflow.WorkflowContext;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.inlong.manager.workflow.WorkflowAction;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
-/**
- * Start event
- */
+/** Start event */
 public class StartEvent extends NextableElement {
 
-    private static final Set<WorkflowAction> SUPPORTED_ACTIONS = ImmutableSet.of(WorkflowAction.START);
+    private static final Set<WorkflowAction> SUPPORTED_ACTIONS =
+            ImmutableSet.of(WorkflowAction.START);
 
     public StartEvent() {
         this.setName("StartEvent");
@@ -39,8 +37,7 @@ public class StartEvent extends NextableElement {
 
     @Override
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        return getActionToNextElementMap().getOrDefault(action, NextableElement.EMPTY_NEXT)
-                .stream()
+        return getActionToNextElementMap().getOrDefault(action, NextableElement.EMPTY_NEXT).stream()
                 .filter(conditionNextElement -> conditionNextElement.getCondition().test(context))
                 .map(ConditionNextElement::getElement)
                 .collect(Collectors.toList());
@@ -55,5 +52,4 @@ public class StartEvent extends NextableElement {
     protected Set<WorkflowAction> supportedActions() {
         return SUPPORTED_ACTIONS;
     }
-
 }

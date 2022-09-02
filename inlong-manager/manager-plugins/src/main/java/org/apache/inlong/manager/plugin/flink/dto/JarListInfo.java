@@ -17,18 +17,14 @@
 
 package org.apache.inlong.manager.plugin.flink.dto;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * Jar list info, including address, file list.
- */
+/** Jar list info, including address, file list. */
 @Data
 public class JarListInfo {
 
     private String address;
 
     private List<JarFileInfo> files;
-
 }

@@ -20,11 +20,11 @@ package org.apache.inlong.manager.service.workflow.group;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.group.InitGroupCompleteListener;
 import org.apache.inlong.manager.service.listener.group.InitGroupFailedListener;
 import org.apache.inlong.manager.service.listener.group.InitGroupListener;
-import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -33,21 +33,15 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Create inlong group process definition
- */
+/** Create inlong group process definition */
 @Slf4j
 @Component
 public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
-    @Autowired
-    private InitGroupListener initGroupListener;
-    @Autowired
-    private InitGroupCompleteListener initGroupCompleteListener;
-    @Autowired
-    private InitGroupFailedListener initGroupFailedListener;
-    @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    @Autowired private InitGroupListener initGroupListener;
+    @Autowired private InitGroupCompleteListener initGroupCompleteListener;
+    @Autowired private InitGroupFailedListener initGroupFailedListener;
+    @Autowired private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -106,7 +100,8 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         process.setEndEvent(endEvent);
 
         // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
-        // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
+        // To ensure that after some tasks fail, data will not start to be collected by source or
+        // consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSinkTask);
         initSinkTask.addNext(initSortTask);
@@ -120,5 +115,4 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
     public ProcessName getProcessName() {
         return ProcessName.CREATE_GROUP_RESOURCE;
     }
-
 }

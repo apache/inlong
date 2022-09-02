@@ -19,7 +19,6 @@
 package org.apache.inlong.sdk.dataproxy.codec;
 
 import java.util.List;
-
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 
 public class EncodeObject {
@@ -58,8 +57,7 @@ public class EncodeObject {
     private ErrorCode exceptionError = null;
 
     /* Used by de_serialization. msgtype=7/8*/
-    public EncodeObject() {
-    }
+    public EncodeObject() {}
 
     /* Used by de_serialization. */
     public EncodeObject(byte[] bodyBytes, String attributes) {
@@ -69,7 +67,8 @@ public class EncodeObject {
         String[] tokens = attributes.split("&");
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].startsWith("messageId=")) {
-                this.messageId = tokens[i].substring(MESSAGE_ID_PREFIX.length(), tokens[i].length());
+                this.messageId =
+                        tokens[i].substring(MESSAGE_ID_PREFIX.length(), tokens[i].length());
                 break;
             }
         }
@@ -84,8 +83,13 @@ public class EncodeObject {
     }
 
     // used for bytes initializtion,msgtype=3/5
-    public EncodeObject(byte[] bodyBytes, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String groupId) {
+    public EncodeObject(
+            byte[] bodyBytes,
+            String attributes,
+            String messageId,
+            int msgtype,
+            boolean isCompress,
+            final String groupId) {
         this.bodyBytes = bodyBytes;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
@@ -95,8 +99,13 @@ public class EncodeObject {
     }
 
     // used for bodylist initializtion,msgtype=3/5
-    public EncodeObject(List<byte[]> bodyList, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String groupId) {
+    public EncodeObject(
+            List<byte[]> bodyList,
+            String attributes,
+            String messageId,
+            int msgtype,
+            boolean isCompress,
+            final String groupId) {
         this.bodylist = bodyList;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
@@ -106,9 +115,17 @@ public class EncodeObject {
     }
 
     // used for bytes initializtion,msgtype=7/8
-    public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress, boolean isReport,
-                        boolean isGroupIdTransfer, long dt, long seqId, String groupId,
-                        String streamId, String commonattr) {
+    public EncodeObject(
+            byte[] bodyBytes,
+            int msgtype,
+            boolean isCompress,
+            boolean isReport,
+            boolean isGroupIdTransfer,
+            long dt,
+            long seqId,
+            String groupId,
+            String streamId,
+            String commonattr) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -122,9 +139,17 @@ public class EncodeObject {
     }
 
     // used for bodylist initializtion,msgtype=7/8
-    public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr) {
+    public EncodeObject(
+            List<byte[]> bodyList,
+            int msgtype,
+            boolean isCompress,
+            boolean isReport,
+            boolean isGroupIdTransfer,
+            long dt,
+            long seqId,
+            String groupId,
+            String streamId,
+            String commonattr) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -138,10 +163,19 @@ public class EncodeObject {
     }
 
     // file agent, used for bytes initializtion,msgtype=7/8
-    public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr,
-                        String messageKey, String proxyIp) {
+    public EncodeObject(
+            byte[] bodyBytes,
+            int msgtype,
+            boolean isCompress,
+            boolean isReport,
+            boolean isGroupIdTransfer,
+            long dt,
+            long seqId,
+            String groupId,
+            String streamId,
+            String commonattr,
+            String messageKey,
+            String proxyIp) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -157,10 +191,19 @@ public class EncodeObject {
     }
 
     // file agent, used for bodylist initializtion,msgtype=7/8
-    public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr,
-                        String messageKey, String proxyIp) {
+    public EncodeObject(
+            List<byte[]> bodyList,
+            int msgtype,
+            boolean isCompress,
+            boolean isReport,
+            boolean isGroupIdTransfer,
+            long dt,
+            long seqId,
+            String groupId,
+            String streamId,
+            String commonattr,
+            String messageKey,
+            String proxyIp) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -257,7 +300,8 @@ public class EncodeObject {
         return encryptEntry;
     }
 
-    public void setEncryptEntry(boolean isEncrypt, String userName, EncryptConfigEntry encryptEntry) {
+    public void setEncryptEntry(
+            boolean isEncrypt, String userName, EncryptConfigEntry encryptEntry) {
         this.isEncrypt = isEncrypt;
         if (userName != null) {
             this.userName = userName;

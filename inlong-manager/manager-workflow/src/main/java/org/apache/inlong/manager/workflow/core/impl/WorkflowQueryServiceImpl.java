@@ -19,6 +19,12 @@ package org.apache.inlong.manager.workflow.core.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
@@ -60,32 +66,17 @@ import org.apache.inlong.manager.workflow.util.WorkflowUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-/**
- * Query service
- */
+/** Query service */
 @Slf4j
 @Service
 public class WorkflowQueryServiceImpl implements WorkflowQueryService {
 
-    @Autowired
-    private ProcessDefinitionRepository definitionRepository;
-    @Autowired
-    private WorkflowProcessEntityMapper processEntityMapper;
-    @Autowired
-    private WorkflowTaskEntityMapper taskEntityMapper;
-    @Autowired
-    private WorkflowEventLogEntityMapper eventLogMapper;
-    @Autowired
-    private WorkflowApproverEntityMapper approverMapper;
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ProcessDefinitionRepository definitionRepository;
+    @Autowired private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired private WorkflowEventLogEntityMapper eventLogMapper;
+    @Autowired private WorkflowApproverEntityMapper approverMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Override
     public WorkflowProcessEntity getProcessEntity(Integer processId) {
@@ -167,12 +158,20 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
             }
         } else {
             taskEntity = this.getTaskEntity(taskId);
-            List<String> taskApprovers = Arrays.asList(taskEntity.getApprovers().split(InlongConstants.COMMA));
+            List<String> taskApprovers =
+                    Arrays.asList(taskEntity.getApprovers().split(InlongConstants.COMMA));
             if (!taskApprovers.contains(operator)) {
-                ApproverPageRequest query = ApproverPageRequest.builder().processName(processEntity.getName()).build();
+                ApproverPageRequest query =
+                        ApproverPageRequest.builder().processName(processEntity.getName()).build();
                 List<WorkflowApproverEntity> approverList = approverMapper.selectByCondition(query);
-                boolean match = approverList.stream().anyMatch(entity ->
-                        Preconditions.inSeparatedString(operator, entity.getApprovers(), InlongConstants.COMMA));
+                boolean match =
+                        approverList.stream()
+                                .anyMatch(
+                                        entity ->
+                                                Preconditions.inSeparatedString(
+                                                        operator,
+                                                        entity.getApprovers(),
+                                                        InlongConstants.COMMA));
                 if (!match) {
                     throw new WorkflowException("current user is not the approver of the process");
                 }
@@ -188,7 +187,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
                 currentTask.setFormData(this.getEmptyTaskForm(task));
             }
             if (!processId.equals(currentTask.getProcessId())) {
-                throw new WorkflowException("task [" + taskId + "] not belongs to process [" + processId + "]");
+                throw new WorkflowException(
+                        "task [" + taskId + "] not belongs to process [" + processId + "]");
             }
         }
 
@@ -212,10 +212,11 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         return eventLogMapper.selectByCondition(request);
     }
 
-    private ProcessDetailResponse getProcessDetail(Integer processId, WorkflowProcessEntity processEntity) {
+    private ProcessDetailResponse getProcessDetail(
+            Integer processId, WorkflowProcessEntity processEntity) {
         List<WorkflowTaskEntity> taskList = this.listApproveHistory(processId);
-        List<TaskResponse> history = taskList.stream().map(WorkflowUtils::getTaskResponse)
-                .collect(Collectors.toList());
+        List<TaskResponse> history =
+                taskList.stream().map(WorkflowUtils::getTaskResponse).collect(Collectors.toList());
 
         ProcessInfo workflowDTO = this.getBriefFromProcessEntity(processEntity);
         ProcessDetailResponse processDetail = new ProcessDetailResponse();
@@ -248,7 +249,10 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         return processInfo;
     }
 
-    private void addNext(NextableElement nextableElement, ElementInfo elementInfo, WorkflowContext context,
+    private void addNext(
+            NextableElement nextableElement,
+            ElementInfo elementInfo,
+            WorkflowContext context,
             Map<String, TaskStatus> nameToStatusMap) {
         for (Element element : nextableElement.getNextList(context)) {
             ElementInfo nextElement = new ElementInfo();
@@ -270,14 +274,19 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
 
     private Map<String, TaskStatus> getTaskNameStatusMap(WorkflowProcessEntity processEntity) {
         TaskRequest request = TaskRequest.builder().processId(processEntity.getId()).build();
-        List<WorkflowTaskEntity> allTasks = taskEntityMapper.selectByQuery(request)
-                .stream()
-                .sorted(Comparator.comparing(WorkflowTaskEntity::getId)
-                        .thenComparing(Comparator.nullsLast(Comparator.comparing(WorkflowTaskEntity::getEndTime))))
-                .collect(Collectors.toList());
+        List<WorkflowTaskEntity> allTasks =
+                taskEntityMapper.selectByQuery(request).stream()
+                        .sorted(
+                                Comparator.comparing(WorkflowTaskEntity::getId)
+                                        .thenComparing(
+                                                Comparator.nullsLast(
+                                                        Comparator.comparing(
+                                                                WorkflowTaskEntity::getEndTime))))
+                        .collect(Collectors.toList());
 
         Map<String, TaskStatus> nameStatusMap = Maps.newHashMap();
-        allTasks.forEach(task -> nameStatusMap.put(task.getName(), TaskStatus.valueOf(task.getStatus())));
+        allTasks.forEach(
+                task -> nameStatusMap.put(task.getName(), TaskStatus.valueOf(task.getStatus())));
         return nameStatusMap;
     }
 
@@ -293,8 +302,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         try {
             return userTask.getFormClass().newInstance();
         } catch (Exception e) {
-            throw new WorkflowException("get form name failed with name " + userTask.getFormClass().getName());
+            throw new WorkflowException(
+                    "get form name failed with name " + userTask.getFormClass().getName());
         }
     }
-
 }

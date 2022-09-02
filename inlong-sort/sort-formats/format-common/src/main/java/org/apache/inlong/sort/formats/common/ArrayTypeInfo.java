@@ -23,26 +23,20 @@ import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * The type information for arrays.
- */
+/** The type information for arrays. */
 public class ArrayTypeInfo implements TypeInfo {
 
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_ELEMENT_TYPE = "elementType";
 
-    /**
-     * The type information for elements.
-     */
+    /** The type information for elements. */
     @JsonProperty(FIELD_ELEMENT_TYPE)
     @Nonnull
     private final TypeInfo elementTypeInfo;
 
     @JsonCreator
-    public ArrayTypeInfo(
-            @JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo
-    ) {
+    public ArrayTypeInfo(@JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo) {
         this.elementTypeInfo = elementTypeInfo;
     }
 

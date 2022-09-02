@@ -22,9 +22,6 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.types.Row;
 
-/**
- * The deserializer for a given format.
- */
-public interface TableFormatDeserializer extends FlatMapFunction<byte[], Row>, ResultTypeQueryable<Row> {
-
-}
+/** The deserializer for a given format. */
+public interface TableFormatDeserializer
+        extends FlatMapFunction<byte[], Row>, ResultTypeQueryable<Row> {}

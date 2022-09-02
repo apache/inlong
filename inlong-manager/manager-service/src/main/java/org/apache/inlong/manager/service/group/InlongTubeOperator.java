@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -30,9 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/**
- * Inlong group operator for TubeMQ.
- */
+/** Inlong group operator for TubeMQ. */
 @Service
 public class InlongTubeOperator extends AbstractGroupOperator {
 
@@ -73,5 +71,4 @@ public class InlongTubeOperator extends AbstractGroupOperator {
         // topicInfo.setTubeMasterUrl(groupInfo.getMqType());
         return super.getTopic(groupInfo);
     }
-
 }

@@ -33,5 +33,4 @@ public class InlongManagerMain {
         System.setProperty("spring.devtools.restart.enabled", "false");
         SpringApplication.run(InlongManagerMain.class, args);
     }
-
 }

@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import java.util.List;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-/**
- * Workflow process mapper
- */
+/** Workflow process mapper */
 @Repository
 public interface WorkflowProcessEntityMapper {
 
@@ -40,5 +37,4 @@ public interface WorkflowProcessEntityMapper {
     List<CountInfo> countByQuery(ProcessCountRequest query);
 
     void update(WorkflowProcessEntity workflowProcessEntity);
-
 }

@@ -21,12 +21,9 @@ import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * WorkflowTask processor
- */
-public abstract class AbstractTaskProcessor<T extends WorkflowTask> extends AbstractNextableElementProcessor<T> {
+/** WorkflowTask processor */
+public abstract class AbstractTaskProcessor<T extends WorkflowTask>
+        extends AbstractNextableElementProcessor<T> {
 
-    @Autowired
-    protected WorkflowTaskEntityMapper taskEntityMapper;
-
+    @Autowired protected WorkflowTaskEntityMapper taskEntityMapper;
 }

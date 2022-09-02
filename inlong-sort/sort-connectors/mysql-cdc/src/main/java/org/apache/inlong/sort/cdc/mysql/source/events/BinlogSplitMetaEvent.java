@@ -18,12 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
+import java.util.List;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
-
-import java.util.List;
 
 /**
  * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to
@@ -35,9 +34,7 @@ public class BinlogSplitMetaEvent implements SourceEvent {
 
     private final String splitId;
 
-    /**
-     * The meta data of binlog split is divided to multiple groups.
-     */
+    /** The meta data of binlog split is divided to multiple groups. */
     private final int metaGroupId;
     /**
      * The serialized meta data of binlog split, it's serialized/deserialize by {@link

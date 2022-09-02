@@ -19,6 +19,9 @@
 package org.apache.inlong.sort.protocol.node.load;
 
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,13 +36,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Greenplum load node can load data into Greenplum
- */
+/** Greenplum load node can load data into Greenplum */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("greenplumLoad")
 @Data
@@ -48,20 +45,22 @@ public class GreenplumLoadNode extends LoadNode implements InlongMetric, Seriali
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * jdbc:postgresql://host:port/database
-     */
+    /** jdbc:postgresql://host:port/database */
     @JsonProperty("url")
     private String url;
+
     @JsonProperty("username")
     private String username;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("tableName")
     private String tableName;
     /**
-     * Please declare primary key for sink table when query contains update/delete record if your version support
-     * upsert. You can change source stream mode is "append" if your version can't support upsert.
+     * Please declare primary key for sink table when query contains update/delete record if your
+     * version support upsert. You can change source stream mode is "append" if your version can't
+     * support upsert.
      */
     @JsonProperty("primaryKey")
     private String primaryKey;
@@ -81,7 +80,15 @@ public class GreenplumLoadNode extends LoadNode implements InlongMetric, Seriali
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
+        super(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                filters,
+                filterStrategy,
+                sinkParallelism,
+                properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
