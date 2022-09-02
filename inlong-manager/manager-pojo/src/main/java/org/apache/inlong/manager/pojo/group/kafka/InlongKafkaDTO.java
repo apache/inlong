@@ -36,9 +36,9 @@ import javax.validation.constraints.NotNull;
 public class InlongKafkaDTO {
 
     // partition number
-    private int numPartitions;
+    private Integer numPartitions;
     // replicationFactor number
-    short replicationFactor = 1;
+    private Short replicationFactor = 1;
     //consumer grouping
     private String groupId;
     // autocommit interval

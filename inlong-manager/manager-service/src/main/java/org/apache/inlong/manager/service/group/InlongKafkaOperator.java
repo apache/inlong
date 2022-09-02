@@ -62,15 +62,15 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        InlongKafkaInfo groupInfo = new InlongKafkaInfo();
-        CommonBeanUtils.copyProperties(entity, groupInfo);
+        InlongKafkaInfo kafkaInfo = new InlongKafkaInfo();
+        CommonBeanUtils.copyProperties(entity, kafkaInfo);
 
         if (StringUtils.isNotBlank(entity.getExtParams())) {
             InlongKafkaDTO dto = InlongKafkaDTO.getFromJson(entity.getExtParams());
-            CommonBeanUtils.copyProperties(dto, groupInfo);
+            CommonBeanUtils.copyProperties(dto, kafkaInfo);
         }
 
-        return groupInfo;
+        return kafkaInfo;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
-        LOGGER.info("success set entity for inlong group with Pulsar");
+        LOGGER.info("success set entity for inlong group with Kafka");
     }
 
     @Override

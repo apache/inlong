@@ -39,9 +39,9 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class InlongKafkaInfo extends InlongGroupInfo {
 
     // partition number
-    private int numPartitions;
+    private Integer numPartitions;
     // replicationFactor number
-    short replicationFactor = 1;
+    private Short replicationFactor = 1;
     //consumer grouping
     private String groupId;
     // autocommit interval
