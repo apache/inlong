@@ -35,7 +35,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
 
