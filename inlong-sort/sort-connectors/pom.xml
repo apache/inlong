@@ -47,6 +47,7 @@
         <module>hbase</module>
         <module>postgres-cdc</module>
         <module>mongodb-cdc</module>
+        <module>influxdb-cdc</module>
         <module>sqlserver-cdc</module>
         <module>oracle-cdc</module>
         <module>elasticsearch-base</module>

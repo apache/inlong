@@ -99,7 +99,6 @@
         <module>inlong-manager</module>
         <module>inlong-dashboard</module>
         <module>inlong-distribution</module>
-        <module>inlong-sort/sort-connectors/influxdb-cdc</module>
     </modules>
 
     <properties>
