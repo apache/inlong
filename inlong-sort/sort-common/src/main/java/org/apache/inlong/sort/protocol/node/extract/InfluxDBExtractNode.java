@@ -64,7 +64,6 @@ public class InfluxDBExtractNode extends ExtractNode implements InlongMetric, Me
     @JsonProperty("organizationName")
     private String organizationName;
 
-
     public InfluxDBExtractNode(@JsonProperty("id") String id,
                                @JsonProperty("name") String name,
                                @JsonProperty("fields") List<FieldInfo> fields,
