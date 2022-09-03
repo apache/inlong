@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.pojo.cluster.kafka;
+
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 /**
- * Constant of cluster type.
+ * Inlong cluster request for Kafka
  */
-public class ClusterType {
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.KAFKA)
+@ApiModel("Inlong cluster request for Kafka")
+public class KafkaClusterRequest extends ClusterRequest {
 
-    public static final String AGENT = "AGENT";
-    public static final String TUBEMQ = "TUBEMQ";
-    public static final String PULSAR = "PULSAR";
-    public static final String DATAPROXY = "DATAPROXY";
-    public static final String KAFKA = "KAFKA";
+    public KafkaClusterRequest() {
+        this.setType(ClusterType.KAFKA);
+    }
+
 }
