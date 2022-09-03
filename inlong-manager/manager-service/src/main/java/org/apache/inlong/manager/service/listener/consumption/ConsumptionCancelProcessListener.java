@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.listener.consumption;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -58,7 +58,7 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
         ApplyConsumptionProcessForm processForm = (ApplyConsumptionProcessForm) context.getProcessForm();
 
         ConsumptionEntity update = consumptionEntityMapper.selectByPrimaryKey(processForm.getConsumptionInfo().getId());
-        update.setStatus(ConsumptionStatus.CANCELED.getStatus());
+        update.setStatus(ConsumeStatus.CANCELED.getCode());
         int rowCount = consumptionEntityMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             log.error("consumption information has already updated, id={}, curVersion={}",

@@ -256,7 +256,7 @@ public class UpsertKafkaDynamicTableFactory
         Duration batchInterval = tableOptions.get(SINK_BUFFER_FLUSH_INTERVAL);
         SinkBufferFlushMode flushMode =
                 new SinkBufferFlushMode(batchSize, batchInterval.toMillis());
-        String inLongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
@@ -277,7 +277,7 @@ public class UpsertKafkaDynamicTableFactory
                 true,
                 flushMode,
                 parallelism,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 

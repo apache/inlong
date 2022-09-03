@@ -270,8 +270,8 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != message && TErrCodeConstants.SUCCESS == message.getErrCode()) {
-                        List<InLongMessage> msgs = new ArrayList<>();
                         for (Message msg : message.getMessageList()) {
+                            List<InLongMessage> msgs = new ArrayList<>();
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, inLongTopic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
@@ -284,10 +284,10 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
                                     .getStatistics(context.getConfig().getSortTaskId(),
                                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addMsgCount(deserialize.size()).addConsumeSize(msg.getData().length);
+                            handleAndCallbackMsg(new MessageRecord(inLongTopic.getTopicKey(), msgs,
+                                    message.getConfirmContext(), System.currentTimeMillis()));
                         }
 
-                        handleAndCallbackMsg(new MessageRecord(inLongTopic.getTopicKey(), msgs,
-                                message.getConfirmContext(), System.currentTimeMillis()));
                         sleepTime = 0L;
                     } else {
                         context.getStatManager()

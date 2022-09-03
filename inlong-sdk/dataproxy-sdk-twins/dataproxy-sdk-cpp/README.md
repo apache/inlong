@@ -26,7 +26,6 @@ dataproxy-sdk cpp version, used for sending data to dataproxy
 ## Prerequisites
 
 * CMake 3.1+
-* log4cplus
 * snappy
 * curl
 * rapidjson
@@ -66,14 +65,16 @@ Refer to `release/conf/config_example.json`.
 |log_file_type|2|type of log output: 2->file, 1->console|
 |log_path|./logs/|log path|
 |proxy_update_interval|10|interval of requesting and updating dataproxy lists from manager|
-|proxy_cfg_preurl|"http://127.0.0.1:8099/api/inlong/manager/openapi/dataproxy/getIpList"|the url of manager openapi|
+|proxy_cfg_preurl|"http://127.0.0.1:8099/inlong/manager/openapi/dataproxy/getIpList"|the url of manager openapi|
 |need_auth|false|whether need authentication while interacting with manager|
 |auth_id|""|authenticate id if need authentication|
 |auth_key|""|authenticate key if need authentication|
 
 ## Usage
 
-1. First, init dataproxy-sdk: `int32_t tc_api_init(const char* config_file)`. Here, `config_file` is the path of your config file, and absolute path is recommended. Note that only once called is needed in one process.
+1. First, init dataproxy-sdk, there are two ways you can choose:
+- A) `int32_t tc_api_init(const char* config_file)`. Here, `config_file` is the path of your config file, and absolute path is recommended. Note that only once called is needed in one process.
+- B) `int32_t tc_api_init(ClientConfig& client_config)`. Here, `client_config` is the pointer of a `ClientConfig` object.
 
 2. Then, send data: `int32_t tc_api_send(const char* inlong_group_id, const char* inlong_stream_id, const char* msg, int32_t msg_len, UserCallBack call_back = NULL)`. If you set `call_back`, it will be callbacked if your data failed to send. See the signature of `UserCallBack` in `release/inc/user_msg.h`.
 

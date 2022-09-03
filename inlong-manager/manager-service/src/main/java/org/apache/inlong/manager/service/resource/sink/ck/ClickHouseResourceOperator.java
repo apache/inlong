@@ -19,15 +19,15 @@ package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
-import org.apache.inlong.manager.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -135,7 +135,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
             throw new WorkflowException(errMsg);
         }
 
-        LOGGER.info("success create ClickHouse table for data sind [" + sinkInfo.getId() + "]");
+        LOGGER.info("success create ClickHouse table for sink id [" + sinkInfo.getId() + "]");
     }
 
 }

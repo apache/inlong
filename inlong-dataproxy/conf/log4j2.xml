@@ -17,10 +17,10 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<configuration status="WARN" monitorInterval="30" package="org.apache.inlong.dataproxy.config">
+<configuration status="WARN" monitorInterval="30" packages="org.apache.inlong.dataproxy.config">
     <Properties>
         <property name="basePath">${sys:dataproxy.log.path}</property>
-        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%15.15t] %-30.30C{1.}:%L %mask%n</property>
+        <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%15.15t] %-30.30C{1.}:%L %mask %n</property>
         <property name="every_file_size">1G</property>
         <property name="output_log_level">DEBUG</property>
         <property name="rolling_max">50</property>

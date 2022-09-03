@@ -21,7 +21,7 @@
  * A select that can automatically initiate asynchronous (cooperating with useRequest) to obtain drop-down list data
  */
 import React, { useMemo, useState, useEffect } from 'react';
-import { Select, Space, Input } from 'antd';
+import { Select, Space, Input, Spin } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
 import debounce from 'lodash/debounce';
@@ -64,7 +64,11 @@ const HighSelect: React.FC<HighSelectProps> = ({
   const [diyWatcher, setDiyWatcher] = useState(true);
   const [diyState, setDiyState] = useState(false);
 
-  const { data: list = [], run: getList } = useRequest(options?.requestService, {
+  const {
+    data: list = [],
+    loading,
+    run: getList,
+  } = useRequest(options?.requestService, {
     manual: !options?.requestAuto,
     ready: !!options?.requestService && (options?.requestParams?.ready ?? true),
     ...options?.requestParams,
@@ -141,12 +145,25 @@ const HighSelect: React.FC<HighSelectProps> = ({
     onValueChange(e.target.value);
   };
 
+  const showSearch =
+    rest.showSearch || options?.requestTrigger?.includes('onSearch')
+      ? rest.showSearch
+      : optionList.length > 5;
+
   const SelectComponent = (
     <Select
-      showSearch={
-        options?.requestTrigger?.includes('onSearch') ? rest.showSearch : optionList.length > 5
-      }
       {...rest}
+      showSearch={showSearch}
+      placeholder={
+        showSearch
+          ? rest.placeholder || i18n.t('components.HighSelect.SearchPlaceholder')
+          : rest.placeholder
+      }
+      dropdownRender={
+        rest.dropdownRender ||
+        (menu => (loading ? <Spin size="small" style={{ margin: '0 15px' }} /> : menu))
+      }
+      notFoundContent={rest.notFoundContent || (loading ? <span /> : undefined)}
       onSearch={options?.requestTrigger?.includes('onSearch') ? onSearch : rest.onSearch}
       onDropdownVisibleChange={onDropdownVisibleChange}
       onChange={onSelectChange}

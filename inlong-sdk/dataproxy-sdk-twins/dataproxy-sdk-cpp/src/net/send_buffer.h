@@ -23,12 +23,10 @@
 #include <mutex>
 #include <string>
 
-#include "atomic.h"
 #include "sdk_core.h"
 // #include "executor_thread_pool.h"
 #include "logger.h"
 #include "noncopyable.h"
-#include "user_msg.h"
 // #include "socket_connection.h"
 
 namespace dataproxy_sdk

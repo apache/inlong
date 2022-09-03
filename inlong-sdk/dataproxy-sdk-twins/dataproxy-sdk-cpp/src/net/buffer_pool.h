@@ -27,7 +27,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "atomic.h"
 #include "sdk_core.h"
 #include "noncopyable.h"
 #include "pack_queue.h"

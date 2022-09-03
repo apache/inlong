@@ -55,9 +55,10 @@ public class SortClientConfig implements Serializable {
     private int ackTimeoutSec = 0;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
-    private int emptyPollSleepStepMs = 50;
+    private int emptyPollSleepStepMs = 10;
     private int maxEmptyPollSleepMs = 500;
     private int emptyPollTimes = 10;
+    private int cleanOldConsumerIntervalSec = 60;
 
     public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
             ConsumeStrategy consumeStrategy, String localIp) {
@@ -314,6 +315,14 @@ public class SortClientConfig implements Serializable {
         this.emptyPollTimes = emptyPollTimes;
     }
 
+    public int getCleanOldConsumerIntervalSec() {
+        return cleanOldConsumerIntervalSec;
+    }
+
+    public void setCleanOldConsumerIntervalSec(int cleanOldConsumerIntervalSec) {
+        this.cleanOldConsumerIntervalSec = cleanOldConsumerIntervalSec;
+    }
+
     /**
      * ConsumeStrategy
      */
@@ -367,6 +376,8 @@ public class SortClientConfig implements Serializable {
         this.updateMetaDataIntervalSec = NumberUtils.toInt(sortSdkParams.get("updateMetaDataIntervalSec"),
                 updateMetaDataIntervalSec);
         this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get("ackTimeoutSec"), ackTimeoutSec);
+        this.cleanOldConsumerIntervalSec = NumberUtils.toInt(sortSdkParams.get("cleanOldConsumerIntervalSec"),
+                cleanOldConsumerIntervalSec);
 
         String strPrometheusEnabled = sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
         this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());

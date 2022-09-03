@@ -129,9 +129,7 @@ public interface StreamSinkEntityMapper {
      */
     List<SortSourceStreamInfo> selectAllStreams();
 
-    int updateByPrimaryKeySelective(StreamSinkEntity record);
-
-    int updateByPrimaryKey(StreamSinkEntity record);
+    int updateByIdSelective(StreamSinkEntity record);
 
     int updateStatus(StreamSinkEntity entity);
 

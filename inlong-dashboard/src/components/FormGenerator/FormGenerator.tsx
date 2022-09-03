@@ -20,7 +20,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import merge from 'lodash/merge';
 import { trim } from '@/utils';
-import Form, { FormProps } from 'antd/lib/form';
+import { Form } from 'antd';
+import type { FormProps } from 'antd';
 import FormItemContent, { FormItemProps as ItemType } from './FormItemContent';
 
 export interface FormItemProps extends Omit<ItemType, 'props'> {

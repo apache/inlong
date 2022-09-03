@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -29,7 +27,9 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -101,7 +101,7 @@ public interface InlongClient {
      * @return map of inlong group status list
      * @throws Exception the exception
      */
-    Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) throws Exception;
+    Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) throws Exception;
 
     /**
      * Gets group.
@@ -134,7 +134,7 @@ public interface InlongClient {
      * @param request page request conditions
      * @return cluster tag list
      */
-    PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request);
+    PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request);
 
     /**
      * Update cluster tag.
@@ -222,7 +222,7 @@ public interface InlongClient {
      * @param request page request conditions
      * @return cluster node list
      */
-    PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request);
+    PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
 
     /**
      * Update cluster node.

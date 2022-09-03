@@ -27,7 +27,7 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
     {
       type: 'input',
       label: i18n.t('meta.Sources.File.DataSourceIP'),
-      name: 'ip',
+      name: 'agentIp',
       rules: [
         {
           pattern: rulesPattern.ip,
@@ -50,7 +50,6 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
       label: i18n.t('meta.Sources.File.TimeOffset'),
       name: 'timeOffset',
       tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
-      _inTable: true,
     },
   ];
 

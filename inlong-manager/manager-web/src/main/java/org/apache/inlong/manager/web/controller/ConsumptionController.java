@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
@@ -29,7 +29,7 @@ import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.core.impl.ConsumptionProcessService;
+import org.apache.inlong.manager.service.consume.InlongConsumeProcessService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ConsumptionController {
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private ConsumptionProcessService processOperation;
+    private InlongConsumeProcessService processOperation;
 
     @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")
@@ -64,7 +64,7 @@ public class ConsumptionController {
 
     @GetMapping("/consumption/list")
     @ApiOperation(value = "List data consumptions")
-    public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
+    public Response<PageResult<ConsumptionListVo>> list(ConsumptionQuery query) {
         query.setUsername(LoginUserUtils.getLoginUser().getName());
         return Response.success(consumptionService.list(query));
     }

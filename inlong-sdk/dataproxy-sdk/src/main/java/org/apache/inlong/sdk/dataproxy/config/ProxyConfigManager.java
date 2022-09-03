@@ -45,12 +45,13 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
+import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.network.HashRing;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,22 +59,22 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.ObjectInputStream;
+import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -93,6 +94,7 @@ public class ProxyConfigManager extends Thread {
     private final ReentrantReadWriteLock rw = new ReentrantReadWriteLock();
     private final JsonParser jsonParser = new JsonParser();
     private final Gson gson = new Gson();
+    private final HashRing hashRing = HashRing.getInstance();
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
     /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
     private int oldStat = 0;
@@ -106,6 +108,7 @@ public class ProxyConfigManager extends Thread {
         this.clientConfig = configure;
         this.localIP = localIP;
         this.clientManager = clientManager;
+        this.hashRing.setVirtualNode(configure.getVirtualNode());
     }
 
     public String getGroupId() {
@@ -297,6 +300,7 @@ public class ProxyConfigManager extends Thread {
             }
         }
         compareProxyList(proxyEntry);
+
     }
 
     /**
@@ -340,6 +344,7 @@ public class ProxyConfigManager extends Thread {
                     newProxyInfoList.clear();
                     LOGGER.info("proxy IP list doesn't change, load {}", proxyEntry.getLoad());
                 }
+                updateHashRing(proxyInfoList);
             } else {
                 LOGGER.error("proxyEntry's size is zero");
             }
@@ -818,5 +823,10 @@ public class ProxyConfigManager extends Thread {
             LOGGER.error("Get local managerIpList occur exception,", t);
         }
         return localManagerIps;
+    }
+
+    public void updateHashRing(List<HostInfo> newHosts) {
+        this.hashRing.updateNode(newHosts);
+        LOGGER.info("update hash ring {}", hashRing.getVirtualNode2RealNode());
     }
 }

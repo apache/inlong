@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -102,6 +103,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Properties for source")
     @Builder.Default
     private Map<String, Object> properties = new LinkedHashMap<>();
+
+    @ApiModelProperty("Sub source information of existing agents")
+    private List<SubSourceDTO> subSourceList;
 
     public SourceRequest genSourceRequest() {
         return null;

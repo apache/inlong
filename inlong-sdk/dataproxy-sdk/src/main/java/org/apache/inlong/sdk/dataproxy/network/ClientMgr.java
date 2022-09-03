@@ -24,25 +24,28 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,22 +54,27 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ClientMgr {
     private static final Logger logger = LoggerFactory
             .getLogger(ClientMgr.class);
-
+    private static final int[] weight = {
+            1, 1, 1, 1, 1,
+            2, 2, 2, 2, 2,
+            3, 3, 3, 3, 3,
+            6, 6, 6, 6, 6,
+            12, 12, 12, 12, 12,
+            48, 96, 192, 384, 1000};
     private final Map<HostInfo, NettyClient> clientMapData = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMapHB = new ConcurrentHashMap<>();
     // clientMapData + clientMapHB = clientMap
     private final ConcurrentHashMap<HostInfo, NettyClient> clientMap = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<HostInfo, AtomicLong> lastBadHostMap = new ConcurrentHashMap<>();
-
     // clientList is the valueSet of clientMapData
     private final ArrayList<NettyClient> clientList = new ArrayList<>();
-    private List<HostInfo> proxyInfoList = new ArrayList<>();
-
     private final Map<HostInfo, int[]> channelLoadMapData = new ConcurrentHashMap<>();
     private final Map<HostInfo, int[]> channelLoadMapHB = new ConcurrentHashMap<>();
-
+    /**
+     * Lock to protect FSNamesystem.
+     */
+    private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
+    private List<HostInfo> proxyInfoList = new ArrayList<>();
     private Bootstrap bootstrap;
     private int currentIndex = 0;
     private ProxyClientConfig configure;
@@ -75,24 +83,72 @@ public class ClientMgr {
     private int realSize;
     private SendHBThread sendHBThread;
     private ProxyConfigManager ipManager;
-
     private int groupIdNum = 0;
     private String groupId = "";
     private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
+    //    private static final int total_weight = 240;
     private int loadThreshold;
     private int loadCycle = 0;
-    private static final int[] weight = {
-            1, 1, 1, 1, 1,
-            2, 2, 2, 2, 2,
-            3, 3, 3, 3, 3,
-            6, 6, 6, 6, 6,
-            12, 12, 12, 12, 12,
-            48, 96, 192, 384, 1000};
-//    private static final int total_weight = 240;
+    private LoadBalance loadBalance;
+
+    public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
+        this(configure, sender, null);
+    }
+
     /**
-     * Lock to protect FSNamesystem.
+     * Build up the connection between the server and client.
      */
-    private final ReentrantReadWriteLock fsLock = new ReentrantReadWriteLock(true);
+    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
+        /* Initialize the bootstrap. */
+        if (selfDefineFactory == null) {
+            selfDefineFactory = new DefaultThreadFactory("agent-client-io",
+                    Thread.currentThread().isDaemon());
+        }
+        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(configure.getIoThreadNum(),
+                configure.isEnableBusyWait(), selfDefineFactory);
+        bootstrap = new Bootstrap();
+        bootstrap.group(eventLoopGroup);
+        bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
+        bootstrap.option(ChannelOption.SO_RCVBUF, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
+        bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
+        if (configure.getNetTag().equals("bobcat")) {
+            bootstrap.option(ChannelOption.IP_TOS, 96);
+        }
+        bootstrap.handler(new ClientPipelineFactory(this, sender));
+        /* ready to Start the thread which refreshes the proxy list. */
+        ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
+        ipManager.setName("proxyConfigManager");
+        if (configure.getGroupId() != null) {
+            ipManager.setGroupId(configure.getGroupId());
+            groupId = configure.getGroupId();
+        }
+
+        /*
+         * Request the IP before starting, so that we already have three
+         * connections.
+         */
+        this.configure = configure;
+        this.sender = sender;
+        this.aliveConnections = configure.getAliveConnections();
+        this.loadBalance = configure.getLoadBalance();
+
+        try {
+            ipManager.doProxyEntryQueryWork();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info(e.getMessage());
+        }
+        ipManager.setDaemon(true);
+        ipManager.start();
+
+        this.sendHBThread = new SendHBThread();
+        this.sendHBThread.setName("SendHBThread");
+        this.sendHBThread.start();
+    }
+
+    public LoadBalance getLoadBalance() {
+        return this.loadBalance;
+    }
 
     public int getLoadThreshold() {
         return loadThreshold;
@@ -134,6 +190,50 @@ public class ClientMgr {
         return proxyInfoList;
     }
 
+    public void setProxyInfoList(List<HostInfo> proxyInfoList) {
+        try {
+            /* Close and remove old client. */
+            writeLock();
+            this.proxyInfoList = proxyInfoList;
+
+            if (loadThreshold == 0) {
+                if (aliveConnections >= proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    aliveConnections = realSize;
+                    logger.error("there is no enough proxy to work!");
+                } else {
+                    realSize = aliveConnections;
+                }
+            } else {
+                if (aliveConnections >= proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    aliveConnections = realSize;
+                    logger.error("there is no idle proxy to choose for balancing!");
+                } else if ((aliveConnections + 4) > proxyInfoList.size()) {
+                    realSize = proxyInfoList.size();
+                    logger.warn("there is only {} idle proxy to choose for balancing!",
+                            proxyInfoList.size() - aliveConnections);
+                } else {
+                    realSize = aliveConnections + 4;
+                }
+            }
+
+            List<HostInfo> hostInfos = getRealHosts(proxyInfoList, realSize);
+
+            /* Refresh the current channel connections. */
+            updateAllConnection(hostInfos);
+
+            logger.info(
+                    "update all connection ,client map size {},client list size {}",
+                    clientMapData.size(), clientList.size());
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            writeUnlock();
+        }
+    }
+
     public int getAliveConnections() {
         return aliveConnections;
     }
@@ -172,60 +272,6 @@ public class ClientMgr {
 
     public boolean hasReadOrWriteLock() {
         return hasReadLock() || hasWriteLock();
-    }
-
-    public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
-        this(configure, sender, null);
-    }
-    
-    /**
-     * Build up the connection between the server and client.
-     */
-    public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
-        /* Initialize the bootstrap. */
-        if (selfDefineFactory == null) {
-            selfDefineFactory = new DefaultThreadFactory("agent-client-io",
-                    Thread.currentThread().isDaemon());
-        }
-        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(configure.getIoThreadNum(),
-                configure.isEnableBusyWait(), selfDefineFactory);
-        bootstrap = new Bootstrap();
-        bootstrap.group(eventLoopGroup);
-        bootstrap.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
-        bootstrap.option(ChannelOption.SO_RCVBUF, ConfigConstants.DEFAULT_RECEIVE_BUFFER_SIZE);
-        bootstrap.option(ChannelOption.SO_SNDBUF, ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
-        if (configure.getNetTag().equals("bobcat")) {
-            bootstrap.option(ChannelOption.IP_TOS, 96);
-        }
-        bootstrap.handler(new ClientPipelineFactory(this, sender));
-        /* ready to Start the thread which refreshes the proxy list. */
-        ipManager = new ProxyConfigManager(configure, Utils.getLocalIp(), this);
-        ipManager.setName("proxyConfigManager");
-        if (configure.getGroupId() != null) {
-            ipManager.setGroupId(configure.getGroupId());
-            groupId = configure.getGroupId();
-        }
-
-        /*
-         * Request the IP before starting, so that we already have three
-         * connections.
-         */
-        this.configure = configure;
-        this.sender = sender;
-        this.aliveConnections = configure.getAliveConnections();
-
-        try {
-            ipManager.doProxyEntryQueryWork();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info(e.getMessage());
-        }
-        ipManager.setDaemon(true);
-        ipManager.start();
-
-        this.sendHBThread = new SendHBThread();
-        this.sendHBThread.setName("SendHBThread");
-        this.sendHBThread.start();
     }
 
     public ProxyConfigEntry getGroupIdConfigureInfo() throws Exception {
@@ -346,6 +392,90 @@ public class ClientMgr {
         }
         //logger.info("get a client {}", client.getChannel());
         return client;
+    }
+
+    public synchronized NettyClient getClientByRandom() {
+        NettyClient client;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        int maxRetry = this.configure.getMaxRetry();
+        Random random = new Random(System.currentTimeMillis());
+        do {
+            int randomId = random.nextInt();
+            client = clientList.get(randomId % currSize);
+            if (client != null && client.isActive()) {
+                break;
+            }
+            maxRetry--;
+        } while (maxRetry > 0);
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return client;
+    }
+
+//    public synchronized NettyClient getClientByLeastConnections() {}
+
+    public synchronized NettyClient getClientByConsistencyHash(String messageId) {
+        NettyClient client;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        String hash = ConsistencyHashUtil.hashMurMurHash(messageId);
+        HashRing cluster = HashRing.getInstance();
+        HostInfo info = cluster.getNode(hash);
+        client = this.clientMap.get(info);
+        return client;
+    }
+
+    public synchronized NettyClient getClientByWeightRoundRobin() {
+        NettyClient client = null;
+        double maxWeight = Double.MIN_VALUE;
+        int clientId = 0;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        for (int retryTime = 0; retryTime < currSize; retryTime++) {
+            currentIndex = (++currentIndex) % currSize;
+            client = clientList.get(currentIndex);
+            if (client != null && client.isActive() && client.getWeight() > maxWeight) {
+                clientId = currentIndex;
+            }
+        }
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return clientList.get(clientId);
+    }
+
+//    public synchronized NettyClient getClientByWeightLeastConnections(){}
+
+    public synchronized NettyClient getClientByWeightRandom() {
+        NettyClient client;
+        double maxWeight = Double.MIN_VALUE;
+        int clientId = 0;
+        if (clientList.isEmpty()) {
+            return null;
+        }
+        int currSize = clientList.size();
+        int maxRetry = this.configure.getMaxRetry();
+        Random random = new Random(System.currentTimeMillis());
+        do {
+            int randomId = random.nextInt();
+            client = clientList.get(randomId % currSize);
+            if (client != null && client.isActive()) {
+                clientId = randomId;
+                break;
+            }
+            maxRetry--;
+        } while (maxRetry > 0);
+        if (client == null || !client.isActive()) {
+            return null;
+        }
+        return clientList.get(clientId);
     }
 
     public NettyClient getContainProxy(String proxyip) {
@@ -854,50 +984,6 @@ public class ClientMgr {
 
     }
 
-    public void setProxyInfoList(List<HostInfo> proxyInfoList) {
-        try {
-            /* Close and remove old client. */
-            writeLock();
-            this.proxyInfoList = proxyInfoList;
-
-            if (loadThreshold == 0) {
-                if (aliveConnections >= proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    aliveConnections = realSize;
-                    logger.error("there is no enough proxy to work!");
-                } else {
-                    realSize = aliveConnections;
-                }
-            } else {
-                if (aliveConnections >= proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    aliveConnections = realSize;
-                    logger.error("there is no idle proxy to choose for balancing!");
-                } else if ((aliveConnections + 4) > proxyInfoList.size()) {
-                    realSize = proxyInfoList.size();
-                    logger.warn("there is only {} idle proxy to choose for balancing!",
-                            proxyInfoList.size() - aliveConnections);
-                } else {
-                    realSize = aliveConnections + 4;
-                }
-            }
-
-            List<HostInfo> hostInfos = getRealHosts(proxyInfoList, realSize);
-
-            /* Refresh the current channel connections. */
-            updateAllConnection(hostInfos);
-
-            logger.info(
-                    "update all connection ,client map size {},client list size {}",
-                    clientMapData.size(), clientList.size());
-
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        } finally {
-            writeUnlock();
-        }
-    }
-
     private List<HostInfo> getRealHosts(List<HostInfo> hostList, int realSize) {
         if (realSize > hostList.size()) {
             return hostList;
@@ -911,10 +997,32 @@ public class ClientMgr {
         return resultHosts;
     }
 
+    public NettyClient getClient(LoadBalance loadBalance, EncodeObject encodeObject) {
+        NettyClient client = null;
+        switch (loadBalance) {
+            case RANDOM:
+                client = getClientByRandom();
+                break;
+            case CONSISTENCY_HASH:
+                client = getClientByConsistencyHash(encodeObject.getMessageId());
+                break;
+            case ROBIN:
+                client = getClientByRoundRobin();
+                break;
+            case WEIGHT_ROBIN:
+                client = getClientByWeightRoundRobin();
+                break;
+            case WEIGHT_RANDOM:
+                client = getClientByWeightRandom();
+                break;
+        }
+        return client;
+    }
+
     private class SendHBThread extends Thread {
 
-        private boolean bShutDown = false;
         private final int[] random = {17, 19, 23, 31, 37};
+        private boolean bShutDown = false;
 
         public SendHBThread() {
             bShutDown = false;

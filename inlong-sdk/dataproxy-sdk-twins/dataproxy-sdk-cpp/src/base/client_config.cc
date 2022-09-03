@@ -27,8 +27,9 @@
 
 namespace dataproxy_sdk
 {
-    bool ClientConfig::parseConfig()
+    bool ClientConfig::parseConfig(const std::string& config_path)
     {
+        config_path_ = config_path;
         std::string file_content;
         if (!Utils::readFile(config_path_, file_content))
         {
@@ -382,7 +383,7 @@ namespace dataproxy_sdk
         }
         else
         {
-            proxy_cluster_URL_ = constants::kBusClusterURL;
+            proxy_cluster_URL_ = constants::kProxyClusterURL;
             LOG_WARN("proxy_cluster_URL(proxy_cfg_url) in user config is not expect, then use default: %s", proxy_cluster_URL_.c_str());
         }
         // enable_proxy_URL_from_cluster
@@ -592,15 +593,20 @@ namespace dataproxy_sdk
         }
 
         // set bufNum
-        buf_size_ = ext_pack_size_ + 400;
-        buf_num_ = max_buf_pool_ / (buf_size_);
+        updateBufSize();
+        
         LOG_WARN("sendBuf num of a pool is %d", buf_num_);
 
         return true;
     }
 
+    void ClientConfig::updateBufSize()
+    {
+        buf_size_ = ext_pack_size_ + 400;
+        buf_num_ = max_buf_pool_ / (buf_size_);
+    }
+
     void ClientConfig::defaultInit(){
-        user_config_err_=true;
 
         thread_nums_=constants::kThreadNums;
         shared_buf_nums_=constants::kSharedBufferNums;
@@ -630,7 +636,7 @@ namespace dataproxy_sdk
         proxy_URL_=constants::kProxyURL;
         enable_proxy_URL_from_cluster_=constants::kEnableProxyURLFromCluster;
 
-        proxy_cluster_URL_=constants::kBusClusterURL;
+        proxy_cluster_URL_=constants::kProxyClusterURL;
         proxy_update_interval_=constants::kProxyUpdateInterval;
         proxy_URL_timeout_=constants::kProxyURLTimeout;
         max_active_proxy_num_=constants::kMaxActiveProxyNum;
@@ -646,16 +652,14 @@ namespace dataproxy_sdk
         is_from_DC_=constants::kIsFromDC;
         extend_field_=constants::kExtendField;
 
+        need_auth_=constants::kNeedAuth;
+
         buf_size_ = ext_pack_size_ + 400;
         buf_num_ = max_buf_pool_ / (buf_size_);
     }
 
     void ClientConfig::showClientConfig()
     {
-        if(user_config_err_){
-            LOG_ERROR("dataproxy_sdk_cpp init user config err, then use default config values");
-        }
-
         LOG_WARN("thread_num: %d", thread_nums_);
         LOG_WARN("shared_buf_num: %d", shared_buf_nums_);
         LOG_WARN("inlong_group_ids: <%s>", Utils::getVectorStr(inlong_group_ids_).c_str());

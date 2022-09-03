@@ -94,6 +94,11 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByGroupIds(@Param("groupIdList") List<String> groupIdList);
 
     /**
+     * Select all sub sources by template id
+     */
+    List<StreamSourceEntity> selectByTemplateId(@Param("templateId") Integer templateId);
+
+    /**
      * Get the distinct source type from the given groupId and streamId
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -123,8 +128,6 @@ public interface StreamSourceEntityMapper {
             @Param("changeTime") Boolean changeModifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
-
-    int appendAgentIp(@Param("id") Integer id, @Param("agentIp") String agentIp);
 
     /**
      * Physical delete stream sources.

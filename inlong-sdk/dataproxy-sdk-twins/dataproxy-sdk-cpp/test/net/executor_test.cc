@@ -166,8 +166,6 @@ TEST(executor, repeattimer)
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 1, true, "./newlogs/");
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

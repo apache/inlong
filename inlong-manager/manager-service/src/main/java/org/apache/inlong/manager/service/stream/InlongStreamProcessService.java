@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
@@ -70,30 +71,27 @@ public class InlongStreamProcessService {
     public boolean startProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("begin to start stream process for groupId={} streamId={}", groupId, streamId);
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        if (groupInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
             throw new BusinessException(
-                    String.format("group status =%s not support start stream for groupId=%s", groupStatus, groupId));
+                    String.format("group status=%s not support start stream for groupId=%s", groupStatus, groupId));
         }
+
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        if (streamInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.CONFIG_ING) {
-            log.warn("stream status={}, no need restart for groupId={}, streamId={}", status, groupId, streamId);
+            log.warn("stream status={}, not need restart for groupId={} streamId={}", status, groupId, streamId);
             return true;
         }
-        // only new, failed, and success status support update
-        if (status != StreamStatus.NEW && status != StreamStatus.CONFIG_FAILED
-                && status != StreamStatus.CONFIG_SUCCESSFUL) {
-            throw new BusinessException(
-                    String.format("stream status=%s not support start stream for groupId=%s streamId=%s",
-                            status, groupId, streamId));
+        if (StreamStatus.notAllowedUpdate(status)) {
+            String errMsg = String.format("stream status=%s not support start stream for groupId=%s streamId=%s",
+                    status, groupId, streamId);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
         }
+
         StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.INIT);
         ProcessName processName = ProcessName.CREATE_STREAM_RESOURCE;
         if (sync) {

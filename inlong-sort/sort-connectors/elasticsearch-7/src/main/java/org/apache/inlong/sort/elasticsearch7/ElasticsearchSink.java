@@ -71,14 +71,14 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
             RestClientFactory restClientFactory,
-            String inLongMetric) {
+            String inlongMetric) {
 
         super(
                 new Elasticsearch7ApiCallBridge(httpHosts, restClientFactory),
                 bulkRequestsConfig,
                 elasticsearchSinkFunction,
                 failureHandler,
-                inLongMetric);
+                inlongMetric);
     }
 
     /**
@@ -96,7 +96,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         private ActionRequestFailureHandler failureHandler = new NoOpFailureHandler();
         private RestClientFactory restClientFactory = restClientBuilder -> {
         };
-        private String inLongMetric = null;
+        private String inlongMetric = null;
 
         /**
          * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
@@ -115,10 +115,10 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * set InLongMetric for reporting metrics
-         * @param inLongMetric
+         * @param inlongMetric
          */
-        public void setInLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+        public void setInLongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
         }
 
         /**
@@ -245,7 +245,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     elasticsearchSinkFunction,
                     failureHandler,
                     restClientFactory,
-                    inLongMetric);
+                    inlongMetric);
         }
 
         @Override
@@ -262,7 +262,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     && Objects.equals(bulkRequestsConfig, builder.bulkRequestsConfig)
                     && Objects.equals(failureHandler, builder.failureHandler)
                     && Objects.equals(restClientFactory, builder.restClientFactory)
-                    && Objects.equals(inLongMetric, builder.inLongMetric);
+                    && Objects.equals(inlongMetric, builder.inlongMetric);
         }
 
         @Override
@@ -273,7 +273,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     bulkRequestsConfig,
                     failureHandler,
                     restClientFactory,
-                    inLongMetric);
+                    inlongMetric);
         }
     }
 }

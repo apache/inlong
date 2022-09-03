@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.sink;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -32,6 +31,7 @@ import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Default operation of stream sink.
@@ -95,15 +96,21 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     }
 
     @Override
-    public PageInfo<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage) {
+    public PageResult<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage) {
         if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
+            return PageResult.empty();
         }
-        return entityPage.toPageInfo(this::getFromEntity);
+
+        List<StreamSink> streamSinks = entityPage.getResult()
+                .stream()
+                .map(this::getFromEntity)
+                .collect(Collectors.toList());
+
+        return new PageResult<>(streamSinks, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 
     @Override
-    public void updateOpt(SinkRequest request, String operator) {
+    public void updateOpt(SinkRequest request, SinkStatus nextStatus, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
 
@@ -116,9 +123,11 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(SinkStatus.CONFIG_ING.getCode());
+        if (nextStatus != null) {
+            entity.setStatus(nextStatus.getCode());
+        }
         entity.setModifier(operator);
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -192,7 +201,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setStatus(InlongConstants.DELETED_STATUS);
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());

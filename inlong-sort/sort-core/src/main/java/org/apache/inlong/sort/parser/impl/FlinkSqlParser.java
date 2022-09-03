@@ -338,17 +338,15 @@ public class FlinkSqlParser implements Parser {
         // Generate mapping for output field to FieldRelation
         fieldRelations.forEach(s -> {
             // All field relations of input nodes will be the same if the node id of output field is blank.
-            // Currently, the node id in the output file is used to distinguish which field of the node in the upstream
-            // of the union the field comes from. A better way is through the upstream input field,
+            // Currently, the node id in the output field is used to distinguish which field of the node in the
+            // upstream of the union the field comes from. A better way is through the upstream input field,
             // but this abstraction does not yet have the ability to set node ids for all upstream input fields.
             // todo optimize the implementation of this block in the future
             String nodeId = s.getOutputField().getNodeId();
             if (StringUtils.isBlank(nodeId)) {
                 nodeId = unionRelation.getInputs().get(0);
             }
-            Map<String, FieldRelation> subRelationMap = fieldRelationMap
-                    .computeIfAbsent(nodeId, k -> new HashMap<>());
-            subRelationMap.put(s.getOutputField().getName(), s);
+            fieldRelationMap.computeIfAbsent(nodeId, k -> new HashMap<>()).put(s.getOutputField().getName(), s);
         });
         StringBuilder sb = new StringBuilder();
         sb.append(genUnionSingleSelectSql(unionRelation.getInputs().get(0),

@@ -29,7 +29,6 @@
 #include "atomic.h"
 #include "buffer_pool.h"
 #include "sdk_core.h"
-#include "client_config.h"
 #include "noncopyable.h"
 #include "user_msg.h"
 namespace dataproxy_sdk

@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -84,16 +84,16 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)
-    @ApiOperation(value = "Get inlong stream brief info by paginating")
-    public Response<PageInfo<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
+    @ApiOperation(value = "List inlong stream briefs by paginating")
+    public Response<PageResult<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listBrief(request));
     }
 
     @RequestMapping(value = "/stream/listAll", method = RequestMethod.POST)
-    @ApiOperation(value = "Get inlong stream with all sources and sinks by paginating")
-    public Response<PageInfo<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
+    @ApiOperation(value = "List inlong streams with sources and sinks by paginating")
+    public Response<PageResult<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listAll(request));

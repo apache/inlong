@@ -44,6 +44,8 @@ public class MetaDataUtils {
 
     private static final Gson GSON = new Gson();
 
+    private static final String LOG_MARK = ".log";
+
     /**
      * standard log for k8s
      *
@@ -59,8 +61,17 @@ public class MetaDataUtils {
         podInf.put(POD_NAME, str[0]);
         podInf.put(NAMESPACE, str[1]);
         String[] containerInfo = str[2].split(CommonConstants.DELIMITER_HYPHEN);
-        podInf.put(CONTAINER_NAME, containerInfo[0]);
-        podInf.put(CONTAINER_ID, containerInfo[1]);
+        String containerId = containerInfo[containerInfo.length - 1].replace(LOG_MARK, "");
+        String containerName = "";
+        for (int i = 0; i < containerInfo.length - 1; i++) {
+            if (i == containerInfo.length - 2) {
+                containerName = containerName.concat(containerInfo[i]);
+                break;
+            }
+            containerName = containerName.concat(containerInfo[i]).concat(CommonConstants.DELIMITER_HYPHEN);
+        }
+        podInf.put(CONTAINER_NAME, containerName);
+        podInf.put(CONTAINER_ID, containerId);
         return podInf;
     }
 
@@ -71,7 +82,7 @@ public class MetaDataUtils {
      */
     public static Map<String, String> getPodLabels(JobProfile jobProfile) {
         if (Objects.isNull(jobProfile) || !jobProfile.hasKey(JOB_FILE_META_FILTER_BY_LABELS)) {
-            return null;
+            return new HashMap<>();
         }
         String labels = jobProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
         Type type = new TypeToken<HashMap<Integer, String>>() {

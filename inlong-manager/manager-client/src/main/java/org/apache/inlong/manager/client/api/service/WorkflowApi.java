@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
@@ -60,9 +60,9 @@ public interface WorkflowApi {
     Call<Response<ProcessDetailResponse>> detail(@Path("processId") Integer processId, @Query("taskId") Integer taskId);
 
     @GET("workflow/listProcess")
-    Call<Response<PageInfo<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<ProcessResponse>>> listProcess(@Query("query") Map<String, Object> query);
 
     @GET("workflow/listTask")
-    Call<Response<PageInfo<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
+    Call<Response<PageResult<TaskResponse>>> listTask(@Query("query") Map<String, Object> query);
 
 }

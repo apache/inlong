@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
@@ -27,13 +27,14 @@ import { Clusters } from '@/metas/clusters';
 import i18n from '@/i18n';
 
 export interface Props extends ModalProps {
-  type: string;
   // Require when edit
   id?: string;
 }
 
-const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
+
+  const [type, setType] = useState(Clusters[0].value);
 
   const { data: savedData, run: getData } = useRequest(
     id => ({
@@ -48,6 +49,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       }),
       onSuccess: result => {
         form.setFieldsValue(result);
+        setType(result.type);
       },
     },
   );
@@ -57,7 +59,6 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     const isUpdate = id;
     const submitData = {
       ...values,
-      type,
       inCharges: values.inCharges?.join(','),
       clusterTags: values.clusterTags?.join(','),
     };
@@ -76,11 +77,12 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
-      // open
-      form.resetFields();
       if (id) {
         getData(id);
       }
+    } else {
+      form.resetFields();
+      setType(Clusters[0].value);
     }
   }, [modalProps.visible]);
 
@@ -95,7 +97,12 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
       onOk={onOk}
     >
-      <FormGenerator content={content} form={form} useMaxWidth />
+      <FormGenerator
+        content={content}
+        form={form}
+        onValuesChange={(c, values) => setType(values.type)}
+        useMaxWidth
+      />
     </Modal>
   );
 };

@@ -40,6 +40,7 @@ const on = url => {
   });
 };
 
+// eslint-disable-next-line
 export default async (ctx, next) => {
   const { url, options } = ctx.req;
 

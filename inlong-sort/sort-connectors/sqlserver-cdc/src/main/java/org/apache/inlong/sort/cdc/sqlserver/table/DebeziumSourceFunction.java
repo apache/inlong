@@ -217,11 +217,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private SourceMetricData metricData;
 
-    private String inLongGroupId;
+    private String inlongGroupId;
 
     private String auditHostAndPorts;
 
-    private String inLongStreamId;
+    private String inlongStreamId;
 
     private transient AuditImp auditImp;
 
@@ -413,11 +413,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
         if (StringUtils.isNotEmpty(this.inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split(Constants.DELIMITER);
-            inLongGroupId = inlongMetricArray[0];
-            inLongStreamId = inlongMetricArray[1];
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            metricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, metricGroup);
+            metricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, metricGroup);
             metricData.registerMetricsForNumRecordsIn();
             metricData.registerMetricsForNumBytesIn();
             metricData.registerMetricsForNumBytesInPerSecond();
@@ -511,8 +511,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         if (auditImp != null) {
             auditImp.add(
                 Constants.AUDIT_SORT_INPUT,
-                inLongGroupId,
-                inLongStreamId,
+                inlongGroupId,
+                inlongStreamId,
                 System.currentTimeMillis(),
                 1,
                 record.value().toString().getBytes(StandardCharsets.UTF_8).length);
