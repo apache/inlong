@@ -26,6 +26,8 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "Pagination request")
 public class PageRequest {
 
+    public static final Integer MAX_PAGE_SIZE = 100;
+
     @ApiModelProperty(value = "Current page number, default is 1")
     private int pageNum = 1;
 

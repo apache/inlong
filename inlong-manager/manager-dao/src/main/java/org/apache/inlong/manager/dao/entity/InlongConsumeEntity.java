@@ -15,20 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.tubemq;
+package org.apache.inlong.manager.dao.entity;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * Inlong group info for TubeMQ
+ * Inlong consume entity.
  */
 @Data
-@NoArgsConstructor
-@ApiModel("Inlong group info for TubeMQ")
-public class InlongTubeMQDTO {
+public class InlongConsumeEntity implements Serializable {
 
-    // no fields
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String consumerGroup;
+    private String description;
+    private String mqType;
+    private String topic;
+
+    private String inlongGroupId;
+    private Integer filterEnabled;
+    private String inlongStreamId;
+    private String extParams;
+
+    private String inCharges;
+    private Integer status;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 
 }

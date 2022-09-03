@@ -15,20 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.tubemq;
+package org.apache.inlong.manager.pojo.consume.tubemq;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 
 /**
- * Inlong group info for TubeMQ
+ * Inlong consume info of TubeMQ
  */
 @Data
-@NoArgsConstructor
-@ApiModel("Inlong group info for TubeMQ")
-public class InlongTubeMQDTO {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = MQType.TUBEMQ)
+@ApiModel("Inlong consume info of TubeMQ")
+public class ConsumeTubeMQInfo extends InlongConsumeInfo {
 
     // no fields
+
+    @Override
+    public ConsumeTubeMQRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, ConsumeTubeMQRequest::new);
+    }
 
 }

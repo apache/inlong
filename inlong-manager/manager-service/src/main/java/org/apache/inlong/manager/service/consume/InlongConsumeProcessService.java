@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.service.consume;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -34,9 +34,12 @@ import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Operation to the inlong consume process.
+ */
 @Slf4j
 @Service
-public class ConsumptionProcessService {
+public class InlongConsumeProcessService {
 
     @Autowired
     private ConsumptionService consumptionService;
@@ -45,13 +48,20 @@ public class ConsumptionProcessService {
     @Autowired
     private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
 
+    /**
+     * Start the process for the specified ID.
+     *
+     * @param id inlong consume id
+     * @param operator name of operator
+     * @return workflow result
+     */
     public WorkflowResult startProcess(Integer id, String operator) {
         ConsumptionInfo consumptionInfo = consumptionService.get(id);
-        Preconditions.checkTrue(ConsumptionStatus.ALLOW_START_WORKFLOW_STATUS.contains(
-                        ConsumptionStatus.fromStatus(consumptionInfo.getStatus())),
-                "current status not allow start workflow");
+        Preconditions.checkTrue(ConsumeStatus.ALLOW_START_WORKFLOW_STATUS.contains(
+                        ConsumeStatus.fromStatus(consumptionInfo.getStatus())),
+                "current status not allowed to start workflow");
 
-        consumptionInfo.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
+        consumptionInfo.setStatus(ConsumeStatus.WAIT_APPROVE.getCode());
         boolean rowCount = consumptionService.update(consumptionInfo, operator);
         Preconditions.checkTrue(rowCount, "update consumption failed");
 
@@ -72,4 +82,5 @@ public class ConsumptionProcessService {
         form.setConsumptionInfo(consumptionInfo);
         return form;
     }
+
 }

@@ -49,7 +49,7 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Operation related to inlong group process
+ * Operation to the inlong group process
  */
 @Service
 public class InlongGroupProcessService {

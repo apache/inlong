@@ -15,20 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.tubemq;
+package org.apache.inlong.manager.pojo.consume;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Inlong group info for TubeMQ
+ * Count info of inlong consume status.
  */
 @Data
-@NoArgsConstructor
-@ApiModel("Inlong group info for TubeMQ")
-public class InlongTubeMQDTO {
+@ApiModel("Count info of inlong consume status")
+public class InlongConsumeCountInfo {
 
-    // no fields
+    @ApiModelProperty(value = "Total consume number")
+    private long totalCount;
+
+    @ApiModelProperty(value = "Total number of to be allocated (the number of configuring consumes)")
+    private long waitAssignCount;
+
+    @ApiModelProperty(value = "Total number of to be approved")
+    private long waitApproveCount;
+
+    @ApiModelProperty(value = "Total number of rejections")
+    private long rejectCount;
 
 }

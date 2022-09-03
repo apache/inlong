@@ -15,20 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.tubemq;
+package org.apache.inlong.manager.dao.mapper;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
+import org.springframework.stereotype.Repository;
 
-/**
- * Inlong group info for TubeMQ
- */
-@Data
-@NoArgsConstructor
-@ApiModel("Inlong group info for TubeMQ")
-public class InlongTubeMQDTO {
+import java.util.List;
+import java.util.Map;
 
-    // no fields
+@Repository
+public interface InlongConsumeEntityMapper {
+
+    int insert(InlongConsumeEntity record);
+
+    InlongConsumeEntity selectById(Integer id);
+
+    List<Map<String, Object>> countByUser(@Param(value = "username") String username);
+
+    List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
+
+    int updateById(InlongConsumeEntity record);
+
+    int updateByIdSelective(InlongConsumeEntity record);
+
+    int deleteById(Integer id);
 
 }
