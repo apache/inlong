@@ -29,11 +29,11 @@ import java.util.List;
 /**
  * Redis source
  */
-public class RedisSource extends AbstractSource{
+public class RedisSource extends AbstractSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisSource.class);
 
-    public RedisSource(){
+    public RedisSource() {
 
     }
 
