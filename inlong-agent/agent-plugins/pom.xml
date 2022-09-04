@@ -93,6 +93,10 @@
             <artifactId>debezium-connector-postgres</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.moilioncircle</groupId>
+            <artifactId>redis-replicator</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>awaitility</artifactId>
             <groupId>org.awaitility</groupId>
             <scope>test</scope>
