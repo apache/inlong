@@ -80,8 +80,7 @@ public class RedisReader extends AbstractReader {
     private LinkedBlockingQueue<String> redisMessageQueue;
     private boolean finished = false;
     private ExecutorService executor;
-    private Gson GSON;
-
+    private Gson gson;
 
     @Override
     public void init(JobProfile jobConf) {
@@ -108,7 +107,7 @@ public class RedisReader extends AbstractReader {
                 public void onEvent(Replicator replicator, Event event) {
                     try {
                         if (event instanceof DefaultCommand || event instanceof KeyValuePair<?, ?>) {
-                            redisMessageQueue.put(GSON.toJson(event));
+                            redisMessageQueue.put(gson.toJson(event));
                             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
                                     System.currentTimeMillis(), 1);
                             readerMetric.pluginReadCount.incrementAndGet();
@@ -180,7 +179,6 @@ public class RedisReader extends AbstractReader {
         }
     }
 
-
     @Override
     public Message read() {
         if (!redisMessageQueue.isEmpty()) {
@@ -230,7 +228,7 @@ public class RedisReader extends AbstractReader {
      * init GSON parser
      */
     private void initGson() {
-        GSON = new GsonBuilder().registerTypeAdapter(KeyStringValueHash.class, new TypeAdapter<KeyStringValueHash>() {
+        gson = new GsonBuilder().registerTypeAdapter(KeyStringValueHash.class, new TypeAdapter<KeyStringValueHash>() {
 
                     @Override
                     public void write(JsonWriter out, KeyStringValueHash kv) throws IOException {
