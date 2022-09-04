@@ -36,12 +36,12 @@ public class RedisReaderTest {
      * just use in local test
      */
     @Ignore
-    public void redisLoadTest(){
+    public void redisLoadTest() {
         JobProfile jobProfile = new JobProfile();
-        jobProfile.set(RedisReader.JOB_REDIS_HOSTNAME,"localhost");
-        jobProfile.set(RedisReader.JOB_REDIS_PORT,"6379");
-        jobProfile.set(RedisReader.JOB_REDIS_OFFSET,"7945");
-        jobProfile.set(RedisReader.JOB_REDIS_REPLID,"33a016fc98ad27f36218c7648a7a0774a79547d8");
+        jobProfile.set(RedisReader.JOB_REDIS_HOSTNAME, "localhost");
+        jobProfile.set(RedisReader.JOB_REDIS_PORT, "6379");
+        jobProfile.set(RedisReader.JOB_REDIS_OFFSET, "7945");
+        jobProfile.set(RedisReader.JOB_REDIS_REPLID, "33a016fc98ad27f36218c7648a7a0774a79547d8");
         jobProfile.set("job.instance.id", "_1");
         RedisReader redisReader = new RedisReader();
         redisReader.init(jobProfile);

@@ -89,15 +89,15 @@ public class RedisReader extends AbstractReader {
         LOGGER.info("Init redis reader with jobConf {}", jobConf.toJsonStr());
         port = jobConf.get(JOB_REDIS_PORT);
         hostName = jobConf.get(JOB_REDIS_HOSTNAME);
-        ssl = jobConf.getBoolean(JOB_REDIS_SSL,false);
-        authUser = jobConf.get(JOB_REDIS_AUTHUSER,"");
-        authPassword = jobConf.get(JOB_REDIS_AUTHPASSWORD,"");
-        readTimeout = jobConf.get(JOB_REDIS_READTIMEOUT,"");
-        replId = jobConf.get(JOB_REDIS_REPLID,"");
-        snapShot = jobConf.get(JOB_REDIS_OFFSET,"-1");
+        ssl = jobConf.getBoolean(JOB_REDIS_SSL, false);
+        authUser = jobConf.get(JOB_REDIS_AUTHUSER, "");
+        authPassword = jobConf.get(JOB_REDIS_AUTHPASSWORD, "");
+        readTimeout = jobConf.get(JOB_REDIS_READTIMEOUT, "");
+        replId = jobConf.get(JOB_REDIS_REPLID, "");
+        snapShot = jobConf.get(JOB_REDIS_OFFSET, "-1");
         instanceId = jobConf.getInstanceId();
         finished = false;
-        redisMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_REDIS_QUEUE_SIZE,10000));
+        redisMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_REDIS_QUEUE_SIZE, 10000));
         initGson();
         String uri = getRedisUri();
         try {
@@ -107,15 +107,15 @@ public class RedisReader extends AbstractReader {
                 @Override
                 public void onEvent(Replicator replicator, Event event) {
                     try {
-                        if(event instanceof DefaultCommand || event instanceof KeyValuePair<?,?>){
+                        if (event instanceof DefaultCommand || event instanceof KeyValuePair<?, ?>) {
                             redisMessageQueue.put(GSON.toJson(event));
                             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
                                     System.currentTimeMillis(), 1);
                             readerMetric.pluginReadCount.incrementAndGet();
                         }
-                        if(event instanceof PostRdbSyncEvent){
+                        if (event instanceof PostRdbSyncEvent) {
                             snapShot = String.valueOf(replicator.getConfiguration().getReplOffset());
-                            LOGGER.info("after rdb snapShot is: {}",snapShot);
+                            LOGGER.info("after rdb snapShot is: {}", snapShot);
                         }
                     } catch (InterruptedException e) {
                         readerMetric.pluginReadFailCount.incrementAndGet();
@@ -124,51 +124,51 @@ public class RedisReader extends AbstractReader {
                 }
             });
             executor = Executors.newSingleThreadExecutor();
-            executor.execute(new Thread(()->{
+            executor.execute(new Thread(() -> {
                 try {
                     redisReplicator.open();
                 } catch (IOException e) {
-                    LOGGER.error("Redis source error",e);
+                    LOGGER.error("Redis source error", e);
                 }
             }));
-        }catch (URISyntaxException | IOException e){
+        } catch (URISyntaxException | IOException e) {
             readerMetric.pluginReadFailCount.addAndGet(1);
-            LOGGER.error("Connect to redis {}:{} failed.",hostName,port);
+            LOGGER.error("Connect to redis {}:{} failed.", hostName, port);
         }
     }
 
-    private String getRedisUri(){
+    private String getRedisUri() {
         StringBuffer sb = new StringBuffer("redis://");
         sb.append(hostName).append(":").append(port);
         sb.append("?");
-        if(authPassword!=null && !authPassword.equals("")){
+        if (authPassword != null && !authPassword.equals("")) {
             sb.append("authPassword=").append(authPassword).append("&");
         }
-        if(authUser!=null && !authUser.equals("")){
+        if (authUser != null && !authUser.equals("")) {
             sb.append("authUser=").append(authUser).append("&");
         }
-        if(readTimeout!=null && !readTimeout.equals("")){
+        if (readTimeout != null && !readTimeout.equals("")) {
             sb.append("readTimeout=").append(readTimeout).append("&");
         }
-        if(ssl){
+        if (ssl) {
             sb.append("ssl=").append("yes").append("&");
         }
-        if(snapShot!=null && !snapShot.equals("")){
+        if (snapShot != null && !snapShot.equals("")) {
             sb.append("replOffset=").append(snapShot).append("&");
         }
-        if(replId!=null && !replId.equals("")){
+        if (replId != null && !replId.equals("")) {
             sb.append("replId=").append(replId).append("&");
         }
-        if(sb.charAt(sb.length()-1)=='?'||sb.charAt(sb.length()-1)=='&'){
-            sb.deleteCharAt(sb.length()-1);
+        if (sb.charAt(sb.length() - 1) == '?' || sb.charAt(sb.length() - 1) == '&') {
+            sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
     }
 
     @Override
     public void destroy() {
-        synchronized (this){
-            if(!destroyed){
+        synchronized (this) {
+            if (!destroyed) {
                 try {
                     executor.shutdown();
                     redisReplicator.close();
@@ -183,10 +183,10 @@ public class RedisReader extends AbstractReader {
 
     @Override
     public Message read() {
-        if(!redisMessageQueue.isEmpty()){
+        if (!redisMessageQueue.isEmpty()) {
             readerMetric.pluginReadCount.incrementAndGet();
             return new DefaultMessage(redisMessageQueue.poll().getBytes());
-        }else {
+        } else {
             return null;
         }
     }
@@ -229,7 +229,7 @@ public class RedisReader extends AbstractReader {
     /**
      * init GSON parser
      */
-    private void initGson(){
+    private void initGson() {
         GSON = new GsonBuilder().registerTypeAdapter(KeyStringValueHash.class, new TypeAdapter<KeyStringValueHash>() {
 
                     @Override
@@ -243,7 +243,7 @@ public class RedisReader extends AbstractReader {
                         out.name("valueRdbType").value(kv.getValueRdbType());
                         out.name("key").value(new String(kv.getKey()));
                         out.name("value").beginObject();
-                        for(byte[] b:kv.getValue().keySet()){
+                        for (byte[] b : kv.getValue().keySet()) {
                             out.name(new String(b)).value(new String(kv.getValue().get(b)));
                         }
                         out.endObject();
@@ -260,7 +260,7 @@ public class RedisReader extends AbstractReader {
                         out.beginObject();
                         out.name("key").value(new String(dc.getCommand()));
                         out.name("value").beginArray();
-                        for(byte[] bytes:dc.getArgs()){
+                        for (byte[] bytes : dc.getArgs()) {
                             out.value(new String(bytes));
                         }
                         out.endArray();
@@ -279,7 +279,7 @@ public class RedisReader extends AbstractReader {
                         out.beginObject();
                         out.name("key").value(new String(kv.getKey()));
                         out.name("value").beginArray();
-                        for(byte[] bytes:kv.getValue()){
+                        for (byte[] bytes : kv.getValue()) {
                             out.value(new String(bytes));
                         }
                         out.endArray();
@@ -297,7 +297,7 @@ public class RedisReader extends AbstractReader {
                         out.beginObject();
                         out.name("key").value(new String(kv.getKey()));
                         out.name("value").beginArray();
-                        for(byte[] bytes:kv.getValue()){
+                        for (byte[] bytes : kv.getValue()) {
                             out.value(new String(bytes));
                         }
                         out.endArray();
@@ -329,7 +329,7 @@ public class RedisReader extends AbstractReader {
                         out.beginObject();
                         out.name("key").value(new String(kv.getKey()));
                         out.name("value").beginArray();
-                        for(ZSetEntry entry:kv.getValue()){
+                        for (ZSetEntry entry : kv.getValue()) {
                             out.beginObject();
                             out.name("element").value(new String(entry.getElement()));
                             out.name("score").value(entry.getScore());
@@ -350,7 +350,7 @@ public class RedisReader extends AbstractReader {
     /**
      * init replicator's commandParser
      */
-    private void initReplicator(){
+    private void initReplicator() {
         redisReplicator.addCommandParser(CommandName.name("APPEND"), new DefaultCommandParser());
         redisReplicator.addCommandParser(CommandName.name("SET"), new DefaultCommandParser());
         redisReplicator.addCommandParser(CommandName.name("SETEX"), new DefaultCommandParser());
