@@ -145,6 +145,7 @@
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
+        <redis-replicator.version>3.6.4</redis-replicator.version>
         <hadoop.version>2.10.1</hadoop.version>
         <postgresql.version>42.3.4</postgresql.version>
         <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
@@ -606,6 +607,11 @@
                 <groupId>org.mvnsearch</groupId>
                 <artifactId>h2-functions-4-mysql</artifactId>
                 <version>${h2.mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.moilioncircle</groupId>
+                <artifactId>redis-replicator</artifactId>
+                <version>${redis-replicator.version}</version>
             </dependency>
 
             <!--spring -->
