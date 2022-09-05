@@ -22,7 +22,6 @@ import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 /**
  * Data consumption interface
@@ -86,10 +85,5 @@ public interface ConsumptionService {
      * @param operator Operator
      */
     Boolean delete(Integer id, String operator);
-
-    /**
-     * Save the consumer group info for Sort to the database
-     */
-    void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup);
 
 }

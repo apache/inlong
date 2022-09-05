@@ -43,7 +43,6 @@ import org.apache.inlong.manager.pojo.consumption.ConsumptionMqExtBase;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -334,45 +333,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         consumptionPulsarMapper.deleteByConsumptionId(id);
         return true;
-    }
-
-    @Override
-    public void saveSortConsumption(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
-        String groupId = groupInfo.getInlongGroupId();
-        ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
-        if (exists != null) {
-            log.warn("consumption with groupId={}, topic={}, consumer group={} already exists, skip to create",
-                    groupId, topic, consumerGroup);
-            return;
-        }
-
-        log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-        String mqType = groupInfo.getMqType();
-        ConsumptionEntity entity = new ConsumptionEntity();
-        entity.setInlongGroupId(groupId);
-        entity.setMqType(mqType);
-        entity.setTopic(topic);
-        entity.setConsumerGroup(consumerGroup);
-        entity.setInCharges(groupInfo.getInCharges());
-        entity.setFilterEnabled(0);
-
-        entity.setStatus(ConsumeStatus.APPROVED.getCode());
-        String operator = groupInfo.getCreator();
-        entity.setCreator(operator);
-        entity.setModifier(operator);
-
-        consumptionMapper.insert(entity);
-
-        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity pulsarEntity = new ConsumptionPulsarEntity();
-            pulsarEntity.setConsumptionId(entity.getId());
-            pulsarEntity.setConsumerGroup(consumerGroup);
-            pulsarEntity.setInlongGroupId(groupId);
-            pulsarEntity.setIsDeleted(InlongConstants.UN_DELETED);
-            consumptionPulsarMapper.insert(pulsarEntity);
-        }
-
-        log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
     }
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {

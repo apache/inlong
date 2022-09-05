@@ -23,6 +23,7 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,6 +41,13 @@ public interface InlongConsumeService {
      * @return inlong consume id after saving
      */
     Integer save(InlongConsumeRequest request, String operator);
+
+    /**
+     * Save the consumer group by InLong system, and not start the workflow process.
+     *
+     * @return inlong consume id after saving
+     */
+    Integer saveBySystem(InlongGroupInfo groupInfo, String topic, String consumerGroup);
 
     /**
      * Get inlong consume info based on ID

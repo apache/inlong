@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -32,12 +29,14 @@ import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -47,6 +46,11 @@ import java.util.List;
 @Service
 public class KafkaResourceOperators implements QueueResourceOperator {
 
+    /**
+     * The name rule for Kafka consumer group: clusterTag_topicName_consumer_group
+     */
+    private static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
+
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -54,7 +58,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     @Autowired
     private KafkaOperator kafkaOperator;
     @Autowired
-    private ConsumptionService consumptionService;
+    private InlongConsumeService consumeService;
 
     @Override
     public boolean accept(String mqType) {
@@ -155,12 +159,11 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     /**
      * Create Kafka Topic and Subscription, and save the consumer group info.
      */
-    private void createKafkaTopic(InlongKafkaInfo inlongKafkaInfo, String streamId)
-            throws Exception {
+    private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String streamId) throws Exception {
         // 1. create kafka topic
-        ClusterInfo clusterInfo = clusterService.getOne(inlongKafkaInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
-        String topicName = inlongKafkaInfo.getInlongGroupId() + "_" + streamId;
-        kafkaOperator.createTopic(inlongKafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
+        ClusterInfo clusterInfo = clusterService.getOne(kafkaInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
+        String topicName = kafkaInfo.getInlongGroupId() + "_" + streamId;
+        kafkaOperator.createTopic(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
 
         boolean exist = kafkaOperator.topicIsExists((KafkaClusterInfo) clusterInfo, topicName);
         if (!exist) {
@@ -170,14 +173,16 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         }
 
         // 2. create a subscription for the kafka topic
-        kafkaOperator.createSubscription(inlongKafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
-        String groupId = inlongKafkaInfo.getInlongGroupId();
-        log.info("success to create pulsar subscription for groupId={}, topic={}, subs={}",
+        kafkaOperator.createSubscription(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
+        String groupId = kafkaInfo.getInlongGroupId();
+        log.info("success to create kafka subscription for groupId={}, topic={}, consumeGroup={}",
                 groupId, topicName, topicName);
 
-        // 3. insert the consumer group info into the consumption table
-        consumptionService.saveSortConsumption(inlongKafkaInfo, topicName, topicName);
-        log.info("success to save consume for groupId={}, topic={}, subs={}", groupId, topicName, topicName);
+        // 3. insert the consumer group info
+        String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
+        consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
+        log.info("success to save inlong consume for groupId={}, topic={}, consumerGroup={}",
+                groupId, topicName, consumeGroup);
     }
 
     /**

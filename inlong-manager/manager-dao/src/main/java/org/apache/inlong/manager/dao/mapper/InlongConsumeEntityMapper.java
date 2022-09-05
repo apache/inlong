@@ -36,6 +36,10 @@ public interface InlongConsumeEntityMapper {
 
     List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
 
+    InlongConsumeEntity selectExists(@Param("groupId") String groupId,
+            @Param("topic") String topic,
+            @Param("consumerGroup") String consumerGroup);
+
     int updateById(InlongConsumeEntity record);
 
     int updateByIdSelective(InlongConsumeEntity record);
