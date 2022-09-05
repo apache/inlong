@@ -424,6 +424,7 @@ The text of each license is the standard Apache 2.0 license.
   org.codehaus.plexus:plexus-utils:3.2.1 - Plexus Common Utilities (http://codehaus-plexus.github.io/plexus-utils/), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-admin-api:2.8.1 - Pulsar Client Admin :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
   org.apache.pulsar:pulsar-client-api:2.8.1 - Pulsar Client :: API (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
+  com.moilioncircle:redis-replicator:3.6.4 - redis-replicator (https://github.com/leonchen83/redis-replicator), (Apache License, Version 2.0)
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
   org.rocksdb:rocksdbjni:6.14.6 - RocksDB JNI (https://github.com/facebook/rocksdb/tree/v6.14.6), (Apache License 2.0;  GNU General Public License, version 2)
   org.scala-lang.modules:scala-collection-compat_2.11:2.1.2 - scala-collection-compat (https://github.com/scala/scala-collection-compat/tree/v2.1.2), (Apache-2.0)
