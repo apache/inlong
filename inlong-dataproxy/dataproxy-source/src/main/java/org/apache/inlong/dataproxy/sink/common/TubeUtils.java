@@ -17,15 +17,16 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import java.util.Map;
 import org.apache.flume.Event;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.Constants;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.Message;
+
+import java.util.Map;
 
 public class TubeUtils {
 
