@@ -36,7 +36,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class TestCloudEventsConverterUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCloudEventsConverterUtil.class);
 
     @Before
-    public void createKafkaConsumer() {
+    public void createKafkaProducer() {
         //Basic producer configuration
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.17.0.3:9092");
@@ -96,7 +96,10 @@ public class TestCloudEventsConverterUtil {
         producer.close();
     }
 
-    @Test
+    /**
+     * Just using in local test
+     */
+    @Ignore
     public void testConverter() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "172.17.0.3:9092");
