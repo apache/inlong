@@ -42,7 +42,6 @@ import org.apache.iceberg.SerializableTable;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.TableLoader;
-import org.apache.iceberg.flink.sink.RowDataTaskWriterFactory;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.flink.util.FlinkCompatibilityUtil;
 import org.apache.iceberg.io.WriteResult;
@@ -132,6 +131,7 @@ public class FlinkSink {
         private TableSchema tableSchema;
         private SyncRewriteDataFilesActionOption compact;
         private boolean overwrite = false;
+        private boolean appendMode = false;
         private DistributionMode distributionMode = null;
         private Integer writeParallelism = null;
         private boolean upsert = false;
@@ -194,6 +194,17 @@ public class FlinkSink {
 
         public FlinkSink.Builder overwrite(boolean newOverwrite) {
             this.overwrite = newOverwrite;
+            return this;
+        }
+
+        /**
+         * The appendMode properties is used to insert data without equality field columns.
+         *
+         * @param appendMode append mode properties.
+         * @return {@link FlinkSink.Builder} to connect the iceberg table.
+         */
+        public FlinkSink.Builder appendMode(boolean appendMode) {
+            this.appendMode = appendMode;
             return this;
         }
 
@@ -381,8 +392,9 @@ public class FlinkSink {
             }
 
             // Fallback to use upsert mode parsed from table properties if don't specify in job level.
-            boolean upsertMode = upsert || PropertyUtil.propertyAsBoolean(table.properties(),
-                    UPSERT_ENABLED, UPSERT_ENABLED_DEFAULT);
+            // Only if not appendMode, upsert can be valid.
+            boolean upsertMode = (upsert || PropertyUtil.propertyAsBoolean(table.properties(),
+                    UPSERT_ENABLED, UPSERT_ENABLED_DEFAULT)) && !appendMode;
 
             // Validate the equality fields and partition fields if we enable the upsert mode.
             if (upsertMode) {
@@ -400,7 +412,7 @@ public class FlinkSink {
             }
 
             IcebergStreamWriter<RowData> streamWriter =
-                    createStreamWriter(table, flinkRowType, equalityFieldIds, upsertMode);
+                    createStreamWriter(table, flinkRowType, equalityFieldIds, upsertMode, appendMode);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = input
@@ -473,7 +485,8 @@ public class FlinkSink {
     static IcebergStreamWriter<RowData> createStreamWriter(Table table,
             RowType flinkRowType,
             List<Integer> equalityFieldIds,
-            boolean upsert) {
+            boolean upsert,
+            boolean appendMode) {
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
         Map<String, String> props = table.properties();
         long targetFileSize = getTargetFileSizeBytes(props);
@@ -482,7 +495,7 @@ public class FlinkSink {
         Table serializableTable = SerializableTable.copyOf(table);
         TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
                 serializableTable, flinkRowType, targetFileSize,
-                fileFormat, equalityFieldIds, upsert);
+                fileFormat, equalityFieldIds, upsert, appendMode);
 
         return new IcebergStreamWriter<>(table.name(), taskWriterFactory);
     }

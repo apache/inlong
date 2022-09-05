@@ -32,14 +32,18 @@ import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+    private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
     private final TableLoader tableLoader;
     private final TableSchema tableSchema;
     private final SyncRewriteDataFilesActionOption compactAction;
+    private final boolean appendMode;
 
     private boolean overwrite = false;
 
@@ -48,15 +52,18 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.tableSchema = toCopy.tableSchema;
         this.compactAction = toCopy.compactAction;
         this.overwrite = toCopy.overwrite;
+        this.appendMode = toCopy.appendMode;
     }
 
     public IcebergTableSink(
             TableLoader tableLoader,
             TableSchema tableSchema,
-            SyncRewriteDataFilesActionOption compactAction) {
+            SyncRewriteDataFilesActionOption compactAction,
+            boolean appendMode) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.compactAction = compactAction;
+        this.appendMode = appendMode;
     }
 
     @Override
@@ -73,6 +80,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .tableSchema(tableSchema)
                 .equalityFieldColumns(equalityColumns)
                 .overwrite(overwrite)
+                .appendMode(appendMode)
                 .compact(compactAction)
                 .append();
     }
@@ -84,11 +92,17 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-        for (RowKind kind : requestedMode.getContainedKinds()) {
-            builder.addContainedKind(kind);
+        if (appendMode) {
+            LOG.warn("Iceberg sink receive all changelog record. "
+                    + "Regard any other record as insert-only record.");
+            return ChangelogMode.all();
+        } else {
+            ChangelogMode.Builder builder = ChangelogMode.newBuilder();
+            for (RowKind kind : requestedMode.getContainedKinds()) {
+                builder.addContainedKind(kind);
+            }
+            return builder.build();
         }
-        return builder.build();
     }
 
     @Override

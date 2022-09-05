@@ -75,6 +75,12 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .noDefaultValue()
                     .withDescription("Table name managed in the underlying iceberg catalog and database.");
 
+    public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Regard upsert delete as insert kind.");
+
     // Flink 1.13.x change the return type from CatalogTable interface to ResolvedCatalogTable which extends the
     // CatalogTable. Here we use the dynamic method loading approach to avoid adding explicit CatalogTable or
     // ResolvedCatalogTable class into the iceberg-flink-runtime jar for compatibility purpose.
@@ -122,6 +128,9 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
         SyncRewriteDataFilesActionOption compactOption = new SyncRewriteDataFilesActionOption(tableProps);
+        boolean appendMode = tableProps.containsKey(ICEBERG_IGNORE_ALL_CHANGELOG.key())
+                ? Boolean.parseBoolean(tableProps.get(ICEBERG_IGNORE_ALL_CHANGELOG.key()))
+                : ICEBERG_IGNORE_ALL_CHANGELOG.defaultValue();
 
         TableLoader tableLoader;
         if (catalog != null) {
@@ -131,7 +140,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     objectPath.getObjectName());
         }
 
-        return new IcebergTableSink(tableLoader, tableSchema, compactOption);
+        return new IcebergTableSink(tableLoader, tableSchema, compactOption, appendMode);
     }
 
     @Override
@@ -147,6 +156,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Set<ConfigOption<?>> options = Sets.newHashSet();
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
+        options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
         return options;
     }
 
