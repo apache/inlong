@@ -50,6 +50,7 @@ import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -60,6 +61,7 @@ import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.util.MetricDataSerializationUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +73,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -82,6 +85,9 @@ import java.util.concurrent.TimeUnit;
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
@@ -230,6 +236,10 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private SourceMetricData sourceMetricData;
 
+    private transient ListState<byte[]> metricState;
+
+    private Map<String, Long> metricDataMap;
+
     // ---------------------------------------------------------------------------------------
 
     public DebeziumSourceFunction(
@@ -273,9 +283,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new ListStateDescriptor<>(
                                 HISTORY_RECORDS_STATE_NAME, BasicTypeInfo.STRING_TYPE_INFO));
 
+        this.metricState =
+                stateStore.getUnionListState(
+                        new ListStateDescriptor<>(
+                                INLONG_METRIC_STATE_NAME, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO));
+
         if (context.isRestored()) {
             restoreOffsetState();
             restoreHistoryRecordsState();
+            metricDataMap = MetricDataSerializationUtils.restoreMetricState(metricState);
         } else {
             if (specificOffset != null) {
                 byte[] serializedOffset =
@@ -345,6 +361,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         } else {
             snapshotOffsetState(functionSnapshotContext.getCheckpointId());
             snapshotHistoryRecordsState();
+            if (sourceMetricData != null) {
+                MetricDataSerializationUtils.snapshotMetricState(metricState, sourceMetricData);
+            }
         }
     }
 
@@ -427,8 +446,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 auditImp = AuditImp.getInstance();
             }
             sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
-            sourceMetricData.registerMetricsForNumRecordsIn();
-            sourceMetricData.registerMetricsForNumBytesIn();
+            SimpleCounter recordsInCounter = new SimpleCounter();
+            SimpleCounter bytesInCounter = new SimpleCounter();
+            if (metricDataMap != null) {
+                recordsInCounter.inc(this.metricDataMap.getOrDefault(NUM_RECORDS_IN, 0L));
+                bytesInCounter.inc(this.metricDataMap.getOrDefault(NUM_BYTES_IN, 0L));
+            }
+            sourceMetricData.registerMetricsForNumRecordsIn(recordsInCounter);
+            sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsInPerSecond();
         }
