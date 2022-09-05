@@ -249,7 +249,9 @@
         <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
-        <dlc.client.version>1.1</dlc.client.version>
+        <dlc.client.version>1.1.1</dlc.client.version>
+        <dlc.jdbc.version>2.2.6</dlc.jdbc.version>
+        <cos.lakefs.plugin.version>1.0</cos.lakefs.plugin.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
@@ -1569,6 +1571,16 @@
                 <groupId>com.qcloud</groupId>
                 <artifactId>dlc-data-catalog-metastore-client</artifactId>
                 <version>${dlc.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud.cos</groupId>
+                <artifactId>lakefs-cloud-plugin</artifactId>
+                <version>${cos.lakefs.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>dlc-jdbc</artifactId>
+                <version>${dlc.jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>

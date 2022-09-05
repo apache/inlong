@@ -44,12 +44,10 @@
         <dependency>
             <groupId>com.qcloud.cos</groupId>
             <artifactId>lakefs-cloud-plugin</artifactId>
-            <version>1.0</version> <!--cos provider插件-->
         </dependency>
         <dependency>
-            <groupId>com.tencent.cloud.dlc</groupId>
+            <groupId>com.qcloud</groupId>
             <artifactId>dlc-jdbc</artifactId>
-            <version>2.2.2-bi-test2</version><!--jdbc-->
         </dependency>
 
         <dependency>
@@ -62,8 +60,7 @@
         </dependency>
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
-            <artifactId>tencentcloud-sdk-java</artifactId>
-            <version>3.1.558-SNAPSHOT</version><!--适配jdbc的临时sdk版本-->
+            <artifactId>tencentcloud-sdk-java</artifactId><!--TODO:replaced by 558-SNAPSHOT with dlc special treated-->
         </dependency>
         <dependency>
             <groupId>com.qcloud</groupId>
@@ -159,7 +156,7 @@
                                     <include>com.tencentcloudapi:*</include>
                                     <include>com.tencent.cloud.dlc:*</include>
                                     <include>commons-logging:commons-logging</include>
-                                    <include>commons-codec:commons-codec</include> <!--加密用到-->
+                                    <include>commons-codec:commons-codec</include>
                                     <include>com.squareup.okio:okio</include>
                                     <include>com.squareup.okhttp:okhttp</include>
                                     <include>com.squareup.okhttp:logging-interceptor</include>
@@ -189,30 +186,4 @@
             </plugin>
         </plugins>
     </build>
-
-
-    <repositories>
-        <repository>
-            <id>dlc-snapshot</id>
-            <name>dlc_snapshot_mirror</name>
-            <url>https://mirrors.tencent.com/repository/maven/dlc-snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>dlc</id>
-            <name>dlc_mirror</name>
-            <url>https://mirrors.tencent.com/repository/maven/dlc</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
