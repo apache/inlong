@@ -30,6 +30,7 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
     private final TableLoader tableLoader;
     private final TableSchema tableSchema;
     private final SyncRewriteDataFilesActionOption compactAction;
+    private final MetricOption metricOption;
     private final boolean appendMode;
 
     private boolean overwrite = false;
@@ -51,6 +53,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.tableLoader = toCopy.tableLoader;
         this.tableSchema = toCopy.tableSchema;
         this.compactAction = toCopy.compactAction;
+        this.metricOption = toCopy.metricOption;
         this.overwrite = toCopy.overwrite;
         this.appendMode = toCopy.appendMode;
     }
@@ -59,10 +62,12 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
             TableLoader tableLoader,
             TableSchema tableSchema,
             SyncRewriteDataFilesActionOption compactAction,
+            MetricOption metricOption,
             boolean appendMode) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.compactAction = compactAction;
+        this.metricOption = metricOption;
         this.appendMode = appendMode;
     }
 
@@ -80,6 +85,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .tableSchema(tableSchema)
                 .equalityFieldColumns(equalityColumns)
                 .overwrite(overwrite)
+                .metric(metricOption)
                 .appendMode(appendMode)
                 .compact(compactAction)
                 .append();

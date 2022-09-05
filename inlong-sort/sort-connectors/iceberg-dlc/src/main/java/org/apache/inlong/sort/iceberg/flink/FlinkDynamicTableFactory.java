@@ -43,10 +43,14 @@ import org.apache.iceberg.flink.IcebergTableSource;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
     static final String FACTORY_IDENTIFIER = "dlc-inlong";
@@ -128,6 +132,12 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
         SyncRewriteDataFilesActionOption compactOption = new SyncRewriteDataFilesActionOption(tableProps);
+        MetricOption metricOption = null;
+        if (tableProps.containsKey(INLONG_METRIC.key())) {
+            metricOption = new MetricOption(
+                    tableProps.getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()),
+                    tableProps.getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()));
+        }
         boolean appendMode = tableProps.containsKey(ICEBERG_IGNORE_ALL_CHANGELOG.key())
                 ? Boolean.parseBoolean(tableProps.get(ICEBERG_IGNORE_ALL_CHANGELOG.key()))
                 : ICEBERG_IGNORE_ALL_CHANGELOG.defaultValue();
@@ -140,7 +150,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     objectPath.getObjectName());
         }
 
-        return new IcebergTableSink(tableLoader, tableSchema, compactOption, appendMode);
+        return new IcebergTableSink(tableLoader, tableSchema, compactOption, metricOption, appendMode);
     }
 
     @Override
@@ -157,6 +167,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
         options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 
