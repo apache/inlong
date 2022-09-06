@@ -285,7 +285,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                     cachedMsgCnt.incrementAndGet();
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readSuccessCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
                 } else {
                     tx.rollback();
                     //logger.info("[{}] Channel --> Queue(has no enough space,current code point) "

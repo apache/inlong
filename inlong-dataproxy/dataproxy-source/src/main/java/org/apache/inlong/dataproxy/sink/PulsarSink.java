@@ -417,7 +417,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                     dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readSuccessCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
                 }
             } else {
                 status = Status.BACKOFF;
