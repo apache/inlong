@@ -15,38 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.kafkazone;
+package org.apache.inlong.dataproxy.sink.mqzone;
 
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * KafkaZoneWorker
- */
-public class KafkaZoneWorker extends Thread {
+public class AbstactZoneWorker extends Thread {
+    public static final Logger LOG = LoggerFactory.getLogger(AbstactZoneWorker.class);
 
-    public static final Logger LOG = LoggerFactory.getLogger(KafkaZoneWorker.class);
+    protected final String workerName;
+    protected final AbstractZoneSinkContext context;
 
-    private final String workerName;
-    private final KafkaZoneSinkContext context;
+    protected AbstractZoneProducer zoneProducer;
+    protected LifecycleState status;
 
-    private KafkaZoneProducer zoneProducer;
-    private LifecycleState status;
+    protected int workerIndex;
 
     /**
      * Constructor
-     * 
+     *
      * @param sinkName
      * @param workerIndex
      * @param context
      */
-    public KafkaZoneWorker(String sinkName, int workerIndex, KafkaZoneSinkContext context) {
+    public AbstactZoneWorker(String sinkName, int workerIndex, AbstractZoneSinkContext context,
+                             AbstractZoneProducer zoneProducer) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
+        this.workerIndex = workerIndex;
         this.context = context;
-        this.zoneProducer = new KafkaZoneProducer(workerName, this.context);
+        this.zoneProducer = zoneProducer;
         this.status = LifecycleState.IDLE;
     }
 
@@ -61,7 +61,7 @@ public class KafkaZoneWorker extends Thread {
     }
 
     /**
-     * 
+     *
      * close
      */
     public void close() {
@@ -75,16 +75,15 @@ public class KafkaZoneWorker extends Thread {
      */
     @Override
     public void run() {
-        LOG.info(String.format("start KafkaZoneWorker:%s", this.workerName));
         while (status != LifecycleState.STOP) {
             try {
-                DispatchProfile event = context.getDispatchQueue().poll();
+                DispatchProfile event = context.getDispatchQueues().get(workerIndex).poll();
                 if (event == null) {
                     this.sleepOneInterval();
                     continue;
                 }
                 // metric
-                context.addSendingMetric(event, workerName);
+                context.addSendMetric(event, workerName);
                 // send
                 this.zoneProducer.send(event);
             } catch (Throwable e) {
@@ -104,4 +103,5 @@ public class KafkaZoneWorker extends Thread {
             LOG.error(e1.getMessage(), e1);
         }
     }
+
 }

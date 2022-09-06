@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.tubezone;
+package org.apache.inlong.dataproxy.sink.mqzone;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,35 +25,27 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TubeZoneProducer
- */
-public class TubeZoneProducer {
+public abstract class AbstractZoneProducer {
 
-    public static final Logger LOG = LoggerFactory.getLogger(TubeZoneProducer.class);
+    public static final Logger LOG = LoggerFactory.getLogger(AbstractZoneProducer.class);
+    public static final int MAX_INDEX = Integer.MAX_VALUE / 2;
 
-    private final String workerName;
-    private final TubeZoneSinkContext context;
-    private Timer reloadTimer;
+    protected final String workerName;
+    protected final AbstractZoneSinkContext context;
+    protected Timer reloadTimer;
 
-    private List<TubeClusterProducer> clusterList = new ArrayList<>();
-    private List<TubeClusterProducer> deletingClusterList = new ArrayList<>();
+    protected List<AbstractZoneClusterProducer> clusterList = new ArrayList<>();
+    protected List<AbstractZoneClusterProducer> deletingClusterList = new ArrayList<>();
 
-    private AtomicInteger clusterIndex = new AtomicInteger(0);
+    protected AtomicInteger clusterIndex = new AtomicInteger(0);
 
-    /**
-     * Constructor
-     * 
-     * @param workerName
-     * @param context
-     */
-    public TubeZoneProducer(String workerName, TubeZoneSinkContext context) {
+    public AbstractZoneProducer(String workerName,
+                                AbstractZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }
@@ -79,7 +71,7 @@ public class TubeZoneProducer {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
-        for (TubeClusterProducer cluster : this.clusterList) {
+        for (AbstractZoneClusterProducer cluster : this.clusterList) {
             cluster.stop();
         }
     }
@@ -102,7 +94,9 @@ public class TubeZoneProducer {
     /**
      * reload
      */
-    public void reload() {
+    public abstract void reload();
+
+    protected void reload(ZoneClusterProducerCalculator zoneClusterProducerCalculator) {
         try {
             // stop deleted cluster
             deletingClusterList.forEach(item -> {
@@ -111,7 +105,7 @@ public class TubeZoneProducer {
             deletingClusterList.clear();
             // update cluster list
             List<CacheClusterConfig> configList = this.context.getCacheHolder().getConfigList();
-            List<TubeClusterProducer> newClusterList = new ArrayList<>(configList.size());
+            List<AbstractZoneClusterProducer> newClusterList = new ArrayList<>(configList.size());
             // prepare
             Set<String> newClusterNames = new HashSet<>();
             configList.forEach(item -> {
@@ -124,39 +118,42 @@ public class TubeZoneProducer {
             // add
             for (CacheClusterConfig config : configList) {
                 if (!oldClusterNames.contains(config.getClusterName())) {
-                    TubeClusterProducer cluster = new TubeClusterProducer(workerName, config, context);
+                    AbstractZoneClusterProducer cluster = zoneClusterProducerCalculator.calculator(workerName,
+                            config, context);
                     cluster.start();
                     newClusterList.add(cluster);
                 }
             }
             // remove
-            for (TubeClusterProducer cluster : this.clusterList) {
+            for (AbstractZoneClusterProducer cluster :  this.clusterList) {
                 if (newClusterNames.contains(cluster.getCacheClusterName())) {
                     newClusterList.add(cluster);
                 } else {
                     deletingClusterList.add(cluster);
                 }
             }
-            this.clusterList = newClusterList;
+            this.clusterList =  newClusterList;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
+
     }
 
     /**
      * send
-     * 
+     *
      * @param event
      */
     public boolean send(DispatchProfile event) {
         int currentIndex = clusterIndex.getAndIncrement();
-        if (currentIndex > Integer.MAX_VALUE / 2) {
+        if (currentIndex > MAX_INDEX) {
             clusterIndex.set(0);
         }
-        List<TubeClusterProducer> currentClusterList = this.clusterList;
+        List<AbstractZoneClusterProducer> currentClusterList = this.clusterList;
         int currentSize = currentClusterList.size();
         int realIndex = currentIndex % currentSize;
-        TubeClusterProducer clusterProducer = currentClusterList.get(realIndex);
+        AbstractZoneClusterProducer clusterProducer = currentClusterList.get(realIndex);
         return clusterProducer.send(event);
     }
+
 }

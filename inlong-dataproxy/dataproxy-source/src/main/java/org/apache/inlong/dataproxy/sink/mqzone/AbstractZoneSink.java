@@ -15,50 +15,49 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsarzone;
+package org.apache.inlong.dataproxy.sink.mqzone;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
+import org.apache.flume.Sink;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.dataproxy.dispatch.DispatchManager;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+public abstract class AbstractZoneSink extends AbstractSink implements Configurable {
+    public static final Logger LOG = LoggerFactory.getLogger(AbstractZoneSink.class);
 
-/**
- * PulsarZoneSink
- */
-public class PulsarZoneSink extends AbstractSink implements Configurable {
-
-    public static final Logger LOG = LoggerFactory.getLogger(PulsarZoneSink.class);
-
-    private Context parentContext;
-    private PulsarZoneSinkContext context;
-    private List<PulsarZoneWorker> workers = new ArrayList<>();
+    protected Context parentContext;
+    protected AbstractZoneSinkContext context;
+    protected List<AbstactZoneWorker> workers = new ArrayList<>();
     // message group
-    private DispatchManager dispatchManager;
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
+    protected DispatchManager dispatchManager;
+    protected ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues = new ArrayList<>();
     // scheduled thread pool
     // reload
     // dispatch
-    private ScheduledExecutorService scheduledPool;
+    protected ScheduledExecutorService scheduledPool;
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -67,30 +66,30 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
         this.parentContext = context;
     }
 
-    /**
-     * start
-     */
-    @Override
-    public void start() {
+    public void start(ZoneWorkerCalculator zoneWorkerCalculator) {
         try {
-            this.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
                 LOG.error("channel is null");
             }
             this.context.start();
-            this.dispatchManager = new DispatchManager(parentContext, dispatchQueue);
+            for (int i = 0; i < context.getMaxThreads(); i++) {
+                LinkedBlockingQueue<DispatchProfile> dispatchQueue = new LinkedBlockingQueue<>();
+                dispatchQueues.add(dispatchQueue);
+            }
+            this.dispatchManager = new DispatchManager(parentContext, dispatchQueues);
             this.scheduledPool = Executors.newScheduledThreadPool(2);
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
 
-                public void run() {
-                    dispatchManager.setNeedOutputOvertimeData();
-                }
-            }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
+                                                          public void run() {
+                                                              dispatchManager.setNeedOutputOvertimeData();
+                                                          }
+                                                      }, this.dispatchManager.getDispatchTimeout(),
+                    this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                PulsarZoneWorker worker = new PulsarZoneWorker(this.getName(), i, context);
+                AbstactZoneWorker worker = zoneWorkerCalculator.calculator(this.getName(), i, context);
                 worker.start();
                 this.workers.add(worker);
             }
@@ -100,12 +99,25 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
         super.start();
     }
 
+    @Deprecated
+    public void diffSetPublish(PulsarClientService pulsarClientService, Set<String> originalSet, Set<String> endSet) {
+        return;
+    }
+
+    @Deprecated
+    public void diffUpdatePulsarClient(PulsarClientService pulsarClientService, Map<String, String> originalCluster,
+                                       Map<String, String> endCluster) {
+        this.workers.forEach(worker -> {
+            worker.zoneProducer.reload();
+        });
+    }
+
     /**
      * stop
      */
     @Override
     public void stop() {
-        for (PulsarZoneWorker worker : workers) {
+        for (AbstactZoneWorker worker : workers) {
             try {
                 worker.close();
             } catch (Throwable e) {
@@ -118,40 +130,39 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
 
     /**
      * process
-     * 
+     *
      * @return                        Status
      * @throws EventDeliveryException
      */
     @Override
-    public Status process() throws EventDeliveryException {
+    public Sink.Status process() throws EventDeliveryException {
         this.dispatchManager.outputOvertimeData();
         Channel channel = getChannel();
         Transaction tx = channel.getTransaction();
         tx.begin();
         try {
             Event event = channel.take();
-            // no data
             if (event == null) {
                 tx.commit();
-                return Status.BACKOFF;
+                return Sink.Status.BACKOFF;
             }
             // ProxyEvent
             if (event instanceof ProxyEvent) {
                 ProxyEvent proxyEvent = (ProxyEvent) event;
                 this.dispatchManager.addEvent(proxyEvent);
                 tx.commit();
-                return Status.READY;
+                return Sink.Status.READY;
             }
             // ProxyPackEvent
             if (event instanceof ProxyPackEvent) {
                 ProxyPackEvent packEvent = (ProxyPackEvent) event;
                 this.dispatchManager.addPackEvent(packEvent);
                 tx.commit();
-                return Status.READY;
+                return Sink.Status.READY;
             }
             tx.commit();
             this.context.addSendFailMetric();
-            return Status.READY;
+            return Sink.Status.READY;
         } catch (Throwable t) {
             LOG.error("Process event failed!" + this.getName(), t);
             try {
@@ -159,7 +170,7 @@ public class PulsarZoneSink extends AbstractSink implements Configurable {
             } catch (Throwable e) {
                 LOG.error("Channel take transaction rollback exception:" + getName(), e);
             }
-            return Status.BACKOFF;
+            return Sink.Status.BACKOFF;
         } finally {
             tx.close();
         }

@@ -15,14 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsarzone;
+package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
-import org.apache.flume.Context;
-import org.apache.flume.lifecycle.LifecycleAware;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_AUTHENTICATION;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXBYTES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXPUBLISHDELAY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BLOCKIFQUEUEFULL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_COMPRESSIONTYPE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_CONNECTIONSPERBROKER;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ENABLEBATCHING;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_IOTHREADS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGESACROSSPARTITIONS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MEMORYLIMIT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SENDTIMEOUT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SERVICE_URL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_TENANT;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.apache.inlong.sdk.commons.protocol.EventConstants;
+import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.CompressionType;
@@ -38,51 +53,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
 /**
  * PulsarClusterProducer
  */
-public class PulsarClusterProducer implements LifecycleAware {
+public class PulsarClusterProducer extends AbstractZoneClusterProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarClusterProducer.class);
-
-    public static final String KEY_TENANT = "tenant";
-    public static final String KEY_NAMESPACE = "namespace";
-
-    public static final String KEY_SERVICE_URL = "serviceUrl";
-    public static final String KEY_AUTHENTICATION = "authentication";
-
-    public static final String KEY_ENABLEBATCHING = "enableBatching";
-    public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
-    public static final String KEY_BATCHINGMAXMESSAGES = "batchingMaxMessages";
-    public static final String KEY_BATCHINGMAXPUBLISHDELAY = "batchingMaxPublishDelay";
-    public static final String KEY_MAXPENDINGMESSAGES = "maxPendingMessages";
-    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS = "maxPendingMessagesAcrossPartitions";
-    public static final String KEY_SENDTIMEOUT = "sendTimeout";
-    public static final String KEY_COMPRESSIONTYPE = "compressionType";
-    public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
-    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
-            + "BatchingPartitionSwitchFrequency";
-
-    public static final String KEY_IOTHREADS = "ioThreads";
-    public static final String KEY_MEMORYLIMIT = "memoryLimit";
-    public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
-
-    private final String workerName;
-    private final CacheClusterConfig config;
-    private final PulsarZoneSinkContext sinkContext;
-    private final Context context;
-    private final String cacheClusterName;
-    private LifecycleState state;
 
     private String tenant;
     private String namespace;
@@ -92,7 +74,6 @@ public class PulsarClusterProducer implements LifecycleAware {
      */
     private PulsarClient client;
     private ProducerBuilder<byte[]> baseBuilder;
-
     private Map<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
     /**
@@ -103,12 +84,7 @@ public class PulsarClusterProducer implements LifecycleAware {
      * @param context Sink context
      */
     public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
-        this.workerName = workerName;
-        this.config = config;
-        this.sinkContext = context;
-        this.context = context.getProducerContext();
-        this.state = LifecycleState.IDLE;
-        this.cacheClusterName = config.getClusterName();
+        super(workerName, config, context);
         this.tenant = config.getParams().get(KEY_TENANT);
         this.namespace = config.getParams().get(KEY_NAMESPACE);
     }
@@ -126,31 +102,31 @@ public class PulsarClusterProducer implements LifecycleAware {
             this.client = PulsarClient.builder()
                     .serviceUrl(serviceUrl)
                     .authentication(AuthenticationFactory.token(authentication))
-                    .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
-                    .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
-                    .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
+                    .ioThreads(producerContext.getInteger(KEY_IOTHREADS, 1))
+                    .memoryLimit(producerContext.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
+                    .connectionsPerBroker(producerContext.getInteger(KEY_CONNECTIONSPERBROKER, 10))
                     .build();
             this.baseBuilder = client.newProducer();
             // Map<String, Object> builderConf = new HashMap<>();
             // builderConf.putAll(context.getParameters());
             this.baseBuilder
-                    .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
-                    .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 500))
+                    .sendTimeout(producerContext.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
+                    .maxPendingMessages(producerContext.getInteger(KEY_MAXPENDINGMESSAGES, 500))
                     .maxPendingMessagesAcrossPartitions(
-                            context.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000));
+                            producerContext.getInteger(KEY_MAXPENDINGMESSAGESACROSSPARTITIONS, 60000));
             this.baseBuilder
-                    .batchingMaxMessages(context.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
-                    .batchingMaxPublishDelay(context.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
+                    .batchingMaxMessages(producerContext.getInteger(KEY_BATCHINGMAXMESSAGES, 500))
+                    .batchingMaxPublishDelay(producerContext.getInteger(KEY_BATCHINGMAXPUBLISHDELAY, 100),
                             TimeUnit.MILLISECONDS)
-                    .batchingMaxBytes(context.getInteger(KEY_BATCHINGMAXBYTES, 131072));
+                    .batchingMaxBytes(producerContext.getInteger(KEY_BATCHINGMAXBYTES, 131072));
             this.baseBuilder
                     .accessMode(ProducerAccessMode.Shared)
                     .messageRoutingMode(MessageRoutingMode.RoundRobinPartition)
-                    .blockIfQueueFull(context.getBoolean(KEY_BLOCKIFQUEUEFULL, true));
+                    .blockIfQueueFull(producerContext.getBoolean(KEY_BLOCKIFQUEUEFULL, true));
             this.baseBuilder
                     .roundRobinRouterBatchingPartitionSwitchFrequency(
-                            context.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
-                    .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
+                            producerContext.getInteger(KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY, 60))
+                    .enableBatching(producerContext.getBoolean(KEY_ENABLEBATCHING, true))
                     .compressionType(this.getPulsarCompressionType());
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
@@ -163,7 +139,7 @@ public class PulsarClusterProducer implements LifecycleAware {
      * @return CompressionType LZ4/NONE/ZLIB/ZSTD/SNAPPY
      */
     private CompressionType getPulsarCompressionType() {
-        String type = this.context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
+        String type = this.producerContext.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
         switch (type) {
             case "LZ4" :
                 return CompressionType.LZ4;
@@ -185,7 +161,7 @@ public class PulsarClusterProducer implements LifecycleAware {
      */
     @Override
     public void stop() {
-        this.state = LifecycleState.STOP;
+        super.state = LifecycleState.STOP;
         //
         for (Entry<String, Producer<byte[]>> entry : this.producerMap.entrySet()) {
             try {
@@ -202,21 +178,12 @@ public class PulsarClusterProducer implements LifecycleAware {
     }
 
     /**
-     * getLifecycleState
-     * 
-     * @return LifecycleState state
-     */
-    @Override
-    public LifecycleState getLifecycleState() {
-        return state;
-    }
-
-    /**
      * send DispatchProfile
      * 
      * @param event DispatchProfile
      * @return boolean sendResult
      */
+    @Override
     public boolean send(DispatchProfile event) {
         try {
             // topic
@@ -303,47 +270,4 @@ public class PulsarClusterProducer implements LifecycleAware {
         builder.append(baseTopic);
         return builder.toString();
     }
-
-    /**
-     * encodeCacheMessageHeaders
-     * 
-     * @param  event DispatchProfile
-     * @return Map cache message headers
-     */
-    public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
-        Map<String, String> headers = new HashMap<>();
-        // version int32 protocol version, the value is 1
-        headers.put(HEADER_KEY_VERSION, HEADER_CACHE_VERSION_1);
-        // inlongGroupId string inlongGroupId
-        headers.put(EventConstants.INLONG_GROUP_ID, event.getInlongGroupId());
-        // inlongStreamId string inlongStreamId
-        headers.put(EventConstants.INLONG_STREAM_ID, event.getInlongStreamId());
-        // proxyName string proxy node id, IP or conainer name
-        headers.put(EventConstants.HEADER_KEY_PROXY_NAME, sinkContext.getNodeId());
-        // packTime int64 pack time, milliseconds
-        headers.put(EventConstants.HEADER_KEY_PACK_TIME, String.valueOf(System.currentTimeMillis()));
-        // msgCount int32 message count
-        headers.put(EventConstants.HEADER_KEY_MSG_COUNT, String.valueOf(event.getEvents().size()));
-        // srcLength int32 total length of raw messages body
-        headers.put(EventConstants.HEADER_KEY_SRC_LENGTH, String.valueOf(event.getSize()));
-        // compressType int
-        // compress type of body data
-        // INLONG_NO_COMPRESS = 0,
-        // INLONG_GZ = 1,
-        // INLONG_SNAPPY = 2
-        headers.put(EventConstants.HEADER_KEY_COMPRESS_TYPE,
-                String.valueOf(sinkContext.getCompressType().getNumber()));
-        // messageKey string partition hash key, optional
-        return headers;
-    }
-
-    /**
-     * get cacheClusterName
-     * 
-     * @return the cacheClusterName
-     */
-    public String getCacheClusterName() {
-        return cacheClusterName;
-    }
-
 }
