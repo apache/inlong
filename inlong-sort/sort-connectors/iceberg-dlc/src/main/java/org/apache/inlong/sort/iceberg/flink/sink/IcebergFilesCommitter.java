@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.sort.iceberg.sink;
+package org.apache.inlong.sort.iceberg.flink.sink;
 
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -48,6 +48,10 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.iceberg.flink.CompactTableProperties;
+import org.apache.inlong.sort.iceberg.flink.actions.RewriteResult;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +61,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.SortedMap;
+
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED_DEFAULT;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ * Add small file compact action.
  */
 class IcebergFilesCommitter extends AbstractStreamOperator<Void>
         implements OneInputStreamOperator<WriteResult, Void>, BoundedOneInput {
@@ -72,9 +81,9 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     private static final Logger LOG = LoggerFactory.getLogger(IcebergFilesCommitter.class);
     private static final String FLINK_JOB_ID = "flink.job-id";
 
-    // The max checkpoint id we've committed to iceberg table. As the flink's checkpoint is always increasing, so we
-    // could correctly commit all the data files whose checkpoint id is greater than the max committed one to iceberg
-    // table, for avoiding committing the same data files twice. This id will be attached to iceberg's meta when
+    // The max checkpoint id we've committed to iceberg table. As the flink's checkpoint is always increasing,
+    // so we could correctly commit all the data files whose checkpoint id is greater than the max committed one to
+    // iceberg table, for avoiding committing the same data files twice. This id will be attached to iceberg's meta when
     // committing the iceberg transaction.
     private static final String MAX_COMMITTED_CHECKPOINT_ID = "flink.max-committed-checkpoint-id";
     static final String MAX_CONTINUOUS_EMPTY_COMMITS = "flink.max-continuous-empty-commits";
@@ -113,9 +122,17 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     private static final ListStateDescriptor<SortedMap<Long, byte[]>> STATE_DESCRIPTOR = buildStateDescriptor();
     private transient ListState<SortedMap<Long, byte[]>> checkpointsState;
 
-    IcebergFilesCommitter(TableLoader tableLoader, boolean replacePartitions) {
+    // compact file action
+    private SyncRewriteDataFilesActionOption compactOption;
+    private transient SyncRewriteDataFilesAction compactAction;
+
+    IcebergFilesCommitter(
+            TableLoader tableLoader,
+            boolean replacePartitions,
+            SyncRewriteDataFilesActionOption compactOption) {
         this.tableLoader = tableLoader;
         this.replacePartitions = replacePartitions;
+        this.compactOption = compactOption;
     }
 
     @Override
@@ -127,14 +144,24 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
         this.tableLoader.open();
         this.table = tableLoader.loadTable();
 
-        maxContinuousEmptyCommits = PropertyUtil.propertyAsInt(table.properties(), MAX_CONTINUOUS_EMPTY_COMMITS, 10);
+        // compact file
+        if (PropertyUtil.propertyAsBoolean(table.properties(), COMPACT_ENABLED, COMPACT_ENABLED_DEFAULT)) {
+            compactAction = new SyncRewriteDataFilesAction(compactOption);
+            CompactTableProperties.TABLE_AUTO_COMPACT_PROPERTIES.stream()
+                    .forEach(k -> Optional.ofNullable(table.properties().get(k))
+                                        .ifPresent(v -> compactAction.option(k, v)));
+        }
+
+        maxContinuousEmptyCommits =
+                PropertyUtil.propertyAsInt(table.properties(), MAX_CONTINUOUS_EMPTY_COMMITS, 10);
         Preconditions.checkArgument(maxContinuousEmptyCommits > 0,
                 MAX_CONTINUOUS_EMPTY_COMMITS + " must be positive");
 
         int subTaskId = getRuntimeContext().getIndexOfThisSubtask();
         int attemptId = getRuntimeContext().getAttemptNumber();
-        this.manifestOutputFileFactory = FlinkManifestUtil
-                .createOutputFileFactory(table, flinkJobId, subTaskId, attemptId);
+        String operatorUniqueId = getRuntimeContext().getOperatorUniqueID();
+        this.manifestOutputFileFactory = FlinkManifestUtil.createOutputFileFactory(table, flinkJobId, operatorUniqueId,
+                subTaskId, attemptId);
         this.maxCommittedCheckpointId = INITIAL_CHECKPOINT_ID;
 
         this.checkpointsState = context.getOperatorStateStore().getListState(STATE_DESCRIPTOR);
@@ -144,9 +171,9 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
             Preconditions.checkState(!Strings.isNullOrEmpty(restoredFlinkJobId),
                     "Flink job id parsed from checkpoint snapshot shouldn't be null or empty");
 
-            // Since flink's checkpoint id will start from the max-committed-checkpoint-id + 1 in the new flink job even
-            // if it's restored from a snapshot created by another different flink job, so it's safe to assign the max
-            // committed checkpoint id from restored flink job to the current flink job.
+            // Since flink's checkpoint id will start from the max-committed-checkpoint-id + 1 in the new flink job
+            // even if it's restored from a snapshot created by another different flink job, so it's safe to assign
+            // the max committed checkpoint id from restored flink job to the current flink job.
             this.maxCommittedCheckpointId = getMaxCommittedCheckpointId(table, restoredFlinkJobId);
 
             NavigableMap<Long, byte[]> uncommittedDataFiles = Maps
@@ -192,6 +219,11 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
         if (checkpointId > maxCommittedCheckpointId) {
             commitUpToCheckpoint(dataFilesPerCheckpoint, flinkJobId, checkpointId);
             this.maxCommittedCheckpointId = checkpointId;
+            // every interval checkpoint do a small file compact
+            if (compactAction != null) {
+                RewriteResult result = compactAction.execute();
+                LOG.info("compact action result: {}", result);
+            }
         }
     }
 
@@ -237,8 +269,8 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
                         .add("checkpointId", checkpointId)
                         .add("manifestPath", manifest.path())
                         .toString();
-                LOG.warn("The iceberg transaction has been committed, but we failed to clean the temporary flink "
-                                + "manifests: {}", details, e);
+                LOG.warn("The iceberg transaction has been committed, but we failed to clean the "
+                                + "temporary flink manifests: {}", details, e);
             }
         }
     }
@@ -247,21 +279,23 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
             long checkpointId) {
         // Partition overwrite does not support delete files.
         int deleteFilesNum = pendingResults.values().stream().mapToInt(r -> r.deleteFiles().length).sum();
-        Preconditions.checkState(deleteFilesNum == 0, "Cannot overwrite partitions with delete files.");
+        Preconditions.checkState(deleteFilesNum == 0,
+                "Cannot overwrite partitions with delete files.");
 
         // Commit the overwrite transaction.
         ReplacePartitions dynamicOverwrite = table.newReplacePartitions();
 
         int numFiles = 0;
         for (WriteResult result : pendingResults.values()) {
-            Preconditions.checkState(result.referencedDataFiles().length == 0,
-                    "Should have no referenced data files.");
+            Preconditions.checkState(
+                    result.referencedDataFiles().length == 0, "Should have no referenced data files.");
 
             numFiles += result.dataFiles().length;
             Arrays.stream(result.dataFiles()).forEach(dynamicOverwrite::addFile);
         }
 
-        commitOperation(dynamicOverwrite, numFiles, 0, "dynamic partition overwrite", newFlinkJobId, checkpointId);
+        commitOperation(dynamicOverwrite, numFiles, 0,
+                "dynamic partition overwrite", newFlinkJobId, checkpointId);
     }
 
     private void commitDeltaTxn(
@@ -274,8 +308,8 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
 
             int numFiles = 0;
             for (WriteResult result : pendingResults.values()) {
-                Preconditions.checkState(result.referencedDataFiles().length == 0,
-                        "Should have no referenced data files.");
+                Preconditions.checkState(
+                        result.referencedDataFiles().length == 0, "Should have no referenced data files.");
 
                 numFiles += result.dataFiles().length;
                 Arrays.stream(result.dataFiles()).forEach(appendFiles::appendFile);
@@ -291,11 +325,11 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
                 WriteResult result = e.getValue();
 
                 // Row delta validations are not needed for streaming changes that write equality deletes. Equality
-                // deletes are applied to data in all previous sequence numbers, so retries may push deletes further in
-                // the future, but do not affect correctness. Position deletes committed to the table in this path are
-                // used only to delete rows from data files that are being added in this commit. There is no way for
-                // data files added along with the delete files to be concurrently removed, so there is no need to
-                // validate the files referenced by the position delete files that are being committed.
+                // deletes are applied to data in all previous sequence numbers, so retries may push deletes further
+                // in the future, but do not affect correctness. Position deletes committed to the table in this path
+                // are used only to delete rows from data files that are being added in this commit. There is no way
+                // for data files added along with the delete files to be concurrently removed, so there is no need
+                // to validate the files referenced by the position delete files that are being committed.
                 RowDelta rowDelta = table.newRowDelta();
 
                 int numDataFiles = result.dataFiles().length;
@@ -338,8 +372,8 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     }
 
     /**
-     * Write all the complete data files to a newly created manifest file and return the manifest's avro serialized
-     * bytes.
+     * Write all the complete data files to a newly created manifest file and return the manifest's avro
+     * serialized bytes.
      */
     private byte[] writeToManifest(long checkpointId) throws IOException {
         if (writeResultsOfCurrentCkpt.isEmpty()) {
@@ -354,7 +388,7 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     }
 
     @Override
-    public void dispose() throws Exception {
+    public void close() throws Exception {
         if (tableLoader != null) {
             tableLoader.close();
         }

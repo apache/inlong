@@ -201,8 +201,7 @@
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
-        <iceberg.flink.version>0.13.1</iceberg.flink.version>
-        <iceberg.version>0.13.1</iceberg.version>
+        <iceberg.version>0.13.2</iceberg.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
@@ -249,7 +248,9 @@
         <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
-        <dlc.client.version>1.1</dlc.client.version>
+        <dlc.client.version>1.1.1</dlc.client.version>
+        <dlc.jdbc.version>2.2.6</dlc.jdbc.version>
+        <cos.lakefs.plugin.version>1.0</cos.lakefs.plugin.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
@@ -1033,7 +1034,7 @@
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-flink-runtime-1.13</artifactId>
-                <version>${iceberg.flink.version}</version>
+                <version>${iceberg.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -1569,6 +1570,16 @@
                 <groupId>com.qcloud</groupId>
                 <artifactId>dlc-data-catalog-metastore-client</artifactId>
                 <version>${dlc.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud.cos</groupId>
+                <artifactId>lakefs-cloud-plugin</artifactId>
+                <version>${cos.lakefs.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>dlc-jdbc</artifactId>
+                <version>${dlc.jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>

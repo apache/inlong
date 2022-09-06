@@ -52,7 +52,7 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 /**
- * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.1
+ * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.2
  *
  * <p>
  * Factory for creating configured instances of {@link IcebergTableSource} and {@link

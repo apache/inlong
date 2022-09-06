@@ -17,11 +17,10 @@
  * under the License.
  */
 
-package org.apache.inlong.sort.iceberg;
+package org.apache.inlong.sort.iceberg.flink;
 
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
-import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DataStreamSinkProvider;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -31,45 +30,51 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.inlong.sort.iceberg.sink.FlinkSink;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
+import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * Add a table property `write.compact.enable` to support small file compact.
  * Add option `inlong.metric` and `inlong.audit` to support collect inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
-
     private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
-
     private final TableLoader tableLoader;
     private final TableSchema tableSchema;
-
-    private final CatalogTable catalogTable;
+    private final SyncRewriteDataFilesActionOption compactAction;
+    private final MetricOption metricOption;
+    private final boolean appendMode;
 
     private boolean overwrite = false;
 
     private IcebergTableSink(IcebergTableSink toCopy) {
         this.tableLoader = toCopy.tableLoader;
         this.tableSchema = toCopy.tableSchema;
+        this.compactAction = toCopy.compactAction;
+        this.metricOption = toCopy.metricOption;
         this.overwrite = toCopy.overwrite;
-        this.catalogTable = toCopy.catalogTable;
+        this.appendMode = toCopy.appendMode;
     }
 
-    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
+    public IcebergTableSink(
+            TableLoader tableLoader,
+            TableSchema tableSchema,
+            SyncRewriteDataFilesActionOption compactAction,
+            MetricOption metricOption,
+            boolean appendMode) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
-        this.catalogTable = catalogTable;
+        this.compactAction = compactAction;
+        this.metricOption = metricOption;
+        this.appendMode = appendMode;
     }
 
     @Override
@@ -86,11 +91,9 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .tableSchema(tableSchema)
                 .equalityFieldColumns(equalityColumns)
                 .overwrite(overwrite)
-                .appendMode(Boolean.valueOf(
-                        Optional.ofNullable(catalogTable.getOptions().get(ICEBERG_IGNORE_ALL_CHANGELOG.key()))
-                                .orElse(ICEBERG_IGNORE_ALL_CHANGELOG.defaultValue().toString())))
-                .metric(catalogTable.getOptions().getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()),
-                        catalogTable.getOptions().getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
+                .metric(metricOption)
+                .appendMode(appendMode)
+                .compact(compactAction)
                 .append();
     }
 
@@ -101,8 +104,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
-                .get(ICEBERG_IGNORE_ALL_CHANGELOG)) {
+        if (appendMode) {
             LOG.warn("Iceberg sink receive all changelog record. "
                     + "Regard any other record as insert-only record.");
             return ChangelogMode.all();

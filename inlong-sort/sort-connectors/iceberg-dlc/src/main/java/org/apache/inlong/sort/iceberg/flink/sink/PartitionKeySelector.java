@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.sort.iceberg.sink;
+package org.apache.inlong.sort.iceberg.flink.sink;
 
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.table.data.RowData;

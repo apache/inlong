@@ -89,6 +89,8 @@ import java.util.stream.Collectors;
  * </p>
  * The Iceberg table manages its partitions by itself. The partition of the Iceberg table is independent of the
  * partition of Flink.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 public class FlinkCatalog extends AbstractCatalog {
 

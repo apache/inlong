@@ -37,6 +37,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qcloud.cos</groupId>
+            <artifactId>lakefs-cloud-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>dlc-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.qcloud.cos</groupId>
             <artifactId>hadoop-cos</artifactId>
         </dependency>
@@ -46,11 +60,12 @@
         </dependency>
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
-            <artifactId>tencentcloud-sdk-java</artifactId>
+            <artifactId>tencentcloud-sdk-java</artifactId><!--TODO:replaced by 558-SNAPSHOT with dlc special treated-->
         </dependency>
         <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>dlc-data-catalog-metastore-client</artifactId>
+            <version>1.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
@@ -86,11 +101,9 @@
             <groupId>org.ini4j</groupId>
             <artifactId>ini4j</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-iceberg</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-flink-runtime-1.13</artifactId>
         </dependency>
 
         <dependency>
@@ -141,12 +154,15 @@
                                     <include>com.qcloud.cos:*</include>
                                     <include>com.qcloud:*</include>
                                     <include>com.tencentcloudapi:*</include>
+                                    <include>com.tencent.cloud.dlc:*</include>
                                     <include>commons-logging:commons-logging</include>
+                                    <include>commons-codec:commons-codec</include>
                                     <include>com.squareup.okio:okio</include>
                                     <include>com.squareup.okhttp:okhttp</include>
                                     <include>com.squareup.okhttp:logging-interceptor</include>
                                     <include>org.ini4j:ini4j</include>
                                     <include>com.google.code.gson:gson</include>
+                                    <include>javax.xml.bind:jaxb-api</include>
                                 </includes>
                             </artifactSet>
                             <filters>

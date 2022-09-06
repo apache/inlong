@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.sort.iceberg.sink;
+package org.apache.inlong.sort.iceberg.flink.sink;
 
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
@@ -28,13 +28,12 @@ import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
+import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
@@ -46,8 +45,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     private final String fullTableName;
     private final TaskWriterFactory<T> taskWriterFactory;
-    private final String inlongMetric;
-    private final String auditHostAndPorts;
+    private final MetricOption metricOption;
 
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
@@ -55,15 +53,12 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     @Nullable
     private transient SinkMetricData metricData;
 
-    IcebergStreamWriter(
-            String fullTableName,
+    IcebergStreamWriter(String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
-            String inlongMetric,
-            String auditHostAndPorts) {
+            @Nullable MetricOption metricOption) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
-        this.inlongMetric = inlongMetric;
-        this.auditHostAndPorts = auditHostAndPorts;
+        this.metricOption = metricOption;
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
 
@@ -79,13 +74,8 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         this.writer = taskWriterFactory.create();
 
         // Initialize metric
-        if (inlongMetric != null) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            String inlongGroupId = inlongMetricArray[0];
-            String inlongStreamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            metricData = new SinkMetricData(
-                    inlongGroupId, inlongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
+        if (metricOption != null) {
+            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
@@ -113,8 +103,8 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     }
 
     @Override
-    public void dispose() throws Exception {
-        super.dispose();
+    public void close() throws Exception {
+        super.close();
         if (writer != null) {
             writer.close();
             writer = null;

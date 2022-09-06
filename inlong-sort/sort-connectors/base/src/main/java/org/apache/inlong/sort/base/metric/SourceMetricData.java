@@ -25,6 +25,12 @@ import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 
+import javax.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -46,7 +52,11 @@ public class SourceMetricData implements MetricData {
     private final AuditImp auditImp;
 
     public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
-        this(groupId, streamId, nodeId, metricGroup, null);
+        this(groupId, streamId, nodeId, metricGroup, (AuditImp) null);
+    }
+
+    public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
+        this(option.getGroupId(), option.getStreamId(), option.getNodeId(), metricGroup, option.getIpPorts());
     }
 
     public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
@@ -56,6 +66,20 @@ public class SourceMetricData implements MetricData {
         this.nodeId = nodeId;
         this.metricGroup = metricGroup;
         this.auditImp = auditImp;
+    }
+
+    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+            @Nullable String auditHostAndPorts) {
+        this.groupId = groupId;
+        this.streamId = streamId;
+        this.nodeId = nodeId;
+        this.metricGroup = metricGroup;
+        if (auditHostAndPorts != null) {
+            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+            this.auditImp = AuditImp.getInstance();
+        } else {
+            this.auditImp = null;
+        }
     }
 
     /**
