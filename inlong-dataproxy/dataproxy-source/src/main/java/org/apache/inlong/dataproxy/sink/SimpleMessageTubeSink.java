@@ -596,8 +596,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
                     }
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-                    metricItem.readFailCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    metricItem.readSuccessCount.incrementAndGet();
+                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
                 }
             } else {
 
