@@ -36,6 +36,9 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 class PartitionedDeltaWriter extends BaseDeltaTaskWriter {
 
   private final PartitionKey partitionKey;

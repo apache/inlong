@@ -36,6 +36,9 @@ import java.io.IOException;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
 

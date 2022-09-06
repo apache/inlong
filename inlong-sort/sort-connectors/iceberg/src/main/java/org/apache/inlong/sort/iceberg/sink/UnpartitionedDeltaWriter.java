@@ -31,6 +31,9 @@ import org.apache.iceberg.io.OutputFileFactory;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 class UnpartitionedDeltaWriter extends BaseDeltaTaskWriter {
   private final RowDataDeltaWriter writer;
 

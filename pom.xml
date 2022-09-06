@@ -201,8 +201,7 @@
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
-        <iceberg.flink.version>0.13.1</iceberg.flink.version>
-        <iceberg.version>0.13.1</iceberg.version>
+        <iceberg.version>0.13.2</iceberg.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
@@ -1035,7 +1034,7 @@
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-flink-runtime-1.13</artifactId>
-                <version>${iceberg.flink.version}</version>
+                <version>${iceberg.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>

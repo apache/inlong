@@ -67,6 +67,10 @@ import java.util.SortedMap;
 import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED;
 import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED_DEFAULT;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ * Add small file compact action.
+ */
 class IcebergFilesCommitter extends AbstractStreamOperator<Void>
         implements OneInputStreamOperator<WriteResult, Void>, BoundedOneInput {
 

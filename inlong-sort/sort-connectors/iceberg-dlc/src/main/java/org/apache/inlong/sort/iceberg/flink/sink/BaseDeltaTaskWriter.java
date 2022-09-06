@@ -26,7 +26,9 @@ import org.apache.iceberg.PartitionKey;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.StructLike;
+import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.RowDataWrapper;
+import org.apache.iceberg.flink.data.RowDataProjection;
 import org.apache.iceberg.io.BaseTaskWriter;
 import org.apache.iceberg.io.FileAppenderFactory;
 import org.apache.iceberg.io.FileIO;
@@ -37,11 +39,16 @@ import org.apache.iceberg.types.TypeUtil;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
 
     private final Schema schema;
     private final Schema deleteSchema;
     private final RowDataWrapper wrapper;
+    private final RowDataWrapper keyWrapper;
+    private final RowDataProjection keyProjection;
     private final boolean upsert;
 
     BaseDeltaTaskWriter(PartitionSpec spec,
@@ -59,6 +66,8 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
         this.deleteSchema = TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds));
         this.wrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
         this.upsert = upsert;
+        this.keyWrapper =  new RowDataWrapper(FlinkSchemaUtil.convert(deleteSchema), deleteSchema.asStruct());
+        this.keyProjection = RowDataProjection.create(schema, deleteSchema);
     }
 
     abstract RowDataDeltaWriter route(RowData row);
@@ -75,7 +84,7 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
             case INSERT:
             case UPDATE_AFTER:
                 if (upsert) {
-                    writer.delete(row);
+                    writer.deleteKey(keyProjection.wrap(row));
                 }
                 writer.write(row);
                 break;
@@ -103,6 +112,11 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
         @Override
         protected StructLike asStructLike(RowData data) {
             return wrapper.wrap(data);
+        }
+
+        @Override
+        protected StructLike asStructLikeKey(RowData data) {
+            return keyWrapper.wrap(data);
         }
     }
 }

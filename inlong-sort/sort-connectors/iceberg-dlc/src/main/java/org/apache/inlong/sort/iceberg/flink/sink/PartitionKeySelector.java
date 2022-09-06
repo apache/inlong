@@ -31,6 +31,8 @@ import org.apache.iceberg.flink.sink.FlinkSink;
 /**
  * Create a {@link KeySelector} to shuffle by partition key, then each partition/bucket will be wrote by only one
  * task. That will reduce lots of small files in partitioned fanout write policy for {@link FlinkSink}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class PartitionKeySelector implements KeySelector<RowData, String> {
 

@@ -41,8 +41,7 @@ import org.apache.iceberg.util.ArrayUtil;
 import java.util.List;
 
 /**
- * Copy from iceberg-flink:iceberg-flink-1.14:0.13.1
- *
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  * Add an option `sink.ignore.changelog` to support insert-only mode without equalityFieldIds.
  */
 public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {

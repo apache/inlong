@@ -35,6 +35,9 @@ import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
 
