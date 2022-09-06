@@ -192,9 +192,10 @@ public class FileReaderOperator extends AbstractReader {
         }
     }
 
+    // default value is -1 and never stop task
     private void initReadTimeout(JobProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_FILE_MAX_WAIT,
-                DEFAULT_JOB_FILE_MAX_WAIT);
+                NEVER_STOP_SIGN);
         if (waitTime == NEVER_STOP_SIGN) {
             timeout = NEVER_STOP_SIGN;
         } else {
