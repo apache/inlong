@@ -139,7 +139,7 @@
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
         <pagehelper.springboot.version>1.4.2</pagehelper.springboot.version>
-        <pagehelper.version>5.3.0</pagehelper.version>
+        <pagehelper.version>5.3.1</pagehelper.version>
 
         <h2.version>2.1.210</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
