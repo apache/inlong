@@ -124,6 +124,7 @@ public final class MonitorTextFile {
             BasicFileAttributes attributesAfter = Files
                     .readAttributes(this.fileReaderOperator.file.toPath(), BasicFileAttributes.class);
             if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0) {
+                // Not triggered during data sending
                 if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator.hasNext()) {
                     return;
                 }
