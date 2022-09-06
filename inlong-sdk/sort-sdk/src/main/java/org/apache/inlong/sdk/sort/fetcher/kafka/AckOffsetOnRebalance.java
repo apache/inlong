@@ -51,8 +51,11 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     private final AtomicLong revokedNum = new AtomicLong(0);
     private final AtomicLong assignedNum = new AtomicLong(0);
 
-    public AckOffsetOnRebalance(String clusterId, Seeker seeker,
-                                ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
+    public AckOffsetOnRebalance(
+            String clusterId,
+            Seeker seeker,
+            ConcurrentHashMap<TopicPartition,
+            OffsetAndMetadata> commitOffsetMap) {
         this(clusterId, seeker, commitOffsetMap, null, null);
     }
 
