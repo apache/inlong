@@ -759,7 +759,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.slf4j:jul-to-slf4j:1.7.36 - JUL to SLF4J bridge (https://github.com/qos-ch/slf4j/tree/v_1.7.36), (MIT License)
   org.projectlombok:lombok:1.18.22 - Project Lombok (https://projectlombok.org), (The MIT License)
   org.mockito:mockito-core:3.12.4 - (https://github.com/mockito/mockito/tree/v3.12.4), (MIT License)
-  com.github.pagehelper:pagehelper:5.3.0 - PageHelper 5 (https://github.com/pagehelper/Mybatis-PageHelper/tree/v5.3.0), (MIT License)
+  com.github.pagehelper:pagehelper:5.3.1 - PageHelper 5 (https://github.com/pagehelper/Mybatis-PageHelper/tree/v5.3.1), (MIT License)
   com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.4.2 - PageHelper Spring Boot AutoConfigure (https://github.com/pagehelper/Mybatis-PageHelper/tree/v3.2.0), (MIT License)
   com.github.pagehelper:pagehelper-spring-boot-starter:1.4.2 - PageHelper Spring Boot Starter (https://github.com/pagehelper/Mybatis-PageHelper/tree/v3.2.0), (MIT License)
   com.github.scopt:scopt_2.11:3.5.0 - scopt (https://github.com/scopt/scopt/tree/v3.5.0), (MIT License)
