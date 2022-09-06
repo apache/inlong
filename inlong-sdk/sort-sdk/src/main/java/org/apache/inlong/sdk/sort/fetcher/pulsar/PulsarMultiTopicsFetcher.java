@@ -66,8 +66,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             Interceptor interceptor,
             Deserializer deserializer,
             PulsarClient pulsarClient,
-            String msgKey) {
-        super(topics, context, interceptor, deserializer, msgKey);
+            String fetchKey) {
+        super(topics, context, interceptor, deserializer, fetchKey);
         this.pulsarClient = Preconditions.checkNotNull(pulsarClient);
     }
 

@@ -72,8 +72,8 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
             Interceptor interceptor,
             Deserializer deserializer,
             String bootstrapServers,
-            String msgKey) {
-        super(topics, context, interceptor, deserializer, msgKey);
+            String fetchKey) {
+        super(topics, context, interceptor, deserializer, fetchKey);
         this.bootstrapServers = bootstrapServers;
         this.commitOffsetMap = new ConcurrentHashMap<>();
         this.ackOffsetMap = new ConcurrentHashMap<>();
