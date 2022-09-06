@@ -702,7 +702,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.esotericsoftware.kryo:kryo:2.24.0 - Kryo (https://github.com/EsotericSoftware/kryo/tree/kryo-2.24.0), (New BSD License)
   org.fusesource.leveldbjni:leveldbjni-all:1.8 - leveldbjni-all (https://github.com/fusesource/leveldbjni/tree/leveldbjni-1.8), (The BSD 3-Clause License)
   com.esotericsoftware.minlog:minlog:1.2 - MinLog (https://github.com/EsotericSoftware/minlog/tree/1.2), (New BSD License)
-  org.postgresql:postgresql:42.3.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.postgresql:postgresql:42.4.1 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
   com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
   org.scala-lang:scala-compiler:2.11.12 - Scala Compiler (http://www.scala-lang.org/), (BSD 3-Clause)
   org.scala-lang.modules:scala-java8-compat_2.11:0.7.0 - scala-java8-compat (https://github.com/scala/scala-java8-compat/tree/v0.7.0), (BSD 3-clause)

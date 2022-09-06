@@ -922,7 +922,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   jline:jline:2.12 - JLine (https://jline.github.io), (The BSD License)
   com.jcraft:jsch:0.1.55 - JSch (http://www.jcraft.com/jsch/), (Revised BSD)
   com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (New BSD License)
-  org.postgresql:postgresql:42.3.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.postgresql:postgresql:42.4.1 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
   com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
   org.codehaus.woodstox:stax2-api:3.1.4 - Stax2 API (https://github.com/FasterXML/stax2-api), (The BSD License)
   org.threeten:threeten-extra:1.5.0 - ThreeTen-Extra (https://www.threeten.org/threeten-extra), (BSD 3-clause)
