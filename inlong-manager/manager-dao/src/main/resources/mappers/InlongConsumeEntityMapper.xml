@@ -118,6 +118,16 @@
             </otherwise>
         </choose>
     </select>
+    <select id="selectExists" resultType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_consume
+        where is_deleted = 0
+        and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        and topic = #{topic, jdbcType=VARCHAR}
+        and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
+        limit 1
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
         update inlong_consume

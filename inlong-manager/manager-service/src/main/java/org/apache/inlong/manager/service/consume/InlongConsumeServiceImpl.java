@@ -36,6 +36,7 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 public class InlongConsumeServiceImpl implements InlongConsumeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongConsumeServiceImpl.class);
+    private static final String AUTO_CREATE_MSG = "auto create by inlong";
 
     @Autowired
     private InlongConsumeEntityMapper consumeMapper;
@@ -80,6 +82,36 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
 
         LOGGER.info("success to save inlong consume for consumer group={} by user={}", consumerGroup, operator);
         return request.getId();
+    }
+
+    @Override
+    public Integer saveBySystem(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
+        String groupId = groupInfo.getInlongGroupId();
+        InlongConsumeEntity existEntity = consumeMapper.selectExists(groupId, topic, consumerGroup);
+        if (existEntity != null) {
+            LOGGER.warn("inlong consume already exists for groupId={} topic={} consumerGroup={}, skip to create",
+                    groupId, topic, consumerGroup);
+            return existEntity.getId();
+        }
+
+        LOGGER.debug("begin to save inlong consume for groupId={} topic={} group={}", groupId, topic, consumerGroup);
+        InlongConsumeEntity entity = new InlongConsumeEntity();
+        entity.setConsumerGroup(consumerGroup);
+        entity.setDescription(AUTO_CREATE_MSG);
+        entity.setMqType(groupInfo.getMqType());
+        entity.setTopic(topic);
+        entity.setInlongGroupId(groupId);
+        entity.setFilterEnabled(0);
+
+        entity.setInCharges(groupInfo.getInCharges());
+        entity.setStatus(ConsumeStatus.APPROVED.getCode());
+        String operator = groupInfo.getCreator();
+        entity.setCreator(operator);
+        entity.setModifier(operator);
+
+        consumeMapper.insert(entity);
+        LOGGER.debug("success save inlong consume for groupId={} topic={} group={}", groupId, topic, consumerGroup);
+        return entity.getId();
     }
 
     @Override
