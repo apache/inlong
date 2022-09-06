@@ -180,9 +180,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
         // 3. insert the consumer group info
         String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
-        consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
-        log.info("success to save inlong consume for groupId={}, topic={}, consumerGroup={}",
-                groupId, topicName, consumeGroup);
+        Integer id = consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
+        log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
+                id, consumeGroup, groupId, topicName);
     }
 
     /**

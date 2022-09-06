@@ -87,11 +87,11 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     @Override
     public Integer saveBySystem(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
         String groupId = groupInfo.getInlongGroupId();
-        InlongConsumeEntity exists = consumeMapper.selectExists(groupId, topic, consumerGroup);
-        if (exists != null) {
-            LOGGER.warn("inlong consume already exists for groupId={} topic={} group={}, skip to create",
+        InlongConsumeEntity existEntity = consumeMapper.selectExists(groupId, topic, consumerGroup);
+        if (existEntity != null) {
+            LOGGER.warn("inlong consume already exists for groupId={} topic={} consumerGroup={}, skip to create",
                     groupId, topic, consumerGroup);
-            return null;
+            return existEntity.getId();
         }
 
         LOGGER.debug("begin to save inlong consume for groupId={} topic={} group={}", groupId, topic, consumerGroup);

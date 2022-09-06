@@ -80,8 +80,9 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
             log.info("success to create tubemq consumer group for groupId={}", groupId);
 
             // insert the consumer group info
-            consumeService.saveBySystem(groupInfo, topicName, consumeGroup);
-            log.info("success to save consume for groupId={}, topic={}, consumer={}", groupId, topicName, consumeGroup);
+            Integer id = consumeService.saveBySystem(groupInfo, topicName, consumeGroup);
+            log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
+                    id, consumeGroup, groupId, topicName);
 
             log.info("success to create tubemq resource for groupId={}, cluster={}", groupId, tubeCluster);
         } catch (Exception e) {

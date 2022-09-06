@@ -143,20 +143,20 @@ public class PulsarOperator {
         String tenant = topicInfo.getTenant();
         String namespace = topicInfo.getNamespace();
         String topicName = topicInfo.getTopicName();
-        String topicFullName = tenant + "/" + namespace + "/" + topicName;
+        String fullTopicName = tenant + "/" + namespace + "/" + topicName;
 
         // Topic will be returned if it exists, and created if it does not exist
         if (topicExists(pulsarAdmin, tenant, namespace, topicName,
                 InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicInfo.getQueueModule()))) {
-            LOGGER.warn("pulsar topic={} already exists in {}", topicFullName, pulsarAdmin.getServiceUrl());
+            LOGGER.warn("pulsar topic={} already exists in {}", fullTopicName, pulsarAdmin.getServiceUrl());
             return;
         }
 
         try {
             if (InlongConstants.PULSAR_QUEUE_TYPE_SERIAL.equals(topicInfo.getQueueModule())) {
-                pulsarAdmin.topics().createNonPartitionedTopic(topicFullName);
-                String res = pulsarAdmin.lookups().lookupTopic(topicFullName);
-                LOGGER.info("success to create topic={}, lookup result is {}", topicFullName, res);
+                pulsarAdmin.topics().createNonPartitionedTopic(fullTopicName);
+                String res = pulsarAdmin.lookups().lookupTopic(fullTopicName);
+                LOGGER.info("success to create topic={}, lookup result is {}", fullTopicName, res);
             } else {
                 // The number of brokers as the default value of topic partition
                 List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
@@ -166,13 +166,13 @@ public class PulsarOperator {
                     numPartitions = brokers.size();
                 }
 
-                pulsarAdmin.topics().createPartitionedTopic(topicFullName, numPartitions);
-                Map<String, String> res = pulsarAdmin.lookups().lookupPartitionedTopic(topicFullName);
+                pulsarAdmin.topics().createPartitionedTopic(fullTopicName, numPartitions);
+                Map<String, String> res = pulsarAdmin.lookups().lookupPartitionedTopic(fullTopicName);
                 // if lookup failed (res.size not equals the partition number)
                 if (res.keySet().size() != numPartitions) {
                     // look up partition failed, retry to get partition numbers
                     for (int i = 0; (i < RETRY_TIMES && res.keySet().size() != numPartitions); i++) {
-                        res = pulsarAdmin.lookups().lookupPartitionedTopic(topicFullName);
+                        res = pulsarAdmin.lookups().lookupPartitionedTopic(fullTopicName);
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
@@ -183,10 +183,10 @@ public class PulsarOperator {
                 if (numPartitions != res.keySet().size()) {
                     throw new PulsarAdminException("The number of partitions not equal to lookupPartitionedTopic");
                 }
-                LOGGER.info("success to create topic={}", topicFullName);
+                LOGGER.info("success to create topic={}", fullTopicName);
             }
         } catch (PulsarAdminException e) {
-            LOGGER.error("failed to create topic=" + topicFullName, e);
+            LOGGER.error("failed to create topic=" + fullTopicName, e);
             throw e;
         }
     }
@@ -200,20 +200,20 @@ public class PulsarOperator {
         String tenant = topicInfo.getTenant();
         String namespace = topicInfo.getNamespace();
         String topic = topicInfo.getTopicName();
-        String topicFullName = tenant + "/" + namespace + "/" + topic;
+        String fullTopicName = tenant + "/" + namespace + "/" + topic;
 
         // Topic will be returned if it not exists
         if (topicExists(pulsarAdmin, tenant, namespace, topic,
                 InlongConstants.PULSAR_QUEUE_TYPE_PARALLEL.equals(topicInfo.getQueueModule()))) {
-            LOGGER.warn("pulsar topic={} already delete", topicFullName);
+            LOGGER.warn("pulsar topic={} already delete", fullTopicName);
             return;
         }
 
         try {
-            pulsarAdmin.topics().delete(topicFullName, true);
-            LOGGER.info("success to delete topic={}", topicFullName);
+            pulsarAdmin.topics().delete(fullTopicName, true);
+            LOGGER.info("success to delete topic={}", fullTopicName);
         } catch (PulsarAdminException e) {
-            LOGGER.error("failed to delete topic=" + topicFullName, e);
+            LOGGER.error("failed to delete topic=" + fullTopicName, e);
             throw e;
         }
     }
