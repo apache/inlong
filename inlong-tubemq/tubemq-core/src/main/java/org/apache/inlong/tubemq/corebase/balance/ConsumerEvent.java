@@ -75,9 +75,18 @@ public class ConsumerEvent {
         }
     }
 
-    public StringBuilder toStrBuilder(final StringBuilder sBuilder) {
-        return sBuilder.append("ConsumerEvent [rebalanceId=").append(rebalanceId)
-                .append(", type=").append(type).append(", status=").append(status)
-                .append(", subscribeInfoList=").append(subscribeInfoList).append("]");
+    public StringBuilder toStrBuilder(String clientId, StringBuilder sBuilder) {
+        int count = 0;
+        sBuilder.append("ConsumerEvent {rebalanceId=").append(rebalanceId)
+                .append(",type=").append(type).append(",status=").append(status)
+                .append(",clientId=").append(clientId).append(",subscribeInfoList=[");
+        for (SubscribeInfo info : subscribeInfoList) {
+            if (count++ > 0) {
+                sBuilder.append(",");
+            }
+            sBuilder.append(info.getPartitionStr());
+        }
+        sBuilder.append("]}");
+        return sBuilder;
     }
 }
