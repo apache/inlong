@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +77,7 @@ public final class MonitorTextFile {
      */
     private class MonitorEventRunnable implements Runnable {
 
+        private static final int WAIT_TIME = 30;
         private final FileReaderOperator fileReaderOperator;
         private final TextFileReader textFileReader;
         private final Long interval;
@@ -100,8 +102,9 @@ public final class MonitorTextFile {
 
         @Override
         public void run() {
-            while (!this.fileReaderOperator.finished) {
-                try {
+            try {
+                TimeUnit.SECONDS.sleep(WAIT_TIME);
+                while (!this.fileReaderOperator.finished) {
                     long expireTime = Long.parseLong(fileReaderOperator.jobConf
                             .get(JOB_FILE_MONITOR_EXPIRE, JOB_FILE_MONITOR_DEFAULT_EXPIRE));
                     long currentTime = System.currentTimeMillis();
@@ -111,17 +114,24 @@ public final class MonitorTextFile {
                     }
                     listen();
                     TimeUnit.MILLISECONDS.sleep(interval);
-                } catch (Exception e) {
-                    LOGGER.error("monitor {} error:", this.fileReaderOperator.file.getName(), e);
                 }
+            } catch (Exception e) {
+                LOGGER.error("monitor {} error:", this.fileReaderOperator.file.getName(), e);
             }
         }
 
         private void listen() throws IOException {
             BasicFileAttributes attributesAfter = Files
                     .readAttributes(this.fileReaderOperator.file.toPath(), BasicFileAttributes.class);
-            if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0
-                    && !this.fileReaderOperator.iterator.hasNext()) {
+            if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0) {
+                // Not triggered during data sending
+                if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator.hasNext()) {
+                    return;
+                }
+                // Set position 0 when split file
+                if (attributesBefore.creationTime().compareTo(attributesAfter.creationTime()) < 0) {
+                    this.fileReaderOperator.position = 0;
+                }
                 this.textFileReader.getData();
                 this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
                 this.attributesBefore = attributesAfter;
