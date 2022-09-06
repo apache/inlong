@@ -1524,7 +1524,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     rebalanceEvents.put(newEvent);
                     if (logger.isDebugEnabled()) {
                         strBuffer.append("[Receive Consumer Event]");
-                        logger.debug(newEvent.toStrBuilder(strBuffer).toString());
+                        logger.debug(newEvent.toStrBuilder(consumerId, strBuffer).toString());
                         strBuffer.delete(0, strBuffer.length());
                     }
                 }

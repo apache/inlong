@@ -811,13 +811,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         //
         if (rebalanceId > 0) {
-            ConsumerEvent processedEvent =
-                    new ConsumerEvent(request.getEvent().getRebalanceId(),
-                            EventType.valueOf(request.getEvent().getOpType()),
-                            DataConverterUtil.convertSubInfo(request.getEvent().getSubscribeInfoList()),
-                            EventStatus.valueOf(request.getEvent().getStatus()));
-            strBuffer.append("[Event Processed] ");
-            logger.info(processedEvent.toStrBuilder(strBuffer).toString());
+            logger.info(strBuffer.append("[Event Processed] rebalanceId=")
+                    .append(request.getEvent().getRebalanceId())
+                    .append(", clientId=").append(clientId).toString());
             strBuffer.delete(0, strBuffer.length());
             try {
                 consumeGroupInfo.settAllocated();
@@ -833,7 +829,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 && event.getStatus() != EventStatus.PROCESSING) {
             event.setStatus(EventStatus.PROCESSING);
             strBuffer.append("[Push Consumer Event]");
-            logger.info(event.toStrBuilder(strBuffer).toString());
+            logger.info(event.toStrBuilder(clientId, strBuffer).toString());
             strBuffer.delete(0, strBuffer.length());
             EventProto.Builder eventProtoBuilder =
                     EventProto.newBuilder();
