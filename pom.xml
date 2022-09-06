@@ -188,7 +188,7 @@
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
         <thrift.version>0.9.3</thrift.version>
-        <flume.version>1.9.0</flume.version>
+        <flume.version>1.10.0</flume.version>
         <hbase.version>2.4.12</hbase.version>
 
         <velocity.tools.generic.version>3.1</velocity.tools.generic.version>
