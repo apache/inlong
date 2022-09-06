@@ -23,8 +23,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
@@ -32,12 +37,14 @@ import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.sdk.sort.util.Utils;
 
 public class MessageDeserializer implements Deserializer {
 
     private static final int MESSAGE_VERSION_NONE = 0;
     private static final int MESSAGE_VERSION_PB = 1;
+    private static final int MESSAGE_VERSION_INLONG_MSG = 2;
     private static final int COMPRESS_TYPE_NONE = 0;
     private static final int COMPRESS_TYPE_GZIP = 1;
     private static final int COMPRESS_TYPE_SNAPPY = 2;
@@ -48,12 +55,20 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONG_GROUPID_KEY = "inlongGroupId";
     private static final String INLONG_STREAMID_KEY = "inlongStreamId";
 
+    private static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
+    private static final String INLONGMSG_ATTR_GROUP_ID = "groupId";
+    private static final String INLONGMSG_ATTR_TIME_T = "t";
+    private static final String INLONGMSG_ATTR_TIME_DT = "dt";
+    private static final String INLONG_ATTR_SOURCE_IP = "srcIp";
+    private static final char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
+    private static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
+
     public MessageDeserializer() {
     }
 
     @Override
     public List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
-            byte[] data) throws Exception {
+                                           byte[] data) throws Exception {
 
         //1. version
         int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "0"));
@@ -64,13 +79,16 @@ public class MessageDeserializer implements Deserializer {
             case MESSAGE_VERSION_PB: {
                 return decodePB(context, inLongTopic, data, headers);
             }
+            case MESSAGE_VERSION_INLONG_MSG: {
+                return decodeInlongMsg(context, inLongTopic, data, headers);
+            }
             default:
                 throw new IllegalArgumentException("Unknown version type:" + version);
         }
     }
 
     private List<InLongMessage> decode(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
-            Map<String, String> headers) {
+                                       Map<String, String> headers) {
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
         String sourceIp = headers.getOrDefault(SOURCE_IP_KEY, "");
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
@@ -90,7 +108,7 @@ public class MessageDeserializer implements Deserializer {
      * @return {@link MessageObjs}
      */
     private List<InLongMessage> decodePB(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
-            Map<String, String> headers) throws IOException {
+                                         Map<String, String> headers) throws IOException {
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
@@ -121,8 +139,8 @@ public class MessageDeserializer implements Deserializer {
      * @return {@link List}
      */
     private List<InLongMessage> transformMessageObjs(ClientContext context, InLongTopic inLongTopic,
-            MessageObjs messageObjs, String inlongGroupId,
-            String inlongStreamId) {
+                                                     MessageObjs messageObjs, String inlongGroupId,
+                                                     String inlongStreamId) {
         if (null == messageObjs) {
             return null;
         }
@@ -144,4 +162,64 @@ public class MessageDeserializer implements Deserializer {
         }
         return inLongMessages;
     }
+
+    private List<InLongMessage> decodeInlongMsg(
+            ClientContext context,
+            InLongTopic inLongTopic,
+            byte[] msgBytes,
+            Map<String, String> headers) {
+        List<InLongMessage> messageList = new ArrayList<>();
+
+        String groupId = Optional.ofNullable(headers.get(INLONGMSG_ATTR_GROUP_ID))
+                .orElseThrow(() -> new IllegalArgumentException("Could not find "
+                        + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));
+
+        InLongMsg inLongMsg = InLongMsg.parseFrom(msgBytes);
+        for (String attr : inLongMsg.getAttrs()) {
+            Map<String, String> attributes = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
+                    INLONGMSG_ATTR_KV_DELIMITER, null, null);
+
+            /*String groupId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_GROUP_ID))
+                    .orElseThrow(() -> new IllegalArgumentException("Could not find "
+                            + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));*/
+
+            String streamId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_STREAM_ID))
+                    .orElseThrow(() -> new IllegalArgumentException("Could not find "
+                            + INLONGMSG_ATTR_STREAM_ID + " in attributes!"));
+
+            // Extracts time from the attributes
+            long msgTime;
+            if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
+                String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
+                msgTime = StringUtil.parseDateTime(date);
+            } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
+                String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
+                msgTime = Long.parseLong(epoch);
+            } else {
+                throw new IllegalArgumentException(
+                        "Could not find " + INLONGMSG_ATTR_TIME_T
+                                + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
+            }
+
+            String srcIp = Optional.ofNullable(attributes.get(INLONG_ATTR_SOURCE_IP))
+                    .orElse("127.0.0.1");
+
+            Iterator<byte[]> iterator = inLongMsg.getIterator(attr);
+            while (iterator.hasNext()) {
+                byte[] bodyBytes = iterator.next();
+                if (Objects.isNull(bodyBytes)) {
+                    continue;
+                }
+                InLongMessage inLongMessage = new InLongMessage(groupId, streamId, msgTime,
+                        srcIp, bodyBytes, attributes);
+                messageList.add(inLongMessage);
+                context.getStatManager()
+                        .getStatistics(context.getConfig().getSortTaskId(),
+                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                        .addDecompressionConsumeSize(inLongMessage.getBody().length);
+            }
+        }
+        return messageList;
+    }
+
 }
