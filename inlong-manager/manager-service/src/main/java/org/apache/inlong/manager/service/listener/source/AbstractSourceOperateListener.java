@@ -99,6 +99,10 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
      */
     @SneakyThrows
     public boolean checkIfOp(StreamSource streamSource, List<StreamSource> unOperatedSources) {
+        // template source task need not be operated
+        if (CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
+            return false;
+        }
         for (int retry = 0; retry < 60; retry++) {
             int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);
