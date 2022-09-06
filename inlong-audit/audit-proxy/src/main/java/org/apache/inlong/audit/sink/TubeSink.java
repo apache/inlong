@@ -32,7 +32,7 @@ import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
-import org.apache.inlong.audit.utils.NetworkUtils;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
