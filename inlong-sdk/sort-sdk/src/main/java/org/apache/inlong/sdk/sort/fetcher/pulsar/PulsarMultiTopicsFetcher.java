@@ -65,8 +65,9 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             ClientContext context,
             Interceptor interceptor,
             Deserializer deserializer,
-            PulsarClient pulsarClient) {
-        super(topics, context, interceptor, deserializer);
+            PulsarClient pulsarClient,
+            String msgKey) {
+        super(topics, context, interceptor, deserializer, msgKey);
         this.pulsarClient = Preconditions.checkNotNull(pulsarClient);
     }
 
@@ -80,7 +81,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         this.currentConsumer = new PulsarConsumer(newConsumer);
         InLongTopic firstTopic = onlineTopics.values().stream().findFirst().get();
         this.seeker = SeekerFactory.createPulsarSeeker(newConsumer, firstTopic);
-        String threadName = String.format("sort_sdk_pulsar_multi_topic_fetch_thread_%d", this.hashCode());
+        String threadName = String.format("sort_sdk_pulsar_multi_topic_fetch_thread_%s_%s",
+                firstTopic.getInLongCluster().getClusterId(), this.fetchKey);
         this.fetchThread = new Thread(new PulsarMultiTopicsFetcher.Fetcher(), threadName);
         this.fetchThread.start();
         this.executor.scheduleWithFixedDelay(this::clearRemovedConsumerList,
@@ -245,18 +247,14 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         mainLock.writeLock().lock();
         try {
             this.setStopConsume(true);
+            toBeRemovedConsumers.add(currentConsumer);
             LOGGER.info("closed online topics {}", onlineTopics);
             try {
-                if (currentConsumer != null) {
-                    currentConsumer.close();
-                }
                 if (fetchThread != null) {
                     fetchThread.interrupt();
                 }
-            } catch (PulsarClientException e) {
-                LOGGER.warn("close pulsar client: ", e);
             } catch (Throwable t) {
-                LOGGER.warn("got exception in close multi topic fetcher: ", t);
+                LOGGER.warn("got exception in close fetcher thread: ", t);
             }
             toBeRemovedConsumers.stream()
                     .filter(Objects::nonNull)
@@ -264,10 +262,15 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                         try {
                             c.close();
                         } catch (PulsarClientException e) {
-                            LOGGER.warn("close pulsar client: ", e);
+                            LOGGER.warn("got exception in close pulsar consumer: ", e);
                         }
                     });
             toBeRemovedConsumers.clear();
+            try {
+                pulsarClient.close();
+            } catch (PulsarClientException e) {
+                LOGGER.warn("got exception in close pulsar client: ", e);
+            }
             return true;
         } finally {
             this.closed = true;
@@ -354,7 +357,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                     continue;
                 }
                 List<MessageRecord> msgs = new ArrayList<>();
-                msgs.add(new MessageRecord(topic.getTopicKey(),
+                msgs.add(new MessageRecord(fetchKey,
                         inLongMessages,
                         offsetKey, System.currentTimeMillis()));
                 context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);

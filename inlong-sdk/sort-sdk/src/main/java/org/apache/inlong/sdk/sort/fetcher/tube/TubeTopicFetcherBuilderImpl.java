@@ -16,44 +16,52 @@
  *
  */
 
-package org.apache.inlong.sdk.sort.fetcher.kafka;
+package org.apache.inlong.sdk.sort.fetcher.tube;
 
-import org.apache.inlong.sdk.sort.api.SingleTopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.api.AbstractTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
+import org.apache.inlong.sdk.sort.api.TopicFetcherBuilder;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Builder of kafka single topic fetcher.
+ * Builder of tube single topic fetcher.
  */
-public class KafkaSingleTopicFetcherBuilder extends SingleTopicFetcherBuilder {
+public class TubeTopicFetcherBuilderImpl extends AbstractTopicFetcherBuilder {
 
-    private String bootstrapServers;
+    private TubeConsumerCreator tubeConsumerCreator;
 
-    public KafkaSingleTopicFetcherBuilder bootstrapServers(String bootstrapServers) {
-        this.bootstrapServers = bootstrapServers;
+    public TubeTopicFetcherBuilderImpl tubeConsumerCreater(TubeConsumerCreator tubeConsumerCreator) {
+        this.tubeConsumerCreator = tubeConsumerCreator;
         return this;
+    }
+
+    @Override
+    public TopicFetcherBuilder topic(Collection<InLongTopic> topics) {
+        throw new IllegalArgumentException("tube topic fetcher do not support multi topics, "
+                + "plz call the single topic method");
     }
 
     @Override
     public TopicFetcher subscribe() {
         Optional.ofNullable(topic)
-                .orElseThrow(() -> new IllegalStateException("subscribe kafka single topic, but never assign topic"));
+                .orElseThrow(() -> new IllegalStateException("subscribe tube single topic, but never assign topic"));
         Optional.ofNullable(context)
                 .orElseThrow(() -> new IllegalStateException("context is null"));
-        Optional.ofNullable(bootstrapServers)
-                .orElseThrow(() -> new IllegalStateException("kafka bootstrapServers is null"));
+        Optional.ofNullable(tubeConsumerCreator)
+                .orElseThrow(() -> new IllegalStateException("tube consumer creator is null"));
         interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
-        TopicFetcher kafkaSingleTopicFetcher =
-                new KafkaSingleTopicFetcher(topic, context, interceptor, deserializer, bootstrapServers);
-        if (!kafkaSingleTopicFetcher.init()) {
-            throw new IllegalStateException("init kafka single topic fetcher failed");
+        TubeSingleTopicFetcher fetcher =
+                new TubeSingleTopicFetcher(topic, context, interceptor, deserializer, tubeConsumerCreator);
+        if (!fetcher.init()) {
+            throw new IllegalStateException("init tube single topic fetcher failed");
         }
-        return kafkaSingleTopicFetcher;
+        return fetcher;
     }
-
 }
