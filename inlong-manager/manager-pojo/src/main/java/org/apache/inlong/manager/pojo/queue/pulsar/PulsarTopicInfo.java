@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PulsarTopicBean {
+public class PulsarTopicInfo {
 
     private String tenant;
 

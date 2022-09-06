@@ -79,9 +79,7 @@ public class KafkaOperator {
 
     public void createSubscription(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
             String subscription) {
-
         KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(inlongKafkaInfo, kafkaClusterInfo);
-        // subscription
         kafkaConsumer.subscribe(Collections.singletonList(subscription));
     }
 
