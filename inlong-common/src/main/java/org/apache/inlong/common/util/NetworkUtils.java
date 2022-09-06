@@ -39,21 +39,20 @@ public class NetworkUtils {
      * get local ip
      */
     public static String getLocalIp() {
-        if (!StringUtils.isEmpty(localIp)) {
+        if (StringUtils.isNotBlank(localIp)) {
             return localIp;
         }
         Enumeration<NetworkInterface> allInterface;
         String ip = "127.0.0.1";
         try {
             allInterface = NetworkInterface.getNetworkInterfaces();
-            for (; allInterface.hasMoreElements(); ) {
+            while (allInterface.hasMoreElements()) {
                 NetworkInterface oneInterface = allInterface.nextElement();
                 if (oneInterface.isLoopback() || !oneInterface.isUp() || oneInterface.isVirtual()) {
                     continue;
                 }
-
                 Enumeration<InetAddress> allAddress = oneInterface.getInetAddresses();
-                for (; allAddress.hasMoreElements(); ) {
+                while (allAddress.hasMoreElements()) {
                     InetAddress oneAddress = allAddress.nextElement();
                     localIp = oneAddress.getHostAddress();
                     if (StringUtils.isEmpty(localIp) || localIp.equals("127.0.0.1") || localIp.contains(":")) {
