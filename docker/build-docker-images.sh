@@ -57,6 +57,11 @@ for (( i=1; i<=$#; i++)); do
       echo "Wrong arch name: ${BUILD_ARCH}. Please input aarch64 or x86."
       exit 1
     fi
+    if [ "$BUILD_ARCH" = "$ARCH_AARCH64" ]; then
+      USE_PLATFORM="$PLATFORM_AARCH64"
+    else
+      USE_PLATFORM="$PLATFORM_X86"
+    fi
     shift
   elif [ "${!i}" = "-h" ] || [ "${!i}" = "--help" ]; then
     helpFunc
