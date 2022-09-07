@@ -252,7 +252,6 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
 
         private boolean subscribeNew() {
             if (CollectionUtils.isEmpty(newTopics)) {
-                //LOGGER.info("new topics is empty or null");
                 return false;
             }
             LOGGER.info("start to update topics");

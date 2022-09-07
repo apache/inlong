@@ -61,8 +61,12 @@ public class SortClientConfig implements Serializable {
     private int cleanOldConsumerIntervalSec = 60;
     private int maxConsumerSize = 5;
 
-    public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
-                            ConsumeStrategy consumeStrategy, String localIp) {
+    public SortClientConfig(
+            String sortTaskId,
+            String sortClusterName,
+            InLongTopicChangeListener assignmentsListener,
+            ConsumeStrategy consumeStrategy,
+            String localIp) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
         this.assignmentsListener = assignmentsListener;

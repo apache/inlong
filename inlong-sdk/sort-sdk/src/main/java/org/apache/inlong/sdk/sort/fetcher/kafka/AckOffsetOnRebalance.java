@@ -90,7 +90,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
         try {
             if (Objects.nonNull(ackOffsetMap) && Objects.nonNull(commitOffsetMap)) {
-                //sleep 10s to wait un ack messages
+                // sleep 15s to wait un-ack messages
                 long startTime = System.currentTimeMillis();
                 while (System.currentTimeMillis() - startTime < maxWaitForAckTime && !ackReady(collection)) {
                     TimeUnit.MILLISECONDS.sleep(1000L);
@@ -127,7 +127,6 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
         Set<TopicPartition> keySet = ackOffsetMap.keySet();
         revoked.stream()
                 .filter(keySet::contains)
-                //.peek(tp -> LOGGER.info("remove tp {}", tp))
                 .forEach(ackOffsetMap::remove);
     }
 
