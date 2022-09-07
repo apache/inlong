@@ -24,6 +24,7 @@ import com.google.protobuf.ByteString;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
@@ -97,6 +98,9 @@ public class MessageDeserializerTest {
 
         //5. testDeserializeVersion1CompressionType2
         testDeserializeVersion1CompressionType2();
+
+        //6. DeserializeVersion2NoCompress
+        testDeserializeVersion2NoCompress();
     }
 
     private void testDeserializeVersion0() {
@@ -162,6 +166,33 @@ public class MessageDeserializerTest {
             Assert.assertEquals(testData, new String(deserialize.get(0).getBody()));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void testDeserializeVersion2NoCompress() {
+        try {
+            String groupId = "sort_sdk_test_group_id";
+            String streamId = "sort_sdk_test_stream_id";
+            String attr = "m=0";
+            String ip = "1.2.3.4";
+            long dt = System.currentTimeMillis();
+            StringBuilder newAttrBuffer = new StringBuilder(attr);
+            newAttrBuffer.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
+                    .append("&dt=").append(dt).append("&NodeIP=").append(ip);
+            InLongMsg inlongMsg = InLongMsg.newInLongMsg(false);
+            String msg = "sort sdk inlong msg test";
+            for (int i = 0; i < 10; i++) {
+                byte[] bytes = msg.getBytes();
+                inlongMsg.addMsg(newAttrBuffer.toString(), bytes);
+            }
+            Map<String, String> header = new HashMap<>();
+            header.put("version", "2");
+            List<InLongMessage> deserialize = messageDeserializer
+                    .deserialize(context, inLongTopic, header, inlongMsg.buildArray());
+            Assert.assertEquals(10, deserialize.size());
+            Assert.assertEquals(msg, new String(deserialize.get(0).getBody()));
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

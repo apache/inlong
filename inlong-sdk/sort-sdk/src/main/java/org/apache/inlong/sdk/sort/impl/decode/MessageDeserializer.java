@@ -59,7 +59,7 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONGMSG_ATTR_GROUP_ID = "groupId";
     private static final String INLONGMSG_ATTR_TIME_T = "t";
     private static final String INLONGMSG_ATTR_TIME_DT = "dt";
-    private static final String INLONG_ATTR_SOURCE_IP = "srcIp";
+    private static final String INLONGMSG_ATTR_NODE_IP = "NodeIP";
     private static final char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
     private static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
 
@@ -71,7 +71,7 @@ public class MessageDeserializer implements Deserializer {
                                            byte[] data) throws Exception {
 
         //1. version
-        int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "0"));
+        int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "2"));
         switch (version) {
             case MESSAGE_VERSION_NONE: {
                 return decode(context, inLongTopic, data, headers);
@@ -87,8 +87,11 @@ public class MessageDeserializer implements Deserializer {
         }
     }
 
-    private List<InLongMessage> decode(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
-                                       Map<String, String> headers) {
+    private List<InLongMessage> decode(
+            ClientContext context,
+            InLongTopic inLongTopic,
+            byte[] msgBytes,
+            Map<String, String> headers) {
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
         String sourceIp = headers.getOrDefault(SOURCE_IP_KEY, "");
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
@@ -107,8 +110,11 @@ public class MessageDeserializer implements Deserializer {
      * @param msgBytes byte[]
      * @return {@link MessageObjs}
      */
-    private List<InLongMessage> decodePB(ClientContext context, InLongTopic inLongTopic, byte[] msgBytes,
-                                         Map<String, String> headers) throws IOException {
+    private List<InLongMessage> decodePB(
+            ClientContext context,
+            InLongTopic inLongTopic,
+            byte[] msgBytes,
+            Map<String, String> headers) throws IOException {
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
@@ -138,9 +144,10 @@ public class MessageDeserializer implements Deserializer {
      * @param messageObjs {@link MessageObjs}
      * @return {@link List}
      */
-    private List<InLongMessage> transformMessageObjs(ClientContext context, InLongTopic inLongTopic,
-                                                     MessageObjs messageObjs, String inlongGroupId,
-                                                     String inlongStreamId) {
+    private List<InLongMessage> transformMessageObjs(
+            ClientContext context, InLongTopic inLongTopic,
+            MessageObjs messageObjs, String inlongGroupId,
+            String inlongStreamId) {
         if (null == messageObjs) {
             return null;
         }
@@ -170,18 +177,14 @@ public class MessageDeserializer implements Deserializer {
             Map<String, String> headers) {
         List<InLongMessage> messageList = new ArrayList<>();
 
-        String groupId = Optional.ofNullable(headers.get(INLONGMSG_ATTR_GROUP_ID))
-                .orElseThrow(() -> new IllegalArgumentException("Could not find "
-                        + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));
-
         InLongMsg inLongMsg = InLongMsg.parseFrom(msgBytes);
         for (String attr : inLongMsg.getAttrs()) {
             Map<String, String> attributes = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
                     INLONGMSG_ATTR_KV_DELIMITER, null, null);
 
-            /*String groupId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_GROUP_ID))
+            String groupId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_GROUP_ID))
                     .orElseThrow(() -> new IllegalArgumentException("Could not find "
-                            + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));*/
+                            + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));
 
             String streamId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_STREAM_ID))
                     .orElseThrow(() -> new IllegalArgumentException("Could not find "
@@ -201,7 +204,7 @@ public class MessageDeserializer implements Deserializer {
                                 + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
             }
 
-            String srcIp = Optional.ofNullable(attributes.get(INLONG_ATTR_SOURCE_IP))
+            String srcIp = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_NODE_IP))
                     .orElse("127.0.0.1");
 
             Iterator<byte[]> iterator = inLongMsg.getIterator(attr);

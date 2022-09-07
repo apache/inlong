@@ -245,7 +245,6 @@ public class StringUtil {
         return sdf.format(date);
     }
 
-
     public static long parseDateTime(String value) {
         try {
             if (value.length() < 8) {
