@@ -242,27 +242,27 @@ const getForm: GetStorageFormFieldsType = (
         dropdownMatchSelectWidth: false,
         options: [
           {
-            label: i18n.t('meta.Stream.VerticalLine'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.VerticalLine'),
             value: '124',
           },
           {
-            label: i18n.t('meta.Stream.Comma'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.Comma'),
             value: '44',
           },
           {
-            label: i18n.t('meta.Stream.DoubleQuotes'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.DoubleQuotes'),
             value: '34',
           },
           {
-            label: i18n.t('meta.Stream.Asterisk'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.Asterisk'),
             value: '42',
           },
           {
-            label: i18n.t('meta.Stream.Space'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.Space'),
             value: '32',
           },
           {
-            label: i18n.t('meta.Stream.Semicolon'),
+            label: i18n.t('meta.Sinks.Hive.DataSeparator.Semicolon'),
             value: '59',
           },
         ],

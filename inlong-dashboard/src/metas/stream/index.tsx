@@ -17,200 +17,209 @@
  * under the License.
  */
 
-import React from 'react';
-import { FormItemProps } from '@/components/FormGenerator';
-import { pickObjectArray } from '@/utils';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from '@/metas/sinks/common/sourceFields';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
+import { statusList, genStatusTag } from './status';
+import { fieldsExtends } from './extends';
 
-type RestParams = {
-  // Whether the fieldList is in edit mode
-  fieldListEditing?: boolean;
-};
-
-export default (
-  names: (string | FormItemProps)[],
-  currentValues: Record<string, any> = {},
-  { fieldListEditing = true }: RestParams = {},
-): FormItemProps[] => {
-  const fields: FormItemProps[] = [
-    {
-      type: 'input',
-      label: i18n.t('meta.Stream.DataStreamID'),
-      name: 'inlongStreamId',
-      props: {
-        maxLength: 32,
+const fieldsDefault: FieldItemType[] = [
+  {
+    type: 'input',
+    label: i18n.t('meta.Stream.StreamId'),
+    name: 'inlongStreamId',
+    props: {
+      maxLength: 32,
+    },
+    rules: [
+      { required: true },
+      {
+        pattern: /^[0-9a-z_-]+$/,
+        message: i18n.t('meta.Stream.StreamIdRules'),
       },
-      initialValue: currentValues.inlongStreamId,
-      rules: [
-        { required: true },
+    ],
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Stream.StreamName'),
+    name: 'name',
+    _renderTable: true,
+  },
+  {
+    type: 'textarea',
+    label: i18n.t('meta.Stream.Description'),
+    name: 'description',
+    props: {
+      showCount: true,
+      maxLength: 256,
+    },
+  },
+  {
+    type: 'text',
+    label: i18n.t('basic.Creator'),
+    name: 'creator',
+    visible: false,
+    _renderTable: true,
+  },
+  {
+    type: 'text',
+    label: i18n.t('basic.CreateTime'),
+    name: 'createTime',
+    visible: false,
+    _renderTable: true,
+  },
+  {
+    type: 'select',
+    label: i18n.t('basic.Status'),
+    name: 'status',
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+    visible: false,
+    _renderTable: {
+      render: text => genStatusTag(text),
+    },
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Stream.DataType'),
+    name: 'dataType',
+    initialValue: 'CSV',
+    tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
+    props: {
+      options: [
         {
-          pattern: /^[0-9a-z_-]+$/,
-          message: i18n.t('meta.Stream.InlongStreamIdRules'),
+          label: 'CSV',
+          value: 'CSV',
+        },
+        {
+          label: 'KEY-VALUE',
+          value: 'KEY-VALUE',
+        },
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
+        {
+          label: 'AVRO',
+          value: 'AVRO',
         },
       ],
     },
-    {
-      type: 'input',
-      label: i18n.t('meta.Stream.DataStreamName'),
-      name: 'name',
-      initialValue: currentValues.name,
-    },
-    {
-      type: 'textarea',
-      label: i18n.t('meta.Stream.DataFlowIntroduction'),
-      name: 'description',
-      props: {
-        showCount: true,
-        maxLength: 100,
-      },
-      initialValue: currentValues.desc,
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Stream.DataType'),
-      name: 'dataType',
-      initialValue: currentValues.dataType ?? 'CSV',
-      tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
-      props: {
-        options: [
-          {
-            label: 'CSV',
-            value: 'CSV',
-          },
-          {
-            label: 'KEY-VALUE',
-            value: 'KEY-VALUE',
-          },
-          {
-            label: 'JSON',
-            value: 'JSON',
-          },
-          {
-            label: 'AVRO',
-            value: 'AVRO',
-          },
-        ],
-      },
-      rules: [{ required: true }],
-      // visible: values => values.dataSourceType !== 'MYSQL_BINLOG',
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Stream.DataEncoding'),
-      name: 'dataEncoding',
-      initialValue: currentValues.dataEncoding ?? 'UTF-8',
-      props: {
-        options: [
-          {
-            label: 'UTF-8',
-            value: 'UTF-8',
-          },
-          {
-            label: 'GBK',
-            value: 'GBK',
-          },
-        ],
-      },
-      rules: [{ required: true }],
-      // visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
-    },
-    {
-      type: 'select',
-      label: i18n.t('meta.Stream.fileDelimiter'),
-      name: 'dataSeparator',
-      initialValue: '124',
-      props: {
-        dropdownMatchSelectWidth: false,
-        options: [
-          {
-            label: i18n.t('meta.Stream.Space'),
-            value: '32',
-          },
-          {
-            label: i18n.t('meta.Stream.VerticalLine'),
-            value: '124',
-          },
-          {
-            label: i18n.t('meta.Stream.Comma'),
-            value: '44',
-          },
-          {
-            label: i18n.t('meta.Stream.Semicolon'),
-            value: '59',
-          },
-          {
-            label: i18n.t('meta.Stream.Asterisk'),
-            value: '42',
-          },
-          {
-            label: i18n.t('meta.Stream.DoubleQuotes'),
-            value: '34',
-          },
-        ],
-        useInput: true,
-        useInputProps: {
-          placeholder: 'ASCII',
-        },
-        style: { width: 100 },
-      },
-      rules: [
+    rules: [{ required: true }],
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Stream.DataEncoding'),
+    name: 'dataEncoding',
+    initialValue: 'UTF-8',
+    props: {
+      options: [
         {
-          required: true,
-          type: 'number',
-          transform: val => +val,
-          min: 0,
-          max: 127,
+          label: 'UTF-8',
+          value: 'UTF-8',
+        },
+        {
+          label: 'GBK',
+          value: 'GBK',
         },
       ],
-      // visible: values =>
-      //   (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
-      //   values.dataType === 'CSV',
     },
-    {
-      type: (
-        <EditableTable
-          size="small"
-          editing={fieldListEditing}
-          columns={[
-            {
-              title: i18n.t('meta.Stream.FieldName'),
-              dataIndex: 'fieldName',
-              props: () => ({
-                disabled: !fieldListEditing,
-              }),
-              rules: [
-                { required: true },
-                {
-                  pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-                  message: i18n.t('meta.Stream.FieldNameRule'),
-                },
-              ],
-            },
-            {
-              title: i18n.t('meta.Stream.FieldType'),
-              dataIndex: 'fieldType',
-              type: 'select',
-              initialValue: sourceFieldsTypes[0].value,
-              props: () => ({
-                disabled: !fieldListEditing,
-                options: sourceFieldsTypes,
-              }),
-              rules: [{ required: true }],
-            },
-            {
-              title: i18n.t('meta.Stream.FieldComment'),
-              dataIndex: 'fieldComment',
-            },
-          ]}
-        />
-      ),
-      label: i18n.t('meta.Stream.SourceDataField'),
-      name: 'rowTypeFields',
-      visible: () => !(currentValues.dataType as string[])?.includes('PB'),
+    rules: [{ required: true }],
+  },
+  {
+    type: 'select',
+    label: i18n.t('meta.Stream.DataSeparator'),
+    name: 'dataSeparator',
+    initialValue: '124',
+    props: {
+      dropdownMatchSelectWidth: false,
+      options: [
+        {
+          label: i18n.t('meta.Stream.DataSeparator.Space'),
+          value: '32',
+        },
+        {
+          label: i18n.t('meta.Stream.DataSeparator.VerticalLine'),
+          value: '124',
+        },
+        {
+          label: i18n.t('meta.Stream.DataSeparator.Comma'),
+          value: '44',
+        },
+        {
+          label: i18n.t('meta.Stream.DataSeparator.Semicolon'),
+          value: '59',
+        },
+        {
+          label: i18n.t('meta.Stream.DataSeparator.Asterisk'),
+          value: '42',
+        },
+        {
+          label: i18n.t('meta.Stream.DataSeparator.DoubleQuotes'),
+          value: '34',
+        },
+      ],
+      useInput: true,
+      useInputProps: {
+        placeholder: 'ASCII',
+      },
+      style: { width: 100 },
     },
-  ];
+    rules: [
+      {
+        required: true,
+        type: 'number',
+        transform: val => +val,
+        min: 0,
+        max: 127,
+      },
+    ],
+  },
+  {
+    type: EditableTable,
+    label: i18n.t('meta.Stream.SourceDataField'),
+    name: 'rowTypeFields',
+    props: {
+      size: 'small',
+      columns: [
+        {
+          title: i18n.t('meta.Stream.FieldName'),
+          dataIndex: 'fieldName',
+          rules: [
+            { required: true },
+            {
+              pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+              message: i18n.t('meta.Stream.FieldNameRule'),
+            },
+          ],
+        },
+        {
+          title: i18n.t('meta.Stream.FieldType'),
+          dataIndex: 'fieldType',
+          type: 'select',
+          initialValue: sourceFieldsTypes[0].value,
+          props: {
+            options: sourceFieldsTypes,
+          },
+          rules: [{ required: true }],
+        },
+        {
+          title: i18n.t('meta.Stream.FieldComment'),
+          dataIndex: 'fieldComment',
+        },
+      ],
+    },
+  },
+];
 
-  return pickObjectArray(names, fields);
-};
+export const stream = genFields(fieldsDefault, fieldsExtends);
+
+export const streamForm = genForm(stream);
+
+export const streamTable = genTable(stream);

@@ -147,27 +147,9 @@ const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) =
   return type === 'col' ? getColsFromFields(fileds) : fileds;
 };
 
-const toFormValues = data => {
-  return {
-    ...data,
-    _startDumpPosition: data.startDumpPosition ? 1 : 0,
-  };
-};
-
-const toSubmitValues = data => {
-  const output = { ...data };
-  delete output._startDumpPosition;
-  return {
-    ...output,
-    startDumpPosition: data._startDumpPosition ? output.startDumpPosition : null,
-  };
-};
-
 const tableColumns = getForm('col') as ColumnsType;
 
 export const binLog = {
   getForm,
   tableColumns,
-  toFormValues,
-  toSubmitValues,
 };

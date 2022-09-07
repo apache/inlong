@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { Clusters } from '@/metas/clusters';
+import { clusters } from '@/metas/clusters';
 import ClusterBindModal from './ClusterBindModal';
 import request from '@/utils/request';
 
@@ -35,6 +35,7 @@ const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
     name: 'keyword',
+    initialValue: defaultValues.keyword,
   },
   {
     type: 'select',
@@ -42,27 +43,18 @@ const getFilterFormContent = defaultValues => [
     label: i18n.t('pages.Clusters.Type'),
     initialValue: defaultValues.type,
     props: {
-      options: [
-        {
-          label: i18n.t('pages.Clusters.TypeAll'),
-          value: '',
-        },
-      ].concat(
-        Clusters.map(item => ({
-          label: item.label,
-          value: item.value,
-        })),
-      ),
+      allowClear: true,
+      options: clusters,
     },
   },
 ];
 
 const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
   const [options, setOptions] = useState({
-    keyword: '',
+    keyword: undefined,
     pageSize: defaultSize,
     pageNum: 1,
-    type: '',
+    type: undefined,
   });
 
   const [clusterBindModal, setClusterBindModal] = useState<Record<string, unknown>>({
