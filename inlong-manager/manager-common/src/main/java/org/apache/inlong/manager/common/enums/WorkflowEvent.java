@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.common.enums;
 
 /**
  * Workflow event

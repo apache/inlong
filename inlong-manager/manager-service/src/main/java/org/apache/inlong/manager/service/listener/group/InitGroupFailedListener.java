@@ -26,7 +26,7 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

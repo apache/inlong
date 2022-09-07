@@ -27,7 +27,7 @@ import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

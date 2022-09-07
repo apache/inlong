@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.event.process;
 
+import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 

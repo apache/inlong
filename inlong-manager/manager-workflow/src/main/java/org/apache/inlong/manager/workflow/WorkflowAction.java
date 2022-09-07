@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.workflow;
 
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 
 /**
  * Workflow action

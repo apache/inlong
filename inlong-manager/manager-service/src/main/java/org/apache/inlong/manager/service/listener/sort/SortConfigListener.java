@@ -29,7 +29,7 @@ import org.apache.inlong.manager.service.resource.sort.SortConfigOperatorFactory
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

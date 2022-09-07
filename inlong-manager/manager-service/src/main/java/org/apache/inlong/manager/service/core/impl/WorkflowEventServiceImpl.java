@@ -27,8 +27,8 @@ import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.workflow.core.EventListenerService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event.task;
+package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.workflow.event.WorkflowEvent;
+import org.apache.inlong.manager.common.enums.WorkflowEvent;
 
 /**
  * Task event

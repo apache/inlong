@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
 import java.util.HashMap;

@@ -28,7 +28,7 @@ import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

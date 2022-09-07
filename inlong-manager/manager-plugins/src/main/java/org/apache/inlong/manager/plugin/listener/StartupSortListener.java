@@ -35,7 +35,7 @@ import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 
 import java.util.List;
 import java.util.Map;
