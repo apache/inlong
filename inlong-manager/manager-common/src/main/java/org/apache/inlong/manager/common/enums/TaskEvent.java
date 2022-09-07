@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.common.enums.WorkflowEvent;
-
 /**
  * Task event
  */
