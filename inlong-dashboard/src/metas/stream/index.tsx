@@ -37,7 +37,7 @@ const fieldsDefault: FieldItemType[] = [
       { required: true },
       {
         pattern: /^[0-9a-z_-]+$/,
-        message: i18n.t('meta.Stream.StreamIdRules '),
+        message: i18n.t('meta.Stream.StreamIdRules'),
       },
     ],
     _renderTable: true,
