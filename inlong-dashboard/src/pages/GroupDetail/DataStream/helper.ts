@@ -19,53 +19,44 @@
 
 // Convert form data into interface submission data format
 export const valuesToData = (values, inlongGroupId) => {
-  const array = values.map(item => {
-    const { inlongStreamId, predefinedFields = [], rowTypeFields = [], version, ...rest } = item;
+  const { inlongStreamId, predefinedFields = [], rowTypeFields = [], version, ...rest } = values;
 
-    const fieldList = predefinedFields.concat(rowTypeFields).map((item, idx) => ({
-      ...item,
-      inlongGroupId,
-      inlongStreamId,
-      isPredefinedField: idx < predefinedFields.length ? 1 : 0,
-    }));
+  const fieldList = predefinedFields.concat(rowTypeFields).map((item, idx) => ({
+    ...item,
+    inlongGroupId,
+    inlongStreamId,
+    isPredefinedField: idx < predefinedFields.length ? 1 : 0,
+  }));
 
-    const output = {
-      ...rest,
-      inlongGroupId,
-      inlongStreamId,
-      version,
-    };
+  const output = {
+    ...rest,
+    inlongGroupId,
+    inlongStreamId,
+    version,
+  };
 
-    if (fieldList?.length) output.fieldList = fieldList;
+  if (fieldList?.length) output.fieldList = fieldList;
 
-    return output;
-  });
-
-  return array;
+  return output;
 };
 
 // Convert interface data to form data
 export const dataToValues = data => {
-  const array = data.map(item => {
-    const fieldList = item?.fieldList?.reduce(
-      (acc, cur) => {
-        cur.isPredefinedField ? acc.predefinedFields.push(cur) : acc.rowTypeFields.push(cur);
-        return acc;
-      },
-      {
-        predefinedFields: [],
-        rowTypeFields: [],
-      },
-    );
+  const fieldList = data?.fieldList?.reduce(
+    (acc, cur) => {
+      cur.isPredefinedField ? acc.predefinedFields.push(cur) : acc.rowTypeFields.push(cur);
+      return acc;
+    },
+    {
+      predefinedFields: [],
+      rowTypeFields: [],
+    },
+  );
 
-    const output = {
-      hasHigher: false,
-      ...item,
-      ...fieldList,
-    };
+  const output = {
+    ...data,
+    ...fieldList,
+  };
 
-    return output;
-  });
-
-  return array;
+  return output;
 };

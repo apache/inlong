@@ -17,18 +17,8 @@
  * under the License.
  */
 
-import { streamForm } from '@/metas/stream';
-import { pickObjectArray } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
 
-export const getFilterFormContent = (defaultValues = {} as any) => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-    initialValue: defaultValues.keyword,
-  },
-  ...pickObjectArray(['status'], streamForm).map(item => ({
-    ...item,
-    visible: true,
-    initialValue: defaultValues[item.name],
-  })),
+export const fieldsExtends: FieldItemType[] = [
+  // You can extended fields here...
 ];

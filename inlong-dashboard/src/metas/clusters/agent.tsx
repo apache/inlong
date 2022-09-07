@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-import type { ClsConfigItemType } from './common/types';
+import type { FieldItemType } from '@/metas/common';
 
-export const Agent: ClsConfigItemType[] = [];
+export const agent: FieldItemType[] = [];

@@ -17,11 +17,6 @@
  * under the License.
  */
 
-import type { ColumnType } from 'antd/es/table';
-import type { FormItemProps } from '@/components/FormGenerator';
+import type { FieldItemType } from '@/metas/common';
 
-export interface ClsConfigItemType extends FormItemProps {
-  _inTable?: boolean | ColumnType<unknown>;
-}
-
-export type ClsTableItemType = ColumnType<unknown>;
+export const dataProxy: FieldItemType[] = [];
