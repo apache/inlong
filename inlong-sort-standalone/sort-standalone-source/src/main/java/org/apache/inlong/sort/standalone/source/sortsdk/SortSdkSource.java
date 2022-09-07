@@ -108,8 +108,8 @@ public final class SortSdkSource extends AbstractSource
      */
     @Override
     public synchronized void start() {
-        LOG.info("start to SortSdkSource:{}", taskName);
         int sortSdkClientNum = CommonPropertiesHolder.getInteger(KEY_SORT_SDK_CLIENT_NUM, DEFAULT_SORT_SDK_CLIENT_NUM);
+        LOG.info("start to SortSdkSource:{}, client num is {}", taskName, sortSdkClientNum);
         for (int i = 0; i < sortSdkClientNum; i++) {
             this.sortClients.add(this.newClient(taskName));
         }

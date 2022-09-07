@@ -17,12 +17,10 @@
 
 package org.apache.inlong.sort.standalone.rollback;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,15 +57,16 @@ public class TimeBasedFilterInterceptor implements Interceptor {
     @Override
     public Event intercept(Event event) {
         long logTime;
+        ProfileEvent profile;
         if (event instanceof ProfileEvent) {
-            ProfileEvent profile = (ProfileEvent) event;
+            profile = (ProfileEvent) event;
             logTime = profile.getRawLogTime();
         } else {
-            logTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                    System.currentTimeMillis());
+            return event;
         }
 
         if (logTime > stopTime || logTime < startTime) {
+            profile.ack();
             return null;
         }
         return event;
@@ -93,9 +92,9 @@ public class TimeBasedFilterInterceptor implements Interceptor {
     public static class Builder implements Interceptor.Builder  {
 
         private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        private static final String START_TIME = "start-time";
+        private static final String START_TIME = "rollback.startTime";
         private static final long DEFAULT_START_TIME = 0L;
-        private static final String STOP_TIME = "stop-time";
+        private static final String STOP_TIME = "rollback.stopTime";
         private static final long DEFAULT_STOP_TIME = Long.MAX_VALUE;
 
         private long startTime;
@@ -108,7 +107,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
 
         @Override
         public void configure(Context context) {
-             startTime = Optional.ofNullable(context.getString(START_TIME))
+            startTime = Optional.ofNullable(context.getString(START_TIME))
                     .map(s -> {
                         logger.info("config TimeBasedFilterInterceptor, start time is {}", s);
                         try {
@@ -120,7 +119,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
                     })
                     .orElse(DEFAULT_START_TIME);
 
-             stopTime = Optional.ofNullable(context.getString(STOP_TIME))
+            stopTime = Optional.ofNullable(context.getString(STOP_TIME))
                     .map(s -> {
                         logger.info("config TimeBasedFilterInterceptor, stop time is {}", s);
                         try {
