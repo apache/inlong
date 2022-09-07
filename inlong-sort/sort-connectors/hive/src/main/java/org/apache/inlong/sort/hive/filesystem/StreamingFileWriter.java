@@ -45,9 +45,9 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
             StreamingFileSink.BucketsBuilder<
                     IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
                     bucketsBuilder,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
-        super(bucketCheckInterval, bucketsBuilder, inLongMetric, auditHostAndPorts);
+        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
     }
 
     @Override

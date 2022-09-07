@@ -141,6 +141,33 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
 );
 
 -- ----------------------------
+-- Table structure for inlong_consume
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `inlong_consume`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `consumer_group`   varchar(256) NOT NULL COMMENT 'Consumer group name, filled in by the user, undeleted ones cannot be repeated',
+    `description`      varchar(256)          DEFAULT '' COMMENT 'Inlong consume description',
+    `mq_type`          varchar(10)           DEFAULT 'TUBEMQ' COMMENT 'Message queue type, high throughput: TUBEMQ, high consistency: PULSAR',
+    `topic`            varchar(256) NOT NULL COMMENT 'The target topic of this consume',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'The target inlong group id of this consume',
+    `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter consume, 0: not filter, 1: filter',
+    `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'The target inlong stream id of this consume, needed if the filter_enabled=1',
+    `ext_params`       mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
+    `in_charges`       varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `status`           int(4)                DEFAULT '100' COMMENT 'Inlong consume status',
+    `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_inlong_consume` (`consumer_group`, `is_deleted`)
+);
+
+
+-- ----------------------------
 -- Table structure for data_node
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `data_node`
@@ -166,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `data_node`
 );
 
 -- ----------------------------
--- Table structure for consumption
+-- Deprecated: Table structure for consumption
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption`
 (
@@ -189,7 +216,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
 );
 
 -- ----------------------------
--- Table structure for consumption_pulsar
+-- Deprecated: Table structure for consumption_pulsar
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption_pulsar`
 (

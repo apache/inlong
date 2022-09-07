@@ -139,14 +139,14 @@
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
         <pagehelper.springboot.version>1.4.2</pagehelper.springboot.version>
-        <pagehelper.version>5.3.0</pagehelper.version>
+        <pagehelper.version>5.3.1</pagehelper.version>
 
         <h2.version>2.1.210</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
-        <hadoop.version>2.10.1</hadoop.version>
-        <postgresql.version>42.3.4</postgresql.version>
+        <hadoop.version>2.10.2</hadoop.version>
+        <postgresql.version>42.4.1</postgresql.version>
         <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
         <mysql.jdbc.version>8.0.21</mysql.jdbc.version>
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
@@ -177,7 +177,7 @@
 
         <guava.version>31.0.1-jre</guava.version>
         <lombok.version>1.18.22</lombok.version>
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty.version>9.4.48.v20220622</jetty.version>
         <opencsv.version>5.4</opencsv.version>
         <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
         <gson.version>2.8.9</gson.version>
@@ -201,8 +201,7 @@
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
-        <iceberg.flink.version>0.13.1</iceberg.flink.version>
-        <iceberg.version>0.13.1</iceberg.version>
+        <iceberg.version>0.13.2</iceberg.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
@@ -249,7 +248,9 @@
         <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
-        <dlc.client.version>1.1</dlc.client.version>
+        <dlc.client.version>1.1.1</dlc.client.version>
+        <dlc.jdbc.version>2.2.6</dlc.jdbc.version>
+        <cos.lakefs.plugin.version>1.0</cos.lakefs.plugin.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
@@ -1033,7 +1034,7 @@
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-flink-runtime-1.13</artifactId>
-                <version>${iceberg.flink.version}</version>
+                <version>${iceberg.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -1569,6 +1570,16 @@
                 <groupId>com.qcloud</groupId>
                 <artifactId>dlc-data-catalog-metastore-client</artifactId>
                 <version>${dlc.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud.cos</groupId>
+                <artifactId>lakefs-cloud-plugin</artifactId>
+                <version>${cos.lakefs.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>dlc-jdbc</artifactId>
+                <version>${dlc.jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>

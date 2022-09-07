@@ -67,11 +67,11 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
     private SourceMetricData metricData;
 
-    private String inLongGroupId;
+    private String inlongGroupId;
 
     private String auditHostAndPorts;
 
-    private String inLongStreamId;
+    private String inlongStreamId;
 
     private transient AuditImp auditImp;
 
@@ -85,7 +85,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
             boolean upsertMode,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         if (upsertMode) {
             Preconditions.checkArgument(
@@ -105,7 +105,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
-        this.inlongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
 
     }
@@ -117,11 +117,11 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         }
         valueDeserialization.open(context);
         if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inLongMetricArray = inlongMetric.split(DELIMITER);
-            inLongGroupId = inLongMetricArray[0];
-            inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            metricData = new SourceMetricData(inLongGroupId, inLongStreamId, nodeId, context.getMetricGroup());
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            inlongGroupId = inlongMetricArray[0];
+            inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
+            metricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
             metricData.registerMetricsForNumBytesIn();
             metricData.registerMetricsForNumBytesInPerSecond();
             metricData.registerMetricsForNumRecordsIn();
@@ -186,8 +186,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_INPUT,
-                    inLongGroupId,
-                    inLongStreamId,
+                    inlongGroupId,
+                    inlongStreamId,
                     System.currentTimeMillis(),
                     1,
                     record.value().length);

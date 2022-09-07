@@ -56,10 +56,11 @@ public class SinkMetricData implements MetricData {
     private Meter numBytesOutPerSecond;
 
     public SinkMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
-        this.metricGroup = metricGroup;
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
+        this(groupId, streamId, nodeId, metricGroup, null);
+    }
+
+    public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
+        this(option.getGroupId(), option.getStreamId(), option.getNodeId(), metricGroup, option.getIpPorts());
     }
 
     public SinkMetricData(

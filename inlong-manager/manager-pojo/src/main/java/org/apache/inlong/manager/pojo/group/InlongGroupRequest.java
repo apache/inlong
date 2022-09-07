@@ -98,9 +98,6 @@ public abstract class InlongGroupRequest {
     @ApiModelProperty(value = "Name of followers, separated by commas")
     private String followers;
 
-    @ApiModelProperty(value = "Name of creator")
-    private String creator;
-
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
 

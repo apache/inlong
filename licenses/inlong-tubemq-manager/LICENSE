@@ -462,7 +462,7 @@ The following components are provided under BSD license. See project link for de
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.ow2.asm:asm:9.1 - asm (http://asm.ow2.io/), (BSD-3-Clause)
-  org.postgresql:postgresql:42.3.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
+  org.postgresql:postgresql:42.4.1 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
 
 
 ========================================================================

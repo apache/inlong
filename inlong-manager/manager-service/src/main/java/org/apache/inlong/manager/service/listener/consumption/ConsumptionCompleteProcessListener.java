@@ -20,10 +20,10 @@ package org.apache.inlong.manager.service.listener.consumption;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -34,7 +34,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicBean;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
@@ -91,6 +91,9 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             return ListenerResult.success("Create TubeMQ consumer group successful");
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
+        } else if (MQType.KAFKA.equals(mqType)) {
+            //TODO add kakfa
+
         } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);
         }
@@ -104,7 +107,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
         ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
-        update.setStatus(ConsumptionStatus.APPROVED.getStatus());
+        update.setStatus(ConsumeStatus.APPROVED.getCode());
         update.setConsumerGroup(consumerGroup);
         int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
@@ -128,7 +131,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            PulsarTopicBean topicMessage = new PulsarTopicBean();
+            PulsarTopicInfo topicMessage = new PulsarTopicInfo();
             String tenant = pulsarCluster.getTenant();
             if (StringUtils.isEmpty(tenant)) {
                 tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
@@ -137,7 +140,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             topicMessage.setNamespace(mqResource);
 
             String consumerGroup = entity.getConsumerGroup();
-            List<String> topics = Arrays.asList(entity.getTopic().split(","));
+            List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));
             this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, topics);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
@@ -146,10 +149,10 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         }
     }
 
-    private void createPulsarSubscription(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicBean topicBean,
+    private void createPulsarSubscription(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicInfo topicInfo,
             List<String> topics) {
         try {
-            pulsarOperator.createSubscriptions(pulsarAdmin, subscription, topicBean, topics);
+            pulsarOperator.createSubscriptions(pulsarAdmin, subscription, topicInfo, topics);
         } catch (Exception e) {
             log.error("create pulsar consumer group failed", e);
             throw new WorkflowListenerException("failed to create pulsar consumer group");
