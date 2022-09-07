@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 public class InLongMsgDeserializationSchema implements DeserializationSchema<RowData> {
 
-    private static final Logger log = LoggerFactory.getLogger(InLongMsgDeserializationSchema.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InLongMsgDeserializationSchema.class);
 
     /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
      *  data buffer message */
@@ -86,7 +86,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                 head = InLongMsgUtils.parseHead(attr);
             } catch (Throwable t) {
                 if (ignoreErrors) {
-                    log.warn("Ignore inlong msg attr({})parse error.", attr, t);
+                    LOGGER.warn("Ignore inlong msg attr({})parse error.", attr, t);
                     continue;
                 }
                 throw new IOException(
