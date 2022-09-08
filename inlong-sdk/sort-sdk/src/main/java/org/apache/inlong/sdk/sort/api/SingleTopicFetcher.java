@@ -57,6 +57,11 @@ public abstract class SingleTopicFetcher implements TopicFetcher {
     }
 
     @Override
+    public String getFetchKey() {
+        return topic.getTopicKey();
+    }
+
+    @Override
     public boolean updateTopics(List<InLongTopic> topics) {
         if (topics.size() != 1) {
             return false;

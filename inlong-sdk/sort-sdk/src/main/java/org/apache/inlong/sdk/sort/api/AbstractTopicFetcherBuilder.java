@@ -20,32 +20,55 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
- * Builder to build single topic fetcher
+ * Abstract Builder of topic fetcher
  */
-public abstract class SingleTopicFetcherBuilder implements TopicFetcherBuilder {
+public abstract class AbstractTopicFetcherBuilder implements TopicFetcherBuilder {
     protected Interceptor interceptor;
     protected Deserializer deserializer;
     protected ClientContext context;
     protected InLongTopic topic;
+    protected List<InLongTopic> topics;
+    protected String fetchKey;
 
-    public SingleTopicFetcherBuilder interceptor(Interceptor interceptor) {
+    @Override
+    public TopicFetcherBuilder interceptor(Interceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
 
-    public SingleTopicFetcherBuilder topic(InLongTopic topic) {
+    @Override
+    public TopicFetcherBuilder topic(InLongTopic topic) {
         this.topic = topic;
         return this;
     }
 
-    public SingleTopicFetcherBuilder deserializer(Deserializer deserializer) {
+    @Override
+    public TopicFetcherBuilder topic(Collection<InLongTopic> topics) {
+        this.topics = new ArrayList<>(topics);
+        return this;
+    }
+
+    @Override
+    public TopicFetcherBuilder deserializer(Deserializer deserializer) {
         this.deserializer = deserializer;
         return this;
     }
 
-    public SingleTopicFetcherBuilder context(ClientContext context) {
+    @Override
+    public TopicFetcherBuilder context(ClientContext context) {
         this.context = context;
         return this;
     }
+
+    @Override
+    public TopicFetcherBuilder fetchKey(String fetchKey) {
+        this.fetchKey = fetchKey;
+        return this;
+    }
+
 }
