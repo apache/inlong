@@ -453,8 +453,8 @@
                         <artifactId>zookeeper</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>slf4j-reload4j</artifactId>
                         <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-reload4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -507,8 +507,8 @@
                 <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>slf4j-reload4j</artifactId>
                         <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-reload4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
