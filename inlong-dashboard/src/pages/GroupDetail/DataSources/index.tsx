@@ -44,7 +44,7 @@ const getFilterFormContent = defaultValues =>
     {
       type: 'radiobutton',
       name: 'sourceType',
-      label: i18n.t('pages.GroupDetail.Sources.Type'),
+      label: i18n.t('meta.Sources.Type'),
       initialValue: defaultValues.sourceType,
       props: {
         buttonStyle: 'solid',
