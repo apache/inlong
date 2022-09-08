@@ -53,6 +53,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
         entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
+        entity.setIsDeleted(0);
 
         consumeMapper.insert(entity);
         return entity.getId();

@@ -118,8 +118,8 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         List<Map<String, Object>> statusCount = consumeMapper.countByUser(username);
         InlongConsumeCountInfo countInfo = new InlongConsumeCountInfo();
         for (Map<String, Object> map : statusCount) {
-            int status = (Integer) map.get("status");
-            long count = (Long) map.get("count");
+            int status = (Integer) map.get("STATUS");
+            long count = (Long) map.get("TOTAL");
             countInfo.setTotalCount(countInfo.getTotalCount() + count);
             if (status == ConsumeStatus.WAIT_ASSIGN.getCode()) {
                 countInfo.setWaitAssignCount(countInfo.getWaitAssignCount() + count);
