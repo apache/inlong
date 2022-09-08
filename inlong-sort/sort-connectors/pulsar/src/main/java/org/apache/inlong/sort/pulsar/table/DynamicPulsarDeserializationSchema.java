@@ -34,7 +34,6 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
@@ -45,11 +44,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
@@ -188,15 +187,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
 
     @Override
     public void deserialize(Message<RowData> message, Collector<RowData> collector) throws IOException {
-        AtomicLong counter = new AtomicLong();
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                counter.addAndGet(1L);
+                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
                 collector.collect(inputRow);
             }));
-            outputMetrics(counter, message);
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();
@@ -215,30 +212,12 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             outputCollector.collect(null);
         } else {
             valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                counter.addAndGet(1L);
+                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
                 outputCollector.collect(inputRow);
             }));
-            outputMetrics(counter, message);
         }
 
         keyCollector.buffer.clear();
-    }
-
-    private void outputMetrics(AtomicLong counter, Message<RowData> message) {
-        if (sourceMetricData != null) {
-            sourceMetricData.getNumRecordsIn().inc(counter.get());
-            sourceMetricData.getNumBytesIn()
-                    .inc(message.getData().length);
-        }
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_INPUT,
-                    inlongGroupId,
-                    inlongStreamId,
-                    System.currentTimeMillis(),
-                    counter.get(),
-                    message.getData().length);
-        }
     }
 
     @Override
