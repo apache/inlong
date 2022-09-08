@@ -18,28 +18,35 @@
  */
 
 import i18n from '@/i18n';
-import type { ClsConfigItemType } from './common/types';
+import type { FieldItemType } from '@/metas/common';
 
-export const TubeMQ: ClsConfigItemType[] = [
+export const pulsar: FieldItemType[] = [
   {
     type: 'input',
-    label: 'RPC URL',
+    label: 'Service URL',
     name: 'url',
+    tooltip: i18n.t('pages.Clusters.Pulsar.ServiceUrlHelper'),
     rules: [{ required: true }],
-    tooltip: i18n.t('pages.Clusters.Tube.MasterRpcUrlHelper'),
     props: {
-      placeholder: '127.0.0.1:8715,127.0.1.2:8715',
+      placeholder: 'pulsar://127.0.0.1:6650,127.0.1.2:6650',
     },
   },
   {
     type: 'input',
-    label: 'Web URL',
-    name: 'masterWebUrl',
+    label: 'Admin URL',
+    name: 'adminUrl',
+    tooltip: i18n.t('pages.Clusters.Pulsar.AdminUrlHelper'),
     rules: [{ required: true }],
-    tooltip: i18n.t('pages.Clusters.Tube.MasterWebUrlHelper'),
     props: {
-      placeholder: 'http://127.0.0.1:8080',
+      placeholder: 'http://127.0.0.1:8080,127.0.1.2:8080',
     },
+  },
+  {
+    type: 'input',
+    label: i18n.t('pages.Clusters.Pulsar.Tenant'),
+    name: 'tenant',
+    rules: [{ required: true }],
+    initialValue: 'public',
   },
   {
     type: 'input',

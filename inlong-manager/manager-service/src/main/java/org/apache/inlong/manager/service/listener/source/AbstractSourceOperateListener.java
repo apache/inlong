@@ -99,6 +99,11 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
      */
     @SneakyThrows
     public boolean checkIfOp(StreamSource streamSource, List<StreamSource> unOperatedSources) {
+        // if a source has sub-sources, it is considered a template source.
+        // template sources do not need to be operated, its sub-sources will be processed in this method later.
+        if (CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
+            return false;
+        }
         for (int retry = 0; retry < 60; retry++) {
             int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);

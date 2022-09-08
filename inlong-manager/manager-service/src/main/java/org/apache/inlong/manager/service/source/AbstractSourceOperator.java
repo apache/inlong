@@ -21,6 +21,7 @@ import com.github.pagehelper.Page;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
@@ -78,7 +79,12 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
-            entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+            if (request.getSourceType().equals(SourceType.AUTO_PUSH)) {
+                // auto push task needs not be issued to agent
+                entity.setStatus(SourceStatus.SOURCE_NORMAL.getCode());
+            } else {
+                entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+            }
         } else {
             entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
         }

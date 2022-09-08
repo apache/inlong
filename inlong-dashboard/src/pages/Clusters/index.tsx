@@ -25,7 +25,7 @@ import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { Clusters } from '@/metas/clusters';
+import { clusters } from '@/metas/clusters';
 import CreateModal from './CreateModal';
 import request from '@/utils/request';
 import { timestampFormat } from '@/utils';
@@ -42,7 +42,7 @@ const getFilterFormContent = defaultValues => [
     initialValue: defaultValues.type,
     props: {
       buttonStyle: 'solid',
-      options: Clusters.map(item => ({
+      options: clusters.map(item => ({
         label: item.label,
         value: item.value,
       })),
@@ -55,7 +55,7 @@ const Comp: React.FC = () => {
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: Clusters[0].value,
+    type: clusters[0].value,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -123,47 +123,42 @@ const Comp: React.FC = () => {
   };
 
   const columns = useMemo(() => {
-    const current = Clusters.find(item => item.value === options.type);
-    if (!current?.tableColumns) return [];
+    const current = clusters.find(item => item.value === options.type);
+    if (!current?.table) return [];
 
-    return current.tableColumns
-      .map(item => ({
-        ...item,
-        ellipsisMulti: 2,
-      }))
-      .concat([
-        {
-          title: i18n.t('pages.Clusters.LastModifier'),
-          dataIndex: 'modifier',
-          width: 150,
-          render: (text, record: any) => (
-            <>
-              <div>{text}</div>
-              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
-            </>
-          ),
-        },
-        {
-          title: i18n.t('basic.Operating'),
-          dataIndex: 'action',
-          width: 200,
-          render: (text, record) => (
-            <>
-              {(record.type === 'DATAPROXY' || record.type === 'AGENT') && (
-                <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
-                  {i18n.t('pages.Clusters.Node.Name')}
-                </Link>
-              )}
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
-              </Button>
-              <Button type="link" onClick={() => onDelete(record)}>
-                {i18n.t('basic.Delete')}
-              </Button>
-            </>
-          ),
-        } as any,
-      ]);
+    return current.table.concat([
+      {
+        title: i18n.t('pages.Clusters.LastModifier'),
+        dataIndex: 'modifier',
+        width: 150,
+        render: (text, record: any) => (
+          <>
+            <div>{text}</div>
+            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+          </>
+        ),
+      },
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        width: 200,
+        render: (text, record) => (
+          <>
+            {(record.type === 'DATAPROXY' || record.type === 'AGENT') && (
+              <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
+                {i18n.t('pages.Clusters.Node.Name')}
+              </Link>
+            )}
+            <Button type="link" onClick={() => onEdit(record)}>
+              {i18n.t('basic.Edit')}
+            </Button>
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
+            </Button>
+          </>
+        ),
+      } as any,
+    ]);
   }, [options.type, onDelete]);
 
   return (
