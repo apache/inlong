@@ -21,6 +21,12 @@ import type { FormItemProps } from '@/components/FormGenerator';
 import { ColumnType } from 'antd/es/table';
 import { excludeObject } from '@/utils';
 
+export interface MetaType {
+  fields: ReturnType<typeof genFields>;
+  form: ReturnType<typeof genForm>;
+  table: ReturnType<typeof genTable>;
+}
+
 export interface FieldItemType extends FormItemProps {
   position?: string[];
   _renderTable?: boolean | ColumnType<Record<string, any>>;

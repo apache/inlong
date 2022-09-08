@@ -101,7 +101,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
           editing,
           isCreate,
         })}
-        allValues={data}
+        initialValues={data}
         useMaxWidth={800}
       />
 

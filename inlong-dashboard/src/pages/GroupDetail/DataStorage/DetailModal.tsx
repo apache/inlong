@@ -206,7 +206,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
         wrapperCol={{ span: 20 }}
         content={formContent}
         form={form}
-        allValues={data}
+        initialValues={data}
         onValuesChange={onValuesChangeHandler}
       />
     </Modal>

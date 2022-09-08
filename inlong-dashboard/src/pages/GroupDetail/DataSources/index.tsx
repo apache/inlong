@@ -26,40 +26,41 @@ import DetailModal from './DetailModal';
 import { sources } from '@/metas/sources';
 import i18n from '@/i18n';
 import request from '@/utils/request';
+import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
-import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
-const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-  },
-  {
-    type: 'radiobutton',
-    name: 'sourceType',
-    label: i18n.t('pages.GroupDetail.Sources.Type'),
-    initialValue: defaultValues.sourceType,
-    props: {
-      buttonStyle: 'solid',
-      options: sources.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
+const getFilterFormContent = defaultValues =>
+  [
+    {
+      type: 'inputsearch',
+      name: 'keyword',
+      initialValue: defaultValues.keyword,
+      props: {
+        allowClear: true,
+      },
     },
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      dropdownMatchSelectWidth: false,
-      options: statusList,
+    {
+      type: 'radiobutton',
+      name: 'sourceType',
+      label: i18n.t('meta.Sources.Type'),
+      initialValue: defaultValues.sourceType,
+      props: {
+        buttonStyle: 'solid',
+        options: sources.map(item => ({
+          label: item.label,
+          value: item.value,
+        })),
+      },
     },
-  },
-];
+  ].concat(
+    pickObjectArray(['status'], sources[0].form).map(item => ({
+      ...item,
+      visible: true,
+      initialValue: defaultValues[item.name],
+    })),
+  );
 
 const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const [options, setOptions] = useState({
@@ -138,7 +139,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       sources.reduce(
         (acc, cur) => ({
           ...acc,
-          [cur.value]: cur.tableColumns,
+          [cur.value]: cur.table,
         }),
         {},
       ),
@@ -150,18 +151,9 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       title: i18n.t('pages.GroupDetail.Sources.DataStreams'),
       dataIndex: 'inlongStreamId',
     },
-    {
-      title: i18n.t('meta.Sources.Name'),
-      dataIndex: 'sourceName',
-    },
   ]
     .concat(columnsMap[options.sourceType])
     .concat([
-      {
-        title: i18n.t('basic.Status'),
-        dataIndex: 'status',
-        render: text => genStatusTag(text),
-      },
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',

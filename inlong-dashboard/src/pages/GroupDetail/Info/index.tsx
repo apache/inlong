@@ -109,7 +109,7 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
           isCreate,
           isUpdate,
         })}
-        allValues={data}
+        initialValues={data}
         useMaxWidth={600}
       />
 
