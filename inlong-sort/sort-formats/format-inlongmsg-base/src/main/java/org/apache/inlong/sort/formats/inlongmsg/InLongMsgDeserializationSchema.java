@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import com.esotericsoftware.minlog.Log;
 import com.google.common.base.Objects;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -27,6 +26,8 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class InLongMsgDeserializationSchema implements DeserializationSchema<RowData> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InLongMsgDeserializationSchema.class);
 
     /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
      *  data buffer message */
@@ -83,7 +86,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                 head = InLongMsgUtils.parseHead(attr);
             } catch (Throwable t) {
                 if (ignoreErrors) {
-                    Log.warn("Ignore inlong msg attr({})parse error.", attr, t);
+                    LOGGER.warn("Ignore inlong msg attr({})parse error.", attr, t);
                     continue;
                 }
                 throw new IOException(
