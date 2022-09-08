@@ -46,6 +46,9 @@ public class MetaDataUtils {
 
     private static final String LOG_MARK = ".log";
 
+    // standard log path for k8s
+    private static final String STANDARD_OUT = "/var/log/containers";
+
     /**
      * standard log for k8s
      *
@@ -53,7 +56,7 @@ public class MetaDataUtils {
      */
     public static Map<String, String> getLogInfo(String fileName) {
         Map<String, String> podInf = new HashMap<>();
-        if (!StringUtils.isNoneBlank(fileName) && fileName.contains(CommonConstants.DELIMITER_UNDERLINE)) {
+        if (StringUtils.isBlank(fileName) || !fileName.contains(STANDARD_OUT)) {
             return podInf;
         }
         // file name example: /var/log/containers/<pod_name>_<namespace>_<container_name>-<continer_id>.log

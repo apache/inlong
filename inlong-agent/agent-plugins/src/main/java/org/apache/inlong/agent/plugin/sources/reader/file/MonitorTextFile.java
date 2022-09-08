@@ -133,8 +133,9 @@ public final class MonitorTextFile {
                     this.fileReaderOperator.position = 0;
                 }
                 this.textFileReader.getData();
-                this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
+                this.textFileReader.mergeData(this.fileReaderOperator);
                 this.attributesBefore = attributesAfter;
+                this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
             }
         }
     }
