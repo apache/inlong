@@ -78,7 +78,7 @@ public interface StreamSourceEntityMapper {
      */
     List<StreamSourceEntity> selectByAgentIpOrCluster(@Param("statusList") List<Integer> statusList,
             @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
-            @Param("clusterName") String clusterName, @Param("limit") int limit);
+            @Param("clusterName") String clusterName);
 
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.

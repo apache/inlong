@@ -215,15 +215,15 @@ public class AgentServiceImpl implements AgentService {
         Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
                 "both agent ip and cluster name are blank when fetching file task");
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
+                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
         List<DataConfig> fileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
             FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
             final String destIp = sourceEntity.getAgentIp();
             final String destClusterName = sourceEntity.getInlongClusterName();
 
-            // Cluster name is blank
-            if (StringUtils.isNotBlank(destIp) && StringUtils.isBlank(destClusterName)) {
+            // Use ip directly if it is not empty
+            if (StringUtils.isNotBlank(destIp)) {
                 if (destIp.equals(agentIp)) {
                     int op = getOp(sourceEntity.getStatus());
                     int nextStatus = getNextStatus(sourceEntity.getStatus());
