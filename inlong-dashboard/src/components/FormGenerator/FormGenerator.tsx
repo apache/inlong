@@ -37,13 +37,12 @@ export interface FormGeneratorProps extends FormProps {
   // Whether to use the default maximum width
   useMaxWidth?: boolean | number;
   style?: React.CSSProperties;
-  // The current form value, under normal circumstances there is no need to pass in
-  // When externally using methods such as setFieldsValue to change the value, the internal state refresh can be triggered by changing the prop
-  allValues?: Record<string, unknown>;
   // onFilter is similar to onValuesChange, with custom trigger conditions added, for example, when the search box is entered
   // At the same time, the return value executes trim, if you need noTrim, you need to pay attention (such as password)
   // Currently holding input, inputsearch
   onFilter?: Function;
+  // default: true
+  viewOnly?: boolean;
 }
 
 export interface ContentsItemProps {
@@ -68,9 +67,11 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
 
   // Record real-time values
   const [realTimeValues, setRealTimeValues] = useState<Record<string, unknown>>(
-    props.allValues || {},
+    props.initialValues || {},
   );
   const [contents, setContents] = useState<ContentsItemProps[]>([]);
+
+  const viewOnly = props.viewOnly ?? false;
 
   const combineContentWithProps = useCallback(
     (initialContent: Record<string, any>[], props: FormGeneratorProps) => {
@@ -120,6 +121,10 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         return {
           ...v,
           name,
+          type: viewOnly ? 'text' : v.type,
+          suffix:
+            typeof v.suffix === 'object' && viewOnly ? { ...v.suffix, type: 'text' } : v.suffix,
+          extra: viewOnly ? null : v.extra,
           props: {
             ...initialProps,
             ...holdProps,
@@ -127,13 +132,13 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         };
       });
     },
-    [realTimeValues, form],
+    [realTimeValues, form, viewOnly],
   );
 
   // A real-time value is generated when it is first mounted, because the initialValue may be defined on the FormItem
   useEffect(() => {
-    if (props.allValues) {
-      setRealTimeValues(props.allValues);
+    if (props.initialValues) {
+      setRealTimeValues(props.initialValues);
     } else if (form) {
       const timmer = setTimeout(() => {
         const { getFieldsValue } = form;
@@ -142,7 +147,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
       }, 0);
       return () => clearTimeout(timmer);
     }
-  }, [form, props.allValues]);
+  }, [form, props.initialValues]);
 
   useEffect(() => {
     if (!props.contents) {
@@ -203,11 +208,12 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
   delete formProps.content;
   delete formProps.contents;
   delete formProps.onFilter;
-  delete formProps.allValues;
+  delete formProps.initialValues;
 
   return (
     <Form
       {...formProps}
+      requiredMark={!viewOnly}
       form={form}
       layout={layout}
       labelCol={labelCol}

@@ -17,48 +17,36 @@
  * under the License.
  */
 
-import { getColsFromFields } from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
-import rulesPattern from '@/utils/pattern';
 import i18n from '@/i18n';
+import rulesPattern from '@/utils/pattern';
+import type { FieldItemType } from '@/metas/common';
 
-const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) => {
-  const fileds = [
-    {
-      type: 'input',
-      label: i18n.t('meta.Sources.File.DataSourceIP'),
-      name: 'agentIp',
-      rules: [
-        {
-          pattern: rulesPattern.ip,
-          message: i18n.t('meta.Sources.File.IpRule'),
-          required: true,
-        },
-      ],
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sources.File.FilePath'),
-      name: 'pattern',
-      tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
-      rules: [{ required: true }],
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sources.File.TimeOffset'),
-      name: 'timeOffset',
-      tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
-    },
-  ];
-
-  return type === 'col' ? getColsFromFields(fileds) : fileds;
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const file = {
-  getForm,
-  tableColumns,
-};
+export const file: FieldItemType[] = [
+  {
+    type: 'input',
+    label: i18n.t('meta.Sources.File.DataSourceIP'),
+    name: 'agentIp',
+    rules: [
+      {
+        pattern: rulesPattern.ip,
+        message: i18n.t('meta.Sources.File.IpRule'),
+        required: true,
+      },
+    ],
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sources.File.FilePath'),
+    name: 'pattern',
+    tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
+    rules: [{ required: true }],
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sources.File.TimeOffset'),
+    name: 'timeOffset',
+    tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
+  },
+];
