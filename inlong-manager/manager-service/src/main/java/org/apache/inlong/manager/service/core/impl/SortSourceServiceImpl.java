@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -197,7 +198,6 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<SortSourceGroupInfo> groupInfos = inlongGroupEntityMapper.selectAllGroups();
         Map<String, SortSourceGroupInfo> allId2GroupInfos = groupInfos.stream()
                 .filter(dto -> dto.getGroupId() != null)
-                .filter(group -> SUPPORTED_MQ_TYPE.contains(group.getMqType()))
                 .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, dto -> dto, (g1, g2) -> g1));
 
         // get all clusters. filter by type and check if consumable, then group by cluster tag.
@@ -205,7 +205,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos = clusterInfos.stream()
                 .filter(dto -> dto.getClusterTags() != null)
                 .filter(SortSourceClusterInfo::isConsumable)
-                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType().toUpperCase(Locale.ROOT)))
                 .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
         // group clusters by name.
