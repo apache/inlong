@@ -100,8 +100,6 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             streamId = inLongMetricArray[1];
             String nodeId = inLongMetricArray[2];
             sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
-            sinkMetricData.registerMetricsForDirtyBytes();
-            sinkMetricData.registerMetricsForDirtyRecords();
             sinkMetricData.registerMetricsForNumBytesOut();
             sinkMetricData.registerMetricsForNumRecordsOut();
             sinkMetricData.registerMetricsForNumBytesOutPerSecond();
@@ -129,6 +127,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void sendMetrics(byte[] document) {
         if (sinkMetricData.getNumBytesOut() != null) {
             sinkMetricData.getNumBytesOut().inc(document.length);
+        }
+        if (sinkMetricData.getNumRecordsOut() != null) {
+            sinkMetricData.getNumRecordsOut().inc();
         }
         outputMetricForAudit(document.length);
     }

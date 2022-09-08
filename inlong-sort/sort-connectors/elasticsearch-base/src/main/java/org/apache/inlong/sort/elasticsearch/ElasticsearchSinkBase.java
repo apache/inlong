@@ -273,10 +273,6 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
             sinkMetricData.registerMetricsForDirtyBytes();
             sinkMetricData.registerMetricsForDirtyRecords();
-            sinkMetricData.registerMetricsForNumBytesOut();
-            sinkMetricData.registerMetricsForNumRecordsOut();
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
         }
         callBridge.verifyClientConnection(client);
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
@@ -511,9 +507,6 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                                             "The sink currently only supports ActionRequests");
                                 }
                             }
-                        }
-                        if (sinkMetricData.getNumRecordsOut() != null) {
-                            sinkMetricData.getNumRecordsOut().inc();
                         }
                     }
                 } catch (Throwable t) {
