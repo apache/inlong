@@ -318,7 +318,7 @@ public abstract class AbstractZoneSinkContext {
             metricItem.sendSuccessCount.addAndGet(count);
             metricItem.sendSuccessSize.addAndGet(size);
             currentRecord.getEvents().forEach((event) -> {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
             });
             if (sendTime > 0) {
                 long currentTime = System.currentTimeMillis();
@@ -367,7 +367,7 @@ public abstract class AbstractZoneSinkContext {
     }
 
     /**
-     * addReadFailMetric
+     * addSendFailMetric
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
@@ -377,7 +377,7 @@ public abstract class AbstractZoneSinkContext {
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        metricItem.readFailCount.incrementAndGet();
+        metricItem.sendFailCount.incrementAndGet();
     }
 
     /**
