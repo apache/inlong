@@ -62,16 +62,22 @@ public class MessageDeserializer implements Deserializer {
     private static final String INLONGMSG_ATTR_NODE_IP = "NodeIP";
     private static final char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
     private static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
+    private static final String DEFAULT_IP = "127.0.0.1";
+
+    private static final String PARSE_ATTR_ERROR_STRING = "Could not find %s in attributes!";
 
     public MessageDeserializer() {
     }
 
     @Override
-    public List<InLongMessage> deserialize(ClientContext context, InLongTopic inLongTopic, Map<String, String> headers,
-                                           byte[] data) throws Exception {
+    public List<InLongMessage> deserialize(
+            ClientContext context,
+            InLongTopic inLongTopic,
+            Map<String, String> headers,
+            byte[] data) throws Exception {
 
         //1. version
-        int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "2"));
+        int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, Integer.toString(MESSAGE_VERSION_INLONG_MSG)));
         switch (version) {
             case MESSAGE_VERSION_NONE: {
                 return decode(context, inLongTopic, data, headers);
@@ -183,12 +189,12 @@ public class MessageDeserializer implements Deserializer {
                     INLONGMSG_ATTR_KV_DELIMITER, null, null);
 
             String groupId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_GROUP_ID))
-                    .orElseThrow(() -> new IllegalArgumentException("Could not find "
-                            + INLONGMSG_ATTR_GROUP_ID + " in attributes!"));
+                    .orElseThrow(() -> new IllegalArgumentException(String.format(PARSE_ATTR_ERROR_STRING,
+                            INLONGMSG_ATTR_GROUP_ID)));
 
             String streamId = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_STREAM_ID))
-                    .orElseThrow(() -> new IllegalArgumentException("Could not find "
-                            + INLONGMSG_ATTR_STREAM_ID + " in attributes!"));
+                    .orElseThrow(() -> new IllegalArgumentException(String.format(PARSE_ATTR_ERROR_STRING,
+                            INLONGMSG_ATTR_STREAM_ID)));
 
             // Extracts time from the attributes
             long msgTime;
@@ -199,13 +205,12 @@ public class MessageDeserializer implements Deserializer {
                 String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
                 msgTime = Long.parseLong(epoch);
             } else {
-                throw new IllegalArgumentException(
-                        "Could not find " + INLONGMSG_ATTR_TIME_T
-                                + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
+                throw new IllegalArgumentException(String.format(PARSE_ATTR_ERROR_STRING,
+                        INLONGMSG_ATTR_TIME_T + " or " + INLONGMSG_ATTR_TIME_DT));
             }
 
             String srcIp = Optional.ofNullable(attributes.get(INLONGMSG_ATTR_NODE_IP))
-                    .orElse("127.0.0.1");
+                    .orElse(DEFAULT_IP);
 
             Iterator<byte[]> iterator = inLongMsg.getIterator(attr);
             while (iterator.hasNext()) {

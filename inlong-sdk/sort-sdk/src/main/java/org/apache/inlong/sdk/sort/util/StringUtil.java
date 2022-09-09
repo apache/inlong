@@ -245,6 +245,14 @@ public class StringUtil {
         return sdf.format(date);
     }
 
+    /**
+     * Parse date time form string format to unix format.
+     * Only support <b>yyyyMMdd</b>, <b>yyyyMMddHH</b> and <b>yyyyMMddHHmm</b> precision
+     * whose length is 8, 10 and 12 respectively.
+     *
+     * @param value Date time in string format.
+     * @return Unix date time.
+     */
     public static long parseDateTime(String value) {
         try {
             if (value.length() < 8) {
@@ -263,7 +271,7 @@ public class StringUtil {
                 return new Timestamp(date.getTime()).getTime();
             }
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Unexpected time format : " + value + ".");
+            throw new IllegalArgumentException("Unexpected time format : " + value);
         }
     }
 
