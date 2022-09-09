@@ -118,21 +118,10 @@ export const binLog: FieldItemType[] = [
     }),
   },
   {
-    name: 'databaseWhiteList',
-    type: 'input',
-    label: i18n.t('meta.Sources.Db.DatabaseWhiteList'),
-    tooltip: i18n.t('meta.Sources.Db.WhiteListHelp'),
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-    visible: values => !values?.allMigration,
-  },
-  {
     name: 'tableWhiteList',
     type: 'input',
     label: i18n.t('meta.Sources.Db.TableWhiteList'),
-    tooltip: i18n.t('meta.Sources.Db.WhiteListHelp'),
+    tooltip: i18n.t('meta.Sources.Db.TableWhiteListHelp'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
