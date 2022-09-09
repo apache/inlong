@@ -92,7 +92,7 @@ public class InlongGroupContext implements Serializable {
                     StreamSource source = entry.getValue();
                     // when template id is null it is considered as normal source other than template source
                     // sub sources are filtered because they are already collected in template source's sub source list
-                    if (source != null && source.getTemplateId() != null) {
+                    if (source != null && source.getTemplateId() == null) {
                         groupSources.add(source);
                     }
                 }
