@@ -117,10 +117,7 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
 
         topic = context.getString(ConfigConstants.TOPIC);
         attr = context.getString(ConfigConstants.ATTR);
-        Configurables.ensureRequiredNonNull(context, ConfigConstants.TOPIC, ConfigConstants.ATTR);
 
-        topic = topic.trim();
-        Preconditions.checkArgument(!topic.isEmpty(), "topic is empty");
         attr = attr.trim();
         Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
 
