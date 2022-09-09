@@ -42,8 +42,8 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
     String groupId = "consume_group_id";
     String streamId = "consume_group_id";
     String consumerGroup = "test_consumer_group";
-    String clusterName = "default_pulsar";
-    String clusterTag = "default_cluster";
+    String clusterName = "consume_pulsar";
+    String clusterTag = "consume_cluster";
     String adminUrl = "http://127.0.0.1:8080";
     String deadLetterTopic = "test_dlp";
     String tenant = "public";
