@@ -222,7 +222,6 @@
                 </foreach>
             </if>
             and (agent_ip = #{agentIp, jdbcType=VARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
-            limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
     <select id="selectByStatusAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -372,6 +371,7 @@
             <if test="streamId != null">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
+            and source_type != 'AUTO_PUSH'
         </where>
     </update>
     <update id="updateIpAndUuid">
