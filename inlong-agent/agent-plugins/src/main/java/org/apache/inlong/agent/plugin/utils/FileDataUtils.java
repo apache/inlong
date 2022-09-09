@@ -45,7 +45,7 @@ public class FileDataUtils {
         if (!isJson) {
             return log;
         }
-        Type type = new TypeToken<HashMap<Integer, String>>() {
+        Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
         Map<String, String> logJson = GSON.fromJson(log, type);
         return logJson.getOrDefault(KUBERNETES_LOG, log);
