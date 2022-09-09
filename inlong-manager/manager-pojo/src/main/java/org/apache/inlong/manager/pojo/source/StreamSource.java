@@ -104,6 +104,9 @@ public abstract class StreamSource extends StreamNode {
     @Builder.Default
     private Map<String, Object> properties = new LinkedHashMap<>();
 
+    @ApiModelProperty("Null if not a sub source")
+    private Integer templateId;
+
     @ApiModelProperty("Sub source information of existing agents")
     private List<SubSourceDTO> subSourceList;
 
