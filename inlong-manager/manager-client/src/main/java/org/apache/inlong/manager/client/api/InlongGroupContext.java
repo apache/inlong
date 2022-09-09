@@ -35,7 +35,6 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Inlong group context.
@@ -93,7 +92,7 @@ public class InlongGroupContext implements Serializable {
                     StreamSource source = entry.getValue();
                     // when template id is null it is considered as normal source other than template source
                     // sub sources are filtered because they are already collected in template source's sub source list
-                    if (source != null && Objects.isNull(source.getTemplateId())) {
+                    if (source != null && source.getTemplateId() != null)) {
                         groupSources.add(source);
                     }
                 }
