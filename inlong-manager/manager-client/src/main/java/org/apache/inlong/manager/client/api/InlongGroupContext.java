@@ -90,7 +90,9 @@ public class InlongGroupContext implements Serializable {
             if (MapUtils.isNotEmpty(sources)) {
                 for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
                     StreamSource source = entry.getValue();
-                    if (source != null) {
+                    // when template id is null it is considered as normal source other than template source
+                    // sub sources are filtered because they are already collected in template source's sub source list
+                    if (source != null && source.getTemplateId() == null) {
                         groupSources.add(source);
                     }
                 }
