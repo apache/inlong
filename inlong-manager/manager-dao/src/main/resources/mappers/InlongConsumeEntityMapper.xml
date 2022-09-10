@@ -123,7 +123,7 @@
         <include refid="Base_Column_List"/>
         from inlong_consume
         where is_deleted = 0
-        and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and topic = #{topic, jdbcType=VARCHAR}
         and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
         limit 1
