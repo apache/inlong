@@ -38,6 +38,7 @@ public interface ClusterTagService {
 
     /**
      * Change retention policies about all topics of this cluster tag
+     * @request ClusterTagChangeRetentionRequest
      */
     String changeRetention(ClusterTagChangeRetentionRequest request);
 }
