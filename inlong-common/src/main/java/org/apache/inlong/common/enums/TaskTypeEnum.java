@@ -29,7 +29,8 @@ public enum TaskTypeEnum {
     ORACLE(7),
     SQLSERVER(8),
     MONGODB(9),
-    TUBEMQ(10)
+    TUBEMQ(10),
+    REDIS(11)
 
 
     ;
