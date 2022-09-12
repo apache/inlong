@@ -239,7 +239,7 @@ public class InlongGroupOpsServiceImpl implements InlongGroupOpsService {
             }
             for (StreamSinkEntity sinkEntity : sinkEntities) {
                 sinkEntity.setInlongClusterName(sortClusterName);
-                sinkMapper.updateByPrimaryKeySelective(sinkEntity);
+                sinkMapper.updateByIdSelective(sinkEntity);
             }
             return null;
         } catch (Exception e) {
