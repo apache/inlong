@@ -53,7 +53,7 @@ for (( i=1; i<=$#; i++)); do
   if [ "${!i}" = "-x" ] || [ "${!i}" = "--buildx" ]; then
     NEED_BUILD=true
     USE_BUILDX="buildx"
-    TYPE="type=docker"
+    TYPE="-o type=docker"
     j=$((i+1))
     BUILD_ARCH=${!j}
     if [ "$BUILD_ARCH" != "$ARCH_AARCH64" ] && [ "$BUILD_ARCH" != "$ARCH_X86" ]; then
