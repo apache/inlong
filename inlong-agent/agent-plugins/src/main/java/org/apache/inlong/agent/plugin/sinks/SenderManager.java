@@ -24,9 +24,11 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
@@ -219,26 +221,22 @@ public class SenderManager {
      * @param retry retry time
      */
     public void sendBatchAsync(String jobId, String groupId, String streamId,
-            List<byte[]> bodyList, int retry, long dataTime) {
+            List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         try {
             selectSender(groupId).asyncSendMessage(
-                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime),
-                    bodyList, groupId, streamId,
-                    dataTime,
-                    SEQUENTIAL_ID.getNextUuid(),
-                    maxSenderTimeout,
-                    TimeUnit.SECONDS
-            );
+                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime, extraMap), bodyList,
+                    groupId, streamId, dataTime, SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS,
+                    extraMap);
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
             try {
                 TimeUnit.SECONDS.sleep(1);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             } catch (Exception ignored) {
                 // ignore it.
             }
@@ -288,15 +286,17 @@ public class SenderManager {
         private final String streamId;
         private final long dataTime;
         private final String jobId;
+        private final Map<String, String> extraMap;
 
         AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
-                long dataTime) {
+                long dataTime, Map<String, String> extraMap) {
             this.retry = retry;
             this.groupId = groupId;
             this.streamId = streamId;
             this.bodyList = bodyList;
             this.jobId = jobId;
             this.dataTime = dataTime;
+            this.extraMap = extraMap;
         }
 
         @Override
@@ -305,13 +305,18 @@ public class SenderManager {
             if (result == null || !result.equals(SendResult.OK)) {
                 LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, jobId, dataTime, retry, result);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
                 return;
             }
             semaphore.release(bodyList.size());
             Map<String, String> dims = new HashMap<>();
             dims.put(KEY_INLONG_GROUP_ID, groupId);
             dims.put(KEY_INLONG_STREAM_ID, streamId);
+            long msgTime = System.currentTimeMillis();
+            if (extraMap.containsKey(AttributeConstants.MSG_TIME)) {
+                msgTime = Long.parseLong(extraMap.get(AttributeConstants.MSG_TIME));
+            }
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, msgTime, bodyList.size());
             getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());

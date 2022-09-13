@@ -45,6 +45,8 @@ public interface AttributeConstants {
      */
     String DATA_TIME = "dt";
 
+    String MSG_TIME = "msgTime";
+
     String TIME_STAMP = "t";
 
     /* compress type */

@@ -23,7 +23,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.message.ProxyMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
@@ -104,11 +103,10 @@ public class ProxySink extends AbstractSink {
                                 }
                                 // add message to package proxy
                                 packProxyMessage.addProxyMessage(proxyMessage);
-                                //
+                                // update msgTime
+                                packProxyMessage.updateMsgTime(System.currentTimeMillis());
                                 return packProxyMessage;
                             });
-                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
-                            inlongGroupId, inlongStreamId, System.currentTimeMillis());
                     // increment the count of successful sinks
                     sinkMetric.sinkSuccessCount.incrementAndGet();
                 } else {
@@ -153,13 +151,13 @@ public class ProxySink extends AbstractSink {
                     cache.forEach((batchKey, packProxyMessage) -> {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
-                            long sendTime = AgentUtils.getCurrentTime();
+                            long sendTime = packProxyMessage.getMsgTime();
                             if (syncSend) {
                                 senderManager.sendBatchSync(inlongGroupId, result.getKey(), result.getValue(),
                                         0, sendTime, packProxyMessage.getExtraMap());
                             } else {
                                 senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
-                                        result.getValue(), 0, sendTime);
+                                        result.getValue(), 0, sendTime, packProxyMessage.getExtraMap());
                             }
                             LOGGER.info("send group id {}, message key {},with message size {}, the job id is {}, "
                                             + "read source is {} sendTime is {} syncSend {}", inlongGroupId, batchKey,
