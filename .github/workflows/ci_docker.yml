@@ -116,9 +116,8 @@ jobs:
       - name: Push aarch64 Docker images to Docker Hub
         working-directory: docker
         run: |
-          bash +x -x build-docker-images.sh --buildx aarch64
-          docker images
-          bash +x -x publish-by-arch.sh --tag --arch aarch64 --publish
+          bash +x build-docker-images.sh --buildx aarch64
+          bash +x publish-by-arch.sh --tag --arch aarch64 --publish
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

@@ -27,7 +27,7 @@ PLATFORM_AARCH64="--platform linux/arm64"
 PLATFORM_X86="--platform linux/amd64"
 USE_PLATFORM=""
 
-OUTPUT=""
+TYPE=""
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
