@@ -216,7 +216,7 @@ stop_inlong_all() {
 
 if [[ "${COMMAND}" = start || "${COMMAND}" = stop ]]; then
   case $SERVICE in
-  manager | dashboard | dataproxy | agent | audit)
+  manager | dashboard | dataproxy | agent | audit | sortstandalone)
     ${COMMAND}_inlong_${SERVICE}
     ;;
   standalone)

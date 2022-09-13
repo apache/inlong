@@ -96,6 +96,20 @@
             <outputDirectory>inlong-tubemq-manager</outputDirectory>
         </fileSet>
 
+        <!-- package InLong-Sort-Standalone-->
+        <fileSet>
+            <directory>../inlong-sort-standalone/sort-standalone-dist/target/apache-inlong-sort-standalone-${project.version}-bin</directory>
+            <outputDirectory>inlong-sort-standalone</outputDirectory>
+        </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-sort-standalone</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>inlong-sort-standalone</outputDirectory>
+        </fileSet>
+
         <!-- package InLong-Audit-->
         <fileSet>
             <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin</directory>

@@ -82,7 +82,7 @@ init_inlong_sortstandalone() {
   echo "Init inlong sort standalone configuration"
   cd $INLONG_HOME/inlong-sort-standalone/conf
   sed -i 's/adminTask.port=.*/'''adminTask.port=${sortstandalone_port}'''/g' common.properties
-  sed -i 's/adminTask.host=.*/'''adminTask.host=${sortstandalone_ip]}'''/g' common.properties
+  sed -i 's/adminTask.host=.*/'''adminTask.host=${sortstandalone_ip}'''/g' common.properties
   sed -i 's/sortClusterConfig.type=.*/'''sortClusterConfig.type=${sortstandalone_config_type}'''/g' common.properties
   sed -i 's/sortSourceConfig.QueryConsumeConfigType=.*/'''sortSourceConfig.QueryConsumeConfigType=${sortstandalone_config_type}'''/g' common.properties
   if [ $sortstandalone_config_type == 'file' ]; then
