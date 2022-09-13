@@ -20,7 +20,6 @@ package org.apache.inlong.manager.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
