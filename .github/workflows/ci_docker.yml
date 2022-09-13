@@ -65,8 +65,8 @@ jobs:
         with:
           python-version: 3.7
 
-      - name: test
-        run: docker buildx ls
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Cache Maven packages
         uses: actions/cache@v3
