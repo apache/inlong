@@ -68,11 +68,13 @@ bool BaseConsumer::Start(string& err_info, const ConsumerConfig& config) {
   // check configure
   if (config.GetGroupName().length() == 0 || config.GetMasterAddrInfo().length() == 0) {
     err_info = "Parameter error: not set master address info or group name!";
+    status_.CompareAndSet(1, 0);
     return false;
   }
   //
   if (!TubeMQService::Instance()->IsRunning()) {
     err_info = "TubeMQ Service not startted!";
+    status_.CompareAndSet(1, 0);
     return false;
   }
   if (!TubeMQService::Instance()->AddClientObj(err_info, shared_from_this())) {
@@ -83,6 +85,7 @@ bool BaseConsumer::Start(string& err_info, const ConsumerConfig& config) {
   config_ = config;
   if (!initMasterAddress(err_info, config.GetMasterAddrInfo())) {
     TubeMQService::Instance()->RmvClientObj(shared_from_this());
+    status_.CompareAndSet(1, 0);
     return false;
   }
   client_uuid_ = buildUUID();
