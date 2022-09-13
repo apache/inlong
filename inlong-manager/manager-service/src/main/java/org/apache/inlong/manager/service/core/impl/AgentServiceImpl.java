@@ -260,8 +260,9 @@ public class AgentServiceImpl implements AgentService {
                 int op = getOp(fileEntity.getStatus());
                 int nextStatus = getNextStatus(fileEntity.getStatus());
                 fileEntity.setStatus(nextStatus);
-                fileEntity.setVersion(1);
                 if (sourceMapper.insert(fileEntity) > 0) {
+                    // refresh entity version and others.
+                    fileEntity = sourceMapper.selectById(fileEntity.getId());
                     fileTasks.add(getDataConfig(fileEntity, op));
                 }
             }
