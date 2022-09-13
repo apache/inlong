@@ -82,6 +82,7 @@ public final class MonitorTextFile {
         private final TextFileReader textFileReader;
         private final Long interval;
         private final long startTime = System.currentTimeMillis();
+        private String path;
         /**
          * the last modify time of the file
          */
@@ -95,6 +96,7 @@ public final class MonitorTextFile {
             try {
                 this.attributesBefore = Files
                         .readAttributes(fileReaderOperator.file.toPath(), BasicFileAttributes.class);
+                this.path = this.fileReaderOperator.file.getCanonicalPath();
             } catch (IOException e) {
                 LOGGER.error("get {} last modify time error:", fileReaderOperator.file.getName(), e);
             }
@@ -121,16 +123,28 @@ public final class MonitorTextFile {
         }
 
         private void listen() throws IOException {
-            BasicFileAttributes attributesAfter = Files
-                    .readAttributes(this.fileReaderOperator.file.toPath(), BasicFileAttributes.class);
+            BasicFileAttributes attributesAfter;
+            String currentPath;
+            try {
+                attributesAfter = Files
+                        .readAttributes(this.fileReaderOperator.file.toPath(), BasicFileAttributes.class);
+                currentPath = this.fileReaderOperator.file.getCanonicalPath();
+            } catch (Exception e) {
+                // Set position 0 when split file
+                this.fileReaderOperator.position = 0;
+                LOGGER.error("monitor {} error, reset position is 0:", this.fileReaderOperator.file.getName(), e);
+                return;
+            }
+            // If change symbolic links
+            if (attributesAfter.isSymbolicLink() && !path.equals(currentPath)) {
+                this.fileReaderOperator.position = 0;
+                path = currentPath;
+            }
             if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0) {
                 // Not triggered during data sending
-                if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator.hasNext()) {
+                if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator
+                        .hasNext()) {
                     return;
-                }
-                // Set position 0 when split file
-                if (attributesBefore.creationTime().compareTo(attributesAfter.creationTime()) < 0) {
-                    this.fileReaderOperator.position = 0;
                 }
                 this.textFileReader.getData();
                 this.textFileReader.mergeData(this.fileReaderOperator);
