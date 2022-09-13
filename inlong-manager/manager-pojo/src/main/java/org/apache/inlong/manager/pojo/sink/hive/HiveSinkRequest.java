@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -79,8 +78,8 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
-    @ApiModelProperty("Data separator, stored as ASCII code")
-    private String dataSeparator = DataSeparator.SOH.getSeparator();
+    @ApiModelProperty("Data separator")
+    private String dataSeparator;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
