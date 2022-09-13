@@ -974,7 +974,7 @@ void BaseConsumer::buidRegisterRequestC2B(const PartitionExt& partition,
   c2b_request.set_partitionid(partition.GetPartitionId());
   c2b_request.set_qrypriorityid(rmtdata_cache_.GetGroupQryPriorityId());
   bool is_first_reg = rmtdata_cache_.IsPartitionFirstReg(partition.GetPartitionKey());
-  c2b_request.set_readstatus(getConsumeReadStatus(is_first_reg));
+  c2b_request.set_readstatus(getConsumeReadStatus(true, is_first_reg, partition.GetPartitionKey()));
   if (sub_info_.IsFilterConsume(partition.GetTopic())) {
     filter_map = sub_info_.GetTopicFilterMap();
     if (filter_map.find(partition.GetTopic()) != filter_map.end()) {
@@ -1021,7 +1021,7 @@ void BaseConsumer::buidHeartBeatC2B(const list<PartitionExt>& partitions,
   list<PartitionExt>::const_iterator it_part;
   c2b_request.set_clientid(client_uuid_);
   c2b_request.set_groupname(config_.GetGroupName());
-  c2b_request.set_readstatus(getConsumeReadStatus(false));
+  c2b_request.set_readstatus(getConsumeReadStatus(false, false, client_uuid_));
   c2b_request.set_qrypriorityid(rmtdata_cache_.GetGroupQryPriorityId());
   for (it_part = partitions.begin(); it_part != partitions.end(); ++it_part) {
     c2b_request.add_partitioninfo(it_part->ToString());
@@ -1405,15 +1405,22 @@ string BaseConsumer::buildUUID() {
   return ss.str();
 }
 
-int32_t BaseConsumer::getConsumeReadStatus(bool is_first_reg) {
+int32_t BaseConsumer::getConsumeReadStatus(bool is_reg_req,
+    bool is_first_reg, const string& partitionKey) {
   int32_t readStatus = rpc_config::kConsumeStatusNormal;
   if (is_first_reg) {
     if (config_.GetConsumePosition() == 0) {
       readStatus = rpc_config::kConsumeStatusFromMax;
-      LOG_INFO("[Consumer From Max Offset], clientId=%s", client_uuid_.c_str());
+      if (is_reg_req) {
+        LOG_INFO("[Consumer From Max Offset], clientId=%s, partitionKey=%s",
+          client_uuid_.c_str(), partitionKey.c_str());
+      }
     } else if (config_.GetConsumePosition() > 0) {
       readStatus = rpc_config::kConsumeStatusFromMaxAlways;
-      LOG_INFO("[Consumer From Max Offset Always], clientId=%s", client_uuid_.c_str());
+      if (is_reg_req) {
+        LOG_INFO("[Consumer From Max Offset Always], clientId=%s, partitionKey=%s",
+          client_uuid_.c_str(), partitionKey.c_str());
+      }
     }
   }
   return readStatus;
