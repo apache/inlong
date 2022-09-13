@@ -64,6 +64,8 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: 3.7
+      - name: Set up QEMU dependency
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
