@@ -114,6 +114,7 @@ jobs:
 
       # Publish aarch64 Docker images when the changes are being pushed to a release branch like 'release-1.0.0'.
       - name: Push aarch64 Docker images to Docker Hub
+        if: ${{ steps.match.outputs.match_release == 'true' }}
         working-directory: docker
         run: |
           bash +x build-docker-images.sh --buildx aarch64
