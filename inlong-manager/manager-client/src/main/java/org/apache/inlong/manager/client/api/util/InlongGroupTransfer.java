@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication;
@@ -52,10 +51,8 @@ public class InlongGroupTransfer {
         String groupId = groupInfo.getInlongGroupId();
         Preconditions.checkNotEmpty(groupId, "groupId cannot be empty");
         // init extensions
-        if (groupInfo.getExtList() != null) {
-            groupInfo.setExtList(groupInfo.getExtList());
-        } else {
-            groupInfo.setExtList(Lists.newArrayList());
+        if (groupInfo.getExtList() == null) {
+            groupInfo.setExtList(new ArrayList<>());
         }
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
