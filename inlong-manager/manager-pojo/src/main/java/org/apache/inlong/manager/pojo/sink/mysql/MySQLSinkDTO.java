@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sink.mysql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -44,12 +45,14 @@ import java.util.Map;
 @AllArgsConstructor
 public class MySQLSinkDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final static char SYMBOL = '&';
+    @VisibleForTesting
+    protected final static char SYMBOL = '&';
     /**
      * The sensitive param may lead the attack.
      */
-    private static final String SENSITIVE_PARAM = "autoDeserialize=true";
+    @VisibleForTesting
+    protected static final String SENSITIVE_PARAM = "autoDeserialize=true";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
@@ -176,7 +179,8 @@ public class MySQLSinkDTO {
      * @param url str may have some sensitive params
      * @return str without sensitive param
      */
-    private static String filterSensitive(String url) {
+    @VisibleForTesting
+    protected static String filterSensitive(String url) {
         if (StringUtils.isBlank(url) || !url.contains(SENSITIVE_PARAM)) {
             LOGGER.info("string was empty or not contains sensitive for {}", url);
             return url;
