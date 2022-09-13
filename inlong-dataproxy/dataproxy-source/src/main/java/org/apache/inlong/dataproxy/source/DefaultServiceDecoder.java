@@ -26,6 +26,7 @@ import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
+import org.apache.inlong.dataproxy.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
@@ -112,9 +113,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             long uniq, long dataTime, int msgCount) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         String time = "";
-        if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
-            time = commonAttrMap
-                    .get(ConfigConstants.PKG_TIME_KEY);
+        if (commonAttrMap.containsKey(Constants.HEADER_KEY_MSG_TIME)) {
+            time = commonAttrMap.get(Constants.HEADER_KEY_MSG_TIME);
         } else {
             time = String.valueOf(dataTime);
         }

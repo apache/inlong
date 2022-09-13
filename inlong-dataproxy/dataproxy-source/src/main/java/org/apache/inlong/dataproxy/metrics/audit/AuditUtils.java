@@ -25,6 +25,7 @@ import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 
@@ -88,7 +89,12 @@ public class AuditUtils {
             String inlongGroupId = DataProxyMetricItem.getInlongGroupId(headers);
             String inlongStreamId = DataProxyMetricItem.getInlongStreamId(headers);
             long logTime = getLogTime(headers);
-            AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, event.getBody().length);
+            long msgCount = 1L;
+            if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
+                msgCount = Long.parseLong(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+            }
+            AuditImp.getInstance().add(auditID, inlongGroupId,
+                    inlongStreamId, logTime, msgCount, event.getBody().length);
         }
     }
 
