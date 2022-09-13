@@ -615,20 +615,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     private long getAndResetTmpOffset(final String group, final String offsetCacheKey) {
-        ConcurrentHashMap<String, Long> partTmpOffsetMap = tmpOffsetMap.get(group);
-        if (partTmpOffsetMap == null) {
-            ConcurrentHashMap<String, Long> tmpMap = new ConcurrentHashMap<>();
-            partTmpOffsetMap = tmpOffsetMap.putIfAbsent(group, tmpMap);
-            if (partTmpOffsetMap == null) {
-                partTmpOffsetMap = tmpMap;
-            }
-        }
-        Long tmpOffset = partTmpOffsetMap.put(offsetCacheKey, 0L);
-        if (tmpOffset == null) {
-            return 0;
-        } else {
-            return (tmpOffset - tmpOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN);
-        }
+        return setTmpOffset(group, offsetCacheKey, 0L);
     }
 
     /**
