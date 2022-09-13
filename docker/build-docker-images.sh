@@ -23,7 +23,7 @@ ENV_ARCH=$(uname -m)
 BUILD_ARCH="aarch64"
 POSTFIX="-aarch64"
 
-PLATFORM_AARCH64="--platform linux/arm64/v8"
+PLATFORM_AARCH64="--platform linux/arm64"
 PLATFORM_X86="--platform linux/amd64"
 USE_PLATFORM=""
 
