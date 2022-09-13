@@ -65,6 +65,9 @@ jobs:
         with:
           python-version: 3.7
 
+      - name: test
+        run: docker buildx ls
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -109,7 +112,7 @@ jobs:
       - name: Push aarch64 Docker images to Docker Hub
         working-directory: docker
         run: |
-          bash +x build-docker-images.sh --buildx aarch64
+          bash +x -x build-docker-images.sh --buildx aarch64
           bash +x publish-by-arch.sh --tag --arch aarch64 --publish
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}

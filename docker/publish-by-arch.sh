@@ -43,7 +43,7 @@ buildImage() {
     mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
   else
     mvn --batch-mode --update-snapshots -e -V clean package -DskipTests
-    bash +x -x ./docker/build-docker-images.sh ${USE_BUILDX} ${BUILD_ARCH}
+    sh ./docker/build-docker-images.sh ${USE_BUILDX} ${BUILD_ARCH}
   fi
   echo "End building images"
 }
