@@ -78,11 +78,30 @@ init_inlong_manager() {
   sed -i 's/flink.rest.port=.*/'''flink.rest.port=${flink_rest_port}'''/g' flink-sort-plugin.properties
 }
 
+init_inlong_sortstandalone() {
+  echo "Init inlong sort standalone configuration"
+  cd $INLONG_HOME/inlong-sort-standalone/conf
+  sed -i 's/adminTask.port=.*/'''adminTask.port=${sortstandalone_port}'''/g' common.properties
+  sed -i 's/adminTask.host=.*/'''adminTask.host=${sortstandalone_ip]}'''/g' common.properties
+  sed -i 's/sortClusterConfig.type=.*/'''sortClusterConfig.type=${sortstandalone_config_type}'''/g' common.properties
+  sed -i 's/sortSourceConfig.QueryConsumeConfigType=.*/'''sortSourceConfig.QueryConsumeConfigType=${sortstandalone_config_type}'''/g' common.properties
+  if [ $sortstandalone_config_type == 'file' ]; then
+    sed -i 's/sortClusterConfig.file=.*/'''sortClusterConfig.file=${sortstandalone_config_file_name}'''/g' common.properties
+  fi
+  if [ $sortstandalone_config_type == 'manager' ]; then
+    sed -i 's/managerUrlLoaderType=.*/'''managerUrlLoaderType=org.apache.inlong.sort.standalone.config.loader.CommonPropertiesManagerUrlLoader'''/g' common.properties
+    sed -i 's/sortClusterConfig.managerUrl=.*/'''sortClusterConfig.managerUrl=http://${manager_server_hostname}:${manager_server_port}/inlong/manager/openapi/sort/getClusterConfig'''/g'
+    sed -i 's/sortSourceConfig.managerUrl=.*/'''sortSourceConfig.managerUrl=http://${manager_server_hostname}:${manager_server_port}/inlong/manager/openapi/sort/getSortSource'''/g'
+  fi
+
+}
+
 if [ $# -eq 0 ]; then
   init_inlong_agent
   init_inlong_audit
   init_inlong_dataproxy
   init_inlong_manager
+  init_inlong_sortstandalone
 else
   init_inlong_$1
 fi

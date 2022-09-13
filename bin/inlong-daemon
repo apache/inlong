@@ -32,6 +32,7 @@ command_help() {
     dashboard           Run a Dashboard Service
     dataproxy           Run a Dataproxy Service
     agent               Run a Agent Service
+    sortstandalone      Run a Sortstandalone Service
     standalone          Run a Standalone mode(All Service)"
 }
 
@@ -134,6 +135,14 @@ start_inlong_agent() {
   wait_port_to_listen agent ${agent_port}
 }
 
+start_inlong_sortstandalone() {
+  init_compo
+  echo "start sortstandalone"
+  cd $INLONG_HOME/inlong-sort-standalone
+  bash +x ./bin/sort-start.sh
+  # wait to start
+  wait_port_to_listen sortstandalone ${sortstandalone_port}
+}
 # start inlong
 start_inlong_all() {
   echo "init configuration"
@@ -149,6 +158,8 @@ start_inlong_all() {
   start_inlong_dataproxy
   # start inlong agent
   start_inlong_agent
+  # start inlong sortstandalone
+  start_inlong_sortstandalone
 }
 
 stop_inlong_manager() {
@@ -181,6 +192,12 @@ stop_inlong_agent() {
   bash +x ./agent.sh stop
 }
 
+stop_inlong_sortstandalone() {
+  echo "stop sortstandalone"
+  cd $INLONG_HOME/inlong-sort-standalone/bin
+  bash +x ./sort-stop.sh
+}
+
 # stop inlong
 stop_inlong_all() {
   # stop inlong dashboard
@@ -193,6 +210,8 @@ stop_inlong_all() {
   stop_inlong_audit
   # stop inlong manager
   stop_inlong_manager
+  # stop inlong sortstandalone
+  stop_inlong_sortstandalone
 }
 
 if [[ "${COMMAND}" = start || "${COMMAND}" = stop ]]; then
