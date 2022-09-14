@@ -32,6 +32,7 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
     private final String streamId = "consume_stream_id";
     private final String consumerGroup = "test_consumer_group";
     private final String deadLetterTopic = "test_dlp";
+    private Integer clusterId;
 
     @Autowired
     private InlongConsumeService consumeService;
@@ -86,6 +88,15 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
 
         // test delete operation
         Assertions.assertTrue(this.testDelete(consumeId));
+    }
+
+    @AfterEach
+    public void after() {
+        streamServiceTest.deleteStream(groupId, streamId, GLOBAL_OPERATOR);
+        // Current status=to_be_submit was not allowed to delete
+        // groupServiceTest.deleteGroup(groupId, GLOBAL_OPERATOR);
+        // before saving inlong consume, the related MQ cluster must exist
+        clusterService.delete(clusterId, GLOBAL_OPERATOR);
     }
 
     private Integer testSave() {
@@ -148,7 +159,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         String tenant = "public";
         request.setTenant(tenant);
         request.setInCharges(GLOBAL_OPERATOR);
-        clusterService.save(request, GLOBAL_OPERATOR);
+        clusterId = clusterService.save(request, GLOBAL_OPERATOR);
     }
 
 }
