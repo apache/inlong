@@ -31,17 +31,17 @@ public class MySQLSinkDTOTest {
     @Test
     public void testFilterOther() {
         // the sensitive params at the first
-        String originUrl = MySQLSinkDTO.filterSensitive(SENSITIVE_PARAM + SYMBOL + "characterEncoding=utf8");
-        Assertions.assertEquals("characterEncoding=utf8", originUrl);
+        String originUrl = MySQLSinkDTO.filterSensitive(SENSITIVE_PARAM + SYMBOL + "autoReconnect=true");
+        Assertions.assertEquals("autoReconnect=true", originUrl);
 
         // the sensitive params at the end
-        originUrl = MySQLSinkDTO.filterSensitive("characterEncoding=utf8" + SYMBOL + SENSITIVE_PARAM);
-        Assertions.assertEquals("characterEncoding=utf8", originUrl);
+        originUrl = MySQLSinkDTO.filterSensitive("autoReconnect=true" + SYMBOL + SENSITIVE_PARAM);
+        Assertions.assertEquals("autoReconnect=true", originUrl);
 
         // the sensitive params in the middle
         originUrl = MySQLSinkDTO.filterSensitive(
-                "useSSL=false" + SYMBOL + SENSITIVE_PARAM + SYMBOL + "characterEncoding=utf8");
-        Assertions.assertEquals("useSSL=false" + SYMBOL + "characterEncoding=utf8", originUrl);
+                "useSSL=false" + SYMBOL + SENSITIVE_PARAM + SYMBOL + "autoReconnect=true");
+        Assertions.assertEquals("useSSL=false" + SYMBOL + "autoReconnect=true", originUrl);
     }
 
 }

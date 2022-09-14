@@ -182,21 +182,21 @@ public class MySQLSinkDTO {
     @VisibleForTesting
     protected static String filterSensitive(String url) {
         if (StringUtils.isBlank(url) || !url.contains(SENSITIVE_PARAM)) {
-            LOGGER.info("string was empty or not contains sensitive for {}", url);
+            LOGGER.info("string was empty or not contains sensitive for [{}]", url);
             return url;
         }
 
         String originUrl = url;
         int index = url.indexOf(SENSITIVE_PARAM);
         String tmp = SENSITIVE_PARAM;
-        if (index == 0 || url.charAt(index + 1) == SYMBOL) {
+        if (index == 0) {
             tmp = tmp + SYMBOL;
         } else if (url.charAt(index - 1) == SYMBOL) {
             tmp = SYMBOL + tmp;
         }
 
         url = url.replace(tmp, "");
-        LOGGER.debug("the origin url {} was filter to: {}", originUrl, url);
+        LOGGER.debug("the origin url [{}] was filter to: [{}]", originUrl, url);
         return url;
     }
 
