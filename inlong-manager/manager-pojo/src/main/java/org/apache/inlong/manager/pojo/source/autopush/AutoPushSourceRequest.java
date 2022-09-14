@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
@@ -44,7 +45,7 @@ public class AutoPushSourceRequest extends SourceRequest {
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
     @ApiModelProperty(value = "Data separator")
-    private String dataSeparator;
+    private String dataSeparator = DataSeparator.VERTICAL_BAR.getSeparator();
 
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
