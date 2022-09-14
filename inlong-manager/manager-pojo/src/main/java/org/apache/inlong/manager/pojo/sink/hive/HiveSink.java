@@ -77,7 +77,7 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
-    @ApiModelProperty("Data separator, stored as ASCII code")
+    @ApiModelProperty("Data separator")
     private String dataSeparator;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")

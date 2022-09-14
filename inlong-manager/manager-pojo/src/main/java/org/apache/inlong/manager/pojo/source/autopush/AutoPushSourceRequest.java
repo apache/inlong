@@ -44,10 +44,10 @@ public class AutoPushSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
-    @ApiModelProperty(value = "Data separator, stored as ASCII code")
-    private String dataSeparator = DataSeparator.VERTICAL_BAR.getAsciiCode().toString();
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator = DataSeparator.VERTICAL_BAR.getSeparator();
 
-    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
     public AutoPushSourceRequest() {
