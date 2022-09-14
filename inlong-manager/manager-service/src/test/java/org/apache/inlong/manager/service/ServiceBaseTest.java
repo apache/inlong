@@ -50,6 +50,7 @@ public class ServiceBaseTest extends BaseTest {
     public static final String GLOBAL_GROUP_ID = "global_group";
     public static final String GLOBAL_STREAM_ID = "global_stream";
     public static final String GLOBAL_OPERATOR = "admin";
+    public static final String GLOBAL_CLUSTER_NAME = "global_cluster";
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBaseTest.class);
 
     @Autowired
