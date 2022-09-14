@@ -26,6 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -44,6 +45,7 @@ import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.slf4j.Logger;
@@ -54,6 +56,10 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,8 +91,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             .on(AttributeConstants.SEPARATOR)
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormator =
-            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMddHHmm"));
+    private static final DateTimeFormatter DATE_FORMATTER
+            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final ZoneId defZoneId = ZoneId.systemDefault();
 
     private AbstractSource source;
 
@@ -416,23 +423,19 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         inLongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
                     }
                 }
-
-                long pkgTimeInMillis = inLongMsg.getCreatetime();
-                String pkgTimeStr = dateFormator.get().format(pkgTimeInMillis);
-
-                if (inLongMsgVer == 4) {
-                    if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
-                        pkgTimeStr = commonAttrMap.get(ConfigConstants.PKG_TIME_KEY);
-                    } else {
-                        pkgTimeStr = dateFormator.get().format(System.currentTimeMillis());
-                    }
-                }
-
-                if (commonAttrMap.get(AttributeConstants.DATA_TIME) != null) {
-                    headers.put(AttributeConstants.DATA_TIME, commonAttrMap.get(AttributeConstants.DATA_TIME));
-                } else {
-                    headers.put(AttributeConstants.DATA_TIME, String.valueOf(System.currentTimeMillis()));
-                }
+                // get msgTime
+                long currTIme = System.currentTimeMillis();
+                String strMsgTime = commonAttrMap.get(Constants.HEADER_KEY_MSG_TIME);
+                long pkgTimeInMillis = NumberUtils.toLong(strMsgTime, currTIme);
+                LocalDateTime localDateTime =
+                        LocalDateTime.ofInstant(Instant.ofEpochMilli(pkgTimeInMillis), defZoneId);
+                String pkgTimeStr = DATE_FORMATTER.format(localDateTime);
+                headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(pkgTimeInMillis));
+                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
+                // get data time
+                long dtTime = NumberUtils.toLong(
+                        commonAttrMap.get(AttributeConstants.DATA_TIME), currTIme);
+                headers.put(AttributeConstants.DATA_TIME, String.valueOf(dtTime));
 
                 if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
                     headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
@@ -474,8 +477,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                             .append(SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
-
-                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
                 Event event = EventBuilder.withBody(data, headers);
                 String orderType = "non-order";
                 if (MessageUtils.isSyncSendForOrder(event)) {
