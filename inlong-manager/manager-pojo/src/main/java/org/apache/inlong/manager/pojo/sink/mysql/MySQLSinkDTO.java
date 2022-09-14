@@ -46,7 +46,7 @@ import java.util.Map;
 public class MySQLSinkDTO {
 
     @VisibleForTesting
-    protected final static char SYMBOL = '&';
+    protected static final char SYMBOL = '&';
     /**
      * The sensitive param may lead the attack.
      */
