@@ -29,7 +29,8 @@ public enum DataSeparator {
     DASH("-", 45),
     SOH("\001", 1),
     STX("\002", 2),
-    ETX("\003", 3);
+    ETX("\003", 3),
+    TAB("\t", 9);
 
     private final String separator;
 

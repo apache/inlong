@@ -24,7 +24,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
@@ -233,9 +232,7 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String separator = DataSeparator
-                        .forAscii(Integer.parseInt(pulsarSource.getDataSeparator())).getSeparator();
-                format = new CsvFormat(separator);
+                format = new CsvFormat(pulsarSource.getDataSeparator());
                 break;
             case AVRO:
                 format = new AvroFormat();

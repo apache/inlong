@@ -117,7 +117,7 @@ public class ServiceBaseTest extends BaseTest {
         request.setInlongGroupId(inlongGroupId);
         request.setInlongStreamId(inlongStreamId);
         request.setMqResource(inlongStreamId);
-        request.setDataSeparator("124");
+        request.setDataSeparator("|");
         request.setDataEncoding("UTF-8");
         request.setFieldList(createStreamFields(inlongGroupId, inlongStreamId));
         streamService.save(request, GLOBAL_OPERATOR);
