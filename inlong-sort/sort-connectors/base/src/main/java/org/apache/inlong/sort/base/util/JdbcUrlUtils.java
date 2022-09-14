@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
-
 package org.apache.inlong.sort.base.util;
 
 import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_FALSE;
 import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_TRUE;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +38,11 @@ public class JdbcUrlUtils {
      * @return url after filtering out the invalid property
      */
     public static String replaceInvalidUrlProperty(String url) {
-        if (url.contains(AUTO_DESERIALIZE_TRUE)) {
+        if (StringUtils.containsIgnoreCase(url, AUTO_DESERIALIZE_TRUE)) {
             LOG.info("url {} contains invalid property {}, replace it to {}", url,
                 AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
-            return url.replace(AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
+            return StringUtils.replaceIgnoreCase(url, AUTO_DESERIALIZE_TRUE,
+                AUTO_DESERIALIZE_FALSE);
         }
         return url;
     }

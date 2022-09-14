@@ -105,5 +105,4 @@ public final class Constants {
 
     public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
 
-
 }
