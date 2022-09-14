@@ -141,6 +141,9 @@ class AgentServiceTest extends ServiceBaseTest {
         // check sub-source task status
         StreamSource subSource = sourceService.get(subSourceTask.getTaskId());
         Assertions.assertEquals(SourceStatus.SOURCE_NORMAL.getCode(), subSource.getStatus());
+
+        sourceService.delete(templateId, GLOBAL_OPERATOR);
+        sourceService.delete(subSource.getId(), GLOBAL_OPERATOR);
     }
 
 }
