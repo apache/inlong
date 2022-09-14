@@ -104,7 +104,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'password',
       type: 'password',
       label: i18n.t('meta.Sinks.Password'),
-      rules: [{ required: true }],
+      rules: [{ required: false }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: {
