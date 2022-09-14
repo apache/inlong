@@ -23,9 +23,11 @@ ENV_ARCH=$(uname -m)
 BUILD_ARCH="aarch64"
 POSTFIX="-aarch64"
 
-PLATFORM_AARCH64="--platform linux/arm64/v8"
+PLATFORM_AARCH64="--platform linux/arm64"
 PLATFORM_X86="--platform linux/amd64"
 USE_PLATFORM=""
+
+TYPE=""
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
@@ -51,6 +53,7 @@ for (( i=1; i<=$#; i++)); do
   if [ "${!i}" = "-x" ] || [ "${!i}" = "--buildx" ]; then
     NEED_BUILD=true
     USE_BUILDX="buildx"
+    TYPE="-o type=docker"
     j=$((i+1))
     BUILD_ARCH=${!j}
     if [ "$BUILD_ARCH" != "$ARCH_AARCH64" ] && [ "$BUILD_ARCH" != "$ARCH_X86" ]; then
@@ -128,16 +131,16 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
 fi
 
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg VERSION=${version}
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
-docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg VERSION=${version}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
 if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-  docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/tubemq-all:${tag}    inlong-tubemq/tubemq-docker/tubemq-all/ --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL}
-  docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/tubemq-cpp:${tag}    inlong-tubemq/tubemq-docker/tubemq-cpp/
-  docker ${USE_BUILDX} build ${USE_PLATFORM} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
+  docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-all:${tag}    inlong-tubemq/tubemq-docker/tubemq-all/ --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL}
+  docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-cpp:${tag}    inlong-tubemq/tubemq-docker/tubemq-cpp/
+  docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
 fi
 
 docker tag inlong/manager:${tag}         inlong/manager:latest${POSTFIX}
