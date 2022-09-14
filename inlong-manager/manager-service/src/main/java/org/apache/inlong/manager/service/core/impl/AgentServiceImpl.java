@@ -97,7 +97,7 @@ public class AgentServiceImpl implements AgentService {
 
         // Update task status, other tasks with status 20x will change to 30x in next request
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
-            LOGGER.debug("task result was empty, just return");
+            LOGGER.info("task result was empty in request: {}, just return", request);
             return;
         }
         for (CommandEntity command : request.getCommandInfo()) {
@@ -247,25 +247,22 @@ public class AgentServiceImpl implements AgentService {
         }
 
         // fetch task by cluster name and template source
-        final String destClusterName = sourceEntity.getInlongClusterName();
-        if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(taskRequest.getClusterName())
+        if (Objects.equals(sourceEntity.getInlongClusterName(), taskRequest.getClusterName())
                 && Objects.isNull(sourceEntity.getTemplateId())) {
-
             // is the task already fetched by this agent ?
             List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
             if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
                 return null;
             }
 
-            // if not, clone a sub source for the new agent
-            // note that a new source name with random suffix is generated to adhere to the unique constraint
+            // If not, clone a subtask for this Agent.
+            // Note that a new source name with random suffix is generated to adhere to the unique constraint
             StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
             fileEntity.setExtParams(sourceEntity.getExtParams());
             fileEntity.setAgentIp(agentIp);
             fileEntity.setUuid(uuid);
             fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
             fileEntity.setTemplateId(sourceEntity.getId());
-            int op = getOp(fileEntity.getStatus());
             int nextStatus = getNextStatus(fileEntity.getStatus());
             fileEntity.setStatus(nextStatus);
 
@@ -273,7 +270,7 @@ public class AgentServiceImpl implements AgentService {
             sourceMapper.insert(fileEntity);
 
             // select again to refresh entity version and others.
-            return getDataConfig(sourceMapper.selectById(fileEntity.getId()), op);
+            return getDataConfig(sourceMapper.selectById(fileEntity.getId()), getOp(fileEntity.getStatus()));
         }
 
         return null;
