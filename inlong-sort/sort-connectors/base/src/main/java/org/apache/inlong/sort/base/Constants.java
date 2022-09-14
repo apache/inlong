@@ -94,4 +94,15 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
+
+    /**
+     * It is used for jdbc url filter for avoiding url attack
+     * see also in https://su18.org/post/jdbc-connection-url-attack/
+     */
+    public static final String AUTO_DESERIALIZE = "autoDeserialize";
+
+    public static final String AUTO_DESERIALIZE_TRUE = "autoDeserialize=true";
+
+    public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
+
 }
