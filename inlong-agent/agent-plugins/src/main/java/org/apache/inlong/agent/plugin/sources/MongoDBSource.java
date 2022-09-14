@@ -15,38 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sources.snapshot;
+package org.apache.inlong.agent.plugin.sources;
 
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * PostgreSQL Snapshot
+ * MongoDBSource : mongo source, split mongo source job into multi readers
  */
-public class PostgreSQLSnapshotBase extends AbstractSnapshot {
+public class MongoDBSource extends AbstractSource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
-    private final File file;
-
-    public PostgreSQLSnapshotBase(String filePath) {
-        file = new File(filePath);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBSource.class);
 
     @Override
-    public String getSnapshot() {
-        byte[] offset = this.load(this.file);
-        return ENCODER.encodeToString(offset);
+    public List<Reader> split(JobProfile conf) {
+        super.init(conf);
+        List<Reader> readerList = Collections.singletonList(new MongoDBReader());
+        sourceMetric.sourceSuccessCount.incrementAndGet();
+        return readerList;
     }
-
-    @Override
-    public void close() {
-
-    }
-
-    public File getFile() {
-        return file;
-    }
-
 }

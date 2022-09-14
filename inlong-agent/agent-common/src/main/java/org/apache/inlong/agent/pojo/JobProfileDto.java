@@ -50,6 +50,10 @@ public class JobProfileDto {
      * kafka source
      */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
+    /**
+     * mongo source
+     */
+    public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
 
     private static final Gson GSON = new Gson();
 
@@ -172,6 +176,52 @@ public class JobProfileDto {
         return kafkaJob;
     }
 
+    private static MongoJob getMongoJob(DataConfig dataConfigs) {
+
+        MongoJob.MongoJobTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                MongoJob.MongoJobTaskConfig.class);
+        MongoJob mongoJob = new MongoJob();
+
+        mongoJob.setHosts(config.getHosts());
+        mongoJob.setUser(config.getUser());
+        mongoJob.setPassword(config.getPassword());
+        mongoJob.setDatabaseIncludeList(config.getDatabaseIncludeList());
+        mongoJob.setDatabaseExcludeList(config.getDatabaseExcludeList());
+        mongoJob.setCollectionIncludeList(config.getCollectionIncludeList());
+        mongoJob.setCollectionExcludeList(config.getCollectionExcludeList());
+        mongoJob.setFieldExcludeList(config.getFieldExcludeList());
+        mongoJob.setConnectTimeoutInMs(config.getConnectTimeoutInMs());
+        mongoJob.setQueueSize(config.getQueueSize());
+        mongoJob.setCursorMaxAwaitTimeInMs(config.getCursorMaxAwaitTimeInMs());
+        mongoJob.setSocketTimeoutInMs(config.getSocketTimeoutInMs());
+        mongoJob.setSelectionTimeoutInMs(config.getSelectionTimeoutInMs());
+        mongoJob.setFieldRenames(config.getFieldRenames());
+        mongoJob.setMembersAutoDiscover(config.getMembersAutoDiscover());
+        mongoJob.setConnectMaxAttempts(config.getConnectMaxAttempts());
+        mongoJob.setConnectBackoffMaxDelayInMs(config.getConnectBackoffMaxDelayInMs());
+        mongoJob.setConnectBackoffInitialDelayInMs(config.getConnectBackoffInitialDelayInMs());
+        mongoJob.setInitialSyncMaxThreads(config.getInitialSyncMaxThreads());
+        mongoJob.setSslInvalidHostnameAllowed(config.getSslInvalidHostnameAllowed());
+        mongoJob.setSslEnabled(config.getSslEnabled());
+        mongoJob.setPollIntervalInMs(config.getPollIntervalInMs());
+
+        MongoJob.Offset offset = new MongoJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        mongoJob.setOffset(offset);
+
+        MongoJob.Snapshot snapshot = new MongoJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        mongoJob.setSnapshot(snapshot);
+
+        MongoJob.History history = new MongoJob.History();
+        history.setFilename(config.getHistoryFilename());
+        mongoJob.setHistory(history);
+
+        return mongoJob;
+    }
+
     private static Proxy getProxy(DataConfig dataConfigs) {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
@@ -232,6 +282,12 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case MONGODB:
+                MongoJob mongoJob = getMongoJob(dataConfig);
+                job.setMongoJob(mongoJob);
+                job.setSource(MONGO_SOURCE);
+                profileDto.setJob(job);
+                break;
             default:
         }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
@@ -258,6 +314,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private MongoJob mongoJob;
     }
 
     @Data

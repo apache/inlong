@@ -368,6 +368,7 @@ The text of each license is the standard Apache 2.0 license.
   io.debezium:debezium-api:1.8.0.Final - Debezium API (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   io.debezium:debezium-connector-mysql:1.8.0.Final - Debezium Connector for MySQL (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   io.debezium:debezium-connector-postgres:1.8.0.Final - Debezium Connector for PostgreSQL (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
+  io.debezium:debezium-connector-mongodb:1.8.0.Final - Debezium connector for MongoDB (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   io.debezium:debezium-core:1.8.0.Final - Debezium Core (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   io.debezium:debezium-ddl-parser:1.8.0.Final - Debezium ANTLR DDL parsers (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
   io.debezium:debezium-embedded:1.8.0.Final - Debezium Embedded (https://github.com/debezium/debezium/tree/v1.8.0.Final), (The Apache Software License, Version 2.0)
