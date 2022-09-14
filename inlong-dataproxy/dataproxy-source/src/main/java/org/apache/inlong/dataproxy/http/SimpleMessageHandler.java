@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -44,6 +45,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
+import org.apache.inlong.dataproxy.utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,9 +138,14 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);
         byte[] data = inLongMsg.buildArray();
         headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
+        // add msgTime if not existed
+        long currTIme = System.currentTimeMillis();
+        String strMsgTime = request.getParameter(Constants.HEADER_KEY_MSG_TIME);
+        long pkgTimeInMillis = NumberUtils.toLong(strMsgTime, currTIme);
         LocalDateTime localDateTime =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(inLongMsg.getCreatetime()), defZoneId);
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(pkgTimeInMillis), defZoneId);
         String pkgTime = DATE_FORMATTER.format(localDateTime);
+        headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(pkgTimeInMillis));
         headers.put(ConfigConstants.PKG_TIME_KEY, pkgTime);
         Event event = EventBuilder.withBody(data, headers);
         inLongMsg.reset();
