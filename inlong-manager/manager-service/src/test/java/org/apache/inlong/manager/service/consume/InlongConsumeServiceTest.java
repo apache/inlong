@@ -128,7 +128,6 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         return consumeService.update(request, GLOBAL_OPERATOR);
     }
 
-
     private InlongConsumeCountInfo testCountStatus() {
         return consumeService.countStatus(GLOBAL_OPERATOR);
     }
