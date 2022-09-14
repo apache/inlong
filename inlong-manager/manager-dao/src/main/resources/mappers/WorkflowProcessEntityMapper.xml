@@ -114,7 +114,7 @@
 
     <select id="countByQuery" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessCountRequest"
             resultType="org.apache.inlong.manager.pojo.common.CountInfo">
-        select status as `key`, count(1) as value
+        select status as `key`, count(1) as `value`
         from workflow_process
         <where>
             <if test="name != null and name !=''">

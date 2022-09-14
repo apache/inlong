@@ -19,11 +19,11 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface InlongConsumeEntityMapper {
@@ -32,7 +32,7 @@ public interface InlongConsumeEntityMapper {
 
     InlongConsumeEntity selectById(Integer id);
 
-    List<Map<String, Object>> countByUser(@Param(value = "username") String username);
+    List<CountInfo> countByUser(@Param(value = "username") String username);
 
     List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
 

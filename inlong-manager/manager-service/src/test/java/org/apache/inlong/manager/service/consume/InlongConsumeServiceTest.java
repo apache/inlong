@@ -19,61 +19,77 @@ package org.apache.inlong.manager.service.consume;
 
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
-import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Inlong consume service test
+ * Test for {@link InlongConsumeServiceImpl}
  */
 public class InlongConsumeServiceTest extends ServiceBaseTest {
 
-    String groupId = "consume_group_id";
-    String streamId = "consume_group_id";
-    String consumerGroup = "test_consumer_group";
-    String clusterName = "consume_pulsar";
-    String clusterTag = "consume_cluster";
-    String adminUrl = "http://127.0.0.1:8080";
-    String deadLetterTopic = "test_dlp";
-    String tenant = "public";
+    private final String groupId = "consume_group_id";
+    private final String streamId = "consume_stream_id";
+    private final String consumerGroup = "test_consumer_group";
+    private final String deadLetterTopic = "test_dlp";
 
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
     @Autowired
     private InlongConsumeService consumeService;
     @Autowired
+    private InlongGroupServiceTest groupServiceTest;
+    @Autowired
+    private InlongStreamServiceTest streamServiceTest;
+    @Autowired
     private InlongClusterService clusterService;
 
-    @Test
-    public void testAllProcess() {
-        Integer consumeId = save();
-        update(consumeId);
-        get(consumeId);
-        list();
-        countStatus();
-        delete(consumeId);
+    @BeforeEach
+    public void before() {
+        groupServiceTest.saveGroup(groupId, GLOBAL_OPERATOR);
+        streamServiceTest.saveInlongStream(groupId, streamId, GLOBAL_OPERATOR);
+        // before saving inlong consume, the related MQ cluster must exist
+        this.saveCluster();
     }
 
-    private Integer save() {
-        saveGroup();
-        saveStream();
-        saveCluster();
+    @Test
+    public void testAll() {
+        // test save operation
+        Integer consumeId = this.testSave();
+        Assertions.assertNotNull(consumeId);
 
+        // test get operation
+        InlongConsumeInfo consumeInfo = this.testGet(consumeId);
+        Assertions.assertEquals(consumeInfo.getId(), consumeId);
+
+        // test list operation
+        Assertions.assertTrue(this.testList().getPageSize() > 0);
+
+        // test count status operation
+        InlongConsumeCountInfo countInfo = testCountStatus();
+        Assertions.assertNotNull(countInfo);
+
+        // test update operation
+        Assertions.assertTrue(this.testUpdate(consumeInfo));
+
+        // test delete operation
+        Assertions.assertTrue(this.testDelete(consumeId));
+    }
+
+    private Integer testSave() {
         ConsumePulsarRequest request = new ConsumePulsarRequest();
-        request.setId(1);
         request.setInlongGroupId(groupId);
         request.setInlongStreamId(streamId);
         request.setMqType(MQType.PULSAR);
@@ -83,76 +99,57 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         request.setIsDlq(1);
         request.setDeadLetterTopic(deadLetterTopic);
         request.setIsRlq(0);
-        request.setVersion(1);
         return consumeService.save(request, GLOBAL_OPERATOR);
     }
 
-    private void saveGroup() {
-        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
-        pulsarInfo.setInlongGroupId(groupId);
-        pulsarInfo.setMqType(MQType.PULSAR);
-        pulsarInfo.setCreator(GLOBAL_OPERATOR);
-        pulsarInfo.setInCharges(GLOBAL_OPERATOR);
-        pulsarInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-        pulsarInfo.setInlongClusterTag(clusterTag);
-        pulsarInfo.setEnsemble(3);
-        pulsarInfo.setWriteQuorum(3);
-        pulsarInfo.setAckQuorum(2);
-        groupService.save(pulsarInfo.genRequest(), GLOBAL_OPERATOR);
+    private InlongConsumeInfo testGet(Integer id) {
+        return consumeService.get(id);
     }
 
-    private void saveStream() {
-        InlongStreamRequest streamRequest = new InlongStreamRequest();
-        streamRequest.setInlongGroupId(groupId);
-        streamRequest.setInlongStreamId(streamId);
-        streamRequest.setDataEncoding("UTF-8");
-        streamService.save(streamRequest, GLOBAL_OPERATOR);
-    }
-
-    private void saveCluster() {
-        PulsarClusterRequest request = new PulsarClusterRequest();
-        request.setClusterTags(clusterTag);
-        request.setName(clusterName);
-        request.setType(ClusterType.PULSAR);
-        request.setAdminUrl(adminUrl);
-        request.setTenant(tenant);
-        request.setInCharges(GLOBAL_OPERATOR);
-        clusterService.save(request, GLOBAL_OPERATOR);
-    }
-
-    private void list() {
+    private PageResult<InlongConsumeBriefInfo> testList() {
         InlongConsumePageRequest request = new InlongConsumePageRequest();
         request.setPageNum(1);
         request.setPageSize(10);
         request.setOrderField(OrderFieldEnum.CREATE_TIME.name());
         request.setOrderType(OrderTypeEnum.DESC.name());
         request.setConsumerGroup(consumerGroup);
-        consumeService.list(request);
+        return consumeService.list(request);
     }
 
-    private void countStatus() {
-        consumeService.countStatus(GLOBAL_OPERATOR);
-    }
-
-    private void delete(Integer id) {
-        consumeService.delete(id, GLOBAL_OPERATOR);
-    }
-
-    private void update(Integer id) {
+    private Boolean testUpdate(InlongConsumeInfo consumeInfo) {
         ConsumePulsarRequest request = new ConsumePulsarRequest();
-        request.setId(id);
+        request.setId(consumeInfo.getId());
         request.setMqType(MQType.PULSAR);
-        request.setInCharges("test_update");
-        request.setVersion(1);
+        request.setInlongGroupId(groupId);
         request.setIsDlq(1);
         request.setDeadLetterTopic(deadLetterTopic);
         request.setIsRlq(0);
-        request.setInlongGroupId(groupId);
-        consumeService.update(request, GLOBAL_OPERATOR);
+        request.setVersion(consumeInfo.getVersion());
+        return consumeService.update(request, GLOBAL_OPERATOR);
     }
 
-    private void get(Integer id) {
-        consumeService.get(id);
+
+    private InlongConsumeCountInfo testCountStatus() {
+        return consumeService.countStatus(GLOBAL_OPERATOR);
+    }
+
+    private Boolean testDelete(Integer id) {
+        return consumeService.delete(id, GLOBAL_OPERATOR);
+    }
+
+    private void saveCluster() {
+        PulsarClusterRequest request = new PulsarClusterRequest();
+        String clusterTag = "consume_cluster_tag";
+        request.setClusterTags(clusterTag);
+        String clusterName = "consume_pulsar_cluster";
+        request.setName(clusterName);
+        request.setType(ClusterType.PULSAR);
+        String adminUrl = "http://127.0.0.1:8080";
+        request.setAdminUrl(adminUrl);
+        String tenant = "public";
+        request.setTenant(tenant);
+        request.setInCharges(GLOBAL_OPERATOR);
+        clusterService.save(request, GLOBAL_OPERATOR);
     }
 
 }

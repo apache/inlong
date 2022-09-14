@@ -65,8 +65,8 @@
         from inlong_consume
         where id = #{id, jdbcType=INTEGER}
     </select>
-    <select id="countByUser" resultType="java.util.Map">
-        select status, count(1) as total
+    <select id="countByUser" resultType="org.apache.inlong.manager.pojo.common.CountInfo">
+        select status as `key`, count(1) as `value`
         from inlong_consume
         where is_deleted = 0
           and (creator = #{username, jdbcType=VARCHAR} or FIND_IN_SET(#{username, jdbcType=VARCHAR}, in_charges))
