@@ -247,16 +247,19 @@ public class AgentServiceImpl implements AgentService {
         }
 
         // fetch task by cluster name and template source
-        if (Objects.equals(sourceEntity.getInlongClusterName(), taskRequest.getClusterName())
-                && Objects.isNull(sourceEntity.getTemplateId())) {
+        String destClusterName = sourceEntity.getInlongClusterName();
+        boolean isTemplateTask = sourceEntity.getTemplateId() == null
+                && StringUtils.isNotBlank(destClusterName)
+                && destClusterName.equals(taskRequest.getClusterName());
+        if (isTemplateTask) {
             // is the task already fetched by this agent ?
             List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
             if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
                 return null;
             }
 
-            // If not, clone a subtask for this Agent.
-            // Note that a new source name with random suffix is generated to adhere to the unique constraint
+            // if not, clone a subtask for this Agent.
+            // note: a new source name with random suffix is generated to adhere to the unique constraint
             StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
             fileEntity.setExtParams(sourceEntity.getExtParams());
             fileEntity.setAgentIp(agentIp);
