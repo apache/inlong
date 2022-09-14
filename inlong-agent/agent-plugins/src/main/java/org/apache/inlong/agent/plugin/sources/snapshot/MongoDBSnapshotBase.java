@@ -17,27 +17,36 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 /**
- * PostgreSQL Snapshot
+ * MongoDBSnapshotBase : mongo snapshot
  */
-public class PostgreSQLSnapshotBase extends AbstractSnapshot {
+public class MongoDBSnapshotBase extends AbstractSnapshot {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLSnapshotBase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBSnapshotBase.class);
+    /**
+     * agent configuration
+     */
+    private static final AgentConfiguration AGENT_CONFIGURATION = AgentConfiguration.getAgentConf();
+    /**
+     * snapshot file
+     */
     private final File file;
 
-    public PostgreSQLSnapshotBase(String filePath) {
+    public MongoDBSnapshotBase(String filePath) {
         file = new File(filePath);
     }
 
     @Override
     public String getSnapshot() {
-        byte[] offset = this.load(this.file);
-        return ENCODER.encodeToString(offset);
+        return ENCODER.encodeToString(this.load(file));
     }
 
     @Override
@@ -45,8 +54,11 @@ public class PostgreSQLSnapshotBase extends AbstractSnapshot {
 
     }
 
-    public File getFile() {
-        return file;
+    public static String getSnapshotFilePath() {
+        String historyPath = AGENT_CONFIGURATION.get(
+                AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
+        String parentPath = AGENT_CONFIGURATION.get(
+                AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
+        return AgentUtils.makeDirsIfNotExist(historyPath, parentPath).getAbsolutePath();
     }
-
 }

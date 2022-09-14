@@ -29,5 +29,9 @@ public class DebeziumSourceFormat {
     private String db;
 
     private String table;
+    /**
+     * mongo source metadata
+     */
+    private String collection;
 
 }

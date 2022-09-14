@@ -155,7 +155,7 @@ public class BinlogReader extends AbstractReader {
                 tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         String offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
-        binlogSnapshot.save(offset);
+        binlogSnapshot.save(offset, binlogSnapshot.getFile());
 
         Properties props = getEngineProps();
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(io.debezium.engine.format.Json.class)
