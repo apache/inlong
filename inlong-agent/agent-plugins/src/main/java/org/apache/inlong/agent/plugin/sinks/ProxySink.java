@@ -103,8 +103,6 @@ public class ProxySink extends AbstractSink {
                                 }
                                 // add message to package proxy
                                 packProxyMessage.addProxyMessage(proxyMessage);
-                                // update msgTime
-                                packProxyMessage.updateMsgTime(System.currentTimeMillis());
                                 return packProxyMessage;
                             });
                     // increment the count of successful sinks
@@ -151,13 +149,13 @@ public class ProxySink extends AbstractSink {
                     cache.forEach((batchKey, packProxyMessage) -> {
                         Pair<String, List<byte[]>> result = packProxyMessage.fetchBatch();
                         if (result != null) {
-                            long sendTime = packProxyMessage.getMsgTime();
+                            long sendTime = AgentUtils.getCurrentTime();
                             if (syncSend) {
                                 senderManager.sendBatchSync(inlongGroupId, result.getKey(), result.getValue(),
                                         0, sendTime, packProxyMessage.getExtraMap());
                             } else {
                                 senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
-                                        result.getValue(), 0, sendTime, packProxyMessage.getExtraMap());
+                                        result.getValue(), 0, sendTime);
                             }
                             LOGGER.info("send group id {}, message key {},with message size {}, the job id is {}, "
                                             + "read source is {} sendTime is {} syncSend {}", inlongGroupId, batchKey,

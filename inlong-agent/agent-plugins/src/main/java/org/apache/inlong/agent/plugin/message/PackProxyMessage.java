@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.message;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.message.ProxyMessage;
-import org.apache.inlong.common.msg.AttributeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,19 +70,6 @@ public class PackProxyMessage {
     public void generateExtraMap(boolean syncSend, String dataKey) {
         this.extraMap.put("syncSend", String.valueOf(syncSend));
         this.extraMap.put("partitionKey", dataKey);
-    }
-
-    /**
-     * Update msgTime, use the latest time as msgTime if there are multiple messages
-     */
-    public void updateMsgTime(long msgTime) {
-        this.extraMap.put(AttributeConstants.MSG_TIME, String.valueOf(msgTime));
-    }
-
-    public long getMsgTime() {
-        String msgTimeStr = extraMap.computeIfAbsent(AttributeConstants.MSG_TIME,
-                k -> String.valueOf(System.currentTimeMillis()));
-        return Long.parseLong(msgTimeStr);
     }
 
     /**
