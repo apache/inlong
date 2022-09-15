@@ -31,12 +31,15 @@ public class AuditVO {
     private String auditId;
     @ApiModelProperty(value = "Audit set")
     private List<AuditInfo> auditSet;
+    @ApiModelProperty(value = "Node type")
+    private String nodeType;
 
     public AuditVO() {
     }
 
-    public AuditVO(String auditId, List<AuditInfo> auditSet) {
+    public AuditVO(String auditId, List<AuditInfo> auditSet, String nodeType) {
         this.auditId = auditId;
         this.auditSet = auditSet;
+        this.nodeType = nodeType;
     }
 }
