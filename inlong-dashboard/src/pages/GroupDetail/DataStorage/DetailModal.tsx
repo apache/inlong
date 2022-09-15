@@ -18,12 +18,12 @@
  */
 
 import React, { useMemo, useState, useCallback } from 'react';
-import { Modal, message } from 'antd';
+import { Skeleton, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import FormGenerator, { useForm, FormItemProps } from '@/components/FormGenerator';
-import { Sinks, SinkType } from '@/metas/sinks';
+import { sinks } from '@/metas/sinks';
 import request from '@/utils/request';
 
 export interface DetailModalProps extends ModalProps {
@@ -34,7 +34,7 @@ export interface DetailModalProps extends ModalProps {
   onOk?: (values) => void;
 }
 
-const SinksMap: Record<string, SinkType> = Sinks.reduce(
+const sinksMap: Record<string, typeof sinks[0]> = sinks.reduce(
   (acc, cur) => ({
     ...acc,
     [cur.value]: cur,
@@ -47,13 +47,13 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
 
   const { t } = useTranslation();
 
-  const [currentValues, setCurrentValues] = useState({});
-
-  const [sinkType, setSinkType] = useState(Sinks[0].value);
+  // Q: Why sinkType default = '' ?
+  // A: Avoid the table of the fields triggering the monitoring of the column change.
+  const [sinkType, setSinkType] = useState('');
 
   const toFormVals = useCallback(
     v => {
-      const mapFunc = SinksMap[sinkType]?.toFormValues;
+      const mapFunc = sinksMap[sinkType]?.toFormValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [sinkType],
@@ -61,26 +61,26 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
 
   const toSubmitVals = useCallback(
     v => {
-      const mapFunc = SinksMap[sinkType]?.toSubmitValues;
+      const mapFunc = sinksMap[sinkType]?.toSubmitValues;
       return mapFunc ? mapFunc(v) : v;
     },
     [sinkType],
   );
 
-  const { data, run: getData } = useRequest(
+  const {
+    data,
+    loading,
+    run: getData,
+  } = useRequest(
     id => ({
       url: `/sink/get/${id}`,
-      params: {
-        sinkType,
-      },
     }),
     {
       manual: true,
       formatResult: result => toFormVals(result),
       onSuccess: result => {
-        form.setFieldsValue(result);
-        setCurrentValues(result);
         setSinkType(result.sinkType);
+        form.setFieldsValue(result);
       },
     },
   );
@@ -91,22 +91,16 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
       if (id) {
         getData(id);
       } else {
-        form.resetFields(); // Note that it will cause the form to remount to initiate a select request
-        setSinkType(Sinks[0].value);
+        setSinkType(sinks[0].value);
       }
     } else {
-      setCurrentValues({});
+      form.resetFields();
+      setSinkType('');
     }
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const getForm = SinksMap[sinkType].getForm;
-    const config = getForm('form', {
-      currentValues,
-      inlongGroupId,
-      isEdit: !!id,
-      form,
-    }) as FormItemProps[];
+    const currentForm = sinksMap[sinkType]?.form || [];
     return [
       {
         type: 'select',
@@ -134,45 +128,9 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
           },
         },
         rules: [{ required: true }],
-      },
-      {
-        name: 'sinkName',
-        type: 'input',
-        label: t('meta.Sinks.SinkName'),
-        rules: [
-          { required: true },
-          {
-            pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
-            message: t('meta.Sinks.SinkNameRule'),
-          },
-        ],
-        props: {
-          disabled: !!id,
-        },
-      },
-      {
-        name: 'sinkType',
-        type: 'select',
-        label: t('meta.Sinks.SinkType'),
-        rules: [{ required: true }],
-        initialValue: Sinks[0].value,
-        props: {
-          disabled: !!id,
-          options: Sinks,
-          onChange: value => setSinkType(value),
-        },
-      },
-      {
-        name: 'description',
-        type: 'textarea',
-        label: t('meta.Sinks.Description'),
-        props: {
-          showCount: true,
-          maxLength: 300,
-        },
       } as FormItemProps,
-    ].concat(config);
-  }, [sinkType, inlongGroupId, id, currentValues, form, t]);
+    ].concat(currentForm);
+  }, [sinkType, inlongGroupId, id, t]);
 
   const onOk = async () => {
     const values = await form.validateFields();
@@ -195,20 +153,20 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
     message.success(t('basic.OperatingSuccess'));
   };
 
-  const onValuesChangeHandler = (...rest) => {
-    setCurrentValues(prev => ({ ...prev, ...rest[1] }));
-  };
-
   return (
-    <Modal title={SinksMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
-      <FormGenerator
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 20 }}
-        content={formContent}
-        form={form}
-        initialValues={data}
-        onValuesChange={onValuesChangeHandler}
-      />
+    <Modal title={sinksMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
+      {loading ? (
+        <Skeleton active />
+      ) : (
+        <FormGenerator
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 12 }}
+          content={formContent}
+          form={form}
+          initialValues={id ? data : {}}
+          onValuesChange={(c, values) => setSinkType(values.sinkType)}
+        />
+      )}
     </Modal>
   );
 };

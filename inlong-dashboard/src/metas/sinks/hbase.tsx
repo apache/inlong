@@ -15,19 +15,11 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import {
-  getColsFromFields,
-  GetStorageColumnsType,
-  GetStorageFormFieldsType,
-} from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
-import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
-import { excludeObject } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
+import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-// hbaseFieldTypes
 const hbaseFieldTypes = [
   'int',
   'short',
@@ -43,119 +35,105 @@ const hbaseFieldTypes = [
   value: item,
 }));
 
-const getForm: GetStorageFormFieldsType = (
-  type,
-  { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
-) => {
-  const fileds = [
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.HBase.Namespace'),
-      name: 'namespace',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: { width: 500 },
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.HBase.TableName'),
-      name: 'tableName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.HBase.RowKey'),
-      name: 'rowKey',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.HBase.ZkQuorum'),
-      name: 'zkQuorum',
-      rules: [{ required: true }],
-      props: {
-        placeholder: '127.0.0.1:2181,127.0.0.2:2181',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.HBase.ZkNodeParent'),
-      name: 'zkNodeParent',
-      rules: [{ required: true }],
-      props: {
-        placeholder: '/hbase',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.HBase.BufferFlushMaxSize'),
-      name: 'bufferFlushMaxSize',
-      initialValue: 2,
-      rules: [{ required: true }],
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      suffix: 'mb',
-      _inTable: true,
-    },
-    {
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.HBase.BufferFlushMaxRows'),
-      name: 'bufferFlushMaxRows',
-      initialValue: 1000,
-      rules: [{ required: true }],
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.HBase.BufferFlushInterval'),
-      name: 'bufferFlushInterval',
-      initialValue: 1,
-      rules: [{ required: true }],
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      suffix: i18n.t('meta.Sinks.HBase.FlushIntervalUnit'),
-      _inTable: true,
-    },
-    {
-      type: (
-        <EditableTable
-          size="small"
-          columns={getFieldListColumns(dataType, currentValues)}
-          canDelete={(record, idx, isNew) => !isEdit || isNew}
-        />
-      ),
-      name: 'sinkFieldList',
-    },
-  ];
+export const hbase: FieldItemType[] = [
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.HBase.Namespace'),
+    name: 'namespace',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.HBase.TableName'),
+    name: 'tableName',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.HBase.RowKey'),
+    name: 'rowKey',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.HBase.ZkQuorum'),
+    name: 'zkQuorum',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:2181,127.0.0.2:2181',
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.HBase.ZkNodeParent'),
+    name: 'zkNodeParent',
+    initialValue: '/hbase',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.HBase.BufferFlushMaxSize'),
+    name: 'bufferFlushMaxSize',
+    initialValue: 2,
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+    suffix: 'mb',
+  },
+  {
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.HBase.BufferFlushMaxRows'),
+    name: 'bufferFlushMaxRows',
+    initialValue: 1000,
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+  },
+  {
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.HBase.BufferFlushInterval'),
+    name: 'bufferFlushInterval',
+    initialValue: 1,
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+    suffix: i18n.t('meta.Sinks.HBase.FlushIntervalUnit'),
+  },
+  {
+    name: 'sinkFieldList',
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      canDelete: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  },
+];
 
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
-};
-
-const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
@@ -170,7 +148,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -180,7 +158,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: hbaseFieldTypes,
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
@@ -189,7 +167,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'cfName',
       type: 'input',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
@@ -199,17 +177,9 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       type: 'inputnumber',
       props: (text, record, idx, isNew) => ({
         min: 1,
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
-  ] as ColumnsItemProps[];
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const hbase = {
-  getForm,
-  getFieldListColumns,
-  tableColumns,
+  ];
 };

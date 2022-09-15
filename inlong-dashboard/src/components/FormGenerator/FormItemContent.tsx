@@ -17,10 +17,11 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Col, Row, Form, Space } from 'antd';
 import { FormItemProps as AntdFormItemProps } from 'antd/lib/form';
+import TextSwitch from '@/components/TextSwitch';
 import plugins from './plugins';
 
 type PluginsTypes = keyof typeof plugins;
@@ -38,6 +39,7 @@ export interface FormItemProps extends AntdFormItemProps {
   suffix?: React.ReactNode | SuffixDefineType;
   // The extra name will not be rendered on the page, but will be automatically collected when the form getValues
   extraNames?: string[];
+  isPro?: boolean;
 }
 
 export interface FormItemContentProps {
@@ -51,133 +53,141 @@ export interface FormItemContentProps {
   values?: Record<string, unknown>;
 }
 
+// Form atomic component
+const Comp = ({ type, ...props }: { type: PluginsTypes }) => {
+  const Comp = plugins[(type as string) || 'input'];
+  return <Comp {...props} />;
+};
+
+const FormItem = ({ type: T, formItemProps, useSpace, props }) => {
+  return (
+    <Form.Item {...formItemProps} noStyle={useSpace}>
+      {typeof T === 'string' ? (
+        <Comp type={T} {...props} />
+      ) : React.isValidElement(T) ? (
+        T
+      ) : (
+        <T {...props} />
+      )}
+    </Form.Item>
+  );
+};
+
+const Content = ({ useSpace, suffix, extra, children, label, required, style }) => {
+  return useSpace ? (
+    <Form.Item label={label} required={required} style={style} extra={extra}>
+      <Space>
+        {children}
+        {suffix}
+      </Space>
+    </Form.Item>
+  ) : (
+    children
+  );
+};
+
 const FormItemContent: React.FC<FormItemContentProps> = ({
   content,
   useInline = false,
   target,
   values = {},
 }) => {
-  // Form atomic component
-  const Comp = useMemo(
-    () =>
-      ({ type, ...props }: { type: PluginsTypes }) => {
-        const Comp = plugins[(type as string) || 'input'];
-        return <Comp {...props} />;
-      },
-    [],
-  );
+  const [proOpened, setProOpened] = useState(false);
 
-  const FormItem = useMemo(
-    () =>
-      ({ type: T, formItemProps, useSpace, props }) => {
-        return (
-          <Form.Item {...formItemProps} noStyle={useSpace}>
-            {typeof T === 'string' ? (
-              <Comp type={T} {...props} />
-            ) : React.isValidElement(T) ? (
-              T
-            ) : (
-              <T {...props} />
-            )}
-          </Form.Item>
+  const body = useMemo(() => {
+    let proIndex = -1;
+    const conts = content.map(
+      (
+        {
+          visible = true,
+          type = 'text',
+          col,
+          suffix,
+          props,
+          extraNames = [],
+          isPro,
+          ...formItemProps
+        },
+        index,
+      ) => {
+        if (
+          visible === false ||
+          (typeof visible === 'function' && values && !!visible(values) === false)
+        ) {
+          return null;
+        }
+        if (isPro) {
+          proIndex = index;
+          formItemProps.hidden = !proOpened || Boolean(formItemProps.hidden);
+        }
+        const key = formItemProps.name || index.toString();
+        const useSpace = !!suffix;
+        (formItemProps.wrapperCol as any) = formItemProps.label ? undefined : 24;
+
+        const inner = (
+          <Content
+            key={key.toString()}
+            label={formItemProps.label}
+            extra={formItemProps.extra}
+            required={formItemProps.rules?.some(item => (item as any).required)}
+            suffix={(() => {
+              if ((suffix as SuffixDefineType)?.type) {
+                const {
+                  type,
+                  visible = true,
+                  props,
+                  ...formItemProps
+                } = suffix as SuffixDefineType;
+                return (
+                  ((typeof visible === 'boolean' && visible !== false) ||
+                    (typeof visible === 'function' && visible(values) !== false)) && (
+                    <FormItem
+                      type={type}
+                      formItemProps={formItemProps}
+                      useSpace={useSpace}
+                      props={props}
+                    />
+                  )
+                );
+              }
+
+              return suffix;
+            })()}
+            useSpace={useSpace}
+            style={formItemProps.style}
+          >
+            <FormItem type={type} formItemProps={formItemProps} useSpace={useSpace} props={props} />
+            {extraNames.map(nameItem => (
+              <FormItem
+                key={nameItem}
+                type="text"
+                formItemProps={{ name: nameItem, hidden: true }}
+                useSpace={false}
+                props={{}}
+              />
+            ))}
+          </Content>
+        );
+
+        return useInline ? (
+          inner
+        ) : (
+          <Col key={key.toString()} span={col || 24}>
+            {inner}
+          </Col>
         );
       },
-    // eslint-disable-next-line
-    [],
-  );
+    );
+    if (proIndex >= 0) {
+      conts.splice(
+        proIndex,
+        0,
+        <TextSwitch key="_pro" value={proOpened} onChange={v => setProOpened(v)} />,
+      );
+    }
 
-  const Content = useMemo(
-    () =>
-      ({ useSpace, suffix, extra, children, label, required, style }) =>
-        useSpace ? (
-          <Form.Item label={label} required={required} style={style} extra={extra}>
-            <Space>
-              {children}
-              {suffix}
-            </Space>
-          </Form.Item>
-        ) : (
-          children
-        ),
-    [],
-  );
-
-  const body = useMemo(
-    () =>
-      content.map(
-        (
-          { visible = true, type = 'text', col, suffix, props, extraNames = [], ...formItemProps },
-          index,
-        ) => {
-          if (visible === false || (typeof visible === 'function' && !!visible(values) === false)) {
-            return null;
-          }
-          const key = formItemProps.name || index.toString();
-          const useSpace = !!suffix;
-          (formItemProps.wrapperCol as any) = formItemProps.label ? undefined : 24;
-
-          const inner = (
-            <Content
-              key={key.toString()}
-              label={formItemProps.label}
-              extra={formItemProps.extra}
-              required={formItemProps.rules?.some(item => (item as any).required)}
-              suffix={(() => {
-                if ((suffix as SuffixDefineType)?.type) {
-                  const {
-                    type,
-                    visible = true,
-                    props,
-                    ...formItemProps
-                  } = suffix as SuffixDefineType;
-                  return (
-                    ((typeof visible === 'boolean' && visible !== false) ||
-                      (typeof visible === 'function' && visible(values) !== false)) && (
-                      <FormItem
-                        type={type}
-                        formItemProps={formItemProps}
-                        useSpace={useSpace}
-                        props={props}
-                      />
-                    )
-                  );
-                }
-
-                return suffix;
-              })()}
-              useSpace={useSpace}
-              style={formItemProps.style}
-            >
-              <FormItem
-                type={type}
-                formItemProps={formItemProps}
-                useSpace={useSpace}
-                props={props}
-              />
-              {extraNames.map(nameItem => (
-                <FormItem
-                  key={nameItem}
-                  type="text"
-                  formItemProps={{ name: nameItem, hidden: true }}
-                  useSpace={false}
-                  props={{}}
-                />
-              ))}
-            </Content>
-          );
-
-          return useInline ? (
-            inner
-          ) : (
-            <Col key={key.toString()} span={col || 24}>
-              {inner}
-            </Col>
-          );
-        },
-      ),
-    // eslint-disable-next-line
-    [content, useInline, values],
-  );
+    return conts;
+  }, [content, useInline, values, proOpened]);
 
   const renderBody = useInline ? <>{body}</> : <Row gutter={20}>{body}</Row>;
   const targetResult = target ? createPortal(renderBody, target) : renderBody;
