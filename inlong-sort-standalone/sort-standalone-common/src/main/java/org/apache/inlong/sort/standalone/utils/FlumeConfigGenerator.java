@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.utils;
 
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.commons.node.InlongSinkProcessor;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
 import java.util.HashMap;
@@ -46,7 +47,39 @@ public class FlumeConfigGenerator {
         appendSinks(flumeConf, name, sinkParams);
         // sources
         appendSources(flumeConf, name, sinkParams);
+        // sink groups
+        appendSinkGroups(flumeConf, name);
         return flumeConf;
+    }
+
+    /**
+     * append sink groups
+     */
+    private static void appendSinkGroups(Map<String, String> flumeConf, String name) {
+        StringBuilder builder = new StringBuilder();
+        String prefix = builder.append(name).append(".sinkgroups.sg1.").toString();
+        builder.setLength(0);
+        // sinks
+        String sinks = builder.append(prefix).append("sinks").toString();
+        String sinkName = name + "Sink";
+        flumeConf.put(sinks, sinkName);
+        // type
+        builder.setLength(0);
+        String type = builder.append(prefix).append("processor.type").toString();
+        flumeConf.put(type, InlongSinkProcessor.class.getName());
+        // backoffSleepIncrementMs
+        builder.setLength(0);
+        String backoffSleepIncrementMs = builder.append(prefix).append("processor.backoffSleepIncrementMs").toString();
+        flumeConf.put(backoffSleepIncrementMs,
+                CommonPropertiesHolder.getLong(InlongSinkProcessor.KEY_BACKOFFSLEEPINCREMENT_MS,
+                        InlongSinkProcessor.DEFAULT_BACKOFFSLEEPINCREMENT_MS).toString());
+        // maxBackoffSleepMs
+        builder.setLength(0);
+        String maxBackoffSleepMs = builder.append(prefix).append("processor.maxBackoffSleepMs").toString();
+        flumeConf.put(maxBackoffSleepMs, InlongSinkProcessor.class.getName());
+        flumeConf.put(maxBackoffSleepMs,
+                CommonPropertiesHolder.getLong(InlongSinkProcessor.KEY_MAXBACKOFFSLEEP_MS,
+                        InlongSinkProcessor.DEFAULT_MAXBACKOFFSLEEP_MS).toString());
     }
 
     /**

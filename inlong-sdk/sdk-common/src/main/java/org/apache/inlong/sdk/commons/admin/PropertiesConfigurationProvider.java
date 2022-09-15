@@ -17,13 +17,21 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 import org.apache.flume.conf.FlumeConfiguration;
 import org.apache.flume.node.AbstractConfigurationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * PropertiesConfigurationProvider
@@ -32,6 +40,7 @@ public class PropertiesConfigurationProvider extends
         AbstractConfigurationProvider {
 
     public static final Logger LOG = LoggerFactory.getLogger(PropertiesConfigurationProvider.class);
+    private static final String DEFAULT_PROPERTIES_IMPLEMENTATION = "java.util.Properties";
 
     private final Map<String, String> flumeConf;
 
@@ -47,6 +56,17 @@ public class PropertiesConfigurationProvider extends
     }
 
     /**
+     * PropertiesConfigurationProvider
+     * 
+     * @param rootName
+     * @param flumeFile
+     */
+    public PropertiesConfigurationProvider(String rootName, File flumeFile) {
+        super(rootName);
+        this.flumeConf = getFlumeConf(flumeFile);
+    }
+
+    /**
      * getFlumeConfiguration
      * 
      * @return
@@ -59,5 +79,43 @@ public class PropertiesConfigurationProvider extends
             LOG.error("exception catch:" + e.getMessage(), e);
         }
         return new FlumeConfiguration(new HashMap<String, String>());
+    }
+
+    /**
+     * getFlumeConf
+     * @param file
+     * @return
+     */
+    public static Map<String, String> getFlumeConf(File file) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String resolverClassName = System.getProperty("propertiesImplementation",
+                    DEFAULT_PROPERTIES_IMPLEMENTATION);
+            Class<? extends Properties> propsclass = Class.forName(resolverClassName)
+                    .asSubclass(Properties.class);
+            Properties properties = propsclass.newInstance();
+            properties.load(reader);
+            Map<String, String> result = Maps.newHashMap();
+            Enumeration<?> propertyNames = properties.propertyNames();
+            while (propertyNames.hasMoreElements()) {
+                String name = (String) propertyNames.nextElement();
+                String value = properties.getProperty(name);
+                result.put(name, value);
+            }
+            return result;
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ex) {
+                    LOG.warn(
+                            "Unable to close file reader for file: " + file, ex);
+                }
+            }
+        }
+        return new HashMap<>();
     }
 }

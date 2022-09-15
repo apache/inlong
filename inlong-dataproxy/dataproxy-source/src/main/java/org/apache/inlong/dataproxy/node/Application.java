@@ -52,7 +52,7 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
-import org.apache.inlong.sdk.commons.node.InlongConfigurationProvider;
+import org.apache.inlong.sdk.commons.admin.PropertiesConfigurationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -415,8 +415,8 @@ public class Application {
                     application = new Application(components);
                     eventBus.register(application);
                 } else {
-                    InlongConfigurationProvider provider = new InlongConfigurationProvider(
-                            agentName, configurationFile, CommonPropertiesHolder.get());
+                    PropertiesConfigurationProvider provider = new PropertiesConfigurationProvider(
+                            agentName, configurationFile);
                     application = new Application();
                     application.handleConfigurationEvent(provider.getConfiguration());
                 }
