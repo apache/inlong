@@ -91,8 +91,6 @@ public class InlongSinkProcessor implements SinkProcessor {
 
     /**
      * process
-     * @return
-     * @throws EventDeliveryException
      */
     @Override
     public Status process() throws EventDeliveryException {
