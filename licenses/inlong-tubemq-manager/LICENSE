@@ -452,6 +452,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.springframework:spring-web:5.3.20 - Spring Web (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.springframework:spring-webmvc:5.3.18 - Spring Web MVC (https://github.com/spring-projects/spring-framework), (Apache License, Version 2.0)
   org.apache.tomcat.embed:tomcat-embed-core:9.0.60 - tomcat-embed-core (https://tomcat.apache.org/), (Apache License, Version 2.0)
+  io.netty:netty-common:4.1.72.Final - Netty/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
 
 
 ========================================================================
