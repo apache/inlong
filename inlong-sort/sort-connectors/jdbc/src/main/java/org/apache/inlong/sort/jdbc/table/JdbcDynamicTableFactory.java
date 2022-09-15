@@ -220,8 +220,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     }
 
     private JdbcOptions getJdbcOptions(ReadableConfig readableConfig) {
-        final String url = readableConfig.get(URL);
-        JdbcUrlUtils.replaceInvalidUrlProperty(url);
+        String url = JdbcUrlUtils.replaceInvalidUrlProperty(readableConfig.get(URL));
         Optional<String> dialectImplOptional = readableConfig.getOptional(DIALECT_IMPL);
         Optional<JdbcDialect> jdbcDialect;
         if (dialectImplOptional.isPresent()) {
