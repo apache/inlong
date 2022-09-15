@@ -17,6 +17,10 @@
 
 package org.apache.inlong.tubemq.corebase.daemon;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,24 +33,26 @@ public abstract class AbstractDaemonService implements Service, Runnable {
     private final Thread daemon;
     private final AtomicBoolean shutdown =
             new AtomicBoolean(false);
+    private final ScheduledExecutorService processorExecutor;
 
     public AbstractDaemonService(final String serviceName, final long intervalMs) {
         this.name = serviceName;
         this.intervalMs = intervalMs;
         this.daemon = new Thread(this, serviceName + "-daemon-thread");
         this.daemon.setDaemon(true);
+        this.processorExecutor = Executors
+                .newSingleThreadScheduledExecutor(
+                        new DefaultThreadFactory("tubemq-core-loop-processor"));
     }
 
     @Override
     public void run() {
         logger.info(new StringBuilder(256).append(name)
                 .append("-daemon-thread started").toString());
-        this.loopProcess(this.intervalMs);
-        logger.info(new StringBuilder(256).append(name)
-                .append("-daemon-thread stopped").toString());
+        processorExecutor.schedule(this::loopProcess, intervalMs, TimeUnit.MILLISECONDS);
     }
 
-    protected abstract void loopProcess(long intervalMs);
+    protected abstract void loopProcess();
 
     @Override
     public void start() {
@@ -66,14 +72,7 @@ public abstract class AbstractDaemonService implements Service, Runnable {
         if (this.shutdown.compareAndSet(false, true)) {
             logger.info(new StringBuilder(256).append(name)
                     .append("-daemon-thread closing ......").toString());
-            try {
-                if (this.daemon != null) {
-                    this.daemon.interrupt();
-                    this.daemon.join();
-                }
-            } catch (Throwable e) {
-                //
-            }
+            this.processorExecutor.shutdown();
             logger.info(new StringBuilder(256).append(name)
                     .append("-daemon-thread stopped!").toString());
             return false;
