@@ -49,10 +49,4 @@ public class AuditController {
         return Response.success(auditService.listByCondition(request));
     }
 
-    @GetMapping(value = "/audit/listByRole")
-    @ApiOperation(value = "Query audit list according to user role")
-    public Response<List<AuditVO>> listByRole(@Valid AuditRequest request) throws IOException {
-        return Response.success(auditService.listByRole(request));
-    }
-
 }

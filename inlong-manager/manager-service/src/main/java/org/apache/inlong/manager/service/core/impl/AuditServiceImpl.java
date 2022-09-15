@@ -19,10 +19,13 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.AuditConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
@@ -76,17 +79,10 @@ public class AuditServiceImpl implements AuditService {
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
-    private static final List<String> AUDIT_ID_FOR_ADMIN = Arrays.asList(
-            AuditConstants.AUDIT_ID_AGENT_COLLECT,
-            AuditConstants.AUDIT_ID_AGENT_SENT,
-            AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED,
-            AuditConstants.AUDIT_ID_DATAPROXY_SENT,
-            AuditConstants.AUDIT_ID_SORT_INPUT,
-            AuditConstants.AUDIT_ID_SORT_OUTPUT);
-
-    private static final List<String> AUDIT_ID_FOR_USER = Arrays.asList(
-            AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED,
-            AuditConstants.AUDIT_ID_SORT_OUTPUT);
+    @Value("#{'${audit.admin.ids:3,4,5,6,7,8}'.split(',')}")
+    private List<String> auditIdListForAdmin;
+    @Value("#{'${audit.user.ids:3,4,5,6,7,8}'.split(',')}")
+    private List<String> auditIdListForUser;
 
     @Value("${audit.query.source}")
     private String auditQuerySource = AuditQuerySource.MYSQL.name();
@@ -96,6 +92,8 @@ public class AuditServiceImpl implements AuditService {
     private ElasticsearchApi elasticsearchApi;
     @Autowired
     private StreamSinkEntityMapper sinkEntityMapper;
+    @Autowired
+    private StreamSourceEntityMapper sourceEntityMapper;
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
@@ -104,6 +102,9 @@ public class AuditServiceImpl implements AuditService {
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
+
+        // properly overwrite audit ids by role and stream config
+        request.setAuditIds(getAuditIds(groupId, streamId));
 
         // for now, we use the first sink type only.
         // this is temporary behavior before multiple sinks in one stream is fully supported.
@@ -159,12 +160,31 @@ public class AuditServiceImpl implements AuditService {
         return aggregateByTimeDim(result, request.getTimeStaticsDim());
     }
 
-    @Override
-    public List<AuditVO> listByRole(AuditRequest request) throws IOException {
+    private List<String> getAuditIds(String groupId, String streamId) {
         List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
-                ? AUDIT_ID_FOR_ADMIN : AUDIT_ID_FOR_USER;
-        request.setAuditIds(auditIds);
-        return listByCondition(request);
+                ? auditIdListForAdmin : auditIdListForUser;
+
+        // auto push source has no agent, return data-proxy audit data instead of agent
+        List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
+        if (CollectionUtils.isEmpty(sourceList)
+                || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
+            boolean dpReceivedNeeded = (auditIds.contains(AuditConstants.AUDIT_ID_AGENT_COLLECT)
+                    && !auditIds.contains(AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED));
+            if (dpReceivedNeeded) {
+                auditIds.add(AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED);
+            }
+        }
+
+        // if no sink is configured, return data-proxy output instead of sort
+        if (sinkEntityMapper.selectCount(groupId, streamId) == 0) {
+            boolean dpSentNeeded = (auditIds.contains(AuditConstants.AUDIT_ID_SORT_OUTPUT)
+                    && !auditIds.contains(AuditConstants.AUDIT_ID_DATAPROXY_SENT));
+            if (dpSentNeeded) {
+                auditIds.add(AuditConstants.AUDIT_ID_DATAPROXY_SENT);
+            }
+        }
+
+        return auditIds;
     }
 
     /**

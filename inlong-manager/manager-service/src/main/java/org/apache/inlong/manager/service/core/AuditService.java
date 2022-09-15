@@ -36,11 +36,4 @@ public interface AuditService {
      */
     List<AuditVO> listByCondition(AuditRequest request) throws IOException;
 
-    /**
-     * Query audit data for list by user role
-     *
-     * @param request The audit request of query condition
-     * @return The result of query
-     */
-    List<AuditVO> listByRole(AuditRequest request) throws IOException;
 }
