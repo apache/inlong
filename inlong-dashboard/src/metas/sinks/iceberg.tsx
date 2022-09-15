@@ -17,20 +17,10 @@
  * under the License.
  */
 
-import React from 'react';
 import i18n from '@/i18n';
-import {
-  getColsFromFields,
-  GetStorageColumnsType,
-  GetStorageFormFieldsType,
-} from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
+import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { excludeObject } from '@/utils';
-import TextSwitch from '@/components/TextSwitch';
 import { sourceFields } from './common/sourceFields';
-// import { Button, message } from 'antd';
-// import request from '@/utils/request';
 
 const icebergFieldTypes = [
   'string',
@@ -108,182 +98,149 @@ const matchPartitionStrategies = fieldType => {
   return data.filter(item => !item.disabled);
 };
 
-const getForm: GetStorageFormFieldsType = (
-  type: 'form' | 'col' = 'form',
-  { currentValues, isEdit, dataType, form } = {} as any,
-) => {
-  const fileds = [
-    {
-      name: 'dbName',
-      type: 'input',
-      label: i18n.t('meta.Sinks.Iceberg.DbName'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'tableName',
-      type: 'input',
-      label: i18n.t('meta.Sinks.Iceberg.TableName'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Sinks.EnableCreateResource'),
-      name: 'enableCreateResource',
-      rules: [{ required: true }],
-      initialValue: 1,
-      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
+export const iceberg: FieldItemType[] = [
+  {
+    name: 'dbName',
+    type: 'input',
+    label: i18n.t('meta.Sinks.Iceberg.DbName'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'tableName',
+    type: 'input',
+    label: i18n.t('meta.Sinks.Iceberg.TableName'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Sinks.EnableCreateResource'),
+    name: 'enableCreateResource',
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  },
+  {
+    type: 'input',
+    label: 'Catalog URI',
+    name: 'catalogUri',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'thrift://127.0.0.1:9083',
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Iceberg.Warehouse'),
+    name: 'warehouse',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
+    }),
+  },
+  {
+    name: 'fileFormat',
+    type: 'radio',
+    label: i18n.t('meta.Sinks.Iceberg.FileFormat'),
+    initialValue: 'Parquet',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'Parquet',
+          value: 'Parquet',
+        },
+        {
+          label: 'Orc',
+          value: 'Orc',
+        },
+        {
+          label: 'Avro',
+          value: 'Avro',
+        },
+      ],
+    }),
+  },
+  {
+    name: 'extList',
+    label: i18n.t('meta.Sinks.Iceberg.ExtList'),
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      columns: [
+        {
+          title: 'Key',
+          dataIndex: 'keyName',
+          props: {
+            disabled: [110, 130].includes(values?.status),
           },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
+        },
+        {
+          title: 'Value',
+          dataIndex: 'keyValue',
+          props: {
+            disabled: [110, 130].includes(values?.status),
           },
-        ],
-      },
-    },
-    {
-      type: 'input',
-      label: 'Catalog URI',
-      name: 'catalogUri',
-      rules: [{ required: true }],
-      props: {
-        placeholder: 'thrift://127.0.0.1:9083',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: { width: 500 },
-      },
-      /*suffix: (
-        <Button
-          onClick={async () => {
-            const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
-            const res = await request({
-              url: '/sink/query/testConnection',
-              method: 'POST',
-              data: values,
-            });
-            res
-              ? message.success(
-                  i18n.t('meta.Sinks.Hive.ConnectionSucceeded'),
-                )
-              : message.error(
-                  i18n.t('meta.Sinks.Hive.ConnectionFailed'),
-                );
-          }}
-        >
-          {i18n.t('meta.Sinks.Hive.ConnectionTest')}
-        </Button>
-      ),*/
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.Iceberg.Warehouse'),
-      name: 'warehouse',
-      rules: [{ required: true }],
-      props: {
-        placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'fileFormat',
-      type: 'radio',
-      label: i18n.t('meta.Sinks.Iceberg.FileFormat'),
-      initialValue: 'Parquet',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: 'Parquet',
-            value: 'Parquet',
-          },
-          {
-            label: 'Orc',
-            value: 'Orc',
-          },
-          {
-            label: 'Avro',
-            value: 'Avro',
-          },
-        ],
-      },
-    },
-    {
-      name: 'extList',
-      label: i18n.t('meta.Sinks.Iceberg.ExtList'),
-      type: EditableTable,
-      props: {
-        size: 'small',
-        editing: !isEdit,
-        columns: [
-          {
-            title: 'Key',
-            dataIndex: 'keyName',
-            props: (text, record, idx, isNew) => ({
-              disabled: [110, 130].includes(currentValues?.status) && !isNew,
-            }),
-          },
-          {
-            title: 'Value',
-            dataIndex: 'keyValue',
-            props: (text, record, idx, isNew) => ({
-              disabled: [110, 130].includes(currentValues?.status) && !isNew,
-            }),
-          },
-        ],
-      },
-      initialValue: [],
-    },
-    { name: '_showHigher', type: <TextSwitch />, initialValue: false },
-    {
-      name: 'dataConsistency',
-      type: 'select',
-      label: i18n.t('meta.Sinks.Iceberg.DataConsistency'),
-      initialValue: 'EXACTLY_ONCE',
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: 'EXACTLY_ONCE',
-            value: 'EXACTLY_ONCE',
-          },
-          {
-            label: 'AT_LEAST_ONCE',
-            value: 'AT_LEAST_ONCE',
-          },
-        ],
-      },
-      hidden: !currentValues?._showHigher,
-    },
-    {
-      name: 'sinkFieldList',
-      type: EditableTable,
-      props: {
-        size: 'small',
-        editing: ![110, 130].includes(currentValues?.status),
-        columns: getFieldListColumns(dataType, currentValues),
-      },
-    },
-  ];
+        },
+      ],
+    }),
+    initialValue: [],
+  },
+  {
+    name: 'dataConsistency',
+    type: 'select',
+    label: i18n.t('meta.Sinks.Iceberg.DataConsistency'),
+    initialValue: 'EXACTLY_ONCE',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'EXACTLY_ONCE',
+          value: 'EXACTLY_ONCE',
+        },
+        {
+          label: 'AT_LEAST_ONCE',
+          value: 'AT_LEAST_ONCE',
+        },
+      ],
+    }),
+    isPro: true,
+  },
+  {
+    name: 'sinkFieldList',
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  },
+];
 
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
-};
-
-const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
@@ -298,7 +255,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -318,7 +275,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
             };
           }
         },
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -369,12 +326,4 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'fieldComment',
     },
   ];
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const iceberg = {
-  getForm,
-  getFieldListColumns,
-  tableColumns,
 };

@@ -17,108 +17,90 @@
  * under the License.
  */
 
-import { getColsFromFields, GetStorageFormFieldsType } from '@/utils/metaData';
 import i18n from '@/i18n';
-import { ColumnsType } from 'antd/es/table';
-import { excludeObject } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
 
-const getForm: GetStorageFormFieldsType = (
-  type: 'form' | 'col' = 'form',
-  { currentValues, isEdit } = {} as any,
-) => {
-  const fileds = [
-    {
-      name: 'bootstrapServers',
-      type: 'input',
-      label: i18n.t('meta.Sinks.Kafka.Server'),
-      rules: [{ required: true }],
-      initialValue: '127.0.0.1:9092',
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'topicName',
-      type: 'input',
-      label: 'Topic',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'serializationType',
-      type: 'radio',
-      label: i18n.t('meta.Sinks.Kafka.SerializationType'),
-      initialValue: 'JSON',
-      rules: [{ required: true }],
-      props: {
-        options: [
-          {
-            label: 'JSON',
-            value: 'JSON',
-          },
-          {
-            label: 'CANAL',
-            value: 'CANAL',
-          },
-          {
-            label: 'AVRO',
-            value: 'AVRO',
-          },
-        ],
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'partitionNum',
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.Kafka.PartitionNum'),
-      initialValue: 3,
-      props: {
-        min: 1,
-        max: 30,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-    },
-    {
-      name: 'autoOffsetReset',
-      type: 'radio',
-      label: i18n.t('meta.Sinks.Kafka.AutoOffsetReset'),
-      initialValue: 'earliest',
-      rules: [{ required: true }],
-      props: {
-        options: [
-          {
-            label: 'earliest',
-            value: 'earliest',
-          },
-          {
-            label: 'latest',
-            value: 'latest',
-          },
-          {
-            label: 'none',
-            value: 'none',
-          },
-        ],
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-  ];
-
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const kafka = {
-  getForm,
-  tableColumns,
-};
+export const kafka: FieldItemType[] = [
+  {
+    name: 'bootstrapServers',
+    type: 'input',
+    label: i18n.t('meta.Sinks.Kafka.Server'),
+    rules: [{ required: true }],
+    initialValue: '127.0.0.1:9092',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'topicName',
+    type: 'input',
+    label: 'Topic',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'serializationType',
+    type: 'radio',
+    label: i18n.t('meta.Sinks.Kafka.SerializationType'),
+    initialValue: 'JSON',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
+        {
+          label: 'CANAL',
+          value: 'CANAL',
+        },
+        {
+          label: 'AVRO',
+          value: 'AVRO',
+        },
+      ],
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'partitionNum',
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.Kafka.PartitionNum'),
+    initialValue: 3,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+      max: 30,
+    }),
+    rules: [{ required: true }],
+  },
+  {
+    name: 'autoOffsetReset',
+    type: 'radio',
+    label: i18n.t('meta.Sinks.Kafka.AutoOffsetReset'),
+    initialValue: 'earliest',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'earliest',
+          value: 'earliest',
+        },
+        {
+          label: 'latest',
+          value: 'latest',
+        },
+        {
+          label: 'none',
+          value: 'none',
+        },
+      ],
+    }),
+  },
+];

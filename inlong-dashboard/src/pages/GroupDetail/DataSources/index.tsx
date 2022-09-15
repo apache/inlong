@@ -41,21 +41,8 @@ const getFilterFormContent = defaultValues =>
         allowClear: true,
       },
     },
-    {
-      type: 'radiobutton',
-      name: 'sourceType',
-      label: i18n.t('meta.Sources.Type'),
-      initialValue: defaultValues.sourceType,
-      props: {
-        buttonStyle: 'solid',
-        options: sources.map(item => ({
-          label: item.label,
-          value: item.value,
-        })),
-      },
-    },
   ].concat(
-    pickObjectArray(['status'], sources[0].form).map(item => ({
+    pickObjectArray(['sourceType', 'status'], sources[0].form).map(item => ({
       ...item,
       visible: true,
       initialValue: defaultValues[item.name],
