@@ -30,7 +30,7 @@ public enum TaskTypeEnum {
     SQLSERVER(8),
     MONGODB(9),
     TUBEMQ(10),
-    REDIS(11)
+    REDIS(11),
 
 
     ;
