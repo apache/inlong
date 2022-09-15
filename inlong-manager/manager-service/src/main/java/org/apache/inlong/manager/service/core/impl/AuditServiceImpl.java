@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.manager.common.consts.AuditConstants;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -28,7 +28,6 @@ import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
@@ -77,6 +76,18 @@ public class AuditServiceImpl implements AuditService {
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
+    private static final List<String> AUDIT_ID_FOR_ADMIN = Arrays.asList(
+            AuditConstants.AUDIT_ID_AGENT_COLLECT,
+            AuditConstants.AUDIT_ID_AGENT_SENT,
+            AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED,
+            AuditConstants.AUDIT_ID_DATAPROXY_SENT,
+            AuditConstants.AUDIT_ID_SORT_INPUT,
+            AuditConstants.AUDIT_ID_SORT_OUTPUT);
+
+    private static final List<String> AUDIT_ID_FOR_USER = Arrays.asList(
+            AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED,
+            AuditConstants.AUDIT_ID_SORT_OUTPUT);
+
     @Value("${audit.query.source}")
     private String auditQuerySource = AuditQuerySource.MYSQL.name();
     @Autowired
@@ -120,7 +131,7 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet,
-                        auditId.equals(Constants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
+                        auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getDt().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -139,7 +150,7 @@ public class AuditServiceImpl implements AuditService {
                             return vo;
                         }).collect(Collectors.toList());
                         result.add(new AuditVO(auditId, auditSet,
-                                auditId.equals(Constants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
+                                auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
                     }
                 }
             }
@@ -150,18 +161,8 @@ public class AuditServiceImpl implements AuditService {
 
     @Override
     public List<AuditVO> listByRole(AuditRequest request) throws IOException {
-        UserInfo userInfo = LoginUserUtils.getLoginUser();
-        List<String> adminAuditIds = Arrays.asList(
-                Constants.AUDIT_ID_AGENT_COLLECT,
-                Constants.AUDIT_ID_AGENT_SENT,
-                Constants.AUDIT_ID_DATAPROXY_RECEIVED,
-                Constants.AUDIT_ID_DATAPROXY_SENT,
-                Constants.AUDIT_ID_SORT_INPUT,
-                Constants.AUDIT_ID_SORT_OUTPUT);
-        List<String> customerAuditIds = Arrays.asList(
-                Constants.AUDIT_ID_DATAPROXY_RECEIVED,
-                Constants.AUDIT_ID_SORT_OUTPUT);
-        List<String> auditIds = userInfo.getRoles().contains(UserRoleCode.ADMIN) ? adminAuditIds : customerAuditIds;
+        List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
+                ? AUDIT_ID_FOR_ADMIN : AUDIT_ID_FOR_USER;
         request.setAuditIds(auditIds);
         return listByCondition(request);
     }
