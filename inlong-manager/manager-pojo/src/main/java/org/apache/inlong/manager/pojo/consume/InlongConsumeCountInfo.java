@@ -29,15 +29,15 @@ import lombok.Data;
 public class InlongConsumeCountInfo {
 
     @ApiModelProperty(value = "Total consume number")
-    private long totalCount;
+    private Integer totalCount = 0;
 
     @ApiModelProperty(value = "Total number of to be allocated (the number of configuring consumes)")
-    private long waitAssignCount;
+    private Integer waitAssignCount = 0;
 
     @ApiModelProperty(value = "Total number of to be approved")
-    private long waitApproveCount;
+    private Integer waitApproveCount = 0;
 
     @ApiModelProperty(value = "Total number of rejections")
-    private long rejectCount;
+    private Integer rejectCount = 0;
 
 }

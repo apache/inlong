@@ -19,10 +19,9 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,6 @@ import org.springframework.boot.test.context.TestComponent;
 public class InlongStreamServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceTest.class);
-
-    private final String globalOperator = "admin";
 
     @Autowired
     private InlongStreamService streamService;
@@ -66,20 +63,16 @@ public class InlongStreamServiceTest {
         return streamService.save(request, operator);
     }
 
-    // @Test
-    public void testSaveAndDelete() {
-        String groupId = "stream_service_test_group";
-        String streamId = "stream_service_test_stream";
-        Integer id = this.saveInlongStream(groupId, streamId, globalOperator);
-        Assertions.assertNotNull(id);
-
-        boolean result = streamService.delete(groupId, streamId, globalOperator);
-        Assertions.assertTrue(result);
+    /**
+     * Delete one inlong stream
+     */
+    public Boolean deleteStream(String groupId, String streamId, String operator) {
+        return streamService.delete(groupId, streamId, operator);
     }
 
     @Test
     public void test() {
-        LOGGER.info("If you don't add test, UnusedImports: Unused import: org.junit.Test.");
+        LOGGER.info("Blank test for inlong stream service");
     }
 
 }

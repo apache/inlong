@@ -51,12 +51,12 @@
                                     mq_type, topic, inlong_group_id,
                                     filter_enabled, inlong_stream_id,
                                     ext_params, in_charges, status,
-                                    is_deleted, creator, modifier)
+                                    creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{consumerGroup, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR},
                 #{mqType, jdbcType=VARCHAR}, #{topic, jdbcType=VARCHAR}, #{inlongGroupId, jdbcType=VARCHAR},
                 #{filterEnabled, jdbcType=INTEGER}, #{inlongStreamId, jdbcType=VARCHAR},
                 #{extParams, jdbcType=LONGVARCHAR}, #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER},
-                #{isDeleted, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
+                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -65,8 +65,8 @@
         from inlong_consume
         where id = #{id, jdbcType=INTEGER}
     </select>
-    <select id="countByUser" resultType="java.util.Map">
-        select status, count(1) as total
+    <select id="countByUser" resultType="org.apache.inlong.manager.pojo.common.CountInfo">
+        select status as `key`, count(1) as `value`
         from inlong_consume
         where is_deleted = 0
           and (creator = #{username, jdbcType=VARCHAR} or FIND_IN_SET(#{username, jdbcType=VARCHAR}, in_charges))

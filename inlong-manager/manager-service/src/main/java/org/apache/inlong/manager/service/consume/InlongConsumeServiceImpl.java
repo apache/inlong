@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
+import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -46,7 +47,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -78,10 +78,10 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         }
 
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
-        consumeOperator.saveOpt(request, operator);
+        Integer id = consumeOperator.saveOpt(request, operator);
 
         LOGGER.info("success to save inlong consume for consumer group={} by user={}", consumerGroup, operator);
-        return request.getId();
+        return id;
     }
 
     @Override
@@ -147,23 +147,23 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
 
     @Override
     public InlongConsumeCountInfo countStatus(String username) {
-        List<Map<String, Object>> statusCount = consumeMapper.countByUser(username);
-        InlongConsumeCountInfo countInfo = new InlongConsumeCountInfo();
-        for (Map<String, Object> map : statusCount) {
-            int status = (Integer) map.get("status");
-            long count = (Long) map.get("count");
-            countInfo.setTotalCount(countInfo.getTotalCount() + count);
+        List<CountInfo> countInfoList = consumeMapper.countByUser(username);
+        InlongConsumeCountInfo result = new InlongConsumeCountInfo();
+        for (CountInfo countInfo : countInfoList) {
+            int status = Integer.parseInt(countInfo.getKey());
+            int count = countInfo.getValue();
+            result.setTotalCount(result.getTotalCount() + count);
             if (status == ConsumeStatus.WAIT_ASSIGN.getCode()) {
-                countInfo.setWaitAssignCount(countInfo.getWaitAssignCount() + count);
+                result.setWaitAssignCount(result.getWaitAssignCount() + count);
             } else if (status == ConsumeStatus.WAIT_APPROVE.getCode()) {
-                countInfo.setWaitApproveCount(countInfo.getWaitApproveCount() + count);
+                result.setWaitApproveCount(result.getWaitApproveCount() + count);
             } else if (status == ConsumeStatus.REJECTED.getCode()) {
-                countInfo.setRejectCount(countInfo.getRejectCount() + count);
+                result.setRejectCount(result.getRejectCount() + count);
             }
         }
 
         LOGGER.debug("success to count inlong consume for user={}", username);
-        return countInfo;
+        return result;
     }
 
     @Override
