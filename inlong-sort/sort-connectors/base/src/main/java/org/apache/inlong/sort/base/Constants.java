@@ -45,6 +45,10 @@ public final class Constants {
 
     public static final String NUM_BYTES_IN = "numBytesIn";
 
+    public static final String NUM_RECORDS_IN_FOR_METER = "numRecordsInForMeter";
+
+    public static final String NUM_BYTES_IN_FOR_METER = "numBytesInForMeter";
+
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";

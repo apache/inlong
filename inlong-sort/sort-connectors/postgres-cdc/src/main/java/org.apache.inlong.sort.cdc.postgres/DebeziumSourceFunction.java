@@ -45,6 +45,7 @@ import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.OperatorStateStore;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.PrimitiveArrayTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.configuration.Configuration;
@@ -60,8 +61,9 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.util.MetricDataSerializationUtils;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +75,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -236,9 +237,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private SourceMetricData sourceMetricData;
 
-    private transient ListState<byte[]> metricState;
+    private transient ListState<MetricState> metricStateListState;
 
-    private Map<String, Long> metricDataMap;
+    private MetricState metricState;
 
     // ---------------------------------------------------------------------------------------
 
@@ -283,15 +284,19 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new ListStateDescriptor<>(
                                 HISTORY_RECORDS_STATE_NAME, BasicTypeInfo.STRING_TYPE_INFO));
 
-        this.metricState =
-                stateStore.getUnionListState(
-                        new ListStateDescriptor<>(
-                                INLONG_METRIC_STATE_NAME, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO));
+        if (this.inlongMetric != null) {
+            this.metricStateListState =
+                    stateStore.getUnionListState(
+                            new ListStateDescriptor<>(
+                                    INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
 
         if (context.isRestored()) {
             restoreOffsetState();
             restoreHistoryRecordsState();
-            metricDataMap = MetricDataSerializationUtils.restoreMetricState(metricState);
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         } else {
             if (specificOffset != null) {
                 byte[] serializedOffset =
@@ -361,8 +366,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         } else {
             snapshotOffsetState(functionSnapshotContext.getCheckpointId());
             snapshotHistoryRecordsState();
-            if (sourceMetricData != null) {
-                MetricDataSerializationUtils.snapshotMetricState(metricState, sourceMetricData);
+            if (sourceMetricData != null && metricStateListState != null) {
+                MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
+                        getRuntimeContext().getIndexOfThisSubtask());
             }
         }
     }
@@ -448,12 +454,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
             SimpleCounter recordsInCounter = new SimpleCounter();
             SimpleCounter bytesInCounter = new SimpleCounter();
-            if (metricDataMap != null) {
-                recordsInCounter.inc(this.metricDataMap.getOrDefault(NUM_RECORDS_IN, 0L));
-                bytesInCounter.inc(this.metricDataMap.getOrDefault(NUM_BYTES_IN, 0L));
+            if (metricState != null) {
+                recordsInCounter.inc(metricState.getMetricValue(NUM_RECORDS_IN));
+                bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
             }
             sourceMetricData.registerMetricsForNumRecordsIn(recordsInCounter);
             sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);
+            sourceMetricData.registerMetricsForNumRecordsInForMeter();
+            sourceMetricData.registerMetricsForNumBytesInForMeter();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsInPerSecond();
         }
@@ -494,11 +502,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
+                                deserializer.deserialize(record, out);
                                 if (sourceMetricData != null) {
                                     sourceMetricData.outputMetrics(1L,
                                             record.value().toString().getBytes(StandardCharsets.UTF_8).length);
                                 }
-                                deserializer.deserialize(record, out);
                             }
 
                             @Override
