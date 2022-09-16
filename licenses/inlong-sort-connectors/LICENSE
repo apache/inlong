@@ -569,8 +569,21 @@
         inlong-sort/sort-connectors/filesystem/src/main/java/org/apache/inlong/sort/filesystem/stream/compact/CompactFileWriter.java
   Source  : flink-table-runtime-blink_2.11-13.2-rc2 2.2.1 (Please note that the software have been modified.)
   License : https://github.com/apache/flink/blob/release-1.13.2-rc2/LICENSE
-
-
+=========================================================================
+1.4 Third party GPL-3.0-only
+=========================================================================
+1.4.1  com/wisecoders/dbschema/influxdb/resultSet/ArrayResultSet.java
+       com/wisecoders/dbschema/influxdb/resultSet/ArrayResultSetMetaData.java
+       com/wisecoders/dbschema/influxdb/resultSet/OkResultSet.java
+       com/wisecoders/dbschema/influxdb/resultSet/ResultSetIterator.java
+       com/wisecoders/dbschema/influxdb/InfluxConnection.java
+       com/wisecoders/dbschema/influxdb/InfluxMetaData.java
+       com/wisecoders/dbschema/influxdb/InfluxPreparedStatement.java
+       com/wisecoders/dbschema/influxdb/InfluxResultSet.java
+       com/wisecoders/dbschema/influxdb/InfluxResultSetMetaData.java
+       com/wisecoders/dbschema/influxdb/JdbcDriver.java
+Source  : SHA: e22cbe10fc10102478dd1c8a4040d36303a4eed9 (Please note that the software have been modified.)
+License : https://github.com/wise-coders/influxdb-jdbc-driver/blob/main/LICENSE
 =======================================================================
 Apache InLong Subcomponents:
 
