@@ -18,10 +18,13 @@ package org.apache.inlong.dataproxy.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.MsgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +108,37 @@ public class MessageUtils {
                     topic);
         }
         return topic;
+    }
+
+    public static Map<String, String> getXfsAttrs(Map<String, String> headers, String pkgVersion) {
+        // common attributes
+        Map<String, String> attrs = new HashMap<>();
+        attrs.put(ConfigConstants.MSG_ENCODE_VER, pkgVersion);
+        if (InLongMsgVer.INLONG_V1.getName().equalsIgnoreCase(pkgVersion)) {
+            attrs.put("dataproxyip", NetworkUtils.getLocalIp());
+            attrs.put(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
+            attrs.put(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
+            attrs.put(Constants.TOPIC, headers.get(Constants.TOPIC));
+            attrs.put(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
+            attrs.put(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
+        } else {
+            //
+            attrs.put(Constants.INLONG_GROUP_ID,
+                    headers.get(AttributeConstants.GROUP_ID));
+            attrs.put(Constants.INLONG_STREAM_ID,
+                    headers.get(AttributeConstants.STREAM_ID));
+            attrs.put(Constants.TOPIC,
+                    headers.get(ConfigConstants.TOPIC_KEY));
+            attrs.put(Constants.HEADER_KEY_MSG_TIME,
+                    headers.get(AttributeConstants.DATA_TIME));
+            attrs.put(Constants.HEADER_KEY_SOURCE_IP,
+                    headers.get(ConfigConstants.REMOTE_IP_KEY));
+            attrs.put(Constants.HEADER_KEY_SOURCE_TIME,
+                    headers.get(AttributeConstants.RCV_TIME));
+            attrs.put(ConfigConstants.DATAPROXY_IP_KEY,
+                    NetworkUtils.getLocalIp());
+        }
+        return attrs;
     }
 
 }
