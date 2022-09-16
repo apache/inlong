@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.pojo.cluster.queue;
 
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import javax.validation.constraints.NotBlank;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -36,9 +40,11 @@ import lombok.NoArgsConstructor;
 @ApiModel("Remove relationships between DataProxy cluster and MessageQueue cluster")
 public class MessageQueueOfflineRequest {
 
+    @NotBlank(groups = UpdateValidation.class, message = "miss message queue cluster name.")
     @ApiModelProperty(value = "Message queue cluster name")
     private String mqClusterName;
 
+    @NotBlank(groups = UpdateValidation.class, message = "miss proxy cluster name.")
     @ApiModelProperty(value = "DataProxy cluster name")
     private String proxyClusterName;
 

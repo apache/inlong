@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.pojo.cluster.queue;
 
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import javax.validation.constraints.NotBlank;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -36,6 +40,7 @@ import lombok.NoArgsConstructor;
 @ApiModel("Control produce operation and consume operation of Inlong message queue cluster ")
 public class MessageQueueControlRequest {
 
+    @NotBlank(groups = UpdateValidation.class, message = "miss message queue cluster name.")
     @ApiModelProperty(value = "Message queue cluster name")
     private String name;
 

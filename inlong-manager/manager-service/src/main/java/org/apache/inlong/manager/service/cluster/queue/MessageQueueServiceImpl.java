@@ -27,6 +27,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -60,6 +62,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.validation.Validator;
+
 /**
  * Inlong message queue cluster operator.
  */
@@ -89,17 +94,16 @@ public class MessageQueueServiceImpl implements MessageQueueService {
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private TubeMQOperator tubeMQOperator;
+    @Resource
+    Validator validator;
 
     /**
      * Control produce operation and consume operation of Inlong message queue cluster 
      */
     @Override
     public void control(MessageQueueControlRequest request) {
-        String name = request.getName();
         // check parameters
-        if (StringUtils.isEmpty(name)) {
-            throw new BusinessException("miss cluster name.");
-        }
+        ValidationUtils.validate(validator, request, UpdateValidation.class);
         Boolean canProduce = request.getCanProduce();
         if (canProduce == null) {
             canProduce = Boolean.FALSE;
@@ -109,6 +113,7 @@ public class MessageQueueServiceImpl implements MessageQueueService {
             canConsume = Boolean.FALSE;
         }
         // find cluster
+        String name = request.getName();
         List<InlongClusterEntity> clusters = clusterMapper.selectByKey(null, name, null);
         if (clusters.size() <= 0) {
             throw new BusinessException("Can not find a cluster by name:" + name);
@@ -133,6 +138,8 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      */
     @Override
     public void online(MessageQueueOnlineRequest request) {
+        // check parameters
+        ValidationUtils.validate(validator, request, UpdateValidation.class);
         String mqClusterName = request.getMqClusterName();
         String proxyClusterName = request.getProxyClusterName();
         this.updateExtTag(mqClusterName, proxyClusterName, true);
@@ -143,6 +150,8 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      */
     @Override
     public void offline(MessageQueueOfflineRequest request) {
+        // check parameters
+        ValidationUtils.validate(validator, request, UpdateValidation.class);
         String mqClusterName = request.getMqClusterName();
         String proxyClusterName = request.getProxyClusterName();
         this.updateExtTag(mqClusterName, proxyClusterName, false);
@@ -152,13 +161,6 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      * updateExtTag
      */
     private void updateExtTag(String mqClusterName, String proxyClusterName, boolean isAppendTag) {
-        // check parameters
-        if (StringUtils.isEmpty(mqClusterName)) {
-            throw new BusinessException("miss message queue cluster name.");
-        }
-        if (StringUtils.isEmpty(proxyClusterName)) {
-            throw new BusinessException("miss DataProxy cluster name.");
-        }
         // find cluster
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
@@ -204,12 +206,10 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      */
     @Override
     public void synchronizeTopic(MessageQueueSynchronizeTopicRequest request) {
-        String mqClusterName = request.getName();
         // check parameters
-        if (StringUtils.isEmpty(mqClusterName)) {
-            throw new BusinessException("miss message queue cluster name.");
-        }
+        ValidationUtils.validate(validator, request, UpdateValidation.class);
         // find cluster
+        String mqClusterName = request.getName();
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
             throw new BusinessException("Can not find message queue cluster by name:" + mqClusterName);
@@ -412,13 +412,10 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      */
     @Override
     public void clearTopic(MessageQueueClearTopicRequest request) {
-        String mqClusterName = request.getName();
         // check parameters
-        if (StringUtils.isEmpty(mqClusterName)) {
-            String errorMsg = "miss message queue cluster name.";
-            throw new BusinessException(errorMsg);
-        }
+        ValidationUtils.validate(validator, request, UpdateValidation.class);
         // find cluster
+        String mqClusterName = request.getName();
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
             String errorMsg = "Can not find message queue cluster by name:" + mqClusterName;
