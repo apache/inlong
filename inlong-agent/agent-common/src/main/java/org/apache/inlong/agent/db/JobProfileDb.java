@@ -208,7 +208,7 @@ public class JobProfileDb {
         Map<String, String> jobStateMap = new HashMap<>();
         for (KeyValueEntity entity : entityList) {
             JobProfile jobProfile = entity.getAsJobProfile();
-            String jobState = entity.getStateSearchKey().name().concat(":").concat(jobProfile.toString());
+            String jobState = entity.getStateSearchKey().name().concat(":").concat(jobProfile.toJsonStr());
             jobStateMap.put(jobProfile.get(JOB_ID), jobState);
         }
         return jobStateMap;
