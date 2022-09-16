@@ -38,14 +38,28 @@ import org.apache.inlonf.sort.cdc.influxdb.InfluxDBSource;
 public class InfluxDBTableSource implements ScanTableSource, SupportsReadingMetadata {
 
     private final ResolvedSchema physicalSchema;
-    private int port = 8000;
 
-    private int linesPerRequest = 1000;
+    private Integer port = 8000;
 
-    private int ingestQueueCapacity = 1000;
+    private Integer linesPerRequest = 1000;
 
-    private long enqueueTimeout = 5L;
+    private Integer ingestQueueCapacity = 1000;
 
+    private Long enqueueTimeout = 5L;
+
+    private String serverURL = "http://127.0.0.1:8086";
+
+    private String username = "root";
+
+    private String password = "root";
+
+    private Integer connectTimeout = 10;
+
+    private Integer writeTimeout = 10;
+
+    private Integer readTimeout = 10;
+
+    private Boolean retryOnConnectionFailure = true;
 
     /** Data type that describes the final output of the source. */
     protected DataType producedDataType;
@@ -55,15 +69,24 @@ public class InfluxDBTableSource implements ScanTableSource, SupportsReadingMeta
     private final String inlongAudit;
 
     public InfluxDBTableSource(ResolvedSchema physicalSchema, int port, int linesPerRequest,
-                               int ingestQueueCapacity, long enqueueTimeout,
+                               int ingestQueueCapacity, long enqueueTimeout,String serverURL,
+                               String username, String password, int connectTimeout, int writeTimeout,
+                               int readTimeout, boolean retryOnConnectionFailure,
                                String inlongMetric, String inlongAudit) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.linesPerRequest = linesPerRequest;
         this.ingestQueueCapacity = ingestQueueCapacity;
         this.enqueueTimeout = enqueueTimeout;
-        this.producedDataType =  physicalSchema.toPhysicalRowDataType();;
-        this.metadataKeys = Collections.emptyList();;
+        this.serverURL = serverURL;
+        this.username = username;
+        this.password = password;
+        this.connectTimeout = connectTimeout;
+        this.writeTimeout = writeTimeout;
+        this.readTimeout = readTimeout;
+        this.retryOnConnectionFailure = retryOnConnectionFailure;
+        this.producedDataType =  physicalSchema.toPhysicalRowDataType();
+        this.metadataKeys = Collections.emptyList();
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
     }
@@ -80,6 +103,7 @@ public class InfluxDBTableSource implements ScanTableSource, SupportsReadingMeta
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext runtimeProviderContext) {
         //1. Data deserializer
+        // zcy
         DebeziumDeserializationSchema<RowData> deserializer = null;
         InfluxDBSource.Builder<RowData> builder =
                 InfluxDBSource.<RowData>builder()
@@ -87,6 +111,13 @@ public class InfluxDBTableSource implements ScanTableSource, SupportsReadingMeta
                         .enqueueTimeout(enqueueTimeout)
                         .ingestQueueCapacity(ingestQueueCapacity)
                         .linesPerRequest(linesPerRequest)
+                        .serverURL(serverURL)
+                        .username(username)
+                        .password(password)
+                        .connectTimeout(connectTimeout)
+                        .writeTimeout(writeTimeout)
+                        .readTimeout(readTimeout)
+                        .retryOnConnectionFailure(retryOnConnectionFailure)
                         .deserializer(deserializer);
 
         Optional.ofNullable(inlongMetric).ifPresent(builder::inlongMetric);

@@ -58,16 +58,32 @@ public class InfluxDBSource<T> {
     /** Builder class of {@link InfluxDBSource}. */
     public static class Builder<T> {
 
-        private int port = 8000;
+        private Integer port = 8000;
 
-        private int linesPerRequest = 1000;
+        private Integer linesPerRequest = 1000;
 
-        private int ingestQueueCapacity = 1000;
+        private Integer ingestQueueCapacity = 1000;
 
-        private long enqueueTimeout = 5L;
+        private Long enqueueTimeout = 5L;
+
+        private String serverURL = "http://127.0.0.1:8086";
+
+        private String username = "root";
+
+        private String password = "root";
+
+        private Integer connectTimeout = 10;
+
+        private Integer writeTimeout = 10;
+
+        private Integer readTimeout = 10;
+
+        private Boolean retryOnConnectionFailure = true;
 
         private DebeziumDeserializationSchema<T> deserializer;
+
         private String inlongMetric;
+
         private String inlongAudit;
 
         public Builder() {
@@ -93,6 +109,41 @@ public class InfluxDBSource<T> {
 
         public Builder<T> enqueueTimeout(long timeout) {
             this.enqueueTimeout = timeout;
+            return this;
+        }
+
+        public Builder<T> serverURL(String serverURL) {
+            this.serverURL = serverURL;
+            return this;
+        }
+
+        public Builder<T> username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder<T> password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder<T> connectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        public Builder<T> writeTimeout(int writeTimeout) {
+            this.writeTimeout = writeTimeout;
+            return this;
+        }
+
+        public Builder<T> readTimeout(int readTimeout) {
+            this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public Builder<T> retryOnConnectionFailure(boolean retryOnConnectionFailure) {
+            this.retryOnConnectionFailure = retryOnConnectionFailure;
             return this;
         }
 
@@ -123,6 +174,14 @@ public class InfluxDBSource<T> {
             props.setProperty("source.influxDB.timeout.enqueue", String.valueOf(enqueueTimeout));
             props.setProperty("source.influxDB.queue_capacity.ingest", String.valueOf(ingestQueueCapacity));
             props.setProperty("source.influxDB.limit.lines_per_request", String.valueOf(linesPerRequest));
+            props.setProperty("source.influxDB.limit.serverURL", serverURL);
+            props.setProperty("source.influxDB.limit.username", username);
+            props.setProperty("source.influxDB.limit.password", password);
+            props.setProperty("source.influxDB.limit.connectTimeout", String.valueOf(connectTimeout));
+            props.setProperty("source.influxDB.limit.writeTimeout", String.valueOf(writeTimeout));
+            props.setProperty("source.influxDB.limit.readTimeout", String.valueOf(readTimeout));
+            props.setProperty("source.influxDB.limit.retryOnConnectionFailure",
+                String.valueOf(retryOnConnectionFailure));
             DebeziumOffset specificOffset = null;
             return new DebeziumSourceFunction<>(
                     deserializer, props, specificOffset, Validator.getDefaultValidator(), inlongMetric, inlongAudit);

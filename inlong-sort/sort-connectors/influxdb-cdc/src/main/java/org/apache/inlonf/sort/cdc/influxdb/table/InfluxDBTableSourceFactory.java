@@ -20,6 +20,8 @@ package org.apache.inlonf.sort.cdc.influxdb.table;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import java.util.HashSet;
 import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -62,6 +64,55 @@ public class InfluxDBTableSourceFactory implements DynamicTableSourceFactory {
                     .withDescription(
                             "TCP port on which the split reader's HTTP server is running on.");
 
+    public static final ConfigOption<String> SERVER_URL =
+        ConfigOptions.key("source.influxDB.serverURL")
+            .stringType()
+            .defaultValue("http://127.0.0.1:8086")
+            .withDescription(
+                "The url to connect to.");
+
+    public static final ConfigOption<String> USERNAME =
+        ConfigOptions.key("source.influxDB.username")
+            .stringType()
+            .defaultValue("root")
+            .withDescription(
+                "The username which is used to authorize against the influxDB instance.");
+
+    public static final ConfigOption<String> PASSWORD =
+        ConfigOptions.key("source.influxDB.password")
+            .stringType()
+            .defaultValue("root")
+            .withDescription(
+                "The password for the username which is used to authorize against the influxDB instance.");
+
+    public static final ConfigOption<Integer> CONNECT_TIMEOUT =
+        ConfigOptions.key("source.influxDB.connectTimeout")
+            .intType()
+            .defaultValue(10)
+            .withDescription(
+                "Default connect timeout for new connections.");
+
+    public static final ConfigOption<Integer> WRITE_TIMEOUT =
+        ConfigOptions.key("source.influxDB.writeTimeout")
+            .intType()
+            .defaultValue(10)
+            .withDescription(
+                "Default write timeout for new connections.");
+
+    public static final ConfigOption<Integer> READ_TIMEOUT =
+        ConfigOptions.key("source.influxDB.readTimeout")
+            .intType()
+            .defaultValue(10)
+            .withDescription(
+                "Default read timeout for new connections.");
+
+    public static final ConfigOption<Boolean> RETRY_ON_CONNECTION_FAILURE =
+        ConfigOptions.key("source.influxDB.retryOnConnectionFailure")
+            .booleanType()
+            .defaultValue(true)
+            .withDescription(
+                "Configure this client to retry or not when a connectivity problem is encountered.");
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -77,14 +128,31 @@ public class InfluxDBTableSourceFactory implements DynamicTableSourceFactory {
 
         final long enqueueTimeout =  config.get(ENQUEUE_WAIT_TIME);
 
+        final String serverURL = config.get(SERVER_URL);
+
+        final String username = config.get(USERNAME);
+
+        final String password = config.get(PASSWORD);
+
+        final Integer connectTimeout = config.get(CONNECT_TIMEOUT);
+
+        final Integer writeTimeout = config.get(WRITE_TIMEOUT);
+
+        final Integer readTimeout = config.get(READ_TIMEOUT);
+
+        final Boolean retryOnConnectionFailure = config.get(RETRY_ON_CONNECTION_FAILURE);
+
         final String inlongMetric = config.get(INLONG_METRIC);
+
         final String inlongAudit = config.get(INLONG_AUDIT);
+
         ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
 
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
 
-        return new InfluxDBTableSource(physicalSchema, port, linesPerRequest, ingestQueueCapacity, enqueueTimeout,
-                inlongMetric, inlongAudit);
+        return new InfluxDBTableSource(physicalSchema, port, linesPerRequest, ingestQueueCapacity,
+            enqueueTimeout, serverURL, username, password, connectTimeout, writeTimeout,
+            readTimeout, retryOnConnectionFailure, inlongMetric, inlongAudit);
     }
 
     @Override
@@ -94,11 +162,26 @@ public class InfluxDBTableSourceFactory implements DynamicTableSourceFactory {
 
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
-        return null;
+        Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(PORT);
+        options.add(MAXIMUM_LINES_PER_REQUEST);
+        options.add(INGEST_QUEUE_CAPACITY);
+        options.add(ENQUEUE_WAIT_TIME);
+        options.add(SERVER_URL);
+        return options;
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
-        return null;
+        Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(USERNAME);
+        options.add(PASSWORD);
+        options.add(CONNECT_TIMEOUT);
+        options.add(WRITE_TIMEOUT);
+        options.add(READ_TIMEOUT);
+        options.add(RETRY_ON_CONNECTION_FAILURE);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);;
+        return options;
     }
 }
