@@ -78,6 +78,8 @@ public class AuditServiceImpl implements AuditService {
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
+    // defaults to return all audit ids, can be overwritten in properties file
+    // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
     @Value("#{'${audit.admin.ids:3,4,5,6,7,8}'.split(',')}")
     private List<String> auditIdListForAdmin;
     @Value("#{'${audit.user.ids:3,4,5,6,7,8}'.split(',')}")
