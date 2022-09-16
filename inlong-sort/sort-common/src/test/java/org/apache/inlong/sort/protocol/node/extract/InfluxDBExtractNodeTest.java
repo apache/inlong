@@ -29,7 +29,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class influxDBExtractNodeTest extends SerializeBaseTest<InfluxDBExtractNode> {
+public class InfluxDBExtractNodeTest extends SerializeBaseTest<InfluxDBExtractNode> {
 
     public InfluxDBExtractNode getTestObject() {
         List<FieldInfo> fields = Arrays.asList(
