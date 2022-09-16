@@ -153,7 +153,6 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         byte[] data = inLongMsg.buildArray();
-        headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(data, headers);
         inLongMsg.reset();
