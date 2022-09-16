@@ -411,7 +411,7 @@
   "pages.ConsumeDashboard.config.Total": "消费总数",
   "pages.ConsumeDashboard.config.Pending": "待审批",
   "pages.ConsumeDashboard.config.ConsumerGroup": "消费组",
-  "pages.ConsumeDashboard.config.ConsumptionInlongGroupId": "消费的流组ID",
+  "pages.ConsumeDashboard.config.ConsumptionInlongGroupId": "消费的Group ID",
   "pages.ConsumeDashboard.config.RecentConsumptionTime": "最近消费时间",
   "pages.ConsumeDashboard.config.Middleware": "消息队列",
   "pages.ConsumeDashboard.status.Normal": "正常",
