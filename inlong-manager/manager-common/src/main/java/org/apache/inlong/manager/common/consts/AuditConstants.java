@@ -15,31 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.audit;
-
-import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import lombok.Data;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * The VO of audit.
+ * Constant class for audit ids
  */
-@Data
-public class AuditVO {
+public class AuditConstants {
 
-    @ApiModelProperty(value = "Audit id")
-    private String auditId;
-    @ApiModelProperty(value = "Audit set")
-    private List<AuditInfo> auditSet;
-    @ApiModelProperty(value = "Node type")
-    private String nodeType;
+    public static final String AUDIT_ID_SDK_COLLECT = "1";
+    public static final String AUDIT_ID_SDK_SENT = "2";
+    public static final String AUDIT_ID_AGENT_COLLECT = "3";
+    public static final String AUDIT_ID_AGENT_SENT = "4";
+    public static final String AUDIT_ID_DATAPROXY_RECEIVED = "5";
+    public static final String AUDIT_ID_DATAPROXY_SENT = "6";
+    public static final String AUDIT_ID_SORT_INPUT = "7";
+    public static final String AUDIT_ID_SORT_OUTPUT = "8";
 
-    public AuditVO() {
-    }
-
-    public AuditVO(String auditId, List<AuditInfo> auditSet, String nodeType) {
-        this.auditId = auditId;
-        this.auditSet = auditSet;
-        this.nodeType = nodeType;
-    }
 }
