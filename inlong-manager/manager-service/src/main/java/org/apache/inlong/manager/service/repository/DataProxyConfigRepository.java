@@ -410,8 +410,7 @@ public class DataProxyConfigRepository implements IRepository {
                         cacheSet.setSetName(clusterTag);
                         List<CacheCluster> cacheClusterList = cacheEntry.getValue();
                         cacheSet.setType(cacheClusterList.get(0).getType());
-                        List<CacheClusterObject> cacheClusters = new ArrayList<>(cacheClusterList.size());
-                        cacheSet.setCacheClusters(cacheClusters);
+                        List<CacheClusterObject> cacheClusters = cacheSet.getCacheClusters();
                         for (CacheCluster cacheCluster : cacheClusterList) {
                             CacheClusterObject obj = new CacheClusterObject();
                             obj.setName(cacheCluster.getClusterName());
