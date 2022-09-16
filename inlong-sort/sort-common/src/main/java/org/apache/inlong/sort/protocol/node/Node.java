@@ -76,7 +76,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = TubeMQExtractNode.class, name = "tubeMQExtract"),
         @JsonSubTypes.Type(value = RedisExtractNode.class, name = "redisExtract"),
         @JsonSubTypes.Type(value = DorisExtractNode.class, name = "dorisExtract"),
-        @JsonSubTypes.Type(value = InfluxDBExtractNode.class, name = "influxExtract"),
+        @JsonSubTypes.Type(value = InfluxDBExtractNode.class, name = "influxDBExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
