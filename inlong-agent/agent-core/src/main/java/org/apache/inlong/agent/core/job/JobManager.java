@@ -241,6 +241,8 @@ public class JobManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     jobProfileDb.removeExpireJobs(jobDbCacheTime);
+                    Map<String, String> jobStateMap = jobProfileDb.getJobsState();
+                    LOGGER.info("check local job state: {}", jobStateMap);
                 } catch (Exception ex) {
                     LOGGER.error("removeExpireJobs error caught", ex);
                 }

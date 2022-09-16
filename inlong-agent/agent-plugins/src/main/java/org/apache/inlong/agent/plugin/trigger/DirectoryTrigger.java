@@ -134,7 +134,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             } else {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
                         entity.getSuitTime(), path.toFile());
-                if (!validateJobProfile(copiedJobProfile)) {
+                if (!validateJobProfile(copiedJobProfile, path)) {
                     return;
                 }
                 LOGGER.info("trigger {} generate job profile to read file {}",
@@ -144,14 +144,15 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         }
     }
 
-    private boolean validateJobProfile(JobProfile jobProfile) {
+    private boolean validateJobProfile(JobProfile jobProfile, Path path) {
         String groupId = jobProfile.get(JOB_GROUP_ID);
         String streamId = jobProfile.get(JOB_STREAM_ID);
-        String key = groupId.concat(DELIMITER_HYPHEN).concat(streamId);
+        String pathUri = path.toUri().getPath();
+        String key = groupId.concat(DELIMITER_HYPHEN).concat(streamId).concat(DELIMITER_HYPHEN).concat(pathUri);
         if (WATCHED_PATH.containsKey(key)) {
             return false;
         }
-        WATCHED_PATH.put(key, jobProfile.get(JOB_DIR_FILTER_PATTERN, jobProfile.getInstanceId()));
+        WATCHED_PATH.put(key, pathUri);
         return true;
     }
 
@@ -300,7 +301,6 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             } else {
                 register(pathPattern, timeOffset);
             }
-            validateJobProfile(profile);
         }
     }
 

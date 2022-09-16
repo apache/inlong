@@ -24,7 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 
 /**
  * Wrapper for job conf persistence.
@@ -191,5 +196,21 @@ public class JobProfileDb {
             profileList.add(entity.getAsJobProfile());
         }
         return profileList;
+    }
+
+    /**
+     * check local job state.
+     *
+     * @return list of job profile.
+     */
+    public Map<String, String> getJobsState() {
+        List<KeyValueEntity> entityList = db.search(Arrays.asList(StateSearchKey.values()));
+        Map<String, String> jobStateMap = new HashMap<>();
+        for (KeyValueEntity entity : entityList) {
+            JobProfile jobProfile = entity.getAsJobProfile();
+            String jobState = entity.getStateSearchKey().name().concat(":").concat(jobProfile.toString());
+            jobStateMap.put(jobProfile.get(JOB_ID), jobState);
+        }
+        return jobStateMap;
     }
 }
