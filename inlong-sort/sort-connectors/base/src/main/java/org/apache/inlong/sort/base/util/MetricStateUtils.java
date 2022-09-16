@@ -82,6 +82,7 @@ public class MetricStateUtils {
     /**
      *
      * Assignment previous subtask index to current subtask when reduce parallelism
+     * n = N/m, get n old task per new subtask, mth new subtask get (N - (m - 1) * n) old task
      * @param subtaskIndex current subtask index
      * @param currentSubtaskNum number of current parallel subtask
      * @param previousSubtaskNum number of previous parallel subtask
@@ -90,14 +91,14 @@ public class MetricStateUtils {
     public static List<Integer> computeIndexList(Integer subtaskIndex, Integer currentSubtaskNum,
             Integer previousSubtaskNum) {
         List<Integer> indexList = new ArrayList<>();
-        int taskNum = previousSubtaskNum / currentSubtaskNum;
+        int assignTaskNum = previousSubtaskNum / currentSubtaskNum;
         if (subtaskIndex == currentSubtaskNum - 1) {
-            for (int i = subtaskIndex * taskNum; i < previousSubtaskNum; i++) {
+            for (int i = subtaskIndex * assignTaskNum; i < previousSubtaskNum; i++) {
                 indexList.add(i);
             }
         } else {
-            for (int i = 1; i <= taskNum; i++) {
-                indexList.add(i + subtaskIndex * taskNum - 1);
+            for (int i = 1; i <= assignTaskNum; i++) {
+                indexList.add(i + subtaskIndex * assignTaskNum - 1);
             }
         }
         return indexList;
