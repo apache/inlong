@@ -36,7 +36,7 @@ import java.util.Map;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 /**
- * MySql load node can load data into MySql
+ * influxDB load node can load data into InfluxDB.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("influxDBLoadNode")

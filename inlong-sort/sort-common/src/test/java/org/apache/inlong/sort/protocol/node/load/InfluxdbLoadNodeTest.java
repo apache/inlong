@@ -32,7 +32,7 @@ public class InfluxdbLoadNodeTest extends SerializeBaseTest<InfluxDBLoadNode> {
                 Collections.singletonList(new FieldInfo("NAME", new StringFormatInfo())),
                 Collections.singletonList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("NAME", new StringFormatInfo()))),
-                null, null, 1,null,
+                null, null, 1, null,
                 null, "bucketName", "token",
                 "inlong", "inlong", "password", "url",
                 "organizationName");
