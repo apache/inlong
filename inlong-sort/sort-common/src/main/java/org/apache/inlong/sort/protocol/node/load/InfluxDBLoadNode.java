@@ -39,7 +39,7 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
  * influxDB load node can load data into InfluxDB.
  */
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("influxDBLoadNode")
+@JsonTypeName("influxdbLoadNode")
 @Data
 @NoArgsConstructor
 public class InfluxDBLoadNode extends LoadNode implements InlongMetric, Serializable {
