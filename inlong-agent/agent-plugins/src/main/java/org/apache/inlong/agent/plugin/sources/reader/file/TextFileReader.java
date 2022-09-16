@@ -58,7 +58,8 @@ public final class TextFileReader extends AbstractFileReader {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
                 fileReaderOperator.position)
                 .collect(Collectors.toList());
-        LOGGER.info("path is {}, data reads size {}", fileReaderOperator.file.getName(), lines.size());
+        LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
+                fileReaderOperator.position, lines.size());
         List<String> resultLines = new ArrayList<>();
         //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
