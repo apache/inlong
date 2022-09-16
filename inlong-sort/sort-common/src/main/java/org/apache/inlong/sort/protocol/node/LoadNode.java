@@ -74,7 +74,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = GreenplumLoadNode.class, name = "greenplumLoad"),
         @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad"),
         @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad"),
-        @JsonSubTypes.Type(value = InfluxDBLoadNode.class, name = "influxdb")
+        @JsonSubTypes.Type(value = InfluxDBLoadNode.class, name = "influxdbLoad")
 })
 @NoArgsConstructor
 @Data

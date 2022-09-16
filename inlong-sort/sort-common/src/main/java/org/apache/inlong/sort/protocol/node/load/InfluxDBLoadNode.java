@@ -93,7 +93,7 @@ public class InfluxDBLoadNode extends LoadNode implements InlongMetric, Serializ
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "influx-cdc-inlong");
+        options.put("connector", "jdbc-inlong");
         options.put("influxDBUrl", influxDBUrl);
         options.put("influxDBUsername", influxDBUsername);
         options.put("influxDBPassword", influxDBPassword);
