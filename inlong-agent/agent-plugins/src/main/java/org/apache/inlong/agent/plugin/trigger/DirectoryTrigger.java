@@ -46,11 +46,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DELIMITER_HYPHEN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
 public class DirectoryTrigger extends AbstractDaemon implements Trigger {
 
+    public static final ConcurrentHashMap<String, String> WATCHED_PATH = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryTrigger.class);
     private static volatile WatchService watchService;
     private final ConcurrentHashMap<PathPattern, List<WatchKey>> allWatchers =
@@ -128,11 +134,25 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             } else {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
                         entity.getSuitTime(), path.toFile());
+                if (!validateJobProfile(copiedJobProfile)) {
+                    return;
+                }
                 LOGGER.info("trigger {} generate job profile to read file {}",
                         getTriggerProfile().getTriggerId(), path.toString());
                 queue.offer(copiedJobProfile);
             }
         }
+    }
+
+    private boolean validateJobProfile(JobProfile jobProfile) {
+        String groupId = jobProfile.get(JOB_GROUP_ID);
+        String streamId = jobProfile.get(JOB_STREAM_ID);
+        String key = groupId.concat(DELIMITER_HYPHEN).concat(streamId);
+        if (WATCHED_PATH.containsKey(key)) {
+            return false;
+        }
+        WATCHED_PATH.put(key, jobProfile.get(JOB_DIR_FILTER_PATTERN, jobProfile.getInstanceId()));
+        return true;
     }
 
     /**
@@ -272,15 +292,15 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         interval = profile.getInt(
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
-
-        if (this.profile.hasKey(JobConstants.JOB_DIR_FILTER_PATTERN)) {
-            String pathPattern = this.profile.get(JobConstants.JOB_DIR_FILTER_PATTERN);
+        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERN)) {
+            String pathPattern = this.profile.get(JOB_DIR_FILTER_PATTERN);
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
                 register(pathPattern);
             } else {
                 register(pathPattern, timeOffset);
             }
+            validateJobProfile(profile);
         }
     }
 
