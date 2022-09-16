@@ -26,9 +26,8 @@ const resources = {
   en: {
     translation: {
       'configs.menus.Process': 'Approval',
-      'configs.menus.Groups': 'Data Group',
-      'configs.menus.DataConsumption': 'Data Consumption',
-      'configs.menus.Datasources': 'Data Sources',
+      'configs.menus.Groups': 'Data Groups',
+      'configs.menus.DataConsumption': 'Data Consumptions',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
@@ -40,9 +39,8 @@ const resources = {
   cn: {
     translation: {
       'configs.menus.Process': '审批管理',
-      'configs.menus.Groups': '数据分组',
+      'configs.menus.Groups': '数据流组',
       'configs.menus.DataConsumption': '数据消费',
-      'configs.menus.Datasources': '数据源服务器',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
