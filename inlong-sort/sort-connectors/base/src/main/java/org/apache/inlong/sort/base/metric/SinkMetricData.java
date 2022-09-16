@@ -66,34 +66,33 @@ public class SinkMetricData implements MetricData {
     }
 
     public SinkMetricData(
-            @Nullable String groupId,
-            @Nullable String streamId,
-            @Nullable String nodeId,
+            String groupId,
+            String streamId,
+            String nodeId,
             @Nullable RegisteredMetric registeredMetric,
             MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        if (groupId != null && streamId != null && nodeId != null) {
-            this.groupId = groupId;
-            this.streamId = streamId;
-            this.nodeId = nodeId;
-            if (RegisteredMetric.ALL.equals(registeredMetric)) {
-                registerMetricsForDirtyBytes(new ThreadSafeCounter());
-                registerMetricsForDirtyRecords(new ThreadSafeCounter());
-                registerMetricsForNumBytesOut(new ThreadSafeCounter());
-                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-                registerMetricsForNumBytesOutPerSecond();
-                registerMetricsForNumRecordsOutPerSecond();
-            } else if (RegisteredMetric.DIRTY.equals(registeredMetric)) {
-                registerMetricsForDirtyBytes(new ThreadSafeCounter());
-                registerMetricsForDirtyRecords(new ThreadSafeCounter());
-            } else if (RegisteredMetric.NORMAL.equals(registeredMetric)) {
-                registerMetricsForNumBytesOut(new ThreadSafeCounter());
-                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-                registerMetricsForNumBytesOutPerSecond();
-                registerMetricsForNumRecordsOutPerSecond();
-            }
+        this.groupId = groupId;
+        this.streamId = streamId;
+        this.nodeId = nodeId;
+        if (RegisteredMetric.ALL.equals(registeredMetric)) {
+            registerMetricsForDirtyBytes(new ThreadSafeCounter());
+            registerMetricsForDirtyRecords(new ThreadSafeCounter());
+            registerMetricsForNumBytesOut(new ThreadSafeCounter());
+            registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+            registerMetricsForNumBytesOutPerSecond();
+            registerMetricsForNumRecordsOutPerSecond();
+        } else if (RegisteredMetric.DIRTY.equals(registeredMetric)) {
+            registerMetricsForDirtyBytes(new ThreadSafeCounter());
+            registerMetricsForDirtyRecords(new ThreadSafeCounter());
+        } else if (RegisteredMetric.NORMAL.equals(registeredMetric)) {
+            registerMetricsForNumBytesOut(new ThreadSafeCounter());
+            registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+            registerMetricsForNumBytesOutPerSecond();
+            registerMetricsForNumRecordsOutPerSecond();
         }
+
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             this.auditImp = AuditImp.getInstance();

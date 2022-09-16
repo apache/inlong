@@ -63,9 +63,9 @@ public class SourceMetricData implements MetricData {
     }
 
     public SourceMetricData(
-            @Nullable String groupId,
-            @Nullable String streamId,
-            @Nullable String nodeId,
+            String groupId,
+            String streamId,
+            String nodeId,
             @Nullable RegisteredMetric registeredMetric,
             MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {

@@ -42,16 +42,18 @@ public class MetricOption {
     private RegisteredMetric registeredMetric;
 
     private MetricOption(
-            @Nullable String inLongMetric,
+            String inLongGroupStreamNode,
             @Nullable String inLongAudit,
             @Nullable RegisteredMetric registeredMetric) {
-        if (inLongMetric != null) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            Preconditions.checkArgument(inLongMetricArray.length == 3,
-                    "Error inLong metric format: " + inLongMetric);
-            this.groupId = inLongMetricArray[0];
-            this.streamId = inLongMetricArray[1];
-            this.nodeId = inLongMetricArray[2];
+        Preconditions.checkNotNull(inLongGroupStreamNode,
+                "Inlong group stream node must be set for register metric.");
+        if (inLongGroupStreamNode != null) {
+            String[] inLongGroupStreamNodeArray = inLongGroupStreamNode.split(DELIMITER);
+            Preconditions.checkArgument(inLongGroupStreamNodeArray.length == 3,
+                    "Error inLong metric format: " + inLongGroupStreamNode);
+            this.groupId = inLongGroupStreamNodeArray[0];
+            this.streamId = inLongGroupStreamNodeArray[1];
+            this.nodeId = inLongGroupStreamNodeArray[2];
         }
 
         this.ipPortList = new HashSet<>();
@@ -67,7 +69,6 @@ public class MetricOption {
         }
 
         if (registeredMetric != null) {
-            Preconditions.checkNotNull(inLongMetric, "Inlong metric must be set for register metric.");
             this.registeredMetric = registeredMetric;
         }
     }
@@ -107,7 +108,7 @@ public class MetricOption {
     }
 
     public static class Builder {
-        private String inLongMetric;
+        private String inLongGroupStreamNode;
         private String inLongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
 
@@ -115,7 +116,7 @@ public class MetricOption {
         }
 
         public MetricOption.Builder withInLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+            this.inLongGroupStreamNode = inLongMetric;
             return this;
         }
 
@@ -130,10 +131,10 @@ public class MetricOption {
         }
 
         public MetricOption build() {
-            if (inLongMetric == null && inLongAudit == null) {
+            if (inLongGroupStreamNode == null && inLongAudit == null) {
                 return null;
             }
-            return new MetricOption(inLongMetric, inLongAudit, registeredMetric);
+            return new MetricOption(inLongGroupStreamNode, inLongAudit, registeredMetric);
         }
     }
 }

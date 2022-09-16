@@ -86,7 +86,7 @@ public final class Constants {
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inlong.metric")
+        ConfigOptions.key("inlong.group_stream_node")
             .stringType()
             .noDefaultValue()
             .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");

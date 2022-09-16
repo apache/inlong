@@ -59,7 +59,9 @@ import org.apache.flink.util.NetUtils;
 import org.apache.flink.util.TemporaryClassLoaderContext;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -908,7 +910,8 @@ public class FlinkKafkaProducer<IN>
         if (metricOption != null) {
             metricData = new SinkMetricData(metricOption, ctx.getMetricGroup());
             metricData.registerMetricsForNumBytesOutForMeter(new ThreadSafeCounter());
-            metricData.registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());        }
+            metricData.registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());
+        }
         if (metricState != null && metricData != null) {
             metricData.getNumBytesOut().inc(metricState.getMetricValue(NUM_BYTES_OUT));
             metricData.getNumRecordsOut().inc(metricState.getMetricValue(NUM_RECORDS_OUT));

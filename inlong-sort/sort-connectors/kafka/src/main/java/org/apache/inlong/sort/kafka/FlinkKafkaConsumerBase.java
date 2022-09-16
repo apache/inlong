@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.kafka;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -63,7 +62,6 @@ import org.apache.flink.streaming.runtime.operators.util.AssignerWithPeriodicWat
 import org.apache.flink.streaming.runtime.operators.util.AssignerWithPunctuatedWatermarksAdapter;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
-import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -76,10 +74,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -92,7 +88,6 @@ import static org.apache.flink.streaming.connectors.kafka.internals.metrics.Kafk
 import static org.apache.flink.streaming.connectors.kafka.internals.metrics.KafkaConsumerMetricConstants.KAFKA_CONSUMER_METRICS_GROUP;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -834,8 +829,8 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
         MetricOption metricOption = MetricOption.builder()
-                .withInLongMetric(inlongMetric)
-                .withInLongAudit(inlongAudit)
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(inlongAudit)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
