@@ -570,6 +570,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         Channel remoteChannel = ctx.channel();
+        String strRemoteIP = getRemoteIp(remoteChannel);
         ByteBuf cb = (ByteBuf) msg;
         try {
             int len = cb.readableBytes();
@@ -580,8 +581,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             Map<String, Object> resultMap = null;
+            final long msgRcvTime = System.currentTimeMillis();
             try {
-                resultMap = serviceProcessor.extractData(cb, remoteChannel);
+                resultMap = serviceProcessor.extractData(cb,
+                        strRemoteIP, msgRcvTime, remoteChannel);
             } catch (MessageIDException ex) {
                 this.addMetric(false, 0, null);
                 throw new IOException(ex.getCause());
@@ -617,7 +620,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                     && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
-                String strRemoteIP = getRemoteIp(remoteChannel);
                 updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
                 formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);
