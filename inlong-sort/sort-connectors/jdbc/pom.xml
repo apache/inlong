@@ -79,6 +79,16 @@
             <artifactId>hadoop-common</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- dependencies for influx DB jdbc Driver -->
+        <dependency>
+            <groupId>com.influxdb</groupId>
+            <artifactId>influxdb-client-flux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.influxdb</groupId>
+            <artifactId>influxdb-client-java</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
