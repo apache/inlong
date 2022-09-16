@@ -25,9 +25,9 @@ import org.apache.inlong.manager.pojo.cluster.queue.MessageQueueSynchronizeTopic
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.cluster.queue.MessageQueueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -44,58 +44,38 @@ public class MessageQueueController {
     @Autowired
     private MessageQueueService queueService;
 
-    @RequestMapping(value = "/cluster/queue/control", method = RequestMethod.POST)
+    @PostMapping("/cluster/queue/control")
     @ApiOperation(value = "Control produce operation and consume operation of Inlong message queue cluster ")
-    public Response<String> control(@RequestBody MessageQueueControlRequest request) {
-        String result = queueService.control(request);
-        if (result == null) {
-            return Response.success();
-        } else {
-            return Response.fail(result);
-        }
+    public Response<Void> control(@RequestBody MessageQueueControlRequest request) {
+        queueService.control(request);
+        return Response.success();
     }
 
-    @RequestMapping(value = "/cluster/queue/online", method = RequestMethod.POST)
+    @PostMapping("/cluster/queue/online")
     @ApiOperation(value = "Build relationships between DataProxy cluster and MessageQueue cluster")
-    public Response<String> online(@RequestBody MessageQueueOnlineRequest request) {
-        String result = queueService.online(request);
-        if (result == null) {
-            return Response.success();
-        } else {
-            return Response.fail(result);
-        }
+    public Response<Void> online(@RequestBody MessageQueueOnlineRequest request) {
+        queueService.online(request);
+        return Response.success();
     }
 
-    @RequestMapping(value = "/cluster/queue/offline", method = RequestMethod.POST)
+    @PostMapping("/cluster/queue/offline")
     @ApiOperation(value = "Remove relationships between DataProxy cluster and MessageQueue cluster")
-    public Response<String> offline(@RequestBody MessageQueueOfflineRequest request) {
-        String result = queueService.offline(request);
-        if (result == null) {
-            return Response.success();
-        } else {
-            return Response.fail(result);
-        }
+    public Response<Void> offline(@RequestBody MessageQueueOfflineRequest request) {
+        queueService.offline(request);
+        return Response.success();
     }
 
-    @RequestMapping(value = "/cluster/queue/topic/synchronize", method = RequestMethod.POST)
+    @PostMapping("/cluster/queue/topic/synchronize")
     @ApiOperation(value = "Synchronize all topic from cluster tag to message queue cluster")
-    public Response<String> synchronize(@RequestBody MessageQueueSynchronizeTopicRequest request) {
-        String result = queueService.synchronizeTopic(request);
-        if (result == null) {
-            return Response.success();
-        } else {
-            return Response.fail(result);
-        }
+    public Response<Void> synchronize(@RequestBody MessageQueueSynchronizeTopicRequest request) {
+        queueService.synchronizeTopic(request);
+        return Response.success();
     }
 
-    @RequestMapping(value = "/cluster/queue/topic/clear", method = RequestMethod.POST)
+    @PostMapping("/cluster/queue/topic/clear")
     @ApiOperation(value = "Clear all topic from a message queue cluster")
-    public Response<String> clear(@RequestBody MessageQueueClearTopicRequest request) {
-        String result = queueService.clearTopic(request);
-        if (result == null) {
-            return Response.success();
-        } else {
-            return Response.fail(result);
-        }
+    public Response<Void> clear(@RequestBody MessageQueueClearTopicRequest request) {
+        queueService.clearTopic(request);
+        return Response.success();
     }
 }

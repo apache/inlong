@@ -31,25 +31,25 @@ public interface MessageQueueService {
     /**
      * Control produce operation and consume operation of Inlong message queue cluster 
      */
-    String control(MessageQueueControlRequest request);
+    void control(MessageQueueControlRequest request);
 
     /**
      * Build relationships between DataProxy cluster and MessageQueue cluster
      */
-    String online(MessageQueueOnlineRequest request);
+    void online(MessageQueueOnlineRequest request);
 
     /**
      * Remove relationships between DataProxy cluster and MessageQueue cluster
      */
-    String offline(MessageQueueOfflineRequest request);
+    void offline(MessageQueueOfflineRequest request);
 
     /**
      * Synchronize all topic from cluster tag to message queue cluster
      */
-    String synchronizeTopic(MessageQueueSynchronizeTopicRequest request);
+    void synchronizeTopic(MessageQueueSynchronizeTopicRequest request);
 
     /**
      * Clear all topic from a message queue cluster
      */
-    String clearTopic(MessageQueueClearTopicRequest request);
+    void clearTopic(MessageQueueClearTopicRequest request);
 }

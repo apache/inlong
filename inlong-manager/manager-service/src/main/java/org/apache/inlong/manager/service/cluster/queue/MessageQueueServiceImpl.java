@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -93,11 +94,11 @@ public class MessageQueueServiceImpl implements MessageQueueService {
      * Control produce operation and consume operation of Inlong message queue cluster 
      */
     @Override
-    public String control(MessageQueueControlRequest request) {
+    public void control(MessageQueueControlRequest request) {
         String name = request.getName();
         // check parameters
         if (StringUtils.isEmpty(name)) {
-            return "miss cluster name.";
+            throw new BusinessException("miss cluster name.");
         }
         Boolean canProduce = request.getCanProduce();
         if (canProduce == null) {
@@ -110,10 +111,10 @@ public class MessageQueueServiceImpl implements MessageQueueService {
         // find cluster
         List<InlongClusterEntity> clusters = clusterMapper.selectByKey(null, name, null);
         if (clusters.size() <= 0) {
-            return "Can not find a cluster by name:" + name;
+            throw new BusinessException("Can not find a cluster by name:" + name);
         }
         if (clusters.size() > 1) {
-            return String.format("Cluster:%s data is more than 1.", name);
+            throw new BusinessException(String.format("Cluster:%s data is more than 1.", name));
         }
         for (InlongClusterEntity cluster : clusters) {
             String strExtTag = cluster.getExtTag();
@@ -125,52 +126,53 @@ public class MessageQueueServiceImpl implements MessageQueueService {
             cluster.setExtTag(newExtTag);
             clusterMapper.updateById(cluster);
         }
-        return null;
     }
 
     /**
      * Build relationships between DataProxy cluster and MessageQueue cluster
      */
-    public String online(MessageQueueOnlineRequest request) {
+    @Override
+    public void online(MessageQueueOnlineRequest request) {
         String mqClusterName = request.getMqClusterName();
         String proxyClusterName = request.getProxyClusterName();
-        return this.updateExtTag(mqClusterName, proxyClusterName, true);
+        this.updateExtTag(mqClusterName, proxyClusterName, true);
     }
 
     /**
      * Remove relationships between DataProxy cluster and MessageQueue cluster
      */
-    public String offline(MessageQueueOfflineRequest request) {
+    @Override
+    public void offline(MessageQueueOfflineRequest request) {
         String mqClusterName = request.getMqClusterName();
         String proxyClusterName = request.getProxyClusterName();
-        return this.updateExtTag(mqClusterName, proxyClusterName, false);
+        this.updateExtTag(mqClusterName, proxyClusterName, false);
     }
 
     /**
      * updateExtTag
      */
-    private String updateExtTag(String mqClusterName, String proxyClusterName, boolean isAppendTag) {
+    private void updateExtTag(String mqClusterName, String proxyClusterName, boolean isAppendTag) {
         // check parameters
         if (StringUtils.isEmpty(mqClusterName)) {
-            return "miss message queue cluster name.";
+            throw new BusinessException("miss message queue cluster name.");
         }
         if (StringUtils.isEmpty(proxyClusterName)) {
-            return "miss DataProxy cluster name.";
+            throw new BusinessException("miss DataProxy cluster name.");
         }
         // find cluster
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
-            return "Can not find message queue cluster by name:" + mqClusterName;
+            throw new BusinessException("Can not find message queue cluster by name:" + mqClusterName);
         }
         if (mqClusters.size() > 1) {
-            return String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName);
+            throw new BusinessException(String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName));
         }
         List<InlongClusterEntity> proxyClusters = clusterMapper.selectByKey(null, proxyClusterName, null);
         if (proxyClusters.size() <= 0) {
-            return "Can not find DataProxy cluster by name:" + proxyClusterName;
+            throw new BusinessException("Can not find DataProxy cluster by name:" + proxyClusterName);
         }
         if (proxyClusters.size() > 1) {
-            return String.format("DataProxy cluster:%s data is more than 1.", proxyClusterName);
+            throw new BusinessException(String.format("DataProxy cluster:%s data is more than 1.", proxyClusterName));
         }
 
         // parse DataProxy extTag
@@ -195,31 +197,32 @@ public class MessageQueueServiceImpl implements MessageQueueService {
         String newExtTag = MAP_JOINER.join(mqExtTagMap);
         mqCluster.setExtTag(newExtTag);
         clusterMapper.updateById(mqCluster);
-        return null;
     }
 
     /**
      * Synchronize all topic from cluster tag to message queue cluster
      */
-    public String synchronizeTopic(MessageQueueSynchronizeTopicRequest request) {
+    @Override
+    public void synchronizeTopic(MessageQueueSynchronizeTopicRequest request) {
         String mqClusterName = request.getName();
         // check parameters
         if (StringUtils.isEmpty(mqClusterName)) {
-            return "miss message queue cluster name.";
+            throw new BusinessException("miss message queue cluster name.");
         }
         // find cluster
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
-            return "Can not find message queue cluster by name:" + mqClusterName;
+            throw new BusinessException("Can not find message queue cluster by name:" + mqClusterName);
         }
         if (mqClusters.size() > 1) {
-            return String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName);
+            throw new BusinessException(String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName));
         }
         // find cluster tag
         InlongClusterEntity mqCluster = mqClusters.get(0);
         String clusterTag = mqCluster.getClusterTags();
         if (StringUtils.isEmpty(clusterTag)) {
-            return String.format("Cluster tag of message queue cluster:%s is null.", mqClusterName);
+            throw new BusinessException(
+                    String.format("Cluster tag of message queue cluster:%s is null.", mqClusterName));
         }
         // find group entities
         InlongGroupPageRequest groupRequest = new InlongGroupPageRequest();
@@ -228,42 +231,40 @@ public class MessageQueueServiceImpl implements MessageQueueService {
         List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(groupRequest);
         String mqType = mqCluster.getType();
         if (StringUtils.equalsIgnoreCase(mqType, MQType.PULSAR)) {
-            return this.createPulsarTopic(mqCluster, groupEntities);
+            this.createPulsarTopic(mqCluster, groupEntities);
         } else if (StringUtils.equalsIgnoreCase(mqType, MQType.KAFKA)) {
-            return this.createKafkaTopic(mqCluster, groupEntities);
+            this.createKafkaTopic(mqCluster, groupEntities);
         } else if (StringUtils.equalsAnyIgnoreCase(mqType, MQType.TUBEMQ)) {
-            return this.createTubeTopic(mqCluster, groupEntities);
+            this.createTubeTopic(mqCluster, groupEntities);
         } else {
-            return String.format("Unknown message queue type:%s", mqType);
+            throw new BusinessException(String.format("Unknown message queue type:%s", mqType));
         }
     }
 
     /**
      * createPulsarTopic
      */
-    private String createPulsarTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
-        PulsarAdmin admin = null;
+    private void createPulsarTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
+        // check cluster parameters
+        String strExtParams = cluster.getExtParams();
+        Gson gson = new Gson();
         java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
-        try {
-            // check cluster parameters
-            String strExtParams = cluster.getExtParams();
-            Gson gson = new Gson();
-            Map<String, String> extParams = gson.fromJson(strExtParams, type);
-            if (!extParams.containsKey(KEY_ADMIN_URL)) {
-                String errorMessage = String.format("Can not create pulsar topic,adminUrl is empty,cluster:%s",
-                        cluster.getName());
-                LOG.error(errorMessage);
-                return errorMessage;
-            }
-            String adminUrl = extParams.get(KEY_ADMIN_URL);
-            String authentication = extParams.get(KEY_AUTHENTICATION);
-            // create admin
-            PulsarAdminBuilder pulsarAdminBuilder = PulsarAdmin.builder().serviceHttpUrl(adminUrl);
-            if (!StringUtils.isEmpty(authentication)) {
-                pulsarAdminBuilder.authentication(AuthenticationFactory.token(authentication));
-            }
-            admin = pulsarAdminBuilder.build();
+        Map<String, String> extParams = gson.fromJson(strExtParams, type);
+        if (!extParams.containsKey(KEY_ADMIN_URL)) {
+            String errorMessage = String.format("Can not create pulsar topic,adminUrl is empty,cluster:%s",
+                    cluster.getName());
+            LOG.error(errorMessage);
+            throw new BusinessException(errorMessage);
+        }
+        String adminUrl = extParams.get(KEY_ADMIN_URL);
+        String authentication = extParams.get(KEY_AUTHENTICATION);
+        // create admin
+        PulsarAdminBuilder pulsarAdminBuilder = PulsarAdmin.builder().serviceHttpUrl(adminUrl);
+        if (!StringUtils.isEmpty(authentication)) {
+            pulsarAdminBuilder.authentication(AuthenticationFactory.token(authentication));
+        }
+        try (PulsarAdmin admin = pulsarAdminBuilder.build()) {
             // namespacePrefix
             String tenant = extParams.get(KEY_TENANT);
             StringBuilder producerTopic = new StringBuilder();
@@ -317,34 +318,27 @@ public class MessageQueueServiceImpl implements MessageQueueService {
                             cluster.getName(), e.getMessage(), e);
                 }
             }
-            return null;
         } catch (Exception e) {
             String errorMsg = String.format("Can not create pulsar Topic of cluster:%s,error:%s",
                     cluster.getName(), e.getMessage());
             LOG.error(errorMsg, e);
-            return errorMsg;
-        } finally {
-            if (admin != null) {
-                admin.close();
-            }
+            throw new BusinessException(errorMsg);
         }
     }
 
     /**
      * createKafkaTopic
      */
-    private String createKafkaTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
-        AdminClient admin = null;
+    private void createKafkaTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
+        String strExtParams = cluster.getExtParams();
+        Gson gson = new Gson();
         java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
-        try {
-            String strExtParams = cluster.getExtParams();
-            Gson gson = new Gson();
-            Map<String, String> extParams = gson.fromJson(strExtParams, type);
-            Properties properties = new Properties();
-            properties.putAll(extParams);
-            // create admin
-            admin = AdminClient.create(properties);
+        Map<String, String> extParams = gson.fromJson(strExtParams, type);
+        Properties properties = new Properties();
+        properties.putAll(extParams);
+        // create admin
+        try (AdminClient admin = AdminClient.create(properties)) {
             Set<String> topics = admin.listTopics().names().get();
             int mqDefaultNumPartitions = NumberUtils.toInt(extParams.get(KEY_NUM_PARTITIONS), DEFAULT_NUM_PARTITIONS);
             short mqDefaultReplicationFactor = NumberUtils.toShort(extParams.get(KEY_REPLICATION_FACTOR),
@@ -376,19 +370,14 @@ public class MessageQueueServiceImpl implements MessageQueueService {
             String errorMsg = String.format("Can not create kafka Topic of cluster:%s,error:%s",
                     cluster.getName(), e.getMessage());
             LOG.error(errorMsg, e);
-            return errorMsg;
-        } finally {
-            if (admin != null) {
-                admin.close();
-            }
+            throw new BusinessException(errorMsg);
         }
-        return null;
     }
 
     /**
      * createTubeTopic
      */
-    private String createTubeTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
+    private void createTubeTopic(InlongClusterEntity cluster, List<InlongGroupEntity> groupInfos) {
         TubeClusterInfo tubeClusterInfo = this.createTubeClusterInfo(cluster);
         for (InlongGroupEntity groupInfo : groupInfos) {
             try {
@@ -398,7 +387,6 @@ public class MessageQueueServiceImpl implements MessageQueueService {
                         cluster.getName(), e.getMessage(), e);
             }
         }
-        return null;
     }
 
     /**
@@ -422,71 +410,78 @@ public class MessageQueueServiceImpl implements MessageQueueService {
     /**
      * Clear all topic from a message queue cluster
      */
-    public String clearTopic(MessageQueueClearTopicRequest request) {
+    @Override
+    public void clearTopic(MessageQueueClearTopicRequest request) {
         String mqClusterName = request.getName();
         // check parameters
         if (StringUtils.isEmpty(mqClusterName)) {
-            return "miss message queue cluster name.";
+            String errorMsg = "miss message queue cluster name.";
+            throw new BusinessException(errorMsg);
         }
         // find cluster
         List<InlongClusterEntity> mqClusters = clusterMapper.selectByKey(null, mqClusterName, null);
         if (mqClusters.size() <= 0) {
-            return "Can not find message queue cluster by name:" + mqClusterName;
+            String errorMsg = "Can not find message queue cluster by name:" + mqClusterName;
+            throw new BusinessException(errorMsg);
         }
         if (mqClusters.size() > 1) {
-            return String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName);
+            String errorMsg = String.format("MessageQueue cluster:%s data is more than 1.", mqClusterName);
+            throw new BusinessException(errorMsg);
         }
         // find cluster tag
         InlongClusterEntity mqCluster = mqClusters.get(0);
         String clusterTag = mqCluster.getClusterTags();
         if (StringUtils.isEmpty(clusterTag)) {
-            return String.format("Cluster tag of message queue cluster:%s is null.", mqClusterName);
+            String errorMsg = String.format("Cluster tag of message queue cluster:%s is null.", mqClusterName);
+            throw new BusinessException(errorMsg);
         }
         // clear topic
         String mqType = mqCluster.getType();
         if (StringUtils.equalsIgnoreCase(mqType, MQType.PULSAR)) {
-            return this.clearPulsarTopic(mqCluster);
+            this.clearPulsarTopic(mqCluster);
         } else if (StringUtils.equalsIgnoreCase(mqType, MQType.KAFKA)) {
-            return this.clearKafkaTopic(mqCluster);
+            this.clearKafkaTopic(mqCluster);
         } else if (StringUtils.equalsAnyIgnoreCase(mqType, MQType.TUBEMQ)) {
-            return this.clearTubeTopic(mqCluster);
+            this.clearTubeTopic(mqCluster);
         } else {
-            return String.format("Unknown message queue type:%s", mqType);
+            String errorMsg = String.format("Unknown message queue type:%s", mqType);
+            throw new BusinessException(errorMsg);
         }
     }
 
     /**
      * createPulsarTopic
      */
-    private String clearPulsarTopic(InlongClusterEntity cluster) {
-        PulsarAdmin admin = null;
+    private void clearPulsarTopic(InlongClusterEntity cluster) {
+        // check cluster parameters
+        String strExtParams = cluster.getExtParams();
+        Gson gson = new Gson();
         java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
-        try {
-            // check cluster parameters
-            String strExtParams = cluster.getExtParams();
-            Gson gson = new Gson();
-            Map<String, String> extParams = gson.fromJson(strExtParams, type);
-            if (!extParams.containsKey(KEY_ADMIN_URL)) {
-                String errorMessage = String.format("Can not create pulsar topic,adminUrl is empty,cluster:%s",
-                        cluster.getName());
-                LOG.error(errorMessage);
-                return errorMessage;
-            }
-            // check namespace
-            String tenant = extParams.get(KEY_TENANT);
-            String namespace = extParams.get(KEY_NAMESPACE);
-            if (StringUtils.isEmpty(tenant) || StringUtils.isEmpty(namespace)) {
-                return String.format("tenant or namespace is null,tenant:%s,namespace:%s", tenant, namespace);
-            }
-            // create admin
-            String adminUrl = extParams.get(KEY_ADMIN_URL);
-            String authentication = extParams.get(KEY_AUTHENTICATION);
-            PulsarAdminBuilder pulsarAdminBuilder = PulsarAdmin.builder().serviceHttpUrl(adminUrl);
-            if (!StringUtils.isEmpty(authentication)) {
-                pulsarAdminBuilder.authentication(AuthenticationFactory.token(authentication));
-            }
-            admin = pulsarAdminBuilder.build();
+        Map<String, String> extParams = gson.fromJson(strExtParams, type);
+        if (!extParams.containsKey(KEY_ADMIN_URL)) {
+            String errorMessage = String.format("Can not create pulsar topic,adminUrl is empty,cluster:%s",
+                    cluster.getName());
+            LOG.error(errorMessage);
+            throw new BusinessException(errorMessage);
+        }
+        // check namespace
+        String tenant = extParams.get(KEY_TENANT);
+        String namespace = extParams.get(KEY_NAMESPACE);
+        if (StringUtils.isEmpty(tenant) || StringUtils.isEmpty(namespace)) {
+            String errorMessage = String.format("tenant or namespace is null,tenant:%s,namespace:%s", tenant,
+                    namespace);
+            throw new BusinessException(errorMessage);
+        }
+        // create admin
+        String adminUrl = extParams.get(KEY_ADMIN_URL);
+        String authentication = extParams.get(KEY_AUTHENTICATION);
+        PulsarAdminBuilder pulsarAdminBuilder = PulsarAdmin.builder().serviceHttpUrl(adminUrl);
+        if (!StringUtils.isEmpty(authentication)) {
+            pulsarAdminBuilder.authentication(AuthenticationFactory.token(authentication));
+        }
+
+        try (PulsarAdmin admin = pulsarAdminBuilder.build()) {
             // get topics
             Topics topicAdmin = admin.topics();
             String tenantNamespace = tenant + "/" + namespace;
@@ -498,37 +493,30 @@ public class MessageQueueServiceImpl implements MessageQueueService {
                     String errorMsg = String.format("Can not delete Topic:%s,error:%s",
                             topic, e.getMessage());
                     LOG.error(errorMsg, e);
-                    return errorMsg;
+                    throw new BusinessException(errorMsg);
                 }
             }
-            return null;
         } catch (Exception e) {
             String errorMsg = String.format("Can not clear pulsar Topic of cluster:%s,error:%s",
                     cluster.getName(), e.getMessage());
             LOG.error(errorMsg, e);
-            return errorMsg;
-        } finally {
-            if (admin != null) {
-                admin.close();
-            }
+            throw new BusinessException(errorMsg);
         }
     }
 
     /**
      * createKafkaTopic
      */
-    private String clearKafkaTopic(InlongClusterEntity cluster) {
-        AdminClient admin = null;
+    private void clearKafkaTopic(InlongClusterEntity cluster) {
+        String strExtParams = cluster.getExtParams();
+        Gson gson = new Gson();
         java.lang.reflect.Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
-        try {
-            String strExtParams = cluster.getExtParams();
-            Gson gson = new Gson();
-            Map<String, String> extParams = gson.fromJson(strExtParams, type);
-            Properties properties = new Properties();
-            properties.putAll(extParams);
-            // create admin
-            admin = AdminClient.create(properties);
+        Map<String, String> extParams = gson.fromJson(strExtParams, type);
+        Properties properties = new Properties();
+        properties.putAll(extParams);
+        // create admin
+        try (AdminClient admin = AdminClient.create(properties)) {
             // check topic exist
             Set<String> topics = admin.listTopics().names().get();
             DeleteTopicsResult result = admin.deleteTopics(topics);
@@ -537,13 +525,8 @@ public class MessageQueueServiceImpl implements MessageQueueService {
             String errorMsg = String.format("Can not clear kafka Topic of cluster:%s,error:%s",
                     cluster.getName(), e.getMessage());
             LOG.error(errorMsg, e);
-            return errorMsg;
-        } finally {
-            if (admin != null) {
-                admin.close();
-            }
+            throw new BusinessException(errorMsg);
         }
-        return null;
     }
 
     /**
