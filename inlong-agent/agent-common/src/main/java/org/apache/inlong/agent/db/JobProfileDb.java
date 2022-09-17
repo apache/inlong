@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 
@@ -201,15 +202,21 @@ public class JobProfileDb {
     /**
      * check local job state.
      *
-     * @return list of job profile.
+     * @return KV, key is job id and value is subtask of job
      */
-    public Map<String, String> getJobsState() {
+    public Map<String, List<String>> getJobsState() {
         List<KeyValueEntity> entityList = db.search(Arrays.asList(StateSearchKey.values()));
-        Map<String, String> jobStateMap = new HashMap<>();
+        Map<String, List<String>> jobStateMap = new HashMap<>();
         for (KeyValueEntity entity : entityList) {
+            List<String> tmpList = new ArrayList<>();
             JobProfile jobProfile = entity.getAsJobProfile();
             String jobState = entity.getStateSearchKey().name().concat(":").concat(jobProfile.toJsonStr());
-            jobStateMap.put(jobProfile.get(JOB_ID), jobState);
+            tmpList.add(jobState);
+            List<String> jobStates = jobStateMap.putIfAbsent(jobProfile.get(JOB_ID), tmpList);
+            if (Objects.nonNull(jobStates) && !jobStates.contains(jobState)) {
+                jobStates.addAll(tmpList);
+                jobStateMap.put(jobProfile.get(JOB_ID), jobStates);
+            }
         }
         return jobStateMap;
     }

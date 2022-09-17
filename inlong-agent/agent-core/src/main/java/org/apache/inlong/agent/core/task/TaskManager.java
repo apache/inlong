@@ -128,6 +128,10 @@ public class TaskManager extends AbstractDaemon {
             boolean notSubmitted = true;
             while (notSubmitted) {
                 try {
+                    if (this.runningPool.isShutdown()) {
+                        LOGGER.error("submit task error because thread pool is closed");
+                        break;
+                    }
                     this.runningPool.submit(wrapper);
                     notSubmitted = false;
                 } catch (Exception ex) {

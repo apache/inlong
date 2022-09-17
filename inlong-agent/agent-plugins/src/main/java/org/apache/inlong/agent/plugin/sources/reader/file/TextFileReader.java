@@ -71,7 +71,8 @@ public final class TextFileReader extends AbstractFileReader {
                 String data = lineStringBuffer.get(fileReaderOperator.file);
                 Matcher matcher = pattern.matcher(data);
                 if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
-                    String[] splitLines = data.split(matcher.group());
+                    String splitStr = matcher.group();
+                    String[] splitLines = data.split(splitStr);
                     int length = splitLines.length;
                     for (int i = 0; i < length; i++) {
                         if (i > 0 && i == length - 1 && null != splitLines[i]) {
@@ -79,6 +80,10 @@ public final class TextFileReader extends AbstractFileReader {
                             break;
                         }
                         resultLines.add(splitLines[i].trim());
+                    }
+                    if (data.startsWith(splitStr, data.length() - splitStr.length() - 1)) {
+                        length = 1;
+                        resultLines.add(lineStringBuffer.get(fileReaderOperator.file));
                     }
                     if (1 == length) {
                         lineStringBuffer.remove(fileReaderOperator.file);

@@ -26,6 +26,9 @@ import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
+import org.apache.inlong.agent.core.task.Task;
+import org.apache.inlong.agent.db.JobProfileDb;
+import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -36,9 +39,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
 
@@ -141,8 +146,16 @@ public class TriggerManager extends AbstractDaemon {
                             if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
                                 deleteRelatedJobs(triggerProfile.getTriggerId());
                             }
-                            manager.getJobManager().submitFileJobProfile(profile);
-                            addToTriggerMap(profile.get(JOB_ID), profile);
+                            Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
+                            // running job then add new task
+                            if (isRunningJob(profile, jobWrapperMap)) {
+                                jobWrapperMap.get(profile.getInstanceId()).addTask(profile);
+                            }
+                            // not running job then add job
+                            if (isExistJob(profile)) {
+                                manager.getJobManager().submitFileJobProfile(profile);
+                                addToTriggerMap(profile.get(JOB_ID), profile);
+                            }
                         }
                     });
                     TimeUnit.SECONDS.sleep(triggerFetchInterval);
@@ -154,6 +167,35 @@ public class TriggerManager extends AbstractDaemon {
             }
 
         };
+    }
+
+    private boolean isRunningJob(JobProfile profile, Map<String, JobWrapper> jobWrapperMap) {
+        JobWrapper jobWrapper;
+        try {
+            jobWrapper = jobWrapperMap.get(profile.getInstanceId());
+        } catch (Exception exception) {
+            LOGGER.warn("jobWrapper is null");
+            return false;
+        }
+        List<Task> tasks = jobWrapper.getAllTasks();
+        for (Task task : tasks) {
+            JobProfile runJobProfile = task.getJobConf();
+            if (runJobProfile.get(JOB_DIR_FILTER_PATTERN).equals(profile.get(JOB_DIR_FILTER_PATTERN))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isExistJob(JobProfile profile) {
+        List<JobProfile> jobProfileList = getJobProfiles();
+        AtomicBoolean isExist = new AtomicBoolean(false);
+        jobProfileList.forEach(job -> {
+            if (profile.get(JOB_ID).equals(job.get(JOB_ID))) {
+                isExist.set(true);
+            }
+        });
+        return !isExist.get();
     }
 
     /**
@@ -168,6 +210,13 @@ public class TriggerManager extends AbstractDaemon {
             jobProfiles.keySet().forEach(this::deleteJob);
             triggerJobMap.remove(triggerId);
         }
+    }
+
+    private List<JobProfile> getJobProfiles() {
+        JobProfileDb jobProfileDb = manager.getJobProfileDb();
+        List<JobProfile> jobProfileList = jobProfileDb.getJobsByState(StateSearchKey.RUNNING);
+        jobProfileList.addAll(jobProfileDb.getJobsByState(StateSearchKey.ACCEPTED));
+        return jobProfileList;
     }
 
     private void deleteJob(String jobInstanceId) {

@@ -35,9 +35,12 @@ public class DateFormatRegex implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateFormatRegex.class);
 
     private static final String YEAR = "YYYY";
+    private static final String YEAR_LOWERCASE = "yyyy";
     private static final String MONTH = "MM";
     private static final String DAY = "DD";
+    private static final String DAY_LOWERCASE = "dd";
     private static final String HOUR = "HH";
+    private static final String MINUTE = "mm";
 
     private static final String NORMAL_FORMATTER = "yyyyMMddHHmm";
 
@@ -104,11 +107,14 @@ public class DateFormatRegex implements Filter {
                 File.separator, 0);
         List<String> formattedList = new ArrayList<>();
         for (String regexStr : regexList) {
-            if (regexStr.contains(YEAR)) {
+            if (regexStr.contains(YEAR) || regexStr.contains(YEAR_LOWERCASE)) {
                 String tmpRegexStr = regexStr.replace(YEAR, time.substring(0, 4))
+                        .replace(YEAR_LOWERCASE,time.substring(0, 4))
                         .replace(MONTH, time.substring(4, 6))
                         .replace(DAY, time.substring(6, 8))
-                        .replace(HOUR, time.substring(8, 10));
+                        .replace(DAY_LOWERCASE,time.substring(6, 8))
+                        .replace(HOUR, time.substring(8, 10))
+                        .replace(MINUTE,time.substring(10));
                 formattedList.add(tmpRegexStr);
                 formattedTime = time;
             } else {

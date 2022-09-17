@@ -46,17 +46,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.CommonConstants.DELIMITER_HYPHEN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
 public class DirectoryTrigger extends AbstractDaemon implements Trigger {
 
-    public static final ConcurrentHashMap<String, String> WATCHED_PATH = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryTrigger.class);
     private static volatile WatchService watchService;
     private final ConcurrentHashMap<PathPattern, List<WatchKey>> allWatchers =
@@ -134,26 +130,11 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             } else {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
                         entity.getSuitTime(), path.toFile());
-                if (!validateJobProfile(copiedJobProfile, path)) {
-                    return;
-                }
                 LOGGER.info("trigger {} generate job profile to read file {}",
                         getTriggerProfile().getTriggerId(), path.toString());
                 queue.offer(copiedJobProfile);
             }
         }
-    }
-
-    private boolean validateJobProfile(JobProfile jobProfile, Path path) {
-        String groupId = jobProfile.get(JOB_GROUP_ID);
-        String streamId = jobProfile.get(JOB_STREAM_ID);
-        String pathUri = path.toUri().getPath();
-        String key = groupId.concat(DELIMITER_HYPHEN).concat(streamId).concat(DELIMITER_HYPHEN).concat(pathUri);
-        if (WATCHED_PATH.containsKey(key)) {
-            return false;
-        }
-        WATCHED_PATH.put(key, pathUri);
-        return true;
     }
 
     /**

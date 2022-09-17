@@ -161,9 +161,6 @@ public class TestFileAgent {
     public void testOneJobFullPath() throws Exception {
         URI uri = Objects.requireNonNull(getClass().getClassLoader().getResource("test")).toURI();
         String path = Paths.get(uri).toString();
-        String fileName = path + "/increment_test.txt";
-        TestUtils.deleteFile(fileName);
-
         String jsonString = TestUtils.getTestTriggerProfile();
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);
@@ -173,9 +170,6 @@ public class TestFileAgent {
         triggerManager.submitTrigger(triggerProfile);
         Thread.sleep(2000);
         Assert.assertEquals(3L, checkFullPathReadJob().longValue());
-        TestUtils.createFile(fileName);
-        Thread.sleep(10000);
-        TestUtils.deleteFile(fileName);
     }
 
     private boolean checkOnlyOneJob() {
