@@ -320,7 +320,11 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             sinkThreadPool[i].start();
         }
         // register metricItemSet
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        ConfigManager configManager = ConfigManager.getInstance();
+        String clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+        this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
         this.canTake = true;
         logger.info("[{}] Pulsar sink started", getName());

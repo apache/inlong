@@ -184,7 +184,11 @@ public class TubeSink extends AbstractSink implements Configurable {
                     statIntervalSec, maxMonitorCnt);
         }
         // register metrics
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        ConfigManager configManager = ConfigManager.getInstance();
+        String clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+        this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
         // create tube connection
         try {

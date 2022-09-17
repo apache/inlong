@@ -23,7 +23,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItemSet;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -34,8 +33,8 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
  */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
-    private String clusterId;
-    private String sourceDataId;
+    private String clusterId = null;
+    private String sourceDataId = null;
 
     /**
      * Constructor
@@ -44,24 +43,29 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
      */
     public DataProxyMetricItemSet(String name) {
         super(name);
-        ConfigManager configManager = ConfigManager.getInstance();
-        this.clusterId =
-                configManager.getCommonProperties().getOrDefault(
-                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
     }
 
     /**
      * Constructor
      *
-     * @param name       the source or sink id
+     * @param clusterId  the cluster id
+     * @param name    the module name
+     */
+    public DataProxyMetricItemSet(String clusterId, String name) {
+        super(name);
+        this.clusterId = clusterId;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param clusterId  the cluster id
+     * @param name       the module name
      * @param sourceDataId   the source data id
      */
-    public DataProxyMetricItemSet(String name, String sourceDataId) {
+    public DataProxyMetricItemSet(String clusterId, String name, String sourceDataId) {
         super(name);
-        ConfigManager configManager = ConfigManager.getInstance();
-        this.clusterId =
-                configManager.getCommonProperties().getOrDefault(
-                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+        this.clusterId = clusterId;
         this.sourceDataId = sourceDataId;
     }
 
