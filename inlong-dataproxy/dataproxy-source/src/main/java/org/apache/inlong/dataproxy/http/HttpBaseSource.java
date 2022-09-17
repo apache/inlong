@@ -77,7 +77,8 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
                     statIntervalSec, maxMonitorCnt);
         }
         // register metrics
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        this.metricItemSet =
+                new DataProxyMetricItemSet(this.getName(), String.valueOf(port));
         MetricRegister.register(metricItemSet);
         super.start();
         logger.info("{} started!", this.getName());

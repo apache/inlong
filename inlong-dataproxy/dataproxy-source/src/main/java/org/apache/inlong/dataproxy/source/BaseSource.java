@@ -34,10 +34,12 @@ import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +84,8 @@ public abstract class BaseSource
   private static final String CONNECTIONS = "connections";
 
   protected boolean customProcessor = false;
+
+  private DataProxyMetricItemSet metricItemSet;
 
   /*
    * monitor
@@ -157,6 +161,10 @@ public abstract class BaseSource
       FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
     }
     super.start();
+    // initial metric item set
+    this.metricItemSet =
+            new DataProxyMetricItemSet(this.getName(), String.valueOf(port));
+    MetricRegister.register(metricItemSet);
     /*
      * init monitor logic
      */
@@ -298,7 +306,7 @@ public abstract class BaseSource
       ServiceDecoder serviceDecoder = (ServiceDecoder)Class.forName(serviceDecoderName).newInstance();
       Class<? extends ChannelInitializer> clazz =
               (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
-      Constructor ctor = clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
+      Constructor ctor = clazz.getConstructor(BaseSource.class, ChannelGroup.class,
               String.class, ServiceDecoder.class, String.class, Integer.class,
               String.class, String.class, Boolean.class,
               Integer.class, Boolean.class, MonitorIndex.class,
@@ -317,6 +325,14 @@ public abstract class BaseSource
       throw new FlumeException(e.getMessage());
     }
     return fac;
+  }
+
+  /**
+   * get metricItemSet
+   * @return the metricItemSet
+   */
+  public DataProxyMetricItemSet getMetricItemSet() {
+    return metricItemSet;
   }
 
   public Context getContext() {

@@ -21,7 +21,7 @@ import org.apache.inlong.dataproxy.sink.EventStat;
 
 public interface SendMessageCallBack {
 
-    void handleMessageSendSuccess(String topic, Object msgId, EventStat es);
+    void handleMessageSendSuccess(String topic, Object msgId, EventStat es, long startTime);
 
     void handleMessageSendException(String topic, EventStat es, Object exception);
 }

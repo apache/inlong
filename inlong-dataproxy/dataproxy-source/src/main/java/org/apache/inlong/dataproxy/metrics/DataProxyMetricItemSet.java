@@ -17,8 +17,16 @@
 
 package org.apache.inlong.dataproxy.metrics;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItemSet;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 /**
  * 
@@ -26,6 +34,8 @@ import org.apache.inlong.common.metric.MetricItemSet;
  */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
+    private String clusterId;
+    private String sourceDataId;
 
     /**
      * Constructor
@@ -34,6 +44,120 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
      */
     public DataProxyMetricItemSet(String name) {
         super(name);
+        ConfigManager configManager = ConfigManager.getInstance();
+        this.clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+    }
+
+    /**
+     * Constructor
+     *
+     * @param name       the source or sink id
+     * @param sourceDataId   the source data id
+     */
+    public DataProxyMetricItemSet(String name, String sourceDataId) {
+        super(name);
+        ConfigManager configManager = ConfigManager.getInstance();
+        this.clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+        this.sourceDataId = sourceDataId;
+    }
+
+    /**
+     * Fill source metric items by event
+     *
+     * @param event    the event object
+     * @param isSuccess  whether success read
+     * @param size       the message size
+     */
+    public void fillSrcMetricItemsByEvent(Event event, boolean isSuccess, long size) {
+        fillMetricItemsByEvent(event, true, true, isSuccess, size, 0);
+    }
+
+    /**
+     * Fill sink metric items by event
+     *
+     * @param event    the event object
+     * @param isSuccess  whether success read or send
+     * @param size       the message size
+     */
+    public void fillSinkReadMetricItemsByEvent(Event event, boolean isSuccess, long size) {
+        fillMetricItemsByEvent(event, false, true, isSuccess, size, 0);
+    }
+
+    /**
+     * Fill sink send metric items by event
+     *
+     * @param event    the event object
+     * @param sentTime   the sent time
+     * @param isSuccess  whether success read or send
+     * @param size       the message size
+     */
+    public void fillSinkSendMetricItemsByEvent(Event event, long sentTime,
+                                               boolean isSuccess, long size) {
+        fillMetricItemsByEvent(event, false, false, isSuccess, size, sentTime);
+    }
+
+    /**
+     * Fill metric items by event
+     *
+     * @param event    the event object
+     * @param isSource   whether source part
+     * @param isReadOp   whether read operation
+     * @param isSuccess  whether success read or send
+     * @param size       the message size
+     */
+    private void fillMetricItemsByEvent(Event event, boolean isSource,
+                                        boolean isReadOp, boolean isSuccess,
+                                        long size, long sendTime) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, clusterId);
+        dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID,
+                event.getHeaders().get(AttributeConstants.GROUP_ID));
+        dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID,
+                event.getHeaders().get(AttributeConstants.STREAM_ID));
+        long dataTime = NumberUtils.toLong(
+                event.getHeaders().get(AttributeConstants.DATA_TIME));
+        long auditFormatTime = dataTime - dataTime % CommonPropertiesHolder.getAuditFormatInterval();
+        dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
+        if (isSource) {
+            dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, name);
+            dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, sourceDataId);
+        } else {
+            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, name);
+            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                    event.getHeaders().get(ConfigConstants.TOPIC_KEY));
+        }
+        DataProxyMetricItem metricItem = findMetricItem(dimensions);
+        if (isReadOp) {
+            if (isSuccess) {
+                metricItem.readSuccessCount.incrementAndGet();
+                metricItem.readSuccessSize.addAndGet(size);
+            } else {
+                metricItem.readFailCount.incrementAndGet();
+                metricItem.readFailSize.addAndGet(size);
+            }
+        } else {
+            if (isSuccess) {
+                metricItem.sendSuccessCount.incrementAndGet();
+                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
+                if (sendTime > 0) {
+                    long currentTime = System.currentTimeMillis();
+                    long msgDataTimeL = Long.parseLong(
+                            event.getHeaders().get(AttributeConstants.DATA_TIME));
+                    long msgRcvTimeL = Long.parseLong(
+                            event.getHeaders().get(AttributeConstants.RCV_TIME));
+                    metricItem.sinkDuration.addAndGet(currentTime - sendTime);
+                    metricItem.nodeDuration.addAndGet(currentTime - msgRcvTimeL);
+                    metricItem.wholeDuration.addAndGet(currentTime - msgDataTimeL);
+                }
+            } else {
+                metricItem.sendFailCount.incrementAndGet();
+                metricItem.sendFailSize.addAndGet(event.getBody().length);
+            }
+        }
     }
 
     /**
