@@ -516,8 +516,8 @@ public class TubeSink extends AbstractSink implements Configurable {
             long dataTimeL = Long.parseLong(
                     event.getHeaders().get(AttributeConstants.DATA_TIME));
             // build statistic key
-            StringBuilder newBase = new StringBuilder(512);
-            newBase.append(getName()).append(SEP_HASHTAG).append(topic)
+            StringBuilder newBase = new StringBuilder(512)
+                    .append(getName()).append(SEP_HASHTAG).append(topic)
                     .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
                     .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
                     .append(SEP_HASHTAG).append("non-order").append(SEP_HASHTAG)
