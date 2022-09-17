@@ -23,7 +23,9 @@ import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.Constants;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.Message;
 
@@ -52,28 +54,24 @@ public class TubeUtils {
      *
      * @param topicName      the topic name of message
      * @param event          the DataProxy event
-     * @param addExtraAttrs  whether to add extra attributes
      * @return   the message object
      */
-    public static Message buildMessage(String topicName,
-                                       Event event, boolean addExtraAttrs) {
+    public static Message buildMessage(String topicName, Event event) {
+        Map<String, String> headers = event.getHeaders();
         Message message = new Message(topicName, event.getBody());
-        message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
-        String streamId = "";
-        if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-            streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-        } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-            streamId = event.getHeaders().get(AttributeConstants.INAME);
+        String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
+        if (InLongMsgVer.INLONG_V1.getName().equalsIgnoreCase(pkgVersion)) {
+            String streamId = headers.get(Constants.INLONG_STREAM_ID);
+            message.putSystemHeader(streamId,
+                    headers.get(ConfigConstants.PKG_TIME_KEY));
+        } else {
+            long dataTimeL = Long.parseLong(headers.get(AttributeConstants.DATA_TIME));
+            message.putSystemHeader(headers.get(AttributeConstants.STREAM_ID),
+                    DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         }
-        message.putSystemHeader(streamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-        if (addExtraAttrs) {
-            // common attributes
-            Map<String, String> headers = event.getHeaders();
-            message.setAttrKeyVal(Constants.INLONG_GROUP_ID, headers.get(Constants.INLONG_GROUP_ID));
-            message.setAttrKeyVal(Constants.INLONG_STREAM_ID, headers.get(Constants.INLONG_STREAM_ID));
-            message.setAttrKeyVal(Constants.TOPIC, headers.get(Constants.TOPIC));
-            message.setAttrKeyVal(Constants.HEADER_KEY_MSG_TIME, headers.get(Constants.HEADER_KEY_MSG_TIME));
-            message.setAttrKeyVal(Constants.HEADER_KEY_SOURCE_IP, headers.get(Constants.HEADER_KEY_SOURCE_IP));
+        Map<String, String> extraAttrMap = MessageUtils.getXfsAttrs(headers, pkgVersion);
+        for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
+            message.setAttrKeyVal(entry.getKey(), entry.getValue());
         }
         return message;
     }

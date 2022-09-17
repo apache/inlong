@@ -353,8 +353,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                 logger.info("{} agent package {} existed,just discard.",
                         getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
             } else {
-                producer.sendMessage(TubeUtils.buildMessage(
-                        topic, event, true), new MyCallback(es));
+                producer.sendMessage(TubeUtils.buildMessage(topic, event), new MyCallback(es));
                 flag.set(true);
             }
             illegalTopicMap.remove(topic);

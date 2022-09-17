@@ -29,10 +29,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import com.google.common.base.Preconditions;
 import org.apache.commons.collections.SetUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -58,7 +56,7 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
 import org.apache.inlong.dataproxy.sink.common.TubeProducerHolder;
 import org.apache.inlong.dataproxy.sink.common.TubeUtils;
-import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -74,7 +72,6 @@ public class TubeSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
     private static final MsgDedupHandler MSG_DEDUP_HANDLER = new MsgDedupHandler();
     private TubeProducerHolder producerHolder = null;
-    private static final String TOPIC = "topic";
     private volatile boolean canTake = false;
     private volatile boolean canSend = false;
     private volatile boolean isOverFlow = false;
@@ -274,12 +271,8 @@ public class TubeSink extends AbstractSink implements Configurable {
                     diskRateLimiter.acquire(event.getBody().length);
                 }
                 Map<String, String> dimensions;
-                if (event.getHeaders().containsKey(TOPIC)) {
-                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
-                            event.getHeaders().get(TOPIC));
-                } else {
-                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
-                }
+                dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                        event.getHeaders().getOrDefault(ConfigConstants.TOPIC_KEY, ""));
                 if (eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
                     tx.commit();
                     cachedMsgCnt.incrementAndGet();
@@ -333,20 +326,8 @@ public class TubeSink extends AbstractSink implements Configurable {
                         isOverFlow = false;
                         Thread.sleep(30);
                     }
-                    event = null;
-                    topic = null;
                     // get event from queues
-                    if (!resendQueue.isEmpty()) {
-                        es = resendQueue.poll();
-                        if (es == null) {
-                            continue;
-                        }
-                        resendMsgCnt.decrementAndGet();
-                        event = es.getEvent();
-                        if (event.getHeaders().containsKey(TOPIC)) {
-                            topic = event.getHeaders().get(TOPIC);
-                        }
-                    } else {
+                    if (resendQueue.isEmpty()) {
                         event = eventQueue.poll(2000, TimeUnit.MILLISECONDS);
                         if (event == null) {
                             if (!canTake && takenMsgCnt.get() <= 0) {
@@ -358,10 +339,15 @@ public class TubeSink extends AbstractSink implements Configurable {
                         cachedMsgCnt.decrementAndGet();
                         takenMsgCnt.incrementAndGet();
                         es = new EventStat(event);
-                        if (event.getHeaders().containsKey(TOPIC)) {
-                            topic = event.getHeaders().get(TOPIC);
+                    } else {
+                        es = resendQueue.poll();
+                        if (es == null) {
+                            continue;
                         }
+                        resendMsgCnt.decrementAndGet();
+                        event = es.getEvent();
                     }
+                    topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
                     // valid event status
                     if (StringUtils.isBlank(topic)) {
                         blankTopicDiscardMsgCnt.incrementAndGet();
@@ -425,8 +411,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                         event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
                 return false;
             } else {
-                producer.sendMessage(TubeUtils.buildMessage(
-                        topic, event, false), new MyCallback(es));
+                producer.sendMessage(TubeUtils.buildMessage(topic, event), new MyCallback(es));
                 inflightMsgCnt.incrementAndGet();
                 return true;
             }
@@ -491,7 +476,8 @@ public class TubeSink extends AbstractSink implements Configurable {
             Map<String, String> dimensions = new HashMap<>();
             dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, TubeSink.this.getName());
             dimensions.put(DataProxyMetricItem.KEY_SINK_ID, TubeSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                    event.getHeaders().get(ConfigConstants.TOPIC_KEY));
             DataProxyMetricItem.fillInlongId(event, dimensions);
             DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
             DataProxyMetricItem metricItem = TubeSink.this.metricItemSet.findMetricItem(dimensions);
@@ -501,14 +487,13 @@ public class TubeSink extends AbstractSink implements Configurable {
                 AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                 if (sendTime > 0) {
                     long currentTime = System.currentTimeMillis();
-                    long msgTime = NumberUtils.toLong(event.getHeaders().get(Constants.HEADER_KEY_MSG_TIME),
-                            sendTime);
-                    long sinkDuration = currentTime - sendTime;
-                    long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                    long wholeDuration = currentTime - msgTime;
-                    metricItem.sinkDuration.addAndGet(sinkDuration);
-                    metricItem.nodeDuration.addAndGet(nodeDuration);
-                    metricItem.wholeDuration.addAndGet(wholeDuration);
+                    long msgDataTimeL = Long.parseLong(
+                            event.getHeaders().get(AttributeConstants.DATA_TIME));
+                    long msgRcvTimeL = Long.parseLong(
+                            event.getHeaders().get(AttributeConstants.RCV_TIME));
+                    metricItem.sinkDuration.addAndGet(currentTime - sendTime);
+                    metricItem.nodeDuration.addAndGet(currentTime - msgRcvTimeL);
+                    metricItem.wholeDuration.addAndGet(currentTime - msgDataTimeL);
                 }
             } else {
                 metricItem.sendFailCount.incrementAndGet();
@@ -517,60 +502,31 @@ public class TubeSink extends AbstractSink implements Configurable {
         }
 
         private void editStatistic(final Event event, boolean isSuccess) {
-            String topic = "";
-            String streamId = "";
-            String nodeIp;
-            if (event != null) {
-                if (event.getHeaders().containsKey(TOPIC)) {
-                    topic = event.getHeaders().get(TOPIC);
-                }
-                if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                    streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-                } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                    streamId = event.getHeaders().get(AttributeConstants.INAME);
-                }
-                // Compatible agent
-                if (event.getHeaders().containsKey("ip")) {
-                    event.getHeaders().put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get("ip"));
-                    event.getHeaders().remove("ip");
-                }
-                // Compatible agent
-                if (event.getHeaders().containsKey("time")) {
-                    event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
-                    event.getHeaders().remove("time");
-                }
-                if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IP_KEY)) {
-                    nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
-                    if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IDC_KEY)) {
-                        if (nodeIp != null) {
-                            nodeIp = nodeIp.split(":")[0];
-                        }
-                        long msgCounterL = 1L;
-                        // msg counter
-                        if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
-                            msgCounterL = Integer.parseInt(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
-                        }
-                        StringBuilder newBase = new StringBuilder();
-                        newBase.append(getName()).append(SEP_HASHTAG).append(topic)
-                                .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
-                                .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
-                                .append(SEP_HASHTAG).append("non-order").append(SEP_HASHTAG)
-                                .append(event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-                        long messageSize = event.getBody().length;
-                        if (event.getHeaders().get(ConfigConstants.TOTAL_LEN) != null) {
-                            messageSize = Long.parseLong(event.getHeaders().get(ConfigConstants.TOTAL_LEN));
-                        }
-                        if (statIntervalSec > 0) {
-                            if (isSuccess) {
-                                monitorIndex.addAndGet(new String(newBase),
-                                        (int) msgCounterL, 1, messageSize, 0);
-                            } else {
-                                monitorIndex.addAndGet(new String(newBase),
-                                        0, 0, 0, (int) msgCounterL);
-                            }
-                        }
-                    }
-                }
+            if (event == null || statIntervalSec <= 0) {
+                return;
+            }
+            // get statistic items
+            String topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
+            String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+            String nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
+            int intMsgCnt = Integer.parseInt(
+                    event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+            long dataTimeL = Long.parseLong(
+                    event.getHeaders().get(AttributeConstants.DATA_TIME));
+            // build statistic key
+            StringBuilder newBase = new StringBuilder(512);
+            newBase.append(getName()).append(SEP_HASHTAG).append(topic)
+                    .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
+                    .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
+                    .append(SEP_HASHTAG).append("non-order").append(SEP_HASHTAG)
+                    .append(DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
+            // count data
+            if (isSuccess) {
+                monitorIndex.addAndGet(newBase.toString(),
+                        intMsgCnt, 1, event.getBody().length, 0);
+            } else {
+                monitorIndex.addAndGet(newBase.toString(),
+                        0, 0, 0, intMsgCnt);
             }
         }
     }
