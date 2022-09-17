@@ -59,6 +59,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -463,8 +464,9 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         headers.put(Constants.INLONG_GROUP_ID, proxyMessage.getGroupId());
         headers.put(Constants.INLONG_STREAM_ID, proxyMessage.getStreamId());
         headers.put(Constants.TOPIC, proxyMessage.getTopic());
-        //headers.put(Constants.HEADER_KEY_MSG_TIME, commonHeaders.get(AttributeConstants.DATA_TIME));
+        headers.put(Constants.HEADER_KEY_MSG_TIME, commonHeaders.get(AttributeConstants.DATA_TIME));
         headers.put(Constants.HEADER_KEY_SOURCE_IP, commonHeaders.get(AttributeConstants.NODE_IP));
+        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V1.getName());
         Event event = EventBuilder.withBody(proxyMessage.getData(), headers);
         return event;
     }
