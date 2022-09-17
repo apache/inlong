@@ -65,17 +65,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     @Override
-    protected void loopProcess(long intervalMs) {
-        while (!super.isStopped()) {
-            try {
-                Thread.sleep(intervalMs);
-                commitCfmOffsets(false);
-            } catch (InterruptedException e) {
-                logger.warn("[Offset Manager] Daemon commit thread has been interrupted");
-                return;
-            } catch (Throwable t) {
-                logger.error("[Offset Manager] Daemon commit thread throw error ", t);
-            }
+    protected void loopProcess() {
+        try {
+            commitCfmOffsets(false);
+        } catch (Throwable t) {
+            logger.error("[Offset Manager] Daemon commit thread throw error ", t);
         }
     }
 
