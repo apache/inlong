@@ -18,6 +18,13 @@
 package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
@@ -42,15 +49,6 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class PulsarClientService {
 
@@ -82,8 +80,6 @@ public class PulsarClientService {
     private int maxBatchingMessages = 1000;
     private long maxBatchingPublishDelayMillis = 1;
     private long retryIntervalWhenSendMsgError = 30 * 1000L;
-    private String localIp = "127.0.0.1";
-
     private int sinkThreadPoolSize;
 
     /**
@@ -120,7 +116,6 @@ public class PulsarClientService {
         maxBatchingPublishDelayMillis = pulsarConfig.getMaxBatchingPublishDelayMillis();
         producerInfoMap = new ConcurrentHashMap<>();
         topicSendIndexMap = new ConcurrentHashMap<>();
-        localIp = NetworkUtils.getLocalIp();
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
@@ -141,11 +136,15 @@ public class PulsarClientService {
      * send message
      */
     public boolean sendMessage(int poolIndex, String topic, Event event,
-            SendMessageCallBack sendMessageCallBack, EventStat es) {
+                               SendMessageCallBack sendMessageCallBack, EventStat es) {
         TopicProducerInfo producerInfo = null;
         boolean result;
-        final String inlongStreamId = getInlongStreamId(event);
-        final String inlongGroupId = getInlongGroupId(event);
+        final String pkgVersion =
+                event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
+        final String inlongStreamId =
+                event.getHeaders().get(AttributeConstants.GROUP_ID);
+        final String inlongGroupId =
+                event.getHeaders().get(AttributeConstants.STREAM_ID);
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
@@ -166,11 +165,6 @@ public class PulsarClientService {
             sendMessageCallBack.handleMessageSendException(topic, es, new NotFoundException("producer info is null"));
             return true;
         }
-
-        Map<String, String> proMap = new HashMap<>();
-        proMap.put("data_proxy_ip", localIp);
-        proMap.put(inlongStreamId, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
         TopicProducerInfo forCallBackP = producerInfo;
         Producer producer = producerInfo.getProducer(poolIndex);
         if (producer == null) {
@@ -179,6 +173,9 @@ public class PulsarClientService {
             sendMessageCallBack.handleMessageSendException(topic, es, new NotFoundException("producer is null"));
             return true;
         }
+        // build and send message
+        Map<String, String> proMap =
+                MessageUtils.getXfsAttrs(event.getHeaders(), pkgVersion);
         if (es.isOrderMessage()) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             try {

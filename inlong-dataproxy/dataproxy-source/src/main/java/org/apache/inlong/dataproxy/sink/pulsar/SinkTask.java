@@ -41,8 +41,6 @@ public class SinkTask extends Thread {
 
     private static final LogCounter logPrinterA = new LogCounter(10, 100000, 60 * 1000);
 
-    private static String TOPIC = "topic";
-
     /*
      * default value
      */
@@ -150,70 +148,56 @@ public class SinkTask extends Thread {
                     sinkCounter.incrementEventDrainAttemptCount();
                     event = eventStat.getEvent();
                 }
-
-                /*
-                 * get topic
-                 */
-                if (event.getHeaders().containsKey(TOPIC)) {
-                    topic = event.getHeaders().get(TOPIC);
+                // check event status
+                if (event == null) {
+                    logger.warn("Event is null!");
+                    continue;
                 }
+                // get topic
+                topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
                 if (StringUtils.isEmpty(topic)) {
                     String groupId = event.getHeaders().get(AttributeConstants.GROUP_ID);
                     String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
                     topic = MessageUtils.getTopic(pulsarSink.getTopicsProperties(), groupId, streamId);
                 }
-
-                if (event == null) {
-                    logger.warn("Event is null!");
-                    continue;
-                }
-
                 if (topic == null || topic.equals("")) {
-                    pulsarSink.handleMessageSendException(topic, eventStat, new Exception("topic"
-                            + " info is null"));
+                    pulsarSink.handleMessageSendException(topic, eventStat,
+                            new Exception(ConfigConstants.TOPIC_KEY + " info is null"));
                     processToReTrySend(eventStat);
                     logger.warn("no topic specified, so will retry send!");
                     continue;
                 }
-
+                // check whether order-type message
                 if (eventStat.isOrderMessage()) {
                     sleep(1000);
                 }
-
+                // check whether discard or send event
                 if (eventStat.getRetryCnt() > maxRetrySendCnt) {
                     logger.warn("Message will be discard! send times reach to max retry cnt."
                             + " topic = {}, max retry cnt = {}", topic, maxRetrySendCnt);
                     continue;
                 }
-
+                // check whether duplicated event
                 String clientSeqId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
-
-                boolean hasSend = false;
                 if (pulsarConfig.getClientIdCache() && clientSeqId != null) {
-                    hasSend = agentIdCache.asMap().containsKey(clientSeqId);
-                }
-
-                if (pulsarConfig.getClientIdCache() && clientSeqId != null && hasSend) {
+                    boolean hasSend = agentIdCache.asMap().containsKey(clientSeqId);
                     agentIdCache.put(clientSeqId, System.currentTimeMillis());
-                    if (logPrinterA.shouldPrint()) {
-                        logger.info("{} agent package {} existed,just discard.",
-                                getName(), clientSeqId);
+                    if (hasSend) {
+                        if (logPrinterA.shouldPrint()) {
+                            logger.info("{} agent package {} existed,just discard.",
+                                    getName(), clientSeqId);
+                        }
+                        continue;
                     }
-                } else {
-                    if (pulsarConfig.getClientIdCache() && clientSeqId != null) {
-                        agentIdCache.put(clientSeqId, System.currentTimeMillis());
-                    }
-                    boolean sendResult = pulsarClientService.sendMessage(poolIndex, topic,
-                            event, pulsarSink, eventStat);
-                    if (!sendResult) {
-                        /*
-                         * only for order message
-                         */
-                        processToReTrySend(eventStat);
-                    }
-                    currentInFlightCount.incrementAndGet();
-                    decrementFlag = true;
                 }
+                // send message
+                if (!pulsarClientService.sendMessage(
+                        poolIndex, topic, event, pulsarSink, eventStat)) {
+                    // only for order message
+                    processToReTrySend(eventStat);
+                }
+                currentInFlightCount.incrementAndGet();
+                decrementFlag = true;
             } catch (InterruptedException e) {
                 logger.error("Thread {} has been interrupted!",
                         Thread.currentThread().getName());
