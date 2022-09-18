@@ -32,8 +32,10 @@ import java.util.HashSet;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 
 /**
@@ -47,6 +49,8 @@ public class SourceMetricData implements MetricData {
     private final String nodeId;
     private Counter numRecordsIn;
     private Counter numBytesIn;
+    private Counter numRecordsInForMeter;
+    private Counter numBytesInForMeter;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
     private final AuditImp auditImp;
@@ -87,6 +91,42 @@ public class SourceMetricData implements MetricData {
      * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
+    public void registerMetricsForNumRecordsInForMeter() {
+        registerMetricsForNumRecordsInForMeter(new SimpleCounter());
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumRecordsInForMeter(Counter counter) {
+        numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter);
+    }
+
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumBytesInForMeter() {
+        registerMetricsForNumBytesInForMeter(new SimpleCounter());
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumBytesInForMeter(Counter counter) {
+        numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter);
+    }
+
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
     public void registerMetricsForNumRecordsIn() {
         registerMetricsForNumRecordsIn(new SimpleCounter());
     }
@@ -119,11 +159,11 @@ public class SourceMetricData implements MetricData {
     }
 
     public void registerMetricsForNumRecordsInPerSecond() {
-        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsIn);
+        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsInForMeter);
     }
 
     public void registerMetricsForNumBytesInPerSecond() {
-        numBytesInPerSecond = registerMeter(NUM_BYTES_IN_PER_SECOND, this.numBytesIn);
+        numBytesInPerSecond = registerMeter(NUM_BYTES_IN_PER_SECOND, this.numBytesInForMeter);
     }
 
     public Counter getNumRecordsIn() {
@@ -140,6 +180,14 @@ public class SourceMetricData implements MetricData {
 
     public Meter getNumBytesInPerSecond() {
         return numBytesInPerSecond;
+    }
+
+    public Counter getNumRecordsInForMeter() {
+        return numRecordsInForMeter;
+    }
+
+    public Counter getNumBytesInForMeter() {
+        return numBytesInForMeter;
     }
 
     @Override
@@ -182,5 +230,22 @@ public class SourceMetricData implements MetricData {
     public void outputMetricForFlink(long rowCountSize, long rowDataSize) {
         this.numBytesIn.inc(rowDataSize);
         this.numRecordsIn.inc(rowCountSize);
+        this.numBytesInForMeter.inc(rowDataSize);
+        this.numRecordsInForMeter.inc(rowCountSize);
+    }
+
+    @Override
+    public String toString() {
+        return "SourceMetricData{"
+                + "groupId='" + groupId + '\''
+                + ", streamId='" + streamId + '\''
+                + ", nodeId='" + nodeId + '\''
+                + ", numRecordsIn=" + numRecordsIn.getCount()
+                + ", numBytesIn=" + numBytesIn.getCount()
+                + ", numRecordsInForMeter=" + numRecordsInForMeter.getCount()
+                + ", numBytesInForMeter=" + numBytesInForMeter.getCount()
+                + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
+                + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
+                + '}';
     }
 }
