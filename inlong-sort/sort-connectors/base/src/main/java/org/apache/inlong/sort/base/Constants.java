@@ -45,6 +45,10 @@ public final class Constants {
 
     public static final String NUM_BYTES_IN = "numBytesIn";
 
+    public static final String NUM_RECORDS_IN_FOR_METER = "numRecordsInForMeter";
+
+    public static final String NUM_BYTES_IN_FOR_METER = "numBytesInForMeter";
+
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
@@ -74,6 +78,8 @@ public final class Constants {
 
     // sort send successfully
     public static final Integer AUDIT_SORT_OUTPUT = 8;
+
+    public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
     public static final ConfigOption<String> INLONG_METRIC =
         ConfigOptions.key("inlong.metric")
