@@ -429,6 +429,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, metricGroup, auditImp);
             sourceMetricData.registerMetricsForNumRecordsIn();
             sourceMetricData.registerMetricsForNumBytesIn();
+            sourceMetricData.registerMetricsForNumBytesInForMeter();
+            sourceMetricData.registerMetricsForNumRecordsInForMeter();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsInPerSecond();
         }

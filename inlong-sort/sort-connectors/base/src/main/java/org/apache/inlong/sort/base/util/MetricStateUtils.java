@@ -21,6 +21,7 @@ package org.apache.inlong.sort.base.util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import java.util.ArrayList;
@@ -29,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 /**
  * metric state for {@link MetricState} supporting snapshot and restore
@@ -121,6 +124,27 @@ public class MetricStateUtils {
         Map<String, Long> metricDataMap = new HashMap<>();
         metricDataMap.put(NUM_RECORDS_IN, sourceMetricData.getNumRecordsIn().getCount());
         metricDataMap.put(NUM_BYTES_IN, sourceMetricData.getNumBytesIn().getCount());
+        MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
+        metricStateListState.add(metricState);
+    }
+
+    /**
+     *
+     * Snapshot metric state data for {@link SinkMetricData}
+     * @param metricStateListState state data list
+     * @param sinkMetricData {@link SinkMetricData} A collection class for handling metrics
+     * @param subtaskIndex subtask index
+     * @throws Exception throw exception when add metric state
+     */
+    public static void snapshotMetricStateForSinkMetricData(ListState<MetricState> metricStateListState,
+            SinkMetricData sinkMetricData, Integer subtaskIndex)
+            throws Exception {
+        log.info("snapshotMetricStateForSinkMetricData:{}, sinkMetricData:{}, subtaskIndex:{}",
+                metricStateListState, sinkMetricData, subtaskIndex);
+        metricStateListState.clear();
+        Map<String, Long> metricDataMap = new HashMap<>();
+        metricDataMap.put(NUM_RECORDS_OUT, sinkMetricData.getNumRecordsOut().getCount());
+        metricDataMap.put(NUM_BYTES_OUT, sinkMetricData.getNumBytesOut().getCount());
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
         metricStateListState.add(metricState);
     }
