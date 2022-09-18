@@ -30,7 +30,10 @@
 
     <artifactId>sort-connector-jdbc</artifactId>
     <name>Apache InLong - Sort-connector-jdbc</name>
-    <packaging>jar</packaging>
+    <modules>
+        <module>influxdb-jdbc-driver</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
@@ -78,18 +81,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- dependencies for influx DB jdbc Driver -->
-        <dependency>
-            <groupId>com.influxdb</groupId>
-            <artifactId>influxdb-client-flux</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.influxdb</groupId>
-            <artifactId>influxdb-client-java</artifactId>
-            <version>4.0.0</version>
         </dependency>
     </dependencies>
 
