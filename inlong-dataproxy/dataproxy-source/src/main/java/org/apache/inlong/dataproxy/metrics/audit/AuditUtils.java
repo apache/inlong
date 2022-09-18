@@ -17,6 +17,8 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
+import java.util.HashSet;
+import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,11 +27,10 @@ import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
-
-import java.util.HashSet;
-import java.util.Map;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 
 /**
  * 
@@ -78,17 +79,33 @@ public class AuditUtils {
 
     /**
      * add
-     * 
+     *
      * @param auditID
      * @param event
      */
     public static void add(int auditID, Event event) {
-        if (IS_AUDIT && event != null) {
-            Map<String, String> headers = event.getHeaders();
+        if (!IS_AUDIT || event == null) {
+            return;
+        }
+        Map<String, String> headers = event.getHeaders();
+        String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
+        if (InLongMsgVer.INLONG_V1.getName().equalsIgnoreCase(pkgVersion)) {
             String inlongGroupId = DataProxyMetricItem.getInlongGroupId(headers);
             String inlongStreamId = DataProxyMetricItem.getInlongStreamId(headers);
             long logTime = getLogTime(headers);
-            AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, event.getBody().length);
+            long msgCount = 1L;
+            if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
+                msgCount = Long.parseLong(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+            }
+            AuditImp.getInstance().add(auditID, inlongGroupId,
+                    inlongStreamId, logTime, msgCount, event.getBody().length);
+        } else {
+            String groupId = headers.get(AttributeConstants.GROUP_ID);
+            String streamId = headers.get(AttributeConstants.STREAM_ID);
+            long dataTime = NumberUtils.toLong(headers.get(AttributeConstants.DATA_TIME));
+            long msgCount = NumberUtils.toLong(headers.get(ConfigConstants.MSG_COUNTER_KEY));
+            AuditImp.getInstance().add(auditID, groupId,
+                    streamId, dataTime, msgCount, event.getBody().length);
         }
     }
 

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeResponse;
@@ -37,7 +37,7 @@ public interface DataNodeApi {
     Call<Response<DataNodeResponse>> get(@Path("id") Integer id);
 
     @POST("node/list")
-    Call<Response<PageInfo<DataNodeResponse>>> list(@Body DataNodeRequest request);
+    Call<Response<PageResult<DataNodeResponse>>> list(@Body DataNodeRequest request);
 
     @POST("node/update")
     Call<Response<Boolean>> update(@Body DataNodeRequest request);

@@ -114,7 +114,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         String schemaName = config.get(SCHEMA_NAME);
         String databaseName = config.get(DATABASE_NAME);
         String tableName = config.get(TABLE_NAME);
-        String inlongMetric = config.get(INLONG_METRIC);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.get(INLONG_AUDIT);
         ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
         int port = config.get(PORT);

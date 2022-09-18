@@ -40,6 +40,8 @@ public interface InlongClusterEntityMapper {
     List<InlongClusterEntity> selectByKey(@Param("clusterTag") String clusterTag, @Param("name") String name,
             @Param("type") String type);
 
+    InlongClusterEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
+
     List<InlongClusterEntity> selectByCondition(ClusterPageRequest request);
 
     /**

@@ -40,12 +40,6 @@ import java.util.Map;
 @ApiModel(value = "File source request")
 public class FileSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("Agent Cluster tag")
-    private String clusterTag;
-
-    @ApiModelProperty(value = "Agent IP address", required = true)
-    private String ip;
-
     @ApiModelProperty(value = "Path regex pattern for file, such as /a/b/*.txt", required = true)
     private String pattern;
 

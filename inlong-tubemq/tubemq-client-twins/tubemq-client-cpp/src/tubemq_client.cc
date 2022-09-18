@@ -79,10 +79,12 @@ bool TubeMQConsumer::Start(string& err_info, const ConsumerConfig& config) {
   BaseConsumerPtr rmt_client = std::make_shared<BaseConsumer>();
   if (rmt_client == nullptr) {
     err_info = "No memory for create CONSUMER remote object!";
+    status_.CompareAndSet(1, 0);
     return false;
   }
   if (!rmt_client->Start(err_info, config)) {
     rmt_client->ShutDown();
+    status_.CompareAndSet(1, 0);
     return false;
   }
   client_id_ = rmt_client->GetClientIndex();

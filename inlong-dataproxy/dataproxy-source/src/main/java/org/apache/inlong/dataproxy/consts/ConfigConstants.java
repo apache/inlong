@@ -60,6 +60,8 @@ public class ConfigConstants {
 
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
+    public static final String MAX_MONITOR_CNT = "max-monitor-cnt";
+
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";
 
     public static final String PACKAGE_TIMEOUT_SEC = "package-timeout-sec";
@@ -73,6 +75,8 @@ public class ConfigConstants {
 
     public static final String TOPIC_KEY = "topic";
     public static final String REMOTE_IP_KEY = "srcIp";
+    public static final String DATAPROXY_IP_KEY = "dpIp";
+    public static final String MSG_ENCODE_VER = "msgEnType";
     public static final String REMOTE_IDC_KEY = "idc";
     public static final String MSG_COUNTER_KEY = "msgcnt";
     public static final String PKG_COUNTER_KEY = "pkgcnt";
@@ -92,7 +96,10 @@ public class ConfigConstants {
     public static final String CLUSTER_ID_KEY = "clusterId";
     public static final String MANAGER_HOST = "manager.hosts";
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
-    public static final String PROXY_LOCAL_IP = "proxy.local.ip";
+    public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
+    public static final String PROXY_REPORT_IP = "proxy.report.ip";
+    public static final String PROXY_REPORT_PORT = "proxy.report.port";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";
@@ -129,4 +136,26 @@ public class ConfigConstants {
 
     public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
     public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
+    //Pulsar config
+    public static final String KEY_TENANT = "tenant";
+    public static final String KEY_NAMESPACE = "namespace";
+
+    public static final String KEY_SERVICE_URL = "serviceUrl";
+    public static final String KEY_AUTHENTICATION = "authentication";
+
+    public static final String KEY_ENABLEBATCHING = "enableBatching";
+    public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
+    public static final String KEY_BATCHINGMAXMESSAGES = "batchingMaxMessages";
+    public static final String KEY_BATCHINGMAXPUBLISHDELAY = "batchingMaxPublishDelay";
+    public static final String KEY_MAXPENDINGMESSAGES = "maxPendingMessages";
+    public static final String KEY_MAXPENDINGMESSAGESACROSSPARTITIONS = "maxPendingMessagesAcrossPartitions";
+    public static final String KEY_SENDTIMEOUT = "sendTimeout";
+    public static final String KEY_COMPRESSIONTYPE = "compressionType";
+    public static final String KEY_BLOCKIFQUEUEFULL = "blockIfQueueFull";
+    public static final String KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY = "roundRobinRouter"
+            + "BatchingPartitionSwitchFrequency";
+
+    public static final String KEY_IOTHREADS = "ioThreads";
+    public static final String KEY_MEMORYLIMIT = "memoryLimit";
+    public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
 }

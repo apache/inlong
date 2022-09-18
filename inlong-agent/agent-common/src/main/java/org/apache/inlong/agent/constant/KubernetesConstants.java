@@ -33,14 +33,13 @@ public class KubernetesConstants {
     public static final String CONTAINER_ID = "container.id";
 
     // k8s metadata
-    public static final String METADATA_CONTAINER_ID = "_container_id_";
-    public static final String METADATA_CONTAINER_NAME = "_container_name_";
-    public static final String METADATA_NAMESPACE = "_namespace_";
-    public static final String METADATA_POD_UID = "_pod_uid_";
-    public static final String METADATA_POD_NAME = "_pod_name_";
-    public static final String METADATA_POD_LABEL = "_pod_label_";
-    public static final String DATA_CONTENT = "_content_";
-    public static final String DATA_CONTENT_TIME = "_time_";
-
-
+    public static final String METADATA_CONTAINER_ID = "__container_id__";
+    public static final String METADATA_CONTAINER_NAME = "__container_name__";
+    public static final String METADATA_NAMESPACE = "__namespace__";
+    public static final String METADATA_POD_UID = "__pod_uid__";
+    public static final String METADATA_POD_NAME = "__pod_name__";
+    public static final String METADATA_POD_LABEL = "__pod_label__";
+    public static final String DATA_CONTENT = "__content__";
+    public static final String DATA_CONTENT_TIME = "__LogTime__";
+    
 }

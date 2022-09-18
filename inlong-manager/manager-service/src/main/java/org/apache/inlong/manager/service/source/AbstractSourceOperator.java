@@ -18,23 +18,24 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Default operator of stream source.
@@ -76,7 +78,10 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
+        if (SourceType.AUTO_PUSH.equals(request.getSourceType())) {
+            // auto push task needs not be issued to agent
+            entity.setStatus(SourceStatus.SOURCE_NORMAL.getCode());
+        } else if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
         } else {
             entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
@@ -98,11 +103,15 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     }
 
     @Override
-    public PageInfo<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage) {
+    public PageResult<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage) {
         if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
+            return PageResult.empty();
         }
-        return entityPage.toPageInfo(this::getFromEntity);
+
+        List<StreamSource> streamSources = entityPage.stream()
+                .map(this::getFromEntity)
+                .collect(Collectors.toList());
+        return new PageResult<>(streamSources, entityPage.getTotal(), entityPage.getPageNum(), entityPage.size());
     }
 
     @Override
@@ -110,6 +119,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     public void updateOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+
+        if (SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
+            LOGGER.warn("auto push source {} can not be updated", entity.getSourceName());
+            return;
+        }
         if (!SourceStatus.ALLOWED_UPDATE.contains(entity.getStatus())) {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
@@ -121,7 +135,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
-        // Source type cannot be changed
+        // source type cannot be changed
         if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {
             throw new BusinessException(String.format("source type=%s cannot change to %s",
                     entity.getSourceType(), request.getSourceType()));
@@ -139,11 +153,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             }
         }
 
-        // Setting updated parameters of stream source entity.
+        // setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setModifier(operator);
 
-        // Re-issue task if necessary
+        // re-issue task if necessary
         entity.setPreviousStatus(entity.getStatus());
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
@@ -160,6 +174,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     break;
             }
         }
+
         int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.warn(errMsg);

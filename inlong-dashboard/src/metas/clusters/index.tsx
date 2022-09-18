@@ -19,109 +19,117 @@
 
 import React from 'react';
 import i18n from '@/i18n';
-import StaffSelect from '@/components/StaffSelect';
-import type { ClsConfigItemType, ClsTableItemType } from './common/types';
-import { DataProxy } from './DataProxy';
-import { Pulsar } from './Pulsar';
-import { TubeMQ } from './TubeMQ';
+import UserSelect from '@/components/UserSelect';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
+import { agent } from './agent';
+import { dataProxy } from './dataProxy';
+import { pulsar } from './pulsar';
+import { tubeMQ } from './tubeMQ';
 
-export interface ClusterItemType {
-  label: string;
-  value: string;
-  config: ClsConfigItemType[];
-  tableColumns: ClsTableItemType[];
-}
-
-export const Clusters: ClusterItemType[] = [
+const allClusters = [
+  {
+    label: 'Agent',
+    value: 'AGENT',
+    fields: agent,
+  },
   {
     label: 'DataProxy',
     value: 'DATAPROXY',
-    config: DataProxy,
+    fields: dataProxy,
   },
   {
     label: 'Pulsar',
     value: 'PULSAR',
-    config: Pulsar,
+    fields: pulsar,
   },
   {
     label: 'TubeMQ',
     value: 'TUBEMQ',
-    config: TubeMQ,
+    fields: tubeMQ,
   },
-].map(item => {
-  const defaultConfig: ClsConfigItemType[] = [
-    {
-      type: 'input',
-      label: i18n.t('pages.Clusters.Name'),
-      name: 'name',
-      rules: [{ required: true }],
-      props: {
-        maxLength: 128,
-      },
-      _inTable: true,
+];
+
+const defaultCommonFields: FieldItemType[] = [
+  {
+    type: 'input',
+    label: i18n.t('pages.Clusters.Name'),
+    name: 'name',
+    rules: [{ required: true }],
+    props: {
+      maxLength: 128,
     },
-    {
-      type: 'select',
-      label: i18n.t('pages.Clusters.Tag'),
-      name: 'clusterTags',
-      rules: [{ required: true }],
-      props: {
-        mode: 'multiple',
-        filterOption: false,
-        options: {
-          requestTrigger: ['onOpen', 'onSearch'],
-          requestService: keyword => ({
-            url: '/cluster/tag/list',
-            method: 'POST',
-            data: {
-              keyword,
-              pageNum: 1,
-              pageSize: 20,
-            },
-          }),
-          requestParams: {
-            formatResult: result =>
-              result?.list?.map(item => ({
-                ...item,
-                label: item.clusterTag,
-                value: item.clusterTag,
-              })),
+    _renderTable: true,
+  },
+  {
+    type: 'radio',
+    name: 'type',
+    label: i18n.t('pages.Clusters.Type'),
+    initialValue: allClusters[0].value,
+    rules: [{ required: true }],
+    props: {
+      options: allClusters.map(item => ({
+        label: item.label,
+        value: item.value,
+      })),
+    },
+  },
+  {
+    type: 'select',
+    label: i18n.t('pages.Clusters.Tag'),
+    name: 'clusterTags',
+    rules: [{ required: true }],
+    props: {
+      mode: 'multiple',
+      filterOption: false,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/cluster/tag/list',
+          method: 'POST',
+          data: {
+            keyword,
+            pageNum: 1,
+            pageSize: 20,
           },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.clusterTag,
+              value: item.clusterTag,
+            })),
         },
       },
-      _inTable: true,
     },
-    {
-      type: <StaffSelect mode="multiple" />,
-      label: i18n.t('pages.Clusters.InCharges'),
-      name: 'inCharges',
-      rules: [{ required: true }],
-      _inTable: true,
+    _renderTable: true,
+  },
+  {
+    type: <UserSelect mode="multiple" />,
+    label: i18n.t('pages.Clusters.InCharges'),
+    name: 'inCharges',
+    rules: [{ required: true }],
+    _renderTable: true,
+  },
+  {
+    type: 'textarea',
+    label: i18n.t('pages.Clusters.Description'),
+    name: 'description',
+    props: {
+      maxLength: 256,
     },
-    {
-      type: 'textarea',
-      label: i18n.t('pages.Clusters.Description'),
-      name: 'description',
-      props: {
-        maxLength: 256,
-      },
-    },
-  ];
-  const config = defaultConfig.concat(item.config);
+  },
+];
+
+export const clusters = allClusters.map(item => {
+  const itemFields = defaultCommonFields.concat(item.fields);
+  const fields = genFields(itemFields);
 
   return {
     ...item,
-    config,
-    tableColumns: config
-      .filter(k => k._inTable)
-      .map(k => {
-        if (typeof k._inTable === 'boolean') {
-          return {
-            title: k.label,
-            dataIndex: k.name,
-          };
-        }
-        return k._inTable;
-      }),
+    fields,
+    form: genForm(fields),
+    table: genTable(fields),
   };
 });

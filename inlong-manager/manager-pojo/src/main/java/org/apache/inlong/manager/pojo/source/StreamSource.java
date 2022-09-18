@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,10 +66,6 @@ public abstract class StreamSource extends StreamNode {
 
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
-
-    @Deprecated
-    @ApiModelProperty("Id of the cluster that collected this source")
-    private Integer clusterId;
 
     @ApiModelProperty("Inlong cluster name")
     private String inlongClusterName;
@@ -106,6 +103,12 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Properties for source")
     @Builder.Default
     private Map<String, Object> properties = new LinkedHashMap<>();
+
+    @ApiModelProperty("Null if not a sub source")
+    private Integer templateId;
+
+    @ApiModelProperty("Sub source information of existing agents")
+    private List<SubSourceDTO> subSourceList;
 
     public SourceRequest genSourceRequest() {
         return null;

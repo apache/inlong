@@ -63,7 +63,6 @@ public class InitGroupFailedListener implements ProcessEventListener {
         // update inlong group status
         String operator = context.getOperator();
         groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
-        groupService.update(form.getGroupInfo().genRequest(), operator);
 
         // update inlong stream status
         streamService.updateStatus(groupId, null, StreamStatus.CONFIG_FAILED.getCode(), operator);

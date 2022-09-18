@@ -292,14 +292,14 @@ public class JobManager extends AbstractDaemon {
     /**
      * check job existence using job file name
      */
-    public boolean checkJobExsit(String fileName) {
+    public boolean checkJobExist(String fileName) {
         return jobProfileDb.getJobByFileName(fileName) != null;
     }
 
     /**
      * get sql job existence
      */
-    public boolean sqlJobExsit() {
+    public boolean sqlJobExist() {
         return jobProfileDb.getJobById(SQL_JOB_ID) != null;
     }
 

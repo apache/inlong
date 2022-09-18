@@ -25,28 +25,28 @@ import { isDevelopEnv } from '@/utils';
 const resources = {
   en: {
     translation: {
-      'configs.menus.ApprovalManagement': 'Approval',
-      'configs.menus.DataAccess': 'Data Group',
-      'configs.menus.DataConsumption': 'Data Consumption',
-      'configs.menus.Datasources': 'Data Sources',
+      'configs.menus.Process': 'Approval',
+      'configs.menus.Groups': 'Data Groups',
+      'configs.menus.DataConsumption': 'Data Consumptions',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
-      'configs.menus.UserManagement': 'User',
-      'configs.menus.ResponsibleManagement': 'ApprovalManagement',
+      'configs.menus.UserManagement': 'User Management',
+      'configs.menus.ApprovalManagement': 'Approval Management',
+      'configs.menus.Node': 'Nodes',
     },
   },
   cn: {
     translation: {
-      'configs.menus.ApprovalManagement': '审批管理',
-      'configs.menus.DataAccess': '数据分组',
+      'configs.menus.Process': '审批管理',
+      'configs.menus.Groups': '数据流组',
       'configs.menus.DataConsumption': '数据消费',
-      'configs.menus.Datasources': '数据源服务器',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
       'configs.menus.UserManagement': '用户管理',
-      'configs.menus.ResponsibleManagement': '审批责任人管理',
+      'configs.menus.ApprovalManagement': '审批责任人管理',
+      'configs.menus.Node': '节点管理',
     },
   },
 };

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -71,9 +71,9 @@ public class UserController {
         return Response.success(userService.getById(id, currentUser));
     }
 
-    @GetMapping("/user/listAll")
+    @PostMapping("/user/listAll")
     @ApiOperation(value = "List all users")
-    public Response<PageInfo<UserInfo>> list(UserRequest request) {
+    public Response<PageResult<UserInfo>> list(@RequestBody UserRequest request) {
         return Response.success(userService.list(request));
     }
 

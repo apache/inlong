@@ -19,14 +19,13 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.ConsumptionStatus;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ConsumeStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -37,14 +36,13 @@ import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.common.CountInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionMqExtBase;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -62,6 +60,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -98,26 +97,28 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
-        Map<String, Integer> countMap = consumptionMapper.countByQuery(query)
-                .stream()
-                .collect(Collectors.toMap(CountInfo::getKey, CountInfo::getValue));
+        Map<String, Integer> countMap = new HashMap<>();
+        consumptionMapper.countByQuery(query)
+                .forEach(countInfo -> countMap.put(countInfo.getKey(), countInfo.getValue()));
 
         return ConsumptionSummary.builder()
                 .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countMap.getOrDefault(ConsumptionStatus.WAIT_ASSIGN.getStatus() + "", 0))
-                .waitingApproveCount(countMap.getOrDefault(ConsumptionStatus.WAIT_APPROVE.getStatus() + "", 0))
-                .rejectedCount(countMap.getOrDefault(ConsumptionStatus.REJECTED.getStatus() + "", 0)).build();
+                .waitingAssignCount(countMap.getOrDefault(ConsumeStatus.WAIT_ASSIGN.getCode() + "", 0))
+                .waitingApproveCount(countMap.getOrDefault(ConsumeStatus.WAIT_APPROVE.getCode() + "", 0))
+                .rejectedCount(countMap.getOrDefault(ConsumeStatus.REJECTED.getCode() + "", 0)).build();
     }
 
     @Override
-    public PageInfo<ConsumptionListVo> list(ConsumptionQuery query) {
+    public PageResult<ConsumptionListVo> list(ConsumptionQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
         query.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
         Page<ConsumptionEntity> pageResult = (Page<ConsumptionEntity>) consumptionMapper.listByQuery(query);
-        PageInfo<ConsumptionListVo> pageInfo = pageResult
-                .toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, ConsumptionListVo::new));
-        pageInfo.setTotal(pageResult.getTotal());
-        return pageInfo;
+        List<ConsumptionListVo> consumptionListVos = CommonBeanUtils.copyListProperties(pageResult.getResult(),
+                ConsumptionListVo::new);
+
+        return new PageResult<>(
+                consumptionListVos, pageResult.getTotal(), pageResult.getPageNum(), pageResult.getPageSize()
+        );
     }
 
     @Override
@@ -164,9 +165,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         if (info.getId() != null) {
             ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
             Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
-                    "consumption not allow update when status is " + consumptionStatus.name());
+            ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(consumptionEntity.getStatus());
+            Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
+                    "consumption not allow update when status is " + consumeStatus.name());
         }
 
         setTopicInfo(info);
@@ -282,7 +283,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
             // If the consumption has been approved, then close/open DLQ or RLQ, it is necessary to
             // add/remove inlong streams in the inlong group
-            if (ConsumptionStatus.APPROVED.getStatus() == exists.getStatus()) {
+            if (ConsumeStatus.APPROVED.getCode() == exists.getStatus()) {
                 String groupId = info.getInlongGroupId();
                 String dlqNameOld = pulsarEntity.getDeadLetterTopic();
                 String dlqNameNew = update.getDeadLetterTopic();
@@ -334,48 +335,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return true;
     }
 
-    @Override
-    public void saveSortConsumption(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
-        String groupId = groupInfo.getInlongGroupId();
-        ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
-        if (exists != null) {
-            log.warn("consumption with groupId={}, topic={}, consumer group={} already exists, skip to create",
-                    groupId, topic, consumerGroup);
-            return;
-        }
-
-        log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-        String mqType = groupInfo.getMqType();
-        ConsumptionEntity entity = new ConsumptionEntity();
-        entity.setInlongGroupId(groupId);
-        entity.setMqType(mqType);
-        entity.setTopic(topic);
-        entity.setConsumerGroup(consumerGroup);
-        entity.setInCharges(groupInfo.getInCharges());
-        entity.setFilterEnabled(0);
-
-        entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        String operator = groupInfo.getCreator();
-        entity.setCreator(operator);
-        entity.setModifier(operator);
-
-        consumptionMapper.insert(entity);
-
-        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity pulsarEntity = new ConsumptionPulsarEntity();
-            pulsarEntity.setConsumptionId(entity.getId());
-            pulsarEntity.setConsumerGroup(consumerGroup);
-            pulsarEntity.setInlongGroupId(groupId);
-            pulsarEntity.setIsDeleted(InlongConstants.UN_DELETED);
-            consumptionPulsarMapper.insert(pulsarEntity);
-        }
-
-        log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-    }
-
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
-        entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
+        entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 

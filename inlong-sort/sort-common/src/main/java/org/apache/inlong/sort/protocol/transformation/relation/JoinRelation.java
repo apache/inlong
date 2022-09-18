@@ -40,7 +40,10 @@ import java.util.Map;
         @JsonSubTypes.Type(value = FullOuterJoinRelation.class, name = "fullOuterJoin"),
         @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
         @JsonSubTypes.Type(value = LeftOuterJoinNodeRelation.class, name = "leftOuterJoin"),
-        @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin")
+        @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin"),
+        @JsonSubTypes.Type(value = InnerTemporalJoinRelation.class, name = "innerTemporalJoin"),
+        @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelation.class, name = "leftOuterTemporalJoin"),
+        @JsonSubTypes.Type(value = IntervalJoinRelation.class, name = "intervalJoin")
 })
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -62,8 +65,8 @@ public abstract class JoinRelation extends NodeRelation {
      *         the value of joinConditionMap is a list of join contidition
      */
     public JoinRelation(@JsonProperty("inputs") List<String> inputs,
-                        @JsonProperty("outputs") List<String> outputs,
-                        @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+            @JsonProperty("outputs") List<String> outputs,
+            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs);
         this.joinConditionMap = Preconditions.checkNotNull(joinConditionMap, "joinConditionMap is null");
         Preconditions.checkState(!joinConditionMap.isEmpty(), "joinConditionMap is empty");

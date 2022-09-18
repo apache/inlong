@@ -59,6 +59,8 @@ static const int32_t kRpcTimoutMinMs = 8000;
 static const int32_t kHeartBeatPeriodDefMs = 10000;
 static const int32_t kHeartBeatFailRetryTimesDef = 5;
 static const int32_t kHeartBeatSleepPeriodDefMs = 60000;
+// default max master hb retry count
+static const int32_t kMaxMasterHBRetryCount = 8;
 // max masterAddrInfo length
 static const int32_t kMasterAddrInfoMaxLength = 1024;
 

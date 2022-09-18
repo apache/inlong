@@ -28,7 +28,6 @@
 #include <system_error>
 #include <unordered_map>
 
-#include "atomic.h"
 #include "sdk_core.h"
 #include "executor_thread_pool.h"
 #include "logger.h"

@@ -19,11 +19,12 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
-import org.apache.inlong.sdk.sort.impl.interceptor.MsgTimeInterceptor;
+import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 
 import java.util.Objects;
 import java.util.Optional;
 
+@Deprecated
 public abstract class InLongTopicFetcher {
 
     protected InLongTopic inLongTopic;

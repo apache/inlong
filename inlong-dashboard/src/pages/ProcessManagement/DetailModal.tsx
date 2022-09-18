@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import request from '@/utils/request';
-import StaffSelect from '@/components/StaffSelect';
+import UserSelect from '@/components/UserSelect';
 
 export interface Props extends ModalProps {
   id?: number;
@@ -43,7 +43,7 @@ const content = [
     rules: [{ required: true }],
   },
   {
-    type: <StaffSelect mode="multiple" />,
+    type: <UserSelect mode="multiple" />,
     label: i18n.t('pages.ApprovalManagement.Approvers'),
     name: 'approvers',
     rules: [{ required: true }],
@@ -59,6 +59,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     }),
     {
       manual: true,
+      formatResult: result => ({
+        ...result,
+        approvers: result.approvers?.split(','),
+      }),
       onSuccess: result => {
         form.setFieldsValue(result);
       },
@@ -72,11 +76,13 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       values.id = id;
       values.version = savedData?.version;
     }
-    console.log(values, 'values');
     await request({
       url: isUpdate ? '/workflow/approver/update' : '/workflow/approver/save',
       method: 'POST',
-      data: values,
+      data: {
+        ...values,
+        approvers: values.approvers?.join(','),
+      },
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));

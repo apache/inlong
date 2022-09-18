@@ -50,6 +50,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
+    public static final String DEFAULT_REPORT_PORT = "46801";
+    public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
+    public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
+    public static final String DEFAULT_CLUSTER_INCHARGES = "admin";
+
     private final CloseableHttpClient httpClient;
     private final Gson gson;
 
@@ -112,10 +117,17 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         Map<String, String> commonProperties = configManager.getCommonProperties();
-        String localIp = commonProperties.get(ConfigConstants.PROXY_LOCAL_IP);
-        heartbeatMsg.setIp(localIp);
+        heartbeatMsg.setIp(commonProperties.get(ConfigConstants.PROXY_REPORT_IP));
+        heartbeatMsg.setPort(Integer.parseInt(commonProperties.getOrDefault(
+                ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT)));
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
+                ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
+        heartbeatMsg.setClusterName(commonProperties.getOrDefault(
+                ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
+        heartbeatMsg.setInCharges(commonProperties.getOrDefault(
+                ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();

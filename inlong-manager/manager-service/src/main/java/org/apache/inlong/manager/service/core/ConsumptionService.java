@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.service.core;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 /**
  * Data consumption interface
@@ -43,7 +42,7 @@ public interface ConsumptionService {
      * @param query Consumption info
      * @return Consumption list
      */
-    PageInfo<ConsumptionListVo> list(ConsumptionQuery query);
+    PageResult<ConsumptionListVo> list(ConsumptionQuery query);
 
     /**
      * Get data consumption details
@@ -86,10 +85,5 @@ public interface ConsumptionService {
      * @param operator Operator
      */
     Boolean delete(Integer id, String operator);
-
-    /**
-     * Save the consumer group info for Sort to the database
-     */
-    void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup);
 
 }

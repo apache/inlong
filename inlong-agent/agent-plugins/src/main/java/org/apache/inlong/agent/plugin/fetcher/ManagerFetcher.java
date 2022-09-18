@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
@@ -116,7 +116,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private List<String> managerList;
     private String localIp;
     private String uuid;
-    private String clusterTag;
+    private String clusterName;
 
     private CommandDb commandDb;
 
@@ -132,7 +132,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             managerDbCollectorTaskUrl = buildDbCollectorGetTaskUrl(baseManagerUrl);
             localFileCache = getLocalFileCache();
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
-            clusterTag = conf.get(AGENT_CLUSTER_TAG);
+            clusterName = conf.get(AGENT_CLUSTER_NAME);
             this.commandDb = agentManager.getCommandDb();
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -255,7 +255,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * request manager to get db collect task, make sure it is not throwing exceptions
      */
     public void fetchDbCollectTask() {
-        if (agentManager.getJobManager().sqlJobExsit()) {
+        if (agentManager.getJobManager().sqlJobExist()) {
             return;
         }
         JsonObject resultData = getResultData(httpManager.doSentPost(managerDbCollectorTaskUrl, getSqlTaskRequest()));
@@ -282,7 +282,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * the fetch file command can be normal or special
      */
     private void dealWithFetchResult(TaskResult taskResult) {
-        LOGGER.info("deal with fetch result {}", taskResult);
+        if (!taskResult.getCmdConfigs().isEmpty() || !taskResult.getDataConfigs().isEmpty()) {
+            LOGGER.info("deal with fetch result {}", taskResult);
+        }
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
             LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
@@ -305,7 +307,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
-        request.setClusterTag(clusterTag);
+        request.setClusterName(clusterName);
         // when job size is over limit, require no new job
         if (agentManager.getJobManager().isJobOverLimit()) {
             request.setPullJobType(PullJobTypeEnum.NEVER.getType());
@@ -385,7 +387,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,

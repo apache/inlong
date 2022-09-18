@@ -18,16 +18,22 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import org.junit.Test;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test util for test container.
@@ -105,5 +111,15 @@ public class TestUtils {
             final String value = System.getProperty(propertyName);
             return value == null ? defaultValue : converter.apply(value);
         }
+    }
+
+    @Test
+    public void testReplaceholder() {
+        String before = "today is ${date}, today weather is ${weather}";
+        Map<String, Object> maps = new HashMap<>();
+        maps.put("date", "2022.08.05");
+        maps.put("weather", "rain");
+        String after = PlaceholderResolver.getDefaultResolver().resolveByMap(before, maps);
+        assertEquals(after, "today is 2022.08.05, today weather is rain");
     }
 }

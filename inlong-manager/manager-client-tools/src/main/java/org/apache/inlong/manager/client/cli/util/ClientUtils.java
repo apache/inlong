@@ -38,12 +38,9 @@ import java.util.Properties;
 public class ClientUtils {
 
     private static final String CONFIG_FILE = "application.properties";
-
-    private static ClientConfiguration configuration;
-
-    private static String serviceUrl;
-
     public static ClientFactory clientFactory;
+    private static ClientConfiguration configuration;
+    private static String serviceUrl;
 
     /**
      * Get an inlong client instance.

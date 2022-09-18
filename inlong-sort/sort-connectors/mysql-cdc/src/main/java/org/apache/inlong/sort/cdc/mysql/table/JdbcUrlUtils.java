@@ -20,6 +20,8 @@ package org.apache.inlong.sort.cdc.mysql.table;
 
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.sort.base.Constants;
 
 /** Option utils for JDBC URL properties. */
 public class JdbcUrlUtils {
@@ -31,7 +33,7 @@ public class JdbcUrlUtils {
         Properties jdbcProperties = new Properties();
         if (hasJdbcProperties(tableOptions)) {
             tableOptions.keySet().stream()
-                    .filter(key -> key.startsWith(PROPERTIES_PREFIX))
+                    .filter(key -> key.startsWith(PROPERTIES_PREFIX) && isValid(key))
                     .forEach(
                             key -> {
                                 final String value = tableOptions.get(key);
@@ -49,4 +51,9 @@ public class JdbcUrlUtils {
     private static boolean hasJdbcProperties(Map<String, String> tableOptions) {
         return tableOptions.keySet().stream().anyMatch(k -> k.startsWith(PROPERTIES_PREFIX));
     }
+
+    private static boolean isValid(String key) {
+        return !StringUtils.containsIgnoreCase(key, Constants.AUTO_DESERIALIZE);
+    }
+
 }

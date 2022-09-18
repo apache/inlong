@@ -41,10 +41,15 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/user/listAll',
-      params: options,
+      method: 'POST',
+      data: options,
     },
     {
       refreshDeps: [options],

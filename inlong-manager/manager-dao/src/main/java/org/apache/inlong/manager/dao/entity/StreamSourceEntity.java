@@ -21,6 +21,8 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.util.MaskDataUtils;
 
 /**
  * Stream source entity, including source type, source name, etc.
@@ -34,11 +36,12 @@ public class StreamSourceEntity implements Serializable {
     private String inlongStreamId;
     private String sourceType;
     private String sourceName;
+    private Integer templateId;
     private String agentIp;
     private String uuid;
 
     private String dataNodeName;
-    private Integer clusterId;
+    private String inlongClusterName;
     private String serializationType;
     private String snapshot;
     private Date reportTime;
@@ -55,4 +58,36 @@ public class StreamSourceEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
 
+    @Override
+    public String toString() {
+        if (StringUtils.isNotEmpty(extParams)) {
+            StringBuilder buffer = new StringBuilder(extParams);
+            MaskDataUtils.mask(buffer);
+            extParams = buffer.toString();
+        }
+        return "StreamSourceEntity{"
+                + "id=" + id
+                + ", inlongGroupId='" + inlongGroupId + '\''
+                + ", inlongStreamId='" + inlongStreamId + '\''
+                + ", sourceType='" + sourceType + '\''
+                + ", sourceName='" + sourceName + '\''
+                + ", templateId=" + templateId
+                + ", agentIp='" + agentIp + '\''
+                + ", uuid='" + uuid + '\''
+                + ", dataNodeName='" + dataNodeName + '\''
+                + ", inlongClusterName='" + inlongClusterName + '\''
+                + ", serializationType='" + serializationType + '\''
+                + ", snapshot='" + snapshot + '\''
+                + ", reportTime=" + reportTime
+                + ", extParams='" + extParams + '\''
+                + ", version=" + version
+                + ", status=" + status
+                + ", previousStatus=" + previousStatus
+                + ", isDeleted=" + isDeleted
+                + ", creator='" + creator + '\''
+                + ", modifier='" + modifier + '\''
+                + ", createTime=" + createTime + '\''
+                + ", modifyTime=" + modifyTime
+                + '}';
+    }
 }

@@ -26,7 +26,7 @@ namespace tubemq {
 
 using std::string;
 
-static const char kTubeMQClientVersion[] = "0.1.7-C-0.5.0";
+static const char kTubeMQClientVersion[] = "0.1.8-C-0.5.0";
 
 }  // namespace tubemq
 

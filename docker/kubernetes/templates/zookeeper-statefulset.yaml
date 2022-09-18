@@ -99,6 +99,8 @@ spec:
               value:
                 {{- $global := . }}
                 {{ range $i, $e := until (.Values.zookeeper.replicas | int) }}{{ if ne $i 0 }},{{ end }}{{ template "inlong.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
+            - name: TZ
+              value: {{ .Values.timezone }}
           {{- if .Values.zookeeper.probe.readiness.enabled }}
           readinessProbe:
             exec:

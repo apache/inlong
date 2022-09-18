@@ -55,7 +55,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private final XContentType contentType;
     private final RequestFactory requestFactory;
     private final Function<RowData, String> createKey;
-    private final String inLongMetric;
+    private final String inlongMetric;
     private final String auditHostAndPorts;
 
     private final Function<RowData, String> createRouting;
@@ -77,7 +77,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             RequestFactory requestFactory,
             Function<RowData, String> createKey,
             @Nullable Function<RowData, String> createRouting,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
@@ -86,7 +86,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.requestFactory = Preconditions.checkNotNull(requestFactory);
         this.createKey = Preconditions.checkNotNull(createKey);
         this.createRouting = createRouting;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -94,14 +94,12 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     public void open(RuntimeContext ctx) {
         indexGenerator.open();
         this.runtimeContext = ctx;
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("&");
-            groupId = inLongMetricArray[0];
-            streamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+        if (inlongMetric != null && !inlongMetric.isEmpty()) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            groupId = inlongMetricArray[0];
+            streamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
-            sinkMetricData.registerMetricsForDirtyBytes();
-            sinkMetricData.registerMetricsForDirtyRecords();
             sinkMetricData.registerMetricsForNumBytesOut();
             sinkMetricData.registerMetricsForNumRecordsOut();
             sinkMetricData.registerMetricsForNumBytesOutPerSecond();
@@ -129,6 +127,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private void sendMetrics(byte[] document) {
         if (sinkMetricData.getNumBytesOut() != null) {
             sinkMetricData.getNumBytesOut().inc(document.length);
+        }
+        if (sinkMetricData.getNumRecordsOut() != null) {
+            sinkMetricData.getNumRecordsOut().inc();
         }
         outputMetricForAudit(document.length);
     }
@@ -201,7 +202,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 && contentType == that.contentType
                 && Objects.equals(requestFactory, that.requestFactory)
                 && Objects.equals(createKey, that.createKey)
-                && Objects.equals(inLongMetric, that.inLongMetric);
+                && Objects.equals(inlongMetric, that.inlongMetric);
     }
 
     @Override
@@ -213,6 +214,6 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 contentType,
                 requestFactory,
                 createKey,
-                inLongMetric);
+                inlongMetric);
     }
 }

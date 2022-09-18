@@ -153,8 +153,8 @@ public class MySqlSource<T>
         if (StringUtils.isNotEmpty(inlongMetric)) {
             String[] inlongMetricArray = inlongMetric.split(DELIMITER);
             sourceReaderMetrics.setInlongGroupId(inlongMetricArray[0]);
-            sourceReaderMetrics.setInlongGroupId(inlongMetricArray[1]);
-            sourceReaderMetrics.setInlongGroupId(inlongMetricArray[2]);
+            sourceReaderMetrics.setInlongSteamId(inlongMetricArray[1]);
+            sourceReaderMetrics.setNodeId(inlongMetricArray[2]);
             if (inlongAudit != null) {
                 AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
                 sourceReaderMetrics.setAuditImp(AuditImp.getInstance());

@@ -18,14 +18,15 @@
  */
 
 import React from 'react';
-import { Divider, Modal, message } from 'antd';
+import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import getGroupFields from '@/metas/group';
-import getStreamFields from '@/metas/stream';
+import { groupForm } from '@/metas/group';
+import { streamForm } from '@/metas/stream';
 import request from '@/utils/request';
+import { pickObjectArray } from '@/utils';
 import { dataToValues, valuesToData } from './helper';
 
 export interface Props extends ModalProps {
@@ -37,41 +38,13 @@ export interface Props extends ModalProps {
 
 export const genFormContent = (isCreate, mqType) => {
   return [
-    ...getStreamFields([
-      {
-        type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
-          </Divider>
-        ),
-      },
-      'inlongStreamId',
-      'name',
-      'description',
-      {
-        type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-          </Divider>
-        ),
-      },
-      'dataType',
-      'dataEncoding',
-      'dataSeparator',
-      'rowTypeFields',
-      {
-        type: (
-          <Divider orientation="left">
-            {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-          </Divider>
-        ),
+    ...streamForm,
+    ...pickObjectArray(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength'], groupForm).map(
+      item => ({
+        ...item,
         visible: mqType === 'PULSAR',
-      },
-    ]),
-    ...getGroupFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(item => ({
-      ...item,
-      visible: mqType === 'PULSAR',
-    })),
+      }),
+    ),
   ].map(item => {
     const obj = { ...item };
 
@@ -96,21 +69,23 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
     },
     {
       manual: true,
-      onSuccess: result => form.setFieldsValue(dataToValues([result])?.[0]),
+      onSuccess: result => form.setFieldsValue(dataToValues(result)),
     },
   );
 
   const onOk = async () => {
-    const values = {
-      ...savedData,
-      ...(await form.validateFields()),
-    };
+    const isUpdate = !!inlongStreamId;
+    const values = await form.validateFields();
+    const submitData = valuesToData(values, inlongGroupId);
+    if (isUpdate) {
+      submitData.id = savedData?.id;
+      submitData.version = savedData?.version;
+    }
 
-    const submitData = valuesToData(values ? [values] : [], inlongGroupId);
     await request({
-      url: inlongStreamId ? '/stream/update' : '/stream/save',
+      url: isUpdate ? '/stream/update' : '/stream/save',
       method: 'POST',
-      data: submitData?.[0],
+      data: submitData,
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
@@ -129,7 +104,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
   return (
     <Modal
       {...modalProps}
-      title={i18n.t('pages.AccessDetail.DataStream.StreamItemModal.DataFlowConfiguration')}
+      title={i18n.t('pages.GroupDetail.Stream.StreamConfigTitle')}
       width={1000}
       onOk={onOk}
     >

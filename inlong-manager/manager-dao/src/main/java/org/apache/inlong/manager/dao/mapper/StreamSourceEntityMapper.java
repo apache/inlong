@@ -65,18 +65,25 @@ public interface StreamSourceEntityMapper {
     /**
      * Query the tasks by the given status list.
      */
-    List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list, @Param("limit") int limit);
+    List<StreamSourceEntity> selectByStatus(@Param("statusList") List<Integer> list, @Param("limit") int limit);
 
     /**
      * Query the tasks by the given status list and type List.
      */
-    List<StreamSourceEntity> selectByStatusAndType(@Param("list") List<Integer> list,
-            @Param("sourceType") List<String> sourceTypes, @Param("limit") int limit);
+    List<StreamSourceEntity> selectByStatusAndType(@Param("statusList") List<Integer> statusList,
+            @Param("sourceTypeList") List<String> sourceTypeList, @Param("limit") int limit);
+
+    /**
+     * Query the tasks by the given status list and type List.
+     */
+    List<StreamSourceEntity> selectByAgentIpOrCluster(@Param("statusList") List<Integer> statusList,
+            @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
+            @Param("clusterName") String clusterName);
 
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
      *
-     * @apiNote Sources with is_deleted > 0 need to be filtered.
+     * @apiNote Sources with is_deleted > 0 should also be returned to agents to clear their local tasks.
      */
     List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
@@ -84,7 +91,12 @@ public interface StreamSourceEntityMapper {
     /**
      * Select all sources by groupIds
      */
-    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<String> groupIds);
+    List<StreamSourceEntity> selectByGroupIds(@Param("groupIdList") List<String> groupIdList);
+
+    /**
+     * Select all sub sources by template id
+     */
+    List<StreamSourceEntity> selectByTemplateId(@Param("templateId") Integer templateId);
 
     /**
      * Get the distinct source type from the given groupId and streamId

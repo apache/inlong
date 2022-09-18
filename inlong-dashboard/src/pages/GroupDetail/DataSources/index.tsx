@@ -26,40 +26,28 @@ import DetailModal from './DetailModal';
 import { sources } from '@/metas/sources';
 import i18n from '@/i18n';
 import request from '@/utils/request';
+import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
-import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
-const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-  },
-  {
-    type: 'radiobutton',
-    name: 'sourceType',
-    label: i18n.t('pages.AccessDetail.DataSources.Type'),
-    initialValue: defaultValues.sourceType,
-    props: {
-      buttonStyle: 'solid',
-      options: sources.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
+const getFilterFormContent = defaultValues =>
+  [
+    {
+      type: 'inputsearch',
+      name: 'keyword',
+      initialValue: defaultValues.keyword,
+      props: {
+        allowClear: true,
+      },
     },
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      dropdownMatchSelectWidth: false,
-      options: statusList,
-    },
-  },
-];
+  ].concat(
+    pickObjectArray(['sourceType', 'status'], sources[0].form).map(item => ({
+      ...item,
+      visible: true,
+      initialValue: defaultValues[item.name],
+    })),
+  );
 
 const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const [options, setOptions] = useState({
@@ -73,7 +61,11 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/source/list',
       params: {
@@ -86,33 +78,13 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     },
   );
 
-  const onSave = async values => {
-    const isUpdate = createModal.id;
-    const submitData = {
-      ...values,
-      inlongGroupId: inlongGroupId,
-      sourceType: options.sourceType,
-    };
-    if (isUpdate) {
-      submitData.id = createModal.id;
-    }
-
-    await request({
-      url: `/source/${isUpdate ? 'update' : 'save'}`,
-      method: 'POST',
-      data: submitData,
-    });
-    await getList();
-    message.success(i18n.t('pages.AccessDetail.DataSources.SaveSuccessfully'));
-  };
-
   const onEdit = ({ id }) => {
     setCreateModal({ visible: true, id });
   };
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
+      title: i18n.t('pages.GroupDetail.Sources.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/source/delete/${id}`,
@@ -122,7 +94,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           },
         });
         await getList();
-        message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
+        message.success(i18n.t('pages.GroupDetail.Sources.DeleteSuccessfully'));
       },
     });
   };
@@ -154,7 +126,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       sources.reduce(
         (acc, cur) => ({
           ...acc,
-          [cur.value]: cur.tableColumns,
+          [cur.value]: cur.table,
         }),
         {},
       ),
@@ -163,21 +135,12 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columns = [
     {
-      title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
+      title: i18n.t('pages.GroupDetail.Sources.DataStreams'),
       dataIndex: 'inlongStreamId',
-    },
-    {
-      title: i18n.t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
-      dataIndex: 'sourceName',
     },
   ]
     .concat(columnsMap[options.sourceType])
     .concat([
-      {
-        title: i18n.t('basic.Status'),
-        dataIndex: 'status',
-        render: text => genStatusTag(text),
-      },
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
@@ -197,38 +160,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       } as any,
     ]);
 
-  const createContent = [
-    {
-      type: 'select',
-      label: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
-      name: 'inlongStreamId',
-      props: {
-        notFoundContent: i18n.t('pages.AccessDetail.DataSources.NoDataStreams'),
-        disabled: !!createModal.id,
-        options: {
-          requestService: {
-            url: '/stream/list',
-            method: 'POST',
-            data: {
-              pageNum: 1,
-              pageSize: 1000,
-              inlongGroupId,
-            },
-          },
-          requestParams: {
-            ready: !!(createModal.visible && !createModal.id),
-            formatResult: result =>
-              result?.list.map(item => ({
-                label: item.inlongStreamId,
-                value: item.inlongStreamId,
-              })) || [],
-          },
-        },
-      },
-      rules: [{ required: true }],
-    },
-  ];
-
   return (
     <>
       <HighTable
@@ -239,7 +170,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-              {i18n.t('pages.AccessDetail.DataSources.Create')}
+              {i18n.t('pages.GroupDetail.Sources.Create')}
             </Button>
           )
         }
@@ -255,11 +186,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
       <DetailModal
         {...createModal}
-        type={options.sourceType as any}
-        content={createContent}
+        inlongGroupId={inlongGroupId}
         visible={createModal.visible as boolean}
-        onOk={async values => {
-          await onSave(values);
+        onOk={async () => {
+          await getList();
           setCreateModal({ visible: false });
         }}
         onCancel={() => setCreateModal({ visible: false })}

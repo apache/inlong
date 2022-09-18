@@ -27,6 +27,7 @@ import org.apache.flink.table.catalog.UniqueConstraint;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -36,6 +37,8 @@ import static com.ververica.cdc.connectors.mongodb.MongoDBSource.ERROR_TOLERANCE
 import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_AWAIT_TIME_MILLIS_DEFAULT;
 import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_MAX_BATCH_SIZE_DEFAULT;
 import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Factory for creating configured instance of {@link MongoDBTableSource}.
@@ -45,12 +48,6 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
     private static final String IDENTIFIER = "mongodb-cdc-inlong";
 
     private static final String DOCUMENT_ID_FIELD = "_id";
-
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     private static final ConfigOption<String> HOSTS =
             ConfigOptions.key("hosts")
@@ -199,35 +196,37 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
 
         final ReadableConfig config = helper.getOptions();
 
-        String hosts = config.get(HOSTS);
-        String connectionOptions = config.getOptional(CONNECTION_OPTIONS).orElse(null);
+        final String hosts = config.get(HOSTS);
+        final String connectionOptions = config.getOptional(CONNECTION_OPTIONS).orElse(null);
 
-        String username = config.getOptional(USERNAME).orElse(null);
-        String password = config.getOptional(PASSWORD).orElse(null);
+        final String username = config.getOptional(USERNAME).orElse(null);
+        final String password = config.getOptional(PASSWORD).orElse(null);
 
-        String database = config.getOptional(DATABASE).orElse(null);
-        String collection = config.getOptional(COLLECTION).orElse(null);
+        final String database = config.getOptional(DATABASE).orElse(null);
+        final String collection = config.getOptional(COLLECTION).orElse(null);
 
-        String errorsTolerance = config.get(ERRORS_TOLERANCE);
-        Boolean errorsLogEnable = config.get(ERRORS_LOG_ENABLE);
+        final String errorsTolerance = config.get(ERRORS_TOLERANCE);
+        final Boolean errorsLogEnable = config.get(ERRORS_LOG_ENABLE);
 
-        Integer pollMaxBatchSize = config.get(POLL_MAX_BATCH_SIZE);
-        Integer pollAwaitTimeMillis = config.get(POLL_AWAIT_TIME_MILLIS);
+        final Integer pollMaxBatchSize = config.get(POLL_MAX_BATCH_SIZE);
+        final Integer pollAwaitTimeMillis = config.get(POLL_AWAIT_TIME_MILLIS);
 
-        Integer heartbeatIntervalMillis =
+        final Integer heartbeatIntervalMillis =
                 config.getOptional(HEARTBEAT_INTERVAL_MILLIS).orElse(null);
 
-        Boolean copyExisting = config.get(COPY_EXISTING);
-        String copyExistingPipeline = config.getOptional(COPY_EXISTING_PIPELINE).orElse(null);
-        Integer copyExistingMaxThreads = config.getOptional(COPY_EXISTING_MAX_THREADS).orElse(null);
-        Integer copyExistingQueueSize = config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
+        final Boolean copyExisting = config.get(COPY_EXISTING);
+        final String copyExistingPipeline = config.getOptional(COPY_EXISTING_PIPELINE).orElse(null);
+        final Integer copyExistingMaxThreads = config.getOptional(COPY_EXISTING_MAX_THREADS).orElse(null);
+        final Integer copyExistingQueueSize = config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
 
-        String zoneId = context.getConfiguration().get(TableConfigOptions.LOCAL_TIME_ZONE);
-        ZoneId localTimeZone =
+        final String zoneId = context.getConfiguration().get(TableConfigOptions.LOCAL_TIME_ZONE);
+        final ZoneId localTimeZone =
                 TableConfigOptions.LOCAL_TIME_ZONE.defaultValue().equals(zoneId)
                         ? ZoneId.systemDefault()
                         : ZoneId.of(zoneId);
-        String inLongMetric = config.get(INLONG_METRIC);
+        final String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        final String inlongAudit = config.get(INLONG_AUDIT);
+        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
 
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         checkArgument(physicalSchema.getPrimaryKey().isPresent(), "Primary key must be present");
@@ -251,7 +250,8 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 pollAwaitTimeMillis,
                 heartbeatIntervalMillis,
                 localTimeZone,
-                inLongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     private void checkPrimaryKey(UniqueConstraint pk, String message) {
@@ -290,6 +290,7 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         options.add(POLL_AWAIT_TIME_MILLIS);
         options.add(HEARTBEAT_INTERVAL_MILLIS);
         options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 }

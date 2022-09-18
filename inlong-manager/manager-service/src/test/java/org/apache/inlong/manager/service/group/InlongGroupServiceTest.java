@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class InlongGroupServiceTest {
     InlongGroupExtEntityMapper groupExtMapper;
 
     /**
-     * Test to save group
+     * Save one inlong group with Pulsar info
      */
     public String saveGroup(String inlongGroupId, String operator) {
         InlongGroupInfo groupInfo;
@@ -77,14 +77,11 @@ public class InlongGroupServiceTest {
         return groupService.save(pulsarInfo.genRequest(), operator);
     }
 
-    // @TestComponent runs as a whole without injecting objects
-    // @Test
-    public void testSaveAndDelete() {
-        String groupId = this.saveGroup(globalGroupId, globalOperator);
-        Assertions.assertNotNull(groupId);
-
-        boolean result = groupService.delete(groupId, globalOperator);
-        Assertions.assertTrue(result);
+    /**
+     * Delete one inlong group
+     */
+    public Boolean deleteGroup(String groupId, String operator) {
+        return groupService.delete(groupId, operator);
     }
 
     // @TestComponent runs as a whole without injecting objects

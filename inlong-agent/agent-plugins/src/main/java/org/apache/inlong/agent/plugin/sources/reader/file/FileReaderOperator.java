@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
@@ -61,10 +60,10 @@ public class FileReaderOperator extends AbstractReader {
     public Stream<String> stream;
     public Map<String, String> metadata;
     public JobProfile jobConf;
-    private Iterator<String> iterator;
+    public Iterator<String> iterator;
+    public volatile boolean finished = false;
     private long timeout;
     private long waitTimeout;
-
     private long lastTime = 0;
 
     private List<Validator> validators = new ArrayList<>();
@@ -107,6 +106,9 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public boolean isFinished() {
+        if (finished) {
+            return true;
+        }
         if (timeout == NEVER_STOP_SIGN) {
             return false;
         }
@@ -178,7 +180,7 @@ public class FileReaderOperator extends AbstractReader {
                     fileReader.getData();
                     fileReader.mergeData(this);
                 } catch (Exception ex) {
-                    LOGGER.error("read file data error:{}", ex.getMessage());
+                    LOGGER.error("read file data error", ex);
                 }
             });
             if (Objects.nonNull(stream)) {
@@ -189,9 +191,10 @@ public class FileReaderOperator extends AbstractReader {
         }
     }
 
+    // default value is -1 and never stop task
     private void initReadTimeout(JobProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_FILE_MAX_WAIT,
-                DEFAULT_JOB_FILE_MAX_WAIT);
+                NEVER_STOP_SIGN);
         if (waitTime == NEVER_STOP_SIGN) {
             timeout = NEVER_STOP_SIGN;
         } else {
@@ -201,6 +204,7 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public void destroy() {
+        finished = true;
         if (stream == null) {
             return;
         }
@@ -211,14 +215,14 @@ public class FileReaderOperator extends AbstractReader {
 
     public List<AbstractFileReader> getInstance(FileReaderOperator reader, JobProfile jobConf) {
         List<AbstractFileReader> fileReaders = new ArrayList<>();
-        fileReaders.add(new TextFileReader(this));
+        fileReaders.add(new TextFileReader(reader));
         if (!jobConf.hasKey(JOB_FILE_META_ENV_LIST)) {
             return fileReaders;
         }
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
-                fileReaders.add(new KubernetesFileReader(this));
+                fileReaders.add(new KubernetesFileReader(reader));
             }
         });
         return fileReaders;

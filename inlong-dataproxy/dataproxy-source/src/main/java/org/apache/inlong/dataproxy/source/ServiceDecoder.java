@@ -28,10 +28,13 @@ public interface ServiceDecoder {
     /**
      * extract data from buffer and convert it into map.
      * 
-     * @param cb
-     * @param channel
-     * @return Map
+     * @param cb           the message Byte buffer
+     * @param strRemoteIP  the remote ip message sent
+     * @param msgRcvTime   the received message time
+     * @param channel      the channel
+     * @return Map         the message map
      * @throws Exception
      */
-    Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception;
+    Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
+                                    long msgRcvTime, Channel channel) throws Exception;
 }

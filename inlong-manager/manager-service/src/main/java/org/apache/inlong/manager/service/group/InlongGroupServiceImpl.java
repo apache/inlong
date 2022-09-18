@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.group;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,6 +42,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -70,11 +70,14 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 
 /**
  * Inlong group service layer implementation
@@ -84,7 +87,6 @@ import java.util.stream.Collectors;
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
-    private static final Integer MAX_PAGE_SIZE = 100;
 
     @Autowired
     private InlongGroupOperatorFactory groupOperatorFactory;
@@ -181,9 +183,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
+    public PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
-            LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
+            LOGGER.warn("list inlong groups, change page size from {} to {}", request.getPageSize(), MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
         }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -210,10 +212,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 group.setStreamSources(sources);
             });
         }
-        PageInfo<InlongGroupBriefInfo> page = new PageInfo<>(briefInfos);
-        page.setTotal(entityPage.getTotal());
+
+        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+
         LOGGER.debug("success to list inlong group for {}", request);
-        return page;
+        return pageResult;
     }
 
     @Override
@@ -272,8 +276,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return true;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public boolean delete(String groupId, String operator) {
         LOGGER.info("begin to delete inlong group for groupId={} by user={}", groupId, operator);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -420,8 +424,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     private BaseSortConf buildSortConfig(List<InlongGroupExtInfo> extInfos) {
-        Map<String, String> extMap = extInfos.stream()
-                .collect(Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
+        Map<String, String> extMap = new HashMap<>();
+        extInfos.forEach(extInfo -> extMap.put(extInfo.getKeyName(), extInfo.getKeyValue()));
         String type = extMap.get(InlongConstants.SORT_TYPE);
         if (StringUtils.isBlank(type)) {
             return null;

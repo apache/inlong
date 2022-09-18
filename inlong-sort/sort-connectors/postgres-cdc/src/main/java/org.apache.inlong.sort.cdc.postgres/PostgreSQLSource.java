@@ -54,6 +54,7 @@ public class PostgreSQLSource {
         private Properties dbzProperties;
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
+        private String inlongAudit;
 
         /**
          * The name of the Postgres logical decoding plug-in installed on the server. Supported
@@ -152,6 +153,11 @@ public class PostgreSQLSource {
             return this;
         }
 
+        public Builder<T> inlongAudit(String inlongAudit) {
+            this.inlongAudit = inlongAudit;
+            return this;
+        }
+
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
@@ -183,7 +189,7 @@ public class PostgreSQLSource {
                 props.putAll(dbzProperties);
             }
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric);
+                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric, inlongAudit);
         }
     }
 }

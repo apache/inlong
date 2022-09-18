@@ -45,7 +45,7 @@ public class FieldRelation {
 
     @JsonCreator
     public FieldRelation(@JsonProperty("inputField") FunctionParam inputField,
-                         @JsonProperty("outputField") FieldInfo outputField) {
+            @JsonProperty("outputField") FieldInfo outputField) {
         this.inputField = inputField;
         this.outputField = outputField;
     }

@@ -18,25 +18,22 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { FormItemProps } from '@/components/FormGenerator';
-import { sources, SourceType } from '@/metas/sources';
+import { sources } from '@/metas/sources';
+import request from '@/utils/request';
 
 export interface Props extends ModalProps {
-  type: 'MYSQL_BINLOG' | 'FILE';
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
-  // Pass when editing, directly echo the record data
-  record?: Record<string, any>;
-  // Additional form configuration
-  content?: FormItemProps[];
+  inlongGroupId?: string;
 }
 
-const sourcesMap: Record<string, SourceType> = sources.reduce(
+const sourcesMap: Record<string, typeof sources[0]> = sources.reduce(
   (acc, cur) => ({
     ...acc,
     [cur.value]: cur,
@@ -44,11 +41,11 @@ const sourcesMap: Record<string, SourceType> = sources.reduce(
   {},
 );
 
-const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
-  const [currentValues, setCurrentValues] = useState({});
+  const [type, setType] = useState(sources[0].value);
 
   const toFormVals = useCallback(
     v => {
@@ -78,58 +75,83 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
       formatResult: result => toFormVals(result),
       onSuccess: result => {
         form.setFieldsValue(result);
-        setCurrentValues(result);
+        setType(result.sourceType);
       },
     },
   );
 
   const onOk = async () => {
     const values = await form.validateFields();
-    if (data) values.version = data.version;
-    modalProps?.onOk(toSubmitVals(values));
+    const submitData = toSubmitVals(values);
+    const isUpdate = Boolean(id);
+    if (isUpdate) {
+      submitData.id = id;
+      submitData.version = data?.version;
+    }
+    await request({
+      url: `/source/${isUpdate ? 'update' : 'save'}`,
+      method: 'POST',
+      data: {
+        ...submitData,
+        inlongGroupId,
+      },
+    });
+    modalProps?.onOk(submitData);
+    message.success(t('pages.GroupDetail.Sources.SaveSuccessfully'));
   };
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      form.resetFields(); // Note that it will cause the form to remount to initiate a select request
       if (id) {
         getData(id);
-      } else if (!id && Object.keys(record || {})?.length) {
-        form.setFieldsValue(toFormVals(record));
-        setCurrentValues(toFormVals(record));
       }
     } else {
-      setCurrentValues({});
+      form.resetFields();
+      setType(sources[0].value);
     }
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const getForm = sourcesMap[type].getForm;
-    const config = getForm('form', {
-      currentValues,
-      form,
-    }) as FormItemProps[];
+    const currentForm = sourcesMap[type]?.form;
     return [
       {
-        name: 'sourceName',
-        type: 'input',
-        label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
-        rules: [{ required: true }],
+        type: 'select',
+        label: t('pages.GroupDetail.Sources.DataStreams'),
+        name: 'inlongStreamId',
         props: {
           disabled: !!id,
+          options: {
+            requestService: {
+              url: '/stream/list',
+              method: 'POST',
+              data: {
+                pageNum: 1,
+                pageSize: 1000,
+                inlongGroupId,
+              },
+            },
+            requestParams: {
+              formatResult: result =>
+                result?.list.map(item => ({
+                  label: item.inlongStreamId,
+                  value: item.inlongStreamId,
+                })) || [],
+            },
+          },
         },
+        rules: [{ required: true }],
       } as FormItemProps,
-    ].concat(config);
-  }, [type, id, currentValues, form, t]);
+    ].concat(currentForm);
+  }, [type, id, t, inlongGroupId]);
 
   return (
     <>
       <Modal {...modalProps} title={sourcesMap[type]?.label} width={666} onOk={onOk}>
         <FormGenerator
-          content={content.concat(formContent)}
-          onValuesChange={vals => setCurrentValues(prev => ({ ...prev, ...vals }))}
-          allValues={currentValues}
+          content={formContent}
+          onValuesChange={(c, values) => setType(values.sourceType)}
+          initialValues={id ? data : {}}
           form={form}
           useMaxWidth
         />

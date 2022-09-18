@@ -51,26 +51,37 @@ public class CreateCommand extends AbstractCommand {
 
         @Parameter(names = {"-f", "--file"},
                 converter = FileConverter.class,
-                required = true,
                 description = "json file")
         private File file;
+
+        @Parameter(names = {"-s"}, description = "optional log string to create file")
+        private String input;
 
         @Override
         void run() {
             try {
-                String fileContent = ClientUtils.readFile(file);
-                if (StringUtils.isBlank(fileContent)) {
-                    System.out.println("Create group failed: file was empty!");
-                    return;
+                String content;
+                if (input != null) {
+                    content = input;
+                } else {
+                    content = ClientUtils.readFile(file);
+                    if (StringUtils.isBlank(content)) {
+                        System.out.println("Create group failed: file was empty!");
+                        return;
+                    }
                 }
-                CreateGroupConf groupConf = objectMapper.readValue(fileContent, CreateGroupConf.class);
+                // first extract group config from the file passed in
+                CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
+                // get the corresponding inlong group, aka the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
+                // put in parameters:source and sink,stream fields, then initialize
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
                 streamBuilder.sink(groupConf.getStreamSink());
                 streamBuilder.initOrUpdate();
+                // initialize the new stream group
                 group.init();
                 System.out.println("Create group success!");
             } catch (Exception e) {

@@ -88,17 +88,22 @@ public class ProxyClientConfig {
     private int metricIntervalInMs = 60 * 1000;
     // max cache time for proxy config.
     private long maxProxyCacheTimeInMs = 30 * 60 * 1000;
-
     // metric groupId
     private String metricGroupId = "inlong_sla_metric";
 
     private int ioThreadNum = Runtime.getRuntime().availableProcessors();
     private boolean enableBusyWait = false;
 
+    private int virtualNode;
+
+    private LoadBalance loadBalance;
+
+    private int maxRetry;
+
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey)
-            throws ProxysdkException {
+                             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
+                             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -126,6 +131,16 @@ public class ProxyClientConfig {
         this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
+        this.loadBalance = loadBalance;
+        this.virtualNode = virtualNode;
+        this.maxRetry = maxRetry;
+    }
+
+    public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String groupId,
+                             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
+        this(localHost, isLocalVisit, managerIp, managerPort, groupId, netTag, authSecretId, authSecretKey,
+                ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
+                ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
     }
 
     public String getTlsServerCertFilePathAndName() {
@@ -289,7 +304,7 @@ public class ProxyClientConfig {
     }
 
     public void setAuthenticationInfo(boolean needAuthentication, boolean needDataEncry,
-            final String userName, final String secretKey) {
+                                      final String userName, final String secretKey) {
         this.needAuthentication = needAuthentication;
         this.isNeedDataEncry = needDataEncry;
         if (this.needAuthentication || this.isNeedDataEncry) {
@@ -458,5 +473,29 @@ public class ProxyClientConfig {
 
     public void setEnableBusyWait(boolean enableBusyWait) {
         this.enableBusyWait = enableBusyWait;
+    }
+
+    public int getVirtualNode() {
+        return virtualNode;
+    }
+
+    public void setVirtualNode(int virtualNode) {
+        this.virtualNode = virtualNode;
+    }
+
+    public LoadBalance getLoadBalance() {
+        return loadBalance;
+    }
+
+    public void setLoadBalance(LoadBalance loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
+    public int getMaxRetry() {
+        return maxRetry;
+    }
+
+    public void setMaxRetry(int maxRetry) {
+        this.maxRetry = maxRetry;
     }
 }

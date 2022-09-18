@@ -22,11 +22,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
+import org.apache.inlong.sort.protocol.transformation.function.AddFunction;
+import org.apache.inlong.sort.protocol.transformation.function.BetweenFunction;
 import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
+import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 import org.apache.inlong.sort.protocol.transformation.function.EncryptFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopStartFunction;
+import org.apache.inlong.sort.protocol.transformation.function.IntervalFunction;
 import org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.MultiValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
@@ -36,6 +40,7 @@ import org.apache.inlong.sort.protocol.transformation.function.SessionFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SessionStartFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SplitIndexFunction;
+import org.apache.inlong.sort.protocol.transformation.function.SubtractFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
@@ -98,7 +103,12 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
         @JsonSubTypes.Type(value = CascadeFunctionWrapper.class, name = "cascadeFunctionWrapper"),
         @JsonSubTypes.Type(value = EncryptFunction.class, name = "encrypt"),
-        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction")
+        @JsonSubTypes.Type(value = JsonGetterFunction.class, name = "jsonGetterFunction"),
+        @JsonSubTypes.Type(value = CustomFunction.class, name = "customFunction"),
+        @JsonSubTypes.Type(value = BetweenFunction.class, name = "betweenFunction"),
+        @JsonSubTypes.Type(value = IntervalFunction.class, name = "intervalFunction"),
+        @JsonSubTypes.Type(value = AddFunction.class, name = "addFunction"),
+        @JsonSubTypes.Type(value = SubtractFunction.class, name = "subtractFunction")
 })
 public interface FunctionParam {
 

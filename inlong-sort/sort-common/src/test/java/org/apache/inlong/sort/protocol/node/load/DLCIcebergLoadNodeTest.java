@@ -38,10 +38,9 @@ public class DLCIcebergLoadNodeTest extends SerializeBaseTest<DLCIcebergLoadNode
         properties.put(DLCConstant.DLC_REGION, "ap-beijing");
         properties.put(DLCConstant.DLC_SECRET_ID, "XXXXXXXXXXX");
         properties.put(DLCConstant.DLC_SECRET_KEY, "XXXXXXXXXXX");
+        properties.put(DLCConstant.DLC_USER_APPID, "XXXXXXXXXXX");
+        properties.put(DLCConstant.DLC_MANAGED_ACCOUNT_UID, "XXXXXXXXXXX");
 
-        properties.put(DLCConstant.FS_COS_REGION, "ap-beijing");
-        properties.put(DLCConstant.FS_COS_SECRET_ID, "XXXXXXXXXXX");
-        properties.put(DLCConstant.FS_COS_SECRET_KEY, "XXXXXXXXXXX");
         return new DLCIcebergLoadNode(
                 "iceberg_dlc",
                 "iceberg_dlc_output",

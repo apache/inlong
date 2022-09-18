@@ -19,6 +19,8 @@
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,22 +34,31 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
 
 /**
  * Text file reader
  */
 public final class TextFileReader extends AbstractFileReader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
+
     private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
 
     public TextFileReader(FileReaderOperator fileReaderOperator) {
         super.fileReaderOperator = fileReaderOperator;
+        if (fileReaderOperator.jobConf.get(JOB_FILE_MONITOR_STATUS, JOB_FILE_MONITOR_DEFAULT_STATUS)
+                .equals(JOB_FILE_MONITOR_DEFAULT_STATUS)) {
+            MonitorTextFile.getInstance().monitor(fileReaderOperator, this);
+        }
     }
 
     public void getData() throws IOException {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
                 fileReaderOperator.position)
                 .collect(Collectors.toList());
+        LOGGER.info("path is {}, data reads size {}", fileReaderOperator.file.getName(), lines.size());
         List<String> resultLines = new ArrayList<>();
         //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
@@ -79,6 +90,7 @@ public final class TextFileReader extends AbstractFileReader {
         }
         lines = resultLines.isEmpty() ? lines : resultLines;
         fileReaderOperator.stream = lines.stream();
+        fileReaderOperator.position = fileReaderOperator.position + lines.size();
     }
 
 }

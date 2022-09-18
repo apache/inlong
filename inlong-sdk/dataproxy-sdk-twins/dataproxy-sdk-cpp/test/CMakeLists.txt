@@ -21,6 +21,7 @@ function(sdk_add_tests _name)
     set(_srcs ${ARGN})
     message(STATUS "${_name} sources: ${_srcs}")
     add_executable(${_name} ${_srcs})
+    include_directories(release/inc)
     target_link_libraries(${_name} sdk_base sdk_net pthread gtest gmock)
 endfunction(sdk_add_tests _name)
 

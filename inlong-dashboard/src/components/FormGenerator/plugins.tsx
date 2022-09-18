@@ -120,6 +120,7 @@ const autocomplete = props => <AutoComplete {...props} />;
 
 const transfer = props => <Transfer {...props} />;
 
+// eslint-disable-next-line
 export default {
   text,
   input,

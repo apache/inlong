@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Deadline;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -29,8 +30,8 @@ import org.apache.flink.runtime.jobmaster.JobMaster;
 import org.apache.flink.runtime.taskexecutor.TaskExecutor;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.util.TestLogger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -42,7 +43,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
-import sun.misc.IOUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -102,10 +102,10 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Nullable
-    private RestClusterClient<StandaloneClusterId> restClusterClient;
+    private static RestClusterClient<StandaloneClusterId> restClusterClient;
 
-    private GenericContainer<?> jobManager;
-    private GenericContainer<?> taskManager;
+    private static GenericContainer<?> jobManager;
+    private static GenericContainer<?> taskManager;
 
 
     // ----------------------------------------------------------------------------------------
@@ -121,12 +121,13 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                     .withDatabaseName("test")
                     .withUsername("flinkuser")
                     .withPassword("flinkpw")
+                    .withUrlParam("allowMultiQueries", "true")
                     .withNetwork(NETWORK)
                     .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
 
-    @Before
-    public void before() {
+    @BeforeClass
+    public static void before() {
         LOG.info("Starting containers...");
         jobManager =
                 new GenericContainer<>("flink:1.13.5-scala_2.11")
@@ -151,8 +152,8 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         LOG.info("Containers are started.");
     }
 
-    @After
-    public void after() {
+    @AfterClass
+    public static void after() {
         if (restClusterClient != null) {
             restClusterClient.close();
         }
@@ -181,6 +182,25 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
         commands.add("--sql.script.file");
         commands.add(containerSqlFile);
+
+        ExecResult execResult =
+                jobManager.execInContainer("bash", "-c", String.join(" ", commands));
+        LOG.info(execResult.getStdout());
+        LOG.error(execResult.getStderr());
+        if (execResult.getExitCode() != 0) {
+            throw new AssertionError("Failed when submitting the SQL job.");
+        }
+    }
+
+    public void submitGroupFileJob(String groupFile, Path... jars)
+            throws IOException, InterruptedException {
+        final List<String> commands = new ArrayList<>();
+        String containerGroupFile = copyToContainerTmpPath(jobManager, groupFile);
+        commands.add(FLINK_BIN + "/flink run -d");
+        commands.add("-c org.apache.inlong.sort.Entrance");
+        commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
+        commands.add("--group.info.file");
+        commands.add(containerGroupFile);
 
         ExecResult execResult =
                 jobManager.execInContainer("bash", "-c", String.join(" ", commands));
@@ -263,7 +283,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
             jarFile.stream().forEach(entry -> {
                 try (InputStream is = jarFile.getInputStream(entry)) {
                     jos.putNextEntry(entry);
-                    jos.write(IOUtils.readNBytes(is, is.available()));
+                    jos.write(IOUtils.toByteArray(is));
                     jos.closeEntry();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -273,8 +293,10 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
             for (Path jar : jars) {
                 try (InputStream is = new FileInputStream(jar.toFile())) {
                     jos.putNextEntry(new JarEntry("lib/" + jar.getFileName().toString()));
-                    jos.write(IOUtils.readNBytes(is, is.available()));
+                    jos.write(IOUtils.toByteArray(is));
                     jos.closeEntry();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 

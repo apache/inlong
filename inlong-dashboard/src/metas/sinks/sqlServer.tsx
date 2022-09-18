@@ -15,19 +15,11 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import {
-  getColsFromFields,
-  GetStorageColumnsType,
-  GetStorageFormFieldsType,
-} from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
-import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
-import { excludeObject } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
+import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-// sqlserverFieldTypes
 const sqlserverFieldTypes = [
   'char',
   'varchar',
@@ -59,144 +51,129 @@ const sqlserverFieldTypes = [
   value: item,
 }));
 
-const getForm: GetStorageFormFieldsType = (
-  type,
-  { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
-) => {
-  const fileds = [
-    {
-      type: 'input',
-      label: 'JDBC URL',
-      name: 'jdbcUrl',
-      rules: [{ required: true }],
-      props: {
-        placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: { width: 500 },
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.SQLServer.SchemaName'),
-      name: 'schemaName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.SQLServer.ServerTimezone'),
-      name: 'serverTimezone',
-      initialValue: 'UTC',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.SQLServer.TableName'),
-      name: 'tableName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.SQLServer.PrimaryKey'),
-      name: 'primaryKey',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Sinks.EnableCreateResource'),
-      name: 'enableCreateResource',
-      rules: [{ required: true }],
-      initialValue: 1,
-      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
-          },
-        ],
-      },
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Sinks.SQLServer.AllMigration'),
-      name: 'allMigration',
-      rules: [{ required: true }],
-      initialValue: true,
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: true,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: false,
-          },
-        ],
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.Username'),
-      name: 'username',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'password',
-      label: i18n.t('meta.Sinks.Password'),
-      name: 'password',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: {
-          maxWidth: 500,
+export const sqlServer: FieldItemType[] = [
+  {
+    type: 'input',
+    label: 'JDBC URL',
+    name: 'jdbcUrl',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.SQLServer.SchemaName'),
+    name: 'schemaName',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.SQLServer.ServerTimezone'),
+    name: 'serverTimezone',
+    initialValue: 'UTC',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.SQLServer.TableName'),
+    name: 'tableName',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.SQLServer.PrimaryKey'),
+    name: 'primaryKey',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Sinks.EnableCreateResource'),
+    name: 'enableCreateResource',
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
         },
-      },
-    },
-    {
-      type: (
-        <EditableTable
-          size="small"
-          columns={getFieldListColumns(dataType, currentValues)}
-          canDelete={(record, idx, isNew) => !isEdit || isNew}
-        />
-      ),
-      name: 'sinkFieldList',
-    },
-  ];
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Sinks.SQLServer.AllMigration'),
+    name: 'allMigration',
+    rules: [{ required: true }],
+    initialValue: true,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
+        },
+      ],
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Username'),
+    name: 'username',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    type: 'password',
+    label: i18n.t('meta.Sinks.Password'),
+    name: 'password',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    name: 'sinkFieldList',
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  },
+];
 
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
-};
-
-const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
@@ -211,7 +188,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -221,7 +198,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: sqlserverFieldTypes,
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
     },
@@ -262,13 +239,5 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'fieldComment',
       initialValue: '',
     },
-  ] as ColumnsItemProps[];
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const sqlServer = {
-  getForm,
-  getFieldListColumns,
-  tableColumns,
+  ];
 };

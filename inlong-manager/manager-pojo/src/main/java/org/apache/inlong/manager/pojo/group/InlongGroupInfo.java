@@ -71,10 +71,10 @@ public abstract class InlongGroupInfo {
     @Builder.Default
     private Integer enableZookeeper = 0;
 
-    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
     private Integer enableCreateResource;
 
-    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")

@@ -37,6 +37,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -50,9 +51,9 @@ import org.apache.inlong.dataproxy.sink.pulsar.CreatePulsarClientCallBack;
 import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
 import org.apache.inlong.dataproxy.sink.pulsar.SendMessageCallBack;
 import org.apache.inlong.dataproxy.sink.pulsar.SinkTask;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.PulsarClientException.AlreadyClosedException;
 import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
@@ -71,6 +72,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 
 /**
  * Use pulsarSink need adding such config, if these ara not config in dataproxy-pulsar.conf,
@@ -121,10 +124,6 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                     return System.currentTimeMillis();
                 }
             });
-    /*
-     * properties for header info
-     */
-    private static final String TOPIC = "topic";
     /*
      * for stat
      */
@@ -191,7 +190,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
     @Override
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
-        maxMonitorCnt = context.getInteger("max-monitor-cnt", 300000);
+        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
@@ -406,17 +405,19 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                             + "last long time it will cause memoryChannel full and fileChannel write.)", getName());
                     tx.rollback();
                     // metric
-                    dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+                    dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                            event.getHeaders().get(ConfigConstants.TOPIC_KEY));
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readFailCount.incrementAndGet();
                     metricItem.readFailSize.addAndGet(event.getBody().length);
                 } else {
                     tx.commit();
                     // metric
-                    dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
+                    dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
+                            event.getHeaders().get(ConfigConstants.TOPIC_KEY));
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
                     metricItem.readSuccessCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
                 }
             } else {
                 status = Status.BACKOFF;
@@ -436,70 +437,33 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
         return status;
     }
 
-    private void editStatistic(final Event event, String keyPostfix, boolean isOrder) {
-        String topic = "";
-        String streamId = "";
-        String nodeIp;
-        if (event != null) {
-            if (event.getHeaders().containsKey(TOPIC)) {
-                topic = event.getHeaders().get(TOPIC);
-            }
-            if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
-                streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
-            } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
-                streamId = event.getHeaders().get(AttributeConstants.INAME);
-            }
-
-            // Compatible agent
-            if (event.getHeaders().containsKey("ip")) {
-                event.getHeaders().put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get("ip"));
-                event.getHeaders().remove("ip");
-            }
-
-            // Compatible agent
-            if (event.getHeaders().containsKey("time")) {
-                event.getHeaders().put(AttributeConstants.DATA_TIME, event.getHeaders().get("time"));
-                event.getHeaders().remove("time");
-            }
-
-            if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IP_KEY)) {
-                nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
-                if (event.getHeaders().containsKey(ConfigConstants.REMOTE_IDC_KEY)) {
-                    if (nodeIp != null) {
-                        nodeIp = nodeIp.split(":")[0];
-                    }
-
-                    long msgCounterL = 1L;
-                    // msg counter
-                    if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
-                        msgCounterL = Integer.parseInt(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
-                    }
-
-                    String orderType = "non-order";
-                    if (isOrder) {
-                        orderType = "order";
-                    }
-                    StringBuilder newBase = new StringBuilder();
-                    newBase.append(this.getName()).append(SEPARATOR).append(topic).append(SEPARATOR)
-                            .append(streamId).append(SEPARATOR).append(nodeIp)
-                            .append(SEPARATOR).append(NetworkUtils.getLocalIp())
-                            .append(SEPARATOR).append(orderType).append(SEPARATOR)
-                            .append(event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
-
-                    long messageSize = event.getBody().length;
-                    if (event.getHeaders().get(ConfigConstants.TOTAL_LEN) != null) {
-                        messageSize = Long.parseLong(event.getHeaders().get(ConfigConstants.TOTAL_LEN));
-                    }
-
-                    if (keyPostfix != null && !keyPostfix.equals("")) {
-                        monitorIndex.addAndGet(new String(newBase), 0, 0, 0, (int) msgCounterL);
-                        if (logPrinterB.shouldPrint()) {
-                            logger.warn("error cannot send event, {} event size is {}", topic, messageSize);
-                        }
-                    } else {
-                        monitorIndex.addAndGet(new String(newBase), (int) msgCounterL, 1, messageSize, 0);
-                    }
-                }
+    private void editStatistic(final Event event, boolean isSuccess, boolean isOrder) {
+        if (event == null
+                || pulsarConfig.getStatIntervalSec() <= 0) {
+            return;
+        }
+        // get statistic items
+        String topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
+        String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+        String nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
+        int intMsgCnt = Integer.parseInt(
+                event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+        long dataTimeL = Long.parseLong(
+                event.getHeaders().get(AttributeConstants.DATA_TIME));
+        String orderType = isOrder ? "order" : "non-order";
+        StringBuilder newBase = new StringBuilder(512)
+                .append(this.getName()).append(SEPARATOR).append(topic).append(SEPARATOR)
+                .append(streamId).append(SEPARATOR).append(nodeIp)
+                .append(SEPARATOR).append(NetworkUtils.getLocalIp())
+                .append(SEPARATOR).append(orderType).append(SEPARATOR)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
+        long messageSize = event.getBody().length;
+        if (isSuccess) {
+            monitorIndex.addAndGet(newBase.toString(), intMsgCnt, 1, messageSize, 0);
+        } else {
+            monitorIndex.addAndGet(newBase.toString(), 0, 0, 0, intMsgCnt);
+            if (logPrinterB.shouldPrint()) {
+                logger.warn("error cannot send event, {} event size is {}", topic, messageSize);
             }
         }
     }
@@ -548,7 +512,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
         metricItem.sendCount.incrementAndGet();
         metricItem.sendSize.addAndGet(eventStat.getEvent().getBody().length);
         monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
-        editStatistic(eventStat.getEvent(), null, eventStat.isOrderMessage());
+        editStatistic(eventStat.getEvent(), true, eventStat.isOrderMessage());
 
     }
 
@@ -570,7 +534,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                 logger.error("send failed for " + getName(), e);
             }
             if (eventStat.getRetryCnt() == 0) {
-                editStatistic(eventStat.getEvent(), "failure", eventStat.isOrderMessage());
+                editStatistic(eventStat.getEvent(), false, eventStat.isOrderMessage());
             }
         }
         Map<String, String> dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);

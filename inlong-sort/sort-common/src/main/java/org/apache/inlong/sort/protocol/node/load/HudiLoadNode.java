@@ -77,7 +77,7 @@ public class HudiLoadNode extends LoadNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "inlong-hudi");
+        options.put("connector", "hudi");
         options.put("path", path);
         options.put("table.type", tableType.name());
         return options;

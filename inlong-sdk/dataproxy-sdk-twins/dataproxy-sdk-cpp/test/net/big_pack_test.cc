@@ -21,10 +21,6 @@
 #include <string>
 #include <system_error>
 
-#include "sdk_core.h"
-#include "executor_thread_pool.h"
-#include "logger.h"
-#include "recv_buffer.h"
 #include "socket_connection.h"
 
 using namespace std;
@@ -145,7 +141,7 @@ class BigSizeConn : public enable_shared_from_this<BigSizeConn>
             }
             else
             {
-                LOG_ERROR("write error:%s", ec.message().c_str())
+                LOG_ERROR("write error:%s", ec.message().c_str());
                 doClose(&ec);
             }
         });
@@ -170,7 +166,6 @@ char data[capacity]     = {0};
 
 int main(int argc, char* argv[])
 {
-    getLogger().init(5, 15, Logger::Level(4), 2, true, "./");
     // g_config = new ClientConfig("config.json");
 
     int runtimes = 10;

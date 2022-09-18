@@ -63,6 +63,6 @@ public class TestBrokerService {
         brokerIdList.add(2L);
         doReturn(brokers).when(brokerRepository)
                 .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, 1L);
-        assertThat(brokerService.checkIfBrokersAllExsit(brokerIdList, 1));
+        assertThat(brokerService.checkIfBrokersAllExist(brokerIdList, 1));
     }
 }

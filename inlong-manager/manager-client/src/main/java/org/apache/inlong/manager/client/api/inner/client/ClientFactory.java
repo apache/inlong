@@ -44,6 +44,12 @@ public class ClientFactory {
 
     private final UserClient userClient;
 
+    private final NoAuthClient noAuthClient;
+
+    private final HeartbeatClient heartbeatClient;
+
+    private final WorkflowApproverClient workflowApproverClient;
+
     public ClientFactory(ClientConfiguration configuration) {
         groupClient = new InlongGroupClient(configuration);
         streamClient = new InlongStreamClient(configuration);
@@ -54,5 +60,8 @@ public class ClientFactory {
         workflowClient = new WorkflowClient(configuration);
         dataNodeClient = new DataNodeClient(configuration);
         userClient = new UserClient(configuration);
+        noAuthClient = new NoAuthClient(configuration);
+        heartbeatClient = new HeartbeatClient(configuration);
+        workflowApproverClient = new WorkflowApproverClient(configuration);
     }
 }

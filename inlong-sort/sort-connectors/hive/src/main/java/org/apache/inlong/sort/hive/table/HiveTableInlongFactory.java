@@ -102,7 +102,7 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                         Integer configuredParallelism =
                                 Configuration.fromMap(context.getCatalogTable().getOptions())
                                         .get(FileSystemOptions.SINK_PARALLELISM);
-            final String inLongMetric = context.getCatalogTable().getOptions()
+            final String inlongMetric = context.getCatalogTable().getOptions()
                     .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
             final String auditHostAndPorts = context.getCatalogTable().getOptions()
                     .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
@@ -113,7 +113,7 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     context.getObjectIdentifier(),
                     context.getCatalogTable(),
                     configuredParallelism,
-                    inLongMetric,
+                    inlongMetric,
                     auditHostAndPorts);
         } else {
             return FactoryUtil.createTableSink(

@@ -60,6 +60,9 @@ public enum ErrorCodeEnum {
     CLUSTER_TYPE_NOT_SUPPORTED(1102, "Cluster type '%s' not supported"),
     CLUSTER_INFO_INCORRECT(1103, "Cluster info was incorrect"),
 
+    DATA_NODE_NOT_FOUND(1150, "Data node information does not exist"),
+    DATA_NODE_TYPE_NOT_SUPPORTED(1151, "Data node type '%s' not supported"),
+
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
     STREAM_OPT_NOT_ALLOWED(1203,
@@ -122,6 +125,14 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
+    CONSUMER_INFO_INCORRECT(2609, "Consumer info was incorrect"),
+    CONSUMER_NOR_FOUND(2609, "Consumer not found"),
+
+    CONSUME_NOT_FOUND(3001, "Inlong consume does not exist/no operation authority"),
+    CONSUME_DUPLICATE(3002, "Inlong consume already exists"),
+    CONSUME_INFO_INCORRECT(3003, "Inlong consume info was incorrect"),
+    CONSUME_SAVE_FAILED(3004, "Failed to save/update inlong consume"),
+    CONSUME_PERMISSION_DENIED(3005, "No permission to access this inlong consume"),
 
     ;
 

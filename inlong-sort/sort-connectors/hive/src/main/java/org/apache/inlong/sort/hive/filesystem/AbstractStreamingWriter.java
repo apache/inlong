@@ -56,7 +56,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             bucketsBuilder;
 
     @Nullable
-    private String inLongMetric;
+    private String inlongMetric;
 
     @Nullable
     private String auditHostAndPorts;
@@ -77,11 +77,11 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             StreamingFileSink.BucketsBuilder<
                     IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
                     bucketsBuilder,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         this.bucketCheckInterval = bucketCheckInterval;
         this.bucketsBuilder = bucketsBuilder;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
@@ -111,13 +111,13 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     @Override
     public void open() throws Exception {
         super.open();
-        if (inLongMetric != null) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            String inLongGroupId = inLongMetricArray[0];
-            String inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
+        if (inlongMetric != null) {
+            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
+            String inlongGroupId = inlongMetricArray[0];
+            String inlongStreamId = inlongMetricArray[1];
+            String nodeId = inlongMetricArray[2];
             metricData = new SinkMetricData(
-                    inLongGroupId, inLongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
+                    inlongGroupId, inlongStreamId, nodeId, getRuntimeContext().getMetricGroup(), auditHostAndPorts);
             metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
             metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
             metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());

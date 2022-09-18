@@ -132,7 +132,6 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(ADMIN_URL);
         options.add(SERVICE_URL);
         options.add(TOPIC);
         options.add(KEY_FORMAT);
@@ -147,6 +146,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(ADMIN_URL);
         options.add(KEY_FIELDS_PREFIX);
         options.add(VALUE_FIELDS_INCLUDE);
         options.add(FactoryUtil.SINK_PARALLELISM);
@@ -187,7 +187,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         String serverUrl = tableOptions.get(SERVICE_URL);
         List<String> topics = tableOptions.get(TOPIC);
         String topicPattern = tableOptions.get(TOPIC_PATTERN);
-        String inlongMetric = tableOptions.get(INLONG_METRIC);
+        String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
 
         return new PulsarDynamicTableSource(
@@ -203,7 +203,9 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
                 adminUrl,
                 properties,
                 startupOptions,
-                true, inlongMetric, auditHostAndPorts);
+                true,
+                inlongMetric,
+                auditHostAndPorts);
     }
 
     @Override

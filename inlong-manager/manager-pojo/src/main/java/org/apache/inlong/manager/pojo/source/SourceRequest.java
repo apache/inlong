@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -69,10 +70,6 @@ public class SourceRequest {
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @Deprecated
-    @ApiModelProperty("Id of the cluster that collected this source")
-    private Integer clusterId;
-
     @ApiModelProperty("Inlong cluster name")
     private String inlongClusterName;
 
@@ -93,5 +90,9 @@ public class SourceRequest {
 
     @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = new LinkedHashMap<>();
+
+    @JsonIgnore
+    @ApiModelProperty("Sub source information of existing agents")
+    private List<SubSourceDTO> subSourceList;
 
 }

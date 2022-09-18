@@ -17,18 +17,6 @@
  * under the License.
  */
 
-import { getColsFromFields } from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
+import type { FieldItemType } from '@/metas/common';
 
-const getForm = (type: 'form' | 'col' = 'form', { currentValues } = {} as any) => {
-  const fileds = [];
-
-  return type === 'col' ? getColsFromFields(fileds) : fileds;
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const autoPush = {
-  getForm,
-  tableColumns,
-};
+export const autoPush: FieldItemType[] = [];

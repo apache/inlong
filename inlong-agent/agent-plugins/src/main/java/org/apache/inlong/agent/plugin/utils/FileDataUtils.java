@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,14 +38,31 @@ public class FileDataUtils {
     /**
      * Get standard log for k8s
      */
-    public static String getK8sJsonLog(String log) {
+    public static String getK8sJsonLog(String log, Boolean isJson) {
         if (!StringUtils.isNoneBlank(log)) {
             return null;
         }
-        Type type = new TypeToken<HashMap<Integer, String>>() {
+        if (!isJson) {
+            return log;
+        }
+        Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
         Map<String, String> logJson = GSON.fromJson(log, type);
-        return logJson.get(KUBERNETES_LOG);
+        return logJson.getOrDefault(KUBERNETES_LOG, log);
+    }
+
+    /**
+     * To judge json
+     */
+    public static boolean isJSON(String json) {
+        boolean isJson;
+        try {
+            JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
+            isJson = convertedObject.isJsonObject();
+        } catch (Exception exception) {
+            return false;
+        }
+        return isJson;
     }
 
 }

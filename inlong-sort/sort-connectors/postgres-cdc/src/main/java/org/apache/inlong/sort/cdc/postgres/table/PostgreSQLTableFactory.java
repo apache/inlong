@@ -25,12 +25,15 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Factory for creating configured instance of
@@ -39,12 +42,6 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProper
 public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "postgres-cdc-inlong";
-
-    public static final ConfigOption<String> INLONG_METRIC =
-            ConfigOptions.key("inlong.metric")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     private static final ConfigOption<String> HOSTNAME =
             ConfigOptions.key("hostname")
@@ -128,7 +125,9 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         String pluginName = config.get(DECODING_PLUGIN_NAME);
         String slotName = config.get(SLOT_NAME);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        String inlongMetric = config.get(INLONG_METRIC);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String inlongAudit = config.get(INLONG_AUDIT);
+        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
 
         return new PostgreSQLTableSource(
                 physicalSchema,
@@ -142,7 +141,8 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                 pluginName,
                 slotName,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
-                inlongMetric);
+                inlongMetric,
+                inlongAudit);
     }
 
     @Override
@@ -169,6 +169,7 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         options.add(DECODING_PLUGIN_NAME);
         options.add(SLOT_NAME);
         options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 }

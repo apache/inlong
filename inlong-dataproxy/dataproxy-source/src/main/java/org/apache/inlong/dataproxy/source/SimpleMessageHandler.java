@@ -32,7 +32,10 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +59,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,20 +83,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             .on(AttributeConstants.SEPARATOR)
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormator = new ThreadLocal<SimpleDateFormat>() {
+    private static final DateTimeFormatter DATE_FORMATTER
+            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final ZoneId defZoneId = ZoneId.systemDefault();
 
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHHmm");
-        }
-    };
-    private static final ThreadLocal<SimpleDateFormat> dateFormator4Transfer = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyyMMddHHmmss");
-        }
-    };
     private AbstractSource source;
     private final ChannelGroup allChannels;
     private int maxConnections = Integer.MAX_VALUE;
@@ -392,20 +386,18 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                         inLongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
                     }
                 }
-
-                long pkgTimeInMillis = inLongMsg.getCreatetime();
-                String pkgTimeStr = dateFormator.get().format(pkgTimeInMillis);
-
-                if (inLongMsgVer == 4) {
-                    if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
-                        pkgTimeStr = commonAttrMap.get(ConfigConstants.PKG_TIME_KEY);
-                    } else {
-                        pkgTimeStr = dateFormator.get().format(System.currentTimeMillis());
-                    }
-                }
-
-                long dtTime = NumberUtils.toLong(commonAttrMap.get(AttributeConstants.DATA_TIME),
-                        System.currentTimeMillis());
+                // get msgTime
+                long currTIme = System.currentTimeMillis();
+                String strMsgTime = commonAttrMap.get(Constants.HEADER_KEY_MSG_TIME);
+                long pkgTimeInMillis = NumberUtils.toLong(strMsgTime, currTIme);
+                LocalDateTime localDateTime =
+                        LocalDateTime.ofInstant(Instant.ofEpochMilli(pkgTimeInMillis), defZoneId);
+                String pkgTimeStr = DATE_FORMATTER.format(localDateTime);
+                headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(pkgTimeInMillis));
+                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
+                // get data time
+                long dtTime = NumberUtils.toLong(
+                        commonAttrMap.get(AttributeConstants.DATA_TIME), currTIme);
                 headers.put(AttributeConstants.DATA_TIME, String.valueOf(dtTime));
 
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
@@ -427,8 +419,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                             .append(SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
-
-                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
 
                 // process proxy message list
                 this.processProxyMessageList(headers, streamIdEntry.getValue());
@@ -476,6 +466,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         headers.put(Constants.TOPIC, proxyMessage.getTopic());
         headers.put(Constants.HEADER_KEY_MSG_TIME, commonHeaders.get(AttributeConstants.DATA_TIME));
         headers.put(Constants.HEADER_KEY_SOURCE_IP, commonHeaders.get(AttributeConstants.NODE_IP));
+        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V1.getName());
         Event event = EventBuilder.withBody(proxyMessage.getData(), headers);
         return event;
     }
@@ -581,6 +572,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         Channel remoteChannel = ctx.channel();
+        String strRemoteIP = getRemoteIp(remoteChannel);
         ByteBuf cb = (ByteBuf) msg;
         try {
             int len = cb.readableBytes();
@@ -591,8 +583,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             Map<String, Object> resultMap = null;
+            final long msgRcvTime = System.currentTimeMillis();
             try {
-                resultMap = serviceProcessor.extractData(cb, remoteChannel);
+                resultMap = serviceProcessor.extractData(cb,
+                        strRemoteIP, msgRcvTime, remoteChannel);
             } catch (MessageIDException ex) {
                 this.addMetric(false, 0, null);
                 throw new IOException(ex.getCause());
@@ -628,7 +622,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                     && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
-                String strRemoteIP = getRemoteIp(remoteChannel);
                 updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
                 formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);

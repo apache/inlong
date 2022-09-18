@@ -24,10 +24,10 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
+import { streamTable } from '@/metas/stream';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
-import { genStatusTag } from './status';
 
 type Props = CommonInterface;
 
@@ -45,7 +45,11 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongGroupId,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/stream/list',
       method: 'POST',
@@ -75,8 +79,8 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     }));
   };
 
-  const onEdit = ({ inlongStreamId }) => {
-    setStreamItemModal(prev => ({ ...prev, visible: true, inlongStreamId }));
+  const onEdit = record => {
+    setStreamItemModal(prev => ({ ...prev, visible: true, inlongStreamId: record.inlongStreamId }));
   };
 
   const onDelete = record => {
@@ -119,28 +123,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     total: data?.total,
   };
 
-  const columns = [
-    {
-      title: 'ID',
-      dataIndex: 'inlongStreamId',
-    },
-    {
-      title: t('pages.AccessDetail.DataStream.Name'),
-      dataIndex: 'name',
-    },
-    {
-      title: t('basic.Creator'),
-      dataIndex: 'creator',
-    },
-    {
-      title: t('basic.CreateTime'),
-      dataIndex: 'createTime',
-    },
-    {
-      title: t('basic.Status'),
-      dataIndex: 'status',
-      render: text => genStatusTag(text),
-    },
+  const columns = streamTable.concat([
     {
       title: t('basic.Operating'),
       dataIndex: 'action',
@@ -158,7 +141,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
           </>
         ),
     },
-  ];
+  ]);
 
   return (
     <>
@@ -170,7 +153,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         suffix={
           !readonly && (
             <Button type="primary" onClick={onCreate}>
-              {t('pages.AccessDetail.DataStream.CreateDataStream')}
+              {t('pages.GroupDetail.Stream.CreateDataStream')}
             </Button>
           )
         }

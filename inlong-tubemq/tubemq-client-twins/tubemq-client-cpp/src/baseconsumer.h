@@ -65,7 +65,7 @@ class BaseConsumer : public BaseClient, public std::enable_shared_from_this<Base
   string buildUUID();
   bool isClientRunning();
   bool IsConsumeReady(ConsumerResult& result);
-  int32_t getConsumeReadStatus(bool is_first_reg);
+  int32_t getConsumeReadStatus(bool is_reg_req, bool is_first_reg, const string& partitionKey);
   bool initMasterAddress(string& err_info, const string& master_info);
   void getNextMasterAddr(string& ipaddr, int32_t& port);
   void getCurrentMasterAddr(string& ipaddr, int32_t& port);

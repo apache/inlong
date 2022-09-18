@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.http;
 
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 import com.google.common.base.Preconditions;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -24,18 +25,15 @@ import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.common.monitor.CounterGroup;
-import org.apache.inlong.common.monitor.CounterGroupExt;
-import org.apache.inlong.common.monitor.StatConstants;
-import org.apache.inlong.common.monitor.StatRunner;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class HttpBaseSource extends AbstractSource implements EventDrivenSource, Configurable {
 
@@ -48,64 +46,55 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
     protected String attr;
     protected String messageHandlerName;
     protected boolean filterEmptyMsg;
-    protected CounterGroup counterGroup;
-    protected CounterGroupExt counterGroupExt;
     protected int maxConnections = Integer.MAX_VALUE;
     protected boolean customProcessor = false;
     protected Context context;
-    private int statIntervalSec;
-    private StatRunner statRunner;
-    private Thread statThread;
+    // statistic
+    protected MonitorIndex monitorIndex = null;
+    protected MonitorIndexExt monitorIndexExt = null;
+    private int statIntervalSec = 60;
+    private int maxMonitorCnt = 300000;
+    // audit
+    protected DataProxyMetricItemSet metricItemSet;
 
     public HttpBaseSource() {
         super();
-        counterGroup = new CounterGroup();
-        counterGroupExt = new CounterGroupExt();
     }
 
     @Override
     public synchronized void start() {
-        if (statIntervalSec > 0) {
-            Set<String> monitorNames = new HashSet<>();
-            monitorNames.add(StatConstants.EVENT_SUCCESS);
-            monitorNames.add(StatConstants.EVENT_DROPPED);
-            monitorNames.add(StatConstants.EVENT_EMPTY);
-            monitorNames.add(StatConstants.EVENT_OTHEREXP);
-            monitorNames.add(StatConstants.EVENT_INVALID);
-            statRunner = new StatRunner(getName(), counterGroup, counterGroupExt, statIntervalSec, monitorNames);
-            statThread = new Thread(statRunner);
-            statThread.setName("Thread-Stat-" + this.getName());
-            statThread.start();
-        }
-
+        logger.info("{} starting...", this.getName());
         if (customProcessor) {
             ChannelSelector selector = getChannelProcessor().getSelector();
             FailoverChannelProcessor newProcessor = new FailoverChannelProcessor(selector);
             newProcessor.configure(this.context);
             setChannelProcessor(newProcessor);
         }
-
+        if (statIntervalSec > 0) {
+            monitorIndex = new MonitorIndex("Source",
+                    statIntervalSec, maxMonitorCnt);
+            monitorIndexExt = new MonitorIndexExt("DataProxy_monitors#http",
+                    statIntervalSec, maxMonitorCnt);
+        }
+        // register metrics
+        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        MetricRegister.register(metricItemSet);
         super.start();
+        logger.info("{} started!", this.getName());
     }
 
     @Override
     public synchronized void stop() {
+        logger.info("{} stopping...", this.getName());
         if (statIntervalSec > 0) {
             try {
-                if (statRunner != null) {
-                    statRunner.shutDown();
-                }
-                if (statThread != null) {
-                    statThread.interrupt();
-                    statThread.join();
-                }
-
-            } catch (InterruptedException e) {
-                logger.warn("start runner interrupted");
+                monitorIndex.shutDown();
+            } catch (Exception e) {
+                logger.warn("Stats runner exception ", e);
             }
         }
-
         super.stop();
+        logger.info("{} stopped!", this.getName());
     }
 
     /**
@@ -128,10 +117,7 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
 
         topic = context.getString(ConfigConstants.TOPIC);
         attr = context.getString(ConfigConstants.ATTR);
-        Configurables.ensureRequiredNonNull(context, ConfigConstants.TOPIC, ConfigConstants.ATTR);
 
-        topic = topic.trim();
-        Preconditions.checkArgument(!topic.isEmpty(), "topic is empty");
         attr = attr.trim();
         Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
 
@@ -141,9 +127,12 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         Preconditions.checkArgument(!messageHandlerName.isEmpty(), "messageHandlerName is empty");
 
         filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
-
+        // get statistic interval
         statIntervalSec = context.getInteger(ConfigConstants.STAT_INTERVAL_SEC, 60);
         Preconditions.checkArgument((statIntervalSec >= 0), "statIntervalSec must be >= 0");
+        // get max monitor record count
+        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
+        Preconditions.checkArgument(maxMonitorCnt >= 0, "maxMonitorCnt must be >= 0");
 
         customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
 

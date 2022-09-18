@@ -42,10 +42,12 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
   };
 
   useEffect(() => {
-    const savedFormData = defaultData?.currentTask?.formData;
-    if (savedFormData && Object.keys(savedFormData).length) {
+    const groupInfo = defaultData?.processInfo?.formData?.groupInfo;
+    const groupApproveInfo = defaultData?.currentTask?.formData?.groupApproveInfo;
+    if (groupInfo || groupApproveInfo) {
       const obj = {
-        ...savedFormData.groupApproveInfo,
+        ...groupInfo,
+        ...groupApproveInfo,
       };
       form.setFieldsValue(obj);
     }

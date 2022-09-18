@@ -20,32 +20,10 @@
 import React from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import getGroupFields from '@/metas/group';
+import { groupForm } from '@/metas/group';
 
-const getContent = (initialValues, isFinished, isViwer) => [
-  ...getGroupFields(
-    [
-      'inlongGroupId',
-      'name',
-      'inCharges',
-      'description',
-      'mqType',
-      'mqResource',
-      'queueModule',
-      'partitionNum',
-      'dailyRecords',
-      'dailyStorage',
-      'peakRecords',
-      'maxLength',
-      'ensemble',
-      'writeQuorum',
-      'ackQuorum',
-      'ttl',
-      'retentionTime',
-      'retentionSize',
-    ],
-    initialValues,
-  ).map(item => {
+const getContent = (isFinished, isViwer) =>
+  groupForm.map(item => {
     const obj = { ...item };
 
     const canEditSet = new Set([
@@ -73,8 +51,7 @@ const getContent = (initialValues, isFinished, isViwer) => [
     }
 
     return obj;
-  }),
-];
+  });
 
 export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, isFinished }) => {
   const array = [
@@ -85,7 +62,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         </Divider>
       ),
     },
-    ...(getContent(formData.groupInfo, isFinished, isViwer) || []),
+    ...(getContent(isFinished, isViwer) || []),
     {
       type: (
         <Divider orientation="left">

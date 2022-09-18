@@ -18,10 +18,11 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
 import org.apache.flink.streaming.util.serialization.FlinkSchema;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
@@ -33,16 +34,22 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
@@ -118,7 +125,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             inlongGroupId = inlongMetricArray[0];
             inlongStreamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
+            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, getMetricGroup(context));
             sourceMetricData.registerMetricsForNumBytesIn();
             sourceMetricData.registerMetricsForNumBytesInPerSecond();
             sourceMetricData.registerMetricsForNumRecordsIn();
@@ -130,6 +137,40 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             auditImp = AuditImp.getInstance();
         }
 
+    }
+
+    /**
+     * reflect get metricGroup
+     *
+     * @param context Contextual information that can be used during initialization.
+     * @return metric group that can be used to register new metrics with Flink and to create a nested hierarchy based
+     *         on the group names.
+     */
+    private MetricGroup getMetricGroup(DeserializationSchema.InitializationContext context)
+            throws NoSuchFieldException, IllegalAccessException {
+        MetricGroup metricGroup;
+        String className = "RuntimeContextDeserializationInitializationContextAdapter";
+        String fieldName = "runtimeContext";
+        Class runtimeContextDeserializationInitializationContextAdapter = null;
+        Class[] innerClazz = RuntimeContextInitializationContextAdapters.class.getDeclaredClasses();
+        for (Class clazz : innerClazz) {
+            int mod = clazz.getModifiers();
+            if (Modifier.isPrivate(mod)) {
+                if (className.equalsIgnoreCase(clazz.getSimpleName())) {
+                    runtimeContextDeserializationInitializationContextAdapter = clazz;
+                    break;
+                }
+            }
+        }
+        if (runtimeContextDeserializationInitializationContextAdapter != null) {
+            Field field = runtimeContextDeserializationInitializationContextAdapter.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            RuntimeContext runtimeContext = (RuntimeContext) field.get(context);
+            metricGroup = runtimeContext.getMetricGroup();
+        } else {
+            metricGroup = context.getMetricGroup();
+        }
+        return metricGroup;
     }
 
     @Override
@@ -149,8 +190,10 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(message.getData(), collector);
-            outputMetrics(message);
+            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
+                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
+                collector.collect(inputRow);
+            }));
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();
@@ -168,28 +211,13 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
         } else {
-            valueDeserialization.deserialize(message.getData(), outputCollector);
-            outputMetrics(message);
+            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
+                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
+                outputCollector.collect(inputRow);
+            }));
         }
 
         keyCollector.buffer.clear();
-    }
-
-    private void outputMetrics(Message<RowData> message) {
-        if (sourceMetricData != null) {
-            sourceMetricData.getNumRecordsIn().inc(1L);
-            sourceMetricData.getNumBytesIn()
-                    .inc(message.getData().length);
-        }
-        if (auditImp != null) {
-            auditImp.add(
-                Constants.AUDIT_SORT_INPUT,
-                inlongGroupId,
-                inlongStreamId,
-                System.currentTimeMillis(),
-                1,
-                message.getData().length);
-        }
     }
 
     @Override

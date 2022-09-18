@@ -68,10 +68,10 @@ start_inlong_audit() {
   echo "init apache_inlong_audit"
   cd $INLONG_HOME/inlong-audit
   select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_audit'"
-  inlong_audit_count=$(mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${select_db_sql}")
+  inlong_audit_count=$(mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${select_db_sql}")
   inlong_num=$(echo $inlong_audit_count | tr -cd "[0-9]")
   if [ $inlong_num -eq 0 ]; then
-    mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_audit.sql
+    mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_audit.sql
   fi
   echo "start audit proxy"
   if [ "${mq_type}" = "pulsar" ]; then
@@ -92,11 +92,11 @@ start_inlong_manager() {
   cd $INLONG_HOME/inlong-manager
   # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
   select_db_sql="SELECT COUNT(*) FROM information_schema.TABLES WHERE table_schema = 'apache_inlong_manager'"
-  inlong_manager_count=$(mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${select_db_sql}")
+  inlong_manager_count=$(mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} -e "${select_db_sql}")
   inlong_num=$(echo $inlong_manager_count | tr -cd "[0-9]")
   if [ $inlong_num -eq 0 ]; then
     echo "init apache_inlong_manager database"
-    mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_manager.sql
+    mysql --protocol=tcp -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_manager.sql
   fi
   bash +x ./bin/startup.sh
   # wait to start

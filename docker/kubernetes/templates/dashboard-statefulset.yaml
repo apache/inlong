@@ -87,6 +87,8 @@ spec:
           env:
             - name: MANAGER_API_ADDRESS
               value: "{{ template "inlong.manager.hostname" . }}:{{ .Values.manager.port }}"
+            - name: TZ
+              value: {{ .Values.timezone }}
           ports:
             - name: {{ .Values.dashboard.component }}-port
               containerPort: 80

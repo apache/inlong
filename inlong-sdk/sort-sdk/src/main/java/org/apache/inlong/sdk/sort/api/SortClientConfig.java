@@ -49,17 +49,24 @@ public class SortClientConfig implements Serializable {
     private String managerApiUrl;
     private String managerApiVersion;
     private ConsumeStrategy consumeStrategy;
+    private TopicType topicType;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
     private int ackTimeoutSec = 0;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
-    private int emptyPollSleepStepMs = 50;
+    private int emptyPollSleepStepMs = 10;
     private int maxEmptyPollSleepMs = 500;
     private int emptyPollTimes = 10;
+    private int cleanOldConsumerIntervalSec = 60;
+    private int maxConsumerSize = 5;
 
-    public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
-            ConsumeStrategy consumeStrategy, String localIp) {
+    public SortClientConfig(
+            String sortTaskId,
+            String sortClusterName,
+            InLongTopicChangeListener assignmentsListener,
+            ConsumeStrategy consumeStrategy,
+            String localIp) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
         this.assignmentsListener = assignmentsListener;
@@ -99,6 +106,22 @@ public class SortClientConfig implements Serializable {
 
     public void setOffsetResetStrategy(ConsumeStrategy consumeStrategy) {
         this.consumeStrategy = consumeStrategy;
+    }
+
+    /**
+     * get the type of topic manager
+     * @return
+     */
+    public TopicType getTopicType() {
+        return topicType;
+    }
+
+    /**
+     * Set type of topic manager
+     * @param topicType
+     */
+    public void setTopicManagerType(TopicType topicType) {
+        this.topicType = topicType;
     }
 
     /**
@@ -297,6 +320,22 @@ public class SortClientConfig implements Serializable {
         this.emptyPollTimes = emptyPollTimes;
     }
 
+    public int getCleanOldConsumerIntervalSec() {
+        return cleanOldConsumerIntervalSec;
+    }
+
+    public void setCleanOldConsumerIntervalSec(int cleanOldConsumerIntervalSec) {
+        this.cleanOldConsumerIntervalSec = cleanOldConsumerIntervalSec;
+    }
+
+    public int getMaxConsumerSize() {
+        return maxConsumerSize;
+    }
+
+    public void setMaxConsumerSize(int maxConsumerSize) {
+        this.maxConsumerSize = maxConsumerSize;
+    }
+
     /**
      * ConsumeStrategy
      */
@@ -309,6 +348,13 @@ public class SortClientConfig implements Serializable {
         earliest_absolutely,
         // consume from largest position
         lastest_absolutely
+    }
+
+    public enum TopicType {
+        // single topic manager and fetcher
+        SINGLE_TOPIC,
+        // multi topic manager and fetcher
+        MULTI_TOPIC
     }
 
     /**
@@ -333,14 +379,18 @@ public class SortClientConfig implements Serializable {
         this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
-
+        String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
+                TopicType.MULTI_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
+        this.topicType = TopicType.valueOf(strManagerType);
 
         this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
                 reportStatisticIntervalSec);
         this.updateMetaDataIntervalSec = NumberUtils.toInt(sortSdkParams.get("updateMetaDataIntervalSec"),
                 updateMetaDataIntervalSec);
         this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get("ackTimeoutSec"), ackTimeoutSec);
+        this.cleanOldConsumerIntervalSec = NumberUtils.toInt(sortSdkParams.get("cleanOldConsumerIntervalSec"),
+                cleanOldConsumerIntervalSec);
 
         String strPrometheusEnabled = sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
         this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
@@ -348,5 +398,6 @@ public class SortClientConfig implements Serializable {
         this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
         this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
+        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get("maxConsumerSize"), maxConsumerSize);
     }
 }

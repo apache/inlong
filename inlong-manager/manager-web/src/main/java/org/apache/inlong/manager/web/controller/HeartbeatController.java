@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
@@ -64,21 +64,21 @@ public class HeartbeatController {
 
     @RequestMapping(value = "/heartbeat/component/list", method = RequestMethod.POST)
     @ApiOperation(value = "List component heartbeats")
-    public Response<PageInfo<ComponentHeartbeatResponse>> listComponentHeartbeat(
+    public Response<PageResult<ComponentHeartbeatResponse>> listComponentHeartbeat(
             @RequestBody HeartbeatPageRequest request) {
         return Response.success(heartbeatService.listComponentHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/group/list", method = RequestMethod.POST)
     @ApiOperation(value = "List group heartbeats")
-    public Response<PageInfo<GroupHeartbeatResponse>> listGroupHeartbeat(@RequestBody HeartbeatPageRequest request) {
+    public Response<PageResult<GroupHeartbeatResponse>> listGroupHeartbeat(@RequestBody HeartbeatPageRequest request) {
         return Response.success(heartbeatService.listGroupHeartbeat(request));
     }
 
     @RequestMapping(value = "/heartbeat/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream heartbeats")
-    public Response<PageInfo<StreamHeartbeatResponse>> listStreamHeartbeat(@RequestBody HeartbeatPageRequest request) {
-        return Response.success(heartbeatService.listStreamHeartbeat(request));
+    public Response<PageResult<StreamHeartbeatResponse>> listStreamHeartbeat(@RequestBody HeartbeatPageRequest req) {
+        return Response.success(heartbeatService.listStreamHeartbeat(req));
     }
 
 }
