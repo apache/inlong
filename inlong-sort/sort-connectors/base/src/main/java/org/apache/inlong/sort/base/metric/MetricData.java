@@ -86,7 +86,7 @@ public interface MetricData {
     default Counter registerCounter(String metricName, Counter counter) {
         MetricGroup inlongMetricGroup = getMetricGroup();
         for (Map.Entry<String, String> label : getLabels().entrySet()) {
-            inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
         }
         return inlongMetricGroup.counter(metricName, counter);
     }
@@ -110,7 +110,7 @@ public interface MetricData {
     default Meter registerMeter(String metricName, Counter counter) {
         MetricGroup inlongMetricGroup = getMetricGroup();
         for (Map.Entry<String, String> label : getLabels().entrySet()) {
-            inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
         }
         return inlongMetricGroup.meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
     }
